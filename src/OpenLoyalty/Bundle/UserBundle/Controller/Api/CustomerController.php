@@ -22,6 +22,7 @@ use OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerRegistrationFormType;
 use OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerSelfRegistrationFormType;
 use OpenLoyalty\Component\Customer\Domain\Command\ActivateCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\AssignPosToCustomer;
+use OpenLoyalty\Component\Customer\Domain\Command\AssignSellerToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\DeactivateCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\MoveCustomerToLevel;
 use OpenLoyalty\Component\Customer\Domain\Command\NewsletterSubscription;
@@ -39,6 +40,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use OpenLoyalty\Component\Customer\Domain\SellerId as CustomerSellerId;
 
 /**
  * Class CustomerController.
@@ -305,6 +307,9 @@ class CustomerController extends FOSRestController
         $formOptions = [];
         $formOptions['includeLevelId'] = true;
         $formOptions['includePosId'] = true;
+        if (!$this->isGranted('ROLE_SELLER')) {
+            $formOptions['includeSellerId'] = true;
+        }
 
         $form = $this->get('form.factory')->createNamed(
             'customer',
@@ -323,19 +328,28 @@ class CustomerController extends FOSRestController
             if ($user instanceof User) {
                 $levelId = $form->get('levelId')->getData();
                 $posId = $form->get('posId')->getData();
+                $sellerId = $form->has('sellerId') ? $form->get('sellerId')->getData() : null;
                 $agreement2 = $form->get('agreement2')->getData();
                 $commandBus = $this->get('broadway.command_handling.command_bus');
 
-                if (!$posId && $this->isGranted('ROLE_SELLER') && $loggedUser instanceof Seller) {
+                if (!$posId && $this->isGranted('ROLE_SELLER')) {
                     $this->handleSellerWasACreator($loggedUser, $customerId, $user);
                 } elseif ($posId) {
                     $commandBus->dispatch(
                         new AssignPosToCustomer($customerId, new PosId($posId))
                     );
                 }
+                if ($this->isGranted('ROLE_SELLER')) {
+                    $sellerId = (string) $loggedUser->getId();
+                }
                 if ($levelId) {
                     $commandBus->dispatch(
                         new MoveCustomerToLevel($customerId, new LevelId($levelId), true)
+                    );
+                }
+                if ($sellerId) {
+                    $commandBus->dispatch(
+                        new AssignSellerToCustomer($customerId, new CustomerSellerId($sellerId))
                     );
                 }
 
@@ -440,15 +454,23 @@ class CustomerController extends FOSRestController
      */
     public function editCustomerAction(Request $request, CustomerDetails $customer)
     {
+        $loggedUser = $this->getUser();
+
+        $options = [
+            'method' => 'PUT',
+            'includeLevelId' => true,
+            'includePosId' => true,
+        ];
+
+        if (!$this->isGranted('ROLE_SELLER') && !$loggedUser instanceof Seller) {
+            $options['includeSellerId'] = true;
+        }
+
         $form = $this->get('form.factory')->createNamed(
             'customer',
             CustomerEditFormType::class,
             [],
-            [
-                'method' => 'PUT',
-                'includeLevelId' => true,
-                'includePosId' => true,
-            ]
+            $options
         );
 
         $form->handleRequest($request);
@@ -462,6 +484,7 @@ class CustomerController extends FOSRestController
 
             $levelId = $form->get('levelId')->getData();
             $posId = $form->get('posId')->getData();
+            $sellerId = $form->has('sellerId') ? $form->get('sellerId')->getData() : null;
             $commandBus = $this->get('broadway.command_handling.command_bus');
             if ($posId) {
                 $commandBus->dispatch(
@@ -471,6 +494,11 @@ class CustomerController extends FOSRestController
             if ($levelId) {
                 $commandBus->dispatch(
                     new MoveCustomerToLevel($customer->getCustomerId(), new LevelId($levelId), true)
+                );
+            }
+            if ($sellerId) {
+                $commandBus->dispatch(
+                    new AssignSellerToCustomer($customer->getCustomerId(), new \OpenLoyalty\Component\Customer\Domain\SellerId($sellerId))
                 );
             }
 

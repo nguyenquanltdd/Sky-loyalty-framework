@@ -9,6 +9,8 @@ use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
 use OpenLoyalty\Component\Pos\Domain\Pos;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
+use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetails;
+use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetailsRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -39,15 +41,22 @@ class CustomerRegistrationFormType extends AbstractType
     protected $posRepository;
 
     /**
+     * @var SellerDetailsRepository
+     */
+    protected $sellerRepository;
+
+    /**
      * CustomerRegistrationFormType constructor.
      *
-     * @param LevelRepository $levelRepository
-     * @param PosRepository   $posRepository
+     * @param LevelRepository         $levelRepository
+     * @param PosRepository           $posRepository
+     * @param SellerDetailsRepository $sellerRepository
      */
-    public function __construct(LevelRepository $levelRepository, PosRepository $posRepository)
+    public function __construct(LevelRepository $levelRepository, PosRepository $posRepository, SellerDetailsRepository $sellerRepository)
     {
         $this->levelRepository = $levelRepository;
         $this->posRepository = $posRepository;
+        $this->sellerRepository = $sellerRepository;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -144,6 +153,17 @@ class CustomerRegistrationFormType extends AbstractType
                 'choices' => array_combine($posChoices, $posChoices),
             ]);
         }
+
+        if ($options['includeSellerId'] && $this->sellerRepository) {
+            $sellerChoices = array_map(function (SellerDetails $seller) {
+                return $seller->getId();
+            }, $this->sellerRepository->findAll());
+
+            $builder->add('sellerId', ChoiceType::class, [
+                'required' => false,
+                'choices' => array_combine($sellerChoices, $sellerChoices),
+            ]);
+        }
     }
 
     private function addCompanyFields(FormBuilderInterface $builder)
@@ -195,6 +215,6 @@ class CustomerRegistrationFormType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(['includeLevelId' => false, 'includePosId' => false]);
+        $resolver->setDefaults(['includeLevelId' => false, 'includePosId' => false, 'includeSellerId' => false]);
     }
 }

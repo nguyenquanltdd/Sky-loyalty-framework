@@ -363,6 +363,47 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
+    public function it_allows_to_edit_customer_details_with_seller_assignment()
+    {
+        $client = $this->createAuthenticatedClient();
+        $customerData = CustomerCommandHandlerTest::getCustomerData();
+        $tmp = new \DateTime();
+        $tmp->setTimestamp($customerData['birthDate']);
+        $customerData['birthDate'] = $tmp->format('Y-m-d');
+        unset($customerData['createdAt']);
+        unset($customerData['updatedAt']);
+        $customerData['firstName'] = 'Jane';
+        $customerData['sellerId'] = LoadUserData::TEST_SELLER_ID;
+        $customerData['address']['street'] = 'Prosta';
+        $client->request(
+            'PUT',
+            '/api/customer/'.LoadUserData::TEST_USER_ID,
+            [
+                'customer' => $customerData,
+            ]
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        self::$kernel->boot();
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/customer/'.LoadUserData::TEST_USER_ID
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertEquals('Jane', $data['firstName']);
+        $this->assertEquals(LoadUserData::TEST_SELLER_ID, $data['sellerId']);
+    }
+
+    /**
+     * @test
+     */
     public function it_allows_to_remove_customer_company()
     {
         $customerData = CustomerCommandHandlerTest::getCustomerData();

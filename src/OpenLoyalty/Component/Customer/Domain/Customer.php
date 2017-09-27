@@ -13,6 +13,7 @@ use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasActivated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasDeactivated;
 use OpenLoyalty\Component\Customer\Domain\Event\PosWasAssignedToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasMovedToLevel;
+use OpenLoyalty\Component\Customer\Domain\Event\SellerWasAssignedToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Model\Address;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\Model\Gender;
@@ -156,6 +157,13 @@ class Customer extends EventSourcedAggregateRoot
     {
         $this->apply(
             new PosWasAssignedToCustomer($this->getId(), $posId)
+        );
+    }
+
+    public function assignSellerToCustomer(SellerId $sellerId)
+    {
+        $this->apply(
+            new SellerWasAssignedToCustomer($this->getId(), $sellerId)
         );
     }
 

@@ -12,6 +12,7 @@ use OpenLoyalty\Component\Customer\Domain\Event\CustomerDetailsWereUpdated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasActivated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasDeactivated;
 use OpenLoyalty\Component\Customer\Domain\Event\PosWasAssignedToCustomer;
+use OpenLoyalty\Component\Customer\Domain\Event\SellerWasAssignedToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Model\Address;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\Model\Gender;
@@ -164,6 +165,16 @@ class CustomerDetailsProjector extends Projector
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
         $readModel->setPosId($event->getPosId());
+        $readModel->setUpdatedAt($event->getUpdateAt());
+
+        $this->repository->save($readModel);
+    }
+
+    protected function applySellerWasAssignedToCustomer(SellerWasAssignedToCustomer $event)
+    {
+        /** @var CustomerDetails $readModel */
+        $readModel = $this->getReadModel($event->getCustomerId());
+        $readModel->setSellerId($event->getSellerId());
         $readModel->setUpdatedAt($event->getUpdateAt());
 
         $this->repository->save($readModel);

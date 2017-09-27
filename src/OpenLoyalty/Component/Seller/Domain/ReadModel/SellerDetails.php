@@ -276,4 +276,9 @@ class SellerDetails implements ReadModelInterface, SerializableInterface
     {
         $this->posCity = $posCity;
     }
+
+    public function getName()
+    {
+        return $this->getFirstName().' '.$this->getLastName();
+    }
 }

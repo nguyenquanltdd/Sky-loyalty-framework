@@ -13,5 +13,8 @@ OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails:
     posId:
       expose: true
       inline: true
+    sellerId:
+      expose: true
+      inline: true
     transactionIds:
       exclude: true

@@ -10,3 +10,7 @@ OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetails:
     posId:
       expose: true
       inline: true
+  virtual_properties:
+    getName:
+        serialized_name: name
+        type: string

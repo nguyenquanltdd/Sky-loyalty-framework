@@ -15,6 +15,7 @@ use OpenLoyalty\Component\Customer\Domain\Model\Company;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\LevelId;
 use OpenLoyalty\Component\Customer\Domain\PosId;
+use OpenLoyalty\Component\Customer\Domain\SellerId;
 use OpenLoyalty\Component\Customer\Domain\TransactionId;
 
 /**
@@ -33,6 +34,11 @@ class CustomerDetails implements ReadModelInterface, SerializableInterface
      * @var PosId
      */
     protected $posId = null;
+
+    /**
+     * @var SellerId
+     */
+    protected $sellerId = null;
 
     /**
      * @var string
@@ -247,6 +253,10 @@ class CustomerDetails implements ReadModelInterface, SerializableInterface
             $customer->posId = new PosId($data['posId']);
         }
 
+        if (isset($data['sellerId'])) {
+            $customer->sellerId = new SellerId($data['sellerId']);
+        }
+
         if (isset($data['agreement1'])) {
             $customer->agreement1 = $data['agreement1'];
         }
@@ -329,6 +339,7 @@ class CustomerDetails implements ReadModelInterface, SerializableInterface
             'levelId' => $this->getLevelId() ? $this->getLevelId()->__toString() : null,
             'manuallyAssignedLevelId' => $this->getManuallyAssignedLevelId() ? $this->getManuallyAssignedLevelId()->__toString() : null,
             'posId' => $this->getPosId() ? $this->getPosId()->__toString() : null,
+            'sellerId' => $this->getSellerId() ? $this->getSellerId()->__toString() : null,
             'agreement1' => $this->agreement1,
             'agreement2' => $this->agreement2,
             'agreement3' => $this->agreement3,
@@ -361,6 +372,22 @@ class CustomerDetails implements ReadModelInterface, SerializableInterface
     public function setPosId($posId)
     {
         $this->posId = $posId;
+    }
+
+    /**
+     * @return SellerId
+     */
+    public function getSellerId()
+    {
+        return $this->sellerId;
+    }
+
+    /**
+     * @param SellerId $sellerId
+     */
+    public function setSellerId($sellerId)
+    {
+        $this->sellerId = $sellerId;
     }
 
     /**

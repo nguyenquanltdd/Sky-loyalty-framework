@@ -54,7 +54,7 @@ services:
       - { name: form.type }
   oloy.user.form_type.customer_registration:
     class: OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerRegistrationFormType
-    arguments: ['@oloy.level.repository', '@oloy.pos.repository']
+    arguments: ['@oloy.level.repository', '@oloy.pos.repository', '@oloy.user.read_model.repository.seller_details']
     tags:
       - { name: form.type }
   oloy.user.form_type.customer_self_registration:

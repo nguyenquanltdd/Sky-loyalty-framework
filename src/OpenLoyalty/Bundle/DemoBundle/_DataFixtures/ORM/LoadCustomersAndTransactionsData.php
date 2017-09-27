@@ -12,8 +12,10 @@ use Doctrine\Common\Persistence\ObjectManager;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
+use OpenLoyalty\Component\Customer\Domain\Command\AssignSellerToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\RegisterCustomer;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
+use OpenLoyalty\Component\Customer\Domain\SellerId;
 use OpenLoyalty\Component\Transaction\Domain\PosId;
 use OpenLoyalty\Component\Customer\Domain\Command\ActivateCustomer;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -89,6 +91,7 @@ class LoadCustomersAndTransactionsData extends AbstractFixture implements Fixtur
                 $customerData = $this->getCustomerData($faker);
                 $transactionData = $this->getTransactionData($faker);
             }
+
             $command = new RegisterCustomer($customerId, $customerData);
             $bus->dispatch($command);
             $bus->dispatch(new ActivateCustomer($customerId));
@@ -103,6 +106,11 @@ class LoadCustomersAndTransactionsData extends AbstractFixture implements Fixtur
 
             $manager->persist($user);
             $manager->flush();
+            if ($k % 3 == 0) {
+                $bus->dispatch(
+                    new AssignSellerToCustomer($customerId, new SellerId(LoadUserData::TEST_SELLER_ID))
+                );
+            }
             $randomTransAmount = rand(1, 3);
             $transactionCustomerData = $this->getTransactionCustomerData($customerData);
             for ($i = 0; $i < $randomTransAmount; ++$i) {

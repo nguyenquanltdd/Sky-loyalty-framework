@@ -192,6 +192,7 @@
       "new_second": "Repeat new password",
       "do_not_match": "Passwords do not match"
     },
+    "assigned_seller": "Assigned Merchant",
     "inactive": "Inactive",
     "delete_confirmation_description": "This customer will be deactivated and there will be no possibility to activate him again",
     "delete_confirmation": "Deactivate this customer?",
@@ -395,7 +396,6 @@
     "type_prompt": "",
     "description_prompt": "",
     "active_prompt": "",
-    "type_prompt": "",
     "start_at_prompt": "",
     "end_at_prompt": "",
     "event_name_prompt": "",
@@ -536,6 +536,8 @@
     "long_prompt": ""
   },
   "seller": {
+    "select_seller": "Select merchant",
+    "no_seller": "There are no merchants available",
     "heading": "Merchants",
     "add": "Add merchant",
     "edit": "Edit merchant",

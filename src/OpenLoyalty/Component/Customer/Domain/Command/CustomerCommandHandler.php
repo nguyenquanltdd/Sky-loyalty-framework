@@ -193,6 +193,19 @@ class CustomerCommandHandler extends CommandHandler
         );
     }
 
+    public function handleAssignSellerToCustomer(AssignSellerToCustomer $command)
+    {
+        $customerId = $command->getCustomerId();
+        /** @var Customer $customer */
+        $customer = $this->repository->load($customerId->__toString());
+        $customer->assignSellerToCustomer($command->getSellerId());
+        $this->repository->save($customer);
+        $this->eventDispatcher->dispatch(
+            CustomerSystemEvents::CUSTOMER_UPDATED,
+            [new CustomerUpdatedSystemEvent($customerId)]
+        );
+    }
+
     public function handleBuyCampaign(BuyCampaign $command)
     {
         $customerId = $command->getCustomerId();
