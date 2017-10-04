@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Integration;
 
-use OpenLoyalty\Bundle\BaseApiTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\BaseApiTest;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsRepository;
 

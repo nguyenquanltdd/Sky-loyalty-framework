@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\UserBundle\Tests\Controller\Api;
 
-use OpenLoyalty\Bundle\BaseApiTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\BaseApiTest;
 
 /**
  * Class ChangePasswordControllerTest.

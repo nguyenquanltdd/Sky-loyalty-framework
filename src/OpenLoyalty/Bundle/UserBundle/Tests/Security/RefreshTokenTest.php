@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\UserBundle\Tests\Security;
 
-use OpenLoyalty\Bundle\BaseApiTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\BaseApiTest;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 
 /**

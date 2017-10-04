@@ -14,13 +14,13 @@
 
     <testsuites>
         <testsuite name="Project Test Suite">
-            <directory>tests</directory>
+            <directory>src</directory>
         </testsuite>
         <testsuite name="Security">
-            <directory>tests/OpenLoyalty/Bundle/*Bundle/Security</directory>
+            <directory>tests/OpenLoyalty/Bundle/*Bundle/Tests/Security</directory>
         </testsuite>
         <testsuite name="Domain">
-            <directory>tests/OpenLoyalty/Domain</directory>
+            <directory>src/OpenLoyalty/Component/*/Tests/Domain</directory>
         </testsuite>
     </testsuites>
 

@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\TransactionBundle\Tests\Security\Voter;
 
-use OpenLoyalty\Bundle\BaseVoterTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\BaseVoterTest;
 use OpenLoyalty\Bundle\TransactionBundle\DataFixtures\ORM\LoadTransactionData;
 use OpenLoyalty\Bundle\TransactionBundle\Security\Voter\TransactionVoter;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;

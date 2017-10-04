@@ -3,7 +3,7 @@
 namespace OpenLoyalty\Bundle\UserBundle\Tests\Controller\Api;
 
 use Broadway\ReadModel\RepositoryInterface;
-use OpenLoyalty\Bundle\BaseApiTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\BaseApiTest;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetails;

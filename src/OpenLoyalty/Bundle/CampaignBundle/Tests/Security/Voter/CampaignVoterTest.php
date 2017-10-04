@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Security\Voter;
 
-use OpenLoyalty\Bundle\BaseVoterTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\BaseVoterTest;
 use OpenLoyalty\Bundle\CampaignBundle\Security\Voter\CampaignVoter;
 use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;

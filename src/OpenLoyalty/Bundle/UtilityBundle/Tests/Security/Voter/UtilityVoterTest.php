@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\Transaction\Security\Voter;
 
-use OpenLoyalty\Bundle\BaseVoterTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\BaseVoterTest;
 use OpenLoyalty\Bundle\UtilityBundle\Security\Voter\UtilityVoter;
 
 /**

@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Security;
 
-use OpenLoyalty\Bundle\BaseAccessControlTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\BaseAccessControlTest;
 use OpenLoyalty\Bundle\EarningRuleBundle\DataFixtures\ORM\LoadEarningRuleData;
 
 /**

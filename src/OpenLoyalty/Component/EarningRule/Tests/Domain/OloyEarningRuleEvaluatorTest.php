@@ -405,6 +405,7 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
      */
     protected function getEarningRuleRepository(array $earningRules)
     {
+        /** @var EarningRuleRepository|\PHPUnit_Framework_MockObject_MockObject $mock */
         $mock = $this->createMock(EarningRuleRepository::class);
         $mock->method('findAllActive')
             ->with(
@@ -418,11 +419,29 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
             );
         $mock->method('findAllActiveEventRules')->with(
             $this->isType('string'),
+            $this->isType('array'),
+            $this->logicalOr(
+                $this->isType('string'),
+                $this->isNull()
+            ),
             $this->logicalOr(
                 $this->isInstanceOf(\DateTime::class),
                 $this->isNull()
             )
-        )
+        )->willReturn($earningRules);
+
+        $mock->method('findAllActiveEventRulesBySegmentsAndLevels')
+            ->with(
+                $this->logicalOr(
+                    $this->isInstanceOf(\DateTime::class),
+                    $this->isNull()
+                ),
+                $this->isType('array'),
+                $this->logicalOr(
+                    $this->isType('string'),
+                    $this->isNull()
+                )
+            )
             ->willReturn($earningRules);
 
         return $mock;

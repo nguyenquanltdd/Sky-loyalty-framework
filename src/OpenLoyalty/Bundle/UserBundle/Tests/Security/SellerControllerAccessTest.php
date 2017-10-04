@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\UserBundle\Tests\Security;
 
-use OpenLoyalty\Bundle\BaseAccessControlTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\BaseAccessControlTest;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 
 /**

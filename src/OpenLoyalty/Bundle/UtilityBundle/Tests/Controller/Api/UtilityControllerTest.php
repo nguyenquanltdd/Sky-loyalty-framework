@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\UtilityBundle\Tests\Controller\Api;
 
-use OpenLoyalty\Bundle\BaseApiTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\BaseApiTest;
 use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
 use OpenLoyalty\Bundle\SegmentBundle\DataFixtures\ORM\LoadSegmentData;
 

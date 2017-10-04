@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\TransactionBundle\Tests\Controller\Api;
 
-use OpenLoyalty\Bundle\BaseApiTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\BaseApiTest;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\JsonSettingEntry;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;

@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\SegmentBundle\Tests\Security\Voter;
 
-use OpenLoyalty\Bundle\BaseVoterTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\BaseVoterTest;
 use OpenLoyalty\Bundle\SegmentBundle\Security\Voter\SegmentVoter;
 use OpenLoyalty\Component\Campaign\Domain\SegmentId;
 use OpenLoyalty\Component\Segment\Domain\Segment;

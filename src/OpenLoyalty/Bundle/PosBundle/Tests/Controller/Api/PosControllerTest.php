@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\PosBundle\Tests\Controller\Api;
 
-use OpenLoyalty\Bundle\BaseApiTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\BaseApiTest;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
 use OpenLoyalty\Component\Pos\Domain\Pos;
 use OpenLoyalty\Component\Pos\Domain\PosId;
