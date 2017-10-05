@@ -130,11 +130,6 @@ To see the details of the admin user with ``admin = 22200000-0000-474c-b092-b0dd
         -H "Content-type: application/x-www-form-urlencoded"
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
 
-.. note::
-
-    The *22200000-0000-474c-b092-b0dd880c07e2* id is an exemplary value. Your value can be different.
-    Check in the list of all admin users if you are not sure which id should be used.
-
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
 
@@ -153,6 +148,11 @@ Exemplary Response
       "external": false,
       "dtype": "admin"
     }
+
+.. note::
+
+    The *22200000-0000-474c-b092-b0dd880c07e2* id is an exemplary value. Your value can be different.
+    Check in the list of all admin users if you are not sure which id should be used.
 
 Collection of Admin Users
 -------------------------
