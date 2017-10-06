@@ -1,5 +1,5 @@
 .. index::
-single: Authorization
+   single: Authorization
 
 Authorization
 =============
@@ -111,7 +111,7 @@ Definition
 
 +----------------------+----------------+-------------------------------------------------------------------+
 | Parameter            | Parameter type |  Description                                                      |
-+===============+================+==========================================================================+
++======================+================+===================================================================+
 | admin[firstName]     | request        |  First name                                                       |
 +----------------------+----------------+-------------------------------------------------------------------+
 | admin[lastName]      | request        |  Last name                                                        |
@@ -196,7 +196,7 @@ Create a new account in the administration panel.
 
 Mark a new account as "external" and provide "Api key".
 
-.. image:: api/images/permanent_token_setting.png
+.. image:: images/permanent_token_setting.png
 
 How to use permanent token
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
