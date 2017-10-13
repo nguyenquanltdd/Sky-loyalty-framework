@@ -188,7 +188,7 @@ class SettingsController extends FOSRestController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $provider->save($entry);
+            $provider->save($entry, $key);
 
             return $this->view($entry, Response::HTTP_OK);
         }

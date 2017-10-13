@@ -6,9 +6,11 @@
 namespace OpenLoyalty\Bundle\SettingsBundle\Service;
 
 use Gaufrette\Exception\FileAlreadyExists;
+use Gaufrette\Exception\FileNotFound;
 use Gaufrette\Filesystem;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\SettingsEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Exception\AlreadyExistException;
+use OpenLoyalty\Bundle\SettingsBundle\Exception\NotExistException;
 use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
 
 /**
@@ -100,12 +102,26 @@ class FileBasedTranslationsProvider implements TranslationsProvider
         return $this->filesystem->has($key);
     }
 
-    public function save(TranslationsEntry $entry, $overwrite = true)
+    public function save(TranslationsEntry $entry, $key = null, $overwrite = true)
     {
         try {
+            if (null !== $key && $key !== $entry->getKey()) {
+                $this->filesystem->rename($key, $entry->getKey());
+            }
             $this->filesystem->write($entry->getKey(), $entry->getContent(), $overwrite);
         } catch (FileAlreadyExists $e) {
             throw new AlreadyExistException();
+        } catch (FileNotFound $e) {
+            throw new NotExistException();
+        }
+    }
+
+    public function remove(TranslationsEntry $entry)
+    {
+        try {
+            $this->filesystem->delete($entry->getKey());
+        } catch (FileNotFound $e) {
+            throw new NotExistException();
         }
     }
 }
