@@ -1,5 +1,5 @@
 .. index::
-   single: Introduction to Open Loyalty REST API
+   single: Introduction
 
 Introduction to Open Loyalty REST API
 =====================================

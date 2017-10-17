@@ -4,3 +4,4 @@
 * :doc:`/api/analytics`
 * :doc:`/api/audit`
 * :doc:`/api/campaign`
+* :doc:`/api/customer`

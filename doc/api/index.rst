@@ -2,13 +2,14 @@ The REST API Reference
 ======================
 
 .. toctree::
-    :hidden:
+   :hidden:
 
-    introduction
-    authorization
-    admin_users
-    analytics
-    audit
-    campaign
+   introduction
+   authorization
+   admin_users
+   analytics
+   audit
+   campaign
+   customer
 
 .. include:: map.rst.inc

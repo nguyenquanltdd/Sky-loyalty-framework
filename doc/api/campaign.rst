@@ -1,7 +1,7 @@
-Rewards Campaign API
+Reward Campaigns API
 ====================
 
-These endpoints will allow you to easily manage reward campaigns.
+These endpoints will allow you to easily manage Reward Campaigns.
 
 .. note::
 
@@ -195,7 +195,7 @@ Exemplary Response
       "errors": []
     }
 
-Get campaigns collection
+Get the collection of campaigns
 ------------------------
 
 To retrieve a paginated list of campaigns you will need to call the ``/api/campaign`` endpoint with the ``GET`` method.

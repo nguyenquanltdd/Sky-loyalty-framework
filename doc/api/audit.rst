@@ -1,7 +1,7 @@
 Audit API
 =========
 
-These endpoints will allow you to see list of actions taken in the Open Loyalty.
+These endpoints will allow you to see the list of actions taken in the Open Loyalty.
 
 Getting log
 -----------
