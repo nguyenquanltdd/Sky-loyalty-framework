@@ -173,6 +173,10 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
                     $filter[] = ['range' => [
                         $key => $value['value'],
                     ]];
+                } elseif ($value['type'] == 'allow_null') {
+                    $filter[] = ['bool' => ['should' => [
+                        ['term' => [$key => $value['value']]], ['missing' => ['field' => $key]],
+                    ]]];
                 }
             } elseif (!$exact) {
                 $filter[] = ['wildcard' => [
@@ -256,6 +260,10 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
                     $filter[] = ['range' => [
                         $key => $value['value'],
                     ]];
+                } elseif ($value['type'] == 'allow_null') {
+                    $filter[] = ['bool' => ['should' => [
+                        ['term' => [$key => $value['value']]], ['missing' => ['field' => $key]],
+                    ]]];
                 }
             } elseif (!$exact) {
                 $filter[] = ['wildcard' => [
@@ -290,6 +298,10 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
                     $filter[] = ['range' => [
                         $key => $value['value'],
                     ]];
+                } elseif ($value['type'] == 'allow_null') {
+                    $filter[] = ['bool' => ['should' => [
+                        ['term' => [$key => $value['value']]], ['missing' => ['field' => $key]],
+                    ]]];
                 }
             } elseif (!$exact) {
                 $filter[] = ['wildcard' => [

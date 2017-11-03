@@ -79,12 +79,6 @@ class TransactionController extends FOSRestController
 
         if ($this->isGranted('ROLE_PARTICIPANT')) {
             $params['customerId'] = $user->getId();
-        } elseif ($this->isGranted('ROLE_SELLER')) {
-            $seller = $this->getSellerDetails(new SellerId($user->getId()));
-            if (!$seller || !$seller->getPosId()) {
-                throw $this->createNotFoundException();
-            }
-            $params['posId'] = $seller->getPosId()->__toString();
         }
         $pagination = $this->get('oloy.pagination')->handleFromRequest($request, 'purchaseDate', 'DESC');
 
