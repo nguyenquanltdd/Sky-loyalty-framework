@@ -24,6 +24,7 @@ class RemoveProjectionsCommand extends ContainerAwareCommand
         'oloy.user.read_model.repository.seller_details',
         'oloy.segment.read_model.repository.segmented_customers',
         'oloy.campaign.read_model.repository.coupon_usage',
+        'oloy.campaign.read_model.repository.campaign_usage',
     ];
 
     protected function configure()
