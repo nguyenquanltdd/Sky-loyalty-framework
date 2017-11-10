@@ -1,8 +1,0 @@
-version: '2'
-
-# use as docker-compose -f docker-composer.yml -f docker-compose.dev.yml up
-services:
-  backend:
-    volumes:
-      - .:/var/www/ol/backend
-      - ./docker/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
