@@ -20,3 +20,5 @@ cs_fixer*
 /vendor/
 /web/bundles/
 app/var/jwt/
+bin/symfony_requirements
+web/config.php
