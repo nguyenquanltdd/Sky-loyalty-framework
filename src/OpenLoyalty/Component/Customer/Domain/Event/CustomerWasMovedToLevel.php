@@ -33,6 +33,7 @@ class CustomerWasMovedToLevel extends CustomerEvent
         parent::__construct($customerId);
         $this->levelId = $levelId;
         $this->updateAt = new \DateTime();
+        $this->updateAt->setTimestamp(time());
         $this->manually = $manually;
     }
 

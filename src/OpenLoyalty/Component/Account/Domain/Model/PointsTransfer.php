@@ -69,6 +69,7 @@ abstract class PointsTransfer implements SerializableInterface
             $this->createdAt = $createdAt;
         } else {
             $this->createdAt = new \DateTime();
+            $this->createdAt->setTimestamp(time());
         }
         $this->comment = $comment;
         $this->canceled = $canceled;

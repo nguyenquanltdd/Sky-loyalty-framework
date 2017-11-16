@@ -44,6 +44,7 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
         parent::__construct($customerId);
         $this->campaignId = $campaignId;
         $this->createdAt = new \DateTime();
+        $this->createdAt->setTimestamp(time());
         $this->costInPoints = $costInPoints;
         $this->coupon = $coupon;
         $this->campaignName = $campaignName;

@@ -30,6 +30,7 @@ class CustomerLoyaltyCardNumberWasUpdated extends CustomerEvent
         parent::__construct($customerId);
         $this->cardNumber = $cardNumber;
         $this->updateAt = new \DateTime();
+        $this->updateAt->setTimestamp(time());
     }
 
     /**

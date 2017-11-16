@@ -28,6 +28,7 @@ class PosWasAssignedToCustomer extends CustomerEvent
         parent::__construct($customerId);
         $this->posId = $posId;
         $this->updateAt = new \DateTime();
+        $this->updateAt->setTimestamp(time());
     }
 
     public function serialize()

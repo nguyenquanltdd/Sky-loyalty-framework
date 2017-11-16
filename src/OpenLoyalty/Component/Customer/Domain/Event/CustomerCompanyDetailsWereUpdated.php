@@ -30,6 +30,7 @@ class CustomerCompanyDetailsWereUpdated extends CustomerEvent
         parent::__construct($customerId);
         $this->companyData = $companyData;
         $this->updateAt = new \DateTime();
+        $this->updateAt->setTimestamp(time());
     }
 
     /**

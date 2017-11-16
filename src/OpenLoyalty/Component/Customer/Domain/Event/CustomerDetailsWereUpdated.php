@@ -35,7 +35,9 @@ class CustomerDetailsWereUpdated extends CustomerEvent
             $data['createdAt'] = $tmp;
         }
         $this->customerData = $data;
+
         $this->updateAt = new \DateTime();
+        $this->updateAt->setTimestamp(time());
     }
 
     /**

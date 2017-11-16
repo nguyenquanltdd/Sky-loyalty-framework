@@ -33,12 +33,12 @@ class CustomerWasRegistered extends CustomerEvent
             $tmp->setTimestamp($data['createdAt']);
             $data['createdAt'] = $tmp;
         }
+
+        $this->updateAt = new \DateTime();
         if (isset($data['updatedAt']) && is_numeric($data['updatedAt'])) {
-            $tmp = new \DateTime();
-            $tmp->setTimestamp($data['updatedAt']);
-            $this->updateAt = $tmp;
+            $this->updateAt->setTimestamp($data['updatedAt']);
         } else {
-            $this->updateAt = new \DateTime();
+            $this->updateAt->setTimestamp(time());
         }
 
         $this->customerData = $data;

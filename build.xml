@@ -13,7 +13,7 @@
         <exec command="bin/console broadway:event-store:schema:init -n" checkreturn="true" passthru="true"/>
         <exec command="bin/console doctrine:fixtures:load --env=test -n" checkreturn="true" passthru="true"/>
         <exec command="bin/console oloy:segment:recreate -vv" checkreturn="true" passthru="true"/>
-        <exec command="bin/console security:check" checkreturn="true" passthru="true"/>
+        <exec command="bin/console security:check --env=dev" checkreturn="true" passthru="true"/>
         <exec command="bin/console doctrine:schema:validate --env=test --skip-sync" checkreturn="true" passthru="true"/>
         <exec command="vendor/phpunit/phpunit/phpunit" checkreturn="true" passthru="true"/>
         <exec command="bin/php-cs-fixer fix --dry-run --diff src" checkreturn="true" passthru="true"/>

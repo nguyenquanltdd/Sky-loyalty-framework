@@ -29,7 +29,9 @@ class CustomerAddressWasUpdated extends CustomerEvent
     {
         parent::__construct($customerId);
         $this->addressData = $addressData;
+
         $this->updateAt = new \DateTime();
+        $this->updateAt->setTimestamp(time());
     }
 
     /**

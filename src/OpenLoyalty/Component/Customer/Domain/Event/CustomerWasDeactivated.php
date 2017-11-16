@@ -21,6 +21,7 @@ class CustomerWasDeactivated extends CustomerEvent
     {
         parent::__construct($customerId);
         $this->deactivatedAt = new \DateTime();
+        $this->deactivatedAt->setTimestamp(time());
     }
 
     public function serialize()
