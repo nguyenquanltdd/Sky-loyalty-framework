@@ -12,6 +12,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Entity\IntegerSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\JsonSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
+use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
 use Symfony\Bridge\Doctrine\Tests\Fixtures\ContainerAwareFixture;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -58,6 +59,14 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
         $entry3 = new JsonSettingEntry('excludedLevelCategories');
         $entry3->setValue(['category_excluded_from_level']);
         $settings->addEntry($entry3);
+
+        $earningStatuses = new JsonSettingEntry('customerStatusesEarning');
+        $earningStatuses->setValue([Status::TYPE_ACTIVE]);
+        $settings->addEntry($earningStatuses);
+
+        $spendingStatuses = new JsonSettingEntry('customerStatusesSpending');
+        $spendingStatuses->setValue([Status::TYPE_ACTIVE]);
+        $settings->addEntry($spendingStatuses);
 
         $priority = new JsonSettingEntry('customersIdentificationPriority');
         $priorities = [

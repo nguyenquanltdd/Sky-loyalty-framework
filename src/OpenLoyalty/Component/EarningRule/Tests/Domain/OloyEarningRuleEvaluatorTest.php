@@ -2,9 +2,11 @@
 
 namespace OpenLoyalty\Component\EarningRule\Tests\Domain;
 
+use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Component\Account\Domain\TransactionId;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
+use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetailsRepository;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\EarningRuleAlgorithmFactoryInterface;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\MultiplyPointsForProductRuleAlgorithm;
@@ -325,7 +327,8 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
             $this->getEarningRuleAlgorithmFactory(),
             $this->getInvitationDetailsRepository(),
             $this->getSegmentedCustomersRepository(),
-            $this->getCustomerDetailsRepository()
+            $this->getCustomerDetailsRepository(),
+            $this->getSettingsManager([Status::TYPE_ACTIVE])
         );
     }
 
@@ -475,5 +478,13 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
             )->willReturn($dataToReturn);
 
         return $mock;
+    }
+
+    protected function getSettingsManager(array $statuses)
+    {
+        $settingsManager = $this->getMockBuilder(SettingsManager::class)->getMock();
+        $settingsManager->method('getSettingByKey')->willReturn($statuses);
+
+        return $settingsManager;
     }
 }

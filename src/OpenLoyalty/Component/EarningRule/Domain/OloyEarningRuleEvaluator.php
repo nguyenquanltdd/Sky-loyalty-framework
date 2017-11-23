@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Component\EarningRule\Domain;
 
+use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Component\Account\Domain\TransactionId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetailsRepository;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\EarningRuleAlgorithmFactoryInterface;
@@ -56,6 +57,11 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     protected $customerDetailsRepository;
 
     /**
+     * @var SettingsManager
+     */
+    protected $settingsManager;
+
+    /**
      * OloyEarningRuleEvaluator constructor.
      *
      * @param EarningRuleRepository                $earningRuleRepository
@@ -64,6 +70,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
      * @param InvitationDetailsRepository          $invitationDetailsRepository
      * @param SegmentedCustomersRepository         $segmentedCustomerElasticSearchRepository
      * @param CustomerDetailsRepository            $customerDetailsRepository
+     * @param SettingsManager                      $settingsManager
      */
     public function __construct(
         EarningRuleRepository $earningRuleRepository,
@@ -71,7 +78,8 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         EarningRuleAlgorithmFactoryInterface $algorithmFactory,
         InvitationDetailsRepository $invitationDetailsRepository,
         SegmentedCustomersRepository $segmentedCustomerElasticSearchRepository,
-        CustomerDetailsRepository $customerDetailsRepository
+        CustomerDetailsRepository $customerDetailsRepository,
+        SettingsManager $settingsManager
     ) {
         $this->earningRuleRepository = $earningRuleRepository;
         $this->transactionDetailsRepository = $transactionDetailsRepository;
@@ -79,6 +87,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         $this->segmentedCustomerElasticSearchRepository = $segmentedCustomerElasticSearchRepository;
         $this->customerDetailsRepository = $customerDetailsRepository;
         $this->invitationDetailsRepository = $invitationDetailsRepository;
+        $this->settingsManager = $settingsManager;
     }
 
     /**
@@ -106,7 +115,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
      */
     protected function getEarningRulesAlgorithms(TransactionDetails $transaction, $customerId)
     {
-        $customerData = $this->getCustomerLevelAndSegmentsData($customerId);
+        $customerData = $this->getCustomerLevelAndSegmentsAndStatusData($customerId);
 
         $earningRules = $this->earningRuleRepository->findAllActiveEventRulesBySegmentsAndLevels(
             $transaction->getPurchaseDate(),
@@ -152,6 +161,11 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
             return 0;
         }
 
+        $customerData = $this->getCustomerLevelAndSegmentsAndStatusData($customerId);
+        if (null !== $customerData['status'] && !in_array($customerData['status'], $this->getCustomerEarningStatuses())) {
+            return 0;
+        }
+
         $earningRulesItems = $this->getEarningRulesAlgorithms($transaction, $customerId);
         $context = new RuleEvaluationContext($transaction);
 
@@ -174,7 +188,10 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     {
         $points = 0;
 
-        $customerData = $this->getCustomerLevelAndSegmentsData($customerId);
+        $customerData = $this->getCustomerLevelAndSegmentsAndStatusData($customerId);
+        if (null !== $customerData['status'] && !in_array($customerData['status'], $this->getCustomerEarningStatuses())) {
+            return 0;
+        }
 
         $earningRules = $this->earningRuleRepository->findAllActiveEventRules($eventName, $customerData['segments'], $customerData['level']);
 
@@ -202,10 +219,17 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         $result = null;
 
         /** @var array $customerData */
-        $customerData = $this->getCustomerLevelAndSegmentsData($customerId);
+        $customerData = $this->getCustomerLevelAndSegmentsAndStatusData($customerId);
+        if (null !== $customerData['status'] && !in_array($customerData['status'], $this->getCustomerEarningStatuses())) {
+            return 0;
+        }
 
         $earningRules = $this->earningRuleRepository->findByCustomEventName($eventName, $customerData['segments'], $customerData['level']);
         if (!$earningRules) {
+            return 0;
+        }
+
+        if (null !== $customerData['status'] && !in_array($customerData['status'], $this->getCustomerEarningStatuses())) {
             return 0;
         }
 
@@ -234,7 +258,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         $results = [];
 
         /** @var array $customerData */
-        $customerData = $this->getCustomerLevelAndSegmentsData($customerId);
+        $customerData = $this->getCustomerLevelAndSegmentsAndStatusData($customerId);
 
         $invitation = $this->invitationDetailsRepository->findOneByRecipientId(new \OpenLoyalty\Component\Customer\Domain\CustomerId($customerId));
 
@@ -269,20 +293,23 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
      *
      * @return array
      */
-    protected function getCustomerLevelAndSegmentsData($customerId)
+    protected function getCustomerLevelAndSegmentsAndStatusData($customerId)
     {
         $result = [
             'level' => null,
+            'status' => null,
             'segments' => [],
         ];
 
         if ($customerId) {
             $customerId = $customerId instanceof Identifier ? $customerId->__toString() : $customerId;
             $levelId = $this->getCustomerLevelById($customerId);
+            $status = $this->getCustomerStatusById($customerId);
             $arrayOfSegments = $this->getCustomerSegmentsById($customerId);
 
             $result = [
                 'level' => $levelId,
+                'status' => $status,
                 'segments' => $arrayOfSegments,
             ];
         }
@@ -344,5 +371,45 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         }
 
         return $levelId;
+    }
+
+    /**
+     * Get customers status.
+     *
+     * @param $customerId
+     *
+     * @return status
+     */
+    protected function getCustomerStatusById($customerId)
+    {
+        $status = null;
+
+        if ($customerId) {
+            $arrayOfStatusesObj = $this->customerDetailsRepository->findOneByCriteria(['id' => $customerId], 1);
+
+            $arrayOfStatuses = array_map(
+                function ($element) {
+                    return (null !== $element->getStatus()) ? $element->getStatus()->getType() : null;
+                },
+                $arrayOfStatusesObj
+            );
+
+            $status = isset($arrayOfStatuses[0]) ? $arrayOfStatuses[0] : null;
+        }
+
+        return $status;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getCustomerEarningStatuses()
+    {
+        $customerStatusesEarning = $this->settingsManager->getSettingByKey('customerStatusesEarning');
+        if ($customerStatusesEarning) {
+            return $customerStatusesEarning->getValue();
+        }
+
+        return [];
     }
 }

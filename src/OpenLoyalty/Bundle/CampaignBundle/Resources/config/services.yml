@@ -34,6 +34,7 @@ services:
     arguments:
       - '@oloy.campaign.read_model.repository.coupon_usage'
       - '@oloy.points.account.repository.account_details'
+      - '@ol.settings.manager'
   oloy.campaign.serialization_listener:
     class: OpenLoyalty\Bundle\CampaignBundle\Event\Listener\CampaignSerializationListener
     arguments:

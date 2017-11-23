@@ -29,6 +29,9 @@ class CustomerDetails implements ReadModelInterface, SerializableInterface
      */
     protected $customerId;
 
+    /**
+     * @var bool
+     */
     protected $active = false;
 
     /**

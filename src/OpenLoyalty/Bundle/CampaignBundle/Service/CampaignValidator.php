@@ -9,11 +9,14 @@ use Broadway\ReadModel\RepositoryInterface;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignLimitExceededException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignLimitPerCustomerExceededException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NoCouponsLeftException;
+use OpenLoyalty\Bundle\CampaignBundle\Exception\NotAllowedException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotEnoughPointsException;
+use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CouponUsageRepository;
+use OpenLoyalty\Component\Customer\Domain\Model\Status;
 
 /**
  * Class CampaignValidator.
@@ -31,17 +34,25 @@ class CampaignValidator
     protected $accountDetailsRepository;
 
     /**
+     * @var SettingsManager
+     */
+    protected $settingsManager;
+
+    /**
      * CampaignValidator constructor.
      *
      * @param CouponUsageRepository $couponUsageRepository
      * @param RepositoryInterface   $accountDetailsRepository
+     * @param SettingsManager       $settingsManager
      */
     public function __construct(
         CouponUsageRepository $couponUsageRepository,
-        RepositoryInterface $accountDetailsRepository
+        RepositoryInterface $accountDetailsRepository,
+        SettingsManager $settingsManager
     ) {
         $this->couponUsageRepository = $couponUsageRepository;
         $this->accountDetailsRepository = $accountDetailsRepository;
+        $this->settingsManager = $settingsManager;
     }
 
     public function validateCampaignLimits(Campaign $campaign, CustomerId $customerId)
@@ -63,6 +74,13 @@ class CampaignValidator
             if ($countUsageForCampaignAndCustomer >= $campaign->getLimitPerUser()) {
                 throw new CampaignLimitPerCustomerExceededException();
             }
+        }
+    }
+
+    public function checkIfCustomerStatusIsAllowed(Status $customerStatus)
+    {
+        if (null === $customerStatus || !in_array($customerStatus->getType(), $this->getCustomerSpendingStatuses())) {
+            throw new NotAllowedException();
         }
     }
 
@@ -109,5 +127,18 @@ class CampaignValidator
         }
 
         return false;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getCustomerSpendingStatuses()
+    {
+        $customerStatusesSpending = $this->settingsManager->getSettingByKey('customerStatusesSpending');
+        if ($customerStatusesSpending) {
+            return $customerStatusesSpending->getValue();
+        }
+
+        return [];
     }
 }

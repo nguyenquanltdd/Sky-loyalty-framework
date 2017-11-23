@@ -13,6 +13,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Form\Type\SettingsFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\TranslationsFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
+use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
 use OpenLoyalty\Component\EarningRule\Domain\ReferralEarningRule;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
@@ -137,6 +138,32 @@ class SettingsController extends FOSRestController
     }
 
     /**
+     * Method will return list of available customer statuses.
+     *
+     * @Route(name="oloy.settings.customer_statuses_list", path="/admin/customer-statuses")
+     * @Method("GET")
+     * @Security("is_granted('EDIT_SETTINGS')")
+     * @ApiDoc(
+     *     name="Get customer statuses list",
+     *     section="Settings"
+     * )
+     *
+     * @return \FOS\RestBundle\View\View
+     */
+    public function listCustomerStatusesAction()
+    {
+        $statuses = Status::getAvailableStatuses();
+
+        return $this->view(
+            [
+                'statuses' => $statuses,
+                'total' => count($statuses),
+            ],
+            200
+        );
+    }
+
+    /**
      * Method will return translations<br/> You must provide translation key, available keys can be obtained by /admin/translations endpoint.
      *
      * @Route(name="oloy.settings.translations_get", path="/admin/translations/{key}")
@@ -241,7 +268,7 @@ class SettingsController extends FOSRestController
      * @ApiDoc(
      *     name="Get choices",
      *     section="Settings",
-     *     parameters={{"name"="type", "description"="allowed types: timezone, language, country, availableFrontendTranslations, earningRuleLimitPeriod", "dataType"="string", "required"=true}}
+     *     parameters={{"name"="type", "description"="allowed types: timezone, language, country, availableFrontendTranslations, earningRuleLimitPeriod, availableCustomerStatuses", "dataType"="string", "required"=true}}
      * )
      *
      * @param $type
@@ -283,6 +310,14 @@ class SettingsController extends FOSRestController
             return $this->view(
                 [
                     'choices' => $availableTranslationsList,
+                ]
+            );
+        } elseif ($type == 'availableCustomerStatuses') {
+            $availableCustomerStatusesList = Status::getAvailableStatuses();
+
+            return $this->view(
+                [
+                    'choices' => $availableCustomerStatusesList,
                 ]
             );
         } elseif ($type == 'earningRuleLimitPeriod') {

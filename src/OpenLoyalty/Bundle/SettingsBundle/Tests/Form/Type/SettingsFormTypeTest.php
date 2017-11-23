@@ -11,6 +11,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
 use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Service\TranslationsProvider;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
+use OpenLoyalty\Bundle\UserBundle\Entity\Status;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\PreloadedExtension;
 use Symfony\Component\Form\Test\TypeTestCase;
@@ -137,6 +138,16 @@ class SettingsFormTypeTest extends TypeTestCase
             '123',
         ]);
         $object->addEntry($entry);
+        $entry = new JsonSettingEntry('customerStatusesEarning');
+        $entry->setValue([
+            Status::TYPE_ACTIVE,
+        ]);
+        $object->addEntry($entry);
+        $entry = new JsonSettingEntry('customerStatusesSpending');
+        $entry->setValue([
+            Status::TYPE_ACTIVE,
+        ]);
+        $object->addEntry($entry);
 
         $formData = array_merge($this->stringEntries, $this->booleanEntries, $this->integerEntries, [
             'customersIdentificationPriority' => [
@@ -151,11 +162,18 @@ class SettingsFormTypeTest extends TypeTestCase
             'excludedLevelCategories' => [
                 '123',
             ],
+            'customerStatusesEarning' => [
+                Status::TYPE_ACTIVE,
+            ],
+            'customerStatusesSpending' => [
+                Status::TYPE_ACTIVE,
+            ],
         ]);
 
         $form->submit($formData);
 
         $this->assertTrue($form->isSynchronized());
+
         $this->assertEquals($object, $form->getData());
 
         $view = $form->createView();

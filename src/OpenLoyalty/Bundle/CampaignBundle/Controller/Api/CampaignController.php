@@ -12,6 +12,7 @@ use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignLimitException;
+use OpenLoyalty\Bundle\CampaignBundle\Exception\NotAllowedException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotEnoughPointsException;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignPhotoFormType;
@@ -548,6 +549,12 @@ class CampaignController extends FOSRestController
         try {
             $campaignValidator->validateCampaignLimits($campaign, new CustomerId($customer->getCustomerId()->__toString()));
         } catch (CampaignLimitException $e) {
+            return $this->view(['error' => $e->getMessage()], 400);
+        }
+
+        try {
+            $campaignValidator->checkIfCustomerStatusIsAllowed($customer->getStatus());
+        } catch (NotAllowedException $e) {
             return $this->view(['error' => $e->getMessage()], 400);
         }
 

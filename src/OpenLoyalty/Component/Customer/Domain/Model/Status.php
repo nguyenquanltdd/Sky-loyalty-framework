@@ -111,7 +111,15 @@ class Status implements SerializableInterface
     }
 
     /**
-     * @return Status
+     * @return array
+     */
+    public static function getAvailableStatuses()
+    {
+        return self::$availableTypes;
+    }
+
+    /**
+     * @return string
      */
     public function getType()
     {

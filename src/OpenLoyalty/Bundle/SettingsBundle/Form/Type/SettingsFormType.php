@@ -13,6 +13,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
 use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\SettingsBundle\Service\TranslationsProvider;
+use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -84,6 +85,27 @@ class SettingsFormType extends AbstractType
                     'constraints' => [new NotBlank()],
                 ])
                 ->addModelTransformer(new StringSettingDataTransformer('defaultFrontendTranslations', $this->settingsManager))
+        );
+
+        $builder->add(
+            $builder
+                ->create('customerStatusesEarning', ChoiceType::class, [
+                    'choices' => array_combine(Status::getAvailableStatuses(), Status::getAvailableStatuses()),
+                    'multiple' => true,
+                    'required' => true,
+                    'constraints' => [new NotBlank()],
+                ])
+                ->addModelTransformer(new ChoicesToJsonSettingDataTransformer('customerStatusesEarning', $this->settingsManager))
+        );
+        $builder->add(
+            $builder
+                ->create('customerStatusesSpending', ChoiceType::class, [
+                    'choices' => array_combine(Status::getAvailableStatuses(), Status::getAvailableStatuses()),
+                    'multiple' => true,
+                    'required' => true,
+                    'constraints' => [new NotBlank()],
+                ])
+                ->addModelTransformer(new ChoicesToJsonSettingDataTransformer('customerStatusesSpending', $this->settingsManager))
         );
         $builder->add(
             $builder

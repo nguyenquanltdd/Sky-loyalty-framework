@@ -4,12 +4,14 @@ namespace OpenLoyalty\Bundle\PointsBundle\Tests\Service;
 
 use Broadway\ReadModel\RepositoryInterface;
 use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator;
+use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CouponUsageRepository;
+use OpenLoyalty\Component\Customer\Domain\Model\Status;
 
 /**
  * Class CampaignValidatorTest.
@@ -22,7 +24,7 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
      */
     public function it_throws_exception_when_there_is_not_enough_points()
     {
-        $validator = new CampaignValidator($this->getCouponUsageRepository(0, 0), $this->getAccountDetailsRepository(10));
+        $validator = new CampaignValidator($this->getCouponUsageRepository(0, 0), $this->getAccountDetailsRepository(10), $this->getSettingsManager([Status::TYPE_ACTIVE]));
         $campaign = new Campaign(new CampaignId('00000000-0000-474c-b092-b0dd880c07e1'), ['costInPoints' => 20]);
         $validator->checkIfCustomerHasEnoughPoints($campaign, new CustomerId('00000000-0000-474c-b092-b0dd880c07e1'));
     }
@@ -32,7 +34,7 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
      */
     public function it_not_throwing_exception_when_there_is_enough_points()
     {
-        $validator = new CampaignValidator($this->getCouponUsageRepository(0, 0), $this->getAccountDetailsRepository(10));
+        $validator = new CampaignValidator($this->getCouponUsageRepository(0, 0), $this->getAccountDetailsRepository(10), $this->getSettingsManager([Status::TYPE_ACTIVE]));
         $campaign = new Campaign(new CampaignId('00000000-0000-474c-b092-b0dd880c07e1'), ['costInPoints' => 10]);
         $validator->checkIfCustomerHasEnoughPoints($campaign, new CustomerId('00000000-0000-474c-b092-b0dd880c07e1'));
     }
@@ -46,7 +48,7 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
         $campaign = new Campaign(new CampaignId('00000000-0000-474c-b092-b0dd880c07e1'), ['costInPoints' => 10]);
         $campaign->setUnlimited(true);
         $campaign->setCoupons([new Coupon('123'), new Coupon('1234')]);
-        $validator = new CampaignValidator($this->getCouponUsageRepository(2, 0), $this->getAccountDetailsRepository(10));
+        $validator = new CampaignValidator($this->getCouponUsageRepository(2, 0), $this->getAccountDetailsRepository(10), $this->getSettingsManager([Status::TYPE_ACTIVE]));
         $validator->validateCampaignLimits($campaign, new CustomerId('00000000-0000-474c-b092-b0dd880c07e1'));
     }
 
@@ -58,7 +60,7 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
         $campaign = new Campaign(new CampaignId('00000000-0000-474c-b092-b0dd880c07e1'), ['costInPoints' => 10]);
         $campaign->setUnlimited(true);
         $campaign->setCoupons([new Coupon('123'), new Coupon('1234')]);
-        $validator = new CampaignValidator($this->getCouponUsageRepository(1, 0), $this->getAccountDetailsRepository(10));
+        $validator = new CampaignValidator($this->getCouponUsageRepository(1, 0), $this->getAccountDetailsRepository(10), $this->getSettingsManager([Status::TYPE_ACTIVE]));
         $validator->validateCampaignLimits($campaign, new CustomerId('00000000-0000-474c-b092-b0dd880c07e1'));
     }
 
@@ -72,7 +74,7 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
         $campaign->setUnlimited(false);
         $campaign->setLimit(1);
         $campaign->setCoupons([new Coupon('123'), new Coupon('1234')]);
-        $validator = new CampaignValidator($this->getCouponUsageRepository(1, 0), $this->getAccountDetailsRepository(10));
+        $validator = new CampaignValidator($this->getCouponUsageRepository(1, 0), $this->getAccountDetailsRepository(10), $this->getSettingsManager([Status::TYPE_ACTIVE]));
         $validator->validateCampaignLimits($campaign, new CustomerId('00000000-0000-474c-b092-b0dd880c07e1'));
     }
 
@@ -86,7 +88,7 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
         $campaign->setLimit(1);
         $campaign->setLimitPerUser(10);
         $campaign->setCoupons([new Coupon('123'), new Coupon('1234')]);
-        $validator = new CampaignValidator($this->getCouponUsageRepository(0, 0), $this->getAccountDetailsRepository(10));
+        $validator = new CampaignValidator($this->getCouponUsageRepository(0, 0), $this->getAccountDetailsRepository(10), $this->getSettingsManager([Status::TYPE_ACTIVE]));
         $validator->validateCampaignLimits($campaign, new CustomerId('00000000-0000-474c-b092-b0dd880c07e1'));
     }
 
@@ -101,7 +103,7 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
         $campaign->setLimit(1);
         $campaign->setLimitPerUser(10);
         $campaign->setCoupons([new Coupon('123'), new Coupon('1234')]);
-        $validator = new CampaignValidator($this->getCouponUsageRepository(0, 10), $this->getAccountDetailsRepository(10));
+        $validator = new CampaignValidator($this->getCouponUsageRepository(0, 10), $this->getAccountDetailsRepository(10), $this->getSettingsManager([Status::TYPE_ACTIVE]));
         $validator->validateCampaignLimits($campaign, new CustomerId('00000000-0000-474c-b092-b0dd880c07e1'));
     }
 
@@ -127,5 +129,13 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
             ->willReturn([$account]);
 
         return $repo;
+    }
+
+    protected function getSettingsManager(array $statuses)
+    {
+        $settingsManager = $this->getMockBuilder(SettingsManager::class)->getMock();
+        $settingsManager->method('getSettingByKey')->willReturn($statuses);
+
+        return $settingsManager;
     }
 }

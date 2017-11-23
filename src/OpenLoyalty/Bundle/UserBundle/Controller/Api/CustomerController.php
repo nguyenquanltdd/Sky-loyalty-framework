@@ -651,6 +651,11 @@ class CustomerController extends FOSRestController
             $this->get('oloy.user.user_manager')->updateUser($user);
         }
 
+        if ($user instanceof Customer) {
+            $user->setStatus(Status::typeActiveNoCard());
+            $this->get('oloy.user.user_manager')->updateUser($user);
+        }
+
         return $this->view('');
     }
 
@@ -676,7 +681,7 @@ class CustomerController extends FOSRestController
 
         if ($user instanceof Customer && $token == $user->getActionToken()) {
             $user->setIsActive(true);
-            $user->setStatus(Status::typeNew());
+            $user->setStatus(Status::typeActiveNoCard());
             $commandBus = $this->get('broadway.command_handling.command_bus');
             $commandBus->dispatch(
                 new ActivateCustomer(new CustomerId($user->getId()))
@@ -729,7 +734,7 @@ class CustomerController extends FOSRestController
             $user->setActionToken(substr(md5(uniqid(null, true)), 0, 20));
             $user->setReferralCustomerEmail($referralCustomerEmail);
             $url = $this->container->getParameter('frontend_customer_panel_url').
-                   $this->container->getParameter('frontend_activate_account_url').'/'.$user->getActionToken();
+                $this->container->getParameter('frontend_activate_account_url').'/'.$user->getActionToken();
         }
         $this->getDoctrine()->getManager()->flush();
 

@@ -38,3 +38,4 @@ services:
       - '@oloy.user.read_model.repository.invitation_details'
       - '@oloy.segment.read_model.repository.segmented_customers'
       - '@oloy.user.read_model.repository.customer_details'
+      - '@ol.settings.manager'
