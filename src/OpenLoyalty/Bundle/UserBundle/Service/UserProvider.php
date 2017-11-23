@@ -7,6 +7,8 @@ namespace OpenLoyalty\Bundle\UserBundle\Service;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
+use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
+use OpenLoyalty\Bundle\UserBundle\Entity\Status;
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
@@ -43,6 +45,11 @@ class UserProvider implements UserProviderInterface
         $qb->andWhere('u.username = :username or u.email = :username')->setParameter(':username', $username);
         $qb->andWhere('u.isActive = :true')->setParameter('true', true);
         $qb->andWhere('u.deletedAt is NULL');
+
+        if ($class == Customer::class) {
+            $qb->andWhere('u.status.type = :type')->setParameter(':type', Status::TYPE_ACTIVE);
+        }
+
         $user = $qb->getQuery()->getOneOrNullResult();
 
         if (!$user instanceof User) {

@@ -22,6 +22,7 @@ use OpenLoyalty\Component\Customer\Domain\Event\CustomerLoyaltyCardNumberWasUpda
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasRegistered;
 use OpenLoyalty\Component\Customer\Domain\Model\Company;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
+use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Domain\TransactionId;
 use OpenLoyalty\Component\Transaction\Domain\Event\CustomerWasAssignedToTransaction;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
@@ -80,6 +81,7 @@ class CustomerDetailsProjector extends Projector
         if (isset($data['agreement3'])) {
             $readModel->setAgreement3($data['agreement3']);
         }
+        $readModel->setStatus(Status::typeNew());
         $readModel->setUpdatedAt($event->getUpdateAt());
         $readModel->setCreatedAt($data['createdAt']);
 
@@ -119,6 +121,9 @@ class CustomerDetailsProjector extends Projector
         }
         if (isset($data['agreement3'])) {
             $readModel->setAgreement3($data['agreement3']);
+        }
+        if (isset($data['status'])) {
+            $readModel->setStatus(Status::fromData($data['status']));
         }
         $readModel->setUpdatedAt($event->getUpdateAt());
 
@@ -211,6 +216,7 @@ class CustomerDetailsProjector extends Projector
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
         $readModel->setActive(false);
+        $readModel->setStatus(Status::typeBlocked());
         $this->repository->save($readModel);
     }
 
@@ -219,6 +225,7 @@ class CustomerDetailsProjector extends Projector
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
         $readModel->setActive(true);
+        $readModel->setStatus(Status::typeActiveNoCard());
         $this->repository->save($readModel);
     }
 

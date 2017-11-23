@@ -12,6 +12,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
+use OpenLoyalty\Bundle\UserBundle\Entity\Status;
 use OpenLoyalty\Component\Customer\Domain\Command\AssignSellerToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\RegisterCustomer;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
@@ -103,6 +104,7 @@ class LoadCustomersAndTransactionsData extends AbstractFixture implements Fixtur
                                         ->encodePassword($user, $user->getPlainPassword());
             $user->setPassword($password);
             $user->setIsActive(true);
+            $user->setStatus(Status::typeActiveNoCard());
 
             $manager->persist($user);
             $manager->flush();
@@ -269,6 +271,7 @@ class LoadCustomersAndTransactionsData extends AbstractFixture implements Fixtur
         $user->addRole($this->getReference('role_participant'));
         $user->setPassword($password);
         $user->setIsActive(true);
+        $user->setStatus(Status::typeActiveNoCard());
 
         $user->setEmail('user@oloy.com');
         $manager->persist($user);

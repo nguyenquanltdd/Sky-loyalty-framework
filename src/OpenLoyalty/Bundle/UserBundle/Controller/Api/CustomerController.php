@@ -15,6 +15,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\AuditBundle\Service\AuditManagerInterface;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
+use OpenLoyalty\Bundle\UserBundle\Entity\Status;
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
 use OpenLoyalty\Bundle\UserBundle\Event\UserRegisteredWithInvitationToken;
 use OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerEditFormType;
@@ -675,6 +676,7 @@ class CustomerController extends FOSRestController
 
         if ($user instanceof Customer && $token == $user->getActionToken()) {
             $user->setIsActive(true);
+            $user->setStatus(Status::typeNew());
             $commandBus = $this->get('broadway.command_handling.command_bus');
             $commandBus->dispatch(
                 new ActivateCustomer(new CustomerId($user->getId()))
@@ -723,6 +725,7 @@ class CustomerController extends FOSRestController
     {
         $user->setIsActive(false);
         if ($user instanceof Customer) {
+            $user->setStatus(Status::typeNew());
             $user->setActionToken(substr(md5(uniqid(null, true)), 0, 20));
             $user->setReferralCustomerEmail($referralCustomerEmail);
             $url = $this->container->getParameter('frontend_customer_panel_url').

@@ -98,6 +98,7 @@ class CustomerDetailsProjectorTest extends ProjectorScenarioTestCase
         $data['address'] = null;
         $data['loyaltyCardNumber'] = null;
         $data['company'] = null;
+        $data['status']['type'] = 'blocked';
 
         $this->scenario->given(array())
             ->when(new CustomerWasRegistered($customerId, CustomerCommandHandlerTest::getCustomerData()))

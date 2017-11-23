@@ -23,6 +23,7 @@ use OpenLoyalty\Component\Customer\Domain\Event\CustomerLoyaltyCardNumberWasUpda
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasRegistered;
 use OpenLoyalty\Component\Customer\Domain\Model\Company;
 use Assert\Assertion as Assert;
+use OpenLoyalty\Component\Customer\Domain\Model\Status;
 
 /**
  * Class Customer.
@@ -68,6 +69,11 @@ class Customer extends EventSourcedAggregateRoot
      * @var Address
      */
     protected $address;
+
+    /**
+     * @var Status
+     */
+    protected $status;
 
     /**
      * @var string
@@ -226,6 +232,10 @@ class Customer extends EventSourcedAggregateRoot
             $this->setAgreement3($data['agreement3']);
         }
 
+        if (isset($data['status'])) {
+            $this->setStatus(Status::fromData($data['status']));
+        }
+
         $this->setCreatedAt($data['createdAt']);
     }
 
@@ -244,6 +254,9 @@ class Customer extends EventSourcedAggregateRoot
         }
         if (!empty($data['gender'])) {
             $this->setGender(new Gender($data['gender']));
+        }
+        if (!empty($data['status'])) {
+            $this->setStatus(Status::fromData($data['status']));
         }
         if (!empty($data['email'])) {
             $this->setEmail($data['email']);
@@ -511,6 +524,22 @@ class Customer extends EventSourcedAggregateRoot
     }
 
     /**
+     * @return Status
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param Status $status
+     */
+    public function setStatus(Status $status)
+    {
+        $this->status = $status;
+    }
+
+    /**
      * @return bool
      */
     public function isAgreement3()
@@ -532,6 +561,7 @@ class Customer extends EventSourcedAggregateRoot
             'firstName' => null,
             'lastName' => null,
             'address' => null,
+            'status' => null,
             'gender' => null,
             'birthDate' => null,
             'company' => null,

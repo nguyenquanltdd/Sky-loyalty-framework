@@ -36,6 +36,12 @@ class Customer extends User
      */
     private $newsletterUsedFlag;
 
+    /**
+     * @var Status
+     * @ORM\Embedded(class = "Status", columnPrefix = "status_" )
+     */
+    private $status;
+
     public function __construct(CustomerId $id)
     {
         parent::__construct($id->__toString());
@@ -103,5 +109,21 @@ class Customer extends User
     public function setNewsletterUsedFlag($newsletterUsedFlag)
     {
         $this->newsletterUsedFlag = $newsletterUsedFlag;
+    }
+
+    /**
+     * @return Status
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param Status $status
+     */
+    public function setStatus(Status $status)
+    {
+        $this->status = $status;
     }
 }

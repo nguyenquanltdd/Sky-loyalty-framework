@@ -14,6 +14,7 @@ use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
+use OpenLoyalty\Bundle\UserBundle\Entity\Status;
 use OpenLoyalty\Component\Customer\Domain\Command\ActivateCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\MoveCustomerToLevel;
 use OpenLoyalty\Component\Customer\Domain\Command\RegisterCustomer;
@@ -140,6 +141,7 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
         $user->addRole($this->getReference('role_participant'));
         $user->setPassword($password);
         $user->setIsActive(true);
+        $user->setStatus(Status::typeActiveNoCard());
 
         $user->setEmail('user@oloy.com');
         $manager->persist($user);
@@ -169,6 +171,7 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
         $user->addRole($this->getReference('role_participant'));
         $user->setPassword($password);
         $user->setIsActive(true);
+        $user->setStatus(Status::typeActiveNoCard());
 
         $user->setEmail('user-temp@oloy.com');
         $user->setTemporaryPasswordSetAt(new \DateTime());
@@ -200,6 +203,9 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
                 'country' => 'pl',
                 'postal' => '50-300',
                 'province' => 'Dolnośląskie',
+            ],
+            'status' => [
+                'type' => 'new',
             ],
         ];
     }

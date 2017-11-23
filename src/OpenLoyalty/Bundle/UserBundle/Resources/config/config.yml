@@ -2,7 +2,6 @@ doctrine:
     orm:
         mappings:
           OpenLoyaltyUserBundle: ~
-
 jms_serializer:
     metadata:
       directories:

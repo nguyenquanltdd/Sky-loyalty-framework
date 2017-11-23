@@ -51,6 +51,9 @@ abstract class CustomerCommandHandlerTest extends CommandHandlerScenarioTestCase
                 'postal' => '50-300',
                 'province' => 'Dolnośląskie',
             ],
+            'status' => [
+                'type' => 'new',
+            ],
         ];
     }
 

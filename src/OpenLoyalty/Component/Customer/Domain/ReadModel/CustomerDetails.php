@@ -14,6 +14,7 @@ use OpenLoyalty\Component\Customer\Domain\Model\Gender;
 use OpenLoyalty\Component\Customer\Domain\Model\Company;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\LevelId;
+use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Domain\PosId;
 use OpenLoyalty\Component\Customer\Domain\SellerId;
 use OpenLoyalty\Component\Customer\Domain\TransactionId;
@@ -119,6 +120,11 @@ class CustomerDetails implements ReadModelInterface, SerializableInterface
      * @var Company
      */
     protected $company = null;
+
+    /**
+     * @var Status
+     */
+    protected $status;
 
     /**
      * @var \DateTime
@@ -235,6 +241,11 @@ class CustomerDetails implements ReadModelInterface, SerializableInterface
         if (isset($data['address'])) {
             $customer->setAddress(Address::deserialize($data['address']));
         }
+
+        if (isset($data['status'])) {
+            $customer->setStatus(Status::deserialize($data['status']));
+        }
+
         if (isset($data['company'])) {
             $customer->setCompany(Company::deserialize($data['company']));
         }
@@ -346,6 +357,7 @@ class CustomerDetails implements ReadModelInterface, SerializableInterface
             'updatedAt' => $this->updatedAt ? $this->updatedAt->getTimestamp() : null,
             'campaignPurchases' => $serializedCampaigns ?: [],
             'active' => $this->active,
+            'status' => $this->getStatus() ? $this->getStatus()->serialize() : null,
             'transactionsCount' => $this->transactionsCount,
             'transactionsAmount' => $this->transactionsAmount,
             'transactionsAmountWithoutDeliveryCosts' => $this->transactionsAmountWithoutDeliveryCosts,
@@ -663,6 +675,22 @@ class CustomerDetails implements ReadModelInterface, SerializableInterface
     }
 
     /**
+     * @return Status
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param Status $status
+     */
+    public function setStatus(Status $status)
+    {
+        $this->status = $status;
+    }
+
+    /**
      * @return bool
      */
     public function isActive()
@@ -845,6 +873,7 @@ class CustomerDetails implements ReadModelInterface, SerializableInterface
             'firstName' => null,
             'lastName' => null,
             'address' => null,
+            'status' => null,
             'gender' => null,
             'birthDate' => null,
             'company' => null,

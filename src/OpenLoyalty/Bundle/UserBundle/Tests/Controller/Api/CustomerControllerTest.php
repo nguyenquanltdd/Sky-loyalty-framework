@@ -333,6 +333,7 @@ class CustomerControllerTest extends BaseApiTest
         $customerData['birthDate'] = $tmp->format('Y-m-d');
         unset($customerData['createdAt']);
         unset($customerData['updatedAt']);
+        unset($customerData['status']);
         $customerData['firstName'] = 'Jane';
         $customerData['address']['street'] = 'Prosta';
         $client->request(
@@ -372,6 +373,7 @@ class CustomerControllerTest extends BaseApiTest
         $customerData['birthDate'] = $tmp->format('Y-m-d');
         unset($customerData['createdAt']);
         unset($customerData['updatedAt']);
+        unset($customerData['status']);
         $customerData['firstName'] = 'Jane';
         $customerData['sellerId'] = LoadUserData::TEST_SELLER_ID;
         $customerData['address']['street'] = 'Prosta';
@@ -413,6 +415,7 @@ class CustomerControllerTest extends BaseApiTest
         $customerData['phone'] = '111222333';
         unset($customerData['createdAt']);
         unset($customerData['updatedAt']);
+        unset($customerData['status']);
         $customerData['company'] = null;
         $client = $this->createAuthenticatedClient();
         $client->request(
