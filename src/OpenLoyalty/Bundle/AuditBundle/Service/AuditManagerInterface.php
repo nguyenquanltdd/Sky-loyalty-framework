@@ -13,6 +13,7 @@ use OpenLoyalty\Component\Customer\Domain\CustomerId;
 interface AuditManagerInterface
 {
     const VIEW_CUSTOMER_EVENT_TYPE = 'ViewCustomer';
+    const AGREEMENTS_UPDATED_CUSTOMER_EVENT_TYPE = 'AgreementsUpdated';
 
     public function auditCustomerEvent($eventType, CustomerId $customerId, array $data);
 }

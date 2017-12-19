@@ -6,6 +6,7 @@ use Broadway\CommandHandling\Testing\CommandHandlerScenarioTestCase;
 use Broadway\EventDispatcher\EventDispatcherInterface;
 use Broadway\EventHandling\EventBusInterface;
 use Broadway\EventStore\EventStoreInterface;
+use OpenLoyalty\Bundle\AuditBundle\Service\AuditManagerInterface;
 use OpenLoyalty\Component\Customer\Domain\Command\CustomerCommandHandler;
 use OpenLoyalty\Component\Customer\Domain\CustomerRepository;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
@@ -18,12 +19,16 @@ abstract class CustomerCommandHandlerTest extends CommandHandlerScenarioTestCase
     /**
      * {@inheritdoc}
      */
-    protected function createCommandHandler(EventStoreInterface $eventStore, EventBusInterface $eventBus)
+    protected function createCommandHandler(EventStoreInterface $eventStore, EventBusInterface $eventBus, AuditManagerInterface $auditManager = null)
     {
         $eventDispatcher = $this->getMockBuilder(EventDispatcherInterface::class)->getMock();
         $eventDispatcher->method('dispatch')->with($this->isType('string'))->willReturn(true);
 
-        return $this->getCustomerCommandHandler($eventStore, $eventBus, $eventDispatcher);
+        if (null === $auditManager) {
+            $auditManager = $this->getMockBuilder(AuditManagerInterface::class)->getMock();
+        }
+
+        return $this->getCustomerCommandHandler($eventStore, $eventBus, $eventDispatcher, $auditManager);
     }
 
     public static function getCustomerData()
@@ -58,19 +63,25 @@ abstract class CustomerCommandHandlerTest extends CommandHandlerScenarioTestCase
      * @param EventStoreInterface      $eventStore
      * @param EventBusInterface        $eventBus
      * @param EventDispatcherInterface $eventDispatcher
+     * @param AuditManagerInterface    $auditManager
      *
      * @return \OpenLoyalty\Component\Customer\Domain\Command\CustomerCommandHandler
      */
-    protected function getCustomerCommandHandler(EventStoreInterface $eventStore, EventBusInterface $eventBus, EventDispatcherInterface $eventDispatcher)
+    protected function getCustomerCommandHandler(EventStoreInterface $eventStore, EventBusInterface $eventBus, EventDispatcherInterface $eventDispatcher, AuditManagerInterface $auditManager = null)
     {
         $customerDetailsRepository = $this->getMockBuilder('Broadway\ReadModel\RepositoryInterface')->getMock();
         $customerDetailsRepository->method('findBy')->willReturn([]);
         $validator = new CustomerUniqueValidator($customerDetailsRepository);
 
+        if (null === $auditManager) {
+            $auditManager = $this->getMockBuilder(AuditManagerInterface::class)->getMock();
+        }
+
         return new CustomerCommandHandler(
             new CustomerRepository($eventStore, $eventBus),
             $validator,
-            $eventDispatcher
+            $eventDispatcher,
+            $auditManager
         );
     }
 }
