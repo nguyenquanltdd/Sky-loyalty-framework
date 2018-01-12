@@ -42,12 +42,12 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(false);
         $campaignActivity->setActiveFrom(new \DateTime('2016-01-01'));
-        $campaignActivity->setActiveTo(new \DateTime('2018-01-01'));
+        $campaignActivity->setActiveTo(new \DateTime('2037-01-01'));
         $campaign->setCampaignActivity($campaignActivity);
         $campaignVisibility = new CampaignVisibility();
         $campaignVisibility->setAllTimeVisible(false);
         $campaignVisibility->setVisibleFrom(new \DateTime('2016-01-01'));
-        $campaignVisibility->setVisibleTo(new \DateTime('2018-01-01'));
+        $campaignVisibility->setVisibleTo(new \DateTime('2037-01-01'));
         $campaign->setCampaignVisibility($campaignVisibility);
 
         $this->container->get('broadway.command_handling.command_bus')
@@ -69,12 +69,12 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(false);
         $campaignActivity->setActiveFrom(new \DateTime('2016-01-01'));
-        $campaignActivity->setActiveTo(new \DateTime('2018-01-01'));
+        $campaignActivity->setActiveTo(new \DateTime('2037-01-01'));
         $campaign->setCampaignActivity($campaignActivity);
         $campaignVisibility = new CampaignVisibility();
         $campaignVisibility->setAllTimeVisible(false);
         $campaignVisibility->setVisibleFrom(new \DateTime('2016-01-01'));
-        $campaignVisibility->setVisibleTo(new \DateTime('2018-01-01'));
+        $campaignVisibility->setVisibleTo(new \DateTime('2037-01-01'));
         $campaign->setCampaignVisibility($campaignVisibility);
 
         $this->container->get('broadway.command_handling.command_bus')

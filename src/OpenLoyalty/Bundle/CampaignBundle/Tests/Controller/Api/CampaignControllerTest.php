@@ -54,12 +54,12 @@ class CampaignControllerTest extends BaseApiTest
                     'campaignActivity' => [
                         'allTimeActive' => false,
                         'activeFrom' => (new \DateTime('2016-01-01'))->format('Y-m-d H:i'),
-                        'activeTo' => (new \DateTime('2018-01-11'))->format('Y-m-d H:i'),
+                        'activeTo' => (new \DateTime('2037-01-11'))->format('Y-m-d H:i'),
                     ],
                     'campaignVisibility' => [
                         'allTimeVisible' => false,
                         'visibleFrom' => (new \DateTime('2016-02-01'))->format('Y-m-d H:i'),
-                        'visibleTo' => (new \DateTime('2018-02-11'))->format('Y-m-d H:i'),
+                        'visibleTo' => (new \DateTime('2037-02-11'))->format('Y-m-d H:i'),
                     ],
                 ],
             ]
@@ -96,12 +96,12 @@ class CampaignControllerTest extends BaseApiTest
                     'campaignActivity' => [
                         'allTimeActive' => false,
                         'activeFrom' => (new \DateTime('2016-01-01'))->format('Y-m-d H:i'),
-                        'activeTo' => (new \DateTime('2018-01-11'))->format('Y-m-d H:i'),
+                        'activeTo' => (new \DateTime('2037-01-11'))->format('Y-m-d H:i'),
                     ],
                     'campaignVisibility' => [
                         'allTimeVisible' => false,
                         'visibleFrom' => (new \DateTime('2016-02-01'))->format('Y-m-d H:i'),
-                        'visibleTo' => (new \DateTime('2018-02-11'))->format('Y-m-d H:i'),
+                        'visibleTo' => (new \DateTime('2037-02-11'))->format('Y-m-d H:i'),
                     ],
                 ],
             ]
@@ -138,12 +138,12 @@ class CampaignControllerTest extends BaseApiTest
                     'campaignActivity' => [
                         'allTimeActive' => false,
                         'activeFrom' => (new \DateTime('2016-01-01'))->format('Y-m-d H:i'),
-                        'activeTo' => (new \DateTime('2018-01-11'))->format('Y-m-d H:i'),
+                        'activeTo' => (new \DateTime('2037-01-11'))->format('Y-m-d H:i'),
                     ],
                     'campaignVisibility' => [
                         'allTimeVisible' => false,
                         'visibleFrom' => (new \DateTime('2016-02-01'))->format('Y-m-d H:i'),
-                        'visibleTo' => (new \DateTime('2018-02-11'))->format('Y-m-d H:i'),
+                        'visibleTo' => (new \DateTime('2037-02-11'))->format('Y-m-d H:i'),
                     ],
                 ],
             ]
@@ -179,12 +179,12 @@ class CampaignControllerTest extends BaseApiTest
                     'campaignActivity' => [
                         'allTimeActive' => false,
                         'activeFrom' => (new \DateTime('2016-01-01'))->format('Y-m-d H:i'),
-                        'activeTo' => (new \DateTime('2018-01-11'))->format('Y-m-d H:i'),
+                        'activeTo' => (new \DateTime('2037-01-11'))->format('Y-m-d H:i'),
                     ],
                     'campaignVisibility' => [
                         'allTimeVisible' => false,
                         'visibleFrom' => (new \DateTime('2016-02-01'))->format('Y-m-d H:i'),
-                        'visibleTo' => (new \DateTime('2018-02-11'))->format('Y-m-d H:i'),
+                        'visibleTo' => (new \DateTime('2037-02-11'))->format('Y-m-d H:i'),
                     ],
                 ],
             ]
