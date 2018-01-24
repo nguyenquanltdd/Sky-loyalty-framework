@@ -7,6 +7,7 @@ namespace OpenLoyalty\Component\Customer\Domain\Command;
 
 use Broadway\CommandHandling\CommandHandler;
 use Broadway\EventDispatcher\EventDispatcherInterface;
+use OpenLoyalty\Bundle\AuditBundle\Service\AuditManagerInterface;
 use OpenLoyalty\Component\Customer\Domain\Customer;
 use OpenLoyalty\Component\Customer\Domain\CustomerRepository;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerActivatedSystemEvent;
@@ -39,20 +40,28 @@ class CustomerCommandHandler extends CommandHandler
     private $eventDispatcher;
 
     /**
+     * @var AuditManagerInterface
+     */
+    private $auditManager;
+
+    /**
      * CustomerCommandHandler constructor.
      *
      * @param CustomerRepository       $repository
      * @param CustomerUniqueValidator  $customerUniqueValidator
      * @param EventDispatcherInterface $eventDispatcher
+     * @param AuditManagerInterface    $auditManager
      */
     public function __construct(
         CustomerRepository $repository,
         CustomerUniqueValidator $customerUniqueValidator,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        AuditManagerInterface $auditManager
     ) {
         $this->repository = $repository;
         $this->customerUniqueValidator = $customerUniqueValidator;
         $this->eventDispatcher = $eventDispatcher;
+        $this->auditManager = $auditManager;
     }
 
     public function handleRegisterCustomer(RegisterCustomer $command)
@@ -155,6 +164,8 @@ class CustomerCommandHandler extends CommandHandler
         }
 
         if (count($newAgreements) > 0) {
+            $this->auditManager->auditCustomerEvent(AuditManagerInterface::AGREEMENTS_UPDATED_CUSTOMER_EVENT_TYPE, $customerId, $newAgreements);
+
             $this->eventDispatcher->dispatch(
                 CustomerSystemEvents::CUSTOMER_AGREEMENTS_UPDATED,
                 [new CustomerAgreementsUpdatedSystemEvent($customerId, $newAgreements)]

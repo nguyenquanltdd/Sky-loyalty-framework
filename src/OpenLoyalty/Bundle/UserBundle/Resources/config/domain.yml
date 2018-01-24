@@ -5,6 +5,7 @@ services:
       - '@oloy.user.customer.repository'
       - '@oloy.user.customer.unique_validator'
       - '@broadway.event_dispatcher'
+      - '@oloy.audit.manager'
     lazy: true
     tags:
       - { name: command_handler }
