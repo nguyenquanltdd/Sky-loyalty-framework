@@ -45,3 +45,6 @@ knp_gaufrette:
     campaign_photos:
       adapter: "%oloy.campaign.photos_adapter%"
       alias: campaign_photos_filesystem
+    logo:
+      adapter: "campaign_photos_local"
+      alias: logo_filesystem

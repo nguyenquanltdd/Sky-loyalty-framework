@@ -8,9 +8,11 @@ namespace OpenLoyalty\Bundle\SettingsBundle\DataFixtures\ORM;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\BooleanSettingEntry;
+use OpenLoyalty\Bundle\SettingsBundle\Entity\FileSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\IntegerSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\JsonSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
+use OpenLoyalty\Bundle\SettingsBundle\Model\Logo;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
@@ -59,6 +61,12 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
         $entry3 = new JsonSettingEntry('excludedLevelCategories');
         $entry3->setValue(['category_excluded_from_level']);
         $settings->addEntry($entry3);
+
+        $logo = new Logo();
+        $logo->setMime('image/svg+xml');
+        $logo->setPath('logo/logo.svg');
+        $entry4 = new FileSettingEntry('logo', $logo);
+        $settings->addEntry($entry4);
 
         $earningStatuses = new JsonSettingEntry('customerStatusesEarning');
         $earningStatuses->setValue([Status::TYPE_ACTIVE]);

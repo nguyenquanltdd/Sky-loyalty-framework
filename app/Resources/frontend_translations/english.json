@@ -703,6 +703,8 @@
     }
   },
   "settings": {
+    "logo": "Logo",
+    "program_logo": "Program logo",
     "title": "Settings",
     "currency": "Currency",
     "heading": "Settings",
@@ -1471,6 +1473,9 @@
     }
   },
   "customer_global": {
+    "owner_data": {
+      "text": "Lorem ipsum dolor sit amet"
+    },
     "configuration": "Configuration",
     "users": "Users",
     "cancel": "Cancel",

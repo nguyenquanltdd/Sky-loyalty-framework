@@ -9,6 +9,8 @@ use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRuleLimit;
+use OpenLoyalty\Bundle\SettingsBundle\Entity\FileSettingEntry;
+use OpenLoyalty\Bundle\SettingsBundle\Form\Type\LogoFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\SettingsFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\TranslationsFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
@@ -22,6 +24,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Form\Extension\Core\Type\CountryType;
 use Symfony\Component\Form\Extension\Core\Type\LanguageType;
 use Symfony\Component\Form\Extension\Core\Type\TimezoneType;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -30,6 +33,117 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class SettingsController extends FOSRestController
 {
+    /**
+     * Add logo.
+     *
+     * @Route(name="oloy.settings.add_logo", path="/settings/logo")
+     * @Method("POST")
+     * @Security("is_granted('EDIT_SETTINGS')")
+     * @ApiDoc(
+     *     name="Add logo to loyalty program",
+     *     section="Settings",
+     *     input={"class" = "OpenLoyalty\Bundle\SettingsBundle\Form\Type\LogoFormType", "name" = "photo"}
+     * )
+     *
+     * @param Request $request
+     *
+     * @return \FOS\RestBundle\View\View
+     */
+    public function addLogoAction(Request $request)
+    {
+        $form = $this->get('form.factory')->createNamed('photo', LogoFormType::class);
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            /** @var UploadedFile $file */
+            $file = $form->getData()->getFile();
+            $uploader = $this->get('oloy.settings.logo_uploader');
+
+            $settingsManager = $this->get('ol.settings.manager');
+            $settings = $settingsManager->getSettings();
+            $logo = $settings->getEntry('logo');
+            if ($logo) {
+                $uploader->remove($logo->getValue());
+                $settingsManager->removeSettingByKey('logo');
+            }
+
+            $photo = $uploader->upload($file);
+
+            $settings->addEntry(new FileSettingEntry('logo', $photo));
+            $settingsManager->save($settings);
+
+            return $this->view([], Response::HTTP_OK);
+        }
+
+        return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * Remove logo.
+     *
+     * @Route(name="oloy.settings.remove_logo", path="/settings/logo")
+     * @Method("DELETE")
+     * @Security("is_granted('EDIT_SETTINGS')")
+     * @ApiDoc(
+     *     name="Delete logo",
+     *     section="Settings"
+     * )
+     *
+     * @return \FOS\RestBundle\View\View
+     */
+    public function removeLogoAction()
+    {
+        $settingsManager = $this->get('ol.settings.manager');
+        $settings = $settingsManager->getSettings();
+        $logo = $settings->getEntry('logo');
+        if ($logo) {
+            $logo = $logo->getValue();
+            $uploader = $this->get('oloy.settings.logo_uploader');
+            $uploader->remove($logo);
+            $settingsManager->removeSettingByKey('logo');
+        }
+
+        return $this->view([], Response::HTTP_OK);
+    }
+
+    /**
+     * Get logo.
+     *
+     * @Route(name="oloy.settings.get_logo", path="/settings/logo")
+     * @Method("GET")
+     * @ApiDoc(
+     *     name="Get logo",
+     *     section="Settings"
+     * )
+     *
+     * @return Response
+     */
+    public function getLogoAction()
+    {
+        $settingsManager = $this->get('ol.settings.manager');
+        $settings = $settingsManager->getSettings();
+        $logoEntry = $settings->getEntry('logo');
+        $logo = null;
+
+        if ($logoEntry) {
+            $logo = $logoEntry->getValue();
+        }
+        if (!$logo) {
+            throw $this->createNotFoundException();
+        }
+
+        $content = $this->get('oloy.settings.logo_uploader')->get($logo);
+        if (!$content) {
+            throw $this->createNotFoundException();
+        }
+
+        $response = new Response($content);
+        $response->headers->set('Content-Disposition', 'inline');
+        $response->headers->set('Content-Type', $logo->getMime());
+
+        return $response;
+    }
+
     /**
      * Method allow to update system settings.
      *

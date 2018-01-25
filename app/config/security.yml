@@ -71,6 +71,11 @@ security:
             methods: ["GET"]
             stateless: true
             anonymous: true
+        settings_logo:
+            pattern:  ^/api/settings/logo
+            methods: ["GET"]
+            stateless: true
+            anonymous: true
         doc:
             pattern:  ^/doc
             stateless: true
@@ -118,5 +123,6 @@ security:
         - { path: ^/api/seller/login_check, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/token/refresh, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/settings/choices, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/settings/logo, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
         - { path: ^/api/translations, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }

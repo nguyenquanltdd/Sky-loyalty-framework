@@ -27,6 +27,24 @@ class Settings
         $this->addEntry($value);
     }
 
+    /**
+     * Remove entry.
+     *
+     * @param string $key
+     *
+     * @return bool Return true if success, otherwise false.
+     */
+    public function removeEntry($key)
+    {
+        if (isset($this->entries[$key])) {
+            unset($this->entries[$key]);
+
+            return true;
+        }
+
+        return false;
+    }
+
     public function addEntry(SettingsEntry $entry)
     {
         $this->entries[$entry->getKey()] = $entry;

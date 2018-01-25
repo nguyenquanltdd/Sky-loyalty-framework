@@ -40,6 +40,14 @@ class DoctrineSettingsManager implements SettingsManager
         }
     }
 
+    public function removeSettingByKey($key)
+    {
+        $setting = $this->getSettingByKey($key);
+
+        $this->em->remove($setting);
+        $this->em->flush();
+    }
+
     public function getSettings()
     {
         $entries = $this->em->getRepository('OpenLoyaltySettingsBundle:SettingsEntry')->findAll();
