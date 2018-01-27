@@ -29,6 +29,7 @@ class Campaign extends BaseCampaign
             'name' => $this->name,
             'shortDescription' => $this->shortDescription,
             'conditionsDescription' => $this->conditionsDescription,
+            'moreInformationLink' => $this->moreInformationLink,
             'active' => $this->active,
             'costInPoints' => $this->costInPoints,
             'levels' => $this->levels,

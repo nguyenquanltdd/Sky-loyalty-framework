@@ -15,6 +15,10 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
       type: text
       nullable: true
       column: short_description
+    moreInformationLink:
+      type: text
+      nullable: true
+      column: more_information_link
     conditionsDescription:
       type: text
       nullable: true

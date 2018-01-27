@@ -45,6 +45,11 @@ class Campaign
     /**
      * @var string
      */
+    protected $moreInformationLink;
+
+    /**
+     * @var string
+     */
     protected $conditionsDescription;
 
     /**
@@ -130,6 +135,10 @@ class Campaign
 
         if (isset($data['shortDescription'])) {
             $this->shortDescription = $data['shortDescription'];
+        }
+
+        if (isset($data['moreInformationLink'])) {
+            $this->moreInformationLink = $data['moreInformationLink'];
         }
 
         if (isset($data['conditionsDescription'])) {
@@ -246,6 +255,22 @@ class Campaign
     public function setShortDescription($shortDescription)
     {
         $this->shortDescription = $shortDescription;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMoreInformationLink()
+    {
+        return $this->moreInformationLink;
+    }
+
+    /**
+     * @param string $moreInformationLink
+     */
+    public function setMoreInformationLink($moreInformationLink)
+    {
+        $this->moreInformationLink = $moreInformationLink;
     }
 
     /**
