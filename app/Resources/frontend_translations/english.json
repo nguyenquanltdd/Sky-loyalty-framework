@@ -845,6 +845,8 @@
     }
   },
   "campaign": {
+    "more_information_link": "More information link",
+    "more_information_link_prompt": "",
     "coupons_count": "Coupons count ",
     "users_in_campaign": "Users in campaign ",
     "details_heading": "Campaign details",
@@ -1569,6 +1571,9 @@
       "my_profile": "My profile"
     },
     "customer_campaign": {
+      "more_information": {
+        "button": "Click here for more info"
+      },
       "coupon_used": "This coupon has been used",
       "not_enough_points": "Not enough points",
       "will_be_active_dates": "This reward campaign will be active from {{from}} to {{to}}",

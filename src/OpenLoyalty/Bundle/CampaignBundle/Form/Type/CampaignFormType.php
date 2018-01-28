@@ -23,6 +23,7 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Constraints\Valid;
 
 /**
@@ -51,6 +52,10 @@ class CampaignFormType extends AbstractType
         ]);
         $builder->add('shortDescription', TextareaType::class, [
             'required' => false,
+        ]);
+        $builder->add('moreInformationLink', TextareaType::class, [
+            'required' => false,
+            'constraints' => [new Url()],
         ]);
         $builder->add('conditionsDescription', TextareaType::class, [
             'required' => false,
