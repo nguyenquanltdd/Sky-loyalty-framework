@@ -11,5 +11,6 @@ The REST API Reference
    audit
    campaign
    customer
+   customer_campaign
 
 .. include:: map.rst.inc
