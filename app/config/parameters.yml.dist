@@ -26,6 +26,7 @@ parameters:
     mailer_user: ~
     mailer_password: ~
     mailer_port: 1025
+    mailer_encryption: ~
     mailer_from_address: open@oloy.com
     mailer_from_name: open@oloy.com
 
