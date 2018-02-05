@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c6a7a939e0cc9e4a2b6a3582c22acdcb",
-    "content-hash": "eafdd7de4540eccf41a78697843e8d04",
+    "hash": "7dcfaef6c9519d72dbb1db24b33bd3a8",
+    "content-hash": "db49942e55348450a6b16a41474d7e53",
     "packages": [
         {
             "name": "beberlei/DoctrineExtensions",
@@ -3549,6 +3549,46 @@
             ],
             "description": "A security checker for your composer.lock",
             "time": "2016-09-23 18:09:57"
+        },
+        {
+            "name": "smsapi/php-client",
+            "version": "v1.8.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/smsapi/smsapi-php-client.git",
+                "reference": "580aa0f376522ff72493b1397be8ea6db63d0126"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/smsapi/smsapi-php-client/zipball/580aa0f376522ff72493b1397be8ea6db63d0126",
+                "reference": "580aa0f376522ff72493b1397be8ea6db63d0126",
+                "shasum": ""
+            },
+            "require-dev": {
+                "apigen/apigen": "^4",
+                "phpunit/phpunit": "^4.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "SMSApi\\": "smsapi"
+                },
+                "classmap": [
+                    "smsapi"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "Library for communicating with provider",
+            "homepage": "http://smsapi.pl",
+            "keywords": [
+                "mms",
+                "sms",
+                "vms"
+            ],
+            "time": "2018-01-03 10:13:48"
         },
         {
             "name": "swiftmailer/swiftmailer",
