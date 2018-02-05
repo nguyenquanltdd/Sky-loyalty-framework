@@ -129,7 +129,7 @@ Example
         -X "GET" \
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
-        -H "Authorization: Bearer" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
         -d "entityType=customer" \
         -d "page=2" \
         -d "perPage=2" \
