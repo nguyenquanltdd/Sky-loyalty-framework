@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\UserBundle\Tests\Controller\Api;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Bundle\CoreBundle\Tests\BaseApiTest;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
@@ -93,7 +93,7 @@ class SellerControllerTest extends BaseApiTest
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
 
         self::$kernel->boot();
-        /** @var RepositoryInterface $repo */
+        /** @var Repository $repo */
         $repo = self::$kernel->getContainer()->get('oloy.user.read_model.repository.seller_details');
         /** @var SellerDetails $seller */
         $seller = $repo->find(LoadUserData::TEST_SELLER_ID);
@@ -117,7 +117,7 @@ class SellerControllerTest extends BaseApiTest
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
 
         self::$kernel->boot();
-        /** @var RepositoryInterface $repo */
+        /** @var Repository $repo */
         $repo = self::$kernel->getContainer()->get('oloy.user.read_model.repository.seller_details');
         /** @var SellerDetails $seller */
         $seller = $repo->find(LoadUserData::TEST_SELLER_ID);
@@ -141,7 +141,7 @@ class SellerControllerTest extends BaseApiTest
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
 
         self::$kernel->boot();
-        /** @var RepositoryInterface $repo */
+        /** @var Repository $repo */
         $repo = self::$kernel->getContainer()->get('oloy.user.read_model.repository.seller_details');
         /** @var SellerDetails $seller */
         $seller = $repo->find(LoadUserData::TEST_SELLER_ID);

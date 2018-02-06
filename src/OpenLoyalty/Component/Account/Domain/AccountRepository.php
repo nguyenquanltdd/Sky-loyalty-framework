@@ -5,10 +5,10 @@
  */
 namespace OpenLoyalty\Component\Account\Domain;
 
-use Broadway\EventHandling\EventBusInterface;
+use Broadway\EventHandling\EventBus;
 use Broadway\EventSourcing\AggregateFactory\PublicConstructorAggregateFactory;
 use Broadway\EventSourcing\EventSourcingRepository;
-use Broadway\EventStore\EventStoreInterface;
+use Broadway\EventStore\EventStore;
 
 /**
  * Class AccountRepository.
@@ -16,8 +16,8 @@ use Broadway\EventStore\EventStoreInterface;
 class AccountRepository extends EventSourcingRepository
 {
     public function __construct(
-        EventStoreInterface $eventStore,
-        EventBusInterface $eventBus,
+        EventStore $eventStore,
+        EventBus $eventBus,
         array $eventStreamDecorators = array()
     ) {
         parent::__construct(

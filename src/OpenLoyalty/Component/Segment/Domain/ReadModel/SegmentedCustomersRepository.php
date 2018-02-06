@@ -5,9 +5,9 @@
  */
 namespace OpenLoyalty\Component\Segment\Domain\ReadModel;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 
-interface SegmentedCustomersRepository extends RepositoryInterface
+interface SegmentedCustomersRepository extends Repository
 {
     public function findByParametersPaginated(array $params, $exact = true, $page = 1, $perPage = 10, $sortField = null, $direction = 'DESC');
 

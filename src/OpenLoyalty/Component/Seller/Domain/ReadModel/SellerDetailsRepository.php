@@ -5,9 +5,9 @@
  */
 namespace OpenLoyalty\Component\Seller\Domain\ReadModel;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 
-interface SellerDetailsRepository extends RepositoryInterface
+interface SellerDetailsRepository extends Repository
 {
     public function findByParameters(array $params, $exact = true);
 

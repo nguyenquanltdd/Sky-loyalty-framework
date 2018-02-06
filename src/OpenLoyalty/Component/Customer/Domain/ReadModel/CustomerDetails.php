@@ -5,8 +5,7 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
-use Broadway\ReadModel\ReadModelInterface;
-use Broadway\Serializer\SerializableInterface;
+use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\Model\Address;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
@@ -22,7 +21,7 @@ use OpenLoyalty\Component\Customer\Domain\TransactionId;
 /**
  * Class CustomerDetails.
  */
-class CustomerDetails implements ReadModelInterface, SerializableInterface
+class CustomerDetails implements SerializableReadModel
 {
     /**
      * @var CustomerId
@@ -187,7 +186,7 @@ class CustomerDetails implements ReadModelInterface, SerializableInterface
     /**
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->customerId->__toString();
     }
@@ -332,7 +331,7 @@ class CustomerDetails implements ReadModelInterface, SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         $serializedCampaigns = array_map(function (CampaignPurchase $campaignPurchase) {
             return $campaignPurchase->serialize();

@@ -5,10 +5,10 @@
  */
 namespace OpenLoyalty\Component\Account\Infrastructure\Event\Listener;
 
-use Broadway\CommandHandling\CommandBusInterface;
+use Broadway\CommandHandling\CommandBus;
 use Broadway\Domain\DomainMessage;
-use Broadway\EventHandling\EventListenerInterface;
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\EventHandling\EventListener;
+use Broadway\ReadModel\Repository;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Component\Account\Domain\Command\SpendPoints;
 use OpenLoyalty\Component\Account\Domain\Model\SpendPointsTransfer;
@@ -19,15 +19,15 @@ use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 /**
  * Class SpendPointsOnCampaignListener.
  */
-class SpendPointsOnCampaignListener implements EventListenerInterface
+class SpendPointsOnCampaignListener implements EventListener
 {
     /**
-     * @var CommandBusInterface
+     * @var CommandBus
      */
     protected $commandBus;
 
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     protected $accountDetailsRepository;
 
@@ -39,13 +39,13 @@ class SpendPointsOnCampaignListener implements EventListenerInterface
     /**
      * SpendPointsOnCampaignListener constructor.
      *
-     * @param CommandBusInterface    $commandBus
-     * @param RepositoryInterface    $accountDetailsRepository
+     * @param CommandBus             $commandBus
+     * @param Repository             $accountDetailsRepository
      * @param UuidGeneratorInterface $uuidGenerator
      */
     public function __construct(
-        CommandBusInterface $commandBus,
-        RepositoryInterface $accountDetailsRepository,
+        CommandBus $commandBus,
+        Repository $accountDetailsRepository,
         UuidGeneratorInterface $uuidGenerator
     ) {
         $this->commandBus = $commandBus;

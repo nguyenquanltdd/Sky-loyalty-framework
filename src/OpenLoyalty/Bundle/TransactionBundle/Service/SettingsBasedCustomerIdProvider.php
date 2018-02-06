@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\TransactionBundle\Service;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Transaction\Domain\CustomerIdProvider;
@@ -21,17 +21,17 @@ class SettingsBasedCustomerIdProvider implements CustomerIdProvider
     protected $settingsManager;
 
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     protected $customerDetailsRepository;
 
     /**
      * SettingsBasedCustomerIdProvider constructor.
      *
-     * @param SettingsManager     $settingsManager
-     * @param RepositoryInterface $customerDetailsRepository
+     * @param SettingsManager $settingsManager
+     * @param Repository      $customerDetailsRepository
      */
-    public function __construct(SettingsManager $settingsManager, RepositoryInterface $customerDetailsRepository)
+    public function __construct(SettingsManager $settingsManager, Repository $customerDetailsRepository)
     {
         $this->settingsManager = $settingsManager;
         $this->customerDetailsRepository = $customerDetailsRepository;

@@ -7,7 +7,7 @@ namespace OpenLoyalty\Component\EarningRule\Infrastructure\Persistence\Doctrine\
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use OpenLoyalty\Component\EarningRule\Domain\Model\UsageSubject;
-use Rhumsaa\Uuid\Doctrine\UuidType;
+use Ramsey\Uuid\Doctrine\UuidType;
 
 /**
  * Class EarningRuleUsageSubjectDoctrineType.

@@ -5,8 +5,7 @@
  */
 namespace OpenLoyalty\Component\Transaction\Domain\ReadModel;
 
-use Broadway\ReadModel\ReadModelInterface;
-use Broadway\Serializer\SerializableInterface;
+use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Core\Domain\Model\SKU;
 use OpenLoyalty\Component\Transaction\Domain\CustomerId;
 use OpenLoyalty\Component\Transaction\Domain\Model\CustomerBasicData;
@@ -19,7 +18,7 @@ use OpenLoyalty\Component\Transaction\Domain\TransactionId;
 /**
  * Class TransactionDetails.
  */
-class TransactionDetails implements ReadModelInterface, SerializableInterface
+class TransactionDetails implements SerializableReadModel
 {
     /**
      * @var TransactionId
@@ -96,7 +95,7 @@ class TransactionDetails implements ReadModelInterface, SerializableInterface
     /**
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->transactionId->__toString();
     }
@@ -154,7 +153,7 @@ class TransactionDetails implements ReadModelInterface, SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         $items = [];
         foreach ($this->items as $item) {

@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\UserBundle\Form\Handler;
 
-use Broadway\CommandHandling\CommandBusInterface;
+use Broadway\CommandHandling\CommandBus;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Bundle\UserBundle\Service\EmailProvider;
 use OpenLoyalty\Component\Customer\Domain\Command\CreateInvitation;
@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 class InvitationFormHandler
 {
     /**
-     * @var CommandBusInterface
+     * @var CommandBus
      */
     protected $commandBus;
 
@@ -47,14 +47,14 @@ class InvitationFormHandler
     /**
      * InvitationFormHandler constructor.
      *
-     * @param CommandBusInterface         $commandBus
+     * @param CommandBus                  $commandBus
      * @param InvitationDetailsRepository $invitationDetailsRepository
      * @param CustomerDetailsRepository   $customerDetailsRepository
      * @param UuidGeneratorInterface      $uuidGenerator
      * @param EmailProvider               $emailProvider
      */
     public function __construct(
-        CommandBusInterface $commandBus,
+        CommandBus $commandBus,
         InvitationDetailsRepository $invitationDetailsRepository,
         CustomerDetailsRepository $customerDetailsRepository,
         UuidGeneratorInterface $uuidGenerator,
@@ -99,9 +99,9 @@ class InvitationFormHandler
         }
 
         if ($q = count($this->invitationDetailsRepository->findByParametersPaginated([
-            'recipientEmail' => $recipientEmail,
-            'referrerId' => $currentCustomer->getCustomerId()->__toString(),
-        ], true)) > 0) {
+                'recipientEmail' => $recipientEmail,
+                'referrerId' => $currentCustomer->getCustomerId()->__toString(),
+            ], true)) > 0) {
             return true;
         }
 

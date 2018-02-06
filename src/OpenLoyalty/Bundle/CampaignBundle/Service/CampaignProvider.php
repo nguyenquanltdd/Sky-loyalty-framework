@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\CampaignBundle\Service;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
@@ -22,12 +22,12 @@ use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomers;
 class CampaignProvider
 {
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     protected $segmentedCustomersRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     protected $customerBelongingToOneLevelRepository;
 
@@ -49,15 +49,15 @@ class CampaignProvider
     /**
      * CampaignCustomersProvider constructor.
      *
-     * @param RepositoryInterface     $segmentedCustomersRepository
-     * @param RepositoryInterface     $customerBelongingToOneLevelRepository
+     * @param Repository              $segmentedCustomersRepository
+     * @param Repository              $customerBelongingToOneLevelRepository
      * @param CouponUsageRepository   $couponUsageRepository
      * @param CampaignValidator       $campaignValidator
      * @param CampaignUsageRepository $campaignUsageRepository
      */
     public function __construct(
-        RepositoryInterface $segmentedCustomersRepository,
-        RepositoryInterface $customerBelongingToOneLevelRepository,
+        Repository $segmentedCustomersRepository,
+        Repository $customerBelongingToOneLevelRepository,
         CouponUsageRepository $couponUsageRepository,
         CampaignValidator $campaignValidator,
         CampaignUsageRepository $campaignUsageRepository
@@ -140,7 +140,8 @@ class CampaignProvider
     {
         $freeCoupons = $this->getCouponsUsageLeftCount($campaign);
         if (!$campaign->isSingleCoupon()) {
-            $usageForCustomer = $this->couponUsageRepository->countUsageForCampaignAndCustomer($campaign->getCampaignId(), new CustomerId($customerId));
+            $usageForCustomer = $this->couponUsageRepository->countUsageForCampaignAndCustomer($campaign->getCampaignId(),
+                new CustomerId($customerId));
         } else {
             $campaignCoupon = $this->getAllCoupons($campaign);
             $coupon = $this->couponUsageRepository->find($campaign->getCampaignId().'_'.$customerId.'_'.reset($campaignCoupon));

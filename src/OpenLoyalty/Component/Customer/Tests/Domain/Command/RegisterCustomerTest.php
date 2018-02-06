@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Component\Customer\Tests\Domain\Command;
 
-use Broadway\EventDispatcher\EventDispatcherInterface;
+use Broadway\EventDispatcher\EventDispatcher;
 use Broadway\EventHandling\SimpleEventBus;
 use Broadway\EventStore\InMemoryEventStore;
 use Broadway\EventStore\TraceableEventStore;
@@ -41,7 +41,7 @@ class RegisterCustomerTest extends CustomerCommandHandlerTest
         $eventStore = new TraceableEventStore(new InMemoryEventStore());
 
         $eventBus = new SimpleEventBus();
-        $eventDispatcher = $this->getMockBuilder(EventDispatcherInterface::class)->getMock();
+        $eventDispatcher = $this->getMockBuilder(EventDispatcher::class)->getMock();
         $eventDispatcher
             ->expects($this->once())
             ->method('dispatch')

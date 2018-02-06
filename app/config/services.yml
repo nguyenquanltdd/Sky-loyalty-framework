@@ -1,3 +1,39 @@
 parameters:
 
 services:
+  broadway.elasticsearch.client:
+    class: Elasticsearch\Client
+    factory: ['@broadway.elasticsearch.client_factory', create]
+    arguments:
+      - '%elastica%'
+
+  broadway.elasticsearch.client_factory:
+    class: Broadway\ReadModel\ElasticSearch\ElasticSearchClientFactory
+    public: false
+
+  broadway.event.store.concurrency.resolver:
+    class: Broadway\EventStore\ConcurrencyConflictResolver\BlacklistConcurrencyConflictResolver
+
+  oloy.dbal.event.store.concurrency:
+    class: OpenLoyalty\Bundle\CoreBundle\EventStore\ConcurrencyDBALEventStore
+    arguments:
+      - '@oloy.dbal.event.store'
+      - '@broadway.event.store.concurrency.resolver'
+
+  oloy.dbal.event.store:
+    class: Broadway\EventStore\Dbal\DBALEventStore
+    arguments:
+      - '@doctrine.dbal.default_connection'
+      - '@broadway.serializer.payload'
+      - '@broadway.serializer.metadata'
+      - 'events'
+      - false
+      - '@broadway.uuid.converter'
+
+  oloy.read_model.repository.factory:
+    class: OpenLoyalty\Component\Core\Infrastructure\Repository\OloyElasticsearchRepositoryFactory
+    arguments:
+      - '@broadway.elasticsearch.client'
+      - '@broadway.serializer.readmodel'
+      - '%es_max_result_window_size%'
+

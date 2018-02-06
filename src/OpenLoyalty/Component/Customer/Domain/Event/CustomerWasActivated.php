@@ -23,7 +23,7 @@ class CustomerWasActivated extends CustomerEvent
         $this->activatedAt = new \DateTime();
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         return array_merge(parent::serialize(), array(
             'activatedAt' => $this->activatedAt ? $this->activatedAt->getTimestamp() : null,

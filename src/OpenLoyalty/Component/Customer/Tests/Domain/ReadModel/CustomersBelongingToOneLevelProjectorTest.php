@@ -3,6 +3,7 @@
 namespace OpenLoyalty\Component\Customer\Tests\Domain\ReadModel;
 
 use Broadway\ReadModel\InMemory\InMemoryRepository;
+use Broadway\ReadModel\Repository;
 use Broadway\ReadModel\Testing\ProjectorScenarioTestCase;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasMovedToLevel;
@@ -11,6 +12,7 @@ use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomersBelongingToOneLevel;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomersBelongingToOneLevelProjector;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
+use Broadway\ReadModel\Projector;
 
 /**
  * Class CustomersBelongingToOneLevelProjectorTest.
@@ -37,14 +39,14 @@ class CustomersBelongingToOneLevelProjectorTest extends ProjectorScenarioTestCas
      */
     protected $level2Id;
 
-    protected function createProjector(InMemoryRepository $repository)
+    protected function createProjector(InMemoryRepository $repository): Projector
     {
         $this->customerId = new CustomerId('00000000-1111-0000-0000-000000000000');
         $this->customer2Id = new CustomerId('00000000-2222-0000-0000-000000000000');
         $this->levelId = new LevelId('00000000-2222-0000-0000-000000000111');
         $this->level2Id = new LevelId('00000000-2222-0000-0000-000000000222');
 
-        $customerRepository = $this->getMockBuilder(InMemoryRepository::class)->getMock();
+        $customerRepository = $this->getMockBuilder(Repository::class)->getMock();
         $customerData = $this->getCustomerData($this->levelId);
         $customerData['id'] = $this->customerId->__toString();
         $customer = CustomerDetails::deserialize($customerData);

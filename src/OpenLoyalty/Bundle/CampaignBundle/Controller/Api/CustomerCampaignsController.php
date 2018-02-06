@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\CampaignBundle\Controller\Api;
 
-use Broadway\CommandHandling\CommandBusInterface;
+use Broadway\CommandHandling\CommandBus;
 use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -233,7 +233,7 @@ class CustomerCampaignsController extends FOSRestController
 
         $coupon = new Coupon(reset($freeCoupons));
 
-        /** @var CommandBusInterface $bus */
+        /** @var CommandBus $bus */
         $bus = $this->get('broadway.command_handling.command_bus');
         $bus->dispatch(
             new BuyCampaign(
@@ -299,7 +299,7 @@ class CustomerCampaignsController extends FOSRestController
             $used = false;
         }
 
-        /** @var CommandBusInterface $bus */
+        /** @var CommandBus $bus */
         $bus = $this->get('broadway.command_handling.command_bus');
         $bus->dispatch(
             new ChangeCampaignUsage(

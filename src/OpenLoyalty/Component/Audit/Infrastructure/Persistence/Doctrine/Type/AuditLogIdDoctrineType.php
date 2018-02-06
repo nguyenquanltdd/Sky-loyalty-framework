@@ -7,7 +7,7 @@ namespace OpenLoyalty\Component\Audit\Infrastructure\Persistence\Doctrine\Type;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use OpenLoyalty\Component\Audit\Domain\AuditLogId;
-use Rhumsaa\Uuid\Doctrine\UuidType;
+use Ramsey\Uuid\Doctrine\UuidType;
 
 /**
  * Class AuditLogIdDoctrineType.

@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Component\Pos\Domain\Command;
 
-use Broadway\CommandHandling\CommandHandler;
+use Broadway\CommandHandling\SimpleCommandHandler;
 use Broadway\EventDispatcher\EventDispatcher;
 use OpenLoyalty\Component\Pos\Domain\Pos;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
@@ -15,7 +15,7 @@ use OpenLoyalty\Component\Pos\Domain\SystemEvent\PosUpdatedSystemEvent;
 /**
  * Class PosCommandHandler.
  */
-class PosCommandHandler extends CommandHandler
+class PosCommandHandler extends SimpleCommandHandler
 {
     /**
      * @var PosRepository

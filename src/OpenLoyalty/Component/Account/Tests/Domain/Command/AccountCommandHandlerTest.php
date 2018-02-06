@@ -2,10 +2,10 @@
 
 namespace OpenLoyalty\Component\Account\Tests\Domain\Command;
 
-use Broadway\CommandHandling\CommandHandlerInterface;
+use Broadway\CommandHandling\CommandHandler;
 use Broadway\CommandHandling\Testing\CommandHandlerScenarioTestCase;
-use Broadway\EventHandling\EventBusInterface;
-use Broadway\EventStore\EventStoreInterface;
+use Broadway\EventHandling\EventBus;
+use Broadway\EventStore\EventStore;
 use OpenLoyalty\Component\Account\Domain\AccountRepository;
 use OpenLoyalty\Component\Account\Domain\Command\AccountCommandHandler;
 
@@ -17,12 +17,12 @@ abstract class AccountCommandHandlerTest extends CommandHandlerScenarioTestCase
     /**
      * Create a command handler for the given scenario test case.
      *
-     * @param EventStoreInterface $eventStore
-     * @param EventBusInterface   $eventBus
+     * @param EventStore $eventStore
+     * @param EventBus   $eventBus
      *
-     * @return CommandHandlerInterface
+     * @return CommandHandler
      */
-    protected function createCommandHandler(EventStoreInterface $eventStore, EventBusInterface $eventBus)
+    protected function createCommandHandler(EventStore $eventStore, EventBus $eventBus): CommandHandler
     {
         return new AccountCommandHandler(
             new AccountRepository($eventStore, $eventBus)

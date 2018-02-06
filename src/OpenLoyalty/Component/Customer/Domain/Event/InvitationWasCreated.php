@@ -75,7 +75,7 @@ class InvitationWasCreated extends InvitationEvent
         return $this->token;
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         return array_merge(
             parent::serialize(),

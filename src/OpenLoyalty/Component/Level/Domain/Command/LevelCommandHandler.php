@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Component\Level\Domain\Command;
 
-use Broadway\CommandHandling\CommandHandler;
+use Broadway\CommandHandling\SimpleCommandHandler;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
 use OpenLoyalty\Component\Level\Domain\Model\Reward;
@@ -16,7 +16,7 @@ use OpenLoyalty\Component\Level\Domain\SpecialRewardRepository;
 /**
  * Class LevelCommandHandler.
  */
-class LevelCommandHandler extends CommandHandler
+class LevelCommandHandler extends SimpleCommandHandler
 {
     /**
      * @var LevelRepository

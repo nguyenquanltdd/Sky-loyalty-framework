@@ -6,15 +6,15 @@
 namespace OpenLoyalty\Component\Core\Infrastructure\Repository;
 
 use Broadway\ReadModel\ElasticSearch\ElasticSearchRepository;
-use Broadway\ReadModel\RepositoryInterface;
-use Broadway\Serializer\SerializerInterface;
+use Broadway\ReadModel\Repository;
+use Broadway\Serializer\Serializer;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 
 /**
  * Class OloyElasticsearchRepository.
  */
-class OloyElasticsearchRepository extends ElasticSearchRepository implements RepositoryInterface
+class OloyElasticsearchRepository extends ElasticSearchRepository implements Repository
 {
     protected $client;
     protected $serializer;
@@ -25,15 +25,15 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
     private $maxResultWindowSize = 10000;
 
     /**
-     * @param Client              $client
-     * @param SerializerInterface $serializer
-     * @param string              $index
-     * @param string              $class
-     * @param array               $notAnalyzedFields = array
+     * @param Client     $client
+     * @param Serializer $serializer
+     * @param string     $index
+     * @param string     $class
+     * @param array      $notAnalyzedFields = array
      */
     public function __construct(
         Client $client,
-        SerializerInterface $serializer,
+        Serializer $serializer,
         $index,
         $class,
         array $notAnalyzedFields = array()
@@ -46,7 +46,7 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
         $this->notAnalyzedFields = $notAnalyzedFields;
     }
 
-    public function createIndex()
+    public function createIndex(): bool
     {
         $class = $this->class;
 
@@ -56,16 +56,17 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
         if (count($this->notAnalyzedFields)) {
             $indexParams['body']['mappings']['properties'] = $this->createNotAnalyzedFieldsMapping($this->notAnalyzedFields);
         }
-        $defaultDynamicFields = [[
-            'email' => [
-                'match' => 'email',
-                'match_mapping_type' => 'string',
-                'mapping' => [
-                    'type' => 'string',
-                    'analyzer' => 'email',
+        $defaultDynamicFields = [
+            [
+                'email' => [
+                    'match' => 'email',
+                    'match_mapping_type' => 'string',
+                    'mapping' => [
+                        'type' => 'string',
+                        'analyzer' => 'email',
+                    ],
                 ],
             ],
-        ],
             [
                 'someemail' => [
                     'match' => '*Email',
@@ -166,26 +167,39 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
         foreach ($params as $key => $value) {
             if (is_array($value) && isset($value['type'])) {
                 if ($value['type'] == 'number') {
-                    $filter[] = ['term' => [
-                        $key => floatval($value['value']),
-                    ]];
+                    $filter[] = [
+                        'term' => [
+                            $key => floatval($value['value']),
+                        ],
+                    ];
                 } elseif ($value['type'] == 'range') {
-                    $filter[] = ['range' => [
-                        $key => $value['value'],
-                    ]];
+                    $filter[] = [
+                        'range' => [
+                            $key => $value['value'],
+                        ],
+                    ];
                 } elseif ($value['type'] == 'allow_null') {
-                    $filter[] = ['bool' => ['should' => [
-                        ['term' => [$key => $value['value']]], ['missing' => ['field' => $key]],
-                    ]]];
+                    $filter[] = [
+                        'bool' => [
+                            'should' => [
+                                ['term' => [$key => $value['value']]],
+                                ['missing' => ['field' => $key]],
+                            ],
+                        ],
+                    ];
                 }
             } elseif (!$exact) {
-                $filter[] = ['wildcard' => [
-                    $key => '*'.$value.'*',
-                ]];
+                $filter[] = [
+                    'wildcard' => [
+                        $key => '*'.$value.'*',
+                    ],
+                ];
             } else {
-                $filter[] = ['term' => [
-                    $key => $value,
-                ]];
+                $filter[] = [
+                    'term' => [
+                        $key => $value,
+                    ],
+                ];
             }
         }
 
@@ -235,7 +249,7 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
      *
      * @return True, if the index was successfully deleted
      */
-    public function deleteIndex()
+    public function deleteIndex(): bool
     {
         $indexParams = array(
             'index' => $this->index,
@@ -253,26 +267,39 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
         foreach ($params as $key => $value) {
             if (is_array($value) && isset($value['type'])) {
                 if ($value['type'] == 'number') {
-                    $filter[] = ['term' => [
-                        $key => floatval($value['value']),
-                    ]];
+                    $filter[] = [
+                        'term' => [
+                            $key => floatval($value['value']),
+                        ],
+                    ];
                 } elseif ($value['type'] == 'range') {
-                    $filter[] = ['range' => [
-                        $key => $value['value'],
-                    ]];
+                    $filter[] = [
+                        'range' => [
+                            $key => $value['value'],
+                        ],
+                    ];
                 } elseif ($value['type'] == 'allow_null') {
-                    $filter[] = ['bool' => ['should' => [
-                        ['term' => [$key => $value['value']]], ['missing' => ['field' => $key]],
-                    ]]];
+                    $filter[] = [
+                        'bool' => [
+                            'should' => [
+                                ['term' => [$key => $value['value']]],
+                                ['missing' => ['field' => $key]],
+                            ],
+                        ],
+                    ];
                 }
             } elseif (!$exact) {
-                $filter[] = ['wildcard' => [
-                    $key => '*'.$value.'*',
-                ]];
+                $filter[] = [
+                    'wildcard' => [
+                        $key => '*'.$value.'*',
+                    ],
+                ];
             } else {
-                $filter[] = ['term' => [
-                    $key => $value,
-                ]];
+                $filter[] = [
+                    'term' => [
+                        $key => $value,
+                    ],
+                ];
             }
         }
 
@@ -291,26 +318,39 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
         foreach ($params as $key => $value) {
             if (is_array($value) && isset($value['type'])) {
                 if ($value['type'] == 'number') {
-                    $filter[] = ['term' => [
-                        $key => floatval($value['value']),
-                    ]];
+                    $filter[] = [
+                        'term' => [
+                            $key => floatval($value['value']),
+                        ],
+                    ];
                 } elseif ($value['type'] == 'range') {
-                    $filter[] = ['range' => [
-                        $key => $value['value'],
-                    ]];
+                    $filter[] = [
+                        'range' => [
+                            $key => $value['value'],
+                        ],
+                    ];
                 } elseif ($value['type'] == 'allow_null') {
-                    $filter[] = ['bool' => ['should' => [
-                        ['term' => [$key => $value['value']]], ['missing' => ['field' => $key]],
-                    ]]];
+                    $filter[] = [
+                        'bool' => [
+                            'should' => [
+                                ['term' => [$key => $value['value']]],
+                                ['missing' => ['field' => $key]],
+                            ],
+                        ],
+                    ];
                 }
             } elseif (!$exact) {
-                $filter[] = ['wildcard' => [
-                    $key => '*'.$value.'*',
-                ]];
+                $filter[] = [
+                    'wildcard' => [
+                        $key => '*'.$value.'*',
+                    ],
+                ];
             } else {
-                $filter[] = ['term' => [
-                    $key => $value,
-                ]];
+                $filter[] = [
+                    'term' => [
+                        $key => $value,
+                    ],
+                ];
             }
         }
 
@@ -411,7 +451,7 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
      *
      * @return array
      */
-    protected function search(array $query, array $facets = array(), $size = null)
+    protected function search(array $query, array $facets = array(), int $size = 500): array
     {
         if (null === $size) {
             $size = $this->getMaxResultWindowSize();

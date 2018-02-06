@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\PointsBundle\Controller\Api;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -122,7 +122,7 @@ class PointsTransferController extends FOSRestController
 
         if ($form->isValid()) {
             $data = $form->getData();
-            /** @var RepositoryInterface $accountDetailsRepo */
+            /** @var Repository $accountDetailsRepo */
             $accountDetailsRepo = $this->get('oloy.points.account.repository.account_details');
             $accounts = $accountDetailsRepo->findBy(['customerId' => $data['customer']]);
 
@@ -183,7 +183,7 @@ class PointsTransferController extends FOSRestController
 
         if ($form->isValid()) {
             $data = $form->getData();
-            /** @var RepositoryInterface $accountDetailsRepo */
+            /** @var Repository $accountDetailsRepo */
             $accountDetailsRepo = $this->get('oloy.points.account.repository.account_details');
             $accounts = $accountDetailsRepo->findBy(['customerId' => $data['customer']]);
             if (count($accounts) == 0) {

@@ -5,8 +5,8 @@
  */
 namespace OpenLoyalty\Component\Account\Domain\Command;
 
-use Broadway\CommandHandling\CommandHandler;
-use Broadway\EventDispatcher\EventDispatcherInterface;
+use Broadway\CommandHandling\SimpleCommandHandler;
+use Broadway\EventDispatcher\EventDispatcher;
 use OpenLoyalty\Component\Account\Domain\Account;
 use OpenLoyalty\Component\Account\Domain\AccountRepository;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountCreatedSystemEvent;
@@ -16,7 +16,7 @@ use OpenLoyalty\Component\Account\Domain\SystemEvent\AvailablePointsAmountChange
 /**
  * Class AccountCommandHandler.
  */
-class AccountCommandHandler extends CommandHandler
+class AccountCommandHandler extends SimpleCommandHandler
 {
     /**
      * @var AccountRepository
@@ -24,17 +24,17 @@ class AccountCommandHandler extends CommandHandler
     protected $repository;
 
     /**
-     * @var EventDispatcherInterface
+     * @var EventDispatcher
      */
     protected $eventDispatcher;
 
     /**
      * AccountCommandHandler constructor.
      *
-     * @param AccountRepository        $repository
-     * @param EventDispatcherInterface $eventDispatcher
+     * @param AccountRepository $repository
+     * @param EventDispatcher   $eventDispatcher
      */
-    public function __construct(AccountRepository $repository, EventDispatcherInterface $eventDispatcher = null)
+    public function __construct(AccountRepository $repository, EventDispatcher $eventDispatcher = null)
     {
         $this->repository = $repository;
         $this->eventDispatcher = $eventDispatcher;
@@ -62,13 +62,15 @@ class AccountCommandHandler extends CommandHandler
         if ($this->eventDispatcher) {
             $this->eventDispatcher->dispatch(
                 AccountSystemEvents::AVAILABLE_POINTS_AMOUNT_CHANGED,
-                [new AvailablePointsAmountChangedSystemEvent(
-                    $account->getId(),
-                     $account->getCustomerId(),
-                     $account->getAvailableAmount(),
-                     $command->getPointsTransfer()->getValue(),
-                     AvailablePointsAmountChangedSystemEvent::OPERATION_TYPE_ADD
-                 )]
+                [
+                    new AvailablePointsAmountChangedSystemEvent(
+                        $account->getId(),
+                        $account->getCustomerId(),
+                        $account->getAvailableAmount(),
+                        $command->getPointsTransfer()->getValue(),
+                        AvailablePointsAmountChangedSystemEvent::OPERATION_TYPE_ADD
+                    ),
+                ]
             );
         }
     }
@@ -88,7 +90,8 @@ class AccountCommandHandler extends CommandHandler
                         $account->getCustomerId(),
                         $account->getAvailableAmount(),
                         $command->getPointsTransfer()->getValue()
-                    ), ]
+                    ),
+                ]
             );
         }
     }

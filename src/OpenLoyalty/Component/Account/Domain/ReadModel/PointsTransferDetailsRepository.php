@@ -5,9 +5,9 @@
  */
 namespace OpenLoyalty\Component\Account\Domain\ReadModel;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 
-interface PointsTransferDetailsRepository extends RepositoryInterface
+interface PointsTransferDetailsRepository extends Repository
 {
     public function findAllActiveAddingTransfersCreatedAfter($timestamp);
 

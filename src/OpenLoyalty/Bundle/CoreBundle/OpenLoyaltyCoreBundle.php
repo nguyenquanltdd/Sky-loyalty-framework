@@ -5,6 +5,9 @@
  */
 namespace OpenLoyalty\Bundle\CoreBundle;
 
+use OpenLoyalty\Bundle\CoreBundle\Command\SchemaEventStoreCreateCommand;
+use OpenLoyalty\Bundle\CoreBundle\Command\SchemaEventStoreDropCommand;
+use Symfony\Component\Console\Application;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
@@ -12,4 +15,12 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  */
 class OpenLoyaltyCoreBundle extends Bundle
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function registerCommands(Application $application)
+    {
+        $application->add(new SchemaEventStoreCreateCommand());
+        $application->add(new SchemaEventStoreDropCommand());
+    }
 }

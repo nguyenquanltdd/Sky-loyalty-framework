@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener;
 
-use Broadway\CommandHandling\CommandBusInterface;
+use Broadway\CommandHandling\CommandBus;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Command\CreateAccount;
@@ -18,7 +18,7 @@ use OpenLoyalty\Component\Account\Domain\CustomerId as AccountCustomerId;
 class CreateAccountListener
 {
     /**
-     * @var CommandBusInterface
+     * @var CommandBus
      */
     protected $commandBus;
 
@@ -30,10 +30,10 @@ class CreateAccountListener
     /**
      * CreateAccountListener constructor.
      *
-     * @param CommandBusInterface    $commandBus
+     * @param CommandBus             $commandBus
      * @param UuidGeneratorInterface $uuidGenerator
      */
-    public function __construct(CommandBusInterface $commandBus, UuidGeneratorInterface $uuidGenerator)
+    public function __construct(CommandBus $commandBus, UuidGeneratorInterface $uuidGenerator)
     {
         $this->commandBus = $commandBus;
         $this->uuidGenerator = $uuidGenerator;

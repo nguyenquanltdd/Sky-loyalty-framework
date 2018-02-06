@@ -160,7 +160,7 @@ class TransactionWasRegistered extends TransactionEvent
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         $items = [];
         foreach ($this->items as $item) {

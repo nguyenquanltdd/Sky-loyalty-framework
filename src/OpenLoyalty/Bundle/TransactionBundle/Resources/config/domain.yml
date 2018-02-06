@@ -5,7 +5,7 @@ services:
       - '@oloy.transaction.repository'
     lazy: true
     tags:
-      - { name: command_handler }
+      - { name: broadway.command_handler }
   oloy.transaction.repository:
     class: OpenLoyalty\Component\Transaction\Domain\TransactionRepository
     arguments:

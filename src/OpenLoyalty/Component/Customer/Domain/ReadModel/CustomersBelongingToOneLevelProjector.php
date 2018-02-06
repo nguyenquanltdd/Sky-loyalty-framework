@@ -6,7 +6,7 @@
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
 use Broadway\ReadModel\Projector;
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasMovedToLevel;
 use OpenLoyalty\Component\Customer\Domain\LevelId;
 use OpenLoyalty\Component\Level\Domain\Level;
@@ -18,12 +18,12 @@ use OpenLoyalty\Component\Level\Domain\LevelRepository;
 class CustomersBelongingToOneLevelProjector extends Projector
 {
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     private $customerDetailsRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     private $customersBelongingToOneLevelRepository;
 
@@ -35,13 +35,13 @@ class CustomersBelongingToOneLevelProjector extends Projector
     /**
      * CustomersBelongingToOneLevelProjector constructor.
      *
-     * @param RepositoryInterface $customerDetailsRepository
-     * @param RepositoryInterface $customersBelongingToOneLevelRepository
-     * @param LevelRepository     $levelRepository
+     * @param Repository      $customerDetailsRepository
+     * @param Repository      $customersBelongingToOneLevelRepository
+     * @param LevelRepository $levelRepository
      */
     public function __construct(
-        RepositoryInterface $customerDetailsRepository,
-        RepositoryInterface $customersBelongingToOneLevelRepository,
+        Repository $customerDetailsRepository,
+        Repository $customersBelongingToOneLevelRepository,
         LevelRepository $levelRepository
     ) {
         $this->customerDetailsRepository = $customerDetailsRepository;
@@ -87,8 +87,7 @@ class CustomersBelongingToOneLevelProjector extends Projector
         } else {
             $customer->setLevelId(null);
             if ($event->isManually()) {
-                $customer->setManuallyAssignedLevelId(null)
-                ;
+                $customer->setManuallyAssignedLevelId(null);
             }
         }
 

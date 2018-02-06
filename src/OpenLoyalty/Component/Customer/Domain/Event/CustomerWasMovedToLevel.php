@@ -37,7 +37,7 @@ class CustomerWasMovedToLevel extends CustomerEvent
         $this->manually = $manually;
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         return array_merge(parent::serialize(), [
            'levelId' => $this->levelId ? $this->levelId->__toString() : null,

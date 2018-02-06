@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\PosBundle\Controller\Api;
 
-use Broadway\CommandHandling\CommandBusInterface;
+use Broadway\CommandHandling\CommandBus;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
@@ -51,7 +51,7 @@ class PosController extends FOSRestController
         $form = $this->get('form.factory')->createNamed('pos', CreatePosFormType::class);
         $uuidGenerator = $this->get('broadway.uuid.generator');
 
-        /** @var CommandBusInterface $commandBus */
+        /** @var CommandBus $commandBus */
         $commandBus = $this->get('broadway.command_handling.command_bus');
 
         $form->handleRequest($request);
@@ -99,7 +99,7 @@ class PosController extends FOSRestController
             'method' => 'PUT',
         ]);
 
-        /** @var CommandBusInterface $commandBus */
+        /** @var CommandBus $commandBus */
         $commandBus = $this->get('broadway.command_handling.command_bus');
 
         $form->handleRequest($request);

@@ -5,14 +5,13 @@
  */
 namespace OpenLoyalty\Component\Campaign\Domain\ReadModel;
 
-use Broadway\ReadModel\ReadModelInterface;
-use Broadway\Serializer\SerializableInterface;
+use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 
 /**
  * Class CampaignUsage.
  */
-class CampaignUsage implements ReadModelInterface, SerializableInterface
+class CampaignUsage implements SerializableReadModel
 {
     /**
      * @var CampaignId
@@ -37,7 +36,7 @@ class CampaignUsage implements ReadModelInterface, SerializableInterface
     /**
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->campaignId->__toString();
     }
@@ -60,7 +59,7 @@ class CampaignUsage implements ReadModelInterface, SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         return [
             'campaignId' => $this->campaignId->__toString(),

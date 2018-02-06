@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Component\EarningRule\Domain\Command;
 
-use Broadway\CommandHandling\CommandHandler;
+use Broadway\CommandHandling\SimpleCommandHandler;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Component\EarningRule\Domain\CustomEventEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRule;
@@ -17,7 +17,7 @@ use OpenLoyalty\Component\EarningRule\Domain\Exception\CustomEventEarningRuleAlr
 /**
  * Class EarningRuleCommandHandler.
  */
-class EarningRuleCommandHandler extends CommandHandler
+class EarningRuleCommandHandler extends SimpleCommandHandler
 {
     /**
      * @var EarningRuleRepository

@@ -5,14 +5,14 @@
  */
 namespace OpenLoyalty\Component\Campaign\Domain\Command;
 
-use Broadway\CommandHandling\CommandHandler;
+use Broadway\CommandHandling\SimpleCommandHandler;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 
 /**
  * Class CampaignCommandHandler.
  */
-class CampaignCommandHandler extends CommandHandler
+class CampaignCommandHandler extends SimpleCommandHandler
 {
     /**
      * @var CampaignRepository

@@ -37,7 +37,7 @@ class CampaignUsageWasChanged extends CustomerEvent
         $this->coupon = $coupon;
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         return array_merge(
             parent::serialize(),

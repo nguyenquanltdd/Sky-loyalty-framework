@@ -5,11 +5,11 @@
  */
 namespace OpenLoyalty\Component\Campaign\Domain\ReadModel;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 
-interface CouponUsageRepository extends RepositoryInterface
+interface CouponUsageRepository extends Repository
 {
     public function countUsageForCampaign(CampaignId $campaignId);
 

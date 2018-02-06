@@ -6,7 +6,7 @@ services:
       - '@broadway.event_dispatcher'
     lazy: true
     tags:
-      - { name: command_handler }
+      - { name: broadway.command_handler }
   oloy.points.account.repository:
     class: OpenLoyalty\Component\Account\Domain\AccountRepository
     arguments:

@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\Service;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
@@ -21,17 +21,17 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class CustomerProvider extends UserProvider implements UserProviderInterface
 {
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     protected $customerDetailsRepository;
 
     /**
      * CustomerProvider constructor.
      *
-     * @param EntityManager       $em
-     * @param RepositoryInterface $customerDetailsRepository
+     * @param EntityManager $em
+     * @param Repository    $customerDetailsRepository
      */
-    public function __construct(EntityManager $em, RepositoryInterface $customerDetailsRepository)
+    public function __construct(EntityManager $em, Repository $customerDetailsRepository)
     {
         parent::__construct($em);
         $this->customerDetailsRepository = $customerDetailsRepository;

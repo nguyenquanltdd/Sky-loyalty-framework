@@ -5,13 +5,13 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\Event;
 
-use Broadway\Serializer\SerializableInterface;
+use Broadway\Serializer\Serializable;
 use OpenLoyalty\Component\Customer\Domain\InvitationId;
 
 /**
  * Class InvitationEvent.
  */
-abstract class InvitationEvent implements SerializableInterface
+abstract class InvitationEvent implements Serializable
 {
     /**
      * @var InvitationId
@@ -39,7 +39,7 @@ abstract class InvitationEvent implements SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         return ['invitationId' => (string) $this->invitationId];
     }

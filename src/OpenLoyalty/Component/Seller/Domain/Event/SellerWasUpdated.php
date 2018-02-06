@@ -20,7 +20,7 @@ class SellerWasUpdated extends SellerEvent
         $this->sellerData = $sellerData;
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         $data = $this->sellerData;
 

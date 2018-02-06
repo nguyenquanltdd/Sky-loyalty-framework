@@ -21,7 +21,7 @@ class CustomerWasAttachedToInvitation extends InvitationEvent
         parent::__construct($invitationId);
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         return array_merge(parent::serialize(), [
            'customerId' => (string) $this->customerId,

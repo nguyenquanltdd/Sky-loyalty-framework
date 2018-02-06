@@ -52,7 +52,7 @@ class CustomerWasRegistered extends CustomerEvent
         return $this->customerData;
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         $data = $this->customerData;
         if ($data['birthDate'] instanceof \DateTime) {

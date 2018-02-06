@@ -7,7 +7,7 @@ namespace OpenLoyalty\Component\Email\Infrastructure\Persistence\Doctrine\Type;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use OpenLoyalty\Component\Email\Domain\EmailId;
-use Rhumsaa\Uuid\Doctrine\UuidType;
+use Ramsey\Uuid\Doctrine\UuidType;
 
 /**
  * Class EmailIdDoctrineType.

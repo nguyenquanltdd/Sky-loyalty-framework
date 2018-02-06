@@ -5,12 +5,12 @@
  */
 namespace OpenLoyalty\Component\Pos\Domain\Model;
 
-use Broadway\Serializer\SerializableInterface;
+use Broadway\Serializer\Serializable;
 
 /**
  * Class GeoPoint.
  */
-class GeoPoint implements SerializableInterface
+class GeoPoint implements Serializable
 {
     /**
      * @var string
@@ -55,7 +55,7 @@ class GeoPoint implements SerializableInterface
         return new self($data['lat'], $data['long']);
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         return [
             'lat' => $this->lat,

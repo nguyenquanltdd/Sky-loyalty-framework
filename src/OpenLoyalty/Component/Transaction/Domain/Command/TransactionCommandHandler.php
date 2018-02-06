@@ -5,14 +5,14 @@
  */
 namespace OpenLoyalty\Component\Transaction\Domain\Command;
 
-use Broadway\CommandHandling\CommandHandler;
+use Broadway\CommandHandling\SimpleCommandHandler;
 use OpenLoyalty\Component\Transaction\Domain\Transaction;
 use OpenLoyalty\Component\Transaction\Domain\TransactionRepository;
 
 /**
  * Class TransactionCommandHandler.
  */
-class TransactionCommandHandler extends CommandHandler
+class TransactionCommandHandler extends SimpleCommandHandler
 {
     /**
      * @var TransactionRepository

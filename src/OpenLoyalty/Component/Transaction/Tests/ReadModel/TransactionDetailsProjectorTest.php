@@ -24,7 +24,7 @@ class TransactionDetailsProjectorTest extends ProjectorScenarioTestCase
      *
      * @return Projector
      */
-    protected function createProjector(InMemoryRepository $repository)
+    protected function createProjector(InMemoryRepository $repository): Projector
     {
         $posRepo = $this->getMockBuilder(PosRepository::class)->getMock();
         $posRepo->method('byId')->willReturn(null);

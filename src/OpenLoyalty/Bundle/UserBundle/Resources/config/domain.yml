@@ -8,7 +8,7 @@ services:
       - '@oloy.audit.manager'
     lazy: true
     tags:
-      - { name: command_handler }
+      - { name: broadway.command_handler }
   oloy.user.invitation.sha_token_generator:
     class: OpenLoyalty\Component\Customer\Domain\Service\ShaInvitationTokenGenerator
     public: false
@@ -23,7 +23,7 @@ services:
       - '@broadway.event_dispatcher'
     lazy: true
     tags:
-      - { name: command_handler }
+      - { name: broadway.command_handler }
   oloy.user.seller.command_handler:
     class: OpenLoyalty\Component\Seller\Domain\Command\SellerCommandHandler
     arguments:
@@ -31,7 +31,7 @@ services:
       - '@oloy.user.seller.unique_validator'
     lazy: true
     tags:
-      - { name: command_handler }
+      - { name: broadway.command_handler }
   oloy.user.customer.unique_validator:
     class: OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator
     arguments:

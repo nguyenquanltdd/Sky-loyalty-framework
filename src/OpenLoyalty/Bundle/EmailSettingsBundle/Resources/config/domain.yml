@@ -13,7 +13,7 @@ services:
       - { from_name: '%mailer_from_name%', from_address: '%mailer_from_address%' }
     lazy: true
     tags:
-      - { name: command_handler }
+      - { name: broadway.command_handler }
 
   oloy.email.read_model.repository:
     class: OpenLoyalty\Component\Email\Infrastructure\ReadModel\Doctrine\Repository\DoctrineEmailRepository

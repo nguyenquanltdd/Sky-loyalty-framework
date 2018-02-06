@@ -5,10 +5,10 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Customer\Domain\LevelId;
 
-interface CustomersBelongingToOneLevelRepository extends RepositoryInterface
+interface CustomersBelongingToOneLevelRepository extends Repository
 {
     public function findByLevelIdPaginated(LevelId $levelId, $page = 1, $perPage = 10, $sortField = null, $direction = 'DESC');
 

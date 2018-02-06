@@ -7,7 +7,7 @@ services:
       - '@broadway.event_dispatcher'
     lazy: true
     tags:
-      - { name: command_handler }
+      - { name: broadway.command_handler }
   oloy.segment.repository:
     class: OpenLoyalty\Component\Segment\Infrastructure\Persistence\Doctrine\Repository\DoctrineSegmentRepository
     factory: ['@doctrine.orm.entity_manager', getRepository]

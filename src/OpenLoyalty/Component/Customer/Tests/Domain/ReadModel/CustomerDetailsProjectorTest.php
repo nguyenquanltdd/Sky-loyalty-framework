@@ -15,6 +15,7 @@ use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasDeactivated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasRegistered;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
+use Broadway\ReadModel\Projector;
 
 /**
  * Class CustomerDetailsProjectorTest.
@@ -24,7 +25,7 @@ class CustomerDetailsProjectorTest extends ProjectorScenarioTestCase
     /**
      * {@inheritdoc}
      */
-    protected function createProjector(InMemoryRepository $repository)
+    protected function createProjector(InMemoryRepository $repository): Projector
     {
         $transactionDetailsRepo = $this->getMockBuilder(TransactionDetailsRepository::class)->getMock();
 

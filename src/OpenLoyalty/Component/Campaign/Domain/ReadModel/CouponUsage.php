@@ -5,8 +5,7 @@
  */
 namespace OpenLoyalty\Component\Campaign\Domain\ReadModel;
 
-use Broadway\ReadModel\ReadModelInterface;
-use Broadway\Serializer\SerializableInterface;
+use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
@@ -14,7 +13,7 @@ use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 /**
  * Class CouponUsage.
  */
-class CouponUsage implements ReadModelInterface, SerializableInterface
+class CouponUsage implements SerializableReadModel
 {
     /**
      * @var int
@@ -70,7 +69,7 @@ class CouponUsage implements ReadModelInterface, SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         return [
             'campaignId' => $this->campaignId->__toString(),
@@ -83,7 +82,7 @@ class CouponUsage implements ReadModelInterface, SerializableInterface
     /**
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->campaignId->__toString().'_'.$this->customerId->__toString().'_'.$this->coupon->getCode();
     }

@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Component\Segment\Tests\Domain\Segmentation;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Core\Domain\Model\SKU;
@@ -34,7 +34,7 @@ use OpenLoyalty\Component\Transaction\Domain\TransactionId;
 class SegmentationProviderTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     protected $transactionDetailsRepository;
 

@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\UserBundle\EventListener;
 
-use Broadway\CommandHandling\CommandBusInterface;
+use Broadway\CommandHandling\CommandBus;
 use OpenLoyalty\Bundle\UserBundle\Event\UserRegisteredWithInvitationToken;
 use OpenLoyalty\Component\Customer\Domain\Command\AttachCustomerToInvitation;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetails;
@@ -19,7 +19,7 @@ class UserRegisteredWithInvitationTokenListener
     private $invitationDetailsRepository;
 
     /**
-     * @var CommandBusInterface
+     * @var CommandBus
      */
     private $commandBus;
 
@@ -27,11 +27,11 @@ class UserRegisteredWithInvitationTokenListener
      * UserRegisteredWithInvitationTokenListener constructor.
      *
      * @param InvitationDetailsRepository $invitationDetailsRepository
-     * @param CommandBusInterface         $commandBus
+     * @param CommandBus                  $commandBus
      */
     public function __construct(
         InvitationDetailsRepository $invitationDetailsRepository,
-        CommandBusInterface $commandBus
+        CommandBus $commandBus
     ) {
         $this->invitationDetailsRepository = $invitationDetailsRepository;
         $this->commandBus = $commandBus;

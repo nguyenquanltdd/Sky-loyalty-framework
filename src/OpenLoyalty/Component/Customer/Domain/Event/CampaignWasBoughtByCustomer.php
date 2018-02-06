@@ -58,7 +58,7 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
         return $this->campaignId;
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         return array_merge(
             parent::serialize(),

@@ -41,7 +41,7 @@ class CustomerCompanyDetailsWereUpdated extends CustomerEvent
         return $this->companyData;
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         return array_merge(parent::serialize(), array(
             'companyData' => $this->companyData,

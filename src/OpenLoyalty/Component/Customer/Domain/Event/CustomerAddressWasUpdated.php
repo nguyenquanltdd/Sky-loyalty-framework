@@ -42,7 +42,7 @@ class CustomerAddressWasUpdated extends CustomerEvent
         return $this->addressData;
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         return array_merge(parent::serialize(), array(
             'addressData' => $this->addressData,

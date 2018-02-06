@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\UtilityBundle\TestsBundle\Service;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Bundle\UtilityBundle\Service\CustomerDetailsCsvFormatter;
 use OpenLoyalty\Component\Account\Domain\Account;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
@@ -26,9 +26,9 @@ class CustomerDetailsCsvFormatterTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->repo = $this->getMockBuilder(RepositoryInterface::class)->getMock();
-        $this->custDetailsRepo = $this->getMockBuilder(RepositoryInterface::class)->getMock();
-        $this->levelRepo = $this->getMockBuilder(RepositoryInterface::class)->getMock();
+        $this->repo = $this->getMockBuilder(Repository::class)->getMock();
+        $this->custDetailsRepo = $this->getMockBuilder(Repository::class)->getMock();
+        $this->levelRepo = $this->getMockBuilder(Repository::class)->getMock();
 
         $customerDetails = $this->getMockBuilder(CustomerDetails::class)->setMockClassName('CustomerDetails')->disableOriginalConstructor()->getMock();
         $customerDetails->method('getBirthDate')->willReturn(new \DateTime());

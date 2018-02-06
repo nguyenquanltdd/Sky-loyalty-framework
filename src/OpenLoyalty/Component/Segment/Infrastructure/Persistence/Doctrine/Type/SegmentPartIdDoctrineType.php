@@ -7,7 +7,7 @@ namespace OpenLoyalty\Component\Segment\Infrastructure\Persistence\Doctrine\Type
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use OpenLoyalty\Component\Segment\Domain\SegmentPartId;
-use Rhumsaa\Uuid\Doctrine\UuidType;
+use Ramsey\Uuid\Doctrine\UuidType;
 
 /**
  * Class SegmentPartIdDoctrineType.

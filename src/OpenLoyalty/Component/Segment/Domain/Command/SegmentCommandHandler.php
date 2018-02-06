@@ -5,8 +5,8 @@
  */
 namespace OpenLoyalty\Component\Segment\Domain\Command;
 
-use Broadway\CommandHandling\CommandHandler;
-use Broadway\EventDispatcher\EventDispatcherInterface;
+use Broadway\CommandHandling\SimpleCommandHandler;
+use Broadway\EventDispatcher\EventDispatcher;
 use OpenLoyalty\Component\Segment\Domain\Model\Criterion;
 use OpenLoyalty\Component\Segment\Domain\Model\SegmentPart;
 use OpenLoyalty\Component\Segment\Domain\Segment;
@@ -19,7 +19,7 @@ use OpenLoyalty\Component\Segment\Domain\SystemEvent\SegmentSystemEvents;
 /**
  * Class SegmentCommandHandler.
  */
-class SegmentCommandHandler extends CommandHandler
+class SegmentCommandHandler extends SimpleCommandHandler
 {
     /**
      * @var SegmentRepository
@@ -31,21 +31,21 @@ class SegmentCommandHandler extends CommandHandler
      */
     protected $segmentPartRepository;
     /**
-     * @var EventDispatcherInterface
+     * @var EventDispatcher
      */
     protected $eventDispatcher;
 
     /**
      * SegmentCommandHandler constructor.
      *
-     * @param SegmentRepository        $segmentRepository
-     * @param SegmentPartRepository    $segmentPartRepository
-     * @param EventDispatcherInterface $eventDispatcher
+     * @param SegmentRepository     $segmentRepository
+     * @param SegmentPartRepository $segmentPartRepository
+     * @param EventDispatcher       $eventDispatcher
      */
     public function __construct(
         SegmentRepository $segmentRepository,
         SegmentPartRepository $segmentPartRepository,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcher $eventDispatcher
     ) {
         $this->segmentRepository = $segmentRepository;
         $this->segmentPartRepository = $segmentPartRepository;

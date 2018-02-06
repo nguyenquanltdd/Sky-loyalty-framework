@@ -7,7 +7,7 @@ namespace OpenLoyalty\Component\Level\Infrastructure\Persistence\Doctrine\Type;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use OpenLoyalty\Component\Level\Domain\SpecialRewardId;
-use Rhumsaa\Uuid\Doctrine\UuidType;
+use Ramsey\Uuid\Doctrine\UuidType;
 
 /**
  * Class SpecialRewardIdDoctrineType.

@@ -6,9 +6,10 @@
 namespace OpenLoyalty\Component\Campaign\Domain\ReadModel;
 
 use Broadway\Domain\DomainMessage;
-use Broadway\EventDispatcher\EventDispatcherInterface;
-use Broadway\EventHandling\EventListenerInterface;
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\EventDispatcher\EventDispatcher;
+use Broadway\EventHandling\EventListener;
+use Broadway\ReadModel\Repository;
+use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 use Psr\Log\LoggerInterface;
@@ -16,10 +17,10 @@ use Psr\Log\LoggerInterface;
 /**
  * Class CampaignUsageProjector.
  */
-class CampaignUsageProjector implements EventListenerInterface
+class CampaignUsageProjector implements EventListener
 {
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     protected $repository;
 
@@ -29,16 +30,16 @@ class CampaignUsageProjector implements EventListenerInterface
     protected $logger;
 
     /**
-     * @var EventDispatcherInterface
+     * @var EventDispatcher
      */
     protected $eventDispatcher;
 
     /**
      * CampaignUsageProjector constructor.
      *
-     * @param RepositoryInterface $repository
+     * @param Repository $repository
      */
-    public function __construct(RepositoryInterface $repository)
+    public function __construct(Repository $repository)
     {
         $this->repository = $repository;
     }
@@ -79,7 +80,7 @@ class CampaignUsageProjector implements EventListenerInterface
     /**
      * @param CampaignId $campaignId
      *
-     * @return \Broadway\ReadModel\ReadModelInterface|null|CampaignUsage
+     * @return SerializableReadModel|null|CampaignUsage
      */
     private function getReadModel(CampaignId $campaignId)
     {

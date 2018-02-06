@@ -5,8 +5,7 @@
  */
 namespace OpenLoyalty\Component\Account\Domain\ReadModel;
 
-use Broadway\ReadModel\ReadModelInterface;
-use Broadway\Serializer\SerializableInterface;
+use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Model\PointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
@@ -16,7 +15,7 @@ use OpenLoyalty\Component\Account\Domain\TransactionId;
 /**
  * Class PointsTransferDetails.
  */
-class PointsTransferDetails implements ReadModelInterface, SerializableInterface
+class PointsTransferDetails implements SerializableReadModel
 {
     const TYPE_ADDING = 'adding';
     const TYPE_SPENDING = 'spending';
@@ -121,7 +120,7 @@ class PointsTransferDetails implements ReadModelInterface, SerializableInterface
     /**
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->pointsTransferId->__toString();
     }
@@ -172,7 +171,7 @@ class PointsTransferDetails implements ReadModelInterface, SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         $data = [
             'id' => $this->pointsTransferId->__toString(),

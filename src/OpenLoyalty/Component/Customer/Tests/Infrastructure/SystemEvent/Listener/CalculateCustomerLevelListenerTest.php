@@ -2,8 +2,8 @@
 
 namespace OpenLoyalty\Component\Customer\Tests\Infrastructure\SystemEvent\Listener;
 
-use Broadway\CommandHandling\CommandBusInterface;
-use Broadway\EventDispatcher\EventDispatcherInterface;
+use Broadway\CommandHandling\CommandBus;
+use Broadway\EventDispatcher\EventDispatcher;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountCreatedSystemEvent;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AvailablePointsAmountChangedSystemEvent;
@@ -41,7 +41,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $levelId = new LevelId('00000000-0000-0000-0000-000000000003');
         $level = new Level($levelId, 'test', 10);
 
-        $commandBus = $this->getMockBuilder(CommandBusInterface::class)->getMock();
+        $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->once())->method('dispatch')->with(
             $this->equalTo(
                 new MoveCustomerToLevel(
@@ -84,7 +84,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
 
         $customerId = '00000000-0000-0000-0000-000000000000';
 
-        $commandBus = $this->getMockBuilder(CommandBusInterface::class)->getMock();
+        $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         if ($resultLevelId == null) {
             $commandBus->expects($this->never())->method('dispatch');
         } else {
@@ -125,7 +125,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $levelId = new LevelId('00000000-0000-0000-0000-000000000003');
         $level = new Level($levelId, 'test', 0);
 
-        $commandBus = $this->getMockBuilder(CommandBusInterface::class)->getMock();
+        $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->once())->method('dispatch')->with(
             $this->equalTo(
                 new MoveCustomerToLevel(
@@ -160,7 +160,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $levelId = new LevelId('00000000-0000-0000-0000-000000000003');
         $level = new Level($levelId, 'test', 10);
 
-        $commandBus = $this->getMockBuilder(CommandBusInterface::class)->getMock();
+        $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->once())->method('dispatch')->with(
             $this->equalTo(
                 new MoveCustomerToLevel(
@@ -255,7 +255,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
 
     protected function getDispatcher()
     {
-        $mock = $this->getMockBuilder(EventDispatcherInterface::class)
+        $mock = $this->getMockBuilder(EventDispatcher::class)
             ->disableOriginalConstructor()
             ->getMock();
 

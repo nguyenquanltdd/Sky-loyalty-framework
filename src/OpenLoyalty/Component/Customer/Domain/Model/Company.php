@@ -5,13 +5,13 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\Model;
 
-use Broadway\Serializer\SerializableInterface;
+use Broadway\Serializer\Serializable;
 use Assert\Assertion as Assert;
 
 /**
  * Class Company.
  */
-class Company implements SerializableInterface
+class Company implements Serializable
 {
     /**
      * @var string
@@ -61,7 +61,7 @@ class Company implements SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         return [
             'name' => $this->getName(),

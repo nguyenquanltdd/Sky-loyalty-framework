@@ -5,15 +5,14 @@
  */
 namespace OpenLoyalty\Component\Seller\Domain\ReadModel;
 
-use Broadway\ReadModel\ReadModelInterface;
-use Broadway\Serializer\SerializableInterface;
+use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Seller\Domain\PosId;
 use OpenLoyalty\Component\Seller\Domain\SellerId;
 
 /**
  * Class SellerDetails.
  */
-class SellerDetails implements ReadModelInterface, SerializableInterface
+class SellerDetails implements SerializableReadModel
 {
     /**
      * @var SellerId
@@ -101,7 +100,7 @@ class SellerDetails implements ReadModelInterface, SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         return [
             'firstName' => $this->getFirstName(),
@@ -120,7 +119,7 @@ class SellerDetails implements ReadModelInterface, SerializableInterface
     /**
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->getSellerId()->__toString();
     }

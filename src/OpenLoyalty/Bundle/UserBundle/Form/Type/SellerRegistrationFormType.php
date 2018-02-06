@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\Form\Type;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Pos\Domain\Pos;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
 use Symfony\Component\Form\AbstractType;
@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class SellerRegistrationFormType extends AbstractType
 {
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     protected $posRepository;
 

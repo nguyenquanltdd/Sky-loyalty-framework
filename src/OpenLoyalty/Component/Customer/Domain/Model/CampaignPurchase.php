@@ -5,13 +5,13 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\Model;
 
-use Broadway\Serializer\SerializableInterface;
+use Broadway\Serializer\Serializable;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
 
 /**
  * Class CampaignPurchase.
  */
-class CampaignPurchase implements SerializableInterface
+class CampaignPurchase implements Serializable
 {
     /**
      * @var \DateTime
@@ -91,7 +91,7 @@ class CampaignPurchase implements SerializableInterface
         return $purchase;
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         return [
             'costInPoints' => $this->costInPoints,

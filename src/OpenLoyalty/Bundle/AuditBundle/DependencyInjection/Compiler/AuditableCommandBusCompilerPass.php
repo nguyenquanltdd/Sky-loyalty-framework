@@ -18,6 +18,7 @@ class AuditableCommandBusCompilerPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        $container->getDefinition('broadway.event_dispatcher')->setLazy(true);
+        // event dispatcher cannot be lazy and therefore proxied because class is final
+        $container->getDefinition('broadway.event_dispatcher');
     }
 }

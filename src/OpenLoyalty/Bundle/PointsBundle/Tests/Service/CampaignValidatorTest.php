@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\PointsBundle\Tests\Service;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
@@ -122,7 +122,7 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
 
     protected function getAccountDetailsRepository($points)
     {
-        $repo = $this->getMockBuilder(RepositoryInterface::class)->getMock();
+        $repo = $this->getMockBuilder(Repository::class)->getMock();
         $account = $this->getMockBuilder(AccountDetails::class)->disableOriginalConstructor()->getMock();
         $account->method('getAvailableAmount')->willReturn($points);
         $repo->method('findBy')->with($this->arrayHasKey('customerId'))

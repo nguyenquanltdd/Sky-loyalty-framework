@@ -5,8 +5,8 @@
  */
 namespace OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener;
 
-use Broadway\CommandHandling\CommandBusInterface;
-use Broadway\EventDispatcher\EventDispatcherInterface;
+use Broadway\CommandHandling\CommandBus;
+use Broadway\EventDispatcher\EventDispatcher;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountCreatedSystemEvent;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AvailablePointsAmountChangedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\Command\MoveCustomerToLevel;
@@ -40,7 +40,7 @@ class CalculateCustomerLevelListener
     protected $customerDetailsRepository;
 
     /**
-     * @var CommandBusInterface
+     * @var CommandBus
      */
     protected $commandBus;
 
@@ -58,7 +58,7 @@ class CalculateCustomerLevelListener
     protected $levelRepository;
 
     /**
-     * @var EventDispatcherInterface
+     * @var EventDispatcher
      */
     protected $eventDispatcher;
 
@@ -67,20 +67,20 @@ class CalculateCustomerLevelListener
      *
      * @param LevelIdProvider              $levelIdProvider
      * @param CustomerDetailsRepository    $customerDetailsRepository
-     * @param CommandBusInterface          $commandBus
+     * @param CommandBus                   $commandBus
      * @param TierAssignTypeProvider       $tierAssignTypeProvider
      * @param ExcludeDeliveryCostsProvider $excludeDeliveryCostsProvider
      * @param LevelRepository              $levelRepository
-     * @param EventDispatcherInterface     $eventDispatcher
+     * @param EventDispatcher              $eventDispatcher
      */
     public function __construct(
         LevelIdProvider $levelIdProvider,
         CustomerDetailsRepository $customerDetailsRepository,
-        CommandBusInterface $commandBus,
+        CommandBus $commandBus,
         TierAssignTypeProvider $tierAssignTypeProvider,
         ExcludeDeliveryCostsProvider $excludeDeliveryCostsProvider,
         LevelRepository $levelRepository,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcher $eventDispatcher
     ) {
         $this->levelIdProvider = $levelIdProvider;
         $this->customerDetailsRepository = $customerDetailsRepository;

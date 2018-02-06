@@ -7,7 +7,7 @@ namespace OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Typ
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
-use Rhumsaa\Uuid\Doctrine\UuidType;
+use Ramsey\Uuid\Doctrine\UuidType;
 
 /**
  * Class CampaignIdDoctrineType.

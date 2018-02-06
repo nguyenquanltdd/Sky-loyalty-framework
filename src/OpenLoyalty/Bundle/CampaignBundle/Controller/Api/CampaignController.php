@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\CampaignBundle\Controller\Api;
 
-use Broadway\CommandHandling\CommandBusInterface;
+use Broadway\CommandHandling\CommandBus;
 use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -73,7 +73,7 @@ class CampaignController extends FOSRestController
         $form = $this->get('form.factory')->createNamed('campaign', CampaignFormType::class);
         $uuidGenerator = $this->get('broadway.uuid.generator');
 
-        /** @var CommandBusInterface $commandBus */
+        /** @var CommandBus $commandBus */
         $commandBus = $this->get('broadway.command_handling.command_bus');
 
         $form->handleRequest($request);
@@ -221,7 +221,7 @@ class CampaignController extends FOSRestController
             'method' => 'PUT',
         ]);
 
-        /** @var CommandBusInterface $commandBus */
+        /** @var CommandBus $commandBus */
         $commandBus = $this->get('broadway.command_handling.command_bus');
 
         $form->handleRequest($request);
@@ -262,7 +262,7 @@ class CampaignController extends FOSRestController
         } elseif ($active == 'inactive') {
             $campaign->setActive(false);
         }
-        /** @var CommandBusInterface $commandBus */
+        /** @var CommandBus $commandBus */
         $commandBus = $this->get('broadway.command_handling.command_bus');
         $commandBus->dispatch(
             new ChangeCampaignState($campaign->getCampaignId(), $campaign->isActive())
@@ -572,7 +572,7 @@ class CampaignController extends FOSRestController
         }
         $coupon = new Coupon(reset($freeCoupons));
 
-        /** @var CommandBusInterface $bus */
+        /** @var CommandBus $bus */
         $bus = $this->get('broadway.command_handling.command_bus');
         $bus->dispatch(
             new BuyCampaign(
@@ -707,7 +707,7 @@ class CampaignController extends FOSRestController
             $used = false;
         }
 
-        /** @var CommandBusInterface $bus */
+        /** @var CommandBus $bus */
         $bus = $this->get('broadway.command_handling.command_bus');
         $bus->dispatch(
             new ChangeCampaignUsage(

@@ -4,7 +4,7 @@ services:
     arguments:
       - '@oloy.campaign.repository'
     tags:
-      - { name: command_handler }
+      - { name: broadway.command_handler }
   oloy.campaign.repository:
     class: OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Repository\DoctrineCampaignRepository
     factory: ['@doctrine.orm.entity_manager', getRepository]
