@@ -13,6 +13,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
 use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\SettingsBundle\Service\TranslationsProvider;
+use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
 use Symfony\Component\Form\AbstractType;
@@ -96,6 +97,22 @@ class SettingsFormType extends AbstractType
                     'constraints' => [new NotBlank()],
                 ])
                 ->addModelTransformer(new ChoicesToJsonSettingDataTransformer('customerStatusesEarning', $this->settingsManager))
+        );
+        $builder->add(
+            $builder
+                ->create('accountActivationMethod', ChoiceType::class, [
+                    'choices' => array_combine(AccountActivationMethod::getAvailableMethods(), AccountActivationMethod::getAvailableMethods()),
+                    'required' => true,
+                    'constraints' => [new NotBlank()],
+                ])
+                ->addModelTransformer(new StringSettingDataTransformer('accountActivationMethod', $this->settingsManager))
+        );
+        $builder->add(
+            $builder
+                ->create('smsApiToken', TextType::class, [
+                    'constraints' => [new NotBlank()],
+                ])
+                ->addModelTransformer(new StringSettingDataTransformer('smsApiToken', $this->settingsManager))
         );
         $builder->add(
             $builder

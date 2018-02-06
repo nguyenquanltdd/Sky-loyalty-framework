@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\UserBundle\Service;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
+use OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActivationCodeManager;
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
@@ -53,6 +54,7 @@ class UserManager
      * @param EntityManager                          $em
      * @param PasswordGenerator                      $passwordGenerator
      * @param EmailProvider                          $emailProvider
+     * @param ActivationCodeManager                  $activationCodeManager
      * @param CustomerDetailsElasticsearchRepository $customerDetailsRepository
      */
     public function __construct(
@@ -60,6 +62,7 @@ class UserManager
         EntityManager $em,
         PasswordGenerator $passwordGenerator,
         EmailProvider $emailProvider,
+        ActivationCodeManager $activationCodeManager,
         CustomerDetailsElasticsearchRepository $customerDetailsRepository
     ) {
         $this->passwordEncoder = $passwordEncoder;

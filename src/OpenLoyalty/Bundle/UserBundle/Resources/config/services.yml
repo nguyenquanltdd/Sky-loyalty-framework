@@ -32,6 +32,7 @@ services:
       - '@doctrine.orm.entity_manager'
       - '@oloy.user.password_generator'
       - '@oloy.user.email_provider'
+      - '@oloy.activation_code_manager'
       - '@oloy.user.read_model.repository.customer_details'
   oloy.user.event.authentication_success_listener:
     class: OpenLoyalty\Bundle\UserBundle\EventListener\AuthenticationListener
