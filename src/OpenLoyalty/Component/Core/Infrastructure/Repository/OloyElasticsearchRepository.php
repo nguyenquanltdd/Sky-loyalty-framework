@@ -97,6 +97,16 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
                 ],
             ],
             [
+                'postal' => [
+                    'match' => 'postal',
+                    'match_mapping_type' => 'string',
+                    'mapping' => [
+                        'type' => 'string',
+                        'index' => 'not_analyzed',
+                    ],
+                ],
+            ],
+            [
                 'phone' => [
                     'match' => 'phone',
                     'match_mapping_type' => 'string',
