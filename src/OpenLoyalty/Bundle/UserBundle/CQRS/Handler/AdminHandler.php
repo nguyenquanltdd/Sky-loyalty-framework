@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\CQRS\Handler;
 
-use Broadway\CommandHandling\CommandHandlerInterface;
+use Broadway\CommandHandling\CommandHandler;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Bundle\UserBundle\CQRS\Command\CreateAdmin;
 use OpenLoyalty\Bundle\UserBundle\CQRS\Command\EditAdmin;
@@ -17,7 +17,7 @@ use OpenLoyalty\Bundle\UserBundle\Service\UserManager;
 /**
  * Class AdminHandler.
  */
-class AdminHandler implements CommandHandlerInterface
+class AdminHandler implements CommandHandler
 {
     /**
      * @var UserManager

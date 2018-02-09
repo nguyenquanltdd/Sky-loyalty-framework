@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\EventListener;
 
-use Broadway\EventDispatcher\EventDispatcherInterface;
+use Broadway\EventDispatcher\EventDispatcher;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\AuthenticationFailureEvent;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\AuthenticationSuccessEvent;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTCreatedEvent;
@@ -30,17 +30,17 @@ class AuthenticationListener
     protected $userManager;
 
     /**
-     * @var EventDispatcherInterface
+     * @var EventDispatcher
      */
     protected $dispatcher;
 
     /**
      * AuthenticationListener constructor.
      *
-     * @param UserManager              $userManager
-     * @param EventDispatcherInterface $dispatcher
+     * @param UserManager     $userManager
+     * @param EventDispatcher $dispatcher
      */
-    public function __construct(UserManager $userManager, EventDispatcherInterface $dispatcher)
+    public function __construct(UserManager $userManager, EventDispatcher $dispatcher)
     {
         $this->userManager = $userManager;
         $this->dispatcher = $dispatcher;
@@ -72,7 +72,8 @@ class AuthenticationListener
         if ($user instanceof User) {
             $user->setLastLoginAt(new \DateTime());
             $this->userManager->updateUser($user);
-            $this->dispatcher->dispatch(CustomerSystemEvents::CUSTOMER_LOGGED_IN, [new CustomerLoggedInSystemEvent(new CustomerId($user->getId()))]);
+            $this->dispatcher->dispatch(CustomerSystemEvents::CUSTOMER_LOGGED_IN,
+                [new CustomerLoggedInSystemEvent(new CustomerId($user->getId()))]);
         }
 
         if ($user instanceof Customer && $user->getTemporaryPasswordSetAt()) {

@@ -39,7 +39,7 @@ class Transaction extends EventSourcedAggregateRoot
     /**
      * @return string
      */
-    public function getAggregateRootId()
+    public function getAggregateRootId(): string
     {
         return $this->transactionId;
     }

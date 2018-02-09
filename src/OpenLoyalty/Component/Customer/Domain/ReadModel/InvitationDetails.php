@@ -2,8 +2,7 @@
 
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
-use Broadway\ReadModel\ReadModelInterface;
-use Broadway\Serializer\SerializableInterface;
+use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Invitation;
 use OpenLoyalty\Component\Customer\Domain\InvitationId;
@@ -11,7 +10,7 @@ use OpenLoyalty\Component\Customer\Domain\InvitationId;
 /**
  * Class InvitationDetails.
  */
-class InvitationDetails implements ReadModelInterface, SerializableInterface
+class InvitationDetails implements SerializableReadModel
 {
     /**
      * @var InvitationId
@@ -174,7 +173,7 @@ class InvitationDetails implements ReadModelInterface, SerializableInterface
     /**
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->invitationId->__toString();
     }
@@ -205,7 +204,7 @@ class InvitationDetails implements ReadModelInterface, SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         return [
             'invitationId' => $this->invitationId->__toString(),

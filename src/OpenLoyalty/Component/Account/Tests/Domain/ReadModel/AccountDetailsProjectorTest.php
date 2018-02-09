@@ -9,6 +9,7 @@ use OpenLoyalty\Component\Account\Domain\Event\AccountWasCreated;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetailsProjector;
 use OpenLoyalty\Component\Account\Domain\CustomerId;
+use Broadway\ReadModel\Projector;
 
 /**
  * Class AccountDetailsProjectorTest.
@@ -28,7 +29,7 @@ class AccountDetailsProjectorTest extends ProjectorScenarioTestCase
     /**
      * {@inheritdoc}
      */
-    protected function createProjector(InMemoryRepository $repository)
+    protected function createProjector(InMemoryRepository $repository): Projector
     {
         $this->accountId = new AccountId('00000000-0000-0000-0000-000000000000');
         $this->customerId = new CustomerId('00000000-1111-0000-0000-000000000000');

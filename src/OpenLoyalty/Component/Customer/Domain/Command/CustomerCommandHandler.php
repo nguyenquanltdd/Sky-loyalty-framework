@@ -5,8 +5,8 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\Command;
 
-use Broadway\CommandHandling\CommandHandler;
-use Broadway\EventDispatcher\EventDispatcherInterface;
+use Broadway\CommandHandling\SimpleCommandHandler;
+use Broadway\EventDispatcher\EventDispatcher;
 use OpenLoyalty\Bundle\AuditBundle\Service\AuditManagerInterface;
 use OpenLoyalty\Component\Customer\Domain\Customer;
 use OpenLoyalty\Component\Customer\Domain\CustomerRepository;
@@ -22,7 +22,7 @@ use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
 /**
  * Class CustomerCommandHandler.
  */
-class CustomerCommandHandler extends CommandHandler
+class CustomerCommandHandler extends SimpleCommandHandler
 {
     /**
      * @var CustomerRepository
@@ -35,7 +35,7 @@ class CustomerCommandHandler extends CommandHandler
     private $customerUniqueValidator;
 
     /**
-     * @var EventDispatcherInterface
+     * @var EventDispatcher
      */
     private $eventDispatcher;
 
@@ -47,15 +47,15 @@ class CustomerCommandHandler extends CommandHandler
     /**
      * CustomerCommandHandler constructor.
      *
-     * @param CustomerRepository       $repository
-     * @param CustomerUniqueValidator  $customerUniqueValidator
-     * @param EventDispatcherInterface $eventDispatcher
-     * @param AuditManagerInterface    $auditManager
+     * @param CustomerRepository      $repository
+     * @param CustomerUniqueValidator $customerUniqueValidator
+     * @param EventDispatcher         $eventDispatcher
+     * @param AuditManagerInterface   $auditManager
      */
     public function __construct(
         CustomerRepository $repository,
         CustomerUniqueValidator $customerUniqueValidator,
-        EventDispatcherInterface $eventDispatcher,
+        EventDispatcher $eventDispatcher,
         AuditManagerInterface $auditManager
     ) {
         $this->repository = $repository;
@@ -222,7 +222,8 @@ class CustomerCommandHandler extends CommandHandler
         $customerId = $command->getCustomerId();
         /** @var Customer $customer */
         $customer = $this->repository->load($customerId->__toString());
-        $customer->buyCampaign($command->getCampaignId(), $command->getCampaignName(), $command->getCostInPoints(), $command->getCoupon());
+        $customer->buyCampaign($command->getCampaignId(), $command->getCampaignName(), $command->getCostInPoints(),
+            $command->getCoupon());
         $this->repository->save($customer);
     }
 

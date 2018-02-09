@@ -5,8 +5,8 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\Command;
 
-use Broadway\CommandHandling\CommandHandler;
-use Broadway\EventDispatcher\EventDispatcherInterface;
+use Broadway\CommandHandling\SimpleCommandHandler;
+use Broadway\EventDispatcher\EventDispatcher;
 use OpenLoyalty\Component\Customer\Domain\Invitation;
 use OpenLoyalty\Component\Customer\Domain\InvitationRepository;
 use OpenLoyalty\Component\Customer\Domain\Service\InvitationTokenGenerator;
@@ -16,7 +16,7 @@ use OpenLoyalty\Component\Customer\Domain\SystemEvent\InvitationSystemEvents;
 /**
  * Class InvitationCommandHandler.
  */
-class InvitationCommandHandler extends CommandHandler
+class InvitationCommandHandler extends SimpleCommandHandler
 {
     /**
      * @var InvitationRepository
@@ -29,7 +29,7 @@ class InvitationCommandHandler extends CommandHandler
     private $tokenGenerator;
 
     /**
-     * @var EventDispatcherInterface
+     * @var EventDispatcher
      */
     private $eventDispatcher;
 
@@ -38,12 +38,12 @@ class InvitationCommandHandler extends CommandHandler
      *
      * @param InvitationRepository     $invitationRepository
      * @param InvitationTokenGenerator $tokenGenerator
-     * @param EventDispatcherInterface $eventDispatcher
+     * @param EventDispatcher          $eventDispatcher
      */
     public function __construct(
         InvitationRepository $invitationRepository,
         InvitationTokenGenerator $tokenGenerator,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcher $eventDispatcher
     ) {
         $this->invitationRepository = $invitationRepository;
         $this->tokenGenerator = $tokenGenerator;

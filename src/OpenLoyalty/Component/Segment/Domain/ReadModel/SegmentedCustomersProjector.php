@@ -5,8 +5,9 @@
  */
 namespace OpenLoyalty\Component\Segment\Domain\ReadModel;
 
-use Broadway\EventDispatcher\EventDispatcherInterface;
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\EventDispatcher\EventDispatcher;
+use Broadway\ReadModel\Repository;
+use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Core\Domain\Model\Identifier;
@@ -45,22 +46,22 @@ class SegmentedCustomersProjector
     protected $logger;
 
     /**
-     * @var EventDispatcherInterface
+     * @var EventDispatcher
      */
     protected $eventDispatcher;
 
     /**
      * SegmentedCustomersProjector constructor.
      *
-     * @param RepositoryInterface       $repository
+     * @param Repository                $repository
      * @param SegmentRepository         $segmentRepository
-     * @param EventDispatcherInterface  $eventDispatcher
+     * @param EventDispatcher           $eventDispatcher
      * @param CustomerDetailsRepository $customerDetailsRepository
      */
     public function __construct(
-        RepositoryInterface $repository,
+        Repository $repository,
         SegmentRepository $segmentRepository,
-        EventDispatcherInterface $eventDispatcher,
+        EventDispatcher $eventDispatcher,
         CustomerDetailsRepository $customerDetailsRepository
     ) {
         $this->repository = $repository;
@@ -162,7 +163,7 @@ class SegmentedCustomersProjector
      * @param SegmentId  $segmentId
      * @param CustomerId $customerId
      *
-     * @return \Broadway\ReadModel\ReadModelInterface|null|SegmentedCustomers
+     * @return SerializableReadModel|null|SegmentedCustomers
      */
     private function getReadModel(SegmentId $segmentId, CustomerId $customerId)
     {

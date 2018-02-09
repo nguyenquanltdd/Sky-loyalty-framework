@@ -41,7 +41,7 @@ class CustomerLoyaltyCardNumberWasUpdated extends CustomerEvent
         return $this->cardNumber;
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         return array_merge(parent::serialize(), array(
             'cardNumber' => $this->cardNumber,

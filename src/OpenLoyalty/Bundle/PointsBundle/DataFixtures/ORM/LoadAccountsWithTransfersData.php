@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\PointsBundle\DataFixtures\ORM;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
@@ -84,7 +84,7 @@ class LoadAccountsWithTransfersData extends ContainerAwareFixture implements Ord
      */
     protected function getAccountIdByCustomerId($customerId)
     {
-        /** @var RepositoryInterface $repo */
+        /** @var Repository $repo */
         $repo = $this->getContainer()->get('oloy.points.account.repository.account_details');
         $accounts = $repo->findBy(['customerId' => $customerId]);
         /** @var AccountDetails $account */

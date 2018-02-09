@@ -27,7 +27,7 @@ class SellerDetailsProjectorTest extends ProjectorScenarioTestCase
      *
      * @return Projector
      */
-    protected function createProjector(InMemoryRepository $repository)
+    protected function createProjector(InMemoryRepository $repository): Projector
     {
         /** @var PosRepository|PHPUnit_Framework_MockObject_MockObject $posRepo */
         $posRepo = $this->getMockBuilder(PosRepository::class)->getMock();

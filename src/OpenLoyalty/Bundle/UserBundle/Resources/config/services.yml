@@ -198,7 +198,7 @@ services:
         - '@oloy.user.repository.admin'
       lazy: true
       tags:
-        - { name: command_handler }
+        - { name: broadway.command_handler }
 
   oloy.user.listener.customer_level_changed:
       class: OpenLoyalty\Bundle\UserBundle\EventListener\CustomerLevelChangedListener

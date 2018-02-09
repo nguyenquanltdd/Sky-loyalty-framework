@@ -32,7 +32,7 @@ class PointsWereSpent extends AccountEvent
         return $this->pointsTransfer;
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         return array_merge(
             parent::serialize(),

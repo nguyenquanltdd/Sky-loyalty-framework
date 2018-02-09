@@ -5,8 +5,7 @@
  */
 namespace OpenLoyalty\Component\Account\Domain\ReadModel;
 
-use Broadway\ReadModel\ReadModelInterface;
-use Broadway\Serializer\SerializableInterface;
+use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Model\PointsTransfer;
@@ -16,7 +15,7 @@ use OpenLoyalty\Component\Account\Domain\CustomerId;
 /**
  * Class AccountDetails.
  */
-class AccountDetails implements ReadModelInterface, SerializableInterface
+class AccountDetails implements SerializableReadModel
 {
     /**
      * @var AccountId
@@ -63,7 +62,7 @@ class AccountDetails implements ReadModelInterface, SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         $transfers = [];
         foreach ($this->transfers as $transfer) {
@@ -91,7 +90,7 @@ class AccountDetails implements ReadModelInterface, SerializableInterface
     /**
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->accountId->__toString();
     }

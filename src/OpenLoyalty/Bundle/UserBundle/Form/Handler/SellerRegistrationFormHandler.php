@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\Form\Handler;
 
-use Broadway\CommandHandling\CommandBusInterface;
+use Broadway\CommandHandling\CommandBus;
 use Doctrine\ORM\EntityManager;
 use OpenLoyalty\Bundle\UserBundle\Service\UserManager;
 use OpenLoyalty\Component\Seller\Domain\Command\ActivateSeller;
@@ -21,7 +21,7 @@ use Symfony\Component\Form\FormInterface;
 class SellerRegistrationFormHandler
 {
     /**
-     * @var CommandBusInterface
+     * @var CommandBus
      */
     protected $commandBus;
 
@@ -38,12 +38,12 @@ class SellerRegistrationFormHandler
     /**
      * SellerRegistrationFormHandler constructor.
      *
-     * @param CommandBusInterface $commandBus
-     * @param UserManager         $userManager
-     * @param EntityManager       $em
+     * @param CommandBus    $commandBus
+     * @param UserManager   $userManager
+     * @param EntityManager $em
      */
     public function __construct(
-        CommandBusInterface $commandBus,
+        CommandBus $commandBus,
         UserManager $userManager,
         EntityManager $em
     ) {

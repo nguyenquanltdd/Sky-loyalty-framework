@@ -5,13 +5,13 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\Event;
 
-use Broadway\Serializer\SerializableInterface;
+use Broadway\Serializer\Serializable;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 
 /**
  * Class CustomerEvent.
  */
-abstract class CustomerEvent implements SerializableInterface
+abstract class CustomerEvent implements Serializable
 {
     private $customerId;
 
@@ -31,7 +31,7 @@ abstract class CustomerEvent implements SerializableInterface
     /**
      * {@inheritdoc}
      */
-    public function serialize()
+    public function serialize(): array
     {
         return array('customerId' => (string) $this->customerId);
     }

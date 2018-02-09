@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\CampaignBundle\Service;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignLimitExceededException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignLimitPerCustomerExceededException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NoCouponsLeftException;
@@ -29,7 +29,7 @@ class CampaignValidator
     protected $couponUsageRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     protected $accountDetailsRepository;
 
@@ -42,12 +42,12 @@ class CampaignValidator
      * CampaignValidator constructor.
      *
      * @param CouponUsageRepository $couponUsageRepository
-     * @param RepositoryInterface   $accountDetailsRepository
+     * @param Repository            $accountDetailsRepository
      * @param SettingsManager       $settingsManager
      */
     public function __construct(
         CouponUsageRepository $couponUsageRepository,
-        RepositoryInterface $accountDetailsRepository,
+        Repository $accountDetailsRepository,
         SettingsManager $settingsManager
     ) {
         $this->couponUsageRepository = $couponUsageRepository;

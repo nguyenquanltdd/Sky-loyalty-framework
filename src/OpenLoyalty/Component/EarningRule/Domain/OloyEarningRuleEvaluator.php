@@ -7,11 +7,11 @@ namespace OpenLoyalty\Component\EarningRule\Domain;
 
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Component\Account\Domain\TransactionId;
+use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetailsRepository;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\EarningRuleAlgorithmFactoryInterface;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\EarningRuleAlgorithmInterface;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\RuleEvaluationContext;
-use OpenLoyalty\Component\Transaction\Domain\CustomerId;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use OpenLoyalty\Component\Account\Infrastructure\EarningRuleApplier;
@@ -378,7 +378,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
      *
      * @param $customerId
      *
-     * @return status
+     * @return Status
      */
     protected function getCustomerStatusById($customerId)
     {

@@ -2,9 +2,10 @@
 
 namespace OpenLoyalty\Component\Transaction\Tests\Command;
 
+use Broadway\CommandHandling\CommandHandler;
 use Broadway\CommandHandling\Testing\CommandHandlerScenarioTestCase;
-use Broadway\EventHandling\EventBusInterface;
-use Broadway\EventStore\EventStoreInterface;
+use Broadway\EventHandling\EventBus;
+use Broadway\EventStore\EventStore;
 use OpenLoyalty\Component\Transaction\Domain\Command\TransactionCommandHandler;
 use OpenLoyalty\Component\Transaction\Domain\TransactionRepository;
 
@@ -16,7 +17,7 @@ abstract class TransactionCommandHandlerTest extends CommandHandlerScenarioTestC
     /**
      * {@inheritdoc}
      */
-    protected function createCommandHandler(EventStoreInterface $eventStore, EventBusInterface $eventBus)
+    protected function createCommandHandler(EventStore $eventStore, EventBus $eventBus): CommandHandler
     {
         return new TransactionCommandHandler(
             new TransactionRepository($eventStore, $eventBus)

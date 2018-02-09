@@ -31,7 +31,7 @@ class PosWasAssignedToCustomer extends CustomerEvent
         $this->updateAt->setTimestamp(time());
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         return array_merge(parent::serialize(), [
             'posId' => $this->posId->__toString(),

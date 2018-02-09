@@ -5,8 +5,8 @@
  */
 namespace OpenLoyalty\Component\Account\Infrastructure\SystemEvent\Listener;
 
-use Broadway\CommandHandling\CommandBusInterface;
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\CommandHandling\CommandBus;
+use Broadway\ReadModel\Repository;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
 use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
@@ -35,8 +35,8 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
     protected $earningRuleLimitValidator;
 
     public function __construct(
-        CommandBusInterface $commandBus,
-        RepositoryInterface $accountDetailsRepository,
+        CommandBus $commandBus,
+        Repository $accountDetailsRepository,
         UuidGeneratorInterface $uuidGenerator,
         EarningRuleApplier $earningRuleApplier,
         EarningRuleLimitValidator $earningRuleLimitValidator = null

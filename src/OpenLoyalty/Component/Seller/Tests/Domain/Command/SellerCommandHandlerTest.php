@@ -3,8 +3,9 @@
 namespace OpenLoyalty\Component\Seller\Tests\Domain\Command;
 
 use Broadway\CommandHandling\Testing\CommandHandlerScenarioTestCase;
-use Broadway\EventHandling\EventBusInterface;
-use Broadway\EventStore\EventStoreInterface;
+use Broadway\EventHandling\EventBus;
+use Broadway\EventStore\EventStore;
+use Broadway\CommandHandling\CommandHandler;
 use OpenLoyalty\Component\Seller\Domain\Command\SellerCommandHandler;
 use OpenLoyalty\Component\Seller\Domain\SellerRepository;
 use OpenLoyalty\Component\Seller\Domain\Validator\SellerUniqueValidator;
@@ -14,9 +15,9 @@ use OpenLoyalty\Component\Seller\Domain\Validator\SellerUniqueValidator;
  */
 abstract class SellerCommandHandlerTest extends CommandHandlerScenarioTestCase
 {
-    protected function createCommandHandler(EventStoreInterface $eventStore, EventBusInterface $eventBus)
+    protected function createCommandHandler(EventStore $eventStore, EventBus $eventBus): CommandHandler
     {
-        $sellerDetailsRepository = $this->getMockBuilder('Broadway\ReadModel\RepositoryInterface')->getMock();
+        $sellerDetailsRepository = $this->getMockBuilder('Broadway\ReadModel\Repository')->getMock();
         $sellerDetailsRepository->method('findBy')->willReturn([]);
         $validator = new SellerUniqueValidator($sellerDetailsRepository);
 

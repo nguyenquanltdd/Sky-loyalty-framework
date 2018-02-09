@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\Status;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\UserBundle\Model\CustomerStatus;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
@@ -24,7 +24,7 @@ use OpenLoyalty\Component\Level\Domain\LevelId;
 class CustomerStatusProvider
 {
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     protected $accountDetailsRepository;
 
@@ -56,7 +56,7 @@ class CustomerStatusProvider
     /**
      * CustomerStatusProvider constructor.
      *
-     * @param RepositoryInterface          $accountDetailsRepository
+     * @param Repository                   $accountDetailsRepository
      * @param LevelRepository              $levelRepository
      * @param CustomerDetailsRepository    $customerDetailsRepository
      * @param TierAssignTypeProvider       $tierAssignTypeProvider
@@ -64,7 +64,7 @@ class CustomerStatusProvider
      * @param SettingsManager              $settingsManager
      */
     public function __construct(
-        RepositoryInterface $accountDetailsRepository,
+        Repository $accountDetailsRepository,
         LevelRepository $levelRepository,
         CustomerDetailsRepository $customerDetailsRepository,
         TierAssignTypeProvider $tierAssignTypeProvider,
@@ -121,7 +121,8 @@ class CustomerStatusProvider
 
         /** @var Level $nextLevel */
         $nextLevel = $level ?
-            $this->levelRepository->findNextLevelByConditionValueWithTheBiggestReward($conditionValue, $level->getConditionValue())
+            $this->levelRepository->findNextLevelByConditionValueWithTheBiggestReward($conditionValue,
+                $level->getConditionValue())
             : null;
 
         if ($accountDetails) {
@@ -152,8 +153,12 @@ class CustomerStatusProvider
         return $status;
     }
 
-    protected function applyNextLevelRequirements(CustomerDetails $customer, CustomerStatus $status, Level $nextLevel, $currentPoints)
-    {
+    protected function applyNextLevelRequirements(
+        CustomerDetails $customer,
+        CustomerStatus $status,
+        Level $nextLevel,
+        $currentPoints
+    ) {
         $tierAssignType = $this->tierAssignTypeProvider->getType();
 
         if ($tierAssignType == TierAssignTypeProvider::TYPE_POINTS) {

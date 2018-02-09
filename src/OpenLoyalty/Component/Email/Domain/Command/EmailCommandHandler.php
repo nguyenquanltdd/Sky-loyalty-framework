@@ -5,8 +5,8 @@
  */
 namespace OpenLoyalty\Component\Email\Domain\Command;
 
-use Broadway\CommandHandling\CommandHandler;
-use Broadway\EventDispatcher\EventDispatcherInterface;
+use Broadway\CommandHandling\SimpleCommandHandler;
+use Broadway\EventDispatcher\EventDispatcher;
 use OpenLoyalty\Component\Email\Domain\Email;
 use OpenLoyalty\Component\Email\Domain\EmailRepositoryInterface;
 use OpenLoyalty\Component\Email\Domain\SystemEvent\EmailCreatedSystemEvent;
@@ -15,7 +15,7 @@ use OpenLoyalty\Component\Email\Domain\SystemEvent\EmailSystemEvents;
 /**
  * Class EmailCommandHandler.
  */
-class EmailCommandHandler extends CommandHandler
+class EmailCommandHandler extends SimpleCommandHandler
 {
     /**
      * Email settings repository.
@@ -25,7 +25,7 @@ class EmailCommandHandler extends CommandHandler
     private $repository;
 
     /**
-     * @var EventDispatcherInterface
+     * @var EventDispatcher
      */
     private $eventDispatcher;
 
@@ -38,10 +38,10 @@ class EmailCommandHandler extends CommandHandler
      * EmailCommandHandler constructor.
      *
      * @param EmailRepositoryInterface $repository
-     * @param EventDispatcherInterface $eventDispatcher
+     * @param EventDispatcher          $eventDispatcher
      * @param array                    $params
      */
-    public function __construct(EmailRepositoryInterface $repository, EventDispatcherInterface $eventDispatcher, array $params)
+    public function __construct(EmailRepositoryInterface $repository, EventDispatcher $eventDispatcher, array $params)
     {
         $this->repository = $repository;
         $this->eventDispatcher = $eventDispatcher;

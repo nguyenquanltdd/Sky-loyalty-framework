@@ -6,7 +6,7 @@
 namespace OpenLoyalty\Component\Account\Domain\ReadModel;
 
 use Broadway\ReadModel\Projector;
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Account\Domain\Account;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenCanceled;
@@ -29,17 +29,17 @@ use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsReposit
 class PointsTransferDetailsProjector extends Projector
 {
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     private $repository;
 
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     private $accountRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     private $customerRepository;
 
@@ -56,16 +56,16 @@ class PointsTransferDetailsProjector extends Projector
     /**
      * PointsTransferDetailsProjector constructor.
      *
-     * @param RepositoryInterface          $repository
-     * @param RepositoryInterface          $accountRepository
-     * @param RepositoryInterface          $customerRepository
+     * @param Repository                   $repository
+     * @param Repository                   $accountRepository
+     * @param Repository                   $customerRepository
      * @param TransactionDetailsRepository $transactionDetailsRepository
      * @param PosRepository                $posRepository
      */
     public function __construct(
-        RepositoryInterface $repository,
-        RepositoryInterface $accountRepository,
-        RepositoryInterface $customerRepository,
+        Repository $repository,
+        Repository $accountRepository,
+        Repository $customerRepository,
         TransactionDetailsRepository $transactionDetailsRepository,
         PosRepository $posRepository
     ) {

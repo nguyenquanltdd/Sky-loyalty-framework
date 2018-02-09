@@ -5,14 +5,13 @@
  */
 namespace OpenLoyalty\Component\Email\Domain\ReadModel;
 
-use Broadway\ReadModel\ReadModelInterface;
-use Broadway\Serializer\SerializableInterface;
+use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Email\Domain\EmailId;
 
 /**
  * Class Email.
  */
-class Email implements ReadModelInterface, SerializableInterface
+class Email implements SerializableReadModel
 {
     /**
      * @var EmailId
@@ -161,7 +160,7 @@ class Email implements ReadModelInterface, SerializableInterface
     /**
      * {@inheritdoc}
      */
-    public function serialize()
+    public function serialize(): array
     {
         return [
             'id' => $this->getId(),

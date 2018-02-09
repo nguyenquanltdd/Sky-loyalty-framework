@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\PosBundle\Event\Listener;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
@@ -18,7 +18,7 @@ use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 class PosSerializationListener implements EventSubscriberInterface
 {
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     protected $transactionDetailsRepository;
 
@@ -30,10 +30,10 @@ class PosSerializationListener implements EventSubscriberInterface
     /**
      * PosSerializationListener constructor.
      *
-     * @param RepositoryInterface $transactionDetailsRepository
-     * @param SettingsManager     $settingsManager
+     * @param Repository      $transactionDetailsRepository
+     * @param SettingsManager $settingsManager
      */
-    public function __construct(RepositoryInterface $transactionDetailsRepository, SettingsManager $settingsManager)
+    public function __construct(Repository $transactionDetailsRepository, SettingsManager $settingsManager)
     {
         $this->transactionDetailsRepository = $transactionDetailsRepository;
         $this->settingsManager = $settingsManager;
@@ -55,9 +55,9 @@ class PosSerializationListener implements EventSubscriberInterface
             $currency = $this->settingsManager->getSettingByKey('currency');
             $currency = $currency ? $currency->getValue() : 'PLN';
             $event->getVisitor()->addData('currency', $currency);
-//            $transactions = $this->transactionDetailsRepository->findBy(['posId' => $pos->getPosId()->__toString()]);
-//            $event->getVisitor()->addData('transactionsCount', $this->countTransactions($transactions));
-//            $event->getVisitor()->addData('transactionValue', $this->countTransactionsValues($transactions));
+            //            $transactions = $this->transactionDetailsRepository->findBy(['posId' => $pos->getPosId()->__toString()]);
+            //            $event->getVisitor()->addData('transactionsCount', $this->countTransactions($transactions));
+            //            $event->getVisitor()->addData('transactionValue', $this->countTransactionsValues($transactions));
         }
     }
 

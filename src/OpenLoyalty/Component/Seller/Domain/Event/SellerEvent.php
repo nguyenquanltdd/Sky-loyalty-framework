@@ -5,13 +5,13 @@
  */
 namespace OpenLoyalty\Component\Seller\Domain\Event;
 
-use Broadway\Serializer\SerializableInterface;
+use Broadway\Serializer\Serializable;
 use OpenLoyalty\Component\Seller\Domain\SellerId;
 
 /**
  * Class SellerEvent.
  */
-abstract class SellerEvent implements SerializableInterface
+abstract class SellerEvent implements Serializable
 {
     /**
      * @var SellerId
@@ -36,7 +36,7 @@ abstract class SellerEvent implements SerializableInterface
         return $this->sellerId;
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         return [
             'sellerId' => $this->sellerId->__toString(),

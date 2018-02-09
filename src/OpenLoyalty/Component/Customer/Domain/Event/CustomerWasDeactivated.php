@@ -24,7 +24,7 @@ class CustomerWasDeactivated extends CustomerEvent
         $this->deactivatedAt->setTimestamp(time());
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         return array_merge(parent::serialize(), array(
             'deactivatedAt' => $this->deactivatedAt ? $this->deactivatedAt->getTimestamp() : null,

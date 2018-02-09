@@ -5,15 +5,14 @@
  */
 namespace OpenLoyalty\Component\Segment\Domain\ReadModel;
 
-use Broadway\ReadModel\ReadModelInterface;
-use Broadway\Serializer\SerializableInterface;
+use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Segment\Domain\CustomerId;
 use OpenLoyalty\Component\Segment\Domain\SegmentId;
 
 /**
  * Class SegmentedCustomers.
  */
-class SegmentedCustomers implements ReadModelInterface, SerializableInterface
+class SegmentedCustomers implements SerializableReadModel
 {
     /**
      * @var SegmentId
@@ -67,7 +66,7 @@ class SegmentedCustomers implements ReadModelInterface, SerializableInterface
     /**
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->segmentId->__toString().'_'.$this->customerId->__toString();
     }
@@ -99,7 +98,7 @@ class SegmentedCustomers implements ReadModelInterface, SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         return [
             'segmentId' => $this->segmentId->__toString(),

@@ -6,7 +6,7 @@ services:
       - '@oloy.special_reward.repository'
     lazy: true
     tags:
-      - { name: command_handler }
+      - { name: broadway.command_handler }
   oloy.level.repository:
     class: OpenLoyalty\Component\Level\Infrastructure\Persistence\Doctrine\Repository\DoctrineLevelRepository
     factory: ['@doctrine.orm.entity_manager', getRepository]

@@ -5,14 +5,13 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
-use Broadway\ReadModel\ReadModelInterface;
-use Broadway\Serializer\SerializableInterface;
+use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Customer\Domain\LevelId;
 
 /**
  * Class CustomersBelongingToOneLevel.
  */
-class CustomersBelongingToOneLevel implements ReadModelInterface, SerializableInterface
+class CustomersBelongingToOneLevel implements SerializableReadModel
 {
     /**
      * @var LevelId
@@ -73,7 +72,7 @@ class CustomersBelongingToOneLevel implements ReadModelInterface, SerializableIn
     /**
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->levelId->__toString();
     }
@@ -94,7 +93,7 @@ class CustomersBelongingToOneLevel implements ReadModelInterface, SerializableIn
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         $customers = array_values($this->customers);
 

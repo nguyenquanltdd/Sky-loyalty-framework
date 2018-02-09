@@ -6,7 +6,8 @@
 namespace OpenLoyalty\Component\Account\Domain\ReadModel;
 
 use Broadway\ReadModel\Projector;
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
+use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Event\AccountWasCreated;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenCanceled;
@@ -23,16 +24,16 @@ use OpenLoyalty\Component\Account\Domain\CustomerId;
 class AccountDetailsProjector extends Projector
 {
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     private $repository;
 
     /**
      * AccountDetailsProjector constructor.
      *
-     * @param RepositoryInterface $repository
+     * @param Repository $repository
      */
-    public function __construct(RepositoryInterface $repository)
+    public function __construct(Repository $repository)
     {
         $this->repository = $repository;
     }
@@ -113,7 +114,7 @@ class AccountDetailsProjector extends Projector
      * @param AccountId       $accountId
      * @param CustomerId|null $customerId
      *
-     * @return \Broadway\ReadModel\ReadModelInterface|null|PointsTransferDetails
+     * @return SerializableReadModel|null|PointsTransferDetails
      */
     private function getReadModel(AccountId $accountId, CustomerId $customerId = null)
     {

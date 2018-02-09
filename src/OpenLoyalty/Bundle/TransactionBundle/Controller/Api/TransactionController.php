@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\TransactionBundle\Controller\Api;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -389,7 +389,7 @@ class TransactionController extends FOSRestController
      */
     protected function getSellerDetails(SellerId $id)
     {
-        /** @var RepositoryInterface $repo */
+        /** @var Repository $repo */
         $repo = $this->get('oloy.user.read_model.repository.seller_details');
 
         return $repo->find($id->__toString());

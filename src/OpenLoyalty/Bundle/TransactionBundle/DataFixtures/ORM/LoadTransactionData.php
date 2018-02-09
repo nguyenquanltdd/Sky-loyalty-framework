@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\TransactionBundle\DataFixtures\ORM;
 
-use Broadway\CommandHandling\CommandBusInterface;
+use Broadway\CommandHandling\CommandBus;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -63,7 +63,7 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
             ],
         ];
 
-        /** @var CommandBusInterface $bus */
+        /** @var CommandBus $bus */
         $bus = $this->container->get('broadway.command_handling.command_bus');
         $customerData = [
             'name' => 'Jan Nowak',

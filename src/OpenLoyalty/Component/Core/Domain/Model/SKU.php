@@ -5,12 +5,12 @@
  */
 namespace OpenLoyalty\Component\Core\Domain\Model;
 
-use Broadway\Serializer\SerializableInterface;
+use Broadway\Serializer\Serializable;
 
 /**
  * Class SKU.
  */
-class SKU implements SerializableInterface
+class SKU implements Serializable
 {
     /**
      * @var string
@@ -53,7 +53,7 @@ class SKU implements SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         return [
             'code' => $this->getCode(),

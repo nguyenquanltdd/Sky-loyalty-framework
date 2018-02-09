@@ -6,7 +6,7 @@
 namespace OpenLoyalty\Component\Campaign\Infrastructure\ReadModel;
 
 use Broadway\Domain\DomainMessage;
-use Broadway\EventHandling\EventListenerInterface;
+use Broadway\EventHandling\EventListener;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
@@ -17,7 +17,7 @@ use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 /**
  * Class CouponUsageProjector.
  */
-class CouponUsageProjector implements EventListenerInterface
+class CouponUsageProjector implements EventListener
 {
     /**
      * @var CouponUsageRepository

@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Component\Customer\Tests\Domain\Validator;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
@@ -13,7 +13,7 @@ use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
 class CustomerUniqueValidatorTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     protected $customerDetailsRepository;
 
@@ -34,7 +34,7 @@ class CustomerUniqueValidatorTest extends \PHPUnit_Framework_TestCase
             'c@c.com' => $customer3,
         ];
 
-        $this->customerDetailsRepository = $this->getMockBuilder('Broadway\ReadModel\RepositoryInterface')->getMock();
+        $this->customerDetailsRepository = $this->getMockBuilder('Broadway\ReadModel\Repository')->getMock();
         $this->customerDetailsRepository->method('findBy')->with($this->logicalOr(
                 $this->arrayHasKey('email'),
                 $this->arrayHasKey('loyaltyCardNumber')

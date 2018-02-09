@@ -3,6 +3,8 @@
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
 use Broadway\ReadModel\InMemory\InMemoryRepository;
+use Broadway\ReadModel\Projector;
+use Broadway\ReadModel\Repository;
 use Broadway\ReadModel\Testing\ProjectorScenarioTestCase;
 use OpenLoyalty\Component\Account\Domain\Account;
 use OpenLoyalty\Component\Account\Domain\AccountId;
@@ -38,16 +40,16 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
     /**
      * {@inheritdoc}
      */
-    protected function createProjector(InMemoryRepository $repository)
+    protected function createProjector(InMemoryRepository $repository): Projector
     {
         $this->accountId = new AccountId('00000000-0000-0000-0000-000000000000');
         $this->customerId = new CustomerId('00000000-1111-0000-0000-000000000000');
 
-        $accountRepository = $this->getMockBuilder(InMemoryRepository::class)->getMock();
+        $accountRepository = $this->getMockBuilder(Repository::class)->getMock();
         $account = Account::createAccount($this->accountId, $this->customerId);
 
         $accountRepository->method('find')->willReturn($account);
-        $customerRepository = $this->getMockBuilder(InMemoryRepository::class)->getMock();
+        $customerRepository = $this->getMockBuilder(Repository::class)->getMock();
         $customer = Customer::registerCustomer(
             new \OpenLoyalty\Component\Customer\Domain\CustomerId($this->customerId->__toString()),
             $this->getCustomerData()

@@ -31,7 +31,7 @@ class SellerWasRegistered extends SellerEvent
         $this->sellerData = $data;
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         $data = $this->sellerData;
 

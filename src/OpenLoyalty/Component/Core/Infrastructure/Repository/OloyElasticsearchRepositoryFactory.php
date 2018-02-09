@@ -5,21 +5,21 @@
  */
 namespace OpenLoyalty\Component\Core\Infrastructure\Repository;
 
-use Broadway\ReadModel\RepositoryFactoryInterface;
-use Broadway\ReadModel\RepositoryInterface;
-use Broadway\Serializer\SerializerInterface;
+use Broadway\ReadModel\RepositoryFactory;
+use Broadway\ReadModel\Repository;
+use Broadway\Serializer\Serializer;
 use Elasticsearch\Client;
 
 /**
  * Class OloyElasticsearchRepositoryFactory.
  */
-class OloyElasticsearchRepositoryFactory implements RepositoryFactoryInterface
+class OloyElasticsearchRepositoryFactory implements RepositoryFactory
 {
     private $client;
     private $serializer;
     private $maxResultWindowSize;
 
-    public function __construct(Client $client, SerializerInterface $serializer, $maxResultWindowSize = null)
+    public function __construct(Client $client, Serializer $serializer, $maxResultWindowSize = null)
     {
         $this->client = $client;
         $this->serializer = $serializer;
@@ -29,12 +29,12 @@ class OloyElasticsearchRepositoryFactory implements RepositoryFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function create($name, $class, $repositoryClass = null, array $notAnalyzedFields = array())
+    public function create(string $name, string $class, $repositoryClass = null, array $notAnalyzedFields = array()): Repository
     {
         if ($repositoryClass != null) {
             $rClass = new \ReflectionClass($repositoryClass);
 
-            if ($rClass->implementsInterface(RepositoryInterface::class)) {
+            if ($rClass->implementsInterface(Repository::class)) {
                 $repo = new $repositoryClass($this->client, $this->serializer, $name, $class, $notAnalyzedFields);
                 if ($repo instanceof OloyElasticsearchRepository && $this->maxResultWindowSize) {
                     $repo->setMaxResultWindowSize($this->maxResultWindowSize);

@@ -5,13 +5,13 @@
  */
 namespace OpenLoyalty\Component\Transaction\Domain\Event;
 
-use Broadway\Serializer\SerializableInterface;
+use Broadway\Serializer\Serializable;
 use OpenLoyalty\Component\Transaction\Domain\TransactionId;
 
 /**
  * Class TransactionEvent.
  */
-abstract class TransactionEvent implements SerializableInterface
+abstract class TransactionEvent implements Serializable
 {
     /**
      * @var TransactionId
@@ -39,7 +39,7 @@ abstract class TransactionEvent implements SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         return [
             'transactionId' => $this->transactionId->__toString(),

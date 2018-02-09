@@ -5,12 +5,12 @@
  */
 namespace OpenLoyalty\Component\Core\Domain\Model;
 
-use Broadway\Serializer\SerializableInterface;
+use Broadway\Serializer\Serializable;
 
 /**
  * Class Label.
  */
-class Label implements SerializableInterface
+class Label implements Serializable
 {
     /**
      * @var string
@@ -63,7 +63,7 @@ class Label implements SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         return [
             'key' => $this->key,

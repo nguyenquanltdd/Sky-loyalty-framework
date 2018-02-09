@@ -5,8 +5,8 @@
  */
 namespace OpenLoyalty\Component\Campaign\Domain\ReadModel;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 
-interface CampaignUsageRepository extends RepositoryInterface
+interface CampaignUsageRepository extends Repository
 {
 }

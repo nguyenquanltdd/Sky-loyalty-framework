@@ -5,12 +5,12 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\Model;
 
-use Broadway\Serializer\SerializableInterface;
+use Broadway\Serializer\Serializable;
 
 /**
  * Class Address.
  */
-class Address implements SerializableInterface
+class Address implements Serializable
 {
     /**
      * @var string
@@ -216,7 +216,7 @@ class Address implements SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         return [
             'street' => $this->getStreet(),

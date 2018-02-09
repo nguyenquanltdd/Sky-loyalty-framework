@@ -2,10 +2,11 @@
 
 namespace OpenLoyalty\Component\Customer\Tests\Domain\Command;
 
+use Broadway\CommandHandling\CommandHandler;
 use Broadway\CommandHandling\Testing\CommandHandlerScenarioTestCase;
-use Broadway\EventDispatcher\EventDispatcherInterface;
-use Broadway\EventHandling\EventBusInterface;
-use Broadway\EventStore\EventStoreInterface;
+use Broadway\EventDispatcher\EventDispatcher;
+use Broadway\EventHandling\EventBus;
+use Broadway\EventStore\EventStore;
 use OpenLoyalty\Bundle\AuditBundle\Service\AuditManagerInterface;
 use OpenLoyalty\Component\Customer\Domain\Command\CustomerCommandHandler;
 use OpenLoyalty\Component\Customer\Domain\CustomerRepository;
@@ -19,9 +20,9 @@ abstract class CustomerCommandHandlerTest extends CommandHandlerScenarioTestCase
     /**
      * {@inheritdoc}
      */
-    protected function createCommandHandler(EventStoreInterface $eventStore, EventBusInterface $eventBus, AuditManagerInterface $auditManager = null)
+    protected function createCommandHandler(EventStore $eventStore, EventBus $eventBus, AuditManagerInterface $auditManager = null): CommandHandler
     {
-        $eventDispatcher = $this->getMockBuilder(EventDispatcherInterface::class)->getMock();
+        $eventDispatcher = $this->getMockBuilder(EventDispatcher::class)->getMock();
         $eventDispatcher->method('dispatch')->with($this->isType('string'))->willReturn(true);
 
         if (null === $auditManager) {
@@ -63,16 +64,16 @@ abstract class CustomerCommandHandlerTest extends CommandHandlerScenarioTestCase
     }
 
     /**
-     * @param EventStoreInterface      $eventStore
-     * @param EventBusInterface        $eventBus
-     * @param EventDispatcherInterface $eventDispatcher
-     * @param AuditManagerInterface    $auditManager
+     * @param EventStore            $eventStore
+     * @param EventBus              $eventBus
+     * @param EventDispatcher       $eventDispatcher
+     * @param AuditManagerInterface $auditManager
      *
      * @return \OpenLoyalty\Component\Customer\Domain\Command\CustomerCommandHandler
      */
-    protected function getCustomerCommandHandler(EventStoreInterface $eventStore, EventBusInterface $eventBus, EventDispatcherInterface $eventDispatcher, AuditManagerInterface $auditManager = null)
+    protected function getCustomerCommandHandler(EventStore $eventStore, EventBus $eventBus, EventDispatcher $eventDispatcher, AuditManagerInterface $auditManager = null)
     {
-        $customerDetailsRepository = $this->getMockBuilder('Broadway\ReadModel\RepositoryInterface')->getMock();
+        $customerDetailsRepository = $this->getMockBuilder('Broadway\ReadModel\Repository')->getMock();
         $customerDetailsRepository->method('findBy')->willReturn([]);
         $validator = new CustomerUniqueValidator($customerDetailsRepository);
 

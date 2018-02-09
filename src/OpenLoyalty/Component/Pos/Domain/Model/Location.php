@@ -5,13 +5,13 @@
  */
 namespace OpenLoyalty\Component\Pos\Domain\Model;
 
-use Broadway\Serializer\SerializableInterface;
+use Broadway\Serializer\Serializable;
 use Assert\Assertion as Assert;
 
 /**
  * Class Location.
  */
-class Location implements SerializableInterface
+class Location implements Serializable
 {
     /**
      * @var string
@@ -113,7 +113,7 @@ class Location implements SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         $data = [
             'street' => $this->street,

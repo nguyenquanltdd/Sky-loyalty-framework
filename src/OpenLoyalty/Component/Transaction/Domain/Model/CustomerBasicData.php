@@ -5,13 +5,13 @@
  */
 namespace OpenLoyalty\Component\Transaction\Domain\Model;
 
-use Broadway\Serializer\SerializableInterface;
+use Broadway\Serializer\Serializable;
 use Assert\Assertion as Assert;
 
 /**
  * Class CustomerBasicData.
  */
-class CustomerBasicData implements SerializableInterface
+class CustomerBasicData implements Serializable
 {
     /**
      * @var string
@@ -85,7 +85,7 @@ class CustomerBasicData implements SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         return [
             'email' => $this->email,

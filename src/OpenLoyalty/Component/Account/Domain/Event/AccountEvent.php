@@ -5,13 +5,13 @@
  */
 namespace OpenLoyalty\Component\Account\Domain\Event;
 
-use Broadway\Serializer\SerializableInterface;
+use Broadway\Serializer\Serializable;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 
 /**
  * Class AccountEvent.
  */
-abstract class AccountEvent implements SerializableInterface
+abstract class AccountEvent implements Serializable
 {
     /**
      * @var AccountId
@@ -36,7 +36,7 @@ abstract class AccountEvent implements SerializableInterface
         return $this->accountId;
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         return ['accountId' => (string) $this->accountId];
     }

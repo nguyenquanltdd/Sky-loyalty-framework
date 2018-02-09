@@ -5,10 +5,10 @@
  */
 namespace OpenLoyalty\Component\Transaction\Domain\Event\Listener;
 
-use Broadway\CommandHandling\CommandBusInterface;
+use Broadway\CommandHandling\CommandBus;
 use Broadway\Domain\DomainMessage;
-use Broadway\EventDispatcher\EventDispatcherInterface;
-use Broadway\EventHandling\EventListenerInterface;
+use Broadway\EventDispatcher\EventDispatcher;
+use Broadway\EventHandling\EventListener;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerUpdatedSystemEvent;
 use OpenLoyalty\Component\Transaction\Domain\Command\AssignCustomerToTransaction;
@@ -26,7 +26,7 @@ use OpenLoyalty\Component\Customer\Domain\CustomerId as ClientId;
 /**
  * Class AssignCustomerToTransactionListener.
  */
-class AssignCustomerToTransactionListener implements EventListenerInterface
+class AssignCustomerToTransactionListener implements EventListener
 {
     /**
      * @var CustomerIdProvider
@@ -34,12 +34,12 @@ class AssignCustomerToTransactionListener implements EventListenerInterface
     protected $customerIdProvider;
 
     /**
-     * @var CommandBusInterface
+     * @var CommandBus
      */
     protected $commandBus;
 
     /**
-     * @var EventDispatcherInterface
+     * @var EventDispatcher
      */
     protected $eventDispatcher;
 
@@ -57,15 +57,15 @@ class AssignCustomerToTransactionListener implements EventListenerInterface
      * AssignCustomerToTransactionListener constructor.
      *
      * @param CustomerIdProvider                  $customerIdProvider
-     * @param CommandBusInterface                 $commandBus
-     * @param EventDispatcherInterface            $eventDispatcher
+     * @param CommandBus                          $commandBus
+     * @param EventDispatcher                     $eventDispatcher
      * @param TransactionDetailsRepository        $transactionDetailsRepository
      * @param CustomerTransactionsSummaryProvider $customerTransactionsSummaryProvider
      */
     public function __construct(
         CustomerIdProvider $customerIdProvider,
-        CommandBusInterface $commandBus,
-        EventDispatcherInterface $eventDispatcher,
+        CommandBus $commandBus,
+        EventDispatcher $eventDispatcher,
         TransactionDetailsRepository $transactionDetailsRepository,
         CustomerTransactionsSummaryProvider $customerTransactionsSummaryProvider
     ) {
@@ -89,23 +89,27 @@ class AssignCustomerToTransactionListener implements EventListenerInterface
             $transaction = $this->transactionDetailsRepository->find($event->getTransactionId()->__toString());
             $this->eventDispatcher->dispatch(
                 TransactionSystemEvents::CUSTOMER_ASSIGNED_TO_TRANSACTION,
-                [new CustomerAssignedToTransactionSystemEvent(
-                    $event->getTransactionId(),
-                    new CustomerId($customerId),
-                    $transaction->getGrossValue(),
-                    $transaction->getGrossValueWithoutDeliveryCosts(),
-                    $transaction->getAmountExcludedForLevel(),
-                    $transactionsCount
-                )]
+                [
+                    new CustomerAssignedToTransactionSystemEvent(
+                        $event->getTransactionId(),
+                        new CustomerId($customerId),
+                        $transaction->getGrossValue(),
+                        $transaction->getGrossValueWithoutDeliveryCosts(),
+                        $transaction->getAmountExcludedForLevel(),
+                        $transactionsCount
+                    ),
+                ]
             );
 
             if ($transactionsCount == 0) {
                 $this->eventDispatcher->dispatch(
                     TransactionSystemEvents::CUSTOMER_FIRST_TRANSACTION,
-                    [new CustomerFirstTransactionSystemEvent(
-                        $event->getTransactionId(),
-                        new CustomerId($customerId)
-                    )]
+                    [
+                        new CustomerFirstTransactionSystemEvent(
+                            $event->getTransactionId(),
+                            new CustomerId($customerId)
+                        ),
+                    ]
                 );
             }
             $this->eventDispatcher->dispatch(

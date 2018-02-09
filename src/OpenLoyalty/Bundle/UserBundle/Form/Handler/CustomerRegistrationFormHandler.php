@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\Form\Handler;
 
-use Broadway\CommandHandling\CommandBusInterface;
+use Broadway\CommandHandling\CommandBus;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use Doctrine\ORM\EntityManager;
 use OpenLoyalty\Bundle\UserBundle\Service\UserManager;
@@ -29,7 +29,7 @@ use Symfony\Component\Form\FormInterface;
 class CustomerRegistrationFormHandler
 {
     /**
-     * @var CommandBusInterface
+     * @var CommandBus
      */
     protected $commandBus;
 
@@ -56,14 +56,14 @@ class CustomerRegistrationFormHandler
     /**
      * CustomerRegistrationFormHandler constructor.
      *
-     * @param CommandBusInterface     $commandBus
+     * @param CommandBus              $commandBus
      * @param UserManager             $userManager
      * @param EntityManager           $em
      * @param UuidGeneratorInterface  $uuidGenerator
      * @param CustomerUniqueValidator $customerUniqueValidator
      */
     public function __construct(
-        CommandBusInterface $commandBus,
+        CommandBus $commandBus,
         UserManager $userManager,
         EntityManager $em,
         UuidGeneratorInterface $uuidGenerator,
@@ -105,7 +105,8 @@ class CustomerRegistrationFormHandler
         }
         if (isset($customerData['loyaltyCardNumber'])) {
             try {
-                $this->customerUniqueValidator->validateLoyaltyCardNumberUnique($customerData['loyaltyCardNumber'], $customerId);
+                $this->customerUniqueValidator->validateLoyaltyCardNumberUnique($customerData['loyaltyCardNumber'],
+                    $customerId);
             } catch (LoyaltyCardNumberAlreadyExistsException $e) {
                 $form->get('loyaltyCardNumber')->addError(new FormError($e->getMessage()));
             }

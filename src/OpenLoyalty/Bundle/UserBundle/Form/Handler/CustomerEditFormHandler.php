@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\Form\Handler;
 
-use Broadway\CommandHandling\CommandBusInterface;
+use Broadway\CommandHandling\CommandBus;
 use Doctrine\ORM\EntityManager;
 use OpenLoyalty\Bundle\UserBundle\Service\UserManager;
 use OpenLoyalty\Component\Customer\Domain\Command\UpdateCustomerAddress;
@@ -26,7 +26,7 @@ use Symfony\Component\Form\FormInterface;
 class CustomerEditFormHandler
 {
     /**
-     * @var CommandBusInterface
+     * @var CommandBus
      */
     protected $commandBus;
     /**
@@ -47,13 +47,13 @@ class CustomerEditFormHandler
     /**
      * CustomerEditFormHandler constructor.
      *
-     * @param CommandBusInterface     $commandBus
+     * @param CommandBus              $commandBus
      * @param UserManager             $userManager
      * @param EntityManager           $em
      * @param CustomerUniqueValidator $customerUniqueValidator
      */
     public function __construct(
-        CommandBusInterface $commandBus,
+        CommandBus $commandBus,
         UserManager $userManager,
         EntityManager $em,
         CustomerUniqueValidator $customerUniqueValidator
@@ -92,7 +92,8 @@ class CustomerEditFormHandler
         }
         if (isset($customerData['loyaltyCardNumber'])) {
             try {
-                $this->customerUniqueValidator->validateLoyaltyCardNumberUnique($customerData['loyaltyCardNumber'], $customerId);
+                $this->customerUniqueValidator->validateLoyaltyCardNumberUnique($customerData['loyaltyCardNumber'],
+                    $customerId);
             } catch (LoyaltyCardNumberAlreadyExistsException $e) {
                 $form->get('loyaltyCardNumber')->addError(new FormError($e->getMessage()));
             }

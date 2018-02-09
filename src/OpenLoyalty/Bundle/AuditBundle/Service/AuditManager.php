@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\AuditBundle\Service;
 
-use Broadway\CommandHandling\CommandBusInterface;
+use Broadway\CommandHandling\CommandBus;
 use OpenLoyalty\Component\Audit\Domain\Command\CreateAuditLog;
 use OpenLoyalty\Component\Customer\Domain\Command\ActivateCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\AssignPosToCustomer;
@@ -27,7 +27,7 @@ class AuditManager implements AuditManagerInterface
     const CUSTOMER_ENTITY_TYPE = 'customer';
 
     /**
-     * @var CommandBusInterface
+     * @var CommandBus
      */
     protected $commandBus;
 
@@ -44,12 +44,12 @@ class AuditManager implements AuditManagerInterface
     /**
      * AuditManager constructor.
      *
-     * @param CommandBusInterface       $commandBus
+     * @param CommandBus                $commandBus
      * @param CustomerDetailsRepository $customerDetailsRepository
      * @param TokenStorageInterface     $tokenStorage
      */
     public function __construct(
-        CommandBusInterface $commandBus,
+        CommandBus $commandBus,
         CustomerDetailsRepository $customerDetailsRepository,
         TokenStorageInterface $tokenStorage
     ) {

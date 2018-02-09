@@ -2,8 +2,8 @@
 
 namespace OpenLoyalty\Component\Account\Tests\Infrastructure\SytemEvent\Listener;
 
-use Broadway\CommandHandling\CommandBusInterface;
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\CommandHandling\CommandBus;
+use Broadway\ReadModel\Repository;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
@@ -33,7 +33,7 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
         $account = $this->getMockBuilder(AccountDetails::class)->disableOriginalConstructor()->getMock();
         $account->method('getAccountId')->willReturn(new AccountId($this->uuid));
 
-        $repo = $this->getMockBuilder(RepositoryInterface::class)->getMock();
+        $repo = $this->getMockBuilder(Repository::class)->getMock();
         $repo->method('findBy')->with($this->arrayHasKey('customerId'))->willReturn([$account]);
 
         return $repo;
@@ -41,7 +41,7 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
 
     protected function getCommandBus($expected)
     {
-        $mock = $this->getMockBuilder(CommandBusInterface::class)->getMock();
+        $mock = $this->getMockBuilder(CommandBus::class)->getMock();
         $mock->method('dispatch')->with($this->equalTo($expected));
 
         return $mock;

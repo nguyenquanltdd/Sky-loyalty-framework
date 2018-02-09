@@ -9,8 +9,9 @@ parameters:
     database_password: openloyalty
     database_driver:   pdo_pgsql
     database_version:  9
-    elastica_host:     elk
-    elastica_port:     9200
+    elastica:
+      hosts:
+        - elk:9200
     # You should uncomment this if you want use pdo_sqlite
     # database_path: "%kernel.root_dir%/data.db3"
 

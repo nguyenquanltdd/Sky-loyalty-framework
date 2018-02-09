@@ -69,12 +69,8 @@ doctrine:
         auto_mapping: true
 
 broadway:
-    read_model:
-        repository: elasticsearch
-        elasticsearch:
-          hosts: "%elastica_host%:%elastica_port%"
-    command_handling:
-      dispatch_events: true
+    event_store: oloy.dbal.event.store.concurrency
+    read_model: oloy.read_model.repository.factory
 
 nelmio_api_doc:
     sandbox:

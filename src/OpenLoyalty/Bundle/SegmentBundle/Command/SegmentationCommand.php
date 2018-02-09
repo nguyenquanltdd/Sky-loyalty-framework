@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\SegmentBundle\Command;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomers;
 use OpenLoyalty\Component\Segment\Domain\Segment;
 use OpenLoyalty\Component\Segment\Domain\SegmentId;
@@ -33,7 +33,7 @@ class SegmentationCommand extends Command implements ContainerAwareInterface
         $logger = $this->getContainer()->get('logger');
         $segmentsRepository = $this->getContainer()->get('oloy.segment.repository');
 
-        /** @var RepositoryInterface $segmentedCustomersRepository */
+        /** @var Repository $segmentedCustomersRepository */
         $segmentedCustomersRepository = $this->getContainer()->get('oloy.segment.read_model.repository.segmented_customers');
         $segmentationProvider = $this->getContainer()->get('oloy.segment.segmentation_provider');
         $segmentedCustomersProjector = $this->getContainer()->get('oloy.segment.read_model.projector.segmented_customers');
@@ -48,7 +48,7 @@ class SegmentationCommand extends Command implements ContainerAwareInterface
     }
 
     /**
-     * @param RepositoryInterface $segmentedCustomersRepository
+     * @param Repository $segmentedCustomersRepository
      * @param $segmentedCustomersProjector
      * @param $segmentsRepository
      * @param $segmentationProvider
@@ -85,7 +85,7 @@ class SegmentationCommand extends Command implements ContainerAwareInterface
     }
 
     /**
-     * @param RepositoryInterface $segmentedCustomersRepository
+     * @param Repository $segmentedCustomersRepository
      * @param $segmentedCustomersProjector
      * @param $segmentsRepository
      * @param $segmentationProvider

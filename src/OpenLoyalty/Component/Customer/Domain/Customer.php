@@ -104,7 +104,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @return string
      */
-    public function getAggregateRootId()
+    public function getAggregateRootId(): string
     {
         return $this->id;
     }

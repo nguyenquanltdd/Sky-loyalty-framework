@@ -5,14 +5,14 @@
  */
 namespace OpenLoyalty\Component\Transaction\Domain\Model;
 
-use Broadway\Serializer\SerializableInterface;
+use Broadway\Serializer\Serializable;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Core\Domain\Model\SKU;
 
 /**
  * Class Item.
  */
-class Item implements SerializableInterface
+class Item implements Serializable
 {
     /**
      * @var SKU
@@ -99,7 +99,7 @@ class Item implements SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         $labels = [];
         foreach ($this->labels as $label) {

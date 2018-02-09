@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Component\Seller\Domain\Command;
 
-use Broadway\CommandHandling\CommandHandler;
+use Broadway\CommandHandling\SimpleCommandHandler;
 use OpenLoyalty\Component\Seller\Domain\PosId;
 use OpenLoyalty\Component\Seller\Domain\Seller;
 use OpenLoyalty\Component\Seller\Domain\SellerRepository;
@@ -14,7 +14,7 @@ use OpenLoyalty\Component\Seller\Domain\Validator\SellerUniqueValidator;
 /**
  * Class SellerCommandHandler.
  */
-class SellerCommandHandler extends CommandHandler
+class SellerCommandHandler extends SimpleCommandHandler
 {
     /**
      * @var SellerRepository

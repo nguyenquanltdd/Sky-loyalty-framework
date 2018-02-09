@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\Validator;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Exception\EmailAlreadyExistsException;
 use OpenLoyalty\Component\Customer\Domain\Exception\LoyaltyCardNumberAlreadyExistsException;
@@ -18,16 +18,16 @@ use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 class CustomerUniqueValidator
 {
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     protected $customerDetailsRepository;
 
     /**
      * CustomerUniqueValidator constructor.
      *
-     * @param RepositoryInterface $customerDetailsRepository
+     * @param Repository $customerDetailsRepository
      */
-    public function __construct(RepositoryInterface $customerDetailsRepository)
+    public function __construct(Repository $customerDetailsRepository)
     {
         $this->customerDetailsRepository = $customerDetailsRepository;
     }

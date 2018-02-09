@@ -5,10 +5,10 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 
-interface CustomerDetailsRepository extends RepositoryInterface
+interface CustomerDetailsRepository extends Repository
 {
     public function findByBirthdayAnniversary(\DateTime $from, \DateTime $to, $onlyActive = true);
 

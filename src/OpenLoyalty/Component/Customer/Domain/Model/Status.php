@@ -5,12 +5,12 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\Model;
 
-use Broadway\Serializer\SerializableInterface;
+use Broadway\Serializer\Serializable;
 
 /**
  * Class Status.
  */
-class Status implements SerializableInterface
+class Status implements Serializable
 {
     const TYPE_NEW = 'new';
     const TYPE_ACTIVE = 'active';
@@ -206,7 +206,7 @@ class Status implements SerializableInterface
     /**
      * @return array
      */
-    public function serialize()
+    public function serialize(): array
     {
         return [
             'type' => $this->getType(),

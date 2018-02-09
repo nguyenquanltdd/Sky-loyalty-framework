@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\UtilityBundle\Service;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Segment\Domain\Segment;
@@ -16,26 +16,26 @@ use OpenLoyalty\Component\Segment\Domain\Segment;
 class CustomerDetailsCsvFormatter
 {
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     private $segmentedCustomersRepository;
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     private $customerDetailsRepository;
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     private $levelCustomersRepository;
 
     /**
      * CustomerDetailsCsvFormatter constructor.
      *
-     * @param RepositoryInterface $segmentedCustomersRepository
-     * @param RepositoryInterface $customerDetailsRepository
-     * @param RepositoryInterface $levelCustomersRepository
+     * @param Repository $segmentedCustomersRepository
+     * @param Repository $customerDetailsRepository
+     * @param Repository $levelCustomersRepository
      */
-    public function __construct(RepositoryInterface $segmentedCustomersRepository, RepositoryInterface $customerDetailsRepository, RepositoryInterface $levelCustomersRepository)
+    public function __construct(Repository $segmentedCustomersRepository, Repository $customerDetailsRepository, Repository $levelCustomersRepository)
     {
         $this->segmentedCustomersRepository = $segmentedCustomersRepository;
         $this->customerDetailsRepository = $customerDetailsRepository;

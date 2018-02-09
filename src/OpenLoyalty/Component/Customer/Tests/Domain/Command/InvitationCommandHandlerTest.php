@@ -2,10 +2,11 @@
 
 namespace OpenLoyalty\Component\Customer\Tests\Domain\Command;
 
+use Broadway\CommandHandling\CommandHandler;
 use Broadway\CommandHandling\Testing\CommandHandlerScenarioTestCase;
-use Broadway\EventDispatcher\EventDispatcherInterface;
-use Broadway\EventHandling\EventBusInterface;
-use Broadway\EventStore\EventStoreInterface;
+use Broadway\EventDispatcher\EventDispatcher;
+use Broadway\EventHandling\EventBus;
+use Broadway\EventStore\EventStore;
 use OpenLoyalty\Component\Customer\Domain\Command\InvitationCommandHandler;
 use OpenLoyalty\Component\Customer\Domain\InvitationRepository;
 use OpenLoyalty\Component\Customer\Domain\Service\InvitationTokenGenerator;
@@ -18,12 +19,12 @@ abstract class InvitationCommandHandlerTest extends CommandHandlerScenarioTestCa
     /**
      * {@inheritdoc}
      */
-    protected function createCommandHandler(EventStoreInterface $eventStore, EventBusInterface $eventBus)
+    protected function createCommandHandler(EventStore $eventStore, EventBus $eventBus): CommandHandler
     {
         $tokenGenerator = $this->getMockBuilder(InvitationTokenGenerator::class)->disableOriginalConstructor()
             ->getMock();
         $tokenGenerator->method('generate')->willReturn('123');
-        $dispatcher = $this->getMockBuilder(EventDispatcherInterface::class)->disableOriginalConstructor()
+        $dispatcher = $this->getMockBuilder(EventDispatcher::class)->disableOriginalConstructor()
             ->getMock();
 
         return new InvitationCommandHandler(

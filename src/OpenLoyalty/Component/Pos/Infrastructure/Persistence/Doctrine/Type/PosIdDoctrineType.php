@@ -7,7 +7,7 @@ namespace OpenLoyalty\Component\Pos\Infrastructure\Persistence\Doctrine\Type;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use OpenLoyalty\Component\Pos\Domain\PosId;
-use Rhumsaa\Uuid\Doctrine\UuidType;
+use Ramsey\Uuid\Doctrine\UuidType;
 
 /**
  * Class PosIdDoctrineType.

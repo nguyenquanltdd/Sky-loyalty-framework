@@ -5,8 +5,8 @@
  */
 namespace OpenLoyalty\Component\Audit\Domain\Command;
 
-use Broadway\CommandHandling\CommandHandler;
-use Broadway\EventDispatcher\EventDispatcherInterface;
+use Broadway\CommandHandling\SimpleCommandHandler;
+use Broadway\EventDispatcher\EventDispatcher;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Component\Audit\Domain\AuditLog;
 use OpenLoyalty\Component\Audit\Domain\AuditLogId;
@@ -19,7 +19,7 @@ use OpenLoyalty\Component\Audit\Domain\SystemEvent\CreatedAuditLogSystemEvent;
 /**
  * Class AuditLogHandler.
  */
-class AuditLogHandler extends CommandHandler
+class AuditLogHandler extends SimpleCommandHandler
 {
     /**
      * @var AuditLogRepository
@@ -32,21 +32,21 @@ class AuditLogHandler extends CommandHandler
     protected $uuidGenerator;
 
     /**
-     * @var EventDispatcherInterface
+     * @var EventDispatcher
      */
     protected $eventDispatcher;
 
     /**
      * AuditLogHandler constructor.
      *
-     * @param AuditLogRepository       $auditLogRepository
-     * @param UuidGeneratorInterface   $uuidGenerator
-     * @param EventDispatcherInterface $eventDispatcher
+     * @param AuditLogRepository     $auditLogRepository
+     * @param UuidGeneratorInterface $uuidGenerator
+     * @param EventDispatcher        $eventDispatcher
      */
     public function __construct(
         AuditLogRepository $auditLogRepository,
         UuidGeneratorInterface $uuidGenerator,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcher $eventDispatcher
     ) {
         $this->auditLogRepository = $auditLogRepository;
         $this->uuidGenerator = $uuidGenerator;

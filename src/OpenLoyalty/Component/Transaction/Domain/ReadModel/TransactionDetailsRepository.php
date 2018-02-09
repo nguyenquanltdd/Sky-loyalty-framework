@@ -5,9 +5,9 @@
  */
 namespace OpenLoyalty\Component\Transaction\Domain\ReadModel;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 
-interface TransactionDetailsRepository extends RepositoryInterface
+interface TransactionDetailsRepository extends Repository
 {
     public function findInPeriod(\DateTime $from, \DateTime $to, $onlyWithCustomers = true);
 

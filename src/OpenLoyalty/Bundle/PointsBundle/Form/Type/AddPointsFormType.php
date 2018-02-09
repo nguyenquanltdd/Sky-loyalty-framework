@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\PointsBundle\Form\Type;
 
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -21,16 +21,16 @@ use Symfony\Component\Validator\Constraints\Range;
 class AddPointsFormType extends AbstractType
 {
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     protected $customerDetailsRepository;
 
     /**
      * AddPointsFormType constructor.
      *
-     * @param RepositoryInterface $customerDetailsRepository
+     * @param Repository $customerDetailsRepository
      */
-    public function __construct(RepositoryInterface $customerDetailsRepository)
+    public function __construct(Repository $customerDetailsRepository)
     {
         $this->customerDetailsRepository = $customerDetailsRepository;
     }

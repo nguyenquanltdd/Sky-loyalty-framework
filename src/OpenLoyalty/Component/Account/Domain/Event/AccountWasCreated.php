@@ -38,7 +38,7 @@ class AccountWasCreated extends AccountEvent
         return $this->customerId;
     }
 
-    public function serialize()
+    public function serialize(): array
     {
         return array_merge(
             parent::serialize(),

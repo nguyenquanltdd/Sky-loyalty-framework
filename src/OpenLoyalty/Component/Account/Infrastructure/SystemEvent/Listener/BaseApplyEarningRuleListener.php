@@ -2,8 +2,8 @@
 
 namespace OpenLoyalty\Component\Account\Infrastructure\SystemEvent\Listener;
 
-use Broadway\CommandHandling\CommandBusInterface;
-use Broadway\ReadModel\RepositoryInterface;
+use Broadway\CommandHandling\CommandBus;
+use Broadway\ReadModel\Repository;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
 use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
@@ -20,12 +20,12 @@ use OpenLoyalty\Component\Account\Infrastructure\Model\ReferralEvaluationResult;
 abstract class BaseApplyEarningRuleListener
 {
     /**
-     * @var CommandBusInterface
+     * @var CommandBus
      */
     protected $commandBus;
 
     /**
-     * @var RepositoryInterface
+     * @var Repository
      */
     protected $accountDetailsRepository;
 
@@ -42,14 +42,14 @@ abstract class BaseApplyEarningRuleListener
     /**
      * ApplyEarningRuleToTransactionListener constructor.
      *
-     * @param CommandBusInterface    $commandBus
-     * @param RepositoryInterface    $accountDetailsRepository
+     * @param CommandBus             $commandBus
+     * @param Repository             $accountDetailsRepository
      * @param UuidGeneratorInterface $uuidGenerator
      * @param EarningRuleApplier     $earningRuleApplier
      */
     public function __construct(
-        CommandBusInterface $commandBus,
-        RepositoryInterface $accountDetailsRepository,
+        CommandBus $commandBus,
+        Repository $accountDetailsRepository,
         UuidGeneratorInterface $uuidGenerator,
         EarningRuleApplier $earningRuleApplier
     ) {

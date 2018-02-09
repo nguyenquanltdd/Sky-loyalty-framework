@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\TransactionBundle\Form\Handler;
 
-use Broadway\CommandHandling\CommandBusInterface;
+use Broadway\CommandHandling\CommandBus;
 use Broadway\EventDispatcher\EventDispatcher;
 use OpenLoyalty\Bundle\TransactionBundle\Model\AssignCustomer;
 use OpenLoyalty\Component\Customer\Domain\Exception\ToManyResultsException;
@@ -38,7 +38,7 @@ class ManuallyAssignCustomerToTransactionFormHandler
     protected $customerDetailsRepository;
 
     /**
-     * @var CommandBusInterface
+     * @var CommandBus
      */
     protected $commandBus;
 
@@ -57,14 +57,14 @@ class ManuallyAssignCustomerToTransactionFormHandler
      *
      * @param TransactionDetailsRepository $transactionDetailsRepository
      * @param CustomerDetailsRepository    $customerDetailsRepository
-     * @param CommandBusInterface          $commandBus
+     * @param CommandBus                   $commandBus
      * @param EventDispatcher              $eventDispatcher
      * @param AuthorizationChecker         $ac
      */
     public function __construct(
         TransactionDetailsRepository $transactionDetailsRepository,
         CustomerDetailsRepository $customerDetailsRepository,
-        CommandBusInterface $commandBus,
+        CommandBus $commandBus,
         EventDispatcher $eventDispatcher,
         AuthorizationChecker $ac
     ) {
@@ -150,12 +150,14 @@ class ManuallyAssignCustomerToTransactionFormHandler
 
         $this->eventDispatcher->dispatch(
             TransactionSystemEvents::CUSTOMER_ASSIGNED_TO_TRANSACTION,
-            [new CustomerAssignedToTransactionSystemEvent(
-                $transaction->getTransactionId(),
-                new CustomerId($customer->getCustomerId()->__toString()),
-                $transaction->getGrossValue(),
-                $transaction->getGrossValueWithoutDeliveryCosts()
-            )]
+            [
+                new CustomerAssignedToTransactionSystemEvent(
+                    $transaction->getTransactionId(),
+                    new CustomerId($customer->getCustomerId()->__toString()),
+                    $transaction->getGrossValue(),
+                    $transaction->getGrossValueWithoutDeliveryCosts()
+                ),
+            ]
         );
 
         return $transaction->getTransactionId();

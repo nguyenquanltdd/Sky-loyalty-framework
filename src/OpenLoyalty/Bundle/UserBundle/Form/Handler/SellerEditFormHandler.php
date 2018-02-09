@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\Form\Handler;
 
-use Broadway\CommandHandling\CommandBusInterface;
+use Broadway\CommandHandling\CommandBus;
 use Doctrine\ORM\EntityManager;
 use OpenLoyalty\Bundle\UserBundle\Service\UserManager;
 use OpenLoyalty\Component\Seller\Domain\Command\UpdateSeller;
@@ -20,7 +20,7 @@ use Symfony\Component\Form\FormInterface;
 class SellerEditFormHandler
 {
     /**
-     * @var CommandBusInterface
+     * @var CommandBus
      */
     protected $commandBus;
     /**
@@ -36,11 +36,11 @@ class SellerEditFormHandler
     /**
      * SellerEditFormHandler constructor.
      *
-     * @param CommandBusInterface $commandBus
-     * @param UserManager         $userManager
-     * @param EntityManager       $em
+     * @param CommandBus    $commandBus
+     * @param UserManager   $userManager
+     * @param EntityManager $em
      */
-    public function __construct(CommandBusInterface $commandBus, UserManager $userManager, EntityManager $em)
+    public function __construct(CommandBus $commandBus, UserManager $userManager, EntityManager $em)
     {
         $this->commandBus = $commandBus;
         $this->userManager = $userManager;

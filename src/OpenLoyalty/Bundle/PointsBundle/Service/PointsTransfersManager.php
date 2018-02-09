@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\PointsBundle\Service;
 
-use Broadway\CommandHandling\CommandBusInterface;
+use Broadway\CommandHandling\CommandBus;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Component\Account\Domain\Command\ExpirePointsTransfer;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;
@@ -17,7 +17,7 @@ use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsReposito
 class PointsTransfersManager
 {
     /**
-     * @var CommandBusInterface
+     * @var CommandBus
      */
     protected $commandBus;
 
@@ -34,12 +34,12 @@ class PointsTransfersManager
     /**
      * PointsTransfersManager constructor.
      *
-     * @param CommandBusInterface             $commandBus
+     * @param CommandBus                      $commandBus
      * @param PointsTransferDetailsRepository $pointsTransferDetailsRepository
      * @param SettingsManager                 $settingsManager
      */
     public function __construct(
-        CommandBusInterface $commandBus,
+        CommandBus $commandBus,
         PointsTransferDetailsRepository $pointsTransferDetailsRepository,
         SettingsManager $settingsManager
     ) {
@@ -66,7 +66,8 @@ class PointsTransfersManager
 
         /** @var PointsTransferDetails $transfer */
         foreach ($transfers as $transfer) {
-            $this->commandBus->dispatch(new ExpirePointsTransfer($transfer->getAccountId(), $transfer->getPointsTransferId()));
+            $this->commandBus->dispatch(new ExpirePointsTransfer($transfer->getAccountId(),
+                $transfer->getPointsTransferId()));
         }
 
         return $transfers;
