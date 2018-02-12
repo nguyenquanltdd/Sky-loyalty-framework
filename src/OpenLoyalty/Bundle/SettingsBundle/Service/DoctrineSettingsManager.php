@@ -29,6 +29,9 @@ class DoctrineSettingsManager implements SettingsManager
         $this->em = $em;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function save(Settings $settings, $flush = true)
     {
         foreach ($settings->getEntries() as $entry) {
@@ -40,6 +43,9 @@ class DoctrineSettingsManager implements SettingsManager
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function removeSettingByKey($key)
     {
         $setting = $this->getSettingByKey($key);
@@ -48,6 +54,9 @@ class DoctrineSettingsManager implements SettingsManager
         $this->em->flush();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getSettings()
     {
         $entries = $this->em->getRepository('OpenLoyaltySettingsBundle:SettingsEntry')->findAll();
@@ -58,6 +67,9 @@ class DoctrineSettingsManager implements SettingsManager
         return Settings::fromArray($entries);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getSettingByKey($key)
     {
         return $this->em->getRepository('OpenLoyaltySettingsBundle:SettingsEntry')
