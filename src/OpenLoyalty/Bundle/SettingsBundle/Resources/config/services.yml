@@ -44,11 +44,3 @@ services:
     oloy.settings.logo_uploader:
       class: OpenLoyalty\Bundle\SettingsBundle\Service\LogoUploader
       arguments: ["@oloy.settings.photos_filesystem"]
-
-    oloy.settings.validator.logo:
-      class: OpenLoyalty\Bundle\SettingsBundle\Validator\Constraints\ImageValidator
-      arguments:
-        - '50'
-        - '50'
-      tags:
-        - { name: validator.constraint_validator }

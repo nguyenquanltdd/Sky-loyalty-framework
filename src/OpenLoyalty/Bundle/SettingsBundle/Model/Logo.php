@@ -31,6 +31,10 @@ class Logo
     /**
      * @var UploadedFile
      * @Assert\NotBlank()
+     * @Assert\File(
+     *     mimeTypes={"image/png", "image/jpeg", "image/svg+xml", "text/html"},
+     *     maxSize="2M"
+     * )
      */
     protected $file;
 

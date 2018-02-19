@@ -983,6 +983,13 @@
     "heading": "Admin profile"
   },
   "xhr": {
+    "delete_settings_logo": {
+      "success": "Logo has been deleted",
+      "error": "Logo has not been deleted"
+    },
+    "upload_settings_logo": {
+      "success": "Logo has been saved"
+    },
     "customer_search": {
       "success": "Success",
       "error": "Error",
