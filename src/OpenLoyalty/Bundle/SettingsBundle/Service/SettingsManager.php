@@ -20,7 +20,12 @@ interface SettingsManager
     /**
      * @param $key
      *
-     * @return SettingsEntry
+     * @return SettingsEntry|null
      */
     public function getSettingByKey($key);
+
+    /**
+     * @param string $key
+     */
+    public function removeSettingByKey($key);
 }
