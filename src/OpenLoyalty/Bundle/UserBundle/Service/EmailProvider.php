@@ -168,10 +168,10 @@ class EmailProvider
 
     /**
      * @param CustomerDetails $customer
-     * @param int             $availableAmount
-     * @param int             $pointsAdded
+     * @param float           $availableAmount
+     * @param float           $pointsAdded
      */
-    public function addPointsToCustomer(CustomerDetails $customer, int $availableAmount, int $pointsAdded)
+    public function addPointsToCustomer(CustomerDetails $customer, float $availableAmount, float $pointsAdded)
     {
         $subject = sprintf('%s - new points', $this->loyaltyProgramName);
 
