@@ -302,8 +302,10 @@ class EarningRuleController extends FOSRestController
      */
     public function reportCustomEventAction($eventName, CustomerDetails $customer)
     {
-        $event = new CustomEventOccurredSystemEvent(new CustomerId($customer->getCustomerId()->__toString()),
-            $eventName);
+        $event = new CustomEventOccurredSystemEvent(
+            new CustomerId($customer->getCustomerId()->__toString()),
+            $eventName
+        );
 
         try {
             $this->get('broadway.event_dispatcher')->dispatch(

@@ -199,7 +199,8 @@ class EmailProvider
         $this->sendMessage(
             $subject,
             $customer->getEmail(),
-            'OpenLoyaltyUserBundle:email:new_level.html.twig', [
+            'OpenLoyaltyUserBundle:email:new_level.html.twig',
+            [
                 'program_name' => $this->loyaltyProgramName,
                 'level_name' => $level->getName(),
                 'level_discount' => number_format($level->getReward()->getValue() * 100, 0),

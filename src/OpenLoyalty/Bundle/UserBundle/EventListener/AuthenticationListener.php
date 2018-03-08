@@ -72,8 +72,10 @@ class AuthenticationListener
         if ($user instanceof User) {
             $user->setLastLoginAt(new \DateTime());
             $this->userManager->updateUser($user);
-            $this->dispatcher->dispatch(CustomerSystemEvents::CUSTOMER_LOGGED_IN,
-                [new CustomerLoggedInSystemEvent(new CustomerId($user->getId()))]);
+            $this->dispatcher->dispatch(
+                CustomerSystemEvents::CUSTOMER_LOGGED_IN,
+                [new CustomerLoggedInSystemEvent(new CustomerId($user->getId()))]
+            );
         }
 
         if ($user instanceof Customer && $user->getTemporaryPasswordSetAt()) {

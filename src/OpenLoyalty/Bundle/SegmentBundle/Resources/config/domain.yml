@@ -112,6 +112,18 @@ services:
       - '@oloy.segment.customer_validator'
     tags:
       - { name: oloy_segmentation_evaluator }
+  oloy.segment.evaluator.customer_has_labels:
+    class: OpenLoyalty\Component\Segment\Domain\Segmentation\CriteriaEvaluators\CustomerHasLabelsEvaluator
+    arguments:
+      - '@oloy.user.read_model.repository.customer_details'
+    tags:
+      - { name: oloy_segmentation_evaluator }
+  oloy.segment.evaluator.customer_with_labels_values:
+    class: OpenLoyalty\Component\Segment\Domain\Segmentation\CriteriaEvaluators\CustomersWithLabelsValuesEvaluator
+    arguments:
+      - '@oloy.user.read_model.repository.customer_details'
+    tags:
+      - { name: oloy_segmentation_evaluator }
 
   oloy.segment.recalculate.segment:
     class: 'OpenLoyalty\Component\Segment\Infrastructure\SystemEvent\Listener\RecalculateSegment'

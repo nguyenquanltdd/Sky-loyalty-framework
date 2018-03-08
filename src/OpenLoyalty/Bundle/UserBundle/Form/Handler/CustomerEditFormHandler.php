@@ -8,6 +8,7 @@ namespace OpenLoyalty\Bundle\UserBundle\Form\Handler;
 use Broadway\CommandHandling\CommandBus;
 use Doctrine\ORM\EntityManager;
 use OpenLoyalty\Bundle\UserBundle\Service\UserManager;
+use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Customer\Domain\Command\UpdateCustomerAddress;
 use OpenLoyalty\Component\Customer\Domain\Command\UpdateCustomerCompanyDetails;
 use OpenLoyalty\Component\Customer\Domain\Command\UpdateCustomerDetails;
@@ -92,8 +93,10 @@ class CustomerEditFormHandler
         }
         if (isset($customerData['loyaltyCardNumber'])) {
             try {
-                $this->customerUniqueValidator->validateLoyaltyCardNumberUnique($customerData['loyaltyCardNumber'],
-                    $customerId);
+                $this->customerUniqueValidator->validateLoyaltyCardNumberUnique(
+                    $customerData['loyaltyCardNumber'],
+                    $customerId
+                );
             } catch (LoyaltyCardNumberAlreadyExistsException $e) {
                 $form->get('loyaltyCardNumber')->addError(new FormError($e->getMessage()));
             }
@@ -106,6 +109,15 @@ class CustomerEditFormHandler
         if (!$customerData['company']['name'] && !$customerData['company']['nip']) {
             unset($customerData['company']);
         }
+
+        $labels = [];
+
+        /** @var Label $label */
+        foreach ($form->get('labels')->getData() as $label) {
+            $labels[] = $label->serialize();
+        }
+
+        $customerData['labels'] = $labels;
 
         $command = new UpdateCustomerDetails($customerId, $customerData);
         $this->commandBus->dispatch($command);

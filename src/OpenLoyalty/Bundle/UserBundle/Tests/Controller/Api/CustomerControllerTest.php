@@ -54,6 +54,65 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
+    public function it_allows_to_register_new_customer_with_labels()
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/customer/register',
+            [
+                'customer' => [
+                    'firstName' => 'John',
+                    'lastName' => 'Doe',
+                    'email' => 'john.john@doe.doe.com',
+                    'gender' => 'male',
+                    'birthDate' => '1990-01-01',
+                    'address' => [
+                        'street' => 'Bagno',
+                        'address1' => '12',
+                        'postal' => '00-800',
+                        'city' => 'Warszawa',
+                        'country' => 'PL',
+                        'province' => 'mazowieckie',
+                    ],
+                    'labels' => 'l1:v1;l2:v2',
+                    'agreement1' => true,
+                    'agreement2' => true,
+                    'loyaltyCardNumber' => '1000000011',
+                ],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+        $this->assertArrayHasKey('customerId', $data);
+        $this->assertArrayHasKey('email', $data);
+
+        self::$kernel->boot();
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/customer/'.$data['customerId']
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('labels', $data);
+
+        $labels = $data['labels'];
+        $this->assertCount(2, $labels);
+        $this->assertEquals('v1', $labels[0]['value']);
+        $this->assertEquals('l1', $labels[0]['key']);
+        $this->assertEquals('v2', $labels[1]['value']);
+        $this->assertEquals('l2', $labels[1]['key']);
+    }
+
+    /**
+     * @test
+     */
     public function it_allows_to_register_new_customer_by_seller()
     {
         $client = $this->createAuthenticatedClient('john@doe.com', 'open', 'seller');

@@ -129,7 +129,8 @@ class AccountCommandHandler extends SimpleCommandHandler
                     new AvailablePointsAmountChangedSystemEvent(
                         $account->getId(),
                         $account->getCustomerId(),
-                        $account->getAvailableAmount()),
+                        $account->getAvailableAmount()
+                    ),
                 ]
             );
         }

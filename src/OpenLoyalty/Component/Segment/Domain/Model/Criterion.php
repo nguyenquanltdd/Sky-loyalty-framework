@@ -11,8 +11,10 @@ use OpenLoyalty\Component\Segment\Domain\Model\Criteria\Anniversary;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\AverageTransactionAmount;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\BoughtInPos;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\BoughtLabels;
+use OpenLoyalty\Component\Segment\Domain\Model\Criteria\CustomerHasLabels;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\BoughtMakers;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\BoughtSKUs;
+use OpenLoyalty\Component\Segment\Domain\Model\Criteria\CustomersWithLabelsValues;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\LastPurchaseNDaysBefore;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\PurchaseInPeriod;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\TransactionAmount;
@@ -35,6 +37,8 @@ abstract class Criterion
     const TYPE_BOUGHT_SKUS = 'bought_skus';
     const TYPE_BOUGHT_MAKERS = 'bought_makers';
     const TYPE_BOUGHT_LABELS = 'bought_labels';
+    const TYPE_CUSTOMER_HAS_LABELS = 'customer_has_labels';
+    const TYPE_CUSTOMER_WITH_LABELS_VALUES = 'customer_with_labels_values';
 
     const TYPE_MAP = [
         self::TYPE_BOUGHT_IN_POS => BoughtInPos::class,
@@ -48,6 +52,8 @@ abstract class Criterion
         self::TYPE_BOUGHT_SKUS => BoughtSKUs::class,
         self::TYPE_BOUGHT_MAKERS => BoughtMakers::class,
         self::TYPE_BOUGHT_LABELS => BoughtLabels::class,
+        self::TYPE_CUSTOMER_HAS_LABELS => CustomerHasLabels::class,
+        self::TYPE_CUSTOMER_WITH_LABELS_VALUES => CustomersWithLabelsValues::class,
     ];
 
     /**

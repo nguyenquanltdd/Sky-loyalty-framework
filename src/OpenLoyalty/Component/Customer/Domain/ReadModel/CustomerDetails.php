@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
 use Broadway\ReadModel\SerializableReadModel;
+use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\Model\Address;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
@@ -174,6 +175,11 @@ class CustomerDetails implements SerializableReadModel
     protected $lastTransactionDate;
 
     /**
+     * @var Label[]
+     */
+    protected $labels = [];
+
+    /**
      * CustomerDetails constructor.
      *
      * @param CustomerId $id
@@ -197,6 +203,22 @@ class CustomerDetails implements SerializableReadModel
     public function getCustomerId()
     {
         return $this->customerId;
+    }
+
+    /**
+     * @return Label[]
+     */
+    public function getLabels()
+    {
+        return $this->labels;
+    }
+
+    /**
+     * @param Label[] $labels
+     */
+    public function setLabels(array $labels = [])
+    {
+        $this->labels = $labels;
     }
 
     /**
@@ -325,6 +347,14 @@ class CustomerDetails implements SerializableReadModel
             $customer->setLastTransactionDate($tmp);
         }
 
+        $labels = [];
+        if (isset($data['labels'])) {
+            foreach ($data['labels'] as $label) {
+                $labels[] = Label::deserialize($label);
+            }
+        }
+        $customer->setLabels($labels);
+
         return $customer;
     }
 
@@ -336,6 +366,11 @@ class CustomerDetails implements SerializableReadModel
         $serializedCampaigns = array_map(function (CampaignPurchase $campaignPurchase) {
             return $campaignPurchase->serialize();
         }, $this->campaignPurchases);
+
+        $labels = [];
+        foreach ($this->labels as $label) {
+            $labels[] = $label->serialize();
+        }
 
         return [
             'id' => $this->getId(),
@@ -366,6 +401,7 @@ class CustomerDetails implements SerializableReadModel
             'averageTransactionAmount' => $this->averageTransactionAmount,
             'amountExcludedForLevel' => $this->amountExcludedForLevel,
             'lastTransactionDate' => $this->lastTransactionDate ? $this->lastTransactionDate->getTimestamp() : null,
+            'labels' => $labels,
             'transactionIds' => array_map(function (TransactionId $transactionId) {
                 return $transactionId->__toString();
             }, $this->transactionIds),

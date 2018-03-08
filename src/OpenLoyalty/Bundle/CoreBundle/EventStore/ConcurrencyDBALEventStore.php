@@ -72,7 +72,8 @@ class ConcurrencyDBALEventStore implements EventStore, EventStoreManagement
                     $playhead,
                     $uncommittedEvent->getMetadata(),
                     $uncommittedEvent->getPayload(),
-                    $uncommittedEvent->getRecordedOn());
+                    $uncommittedEvent->getRecordedOn()
+                );
             }
 
             $this->append($id, new DomainEventStream($conflictResolvedEvents));

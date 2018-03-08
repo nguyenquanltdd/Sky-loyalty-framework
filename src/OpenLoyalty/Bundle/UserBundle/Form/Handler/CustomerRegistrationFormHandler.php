@@ -9,6 +9,7 @@ use Broadway\CommandHandling\CommandBus;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use Doctrine\ORM\EntityManager;
 use OpenLoyalty\Bundle\UserBundle\Service\UserManager;
+use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Customer\Domain\Command\MoveCustomerToLevel;
 use OpenLoyalty\Component\Customer\Domain\Command\RegisterCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\UpdateCustomerAddress;
@@ -87,6 +88,14 @@ class CustomerRegistrationFormHandler
             $password = $customerData['plainPassword'];
             unset($customerData['plainPassword']);
         }
+        $labels = [];
+
+        /** @var Label $label */
+        foreach ($form->get('labels')->getData() as $label) {
+            $labels[] = $label->serialize();
+        }
+
+        $customerData['labels'] = $labels;
 
         $command = new RegisterCustomer($customerId, $customerData);
 
@@ -105,8 +114,10 @@ class CustomerRegistrationFormHandler
         }
         if (isset($customerData['loyaltyCardNumber'])) {
             try {
-                $this->customerUniqueValidator->validateLoyaltyCardNumberUnique($customerData['loyaltyCardNumber'],
-                    $customerId);
+                $this->customerUniqueValidator->validateLoyaltyCardNumberUnique(
+                    $customerData['loyaltyCardNumber'],
+                    $customerId
+                );
             } catch (LoyaltyCardNumberAlreadyExistsException $e) {
                 $form->get('loyaltyCardNumber')->addError(new FormError($e->getMessage()));
             }

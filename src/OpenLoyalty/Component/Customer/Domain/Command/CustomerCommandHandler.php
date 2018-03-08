@@ -222,8 +222,12 @@ class CustomerCommandHandler extends SimpleCommandHandler
         $customerId = $command->getCustomerId();
         /** @var Customer $customer */
         $customer = $this->repository->load($customerId->__toString());
-        $customer->buyCampaign($command->getCampaignId(), $command->getCampaignName(), $command->getCostInPoints(),
-            $command->getCoupon());
+        $customer->buyCampaign(
+            $command->getCampaignId(),
+            $command->getCampaignName(),
+            $command->getCostInPoints(),
+            $command->getCoupon()
+        );
         $this->repository->save($customer);
     }
 

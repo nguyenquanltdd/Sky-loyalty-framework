@@ -148,7 +148,9 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
         }
 
         $this->commandBus->dispatch(
-            new AddPoints($account->getAccountId(), new AddPointsTransfer(
+            new AddPoints(
+                $account->getAccountId(),
+                new AddPointsTransfer(
                 new PointsTransferId($this->uuidGenerator->generate()),
                 $points,
                 null,
