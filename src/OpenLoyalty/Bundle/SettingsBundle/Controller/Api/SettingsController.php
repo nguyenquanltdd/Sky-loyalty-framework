@@ -15,6 +15,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Form\Type\SettingsFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\TranslationsFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
+use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
 use OpenLoyalty\Component\EarningRule\Domain\ReferralEarningRule;
@@ -382,7 +383,7 @@ class SettingsController extends FOSRestController
      * @ApiDoc(
      *     name="Get choices",
      *     section="Settings",
-     *     parameters={{"name"="type", "description"="allowed types: timezone, language, country, availableFrontendTranslations, earningRuleLimitPeriod, availableCustomerStatuses", "dataType"="string", "required"=true}}
+     *     parameters={{"name"="type", "description"="allowed types: timezone, language, country, availableFrontendTranslations, earningRuleLimitPeriod, availableCustomerStatuses, availableAccountActivationMethods", "dataType"="string", "required"=true}}
      * )
      *
      * @param $type
@@ -432,6 +433,14 @@ class SettingsController extends FOSRestController
             return $this->view(
                 [
                     'choices' => $availableCustomerStatusesList,
+                ]
+            );
+        } elseif ($type == 'availableAccountActivationMethods') {
+            $availableAccountActivationMethodsList = AccountActivationMethod::getAvailableMethods();
+
+            return $this->view(
+                [
+                    'choices' => $availableAccountActivationMethodsList,
                 ]
             );
         } elseif ($type == 'earningRuleLimitPeriod') {

@@ -4,6 +4,7 @@ imports:
   - { resource: "@OpenLoyaltyCampaignBundle/Resources/config/config.yml"}
   - { resource: "@OpenLoyaltyEarningRuleBundle/Resources/config/config.yml"}
   - { resource: "@OpenLoyaltyEmailBundle/Resources/config/config.yml"}
+  - { resource: "@OpenLoyaltyActivationCodeBundle/Resources/config/config.yml"}
   - { resource: "@OpenLoyaltyEmailSettingsBundle/Resources/config/config.yml"}
   - { resource: "@OpenLoyaltyLevelBundle/Resources/config/config.yml"}
   - { resource: "@OpenLoyaltyPaginationBundle/Resources/config/config.yml"}

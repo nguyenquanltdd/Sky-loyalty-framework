@@ -1,0 +1,4 @@
+services:
+  oloy.activation_code_manager:
+    class: OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActivationCodeManager
+    arguments: ['@broadway.uuid.generator', '@oloy.sms_api', '@oloy.sms.message_factory', '@doctrine.orm.entity_manager']

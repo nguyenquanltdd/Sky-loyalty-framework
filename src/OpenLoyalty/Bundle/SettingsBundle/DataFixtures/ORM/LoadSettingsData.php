@@ -14,6 +14,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Entity\JsonSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Logo;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
+use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
 use Symfony\Bridge\Doctrine\Tests\Fixtures\ContainerAwareFixture;
@@ -93,6 +94,10 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
         $defaultFrontendTranslations = new StringSettingEntry('defaultFrontendTranslations');
         $defaultFrontendTranslations->setValue('english.json');
         $settings->addEntry($defaultFrontendTranslations);
+
+        $accountActivationMethod = new StringSettingEntry('accountActivationMethod');
+        $accountActivationMethod->setValue(AccountActivationMethod::METHOD_EMAIL);
+        $settings->addEntry($accountActivationMethod);
 
         $this->getContainer()->get('ol.settings.manager')->save($settings);
     }
