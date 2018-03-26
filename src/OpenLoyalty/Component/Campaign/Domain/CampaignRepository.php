@@ -7,12 +7,38 @@ namespace OpenLoyalty\Component\Campaign\Domain;
 
 interface CampaignRepository
 {
+    /**
+     * @param CampaignId $campaignId
+     *
+     * @return null|object
+     */
     public function byId(CampaignId $campaignId);
 
-    public function findAll();
+    /**
+     * @param bool $returnQueryBuilder
+     *
+     * @return array|\Doctrine\ORM\QueryBuilder
+     */
+    public function findAll($returnQueryBuilder = false);
 
+    /**
+     * @param int    $page
+     * @param int    $perPage
+     * @param null   $sortField
+     * @param string $direction
+     *
+     * @return array
+     */
     public function findAllPaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'DESC');
 
+    /**
+     * @param int    $page
+     * @param int    $perPage
+     * @param null   $sortField
+     * @param string $direction
+     *
+     * @return array
+     */
     public function findAllVisiblePaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'DESC');
 
     /**
@@ -27,11 +53,37 @@ interface CampaignRepository
      */
     public function getActiveCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC');
 
+    /**
+     * @param SegmentId[] $segmentIds
+     * @param LevelId     $levelId
+     * @param int         $page
+     * @param int         $perPage
+     * @param null        $sortField
+     * @param string      $direction
+     *
+     * @return Campaign[]
+     */
     public function getVisibleCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC');
 
+    /**
+     * @param bool $onlyVisible
+     *
+     * @return int
+     *
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
     public function countTotal($onlyVisible = false);
 
+    /**
+     * @param Campaign $campaign
+     *
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     public function save(Campaign $campaign);
 
+    /**
+     * @param Campaign $campaign
+     */
     public function remove(Campaign $campaign);
 }

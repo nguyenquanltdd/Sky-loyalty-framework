@@ -6,18 +6,29 @@
 namespace OpenLoyalty\Bundle\UserBundle\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortByFilter;
+use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortFilter;
 
 /**
  * Class DoctrineAdminRepository.
  */
 class DoctrineAdminRepository extends EntityRepository implements AdminRepository
 {
+    use SortFilter;
+    use SortByFilter;
+
+    /**
+     * {@inheritdoc}
+     */
     public function findAllPaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'ASC')
     {
         $qb = $this->createQueryBuilder('e');
 
         if ($sortField) {
-            $qb->orderBy('e.'.$sortField, $direction);
+            $qb->orderBy(
+                'e.'.$this->validateSort($sortField),
+                $this->validateSortBy($direction)
+            );
         }
 
         $qb->addOrderBy('e.firstName', 'ASC');
@@ -28,6 +39,9 @@ class DoctrineAdminRepository extends EntityRepository implements AdminRepositor
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function countTotal()
     {
         $qb = $this->createQueryBuilder('e');
@@ -36,6 +50,9 @@ class DoctrineAdminRepository extends EntityRepository implements AdminRepositor
         return $qb->getQuery()->getSingleScalarResult();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function isEmailExist($email, $excludedId = null)
     {
         $qb = $this->createQueryBuilder('u');
