@@ -1485,6 +1485,7 @@
     "owner_data": {
       "text": "Lorem ipsum dolor sit amet"
     },
+    "ok": "OK",
     "configuration": "Configuration",
     "users": "Users",
     "cancel": "Cancel",
@@ -1604,7 +1605,9 @@
       "no_name": "No name of reward campaign",
       "used_confirmation": "Confirm reward usage",
       "used_confirmation_description": "Please confirm reward usage",
-      "singleCoupon_prompt": "To redeem customers will be able to use the same coupon"
+      "singleCoupon_prompt": "To redeem customers will be able to use the same coupon",
+      "reward_not_available": "This reward is not available",
+      "reward_ended": "Probably this campaign ended"
     },
     "customer_transaction": {
       "customer_loyalty_card_number": "Loyalty card number",
