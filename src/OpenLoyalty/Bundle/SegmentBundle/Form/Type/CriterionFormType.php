@@ -55,6 +55,10 @@ class CriterionFormType extends AbstractType
         $this->uuidGenerator = $uuidGenerator;
     }
 
+    /**
+     * @param FormBuilderInterface $builder
+     * @param array                $options
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $choices = [
@@ -69,6 +73,8 @@ class CriterionFormType extends AbstractType
             Criterion::TYPE_LAST_PURCHASE_N_DAYS_BEFORE,
             Criterion::TYPE_BOUGHT_SKUS,
             Criterion::TYPE_TRANSACTION_AMOUNT,
+            Criterion::TYPE_CUSTOMER_HAS_LABELS,
+            Criterion::TYPE_CUSTOMER_WITH_LABELS_VALUES,
         ];
 
         $pos = array_map(function (Pos $pos) {
@@ -132,10 +138,20 @@ class CriterionFormType extends AbstractType
                 case Criterion::TYPE_BOUGHT_LABELS:
                     $this->prepareBoughtLabelsForm($form);
                     break;
+                case Criterion::TYPE_CUSTOMER_HAS_LABELS:
+                    $this->prepareCustomerHasLabelsForm($form);
+                    break;
+                case Criterion::TYPE_CUSTOMER_WITH_LABELS_VALUES:
+                    $this->prepareCustomerHasLabelsForm($form);
+                    break;
             }
         });
     }
 
+    /**
+     * @param FormInterface $form
+     * @param array         $posChoices
+     */
     protected function prepareBoughtInPosForm(FormInterface $form, array $posChoices)
     {
         $form->add('posIds', CollectionType::class, [
@@ -150,6 +166,9 @@ class CriterionFormType extends AbstractType
         ]);
     }
 
+    /**
+     * @param FormInterface $form
+     */
     protected function prepareTransactionCountForm(FormInterface $form)
     {
         $form->add('min', IntegerType::class, [
@@ -162,6 +181,9 @@ class CriterionFormType extends AbstractType
         ]);
     }
 
+    /**
+     * @param FormInterface $form
+     */
     protected function prepareAverageTransactionAmountForm(FormInterface $form)
     {
         $form->add('fromAmount', NumberType::class, [
@@ -174,6 +196,9 @@ class CriterionFormType extends AbstractType
         ]);
     }
 
+    /**
+     * @param FormInterface $form
+     */
     protected function preparePurchasePeriodForm(FormInterface $form)
     {
         $form->add('fromDate', DateTimeType::class, [
@@ -194,6 +219,9 @@ class CriterionFormType extends AbstractType
         ]);
     }
 
+    /**
+     * @param FormInterface $form
+     */
     protected function prepareLastPurchaseNDaysBeforeForm(FormInterface $form)
     {
         $form->add('days', IntegerType::class, [
@@ -202,6 +230,9 @@ class CriterionFormType extends AbstractType
         ]);
     }
 
+    /**
+     * @param FormInterface $form
+     */
     protected function prepareTransactionAmountForm(FormInterface $form)
     {
         $form->add('fromAmount', NumberType::class, [
@@ -214,6 +245,9 @@ class CriterionFormType extends AbstractType
         ]);
     }
 
+    /**
+     * @param FormInterface $form
+     */
     protected function prepareAnniversaryForm(FormInterface $form)
     {
         $form->add('anniversaryType', ChoiceType::class, [
@@ -230,6 +264,10 @@ class CriterionFormType extends AbstractType
         ]);
     }
 
+    /**
+     * @param FormInterface $form
+     * @param array         $posChoices
+     */
     protected function prepareTransactionPercentInPosForm(FormInterface $form, array $posChoices)
     {
         $form->add('posId', ChoiceType::class, [
@@ -243,6 +281,9 @@ class CriterionFormType extends AbstractType
         ]);
     }
 
+    /**
+     * @param FormInterface $form
+     */
     protected function prepareBoughtSKUsForm(FormInterface $form)
     {
         $form->add('skuIds', CollectionType::class, [
@@ -254,6 +295,9 @@ class CriterionFormType extends AbstractType
         ]);
     }
 
+    /**
+     * @param FormInterface $form
+     */
     protected function prepareBoughtMakersForm(FormInterface $form)
     {
         $form->add('makers', CollectionType::class, [
@@ -265,12 +309,43 @@ class CriterionFormType extends AbstractType
         ]);
     }
 
+    /**
+     * @param FormInterface $form
+     */
     protected function prepareBoughtLabelsForm(FormInterface $form)
     {
         $form->add('labels', CollectionType::class, [
             'allow_add' => true,
             'allow_delete' => true,
             'entry_type' => LabelFormType::class,
+            'error_bubbling' => false,
+            'constraints' => [new Count(['min' => 1])],
+        ]);
+    }
+
+    /**
+     * @param FormInterface $form
+     */
+    protected function prepareCustomersWithLabelsValuesForm(FormInterface $form)
+    {
+        $form->add('labels', CollectionType::class, [
+            'allow_add' => true,
+            'allow_delete' => true,
+            'entry_type' => LabelFormType::class,
+            'error_bubbling' => false,
+            'constraints' => [new Count(['min' => 1])],
+        ]);
+    }
+
+    /**
+     * @param FormInterface $form
+     */
+    protected function prepareCustomerHasLabelsForm(FormInterface $form)
+    {
+        $form->add('labels', CollectionType::class, [
+            'allow_add' => true,
+            'allow_delete' => true,
+            'entry_type' => LabelWithoutValueFormType::class,
             'error_bubbling' => false,
             'constraints' => [new Count(['min' => 1])],
         ]);

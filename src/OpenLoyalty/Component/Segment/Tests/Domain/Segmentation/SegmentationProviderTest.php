@@ -141,7 +141,9 @@ class SegmentationProviderTest extends \PHPUnit_Framework_TestCase
 
         $this->customerDetailsRepository->method('findAllWithTransactionAmountBetween')
             ->with(
-                $this->equalTo(0), $this->equalTo(40))->willReturn([
+                $this->equalTo(0),
+                $this->equalTo(40)
+            )->willReturn([
                 new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId($this->customer1->__toString())),
                 new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId($this->customer3->__toString())),
             ]);

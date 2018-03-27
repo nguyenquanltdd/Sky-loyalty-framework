@@ -140,8 +140,10 @@ class CampaignProvider
     {
         $freeCoupons = $this->getCouponsUsageLeftCount($campaign);
         if (!$campaign->isSingleCoupon()) {
-            $usageForCustomer = $this->couponUsageRepository->countUsageForCampaignAndCustomer($campaign->getCampaignId(),
-                new CustomerId($customerId));
+            $usageForCustomer = $this->couponUsageRepository->countUsageForCampaignAndCustomer(
+                $campaign->getCampaignId(),
+                new CustomerId($customerId)
+            );
         } else {
             $campaignCoupon = $this->getAllCoupons($campaign);
             $coupon = $this->couponUsageRepository->find($campaign->getCampaignId().'_'.$customerId.'_'.reset($campaignCoupon));

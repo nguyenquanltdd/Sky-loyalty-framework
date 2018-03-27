@@ -366,17 +366,34 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
         $transactionDetails->setItems(
             [
                 new Item(
-                    new SKU('123'), 'item1', 1, 12, 'cat', $maker = 'test', [
+                    new SKU('123'),
+                    'item1',
+                    1,
+                    12,
+                    'cat',
+                    $maker = 'test',
+                    [
                         new Label('color', 'red'),
                     ]
                 ),
                 new Item(
-                    new SKU('000'), 'item2', 1, 100, 'cat', $maker = 'test', [
+                    new SKU('000'),
+                    'item2',
+                    1,
+                    100,
+                    'cat',
+                    $maker = 'test',
+                    [
                         new Label('color', 'blue'),
                     ]
                 ),
                 new Item(
-                    new SKU('0001'), 'delivery', 1, 40, 'cat', $maker = 'test'
+                    new SKU('0001'),
+                    'delivery',
+                    1,
+                    40,
+                    'cat',
+                    $maker = 'test'
                 ),
             ]
         );

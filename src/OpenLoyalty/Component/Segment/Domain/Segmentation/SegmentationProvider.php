@@ -34,7 +34,7 @@ class SegmentationProvider
 
         /** @var SegmentPart $part */
         foreach ($segment->getParts() as $part) {
-            if (!$customers) {
+            if (null === $customers) {
                 $customers = $this->getCustomersForPart($part);
             } else {
                 $customers = array_intersect($customers, $this->getCustomersForPart($part));

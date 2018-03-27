@@ -121,8 +121,10 @@ class CustomerStatusProvider
 
         /** @var Level $nextLevel */
         $nextLevel = $level ?
-            $this->levelRepository->findNextLevelByConditionValueWithTheBiggestReward($conditionValue,
-                $level->getConditionValue())
+            $this->levelRepository->findNextLevelByConditionValueWithTheBiggestReward(
+                $conditionValue,
+                $level->getConditionValue()
+            )
             : null;
 
         if ($accountDetails) {

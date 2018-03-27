@@ -532,7 +532,8 @@ class TransactionControllerTest extends BaseApiTest
                 }
 
                 return;
-            }));
+            })
+        );
 
         $formData = [
             'transactionData' => [

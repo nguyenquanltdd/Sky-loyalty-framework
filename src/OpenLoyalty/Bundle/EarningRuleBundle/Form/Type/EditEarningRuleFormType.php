@@ -64,7 +64,8 @@ class EditEarningRuleFormType extends AbstractType
                     'allow_add' => true,
                     'allow_delete' => true,
                     'error_bubbling' => false,
-                ])->addModelTransformer(new SegmentsDataTransformer()))
+                ])->addModelTransformer(new SegmentsDataTransformer())
+            )
             ->add('active', CheckboxType::class, [
                 'required' => false,
             ])

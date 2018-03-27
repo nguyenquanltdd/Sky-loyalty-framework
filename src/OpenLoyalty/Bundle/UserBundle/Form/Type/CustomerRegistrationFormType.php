@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\Form\Type;
 
+use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\LabelsFormType;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
 use OpenLoyalty\Component\Pos\Domain\Pos;
@@ -113,6 +114,9 @@ class CustomerRegistrationFormType extends AbstractType
 
         $builder->add('loyaltyCardNumber', TextType::class, [
             'label' => 'Loyalty card number',
+            'required' => false,
+        ]);
+        $builder->add('labels', LabelsFormType::class, [
             'required' => false,
         ]);
 

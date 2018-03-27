@@ -68,12 +68,36 @@ class CustomerDetailsProjectorTest extends ProjectorScenarioTestCase
     /**
      * @test
      */
+    public function it_creates_a_read_model_on_register_and_properly_sets_labels()
+    {
+        $customerId = new CustomerId('00000000-0000-0000-0000-000000000000');
+
+        $data = CustomerCommandHandlerTest::getCustomerData();
+        $data['agreement1'] = true;
+        $data['agreement2'] = false;
+        $data['agreement3'] = true;
+        $data['labels'] = [
+            ['key' => 'l1', 'value' => 'v1'],
+        ];
+
+        $this->scenario->given(array())
+            ->when(new CustomerWasRegistered($customerId, $data))
+            ->then(array(
+                $this->createBaseReadModel($customerId, $data),
+            ));
+    }
+
+    /**
+     * @test
+     */
     public function it_creates_a_read_model_on_register_and_address_update()
     {
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000000');
 
-        $customerLoyaltyCardNumberWasUpdated = new CustomerLoyaltyCardNumberWasUpdated($customerId,
-            CustomerCommandHandlerTest::getCustomerData()['loyaltyCardNumber']);
+        $customerLoyaltyCardNumberWasUpdated = new CustomerLoyaltyCardNumberWasUpdated(
+            $customerId,
+            CustomerCommandHandlerTest::getCustomerData()['loyaltyCardNumber']
+        );
         $data = CustomerCommandHandlerTest::getCustomerData();
         $data['updatedAt'] = $customerLoyaltyCardNumberWasUpdated->getUpdateAt()->getTimestamp();
 

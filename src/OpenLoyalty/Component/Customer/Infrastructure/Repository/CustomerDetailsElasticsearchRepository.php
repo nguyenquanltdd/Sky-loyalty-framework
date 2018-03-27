@@ -51,8 +51,20 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
                 ],
             ],
         ],
+        [
+            'label_value' => [
+                'path_match' => 'labels.*',
+                'mapping' => [
+                    'type' => 'string',
+                    'analyzer' => 'small_letters',
+                ],
+            ],
+        ],
     ];
 
+    /**
+     * {@inheritdoc}
+     */
     public function findByBirthdayAnniversary(\DateTime $from, \DateTime $to, $onlyActive = true)
     {
         $filter = [];
@@ -82,6 +94,9 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         return $this->query($query);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findByCreationAnniversary(\DateTime $from, \DateTime $to, $onlyActive = true)
     {
         $filter = [];
@@ -111,6 +126,9 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         return $this->query($query);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findPurchasesByCustomerIdPaginated(
         CustomerId $customerId,
         $page = 1,
@@ -220,6 +238,9 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         return $result->getCampaignPurchases();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function countPurchasesByCustomerId(CustomerId $customerId)
     {
         $query = array(
@@ -299,6 +320,9 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         return $timestamps;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findOneByCriteria($criteria, $limit)
     {
         $filter = [];
@@ -336,6 +360,9 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         return $result;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findAllWithAverageTransactionAmountBetween($from, $to, $onlyActive = true)
     {
         $filter = [['range' => [
@@ -362,6 +389,9 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         return $this->query($query);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findAllWithTransactionAmountBetween($from, $to, $onlyActive = true)
     {
         $filter = [['range' => [
@@ -388,6 +418,9 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         return $this->query($query);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findAllWithTransactionCountBetween($from, $to, $onlyActive = true)
     {
         $filter = [['range' => [
@@ -414,6 +447,9 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         return $this->query($query);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function sumAllByField($fieldName)
     {
         $allowedFields = [
@@ -456,5 +492,81 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         }
 
         return $result['aggregations']['summary']['value'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findByLabels(array $labels, $active = null)
+    {
+        if (count($labels) == 0) {
+            return [];
+        }
+        $filter = [];
+        foreach ($labels as $label) {
+            $filter[] = ['bool' => ['must' => [
+                ['term' => [
+                    'labels.key' => strtolower($label['key']),
+                ],
+                ],
+                ['term' => [
+                    'labels.value' => strtolower($label['value']),
+                ],
+                ],
+            ],
+            ]];
+        }
+
+        $query = array(
+            'bool' => array(
+                'must' => [[
+                    'bool' => [
+                        'should' => $filter,
+                    ],
+                ]],
+            ),
+        );
+
+        if (null !== $active) {
+            $query['bool']['must'][]['term'] = ['active' => $active];
+        }
+
+        return $this->query($query);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findWithLabels(array $labels, $active = null)
+    {
+        if (count($labels) == 0) {
+            return [];
+        }
+        $filter = [];
+        foreach ($labels as $label) {
+            $filter[] = ['bool' => ['must' => [
+                ['term' => [
+                    'labels.key' => strtolower($label['key']),
+                ],
+                ],
+            ],
+            ]];
+        }
+
+        $query = array(
+            'bool' => array(
+                'must' => [[
+                    'bool' => [
+                        'should' => $filter,
+                    ],
+                ]],
+            ),
+        );
+
+        if (null !== $active) {
+            $query['bool']['must'][]['term'] = ['active' => $active];
+        }
+
+        return $this->query($query);
     }
 }

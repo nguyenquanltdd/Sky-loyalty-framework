@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
 use Broadway\ReadModel\Projector;
+use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerDetailsWereUpdated;
@@ -81,6 +82,13 @@ class CustomerDetailsProjector extends Projector
         if (isset($data['agreement3'])) {
             $readModel->setAgreement3($data['agreement3']);
         }
+        $labels = [];
+        if (isset($data['labels'])) {
+            foreach ($data['labels'] as $label) {
+                $labels[] = new Label($label['key'], $label['value']);
+            }
+        }
+        $readModel->setLabels($labels);
         $readModel->setStatus(Status::typeNew());
         $readModel->setUpdatedAt($event->getUpdateAt());
         $readModel->setCreatedAt($data['createdAt']);
@@ -124,6 +132,13 @@ class CustomerDetailsProjector extends Projector
         }
         if (isset($data['status'])) {
             $readModel->setStatus(Status::fromData($data['status']));
+        }
+        if (isset($data['labels'])) {
+            $labels = [];
+            foreach ($data['labels'] as $label) {
+                $labels[] = new Label($label['key'], $label['value']);
+            }
+            $readModel->setLabels($labels);
         }
         $readModel->setUpdatedAt($event->getUpdateAt());
 

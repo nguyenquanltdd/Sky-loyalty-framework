@@ -68,8 +68,10 @@ class PointsTransfersManager
 
         /** @var PointsTransferDetails $transfer */
         foreach ($transfers as $transfer) {
-            $this->commandBus->dispatch(new ExpirePointsTransfer($transfer->getAccountId(),
-                $transfer->getPointsTransferId()));
+            $this->commandBus->dispatch(new ExpirePointsTransfer(
+                $transfer->getAccountId(),
+                $transfer->getPointsTransferId()
+            ));
         }
 
         return $transfers;
