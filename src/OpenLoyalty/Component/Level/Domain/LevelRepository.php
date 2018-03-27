@@ -5,25 +5,81 @@
  */
 namespace OpenLoyalty\Component\Level\Domain;
 
+/**
+ * Interface LevelRepository.
+ */
 interface LevelRepository
 {
+    /**
+     * @param LevelId $levelId
+     *
+     * @return null|object
+     */
     public function byId(LevelId $levelId);
 
+    /**
+     * @return array
+     */
     public function findAll();
 
+    /**
+     * @return array
+     */
     public function findAllActive();
 
+    /**
+     * @param $percent
+     *
+     * @return null|object
+     */
     public function findOneByRewardPercent($percent);
 
+    /**
+     * @param Level $level
+     *
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     public function save(Level $level);
 
+    /**
+     * @param Level $level
+     */
     public function remove(Level $level);
 
+    /**
+     * @param int    $page
+     * @param int    $perPage
+     * @param string $sortField
+     * @param string $direction
+     *
+     * @return array
+     */
     public function findAllPaginated($page = 1, $perPage = 10, $sortField = 'levelId', $direction = 'DESC');
 
+    /**
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
     public function countTotal();
 
+    /**
+     * @param $conditionValue
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
     public function findLevelByConditionValueWithTheBiggestReward($conditionValue);
 
+    /**
+     * @param $conditionValue
+     * @param $currentLevelValue
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
     public function findNextLevelByConditionValueWithTheBiggestReward($conditionValue, $currentLevelValue);
 }

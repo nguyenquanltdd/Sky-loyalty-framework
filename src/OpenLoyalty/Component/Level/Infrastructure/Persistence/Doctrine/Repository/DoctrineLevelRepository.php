@@ -6,6 +6,8 @@
 namespace OpenLoyalty\Component\Level\Infrastructure\Persistence\Doctrine\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortByFilter;
+use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortFilter;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelId;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
@@ -15,21 +17,35 @@ use OpenLoyalty\Component\Level\Domain\LevelRepository;
  */
 class DoctrineLevelRepository extends EntityRepository implements LevelRepository
 {
+    use SortFilter, SortByFilter;
+
+    /**
+     * {@inheritdoc}
+     */
     public function byId(LevelId $levelId)
     {
         return parent::find($levelId);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findOneByRewardPercent($percent)
     {
         return $this->findOneBy(['reward.value' => $percent / 100]);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findAll()
     {
         return parent::findAll();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findAllActive()
     {
         $qb = $this->createQueryBuilder('l');
@@ -38,23 +54,35 @@ class DoctrineLevelRepository extends EntityRepository implements LevelRepositor
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function save(Level $level)
     {
         $this->getEntityManager()->persist($level);
         $this->getEntityManager()->flush();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function remove(Level $level)
     {
         $this->getEntityManager()->remove($level);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findAllPaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'ASC')
     {
         $qb = $this->createQueryBuilder('l');
 
         if ($sortField) {
-            $qb->orderBy('l.'.$sortField, $direction);
+            $qb->orderBy(
+                'l.'.$this->validateSort($sortField),
+                $this->validateSortBy($direction)
+            );
         }
         if ($perPage) {
             $qb->setMaxResults($perPage);
@@ -64,6 +92,9 @@ class DoctrineLevelRepository extends EntityRepository implements LevelRepositor
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function countTotal()
     {
         $qb = $this->createQueryBuilder('l');
@@ -72,6 +103,9 @@ class DoctrineLevelRepository extends EntityRepository implements LevelRepositor
         return $qb->getQuery()->getSingleScalarResult();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findLevelByConditionValueWithTheBiggestReward($conditionValue)
     {
         $qb = $this->createQueryBuilder('l');
@@ -84,6 +118,9 @@ class DoctrineLevelRepository extends EntityRepository implements LevelRepositor
         return $qb->getQuery()->getOneOrNullResult();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findNextLevelByConditionValueWithTheBiggestReward($conditionValue, $currentLevelValue)
     {
         $qb = $this->createQueryBuilder('l');

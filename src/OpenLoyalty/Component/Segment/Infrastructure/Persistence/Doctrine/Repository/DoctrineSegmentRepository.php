@@ -6,6 +6,8 @@
 namespace OpenLoyalty\Component\Segment\Infrastructure\Persistence\Doctrine\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortByFilter;
+use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortFilter;
 use OpenLoyalty\Component\Segment\Domain\Segment;
 use OpenLoyalty\Component\Segment\Domain\SegmentId;
 use OpenLoyalty\Component\Segment\Domain\SegmentRepository;
@@ -15,11 +17,19 @@ use OpenLoyalty\Component\Segment\Domain\SegmentRepository;
  */
 class DoctrineSegmentRepository extends EntityRepository implements SegmentRepository
 {
+    use SortFilter, SortByFilter;
+
+    /**
+     * {@inheritdoc}
+     */
     public function byId(SegmentId $segmentId)
     {
         return parent::find($segmentId);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findAll($returnQueryBuilder = false)
     {
         if ($returnQueryBuilder) {
@@ -29,6 +39,9 @@ class DoctrineSegmentRepository extends EntityRepository implements SegmentRepos
         return parent::findAll();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findAllActive($returnQueryBuilder = false)
     {
         $qb = $this->createQueryBuilder('e');
@@ -41,18 +54,27 @@ class DoctrineSegmentRepository extends EntityRepository implements SegmentRepos
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function save(Segment $segment)
     {
         $this->getEntityManager()->persist($segment);
         $this->getEntityManager()->flush();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function remove(Segment $segment)
     {
         $this->getEntityManager()->remove($segment);
         $this->getEntityManager()->flush($segment);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findAllPaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'ASC', $onlyActive = false)
     {
         $qb = $this->createQueryBuilder('l');
@@ -62,7 +84,10 @@ class DoctrineSegmentRepository extends EntityRepository implements SegmentRepos
         }
 
         if ($sortField) {
-            $qb->orderBy('l.'.$sortField, $direction);
+            $qb->orderBy(
+                'l.'.$this->validateSort($sortField),
+                $this->validateSortBy($direction)
+            );
         }
         $qb->setMaxResults($perPage);
         $qb->setFirstResult(($page - 1) * $perPage);
@@ -70,6 +95,9 @@ class DoctrineSegmentRepository extends EntityRepository implements SegmentRepos
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function countTotal()
     {
         $qb = $this->createQueryBuilder('l');

@@ -12,12 +12,20 @@ use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\LevelId;
 use OpenLoyalty\Component\Campaign\Domain\SegmentId;
 use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\Functions\Cast;
+use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortByFilter;
+use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortFilter;
 
 /**
  * Class DoctrineCampaignRepository.
  */
 class DoctrineCampaignRepository extends EntityRepository implements CampaignRepository
 {
+    use SortFilter;
+    use SortByFilter;
+
+    /**
+     * {@inheritdoc}
+     */
     public function findAll($returnQueryBuilder = false)
     {
         if ($returnQueryBuilder) {
@@ -27,28 +35,43 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
         return parent::findAll();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function byId(CampaignId $campaignId)
     {
         return parent::find($campaignId);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function save(Campaign $campaign)
     {
         $this->getEntityManager()->persist($campaign);
         $this->getEntityManager()->flush();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function remove(Campaign $campaign)
     {
         $this->getEntityManager()->remove($campaign);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findAllPaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'ASC')
     {
         $qb = $this->createQueryBuilder('e');
 
         if ($sortField) {
-            $qb->orderBy('e.'.$sortField, $direction);
+            $qb->orderBy(
+                'e.'.$this->validateSort($sortField),
+                $this->validateSortBy($direction)
+            );
         }
 
         $qb->setMaxResults($perPage);
@@ -57,12 +80,18 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findAllVisiblePaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'ASC')
     {
         $qb = $this->createQueryBuilder('c');
 
         if ($sortField) {
-            $qb->orderBy('c.'.$sortField, $direction);
+            $qb->orderBy(
+                'e.'.$this->validateSort($sortField),
+                $this->validateSortBy($direction)
+            );
         }
 
         $qb->andWhere(
@@ -84,6 +113,9 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function countTotal($onlyVisible = false)
     {
         $qb = $this->createQueryBuilder('e');
@@ -108,14 +140,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     }
 
     /**
-     * @param SegmentId[] $segmentIds
-     * @param LevelId     $levelId
-     * @param int         $page
-     * @param int         $perPage
-     * @param null        $sortField
-     * @param string      $direction
-     *
-     * @return \OpenLoyalty\Component\Campaign\Domain\Campaign[]
+     * {@inheritdoc}
      */
     public function getActiveCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC')
     {
@@ -134,14 +159,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     }
 
     /**
-     * @param SegmentId[] $segmentIds
-     * @param LevelId     $levelId
-     * @param int         $page
-     * @param int         $perPage
-     * @param null        $sortField
-     * @param string      $direction
-     *
-     * @return \OpenLoyalty\Component\Campaign\Domain\Campaign[]
+     * {@inheritdoc}
      */
     public function getVisibleCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC')
     {
@@ -160,14 +178,16 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     }
 
     /**
-     * @param SegmentId[] $segmentIds
-     * @param LevelId     $levelId
-     * @param int         $page
-     * @param int         $perPage
-     * @param null        $sortField
-     * @param string      $direction
+     * @param array        $segmentIds
+     * @param LevelId|null $levelId
+     * @param int          $page
+     * @param int          $perPage
+     * @param null         $sortField
+     * @param string       $direction
      *
      * @return \Doctrine\ORM\QueryBuilder
+     *
+     * @throws \Doctrine\ORM\ORMException
      */
     protected function getCampaignsForLevelAndSegmentQueryBuilder(array $segmentIds = [], LevelId $levelId = null, $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC')
     {
@@ -192,7 +212,10 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
         $qb->andWhere($levelOrSegment);
 
         if ($sortField) {
-            $qb->orderBy('c.'.$sortField, $direction);
+            $qb->orderBy(
+                'e.'.$this->validateSort($sortField),
+                $this->validateSortBy($direction)
+            );
         }
         if ($perPage) {
             $qb->setMaxResults($perPage);

@@ -6,13 +6,13 @@
 namespace OpenLoyalty\Component\EarningRule\Infrastructure\Persistence\Doctrine\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortByFilter;
+use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortFilter;
 use OpenLoyalty\Component\EarningRule\Domain\CustomEventEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleId;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleRepository;
 use OpenLoyalty\Component\EarningRule\Domain\ReferralEarningRule;
-use OpenLoyalty\Component\EarningRule\Domain\LevelId;
-use OpenLoyalty\Component\EarningRule\Domain\SegmentId;
 use OpenLoyalty\Component\Core\Domain\Model\Identifier;
 use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\Functions\Cast;
 
@@ -21,6 +21,11 @@ use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\Functions\Cas
  */
 class DoctrineEarningRuleRepository extends EntityRepository implements EarningRuleRepository
 {
+    use SortFilter, SortByFilter;
+
+    /**
+     * {@inheritdoc}
+     */
     public function findAll($returnQueryBuilder = false)
     {
         if ($returnQueryBuilder) {
@@ -30,28 +35,43 @@ class DoctrineEarningRuleRepository extends EntityRepository implements EarningR
         return parent::findAll();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function byId(EarningRuleId $earningRuleId)
     {
         return parent::find($earningRuleId);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function save(EarningRule $earningRule)
     {
         $this->getEntityManager()->persist($earningRule);
         $this->getEntityManager()->flush();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function remove(EarningRule $earningRule)
     {
         $this->getEntityManager()->remove($earningRule);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findAllPaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'ASC', $returnQb = false)
     {
         $qb = $this->createQueryBuilder('e');
 
         if ($sortField) {
-            $qb->orderBy('e.'.$sortField, $direction);
+            $qb->orderBy(
+                'e.'.$this->validateSort($sortField),
+                $this->validateSortBy($direction)
+            );
         }
 
         $qb->setMaxResults($perPage);
@@ -60,6 +80,9 @@ class DoctrineEarningRuleRepository extends EntityRepository implements EarningR
         return $returnQb ? $qb : $qb->getQuery()->getResult();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function countTotal($returnQb = false)
     {
         $qb = $this->createQueryBuilder('e');
@@ -68,6 +91,9 @@ class DoctrineEarningRuleRepository extends EntityRepository implements EarningR
         return $returnQb ? $qb : $qb->getQuery()->getSingleScalarResult();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findAllActive(\DateTime $date = null)
     {
         if (!$date) {
@@ -84,6 +110,9 @@ class DoctrineEarningRuleRepository extends EntityRepository implements EarningR
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findAllActiveEventRules($eventName = null, array $segmentIds = [], $levelId = null, \DateTime $date = null)
     {
         $this->getEntityManager()->getConfiguration()->addCustomStringFunction('cast', Cast::class);
@@ -124,6 +153,9 @@ class DoctrineEarningRuleRepository extends EntityRepository implements EarningR
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function findByCustomEventName($eventName, array $segmentIds = [], $levelId = null, \DateTime $date = null)
     {
         $this->getEntityManager()->getConfiguration()->addCustomStringFunction('cast', Cast::class);
@@ -162,12 +194,7 @@ class DoctrineEarningRuleRepository extends EntityRepository implements EarningR
     }
 
     /**
-     * @param $eventName
-     * @param array          $segmentIds
-     * @param null           $levelId
-     * @param \DateTime|null $date
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function findReferralByEventName($eventName, array $segmentIds = [], $levelId = null, \DateTime $date = null)
     {
@@ -206,6 +233,9 @@ class DoctrineEarningRuleRepository extends EntityRepository implements EarningR
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function isCustomEventEarningRuleExist($eventName, $currentEarningRuleId = null)
     {
         $qb = $this->getEntityManager()->createQueryBuilder()->select('count(e)')
@@ -222,13 +252,7 @@ class DoctrineEarningRuleRepository extends EntityRepository implements EarningR
     }
 
     /**
-     * Find all active event rules filterred by level and segments.
-     *
-     * @param \DateTime|null $date
-     * @param array          $segmentIds
-     * @param LevelId        $levelId
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function findAllActiveEventRulesBySegmentsAndLevels(\DateTime $date = null, array $segmentIds = [], $levelId = null)
     {
@@ -238,10 +262,13 @@ class DoctrineEarningRuleRepository extends EntityRepository implements EarningR
     }
 
     /**
-     * @param SegmentId[] $segmentIds
-     * @param LevelId     $levelId
+     * @param array          $segmentIds
+     * @param null           $levelId
+     * @param \DateTime|null $date
      *
      * @return \Doctrine\ORM\QueryBuilder
+     *
+     * @throws \Doctrine\ORM\ORMException
      */
     protected function getEarningRulesForLevelAndSegmentQueryBuilder(array $segmentIds = [], $levelId = null, \DateTime $date = null)
     {
