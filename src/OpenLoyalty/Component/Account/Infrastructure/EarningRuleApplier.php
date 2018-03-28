@@ -20,6 +20,14 @@ interface EarningRuleApplier
     public function evaluateTransaction($transaction, $customerId);
 
     /**
+     * @param $transaction
+     * @param $customerId
+     *
+     * @return array
+     */
+    public function evaluateTransactionWithComment($transaction, $customerId);
+
+    /**
      * Return number of points for this event.
      *
      * @param string $eventName

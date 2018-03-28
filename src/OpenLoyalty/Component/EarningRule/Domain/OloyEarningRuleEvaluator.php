@@ -153,7 +153,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     /**
      * {@inheritdoc}
      */
-    public function evaluateTransaction($transaction, $customerId)
+    public function evaluateTransaction($transaction, $customerId, RuleEvaluationContext $context = null)
     {
         $transaction = $this->getTransactionObject($transaction);
 
@@ -167,7 +167,10 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         }
 
         $earningRulesItems = $this->getEarningRulesAlgorithms($transaction, $customerId);
-        $context = new RuleEvaluationContext($transaction);
+
+        if (null === $context) {
+            $context = new RuleEvaluationContext($transaction);
+        }
 
         foreach ($earningRulesItems as $earningRuleItem) {
             /** @var EarningRule $earningRule */
@@ -179,6 +182,32 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         }
 
         return round((float) array_sum($context->getProducts()), 2);
+    }
+
+    /**
+     * @param $transaction
+     * @param $customerId
+     *
+     * @return array
+     */
+    public function evaluateTransactionWithComment($transaction, $customerId)
+    {
+        $transaction = $this->getTransactionObject($transaction);
+
+        if (!$transaction) {
+            return [
+                'points' => 0,
+                'comment' => null,
+            ];
+        }
+
+        $context = new RuleEvaluationContext($transaction);
+        $points = $this->evaluateTransaction($transaction, $customerId, $context);
+
+        return [
+            'points' => $points,
+            'comment' => $context->getEarningRuleNames(),
+        ];
     }
 
     /**

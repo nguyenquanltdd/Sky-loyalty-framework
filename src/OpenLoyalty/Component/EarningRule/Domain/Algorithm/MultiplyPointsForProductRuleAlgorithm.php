@@ -31,12 +31,22 @@ class MultiplyPointsForProductRuleAlgorithm extends AbstractRuleAlgorithm
             throw new \InvalidArgumentException(get_class($rule));
         }
 
+        $arePointsAdded = false;
+
         foreach ($context->getTransaction()->getItems() as $item) {
             $sku = $item->getSku()->getCode();
 
             if (in_array($sku, $rule->getSkuIds()) || $this->getItemHasLabel($rule, $item)) {
                 $context->setProductPoints($sku, $context->getProductPoints($sku) * $rule->getMultiplier());
+                $arePointsAdded = true;
             }
+        }
+
+        if ($arePointsAdded) {
+            $context->addEarningRuleName(
+                $rule->getEarningRuleId()->__toString(),
+                $rule->getName()
+            );
         }
     }
 

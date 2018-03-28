@@ -292,6 +292,7 @@ class CustomerController extends FOSRestController
      * @throws \Doctrine\DBAL\Exception\UniqueConstraintViolationException
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \Exception
+     * @Route(name="oloy.customer.admin_register_customer", path="/admin/customer/register")
      * @Route(name="oloy.customer.register_customer", path="/customer/register")
      * @Route(name="oloy.customer.seller.register_customer", path="/seller/customer/register")
      * @Security("is_granted('CREATE_CUSTOMER')")

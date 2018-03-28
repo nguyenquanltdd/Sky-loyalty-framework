@@ -30,11 +30,21 @@ class ProductPurchaseEarningRuleAlgorithm extends AbstractRuleAlgorithm
             throw new \InvalidArgumentException(get_class($rule));
         }
 
+        $arePointsAdded = false;
+
         foreach ($context->getTransaction()->getItems() as $item) {
             $skuCode = $item->getSku()->getCode();
             if (in_array($skuCode, $rule->getSkuIds())) {
                 $context->addProductPoints($skuCode, $rule->getPointsAmount());
+                $arePointsAdded = true;
             }
+        }
+
+        if ($arePointsAdded) {
+            $context->addEarningRuleName(
+                $rule->getEarningRuleId()->__toString(),
+                $rule->getName()
+            );
         }
     }
 }
