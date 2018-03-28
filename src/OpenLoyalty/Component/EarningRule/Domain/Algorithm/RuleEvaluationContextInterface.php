@@ -47,4 +47,15 @@ interface RuleEvaluationContextInterface
      * @return array
      */
     public function getProducts();
+
+    /**
+     * @param string $earningRuleId
+     * @param string $earningRuleName
+     */
+    public function addEarningRuleName($earningRuleId, $earningRuleName);
+
+    /**
+     * @return string
+     */
+    public function getEarningRuleNames();
 }

@@ -315,6 +315,35 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @test
+     */
+    public function it_returns_proper_comment_for_given_transaction()
+    {
+        $pointsEarningRule = new PointsEarningRule(new EarningRuleId('00000000-0000-0000-0000-000000000000'));
+        $pointsEarningRule->setPointValue(4);
+        $pointsEarningRule->setExcludeDeliveryCost(false);
+        $pointsEarningRule->setName('Test 1');
+        $pointsEarningRule->setAllTimeActive(true);
+
+        $pointsEarningRule1 = new MultiplyPointsForProductEarningRule(new EarningRuleId('00000000-0000-0000-0000-000000000001'));
+        $pointsEarningRule1->setMultiplier(2);
+        $pointsEarningRule1->setName('Test 2');
+        $pointsEarningRule1->setSkuIds(['123', '000', '0001']);
+
+        $evaluator = $this->getEarningRuleEvaluator([$pointsEarningRule, $pointsEarningRule1]);
+
+        $pointsWithComment = $evaluator->evaluateTransactionWithComment(
+            new TransactionId('00000000-0000-0000-0000-000000000000'),
+            new CustomerId(static::USER_ID)
+        );
+
+        $this->assertArrayHasKey('points', $pointsWithComment);
+        $this->assertArrayHasKey('comment', $pointsWithComment);
+        $this->assertEquals(1216, $pointsWithComment['points']);
+        $this->assertEquals('Test 1, Test 2', $pointsWithComment['comment']);
+    }
+
+    /**
      * @param array $rules
      *
      * @return OloyEarningRuleEvaluator

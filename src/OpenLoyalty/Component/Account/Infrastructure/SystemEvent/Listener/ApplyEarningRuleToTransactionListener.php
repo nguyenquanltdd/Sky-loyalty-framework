@@ -27,7 +27,9 @@ class ApplyEarningRuleToTransactionListener extends BaseApplyEarningRuleListener
             return;
         }
 
-        $points = $this->earningRuleApplier->evaluateTransaction(new TransactionId($transactionId->__toString()), $customerId->__toString());
+        $pointsWithContext = $this->earningRuleApplier->evaluateTransactionWithComment(new TransactionId($transactionId->__toString()), $customerId->__toString());
+        $points = $pointsWithContext['points'];
+        $comment = $pointsWithContext['comment'];
 
         if ($points > 0) {
             /** @var AccountDetails $account */
@@ -38,7 +40,8 @@ class ApplyEarningRuleToTransactionListener extends BaseApplyEarningRuleListener
                     $points,
                     null,
                     false,
-                    new TransactionId($transactionId->__toString())
+                    new TransactionId($transactionId->__toString()),
+                    $comment
                 ))
             );
         }

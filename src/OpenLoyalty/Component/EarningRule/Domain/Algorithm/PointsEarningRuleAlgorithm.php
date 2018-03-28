@@ -58,5 +58,12 @@ class PointsEarningRuleAlgorithm extends AbstractRuleAlgorithm
                 $item->getGrossValue() * $rule->getPointValue()
             );
         }
+
+        if (count($filteredItems) > 0) {
+            $context->addEarningRuleName(
+                $rule->getEarningRuleId()->__toString(),
+                $rule->getName()
+            );
+        }
     }
 }
