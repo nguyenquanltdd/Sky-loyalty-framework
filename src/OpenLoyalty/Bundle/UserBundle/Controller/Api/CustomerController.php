@@ -53,6 +53,7 @@ class CustomerController extends FOSRestController
      * Method will return list of all customers.
      *
      * @Route(name="oloy.customer.list", path="/customer")
+     * @Route(name="oloy.customer.admin_list", path="/admin/customer")
      * @Method("GET")
      * @Security("is_granted('LIST_CUSTOMERS')")
      *
