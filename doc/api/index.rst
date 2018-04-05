@@ -12,5 +12,12 @@ The REST API Reference
    campaign
    customer
    customer_campaign
+   customer_earning_rule
+   customer_points_transfers
+   earning_rule
+   invitation
+   points_transfers
+   security
+   transactions
 
 .. include:: map.rst.inc

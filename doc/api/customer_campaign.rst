@@ -821,6 +821,7 @@ Example
 ^^^^^^^
 
 .. code-block:: bash
+
     curl http://localhost:8181/api/seller/customer/00000000-0000-474c-b092-b0dd880c07e1/campaign/bought \
         -X "GET" -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
