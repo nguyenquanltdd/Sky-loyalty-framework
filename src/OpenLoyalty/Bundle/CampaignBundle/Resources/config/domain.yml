@@ -39,3 +39,18 @@ services:
       - [setLogger, ['@logger']]
     tags:
       - { name: broadway.domain.event_listener }
+  oloy.campaign.read_model.repository.campaign_bought:
+    class: 'Broadway\ReadModel\ReadModel'
+    factory: ['@oloy.user.read_model.repository_factory', create]
+    arguments:
+      - 'oloy.campaign_bought'
+      - 'OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBought'
+      - 'OpenLoyalty\Component\Campaign\Infrastructure\Repository\CampaignBoughtElasticsearchRepository'
+  oloy.campaign.read_model.projector.campaign_bought:
+    class: OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtProjector
+    arguments:
+      - '@oloy.campaign.read_model.repository.campaign_bought'
+      - '@oloy.campaign.repository'
+      - '@oloy.user.read_model.repository.customer_details'
+    tags:
+      - { name: broadway.domain.event_listener }

@@ -3,6 +3,7 @@
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
+
 namespace OpenLoyalty\Bundle\UserBundle\Command;
 
 use Elasticsearch\Common\Exceptions\Missing404Exception;
@@ -26,6 +27,7 @@ class CreateProjectionIndexCommand extends ContainerAwareCommand
         'oloy.user.read_model.repository.seller_details',
         'oloy.segment.read_model.repository.segmented_customers',
         'oloy.campaign.read_model.repository.coupon_usage',
+        'oloy.campaign.read_model.repository.campaign_bought',
     ];
 
     protected function configure()

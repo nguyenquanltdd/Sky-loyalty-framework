@@ -29,6 +29,7 @@ class RecreateReadModelsCommand extends ContainerAwareCommand
         'oloy.transaction.read_model.projector.transaction_details',
         'oloy.campaign.read_model.projector.coupon_usage',
         'oloy.campaign.read_model.projector.campaign_usage',
+        'oloy.campaign.read_model.projector.campaign_bought',
     ];
 
     protected function configure()

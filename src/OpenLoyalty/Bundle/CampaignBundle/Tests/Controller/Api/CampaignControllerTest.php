@@ -214,6 +214,22 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
+    public function it_returns_bought_campaigns_list()
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/campaign/bought'
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('boughtCampaigns', $data);
+    }
+
+    /**
+     * @test
+     */
     public function it_returns_campaign()
     {
         $client = $this->createAuthenticatedClient();

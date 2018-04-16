@@ -7,9 +7,12 @@ namespace OpenLoyalty\Bundle\CampaignBundle\Controller\Api;
 
 use Broadway\CommandHandling\CommandBus;
 use FOS\RestBundle\Context\Context;
+use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\Request\ParamFetcher;
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignLimitException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotAllowedException;
@@ -321,6 +324,57 @@ class CampaignController extends FOSRestController
         $view->setContext($context);
 
         return $view;
+    }
+
+    /**
+     * Get all bought campaigns.
+     *
+     * @Route(name="oloy.campaign.bought.list", path="/campaign/bought")
+     * @Security("is_granted('LIST_ALL_BOUGHT_CAMPAIGNS')")
+     * @Method("GET")
+     *
+     * @ApiDoc(
+     *     name="get bought campaigns list",
+     *     section="Campaign",
+     *     parameters={
+     *      {"name"="page", "dataType"="integer", "required"=false, "description"="Page number"},
+     *      {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
+     *      {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
+     *      {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
+     *     }
+     * )
+     *
+     * @QueryParam(name="used", nullable=true, description="Used"))
+     *
+     * @param Request $request
+     *
+     * @return \FOS\RestBundle\View\View
+     * @param Request $request
+     *
+     * @return \FOS\RestBundle\View\View
+     */
+    public function getBoughtListAction(Request $request, ParamFetcher $paramFetcher)
+    {
+        $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
+        $repo = $this->get('oloy.campaign.read_model.repository.campaign_bought');
+        $params = $this->get('oloy.user.param_manager')->stripNulls($paramFetcher->all());
+        $boughtCampaigns = $repo->findByParametersPaginated(
+            $params,
+            true,
+            $pagination->getPage(),
+            $pagination->getPerPage(),
+            $pagination->getSort(),
+            $pagination->getSortDirection()
+        );
+
+        $total = $repo->countTotal($params);
+
+        return $this->view(
+            [
+                'boughtCampaigns' => $boughtCampaigns,
+                'total' => $total,
+            ]
+        );
     }
 
     /**

@@ -86,6 +86,7 @@
     "campaigns": "Reward campaigns",
     "all_campaigns": "All reward campaigns",
     "add_campaign": "Add reward campaign",
+    "redeemed_campaigns": "Redeemed rewards",
     "support": "Support",
     "guide": "Guide",
     "retention_matrix": "Retention matrix",
@@ -935,7 +936,18 @@
     "used_by_user": "Used by customers",
     "coupon_used": "Used by customers",
     "all_time": "All time",
-    "photo": "Campaign photo"
+    "photo": "Campaign photo",
+    "redeemed_heading": "Reedemed rewards",
+    "redeemed_list": "Reedemed rewards list",
+    "reward_redeem_date": "Date and time",
+    "customer_email":"Customer e-mail",
+    "customer_phone": "Phone",
+    "reward_name": "Reward",
+    "reward_type": "Type",
+    "delivered": "Delivered/used",
+    "usage_types.both": "Both",
+    "usage_types.true": "Used",
+    "usage_types.false": "Delivered"
   },
   "registration": {
     "basic_info": "Basic Informations",
@@ -1258,6 +1270,9 @@
     },
     "delete_campaign_image": {
       "success": "Image deleted",
+      "error": "An error occurred"
+    },
+    "get_redeemed_campaigns": {
       "error": "An error occurred"
     }
   },

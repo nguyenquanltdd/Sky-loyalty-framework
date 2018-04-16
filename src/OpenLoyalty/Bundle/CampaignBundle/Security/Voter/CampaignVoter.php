@@ -20,6 +20,7 @@ class CampaignVoter extends Voter
     const EDIT = 'EDIT';
     const LIST_ALL_CAMPAIGNS = 'LIST_ALL_CAMPAIGNS';
     const LIST_ALL_VISIBLE_CAMPAIGNS = 'LIST_ALL_VISIBLE_CAMPAIGNS';
+    const LIST_ALL_BOUGHT_CAMPAIGNS = 'LIST_ALL_BOUGHT_CAMPAIGNS';
     const VIEW = 'VIEW';
     const LIST_CAMPAIGNS_AVAILABLE_FOR_ME = 'LIST_CAMPAIGNS_AVAILABLE_FOR_ME';
     const LIST_CAMPAIGNS_BOUGHT_BY_ME = 'LIST_CAMPAIGNS_BOUGHT_BY_ME';
@@ -47,8 +48,13 @@ class CampaignVoter extends Voter
         return $subject instanceof Campaign && in_array($attribute, [
             self::EDIT, self::VIEW, self::BUY, self::MARK_COUPON_AS_USED,
         ]) || $subject == null && in_array($attribute, [
-            self::CREATE_CAMPAIGN, self::LIST_ALL_CAMPAIGNS, self::LIST_ALL_VISIBLE_CAMPAIGNS, self::LIST_CAMPAIGNS_BOUGHT_BY_ME, self::LIST_CAMPAIGNS_AVAILABLE_FOR_ME,
-            self::BUY_FOR_CUSTOMER,
+                self::CREATE_CAMPAIGN,
+                self::LIST_ALL_CAMPAIGNS,
+                self::LIST_ALL_BOUGHT_CAMPAIGNS,
+                self::LIST_ALL_VISIBLE_CAMPAIGNS,
+                self::LIST_CAMPAIGNS_BOUGHT_BY_ME,
+                self::LIST_CAMPAIGNS_AVAILABLE_FOR_ME,
+                self::BUY_FOR_CUSTOMER,
         ]);
     }
 
@@ -65,6 +71,8 @@ class CampaignVoter extends Voter
             case self::CREATE_CAMPAIGN:
                 return $user->hasRole('ROLE_ADMIN');
             case self::LIST_ALL_CAMPAIGNS:
+                return $user->hasRole('ROLE_ADMIN');
+            case self::LIST_ALL_BOUGHT_CAMPAIGNS:
                 return $user->hasRole('ROLE_ADMIN');
             case self::LIST_ALL_VISIBLE_CAMPAIGNS:
                 return $user->hasRole('ROLE_ADMIN') || $user->hasRole('ROLE_SELLER');

@@ -37,6 +37,7 @@ class CampaignVoterTest extends BaseVoterTest
             CampaignVoter::EDIT => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => self::CAMPAIGN_ID],
             CampaignVoter::VIEW => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::CAMPAIGN2_ID],
             CampaignVoter::LIST_ALL_CAMPAIGNS => ['seller' => false, 'customer' => false, 'admin' => true],
+            CampaignVoter::LIST_ALL_BOUGHT_CAMPAIGNS => ['seller' => false, 'customer' => false, 'admin' => true],
             CampaignVoter::LIST_CAMPAIGNS_AVAILABLE_FOR_ME => ['seller' => false, 'customer' => true, 'admin' => false],
             CampaignVoter::LIST_CAMPAIGNS_BOUGHT_BY_ME => ['seller' => false, 'customer' => true, 'admin' => false],
             CampaignVoter::BUY => ['seller' => false, 'customer' => true, 'admin' => false, 'id' => self::CAMPAIGN2_ID],
