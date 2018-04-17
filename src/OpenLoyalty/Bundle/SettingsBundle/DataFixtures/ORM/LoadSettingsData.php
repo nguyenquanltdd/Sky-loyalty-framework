@@ -80,6 +80,10 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
         $priority = new JsonSettingEntry('customersIdentificationPriority');
         $priorities = [
             [
+                'priority' => 3,
+                'field' => 'phone',
+            ],
+            [
                 'priority' => 2,
                 'field' => 'loyaltyCardNumber',
             ],

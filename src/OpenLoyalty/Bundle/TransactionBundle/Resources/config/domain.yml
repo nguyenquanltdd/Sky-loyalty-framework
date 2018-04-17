@@ -26,6 +26,7 @@ services:
     arguments:
       - '@oloy.transaction.read_model.repository.transaction_details'
       - '@oloy.pos.repository'
+      - '@oloy.user.read_model.repository.customer_details'
   oloy.transaction.listener.assing_customer_to_transaction:
     class: OpenLoyalty\Component\Transaction\Domain\Event\Listener\AssignCustomerToTransactionListener
     arguments:

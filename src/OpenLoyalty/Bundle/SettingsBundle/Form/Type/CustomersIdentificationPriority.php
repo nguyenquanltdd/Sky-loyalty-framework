@@ -24,6 +24,7 @@ class CustomersIdentificationPriority extends AbstractType
         $builder->add('field', ChoiceType::class, [
             'constraints' => [new NotBlank()],
             'choices' => [
+                'phone' => 'phone',
                 'loyaltyCardNumber' => 'loyaltyCardNumber',
                 'email' => 'email',
             ],

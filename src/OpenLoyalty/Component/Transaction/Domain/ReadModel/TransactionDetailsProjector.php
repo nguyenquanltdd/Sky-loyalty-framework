@@ -6,6 +6,9 @@
 namespace OpenLoyalty\Component\Transaction\Domain\ReadModel;
 
 use Broadway\ReadModel\Projector;
+use Broadway\ReadModel\Repository;
+use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
+use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Pos\Domain\Pos;
 use OpenLoyalty\Component\Pos\Domain\PosId;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
@@ -19,6 +22,9 @@ use OpenLoyalty\Component\Transaction\Domain\TransactionId;
  */
 class TransactionDetailsProjector extends Projector
 {
+    /**
+     * @var Repository
+     */
     private $repository;
 
     /**
@@ -27,15 +33,25 @@ class TransactionDetailsProjector extends Projector
     private $posRepository;
 
     /**
+     * @var CustomerDetailsRepository
+     */
+    private $customerDetailsRepository;
+
+    /**
      * TransactionDetailsProjector constructor.
      *
-     * @param               $repository
-     * @param PosRepository $posRepository
+     * @param Repository                $repository
+     * @param PosRepository             $posRepository
+     * @param CustomerDetailsRepository $customerDetailsRepository
      */
-    public function __construct($repository, PosRepository $posRepository)
-    {
+    public function __construct(
+        Repository $repository,
+        PosRepository $posRepository,
+        CustomerDetailsRepository $customerDetailsRepository
+    ) {
         $this->repository = $repository;
         $this->posRepository = $posRepository;
+        $this->customerDetailsRepository = $customerDetailsRepository;
     }
 
     protected function applyTransactionWasRegistered(TransactionWasRegistered $event)
@@ -71,6 +87,11 @@ class TransactionDetailsProjector extends Projector
     {
         $readModel = $this->getReadModel($event->getTransactionId());
         $readModel->setCustomerId($event->getCustomerId());
+        $customer = $this->customerDetailsRepository->find($event->getCustomerId()->__toString());
+        if ($customer instanceof CustomerDetails) {
+            $customerData = $readModel->getCustomerData();
+            $customerData->updateEmailAndPhone($customer->getEmail(), $customer->getPhone());
+        }
         $this->repository->save($readModel);
     }
 

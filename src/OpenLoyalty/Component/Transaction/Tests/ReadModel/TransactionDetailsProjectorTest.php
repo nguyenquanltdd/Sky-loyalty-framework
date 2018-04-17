@@ -5,6 +5,9 @@ namespace OpenLoyalty\Component\Transaction\Tests\ReadModel;
 use Broadway\ReadModel\InMemory\InMemoryRepository;
 use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\Testing\ProjectorScenarioTestCase;
+use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
+use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
+use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
 use OpenLoyalty\Component\Transaction\Domain\CustomerId;
 use OpenLoyalty\Component\Transaction\Domain\Event\CustomerWasAssignedToTransaction;
@@ -20,6 +23,11 @@ use OpenLoyalty\Component\Transaction\Domain\TransactionId;
 class TransactionDetailsProjectorTest extends ProjectorScenarioTestCase
 {
     /**
+     * @var CustomerDetailsRepository
+     */
+    private $customerDetailsRepository;
+
+    /**
      * @param InMemoryRepository $repository
      *
      * @return Projector
@@ -28,8 +36,9 @@ class TransactionDetailsProjectorTest extends ProjectorScenarioTestCase
     {
         $posRepo = $this->getMockBuilder(PosRepository::class)->getMock();
         $posRepo->method('byId')->willReturn(null);
+        $this->customerDetailsRepository = $this->getMockBuilder(CustomerDetailsRepository::class)->getMock();
 
-        return new TransactionDetailsProjector($repository, $posRepo);
+        return new TransactionDetailsProjector($repository, $posRepo, $this->customerDetailsRepository);
     }
 
     /**
@@ -100,6 +109,12 @@ class TransactionDetailsProjectorTest extends ProjectorScenarioTestCase
         );
 
         $expectedReadModel->setCustomerId($customerId);
+        $expectedReadModel->getCustomerData()->updateEmailAndPhone('test@test.pl', '123');
+
+        $customerDetails = new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId(LoadUserData::USER_USER_ID));
+        $customerDetails->setEmail('test@test.pl');
+        $customerDetails->setPhone('123');
+        $this->customerDetailsRepository->method('find')->with($this->isType('string'))->willReturn($customerDetails);
 
         $this->scenario
             ->given([

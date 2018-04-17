@@ -144,4 +144,14 @@ class CustomerBasicData implements Serializable
     {
         return $this->address;
     }
+
+    /**
+     * @param string $email
+     * @param string $phone
+     */
+    public function updateEmailAndPhone($email, $phone)
+    {
+        $this->email = $email;
+        $this->phone = $phone;
+    }
 }

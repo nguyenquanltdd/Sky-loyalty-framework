@@ -78,6 +78,7 @@ class CustomerController extends FOSRestController
      * @QueryParam(name="lastName", nullable=true, description="lastName"))
      * @QueryParam(name="phone", nullable=true, description="phone"))
      * @QueryParam(name="email", nullable=true, description="email"))
+     * @QueryParam(name="emailOrPhone", nullable=true, description="email or phone"))
      * @QueryParam(name="loyaltyCardNumber", nullable=true, description="loyaltyCardNumber"))
      * @QueryParam(name="transactionsAmount", nullable=true, description="transactionsAmount"))
      * @QueryParam(name="averageTransactionAmount", nullable=true, description="averageTransactionAmount"))
@@ -111,6 +112,16 @@ class CustomerController extends FOSRestController
                 'type' => 'range',
                 'value' => [
                     'gte' => (new \DateTime('-'.$hoursFromLastUpdate.' hours'))->getTimestamp(),
+                ],
+            ];
+        }
+        if (isset($params['emailOrPhone'])) {
+            $emailOrPhone = $params['emailOrPhone'];
+            $params['emailOrPhone'] = [
+                'type' => 'multiple',
+                'fields' => [
+                    'email' => $emailOrPhone,
+                    'phone' => $emailOrPhone,
                 ],
             ];
         }

@@ -52,7 +52,8 @@
     },
     "require-dev": {
         "symfony/phpunit-bridge": "^3.0",
-        "phpunit/phpunit": "^5.7"
+        "phpunit/phpunit": "^5.7",
+        "friendsofphp/php-cs-fixer": "^2.10"
     },
     "replace": {
         "divante-ltd/open-loyalty-account": "self.version",
