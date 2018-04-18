@@ -111,6 +111,10 @@ class TransactionVoter extends Voter
             return true;
         }
 
+        if ($user->hasRole('ROLE_PARTICIPANT')) {
+            return true;
+        }
+
         return false;
     }
 }

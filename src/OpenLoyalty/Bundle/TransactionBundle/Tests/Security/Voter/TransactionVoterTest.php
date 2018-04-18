@@ -29,7 +29,7 @@ class TransactionVoterTest extends BaseVoterTest
             TransactionVoter::LIST_CURRENT_POS_TRANSACTIONS => ['seller' => true, 'customer' => false, 'admin' => false],
             TransactionVoter::VIEW => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::TRANSACTION_ID],
             TransactionVoter::CREATE_TRANSACTION => ['seller' => false, 'customer' => false, 'admin' => true],
-            TransactionVoter::ASSIGN_CUSTOMER_TO_TRANSACTION => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => LoadTransactionData::TRANSACTION_ID],
+            TransactionVoter::ASSIGN_CUSTOMER_TO_TRANSACTION => ['seller' => true, 'customer' => true, 'admin' => true, 'id' => LoadTransactionData::TRANSACTION_ID],
             TransactionVoter::LIST_ITEM_LABELS => ['seller' => true, 'customer' => true, 'admin' => true],
         ];
         $repo = $this->getMockBuilder(SellerDetailsRepository::class)->getMock();

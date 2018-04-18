@@ -28,6 +28,7 @@ use OpenLoyalty\Component\Transaction\Domain\TransactionId;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -345,9 +346,10 @@ class TransactionController extends FOSRestController
     }
 
     /**
-     * Method allows to assign customer to specyfic transaction.
+     * Method allows to assign customer to specific transaction.
      *
      * @Route(name="oloy.transaction.assign_customer", path="/admin/transaction/customer/assign")
+     * @Route(name="oloy.transaction.customer.assign_customer", path="/customer/transaction/customer/assign")
      * @Route(name="oloy.transaction.pos.assign_customer", path="/pos/transaction/customer/assign")
      * @Method("POST")
      * @ApiDoc(
@@ -366,6 +368,17 @@ class TransactionController extends FOSRestController
      */
     public function assignCustomerAction(Request $request)
     {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if ($this->isGranted('ROLE_PARTICIPANT')) {
+            $parameters = $request->request->get('assign');
+            $parameters['customerId'] = $user->getId();
+            unset($parameters['customerLoyaltyCardNumber'], $parameters['customerPhoneNumber']);
+            $request->request->set('assign', $parameters);
+        }
+
+        /** @var ManuallyAssignCustomerToTransactionFormType|FormInterface $form */
         $form = $this->get('form.factory')->createNamed('assign', ManuallyAssignCustomerToTransactionFormType::class);
         $form->handleRequest($request);
 
