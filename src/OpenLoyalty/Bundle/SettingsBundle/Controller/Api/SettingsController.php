@@ -7,7 +7,9 @@ namespace OpenLoyalty\Bundle\SettingsBundle\Controller\Api;
 
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use OpenLoyalty\Bundle\ActivationCodeBundle\Service\SmsSender;
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRuleLimit;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\FileSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\LogoFormType;
@@ -48,7 +50,7 @@ class SettingsController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function addLogoAction(Request $request)
     {
@@ -90,7 +92,7 @@ class SettingsController extends FOSRestController
      *     section="Settings"
      * )
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function removeLogoAction()
     {
@@ -163,7 +165,7 @@ class SettingsController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function editAction(Request $request)
     {
@@ -194,7 +196,7 @@ class SettingsController extends FOSRestController
      *     section="Settings"
      * )
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function getAction()
     {
@@ -237,7 +239,7 @@ class SettingsController extends FOSRestController
      *     section="Settings"
      * )
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function listTranslationsAction()
     {
@@ -263,7 +265,7 @@ class SettingsController extends FOSRestController
      *     section="Settings"
      * )
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function listCustomerStatusesAction()
     {
@@ -291,7 +293,7 @@ class SettingsController extends FOSRestController
      *
      * @param $key
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function getTranslationByKeyAction($key)
     {
@@ -314,7 +316,7 @@ class SettingsController extends FOSRestController
      * @param Request $request
      * @param $key
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function updateTranslationByKeyAction(Request $request, $key)
     {
@@ -356,7 +358,7 @@ class SettingsController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function createTranslationAction(Request $request)
     {
@@ -375,6 +377,23 @@ class SettingsController extends FOSRestController
     }
 
     /**
+     * Method will return activation method (email|sms).
+     *
+     * @Route(name="oloy.settings.get_activation_method", path="/settings/activation-method")
+     * @Method("GET")
+     * @ApiDoc(
+     *     name="Get activation method",
+     *     section="Settings"
+     * )
+     *
+     * @return View
+     */
+    public function getActivationMethodAction()
+    {
+        return $this->view(['method' => $this->get('oloy.action_token_manager')->getCurrentMethod()]);
+    }
+
+    /**
      * Method will return some data needed for specific select fields.
      *
      * @Route(name="oloy.settings.get_form_choices", path="/settings/choices/{type}")
@@ -388,7 +407,7 @@ class SettingsController extends FOSRestController
      *
      * @param $type
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function getChoicesAction($type)
     {
@@ -437,10 +456,29 @@ class SettingsController extends FOSRestController
             );
         } elseif ($type == 'availableAccountActivationMethods') {
             $availableAccountActivationMethodsList = AccountActivationMethod::getAvailableMethods();
+            if (!$this->container->has('oloy.activation.sms_gateway')) {
+                if (($key = array_search(AccountActivationMethod::METHOD_SMS, $availableAccountActivationMethodsList)) !== false) {
+                    unset($availableAccountActivationMethodsList[$key]);
+                }
+            }
 
             return $this->view(
                 [
                     'choices' => $availableAccountActivationMethodsList,
+                ]
+            );
+        } elseif ($type == 'smsGatewayConfig') {
+            $fields = [];
+
+            if ($this->container->has('oloy.activation.sms_gateway')) {
+                /** @var SmsSender $gateway */
+                $gateway = $this->get('oloy.activation.sms_gateway');
+                $fields = $gateway->getNeededSettings();
+            }
+
+            return $this->view(
+                [
+                    'fields' => $fields,
                 ]
             );
         } elseif ($type == 'earningRuleLimitPeriod') {

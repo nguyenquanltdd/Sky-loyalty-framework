@@ -2,6 +2,7 @@
 
 namespace OpenLoyalty\Bundle\SettingsBundle\Tests\Form\Type;
 
+use OpenLoyalty\Bundle\ActivationCodeBundle\Service\DummySmsApi;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\BooleanSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\IntegerSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\JsonSettingEntry;
@@ -85,7 +86,8 @@ class SettingsFormTypeTest extends TypeTestCase
 
     protected function getExtensions()
     {
-        $type = new SettingsFormType($this->settingsManager, $this->transaltionsProvider);
+        $gateway = new DummySmsApi();
+        $type = new SettingsFormType($this->settingsManager, $this->transaltionsProvider, $gateway);
 
         return array(
             new PreloadedExtension(array($type), array()),

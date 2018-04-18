@@ -101,7 +101,7 @@ class EmailProviderTest extends \PHPUnit_Framework_TestCase
     public function it_sends_registration_with_temporary_password_mail()
     {
         $user = $this->getCustomerDetailsMock();
-        $user->expects($this->exactly(2))->method('getEmail')->willReturn('example@example.com');
+        $user->expects($this->atLeast(2))->method('getEmail')->willReturn('example@example.com');
         $user->expects($this->atLeastOnce())->method('getPhone')->willReturn('123455668990');
         $user->expects($this->atLeastOnce())->method('getLoyaltyCardNumber')->willReturn('aaabbbccc');
 
@@ -117,9 +117,10 @@ class EmailProviderTest extends \PHPUnit_Framework_TestCase
     public function it_sends_registration_mail()
     {
         $user = $this->getUserMock();
-        $user->expects($this->exactly(2))->method('getEmail')->willReturn('user@example.com');
+        $user->expects($this->atLeast(2))->method('getEmail')->willReturn('user@example.com');
 
         $emailProvider = $this->getEmailProviderMock(['sendMessage']);
+        $emailProvider->method('sendMessage')->willReturn(true);
         $emailProvider->expects($this->once())->method('sendMessage');
 
         $emailProvider->registration($user, 'http://url.test');
@@ -146,7 +147,7 @@ class EmailProviderTest extends \PHPUnit_Framework_TestCase
     public function it_sends_email_after_campaign_purchase()
     {
         $customerDetails = $this->getCustomerDetailsMock();
-        $customerDetails->expects($this->once())->method('getEmail')->willReturn('user@example.com');
+        $customerDetails->expects($this->atLeastOnce())->method('getEmail')->willReturn('user@example.com');
 
         $campaign = $this->getCampaignMock();
         $campaign->expects($this->once())->method('getName')->willReturn('Test reward');
@@ -167,7 +168,7 @@ class EmailProviderTest extends \PHPUnit_Framework_TestCase
     public function it_sends_add_points_to_customer_email()
     {
         $customerDetails = $this->getCustomerDetailsMock();
-        $customerDetails->expects($this->once())->method('getEmail')->willReturn('user@example.com');
+        $customerDetails->expects($this->atLeastOnce())->method('getEmail')->willReturn('user@example.com');
 
         $emailProvider = $this->getEmailProviderMock(['sendMessage']);
         $emailProvider->expects($this->once())->method('sendMessage');
@@ -181,7 +182,7 @@ class EmailProviderTest extends \PHPUnit_Framework_TestCase
     public function it_sends_move_to_level_email()
     {
         $customerDetails = $this->getCustomerDetailsMock();
-        $customerDetails->expects($this->once())->method('getEmail')->willReturn('user@example.com');
+        $customerDetails->expects($this->atLeastOnce())->method('getEmail')->willReturn('user@example.com');
 
         $reward = $this->getRewardMock();
         $reward->expects($this->once())->method('getValue')->willReturn(0.3);

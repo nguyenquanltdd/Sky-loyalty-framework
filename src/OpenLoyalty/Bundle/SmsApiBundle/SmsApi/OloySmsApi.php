@@ -5,8 +5,10 @@
  */
 namespace OpenLoyalty\Bundle\SmsApiBundle\SmsApi;
 
+use OpenLoyalty\Bundle\ActivationCodeBundle\Exception\SmsSendException;
+use OpenLoyalty\Bundle\ActivationCodeBundle\Message\Message;
+use OpenLoyalty\Bundle\ActivationCodeBundle\Service\SmsSender;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
-use OpenLoyalty\Bundle\SmsApiBundle\Model\MessageInterface;
 use Psr\Log\LoggerInterface;
 use SMSApi\Client;
 use SMSApi\Api\SmsFactory;
@@ -15,8 +17,15 @@ use SMSApi\Exception\SmsapiException;
 /**
  * Class OloySmsApi.
  */
-class OloySmsApi implements OloySmsApiInterface
+class OloySmsApi implements SmsSender
 {
+    const FIELD_NAME = 'smsApiToken';
+
+    /**
+     * SMS API Code.
+     */
+    const GATEWAY_CODE = 'sms_api';
+
     /**
      * @var SettingsManager
      */
@@ -31,6 +40,7 @@ class OloySmsApi implements OloySmsApiInterface
      * OloySmsApi constructor.
      *
      * @param SettingsManager $settingsManager
+     * @param LoggerInterface $logger
      */
     public function __construct(SettingsManager $settingsManager, LoggerInterface $logger)
     {
@@ -39,31 +49,56 @@ class OloySmsApi implements OloySmsApiInterface
     }
 
     /**
-     * @return Client
+     * {@inheritdoc}
      */
-    public function getClient()
+    public function getNeededSettings(): array
     {
-        $token = $this->settingsManager->getSettingByKey('smsApiToken');
-        if (!$token || !$token->getValue()) {
-            throw new \InvalidArgumentException(
-                'Setting "smsApiToken" is not set'
-            );
-        }
-
-        return Client::createFromToken($token->getValue());
+        return [self::FIELD_NAME => 'text'];
     }
 
     /**
-     * @param MessageInterface $message
-     *
-     * @return bool
-     *
-     * @throws SmsapiException
+     * {@inheritdoc}
      */
-    public function send(MessageInterface $message)
+    public function hasNeededSettings()
+    {
+        $token = $this->settingsManager->getSettingByKey('smsApiToken');
+        if (!$token || !$token->getValue()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param string|null $token
+     *
+     * @return Client
+     */
+    private function getClient(string $token = null)
+    {
+        if (null === $token) {
+            $token = $this->settingsManager->getSettingByKey('smsApiToken');
+            if (!$token || !$token->getValue()) {
+                return;
+            }
+
+            $token = $token->getValue();
+        }
+
+        return Client::createFromToken($token);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function send(Message $message)
     {
         $smsapi = new SmsFactory();
-        $smsapi->setClient($this->getClient());
+        $client = $this->getClient();
+        if (!$client) {
+            return false;
+        }
+        $smsapi->setClient($client);
 
         try {
             $actionSend = $smsapi->actionSend();
@@ -90,7 +125,53 @@ class OloySmsApi implements OloySmsApiInterface
             }
         } catch (SmsapiException $e) {
             $this->logger->error('Send sms failed: '.$e->getMessage(), ['exception' => $e]);
-            throw $e;
+
+            throw new SmsSendException('Send sms failed: '.$e->getMessage(), $message->getRecipient(), $e);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function validateCredentials(array $credentials = []): bool
+    {
+        $user = (isset($credentials[self::FIELD_NAME])) ? $credentials[self::FIELD_NAME] : null;
+
+        $smsapi = new SmsFactory();
+        $client = $this->getClient($user);
+        if (!$client) {
+            return false;
+        }
+        $smsapi->setClient($client);
+
+        try {
+            $actionSend = $smsapi->actionSend();
+
+            $actionSend->setTo('48000000000');
+            $actionSend->setText('test');
+            $actionSend->setSender('test');
+            $actionSend->setTest(1);
+
+            $response = $actionSend->execute();
+
+            if ($response->getLength() < 1) {
+                return false;
+            }
+
+            foreach ($response->getList() as $status) {
+                return in_array($status->getStatus(), [
+                    'DELIVERED',
+                    'SENT',
+                    'PENDING',
+                    'QUEUE',
+                    'ACCEPTED',
+                    'RENEWAL',
+                ]);
+            }
+        } catch (SmsapiException $e) {
+            return false;
+        }
+
+        return true;
     }
 }

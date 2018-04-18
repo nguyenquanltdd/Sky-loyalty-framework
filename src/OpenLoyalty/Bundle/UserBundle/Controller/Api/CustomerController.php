@@ -11,6 +11,7 @@ use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
+use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\AuditBundle\Service\AuditManagerInterface;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
@@ -72,7 +73,7 @@ class CustomerController extends FOSRestController
      * @param Request      $request
      * @param ParamFetcher $paramFetcher
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      *
      * @QueryParam(name="firstName", nullable=true, description="firstName"))
      * @QueryParam(name="lastName", nullable=true, description="lastName"))
@@ -162,7 +163,7 @@ class CustomerController extends FOSRestController
      *
      * @param CustomerDetails $customer
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function getCustomerAction(CustomerDetails $customer)
     {
@@ -204,7 +205,7 @@ class CustomerController extends FOSRestController
      *     section="Customer"
      * )
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function getCustomersRegistrationsDailyAction()
     {
@@ -283,7 +284,7 @@ class CustomerController extends FOSRestController
      *
      * @param CustomerDetails $customer
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function getCustomerStatusAction(CustomerDetails $customer)
     {
@@ -298,7 +299,7 @@ class CustomerController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      *
      * @throws \Assert\AssertionFailedException
      * @throws \Doctrine\DBAL\Exception\UniqueConstraintViolationException
@@ -323,10 +324,12 @@ class CustomerController extends FOSRestController
     public function registerCustomerAction(Request $request)
     {
         $loggedUser = $this->getUser();
+        $accountActivationMethod = $this->get('oloy.action_token_manager')->getCurrentMethod();
 
         $formOptions = [];
         $formOptions['includeLevelId'] = true;
         $formOptions['includePosId'] = true;
+        $formOptions['activationMethod'] = $accountActivationMethod;
         if (!$this->isGranted('ROLE_SELLER')) {
             $formOptions['includeSellerId'] = true;
         }
@@ -346,6 +349,7 @@ class CustomerController extends FOSRestController
             $user = $this->get('oloy.user.form_handler.customer_registration')->onSuccess($customerId, $form);
 
             if ($user instanceof User) {
+                $user->setStatus(Status::typeNew());
                 $levelId = $form->get('levelId')->getData();
                 $posId = $form->get('posId')->getData();
                 $sellerId = $form->has('sellerId') ? $form->get('sellerId')->getData() : null;
@@ -373,27 +377,19 @@ class CustomerController extends FOSRestController
                     );
                 }
 
-                $accountActivationMethod = $this->get('ol.settings.manager')->getSettingByKey('accountActivationMethod');
-                if (!$accountActivationMethod || !$accountActivationMethod->getValue()) {
-                    throw new \InvalidArgumentException(
-                        'Setting "accountActivationMethod" is not set'
-                    );
-                }
-
-                if (
-                    AccountActivationMethod::isMethodEmail($accountActivationMethod->getValue()) ||
-                    !$form->has('phone') ||
-                    empty($form->get('phone')->getData())
+                if ($this->isGranted('ROLE_ADMIN')
+                    || (
+                        $this->isGranted('ROLE_SELLER')
+                        && !AccountActivationMethod::isMethodSms($accountActivationMethod)
+                    )
                 ) {
                     $commandBus->dispatch(
                         new ActivateCustomer($customerId)
                     );
-                } elseif (AccountActivationMethod::isMethodSms($accountActivationMethod->getValue())) {
-                    $activationCodeManager = $this->get('oloy.activation_code_manager');
-                    $activationCodeManager->sendCode(
-                        $activationCodeManager->newCode(Customer::class, $user->getId()),
-                        (string) $form->get('phone')->getData()
-                    );
+                    $this->activateAccount($user);
+                } else {
+                    $this->get('oloy.action_token_manager')
+                        ->sendActivationMessage($user);
                 }
 
                 if ($agreement2) {
@@ -431,11 +427,19 @@ class CustomerController extends FOSRestController
      *     }
      * )
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function selfRegisterAction(Request $request)
     {
-        $form = $this->get('form.factory')->createNamed('customer', CustomerSelfRegistrationFormType::class);
+        $accountActivationMethod = $this->get('oloy.action_token_manager')->getCurrentMethod();
+        $form = $this->get('form.factory')->createNamed(
+            'customer',
+            CustomerSelfRegistrationFormType::class,
+            null,
+            [
+                'activationMethod' => $accountActivationMethod,
+            ]
+        );
 
         $form->handleRequest($request);
 
@@ -446,9 +450,9 @@ class CustomerController extends FOSRestController
 
             if ($user instanceof User) {
                 $referralCustomerEmail = $form->get('referral_customer_email')->getData();
-                $phone = $form->get('phone')->getData();
 
-                $this->handleCustomerRegisteredByHimself($user, $phone, $referralCustomerEmail);
+                $this->get('oloy.user.form_handler.customer_registration')
+                    ->handleCustomerRegisteredByHimself($user, $referralCustomerEmail);
 
                 if ($invitationToken = $form->get('invitationToken')->getData()) {
                     $this->get('event_dispatcher')->dispatch(
@@ -477,7 +481,7 @@ class CustomerController extends FOSRestController
      * @param Request         $request
      * @param CustomerDetails $customer
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      * @Route(name="oloy.customer.edit_customer", path="/customer/{customer}")
      * @Security("is_granted('EDIT', customer)")
      *
@@ -495,11 +499,13 @@ class CustomerController extends FOSRestController
     public function editCustomerAction(Request $request, CustomerDetails $customer)
     {
         $loggedUser = $this->getUser();
+        $accountActivationMethod = $this->get('oloy.action_token_manager')->getCurrentMethod();
 
         $options = [
             'method' => 'PUT',
             'includeLevelId' => true,
             'includePosId' => true,
+            'activationMethod' => $accountActivationMethod,
         ];
 
         if (!$this->isGranted('ROLE_SELLER') && !$loggedUser instanceof Seller) {
@@ -564,7 +570,7 @@ class CustomerController extends FOSRestController
      * @param Request         $request
      * @param CustomerDetails $customer
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      * @Route(name="oloy.customer.add_customer_to_level", path="/customer/{customer}/level")
      * @Method("POST")
      * @Security("is_granted('ADD_TO_LEVEL', customer)")
@@ -599,7 +605,7 @@ class CustomerController extends FOSRestController
      * @param Request         $request
      * @param CustomerDetails $customer
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      * @Route(name="oloy.customer.assign_pos", path="/customer/{customer}/pos")
      * @Route(name="oloy.customer.seller.assign_pos", path="/seller/customer/{customer}/pos")
      * @Method("POST")
@@ -644,7 +650,7 @@ class CustomerController extends FOSRestController
      *
      * @param CustomerDetails $customer
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function deactivateCustomerAction(CustomerDetails $customer)
     {
@@ -655,6 +661,10 @@ class CustomerController extends FOSRestController
         $user = $this->getDoctrine()->getManager()->find(Customer::class, $customer->getCustomerId()->__toString());
         if ($user instanceof User) {
             $user->setIsActive(false);
+            $this->get('oloy.user.user_manager')->updateUser($user);
+        }
+        if ($user instanceof Customer) {
+            $user->setStatus(Status::typeBlocked());
             $this->get('oloy.user.user_manager')->updateUser($user);
         }
 
@@ -676,7 +686,7 @@ class CustomerController extends FOSRestController
      *
      * @param CustomerDetails $customer
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function activateCustomerAction(CustomerDetails $customer)
     {
@@ -713,22 +723,54 @@ class CustomerController extends FOSRestController
      *
      * @param CustomerDetails $customer
      *
-     * @return \FOS\RestBundle\View\View
-     *
-     * @throws \Assert\AssertionFailedException
-     * @throws \Doctrine\DBAL\Exception\UniqueConstraintViolationException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @return View
      */
     public function sendSmsCodeCustomerAction(CustomerDetails $customer)
     {
         $user = $this->getDoctrine()->getManager()->find(Customer::class, $customer->getCustomerId()->__toString());
-        if ($user instanceof User || $user instanceof Customer) {
+        if ($user instanceof Customer && $user->isNew()) {
             $activationCodeManager = $this->get('oloy.activation_code_manager');
             $code = $activationCodeManager->newCode(Customer::class, $customer->getCustomerId()->__toString());
+            if (!$code) {
+                return $this->view('', Response::HTTP_BAD_REQUEST);
+            }
             $activationCodeManager->sendCode($code, $customer->getPhone());
         }
 
         return $this->view('');
+    }
+
+    /**
+     * Method allows to activate customer.
+     *
+     * @Route(name="oloy.customer.send_sms_code_to_customer_by_phone", path="/customer/customer-phone/send-sms-code")
+     * @Method("POST")
+     * @ApiDoc(
+     *     name="Send sms code to customer",
+     *     section="Customer"
+     * )
+     *
+     * @return View
+     */
+    public function resendSmsCodeToCustomerByPhoneAction(Request $request)
+    {
+        $phone = $request->request->get('phone');
+        if (!$phone) {
+            return $this->view('', Response::HTTP_BAD_REQUEST);
+        }
+        $user = $this->getDoctrine()->getManager()->getRepository(Customer::class)
+            ->findOneBy(['phone' => $phone]);
+
+        if ($user instanceof Customer && $user->isNew()) {
+            $activationCodeManager = $this->get('oloy.activation_code_manager');
+            if ($activationCodeManager->resendCode($user)) {
+                return $this->view('');
+            } else {
+                return $this->view('', Response::HTTP_BAD_REQUEST);
+            }
+        }
+
+        return $this->view('', Response::HTTP_BAD_REQUEST);
     }
 
     /**
@@ -744,7 +786,7 @@ class CustomerController extends FOSRestController
      *
      * @param $token
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function activateAccountAction($token)
     {
@@ -773,7 +815,7 @@ class CustomerController extends FOSRestController
      *
      * @param $token
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function activateSmsAccountAction($token)
     {
@@ -785,10 +827,10 @@ class CustomerController extends FOSRestController
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('OpenLoyaltyUserBundle:Customer')->find($code->getObjectId());
 
-        if ($user instanceof Customer) {
+        if ($user instanceof Customer && $user->isNew()) {
             $this->activateAccount($user);
 
-            return $this->view('', 200);
+            return $this->view('', Response::HTTP_OK);
         } else {
             throw new NotFoundHttpException('bad_token');
         }
@@ -838,49 +880,6 @@ class CustomerController extends FOSRestController
                 new AssignPosToCustomer($customerId, new PosId($sellerDetails->getPosId()->__toString()))
             );
         }
-    }
-
-    /**
-     * @param User $user
-     * @param $phone
-     * @param $referralCustomerEmail
-     *
-     * @throws \Assert\AssertionFailedException
-     * @throws \Doctrine\DBAL\Exception\UniqueConstraintViolationException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     */
-    protected function handleCustomerRegisteredByHimself(User $user, $phone, $referralCustomerEmail)
-    {
-        $user->setIsActive(false);
-        if ($user instanceof Customer) {
-            $user->setStatus(Status::typeNew());
-            $user->setActionToken(substr(md5(uniqid(null, true)), 0, 20));
-            $user->setReferralCustomerEmail($referralCustomerEmail);
-            $url = $this->container->getParameter('frontend_customer_panel_url').
-                $this->container->getParameter('frontend_activate_account_url').'/'.$user->getActionToken();
-
-            $accountActivationMethod = $this->get('ol.settings.manager')->getSettingByKey('accountActivationMethod');
-            if (!$accountActivationMethod || !$accountActivationMethod->getValue()) {
-                throw new \InvalidArgumentException(
-                    'Setting "accountActivationMethod" is not set'
-                );
-            }
-
-            if (AccountActivationMethod::isMethodEmail($accountActivationMethod->getValue())) {
-                $this->get('oloy.user.email_provider')->registration(
-                    $user,
-                    isset($url) ? $url : null
-                );
-            } elseif (AccountActivationMethod::isMethodSms($accountActivationMethod->getValue())) {
-                $activationCodeManager = $this->get('oloy.activation_code_manager');
-                $activationCodeManager->sendCode(
-                    $activationCodeManager->newCode(Customer::class, $user->getId()),
-                    $phone
-                );
-            }
-        }
-
-        $this->getDoctrine()->getManager()->flush();
     }
 
     /**

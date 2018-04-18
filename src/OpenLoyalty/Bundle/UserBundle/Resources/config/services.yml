@@ -31,7 +31,7 @@ services:
       - '@security.password_encoder'
       - '@doctrine.orm.entity_manager'
       - '@oloy.user.password_generator'
-      - '@oloy.user.email_provider'
+      - '@oloy.action_token_manager'
       - '@oloy.activation_code_manager'
       - '@oloy.user.read_model.repository.customer_details'
   oloy.user.event.authentication_success_listener:
@@ -81,6 +81,7 @@ services:
       - '@doctrine.orm.entity_manager'
       - '@broadway.uuid.generator'
       - '@oloy.user.customer.unique_validator'
+      - '@oloy.action_token_manager'
   oloy.user.form_handler.invitation:
     class: OpenLoyalty\Bundle\UserBundle\Form\Handler\InvitationFormHandler
     arguments:

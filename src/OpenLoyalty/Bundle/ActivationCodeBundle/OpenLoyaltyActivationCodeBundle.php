@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Bundle\ActivationCodeBundle;
 
 use Doctrine\Bundle\DoctrineBundle\DependencyInjection\Compiler\DoctrineOrmMappingsPass;
+use OpenLoyalty\Bundle\ActivationCodeBundle\DependencyInjection\CompilerPass\InjectSmsGatewayCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
@@ -22,6 +23,7 @@ class OpenLoyaltyActivationCodeBundle extends Bundle
         parent::build($container);
 
         $container->addCompilerPass($this->buildMappingCompilerPass());
+        $container->addCompilerPass(new InjectSmsGatewayCompilerPass());
     }
 
     /**

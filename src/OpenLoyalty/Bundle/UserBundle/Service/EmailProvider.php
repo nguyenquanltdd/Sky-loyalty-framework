@@ -61,6 +61,8 @@ class EmailProvider
      * @param string      $email
      * @param string|null $template
      * @param array|null  $params
+     *
+     * @return bool
      */
     public function sendMessage(string $subject, string $email, string $template = null, array $params = null)
     {
@@ -73,16 +75,18 @@ class EmailProvider
         $message->setTemplate($template);
         $message->setParams($params);
 
-        $this->mailer->send($message);
+        return $this->mailer->send($message);
     }
 
     /**
      * @param CustomerDetails $registeredUser
      * @param string          $password
+     *
+     * @return bool
      */
     public function registrationWithTemporaryPassword(CustomerDetails $registeredUser, string $password)
     {
-        $this->sendMessage(
+        return $this->sendMessage(
             'Account created',
             $registeredUser->getEmail(),
             'OpenLoyaltyUserBundle:email:registration_with_temporary_password.html.twig',
@@ -99,7 +103,7 @@ class EmailProvider
 
     public function invitationEmail(InvitationDetails $invitationDetails)
     {
-        $this->sendMessage(
+        return $this->sendMessage(
             'Invitation',
             $invitationDetails->getRecipientEmail(),
             'OpenLoyaltyUserBundle:email:invitation.html.twig',
@@ -113,10 +117,12 @@ class EmailProvider
     /**
      * @param User        $registeredUser
      * @param string|null $url
+     *
+     * @return bool
      */
-    public function registration(User $registeredUser, string $url = null)
+    public function registration(User $registeredUser, string $url = null): bool
     {
-        $this->sendMessage(
+        return $this->sendMessage(
             'Account created',
             $registeredUser->getEmail(),
             'OpenLoyaltyUserBundle:email:registration.html.twig',
@@ -129,10 +135,12 @@ class EmailProvider
 
     /**
      * @param User $user
+     *
+     * @return bool
      */
     public function resettingPasswordMessage(User $user)
     {
-        $this->sendMessage(
+        return $this->sendMessage(
             'Password reset requested',
             $user->getEmail(),
             'OpenLoyaltyUserBundle:email:password_reset.html.twig',
@@ -147,12 +155,17 @@ class EmailProvider
      * @param CustomerDetails $customer
      * @param Campaign        $campaign
      * @param Coupon          $coupon
+     *
+     * @return bool
      */
     public function customerBoughtCampaign(CustomerDetails $customer, Campaign $campaign, Coupon $coupon)
     {
+        if (!$customer->getEmail()) {
+            return false;
+        }
         $subject = sprintf('%s - new reward', $this->loyaltyProgramName);
 
-        $this->sendMessage(
+        return $this->sendMessage(
             $subject,
             $customer->getEmail(),
             'OpenLoyaltyUserBundle:email:customer_reward_bought.html.twig',
@@ -170,12 +183,17 @@ class EmailProvider
      * @param CustomerDetails $customer
      * @param float           $availableAmount
      * @param float           $pointsAdded
+     *
+     * @return bool
      */
     public function addPointsToCustomer(CustomerDetails $customer, float $availableAmount, float $pointsAdded)
     {
+        if (!$customer->getEmail()) {
+            return false;
+        }
         $subject = sprintf('%s - new points', $this->loyaltyProgramName);
 
-        $this->sendMessage(
+        return $this->sendMessage(
             $subject,
             $customer->getEmail(),
             'OpenLoyaltyUserBundle:email:new_points.html.twig',
@@ -191,12 +209,18 @@ class EmailProvider
     /**
      * @param CustomerDetails $customer
      * @param Level           $level
+     *
+     * @return bool
      */
     public function moveToLevel(CustomerDetails $customer, Level $level)
     {
+        if (!$customer->getEmail()) {
+            return false;
+        }
+
         $subject = sprintf('%s - new level', $this->loyaltyProgramName);
 
-        $this->sendMessage(
+        return $this->sendMessage(
             $subject,
             $customer->getEmail(),
             'OpenLoyaltyUserBundle:email:new_level.html.twig',

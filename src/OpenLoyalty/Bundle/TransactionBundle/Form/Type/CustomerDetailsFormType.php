@@ -5,11 +5,13 @@
  */
 namespace OpenLoyalty\Bundle\TransactionBundle\Form\Type;
 
+use Misd\PhoneNumberBundle\Validator\Constraints\PhoneNumber;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type as Numeric;
 
 /**
  * Class CustomerDetailsFormType.
@@ -27,6 +29,10 @@ class CustomerDetailsFormType extends AbstractType
         ]);
         $builder->add('phone', TextType::class, [
             'required' => false,
+            'constraints' => [
+                new Numeric(['type' => 'numeric', 'message' => 'Incorrect phone number format, use +00000000000']),
+                new PhoneNumber(),
+            ],
         ]);
         $builder->add('loyaltyCardNumber', TextType::class, [
             'required' => false,

@@ -53,7 +53,7 @@ class ApplyingEarningRulesTest extends BaseApiTest
                 'name' => 'Jan Nowak',
                 'email' => 'user-temp@oloy.com',
                 'nip' => 'aaa',
-                'phone' => '123',
+                'phone' => '+48123123123',
                 'loyaltyCardNumber' => 'not-present-in-system',
                 'address' => [
                     'street' => 'Bagno',

@@ -88,7 +88,7 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
                     'firstName' => 'John',
                     'lastName' => 'Doe',
                     'email' => 'john@doe.com',
-                    'phone' => '0000000011',
+                    'phone' => '+48123123123',
                     'posId' => new PosId(LoadPosData::POS_ID),
                 ]
             )
@@ -108,7 +108,7 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
                     'firstName' => 'John2',
                     'lastName' => 'Doe2',
                     'email' => 'john2@doe2.com',
-                    'phone' => '0000000011',
+                    'phone' => '+48123123124',
                     'posId' => new PosId(LoadPosData::POS2_ID),
                 ]
             )
@@ -127,13 +127,14 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
         $bus = $this->container->get('broadway.command_handling.command_bus');
 
         $customerId = new CustomerId(static::USER_USER_ID);
-        $command = new RegisterCustomer($customerId, $this->getDefaultCustomerData('John', 'Doe', 'user@oloy.com', '11111'));
+        $command = new RegisterCustomer($customerId, $this->getDefaultCustomerData('John', 'Doe', 'user@oloy.com', '+48234234000'));
 
         $bus->dispatch($command);
         $bus->dispatch(new ActivateCustomer($customerId));
 
         $user = new Customer($customerId);
         $user->setPlainPassword($this::USER_PASSWORD);
+        $user->setPhone($command->getCustomerData()['phone']);
 
         $password = $this->container->get('security.password_encoder')
             ->encodePassword($user, $user->getPlainPassword());
@@ -148,7 +149,7 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
         $this->addReference('user-1', $user);
 
         $customerId = new CustomerId(self::TEST_USER_ID);
-        $command = new RegisterCustomer($customerId, $this->getDefaultCustomerData('Jane', 'Doe', 'user-temp@oloy.com', '111112222'));
+        $command = new RegisterCustomer($customerId, $this->getDefaultCustomerData('Jane', 'Doe', 'user-temp@oloy.com', '+48345345000'));
         $bus->dispatch($command);
         $bus->dispatch(new UpdateCustomerAddress($customerId, [
             'street' => 'Bagno',

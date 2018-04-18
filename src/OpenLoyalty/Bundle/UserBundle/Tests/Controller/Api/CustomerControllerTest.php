@@ -46,7 +46,7 @@ class CustomerControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('customerId', $data);
         $this->assertArrayHasKey('email', $data);
     }
@@ -85,7 +85,7 @@ class CustomerControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('customerId', $data);
         $this->assertArrayHasKey('email', $data);
 
@@ -143,7 +143,7 @@ class CustomerControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('customerId', $data);
         $this->assertArrayHasKey('email', $data);
     }
@@ -182,7 +182,7 @@ class CustomerControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('customerId', $data);
         $this->assertArrayHasKey('email', $data);
     }
@@ -370,7 +370,7 @@ class CustomerControllerTest extends BaseApiTest
                         'country' => 'PL',
                         'province' => 'mazowieckie',
                     ],
-                    'phone' => '11111',
+                    'phone' => '+48123123123',
                     'loyaltyCardNumber' => '0000000011',
                 ],
             ]
@@ -471,7 +471,7 @@ class CustomerControllerTest extends BaseApiTest
         $tmp = new \DateTime();
         $tmp->setTimestamp($customerData['birthDate']);
         $customerData['birthDate'] = $tmp->format('Y-m-d');
-        $customerData['phone'] = '111222333';
+        $customerData['phone'] = '+48123123123';
         unset($customerData['createdAt']);
         unset($customerData['updatedAt']);
         unset($customerData['status']);

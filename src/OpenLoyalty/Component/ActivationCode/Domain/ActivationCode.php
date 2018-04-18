@@ -138,4 +138,12 @@ class ActivationCode
     {
         $this->code = $code;
     }
+
+    /**
+     * @return \DateTime
+     */
+    public function getCreatedAt(): \DateTime
+    {
+        return $this->createdAt;
+    }
 }

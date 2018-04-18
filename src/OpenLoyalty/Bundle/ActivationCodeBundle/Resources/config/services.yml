@@ -1,4 +1,24 @@
 services:
   oloy.activation_code_manager:
     class: OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActivationCodeManager
-    arguments: ['@broadway.uuid.generator', '@oloy.sms_api', '@oloy.sms.message_factory', '@doctrine.orm.entity_manager']
+    arguments: ['@broadway.uuid.generator', '@doctrine.orm.entity_manager', '@translator', '%loyalty_program_name%']
+  oloy.action_token_manager:
+    class: OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActionTokenManager
+    arguments:
+      - '@ol.settings.manager'
+      - '@security.authorization_checker'
+      - '@oloy.activation_code_manager'
+      - '@cache.app'
+      - {'email': '@oloy.activation_method.email', 'sms': '@oloy.activation_method.sms'}
+  open_loyalty.sms.dummy:
+    class: OpenLoyalty\Bundle\ActivationCodeBundle\Service\DummySmsApi
+    arguments: ['@monolog.logger.sms']
+  oloy.activation_method.email:
+    class: OpenLoyalty\Bundle\ActivationCodeBundle\Method\EmailActivationMethod
+    arguments:
+      - '@oloy.user.email_provider'
+      - '%frontend_customer_panel_url%'
+      - '%frontend_activate_account_url%'
+  oloy.activation_method.sms:
+    class: OpenLoyalty\Bundle\ActivationCodeBundle\Method\SmsActivationMethod
+    arguments: ['@oloy.activation_code_manager']

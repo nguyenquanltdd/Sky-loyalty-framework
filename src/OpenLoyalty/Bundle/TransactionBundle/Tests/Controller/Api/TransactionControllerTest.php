@@ -16,6 +16,8 @@ use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
  */
 class TransactionControllerTest extends BaseApiTest
 {
+    const PHONE_NUMBER = '+48123123000';
+
     /**
      * @test
      */
@@ -74,7 +76,7 @@ class TransactionControllerTest extends BaseApiTest
                 'name' => 'Jan Nowak',
                 'email' => 'user-temp2@oloy.com',
                 'nip' => 'aaa',
-                'phone' => '123',
+                'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'not-present-in-system',
                 'address' => [
                     'street' => 'Bagno',
@@ -250,7 +252,7 @@ class TransactionControllerTest extends BaseApiTest
                 'name' => 'Jan Nowak',
                 'email' => 'user-temp2@oloy.com',
                 'nip' => 'aaa',
-                'phone' => '123',
+                'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'not-present-in-system',
                 'address' => [
                     'street' => 'Bagno',
@@ -319,7 +321,7 @@ class TransactionControllerTest extends BaseApiTest
                 'name' => 'Jan Nowak',
                 'email' => 'user-temp@oloy.com',
                 'nip' => 'aaa',
-                'phone' => '123',
+                'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'not-present-in-system',
                 'address' => [
                     'street' => 'Bagno',
@@ -397,7 +399,7 @@ class TransactionControllerTest extends BaseApiTest
                 'name' => 'Jan Nowak',
                 'email' => 'user@oloy.com',
                 'nip' => 'aaa',
-                'phone' => '123',
+                'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'sa2222',
                 'address' => [
                     'street' => 'Bagno',
@@ -473,7 +475,7 @@ class TransactionControllerTest extends BaseApiTest
                 'name' => 'Jan Nowak',
                 'email' => 'user-temp@oloy.com',
                 'nip' => 'aaa',
-                'phone' => '123',
+                'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'sa2222',
                 'address' => [
                     'street' => 'Bagno',
@@ -564,7 +566,7 @@ class TransactionControllerTest extends BaseApiTest
                 'name' => 'Jan Nowak',
                 'email' => 'user-temp@oloy.com',
                 'nip' => 'aaa',
-                'phone' => '123',
+                'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'notfound',
                 'address' => [
                     'street' => 'Bagno',
@@ -620,9 +622,15 @@ class TransactionControllerTest extends BaseApiTest
             })
         );
 
+        /** @var CustomerDetailsRepository $customerRepo */
+        $customerRepo = static::$kernel->getContainer()->get('oloy.user.read_model.repository.customer_details');
+        /** @var CustomerDetails $customer */
+        $customer = $customerRepo->findOneByCriteria(['email' => 'user@oloy.com'], 1);
+        $customer = reset($customer);
+
         $formData = [
             'transactionData' => [
-                'documentNumber' => '123',
+                'documentNumber' => '1234',
                 'documentType' => 'sell',
                 'purchaseDate' => '2015-01-01',
                 'purchasePlace' => 'wroclaw',
@@ -649,7 +657,7 @@ class TransactionControllerTest extends BaseApiTest
                 'name' => 'Jan Nowak',
                 'email' => 'not_existing_email@not.com',
                 'nip' => 'aaa',
-                'phone' => '11111',
+                'phone' => $customer->getPhone(),
                 'loyaltyCardNumber' => 'not_existing',
                 'address' => [
                     'street' => 'Bagno',

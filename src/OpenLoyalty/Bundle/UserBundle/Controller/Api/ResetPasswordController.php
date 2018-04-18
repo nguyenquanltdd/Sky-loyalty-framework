@@ -7,11 +7,14 @@ namespace OpenLoyalty\Bundle\UserBundle\Controller\Api;
 
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
 use OpenLoyalty\Bundle\UserBundle\Form\Type\PasswordResetFormType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -20,10 +23,14 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class ResetPasswordController extends FOSRestController
 {
     /**
-     * Purpose of this method is to provide "Forgot password" functionality.<br/>Invoking this method will send message tot he user with password reset url.
+     * Purpose of this method is to provide "Forgot password" functionality.<br/>Invoking this method will send message to the user with password reset url.
      *
      * @param Request $request
+     * @param bool    $customer
+     *
+     * @return View
      * @Route(name="oloy.user.reset.request", path="/password/reset/request")
+     * @Route(name="oloy.user.reset.request_customer", path="/customer/password/reset/request", defaults={"customer":1})
      * @Method("POST")
      * @ApiDoc(
      *     name="Request reset password",
@@ -34,35 +41,37 @@ class ResetPasswordController extends FOSRestController
      *       400="Returned when username parameter is not present or resetting password already requested",
      *     }
      * )
-     *
-     * @return \FOS\RestBundle\View\View
      */
-    public function resetRequestAction(Request $request)
+    public function resetRequestAction(Request $request, $customer = false)
     {
         $username = $request->request->get('username');
         if (!$username) {
-            return $this->view(['error' => 'field "username" should not be empty'], 400);
+            return $this->view(['error' => 'field "username" should not be empty'], Response::HTTP_BAD_REQUEST);
         }
         $userManager = $this->get('oloy.user.user_manager');
-
+        if ($customer) {
+            $provider = $this->get('oloy.user.customer_provider');
+        } else {
+            $provider = $this->get('oloy.user.all_users_provider');
+        }
         /** @var $user User */
-        $user = $userManager->findUserByUsernameOrEmail($username);
+        $user = $provider->loadUserByUsername($username);
 
         if (null === $user) {
             return $this->view(['success' => true]);
         }
 
         if ($user->isPasswordRequestNonExpired(86400)) {
-            return $this->view(['error' => 'resetting password already requested'], 400);
+            return $this->view(['error' => 'resetting password already requested'], Response::HTTP_BAD_REQUEST);
         }
-
         if (null === $user->getConfirmationToken()) {
             $tokenGenerator = $this->get('oloy.user.token_generator');
-            $user->setConfirmationToken($tokenGenerator->generateToken());
+            $token = $tokenGenerator->generateToken();
+        } else {
+            $token = $user->getConfirmationToken();
         }
 
-        $this->get('oloy.user.email_provider')->resettingPasswordMessage($user);
-        $user->setPasswordRequestedAt(new \DateTime());
+        $this->get('oloy.action_token_manager')->sendPasswordReset($user, $token);
         $userManager->updateUser($user);
 
         return $this->view(['success' => true]);
@@ -73,7 +82,7 @@ class ResetPasswordController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      * @Route(name="oloy.user.reset", path="/password/reset")
      * @Method("POST")
      * @ApiDoc(
@@ -91,10 +100,19 @@ class ResetPasswordController extends FOSRestController
     {
         $userManager = $this->get('oloy.user.user_manager');
         $token = $request->get('token');
+        $user = null;
+
         if (!$token) {
-            return $this->view(['error' => 'field "token" should not be empty'], 400);
+            return $this->view(['error' => 'field "token" should not be empty'], Response::HTTP_BAD_REQUEST);
         }
-        $user = $userManager->findUserByConfirmationToken($token);
+
+        $code = $this->get('oloy.activation_code_manager')->findValidCode($token, Customer::class);
+        if (null !== $code) {
+            $em = $this->getDoctrine()->getManager();
+            $user = $em->getRepository('OpenLoyaltyUserBundle:Customer')->find($code->getObjectId());
+        } else {
+            $user = $userManager->findUserByConfirmationToken($token);
+        }
 
         if (null === $user) {
             throw new NotFoundHttpException(sprintf('The user with "confirmation token" does not exist for value "%s"', $token));
@@ -114,6 +132,6 @@ class ResetPasswordController extends FOSRestController
             return $this->view(['success' => true]);
         }
 
-        return $this->view($form->getErrors(), 400);
+        return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
     }
 }

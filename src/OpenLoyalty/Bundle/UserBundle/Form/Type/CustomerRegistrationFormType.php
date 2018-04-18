@@ -5,6 +5,8 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\Form\Type;
 
+use Misd\PhoneNumberBundle\Validator\Constraints\PhoneNumber;
+use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\LabelsFormType;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
@@ -25,6 +27,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type as Numeric;
 
 /**
  * Class CustomerRegistrationFormType.
@@ -84,18 +87,42 @@ class CustomerRegistrationFormType extends AbstractType
                 'female' => 'female',
             ],
         ]);
-        $builder->add('email', EmailType::class, [
-            'label' => 'Email',
-            'required' => true,
-            'constraints' => [
-                new NotBlank(),
-                new Email(),
-            ],
-        ]);
-        $builder->add('phone', EmailType::class, [
-            'label' => 'Phone',
-            'required' => false,
-        ]);
+
+        if (AccountActivationMethod::isMethodEmail($options['activationMethod'])) {
+            $builder->add('email', EmailType::class, [
+                'label' => 'Email',
+                'required' => true,
+                'constraints' => [
+                    new NotBlank(),
+                    new Email(),
+                ],
+            ]);
+            $builder->add('phone', EmailType::class, [
+                'label' => 'Phone',
+                'required' => false,
+                'constraints' => [
+                    new PhoneNumber(),
+                    new Numeric(['type' => 'numeric', 'message' => 'Incorrect phone number format, use +00000000000']),
+                ],
+            ]);
+        } elseif (AccountActivationMethod::isMethodSms($options['activationMethod'])) {
+            $builder->add('email', EmailType::class, [
+                'label' => 'Email',
+                'required' => false,
+                'constraints' => [
+                    new Email(),
+                ],
+            ]);
+            $builder->add('phone', EmailType::class, [
+                'label' => 'Phone',
+                'required' => true,
+                'constraints' => [
+                    new NotBlank(),
+                    new Numeric(['type' => 'numeric', 'message' => 'Incorrect phone number format, use +00000000000']),
+                    new PhoneNumber(),
+                ],
+            ]);
+        }
         $builder->add('birthDate', DateType::class, [
             'label' => 'Birth date',
             'required' => false,
@@ -220,5 +247,6 @@ class CustomerRegistrationFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(['includeLevelId' => false, 'includePosId' => false, 'includeSellerId' => false]);
+        $resolver->setDefault('activationMethod', AccountActivationMethod::methodEmail());
     }
 }

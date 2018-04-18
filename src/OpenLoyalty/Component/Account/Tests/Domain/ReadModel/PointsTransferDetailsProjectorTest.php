@@ -181,7 +181,7 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
             'gender' => 'male',
             'email' => 'customer@open.com',
             'birthDate' => 653011200,
-            'phone' => '123',
+            'phone' => '+48123123123',
             'createdAt' => 1470646394,
             'loyaltyCardNumber' => '000000',
             'company' => [

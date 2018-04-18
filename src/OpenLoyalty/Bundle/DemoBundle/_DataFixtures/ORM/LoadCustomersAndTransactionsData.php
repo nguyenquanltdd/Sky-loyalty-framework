@@ -257,7 +257,7 @@ class LoadCustomersAndTransactionsData extends AbstractFixture implements Fixtur
         $customerId = new CustomerId(static::USER_USER_ID);
         $command = new RegisterCustomer(
             $customerId,
-            $this->getDefaultCustomerData('John', 'Doe', 'user@oloy.com', '11111')
+            $this->getDefaultCustomerData('John', 'Doe', 'user@oloy.com', '+48234234000')
         );
         $bus->dispatch($command);
         $bus->dispatch(new ActivateCustomer($customerId));

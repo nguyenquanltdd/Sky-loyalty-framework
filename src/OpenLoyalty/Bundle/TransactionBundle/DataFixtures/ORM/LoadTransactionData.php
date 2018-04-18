@@ -9,6 +9,7 @@ use Broadway\CommandHandling\CommandBus;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
+use Faker\Factory;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
 use OpenLoyalty\Component\Transaction\Domain\Command\RegisterTransaction;
 use OpenLoyalty\Component\Transaction\Domain\PosId;
@@ -28,6 +29,9 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
 
     public function load(ObjectManager $manager)
     {
+        $faker = Factory::create();
+        $phoneNumber = $faker->e164PhoneNumber;
+
         $transactionData = [
             'documentNumber' => '123',
             'purchasePlace' => 'wroclaw',
@@ -69,7 +73,7 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
             'name' => 'Jan Nowak',
             'email' => 'ol@oy.com',
             'nip' => 'aaa',
-            'phone' => '123',
+            'phone' => $phoneNumber,
             'loyaltyCardNumber' => '222',
             'address' => [
                 'street' => 'Bagno',
@@ -101,7 +105,7 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
                     'name' => 'Jan Nowak',
                     'email' => 'open@oloy.com',
                     'nip' => 'aaa',
-                    'phone' => '123',
+                    'phone' => $phoneNumber,
                     'loyaltyCardNumber' => 'sa2222',
                     'address' => [
                         'street' => 'Bagno',
@@ -126,7 +130,7 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
                     'name' => 'Jan Nowak',
                     'email' => 'o@lo.com',
                     'nip' => 'aaa',
-                    'phone' => '123',
+                    'phone' => $phoneNumber,
                     'loyaltyCardNumber' => 'sa21as222',
                     'address' => [
                         'street' => 'Bagno',
@@ -150,7 +154,7 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
                     'name' => 'Jan Nowak',
                     'email' => 'user@oloy.com',
                     'nip' => 'aaa',
-                    'phone' => '123',
+                    'phone' => $phoneNumber,
                     'loyaltyCardNumber' => 'sa2222',
                     'address' => [
                         'street' => 'Bagno',
@@ -174,7 +178,7 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
                     'name' => 'Jan Nowak',
                     'email' => 'user-temp@oloy.com',
                     'nip' => 'aaa',
-                    'phone' => '123',
+                    'phone' => $phoneNumber,
                     'loyaltyCardNumber' => 'sa2222',
                     'address' => [
                         'street' => 'Bagno',

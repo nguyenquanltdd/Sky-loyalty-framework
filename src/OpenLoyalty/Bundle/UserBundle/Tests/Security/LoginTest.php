@@ -81,7 +81,7 @@ class LoginTest extends BaseApiTest
         return [
             [LoadUserData::ADMIN_USERNAME, LoadUserData::ADMIN_PASSWORD, 'admin'],
             [LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer'],
-            ['11111', LoadUserData::USER_PASSWORD, 'customer'],
+            ['+48234234000', LoadUserData::USER_PASSWORD, 'customer'],
             [LoadUserData::TEST_SELLER_ID, 'open', 'seller'],
         ];
     }

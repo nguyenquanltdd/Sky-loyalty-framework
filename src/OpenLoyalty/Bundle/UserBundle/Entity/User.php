@@ -105,7 +105,7 @@ abstract class User implements UserInterface, \Serializable
         $this->id = $id;
         $this->username = $id;
         $this->createAt = new \DateTime('now');
-        $this->isActive = true;
+        $this->isActive = false;
         $this->salt = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
         $this->roles = new ArrayCollection();
     }

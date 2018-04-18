@@ -3,12 +3,12 @@
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Bundle\SmsApiBundle\Model;
+namespace OpenLoyalty\Bundle\ActivationCodeBundle\Message;
 
 /**
  * Class Message.
  */
-class Message implements MessageInterface
+class Message
 {
     /**
      * @var string
@@ -24,6 +24,23 @@ class Message implements MessageInterface
      * @var string
      */
     protected $content;
+
+    /**
+     * @param $recipient
+     * @param $senderName
+     * @param string $content
+     *
+     * @return Message
+     */
+    public static function create($recipient, $senderName, string $content)
+    {
+        $self = new self();
+        $self->recipient = $recipient;
+        $self->senderName = $senderName;
+        $self->content = $content;
+
+        return $self;
+    }
 
     /**
      * @return string
