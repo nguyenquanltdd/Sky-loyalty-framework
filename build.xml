@@ -38,10 +38,10 @@
         <exec command="bin/console broadway:event-store:schema:drop -n --env=test" checkreturn="true" passthru="true"/>
         <exec command="bin/console broadway:event-store:schema:init -n --env=test" checkreturn="true" passthru="true"/>
         <exec command="bin/console doctrine:fixtures:load -n --env=test" checkreturn="true" passthru="true"/>
-        <exec command="vendor/phpunit/phpunit/phpunit --stop-on-failure --testsuite Security" checkreturn="true" passthru="true"/>
+        <exec command="vendor/phpunit/phpunit/phpunit --testsuite Security" checkreturn="true" passthru="true"/>
     </target>
     <target name="test-domain" description="Setup everything and run tests">
-        <exec command="vendor/phpunit/phpunit/phpunit --stop-on-failure --testsuite Domain" checkreturn="true" passthru="true"/>
+        <exec command="vendor/phpunit/phpunit/phpunit --testsuite Domain" checkreturn="true" passthru="true"/>
     </target>
 
     <target name="demo" description="Setup for demo purposes" depends="generate-jwt-keys">

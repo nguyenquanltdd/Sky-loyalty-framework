@@ -28,6 +28,7 @@ class AppKernel extends Kernel
             new Nelmio\CorsBundle\NelmioCorsBundle(),
             new JMS\SerializerBundle\JMSSerializerBundle(),
             new Gesdinet\JWTRefreshTokenBundle\GesdinetJWTRefreshTokenBundle(),
+            new Misd\PhoneNumberBundle\MisdPhoneNumberBundle(),
             new OpenLoyalty\Bundle\UserBundle\OpenLoyaltyUserBundle(),
             new OpenLoyalty\Bundle\LevelBundle\OpenLoyaltyLevelBundle(),
             new OpenLoyalty\Bundle\PointsBundle\OpenLoyaltyPointsBundle(),
@@ -38,9 +39,9 @@ class AppKernel extends Kernel
             new OpenLoyalty\Bundle\SegmentBundle\OpenLoyaltySegmentBundle(),
             new OpenLoyalty\Bundle\EmailBundle\OpenLoyaltyEmailBundle(),
             new OpenLoyalty\Bundle\ActivationCodeBundle\OpenLoyaltyActivationCodeBundle(),
-            new OpenLoyalty\Bundle\SmsApiBundle\OpenLoyaltySmsApiBundle(),
             new OpenLoyalty\Bundle\PaginationBundle\OpenLoyaltyPaginationBundle(),
             new OpenLoyalty\Bundle\CampaignBundle\OpenLoyaltyCampaignBundle(),
+            new OpenLoyalty\Bundle\SmsApiBundle\OpenLoyaltySmsApiBundle(),
             new OpenLoyalty\Bundle\AnalyticsBundle\OpenLoyaltyAnalyticsBundle(),
             new OpenLoyalty\Bundle\UtilityBundle\OpenLoyaltyUtilityBundle(),
             new OpenLoyalty\Bundle\PluginBundle\OpenLoyaltyPluginBundle(),
@@ -49,6 +50,7 @@ class AppKernel extends Kernel
             new Knp\Bundle\GaufretteBundle\KnpGaufretteBundle(),
             new OpenLoyalty\Bundle\CoreBundle\OpenLoyaltyCoreBundle(),
             new OpenLoyaltyPlugin\SalesManagoBundle\SalesManagoBundle(),
+            new OpenLoyalty\Bundle\WorldTextBundle\OpenLoyaltyWorldTextBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {

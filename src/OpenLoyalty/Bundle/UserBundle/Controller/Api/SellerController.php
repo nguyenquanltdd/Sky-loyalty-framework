@@ -143,12 +143,16 @@ class SellerController extends FOSRestController
                         ->dispatch(
                             new ActivateSeller($sellerId)
                         );
+                    $user->setIsActive(true);
                 } else {
                     $this->get('broadway.command_handling.command_bus')
                         ->dispatch(
                             new DeactivateSeller($sellerId)
                         );
+                    $user->setIsActive(false);
                 }
+
+                $this->get('oloy.user.user_manager')->updateUser($user);
 
                 return $this->view([
                     'sellerId' => $sellerId->__toString(),

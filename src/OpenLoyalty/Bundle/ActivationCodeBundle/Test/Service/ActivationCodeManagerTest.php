@@ -5,13 +5,12 @@ namespace OpenLoyalty\Bundle\ActivationCodeBundle\Test\Service;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use Doctrine\ORM\EntityManager;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActivationCodeManager;
-use OpenLoyalty\Bundle\SmsApiBundle\Model\MessageInterface;
-use OpenLoyalty\Bundle\SmsApiBundle\Service\MessageFactoryInterface;
-use OpenLoyalty\Bundle\SmsApiBundle\SmsApi\OloySmsApiInterface;
+use OpenLoyalty\Bundle\ActivationCodeBundle\Service\SmsSender;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Component\ActivationCode\Domain\ActivationCode;
 use OpenLoyalty\Component\ActivationCode\Domain\ActivationCodeId;
 use OpenLoyalty\Component\ActivationCode\Infrastructure\Persistence\Doctrine\Repository\DoctrineActivationCodeRepository;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class ActivationCodeManagerTest.
@@ -19,34 +18,29 @@ use OpenLoyalty\Component\ActivationCode\Infrastructure\Persistence\Doctrine\Rep
 class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var MessageFactoryInterface|PHPUnit_Framework_MockObject_MockObject
-     */
-    private $messageFactory;
-
-    /**
-     * @var MessageInterface|PHPUnit_Framework_MockObject_MockObject
-     */
-    private $message;
-
-    /**
-     * @var EntityManager|PHPUnit_Framework_MockObject_MockObject
+     * @var EntityManager|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $em;
 
     /**
-     * @var DoctrineActivationCodeRepository|PHPUnit_Framework_MockObject_MockObject
+     * @var DoctrineActivationCodeRepository|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $repository;
 
     /**
-     * @var UuidGeneratorInterface|PHPUnit_Framework_MockObject_MockObject
+     * @var UuidGeneratorInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $uuidGenerator;
 
     /**
-     * @var OloySmsApiInterface|PHPUnit_Framework_MockObject_MockObject
+     * @var SmsSender|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected $smsApi;
+    protected $smsSender;
+
+    /**
+     * @var TranslatorInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected $translator;
 
     /**
      * {@inheritdoc}
@@ -64,22 +58,15 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
             ->method('countByObjectTypeAndObjectId')
             ->willReturn(1);
 
-        $this->smsApi = $this->getOloySmsApiMock();
-        $this->smsApi
+        $this->smsSender = $this->getSmsSenderMock();
+        $this->smsSender
             ->method('send')
             ->willReturn(true);
 
-        $this->message = $this->getMockBuilder(MessageInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->messageFactory = $this->getMessageFactoryInterface();
-
-        $this->messageFactory
-            ->method('create')
-            ->willReturn($this->message);
-
         $this->uuidGenerator = $this->getUuidGeneratorMock();
+
+        $this->translator = $this->getMockBuilder(TranslatorInterface::class)->getMock();
+        $this->translator->method('trans')->willReturn('content');
     }
 
     /**
@@ -107,7 +94,6 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
                 '1b62631e-1548-11e8-b642-0ed5f89f718b',
                 'ABC123',
                 '123456789',
-                'Info',
             ],
             [
                 new ActivationCodeId('1b6266a2-1548-11e8-b642-0ed5f89f718b'),
@@ -115,7 +101,6 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
                 '70cba220-1548-11e8-b642-0ed5f89f718b',
                 'ABC123',
                 '123456789',
-                'Info',
             ],
         ];
     }
@@ -140,8 +125,7 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
 
         $activationCode = $this->getActivationCodeManager(
             $this->uuidGenerator,
-            $this->smsApi,
-            $this->messageFactory,
+            $this->smsSender,
             $this->em
         )->newCode($objectType, $objectId);
 
@@ -161,7 +145,6 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
      * @param string           $objectId
      * @param string           $code
      * @param string           $phone
-     * @param string           $senderName
      *
      * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
@@ -171,13 +154,11 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
         string $objectType,
         string $objectId,
         string $code,
-        string $phone,
-        string $senderName
+        string $phone
     ) {
         $activationCodeManager = $this->getActivationCodeManager(
             $this->uuidGenerator,
-            $this->smsApi,
-            $this->messageFactory,
+            $this->smsSender,
             $this->em
         );
 
@@ -189,15 +170,9 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
             ->method('countByObjectTypeAndObjectId')
             ->willReturn(1);
 
-        $this->messageFactory->expects($this->once())->method('create')->willReturn($this->message);
+        $this->smsSender->expects($this->once())->method('send');
 
-        $this->message->expects($this->once())->method('setSenderName')->with($senderName);
-        $this->message->expects($this->once())->method('setContent')->with(sprintf('OpenLoyalty activation code (no. %d): %s', 1, $activationCode->getCode()));
-        $this->message->expects($this->once())->method('setRecipient')->with($phone);
-
-        $this->smsApi->expects($this->once())->method('send')->with($this->message);
-
-        $activationCodeManager->sendCode($activationCode, $phone, $senderName);
+        $activationCodeManager->sendCode($activationCode, $phone);
     }
 
     /**
@@ -220,11 +195,11 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|OloySmsApiInterface
+     * @return \PHPUnit_Framework_MockObject_MockObject|SmsSender
      */
-    protected function getOloySmsApiMock()
+    protected function getSmsSenderMock()
     {
-        return $this->getMockBuilder(OloySmsApiInterface::class)
+        return $this->getMockBuilder(SmsSender::class)
             ->disableOriginalConstructor()
             ->getMock();
     }
@@ -240,26 +215,18 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|MessageFactoryInterface
-     */
-    protected function getMessageFactoryInterface()
-    {
-        return $this->getMockBuilder(MessageFactoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-    }
-
-    /**
-     * @param UuidGeneratorInterface  $uuidGenerator
-     * @param OloySmsApiInterface     $smsApi
-     * @param MessageFactoryInterface $messageFactory
-     * @param EntityManager           $em
+     * @param UuidGeneratorInterface $uuidGenerator
+     * @param SmsSender              $smsSender
+     * @param EntityManager          $em
      *
      * @return ActivationCodeManager
      */
-    protected function getActivationCodeManager(UuidGeneratorInterface $uuidGenerator, OloySmsApiInterface $smsApi, MessageFactoryInterface $messageFactory, EntityManager $em)
+    protected function getActivationCodeManager(UuidGeneratorInterface $uuidGenerator, SmsSender $smsSender, EntityManager $em)
     {
-        return new ActivationCodeManager($uuidGenerator, $smsApi, $messageFactory, $em);
+        $manager = new ActivationCodeManager($uuidGenerator, $em, $this->translator, 'OpenLoyalty');
+        $manager->setSmsSender($smsSender);
+
+        return $manager;
     }
 
     /**

@@ -47,6 +47,7 @@ class SettingsBasedCustomerIdProvider implements CustomerIdProvider
         $priority = $this->settingsManager->getSettingByKey('customersIdentificationPriority');
         if (!$priority) {
             $priority = [
+                ['field' => 'phone'],
                 ['field' => 'loyaltyCardNumber'],
                 ['field' => 'email'],
             ];
@@ -59,7 +60,7 @@ class SettingsBasedCustomerIdProvider implements CustomerIdProvider
         }
 
         foreach ($priority as $field) {
-            if (!isset($customerData[$field['field']])) {
+            if (!isset($customerData[$field['field']]) || $customerData[$field['field']] === '' || null === $customerData[$field['field']]) {
                 continue;
             }
             $customers = $this->customerDetailsRepository->findBy(

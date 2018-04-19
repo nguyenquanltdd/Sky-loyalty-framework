@@ -67,7 +67,9 @@ class CustomerCommandHandler extends SimpleCommandHandler
     public function handleRegisterCustomer(RegisterCustomer $command)
     {
         $customerData = $command->getCustomerData();
-        $this->customerUniqueValidator->validateEmailUnique($customerData['email']);
+        if (isset($customerData['email']) && $customerData['email']) {
+            $this->customerUniqueValidator->validateEmailUnique($customerData['email']);
+        }
         if (isset($customerData['phone']) && $customerData['phone']) {
             $this->customerUniqueValidator->validatePhoneUnique($customerData['phone']);
         }

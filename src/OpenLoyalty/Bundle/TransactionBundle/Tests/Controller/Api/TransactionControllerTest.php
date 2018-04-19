@@ -16,6 +16,8 @@ use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
  */
 class TransactionControllerTest extends BaseApiTest
 {
+    const PHONE_NUMBER = '+48123123000';
+
     /**
      * @test
      */
@@ -74,7 +76,7 @@ class TransactionControllerTest extends BaseApiTest
                 'name' => 'Jan Nowak',
                 'email' => 'user-temp2@oloy.com',
                 'nip' => 'aaa',
-                'phone' => '123',
+                'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'not-present-in-system',
                 'address' => [
                     'street' => 'Bagno',
@@ -250,7 +252,7 @@ class TransactionControllerTest extends BaseApiTest
                 'name' => 'Jan Nowak',
                 'email' => 'user-temp2@oloy.com',
                 'nip' => 'aaa',
-                'phone' => '123',
+                'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'not-present-in-system',
                 'address' => [
                     'street' => 'Bagno',
@@ -319,7 +321,7 @@ class TransactionControllerTest extends BaseApiTest
                 'name' => 'Jan Nowak',
                 'email' => 'user-temp@oloy.com',
                 'nip' => 'aaa',
-                'phone' => '123',
+                'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'not-present-in-system',
                 'address' => [
                     'street' => 'Bagno',
@@ -397,7 +399,7 @@ class TransactionControllerTest extends BaseApiTest
                 'name' => 'Jan Nowak',
                 'email' => 'user@oloy.com',
                 'nip' => 'aaa',
-                'phone' => '123',
+                'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'sa2222',
                 'address' => [
                     'street' => 'Bagno',
@@ -473,7 +475,7 @@ class TransactionControllerTest extends BaseApiTest
                 'name' => 'Jan Nowak',
                 'email' => 'user-temp@oloy.com',
                 'nip' => 'aaa',
-                'phone' => '123',
+                'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'sa2222',
                 'address' => [
                     'street' => 'Bagno',
@@ -564,7 +566,7 @@ class TransactionControllerTest extends BaseApiTest
                 'name' => 'Jan Nowak',
                 'email' => 'user-temp@oloy.com',
                 'nip' => 'aaa',
-                'phone' => '123',
+                'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'notfound',
                 'address' => [
                     'street' => 'Bagno',
@@ -601,6 +603,97 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
+    public function it_register_new_transaction_and_assign_customer_by_phone_number()
+    {
+        static::$kernel->boot();
+        $settingsManager = $this->getMockBuilder(SettingsManager::class)->getMock();
+        $settingsManager->method('getSettingByKey')->with($this->isType('string'))->will(
+            $this->returnCallback(function ($arg) {
+                if ($arg == 'customersIdentificationPriority') {
+                    $entry = new JsonSettingEntry('customersIdentificationPriority');
+                    $entry->setValue([
+                        ['field' => 'phone'],
+                    ]);
+
+                    return $entry;
+                }
+
+                return;
+            })
+        );
+
+        /** @var CustomerDetailsRepository $customerRepo */
+        $customerRepo = static::$kernel->getContainer()->get('oloy.user.read_model.repository.customer_details');
+        /** @var CustomerDetails $customer */
+        $customer = $customerRepo->findOneByCriteria(['email' => 'user@oloy.com'], 1);
+        $customer = reset($customer);
+
+        $formData = [
+            'transactionData' => [
+                'documentNumber' => '1234',
+                'documentType' => 'sell',
+                'purchaseDate' => '2015-01-01',
+                'purchasePlace' => 'wroclaw',
+            ],
+            'items' => [
+                0 => [
+                    'sku' => ['code' => '123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 1,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+                1 => [
+                    'sku' => ['code' => '1123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 11,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+            ],
+            'customerData' => [
+                'name' => 'Jan Nowak',
+                'email' => 'not_existing_email@not.com',
+                'nip' => 'aaa',
+                'phone' => $customer->getPhone(),
+                'loyaltyCardNumber' => 'not_existing',
+                'address' => [
+                    'street' => 'Bagno',
+                    'address1' => '12',
+                    'city' => 'Warszawa',
+                    'country' => 'PL',
+                    'province' => 'Mazowieckie',
+                    'postal' => '00-800',
+                ],
+            ],
+        ];
+
+        $client = $this->createAuthenticatedClient();
+        $client->getContainer()->set('ol.doctrine_settings.manager', $settingsManager);
+
+        $client->request(
+            'POST',
+            '/api/transaction',
+            [
+                'transaction' => $formData,
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        /** @var TransactionDetails $transaction */
+        $transaction = $repo->find($data['transactionId']);
+        $this->assertInstanceOf(TransactionDetails::class, $transaction);
+        $this->assertEquals(LoadUserData::USER_USER_ID, $transaction->getCustomerId());
+    }
+
+    /**
+     * @test
+     */
     public function it_manually_assign_customer_to_transaction()
     {
         $formData = [
@@ -627,5 +720,36 @@ class TransactionControllerTest extends BaseApiTest
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
         $this->assertNotNull($transaction->getCustomerId());
         $this->assertEquals(LoadUserData::TEST_USER_ID, $transaction->getCustomerId()->__toString());
+    }
+
+    /**
+     * @test
+     */
+    public function it_manually_assign_customer_to_transaction_using_customer()
+    {
+        $formData = [
+            'transactionDocumentNumber' => '999',
+            'customerId' => LoadUserData::TEST_USER_ID,
+        ];
+
+        $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
+        $client->request(
+            'POST',
+            '/api/customer/transaction/customer/assign',
+            [
+                'assign' => $formData,
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+        static::$kernel->boot();
+        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        /** @var TransactionDetails $transaction */
+        $transaction = $repo->find($data['transactionId']);
+        $this->assertInstanceOf(TransactionDetails::class, $transaction);
+        $this->assertNotNull($transaction->getCustomerId());
+        $this->assertEquals(LoadUserData::USER_USER_ID, $transaction->getCustomerId()->__toString());
     }
 }

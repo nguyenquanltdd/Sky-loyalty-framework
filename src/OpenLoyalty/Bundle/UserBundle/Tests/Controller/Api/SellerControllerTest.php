@@ -27,9 +27,10 @@ class SellerControllerTest extends BaseApiTest
                     'firstName' => 'John',
                     'lastName' => 'Doe',
                     'email' => 'jane@doe.com',
-                    'phone' => '0000000011',
+                    'phone' => '+48123123123',
                     'posId' => LoadPosData::POS_ID,
                     'plainPassword' => 'oloy',
+                    'active' => 1,
                 ],
             ]
         );
@@ -57,7 +58,7 @@ class SellerControllerTest extends BaseApiTest
                     'firstName' => 'John',
                     'lastName' => 'Doe',
                     'email' => 'jane@doe.com',
-                    'phone' => '0000000011',
+                    'phone' => '+48123123123',
                     'posId' => LoadPosData::POS_ID,
                     'plainPassword' => 'oloy',
                 ],
@@ -83,7 +84,7 @@ class SellerControllerTest extends BaseApiTest
                     'firstName' => 'Jane',
                     'lastName' => 'Doe',
                     'email' => 'john@doe.com',
-                    'phone' => '0000000011',
+                    'phone' => '+48123123123',
                     'posId' => LoadPosData::POS_ID,
                 ],
             ]

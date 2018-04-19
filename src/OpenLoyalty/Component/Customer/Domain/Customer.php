@@ -370,7 +370,6 @@ class Customer extends EventSourcedAggregateRoot
      */
     public function setEmail($email)
     {
-        Assert::notEmpty($email);
         $this->email = $email;
     }
 

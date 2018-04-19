@@ -5,13 +5,20 @@
  */
 namespace OpenLoyalty\Bundle\ActivationCodeBundle\Service;
 
+use Assert\AssertionFailedException;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
-use OpenLoyalty\Bundle\SmsApiBundle\Service\MessageFactoryInterface;
-use OpenLoyalty\Bundle\SmsApiBundle\SmsApi\OloySmsApiInterface;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\OptimisticLockException;
+use OpenLoyalty\Bundle\ActivationCodeBundle\Exception\SmsSendException;
+use OpenLoyalty\Bundle\ActivationCodeBundle\Message\Message;
+use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Component\ActivationCode\Domain\ActivationCode;
 use OpenLoyalty\Component\ActivationCode\Domain\ActivationCodeId;
+use OpenLoyalty\Component\ActivationCode\Domain\ActivationCodeRepositoryInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class ActivationCodeManager.
@@ -29,14 +36,9 @@ class ActivationCodeManager
     protected $uuidGenerator;
 
     /**
-     * @var OloySmsApiInterface
+     * @var SmsSender
      */
-    protected $smsApi;
-
-    /**
-     * @var MessageFactoryInterface
-     */
-    protected $messageFactory;
+    protected $smsSender;
 
     /**
      * @var int
@@ -44,19 +46,37 @@ class ActivationCodeManager
     protected $codeLength = 8;
 
     /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
+     * @var string
+     */
+    protected $loyaltyProgramName;
+
+    /**
      * ActivationCodeManager constructor.
      *
-     * @param UuidGeneratorInterface  $uuidGenerator
-     * @param OloySmsApiInterface     $smsApi
-     * @param MessageFactoryInterface $messageFactory
-     * @param EntityManager           $em
+     * @param UuidGeneratorInterface $uuidGenerator
+     * @param EntityManager          $em
+     * @param TranslatorInterface    $translator
+     * @param string                 $loyaltyProgramName
      */
-    public function __construct(UuidGeneratorInterface $uuidGenerator, OloySmsApiInterface $smsApi, MessageFactoryInterface $messageFactory, EntityManager $em)
+    public function __construct(UuidGeneratorInterface $uuidGenerator, EntityManager $em, TranslatorInterface $translator, $loyaltyProgramName)
     {
         $this->em = $em;
         $this->uuidGenerator = $uuidGenerator;
-        $this->smsApi = $smsApi;
-        $this->messageFactory = $messageFactory;
+        $this->translator = $translator;
+        $this->loyaltyProgramName = $loyaltyProgramName;
+    }
+
+    /**
+     * @param SmsSender $smsSender
+     */
+    public function setSmsSender(SmsSender $smsSender)
+    {
+        $this->smsSender = $smsSender;
     }
 
     /**
@@ -94,6 +114,8 @@ class ActivationCodeManager
      * @param string $objectType
      *
      * @return null|object|ActivationCode|string
+     *
+     * @throws \Doctrine\ORM\ORMException
      */
     public function findValidCode(string $code, string $objectType)
     {
@@ -105,9 +127,30 @@ class ActivationCodeManager
             );
 
             if (0 === strcasecmp($lastCode->getObjectId(), $entity->getObjectId())) {
-                return $code;
+                return $lastCode;
             }
         }
+
+        return;
+    }
+
+    /**
+     * @param string $objectType
+     * @param string $objectId
+     *
+     * @return \DateTime|void
+     */
+    public function getLastCodeGenerationDate($objectType, $objectId)
+    {
+        /** @var ActivationCodeRepositoryInterface $repository */
+        $repository = $this->em->getRepository(ActivationCode::class);
+        $lastCode = $repository->getLastByObjectTypeAndObjectId($objectType, $objectId);
+
+        if (!$lastCode instanceof ActivationCode) {
+            return;
+        }
+
+        return $lastCode->getCreatedAt();
     }
 
     /**
@@ -115,21 +158,25 @@ class ActivationCodeManager
      * @param string $objectId
      *
      * @return ActivationCode
-     *
-     * @throws UniqueConstraintViolationException
-     * @throws \Assert\AssertionFailedException
-     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function newCode(string $objectType, string $objectId)
     {
-        $entity = new ActivationCode(
-            new ActivationCodeId($this->uuidGenerator->generate()),
-            $objectType,
-            $objectId,
-            $this->generateUniqueCode($objectType, $objectId)
-        );
+        try {
+            $entity = new ActivationCode(
+                new ActivationCodeId($this->uuidGenerator->generate()),
+                $objectType,
+                $objectId,
+                $this->generateUniqueCode($objectType, $objectId)
+            );
 
-        $this->persistUniqueActivationCode($entity);
+            $this->persistUniqueActivationCode($entity);
+        } catch (AssertionFailedException $e) {
+            return;
+        } catch (OptimisticLockException $e) {
+            return;
+        } catch (UniqueConstraintViolationException $e) {
+            return;
+        }
 
         return $entity;
     }
@@ -137,29 +184,113 @@ class ActivationCodeManager
     /**
      * @param ActivationCode $code
      * @param string         $phone
-     * @param string         $senderName
      *
-     * @return mixed
+     * @return bool
      *
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws SmsSendException
      */
-    public function sendCode(ActivationCode $code, string $phone, string $senderName = 'Info')
+    public function sendCode(ActivationCode $code, $phone)
     {
-        $msg = $this->messageFactory->create();
+        try {
+            /** @var ActivationCodeRepositoryInterface $repository */
+            $repository = $this->em->getRepository(ActivationCode::class);
+            $codeNo = $repository->countByObjectTypeAndObjectId($code->getObjectType(), $code->getObjectId());
+        } catch (NonUniqueResultException $e) {
+            return false;
+        } catch (NoResultException $e) {
+            return false;
+        }
 
-        $codeNo = $this->em->getRepository(ActivationCode::class)->countByObjectTypeAndObjectId(
-            $code->getObjectType(),
-            $code->getObjectId()
-        );
+        $content = sprintf('%s activation code (no. %d): %s', $this->loyaltyProgramName, $codeNo, $code->getCode());
 
-        $content = sprintf('OpenLoyalty activation code (no. %d): %s', $codeNo, $code->getCode());
+        $msg = Message::create($phone, $this->loyaltyProgramName, $content);
 
-        $msg->setContent($content);
-        $msg->setRecipient($phone);
-        $msg->setSenderName($senderName);
+        return $this->getSmsSender()->send($msg);
+    }
 
-        return $this->smsApi->send($msg);
+    /**
+     * @param ActivationCode $code
+     * @param string         $phone
+     *
+     * @return bool
+     *
+     * @throws SmsSendException
+     */
+    public function sendResetCode(ActivationCode $code, $phone)
+    {
+        try {
+            /** @var ActivationCodeRepositoryInterface $repository */
+            $repository = $this->em->getRepository(ActivationCode::class);
+            $codeNo = $repository->countByObjectTypeAndObjectId(
+                $code->getObjectType(),
+                $code->getObjectId()
+            );
+        } catch (NonUniqueResultException $e) {
+            return false;
+        } catch (NoResultException $e) {
+            return false;
+        }
+
+        $content = $this->translator->trans('activation.reset_code.content', [
+            '%program_name%' => $this->loyaltyProgramName,
+            '%code%' => $code->getCode(),
+            '%code_number%' => $codeNo,
+        ]);
+
+        $msg = Message::create($phone, $this->loyaltyProgramName, $content);
+
+        return $this->getSmsSender()->send($msg);
+    }
+
+    /**
+     * @param Customer $customer
+     *
+     * @return bool
+     *
+     * @throws SmsSendException
+     */
+    public function resendCode(Customer $customer)
+    {
+        $lastCodeGenerationDate = $this->getLastCodeGenerationDate(Customer::class, $customer->getId());
+        $deadline = new \DateTime('-2 minutes');
+        if ($lastCodeGenerationDate && $deadline < $lastCodeGenerationDate) {
+            return false;
+        }
+
+        $code = $this->newCode(Customer::class, $customer->getId());
+        if (!$code) {
+            return false;
+        }
+
+        return $this->sendCode($code, $customer->getPhone());
+    }
+
+    /**
+     * @param string $temporaryPassword
+     * @param string $phone
+     *
+     * @return bool
+     *
+     * @throws SmsSendException
+     */
+    public function sendTemporaryPassword($temporaryPassword, $phone)
+    {
+        $content = $this->translator->trans('activation.temporary_password.content', [
+            '%program_name%' => $this->loyaltyProgramName,
+            '%password%' => $temporaryPassword,
+        ]);
+
+        $msg = Message::create($phone, $this->loyaltyProgramName, $content);
+
+        return $this->getSmsSender()->send($msg);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasNeededSettings()
+    {
+        return $this->smsSender->hasNeededSettings();
     }
 
     /**
@@ -233,5 +364,17 @@ class ActivationCodeManager
         $length = $this->getCodeLength();
 
         return strtoupper(substr($hash,  mt_rand(0, strlen($hash) - $length - 1), $length));
+    }
+
+    /**
+     * @return SmsSender
+     */
+    private function getSmsSender(): SmsSender
+    {
+        if (!$this->smsSender) {
+            throw new \RuntimeException('Sms gateway not set');
+        }
+
+        return $this->smsSender;
     }
 }

@@ -8,6 +8,10 @@ namespace OpenLoyalty\Bundle\UserBundle\Form\Handler;
 use Broadway\CommandHandling\CommandBus;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use Doctrine\ORM\EntityManager;
+use OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActionTokenManager;
+use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
+use OpenLoyalty\Bundle\UserBundle\Entity\Status;
+use OpenLoyalty\Bundle\UserBundle\Entity\User;
 use OpenLoyalty\Bundle\UserBundle\Service\UserManager;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Customer\Domain\Command\MoveCustomerToLevel;
@@ -55,6 +59,11 @@ class CustomerRegistrationFormHandler
     protected $customerUniqueValidator;
 
     /**
+     * @var ActionTokenManager
+     */
+    private $actionTokenManager;
+
+    /**
      * CustomerRegistrationFormHandler constructor.
      *
      * @param CommandBus              $commandBus
@@ -62,21 +71,30 @@ class CustomerRegistrationFormHandler
      * @param EntityManager           $em
      * @param UuidGeneratorInterface  $uuidGenerator
      * @param CustomerUniqueValidator $customerUniqueValidator
+     * @param ActionTokenManager      $actionTokenManager
      */
     public function __construct(
         CommandBus $commandBus,
         UserManager $userManager,
         EntityManager $em,
         UuidGeneratorInterface $uuidGenerator,
-        CustomerUniqueValidator $customerUniqueValidator
+        CustomerUniqueValidator $customerUniqueValidator,
+        ActionTokenManager $actionTokenManager
     ) {
         $this->commandBus = $commandBus;
         $this->userManager = $userManager;
         $this->em = $em;
         $this->uuidGenerator = $uuidGenerator;
         $this->customerUniqueValidator = $customerUniqueValidator;
+        $this->actionTokenManager = $actionTokenManager;
     }
 
+    /**
+     * @param CustomerId    $customerId
+     * @param FormInterface $form
+     *
+     * @return Customer
+     */
     public function onSuccess(CustomerId $customerId, FormInterface $form)
     {
         $customerData = $form->getData();
@@ -101,13 +119,15 @@ class CustomerRegistrationFormHandler
 
         $email = $customerData['email'];
         $emailExists = false;
-        if ($this->userManager->isCustomerExist($email)) {
-            $emailExists = 'This email is already taken';
-        }
-        try {
-            $this->customerUniqueValidator->validateEmailUnique($email, $customerId);
-        } catch (EmailAlreadyExistsException $e) {
-            $emailExists = $e->getMessage();
+        if ($email) {
+            if ($this->userManager->isCustomerExist($email)) {
+                $emailExists = 'This email is already taken';
+            }
+            try {
+                $this->customerUniqueValidator->validateEmailUnique($email, $customerId);
+            } catch (EmailAlreadyExistsException $e) {
+                $emailExists = $e->getMessage();
+            }
         }
         if ($emailExists) {
             $form->get('email')->addError(new FormError($emailExists));
@@ -154,6 +174,30 @@ class CustomerRegistrationFormHandler
             );
         }
 
-        return $this->userManager->createNewCustomer($customerId, $email, $password);
+        return $this->userManager->createNewCustomer(
+            $customerId,
+            $email,
+            $password,
+            isset($customerData['phone']) ? $customerData['phone'] : null);
+    }
+
+    /**
+     * @param User   $user
+     * @param string $referralCustomerEmail
+     *
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function handleCustomerRegisteredByHimself(User $user, $referralCustomerEmail)
+    {
+        $user->setIsActive(false);
+        if ($user instanceof Customer) {
+            $user->setStatus(Status::typeNew());
+            $user->setActionToken(substr(md5(uniqid(null, true)), 0, 20));
+            $user->setReferralCustomerEmail($referralCustomerEmail);
+            $this->actionTokenManager
+                ->sendActivationMessage($user);
+        }
+
+        $this->em->flush();
     }
 }

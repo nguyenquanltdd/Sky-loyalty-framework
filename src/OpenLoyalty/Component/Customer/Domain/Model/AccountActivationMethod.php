@@ -69,7 +69,7 @@ class AccountActivationMethod implements Serializable
     /**
      * @return AccountActivationMethod
      */
-    public static function methodCode()
+    public static function methodSms()
     {
         return new static(self::METHOD_SMS);
     }
@@ -95,11 +95,11 @@ class AccountActivationMethod implements Serializable
      */
     public function setMethod($method = null)
     {
-        if (null !== $method && !in_array($method, self::$availableMethods)) {
+        if (null !== $method && !in_array($method, self::getAvailableMethods())) {
             throw new \InvalidArgumentException(
                 sprintf(
                     'Method should be %s',
-                    implode(' or ', self::$availableMethods)
+                    implode(' or ', self::getAvailableMethods())
                 )
             );
         }

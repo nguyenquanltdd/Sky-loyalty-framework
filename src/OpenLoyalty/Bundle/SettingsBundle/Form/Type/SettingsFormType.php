@@ -5,6 +5,8 @@
  */
 namespace OpenLoyalty\Bundle\SettingsBundle\Form\Type;
 
+use OpenLoyalty\Bundle\ActivationCodeBundle\Service\SmsSender;
+use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Form\DataTransformer\BooleanSettingDataTransformer;
 use OpenLoyalty\Bundle\SettingsBundle\Form\DataTransformer\ChoicesToJsonSettingDataTransformer;
 use OpenLoyalty\Bundle\SettingsBundle\Form\DataTransformer\IntegerSettingDataTransformer;
@@ -46,6 +48,11 @@ class SettingsFormType extends AbstractType
     protected $translationsProvider;
 
     /**
+     * @var SmsSender|null
+     */
+    protected $smsGateway = null;
+
+    /**
      * SettingsFormType constructor.
      *
      * @param SettingsManager      $settingsManager
@@ -57,6 +64,17 @@ class SettingsFormType extends AbstractType
         $this->translationsProvider = $translationsProvider;
     }
 
+    /**
+     * @param SmsSender $smsGateway
+     */
+    public function setSmsSender(SmsSender $smsGateway)
+    {
+        $this->smsGateway = $smsGateway;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add(
@@ -106,13 +124,6 @@ class SettingsFormType extends AbstractType
                     'constraints' => [new NotBlank()],
                 ])
                 ->addModelTransformer(new StringSettingDataTransformer('accountActivationMethod', $this->settingsManager))
-        );
-        $builder->add(
-            $builder
-                ->create('smsApiToken', TextType::class, [
-                    'constraints' => [new NotBlank()],
-                ])
-                ->addModelTransformer(new StringSettingDataTransformer('smsApiToken', $this->settingsManager))
         );
         $builder->add(
             $builder
@@ -232,6 +243,24 @@ class SettingsFormType extends AbstractType
                 }
             }
         });
+        // validate sms sender credentials if any
+        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
+            $data = $event->getData();
+            /** @var StringSettingEntry $activationMethod */
+            $activationMethod = $data->getEntry('accountActivationMethod');
+
+            if (!$data instanceof Settings ||
+                null === $this->smsGateway ||
+                $activationMethod->getValue() !== AccountActivationMethod::METHOD_SMS
+            ) {
+                return;
+            }
+
+            $areCredentialsValid = $this->smsGateway->validateCredentials($data->toArray());
+            if (false === $areCredentialsValid) {
+                $event->getForm()->get('accountActivationMethod')->addError(new FormError('Bad credentials'));
+            }
+        });
         $builder->add(
             $builder
                 ->create('customersIdentificationPriority', CollectionType::class, [
@@ -291,12 +320,59 @@ class SettingsFormType extends AbstractType
                 ])
                 ->addModelTransformer(new ChoicesToJsonSettingDataTransformer('excludedLevelCategories', $this->settingsManager))
         );
+        $this->addSmsConfig($builder);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => 'OpenLoyalty\Bundle\SettingsBundle\Model\Settings',
+            'allow_extra_fields' => true,
         ]);
+    }
+
+    /**
+     * @param FormBuilderInterface $builder
+     */
+    private function addSmsConfig(FormBuilderInterface $builder)
+    {
+        // no sms gateway
+        if (null === $this->smsGateway) {
+            return;
+        }
+
+        $fields = $this->smsGateway->getNeededSettings();
+
+        foreach ($fields as $name => $type) {
+            $builder->add($this->createField($builder, $name, $type));
+        }
+    }
+
+    /**
+     * @param FormBuilderInterface $builder
+     * @param string               $name
+     * @param string               $type
+     *
+     * @return FormBuilderInterface
+     */
+    private function createField(FormBuilderInterface $builder, $name, $type)
+    {
+        switch ($type) {
+            case 'text':
+                return $builder
+                    ->create($name, TextType::class, [])
+                    ->addModelTransformer(new StringSettingDataTransformer($name, $this->settingsManager));
+            case 'bool':
+                return $builder
+                    ->create($name, CheckboxType::class, [])
+                    ->addModelTransformer(new BooleanSettingDataTransformer($name, $this->settingsManager));
+            case 'integer':
+                return $builder
+                    ->create($name, IntegerType::class, [])
+                    ->addModelTransformer(new IntegerSettingDataTransformer($name, $this->settingsManager));
+        }
     }
 }

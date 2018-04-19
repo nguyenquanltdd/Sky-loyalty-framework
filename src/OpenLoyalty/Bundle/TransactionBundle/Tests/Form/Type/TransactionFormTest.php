@@ -91,7 +91,7 @@ class TransactionFormTest extends TypeTestCase
                 'name' => 'Jan Nowak',
                 'email' => 'ol@oy.com',
                 'nip' => 'aaa',
-                'phone' => '123',
+                'phone' => '+48123123123',
                 'loyaltyCardNumber' => '222',
                 'address' => [
                     'street' => 'Bagno',

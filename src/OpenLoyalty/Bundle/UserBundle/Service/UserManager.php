@@ -8,6 +8,7 @@ namespace OpenLoyalty\Bundle\UserBundle\Service;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActivationCodeManager;
+use OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActionTokenManager;
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
@@ -38,9 +39,9 @@ class UserManager
     protected $passwordGenerator;
 
     /**
-     * @var EmailProvider
+     * @var ActionTokenManager
      */
-    protected $emailProvider;
+    protected $activationMethodProvider;
 
     /**
      * @var
@@ -53,7 +54,7 @@ class UserManager
      * @param UserPasswordEncoderInterface           $passwordEncoder
      * @param EntityManager                          $em
      * @param PasswordGenerator                      $passwordGenerator
-     * @param EmailProvider                          $emailProvider
+     * @param ActionTokenManager                     $activationMethodProvider
      * @param ActivationCodeManager                  $activationCodeManager
      * @param CustomerDetailsElasticsearchRepository $customerDetailsRepository
      */
@@ -61,14 +62,14 @@ class UserManager
         UserPasswordEncoderInterface $passwordEncoder,
         EntityManager $em,
         PasswordGenerator $passwordGenerator,
-        EmailProvider $emailProvider,
+        ActionTokenManager $activationMethodProvider,
         ActivationCodeManager $activationCodeManager,
         CustomerDetailsElasticsearchRepository $customerDetailsRepository
     ) {
         $this->passwordEncoder = $passwordEncoder;
         $this->em = $em;
         $this->passwordGenerator = $passwordGenerator;
-        $this->emailProvider = $emailProvider;
+        $this->activationMethodProvider = $activationMethodProvider;
         $this->customerDetailsRepository = $customerDetailsRepository;
     }
 
@@ -102,27 +103,28 @@ class UserManager
             ->findOneBy(['email' => $email]) ? true : false;
     }
 
-    public function createNewCustomer(CustomerId $customerId, $email, $password = null, $emailDisabled = false)
+    public function createNewCustomer(CustomerId $customerId, $email, $password = null, $phone = null)
     {
         $user = new Customer($customerId);
         $user->setEmail($email);
-        $sendEmail = false;
+        $sendTemporaryPassword = false;
 
         if (!$password) {
             $user->setTemporaryPasswordSetAt(new \DateTime());
             $password = $this->passwordGenerator->generate();
-            $sendEmail = true;
+            $sendTemporaryPassword = true;
         }
         $user->setPlainPassword($password);
+        $user->setPhone($phone);
         $role = $this->em->getRepository('OpenLoyaltyUserBundle:Role')->findOneBy(['role' => 'ROLE_PARTICIPANT']);
         if ($role) {
             $user->addRole($role);
         }
         $this->updateUser($user);
 
-        if ($sendEmail && !$emailDisabled) {
+        if ($sendTemporaryPassword) {
             $customerDetails = $this->customerDetailsRepository->find($user->getId());
-            $this->emailProvider->registrationWithTemporaryPassword(
+            $this->activationMethodProvider->sendTemporaryPassword(
                 $customerDetails,
                 $user->getPlainPassword()
             );

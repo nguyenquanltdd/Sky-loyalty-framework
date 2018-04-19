@@ -7,6 +7,8 @@ namespace OpenLoyalty\Bundle\UserBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
+use Symfony\Component\Validator\Constraints as Assert;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  * Class LoyaltyProgramParticipant.
@@ -42,6 +44,19 @@ class Customer extends User
      */
     private $status;
 
+    /**
+     * @var string
+     * @ORM\Column(type="string", nullable=true)
+     * @Assert\NotBlank(groups={"registration"})
+     * @JMS\Expose()
+     */
+    protected $phone;
+
+    /**
+     * Customer constructor.
+     *
+     * @param CustomerId $id
+     */
     public function __construct(CustomerId $id)
     {
         parent::__construct($id->__toString());
@@ -120,10 +135,38 @@ class Customer extends User
     }
 
     /**
+     * @return bool
+     */
+    public function isNew()
+    {
+        if ($this->getStatus() && $this->getStatus()->getType() === Status::TYPE_NEW) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * @param Status $status
      */
     public function setStatus(Status $status)
     {
         $this->status = $status;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPhone()
+    {
+        return $this->phone;
+    }
+
+    /**
+     * @param string $phone
+     */
+    public function setPhone($phone = null)
+    {
+        $this->phone = $phone;
     }
 }

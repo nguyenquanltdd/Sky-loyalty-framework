@@ -12,7 +12,13 @@ web_profiler:
     intercept_redirects: false
 
 monolog:
+    channels: ['sms']
     handlers:
+        sms:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%_sms.log"
+            level: debug
+            channels: [sms]
         main:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.log"
@@ -32,3 +38,6 @@ monolog:
 
 #swiftmailer:
 #    delivery_address: me@example.com
+
+open_loyalty_activation_code:
+  sms_gateway: world_text

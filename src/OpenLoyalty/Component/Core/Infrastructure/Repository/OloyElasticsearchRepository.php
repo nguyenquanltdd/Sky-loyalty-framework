@@ -197,6 +197,15 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
                             ],
                         ],
                     ];
+                } elseif ($value['type'] == 'multiple') {
+                    $bool = ['should' => [], 'minimum_should_match' => 1];
+                    foreach ($value['fields'] as $k => $v) {
+                        if (!$exact) {
+                        } else {
+                            $bool['should'][] = ['wildcard' => [$k => '*'.$v.'*']];
+                        }
+                    }
+                    $filter[] = ['bool' => $bool];
                 }
             } elseif (!$exact) {
                 $filter[] = [
@@ -297,6 +306,15 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
                             ],
                         ],
                     ];
+                } elseif ($value['type'] == 'multiple') {
+                    $bool = ['should' => [], 'minimum_should_match' => 1];
+                    foreach ($value['fields'] as $k => $v) {
+                        if (!$exact) {
+                        } else {
+                            $bool['should'][] = ['wildcard' => [$k => '*'.$v.'*']];
+                        }
+                    }
+                    $filter[] = ['bool' => $bool];
                 }
             } elseif (!$exact) {
                 $filter[] = [
@@ -348,6 +366,15 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
                             ],
                         ],
                     ];
+                } elseif ($value['type'] == 'multiple') {
+                    $bool = ['should' => [], 'minimum_should_match' => 1];
+                    foreach ($value['fields'] as $k => $v) {
+                        if (!$exact) {
+                        } else {
+                            $bool['should'][] = ['wildcard' => [$k => '*'.$v.'*']];
+                        }
+                    }
+                    $filter[] = ['bool' => $bool];
                 }
             } elseif (!$exact) {
                 $filter[] = [

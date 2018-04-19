@@ -9,6 +9,7 @@ use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
+use Faker\Factory;
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Seller\Domain\Command\ActivateSeller;
@@ -66,6 +67,7 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
     protected function loadSeller(ObjectManager $manager)
     {
         $bus = $this->container->get('broadway.command_handling.command_bus');
+        $faker = Factory::create();
 
         $bus->dispatch(
             new RegisterSeller(
@@ -74,7 +76,7 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
                     'firstName' => 'John',
                     'lastName' => 'Doe',
                     'email' => 'merchant@openloyalty.io',
-                    'phone' => '123456789',
+                    'phone' => $faker->e164PhoneNumber,
                     'posId' => new PosId(LoadPosData::POS2_ID3),
                 ]
             )

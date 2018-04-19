@@ -1,11 +1,13 @@
 {
   "global": {
+    "translations_list": "Translations",
     "configuration": "Configuration",
     "users": "Users",
     "cancel": "Cancel",
     "save": "Save",
     "yes": "Yes",
     "no": "No",
+    "program_name": "Open Loyalty",
     "admin_footer": "2016 Open Loyalty",
     "true": "True",
     "false": "False",
@@ -31,7 +33,9 @@
     "all_time_active": "Is all time active",
     "level": "Level",
     "segment": "Segment",
+    "start_typing_a_number": "enter transaction document number",
     "start_typing_an_email": "enter email to search",
+    "start_typing_an_email_or_phone": "enter email or phone to search",
     "loading": "loading",
     "home": "Home",
     "upload": "Upload",
@@ -167,6 +171,7 @@
     "heading": "Dashboard"
   },
   "customer": {
+    "resend_activation_code": "Resend activation code",
     "referred": {
       "referred_registered": "Number of conversions",
       "referred_total": "Number of referrals",
@@ -619,6 +624,7 @@
         "customer_transactions": "customer transactions",
         "customer_rewards": "customer rewards",
         "customer_registration": "customer registration",
+        "customer_registration_activation": "customer activation",
         "customer_campaigns": "customer campaigns",
         "find_transaction": "find transaction",
         "transactions": "transactions",
@@ -692,9 +698,11 @@
     "maker": "Brand",
     "link_modal": "Match customer with transaction",
     "customer_email": "E-mail",
+    "customer_email_or_phone": "E-mail or phone",
     "customer_id": "Customer ID",
     "transaction_document_number": "Document number",
     "customer_email_prompt": "Find customer by e-mail",
+    "customer_email_or_phone_prompt": "Find customer by e-mail or phone",
     "transaction_document_number_prompt": "Find transaction by document number",
     "customer_id_prompt": "Put customer unique ID",
     "link": "Match with customer",
@@ -768,7 +776,12 @@
     "returns": "Returns",
     "returns_prompt": "Enable returns",
     "count_points_immediately": "Count points immediately",
-    "all_time_active": "All time active"
+    "all_time_active": "All time active",
+    "smsAccountId": "Account id",
+    "account_activation_method": "Account activation method",
+    "account_activation_method_prompt": "",
+    "smsApiKey": "Api key",
+    "smsApiToken": "SmsApi token"
   },
   "segment": {
     "add": "Add segment",
@@ -1008,6 +1021,10 @@
       "success": "Logo has been deleted",
       "error": "Logo has not been deleted"
     },
+    "post_resend_customer_code": {
+      "error": "Cannot resend activation code. Make sure that phone number is correct or wait for few minutes and try again.",
+      "success": "Code was sent to your phone"
+    },
     "upload_settings_logo": {
       "success": "Logo has been saved"
     },
@@ -1068,6 +1085,10 @@
     },
     "post_customer": {
       "success": "You successfully added customer.",
+      "error": "An error occurred"
+    },
+    "post_deactivate_customer": {
+      "success": "You successfully deactivated customer",
       "error": "An error occurred"
     },
     "post_registration_customer": {
@@ -1359,6 +1380,10 @@
     "agreement3_prompt": "",
     "lc_number": "Loyalty Card Number"
   },
+  "registration_activation": {
+    "basic_info": "Account activation",
+    "code": "Activation code"
+  },
   "customer_security": {
     "request_heading": "Forgot password?",
     "request_description": "Enter your login, we will send you recovery password",
@@ -1369,6 +1394,12 @@
     "new_password": "New password",
     "change_password": "Change password",
     "back_to_login": "Back to login page",
+    "registration_activation": {
+      "title": "Account activation",
+      "code": "Activation code",
+      "resend_code": "Resend code",
+      "phone": "Phone number"
+    },
     "login": {
       "remember_me": "Keep me logged in",
       "copyrights": "2016 Open Loyalty",
@@ -1509,6 +1540,7 @@
     "owner_data": {
       "text": "Lorem ipsum dolor sit amet"
     },
+    "ok": "OK",
     "configuration": "Configuration",
     "users": "Users",
     "cancel": "Cancel",
@@ -1628,7 +1660,9 @@
       "no_name": "No name of reward campaign",
       "used_confirmation": "Confirm reward usage",
       "used_confirmation_description": "Please confirm reward usage",
-      "singleCoupon_prompt": "To redeem customers will be able to use the same coupon"
+      "singleCoupon_prompt": "To redeem customers will be able to use the same coupon",
+      "reward_not_available": "This reward is not available",
+      "reward_ended": "Probably this campaign ended"
     },
     "customer_transaction": {
       "customer_loyalty_card_number": "Loyalty card number",
