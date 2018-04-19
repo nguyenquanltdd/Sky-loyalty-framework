@@ -721,4 +721,35 @@ class TransactionControllerTest extends BaseApiTest
         $this->assertNotNull($transaction->getCustomerId());
         $this->assertEquals(LoadUserData::TEST_USER_ID, $transaction->getCustomerId()->__toString());
     }
+
+    /**
+     * @test
+     */
+    public function it_manually_assign_customer_to_transaction_using_customer()
+    {
+        $formData = [
+            'transactionDocumentNumber' => '999',
+            'customerId' => LoadUserData::TEST_USER_ID,
+        ];
+
+        $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
+        $client->request(
+            'POST',
+            '/api/customer/transaction/customer/assign',
+            [
+                'assign' => $formData,
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+        static::$kernel->boot();
+        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        /** @var TransactionDetails $transaction */
+        $transaction = $repo->find($data['transactionId']);
+        $this->assertInstanceOf(TransactionDetails::class, $transaction);
+        $this->assertNotNull($transaction->getCustomerId());
+        $this->assertEquals(LoadUserData::USER_USER_ID, $transaction->getCustomerId()->__toString());
+    }
 }

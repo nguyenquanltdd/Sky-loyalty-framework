@@ -127,7 +127,10 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
         $bus = $this->container->get('broadway.command_handling.command_bus');
 
         $customerId = new CustomerId(static::USER_USER_ID);
-        $command = new RegisterCustomer($customerId, $this->getDefaultCustomerData('John', 'Doe', 'user@oloy.com', '+48234234000'));
+        $command = new RegisterCustomer(
+            $customerId,
+            $this->getDefaultCustomerData('John', 'Doe', $this::USER_USERNAME, '+48234234000')
+        );
 
         $bus->dispatch($command);
         $bus->dispatch(new ActivateCustomer($customerId));

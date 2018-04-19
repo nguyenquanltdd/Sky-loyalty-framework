@@ -26,6 +26,7 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
     const TRANSACTION3_ID = '00000000-0000-1111-0000-000000000003';
     const TRANSACTION4_ID = '00000000-0000-1111-0000-000000000004';
     const TRANSACTION5_ID = '00000000-0000-1111-0000-000000000005';
+    const TRANSACTION6_ID = '00000000-0000-1111-0000-000000000006';
 
     public function load(ObjectManager $manager)
     {
@@ -121,7 +122,6 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
         );
 
         $transactionData['documentNumber'] = '888';
-
         $bus->dispatch(
             new RegisterTransaction(
                 new TransactionId(self::TRANSACTION5_ID),
@@ -180,6 +180,30 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
                     'nip' => 'aaa',
                     'phone' => $phoneNumber,
                     'loyaltyCardNumber' => 'sa2222',
+                    'address' => [
+                        'street' => 'Bagno',
+                        'address1' => '12',
+                        'city' => 'Warszawa',
+                        'country' => 'PL',
+                        'province' => 'Mazowieckie',
+                        'postal' => '00-800',
+                    ],
+                ],
+                $items
+            )
+        );
+
+        $transactionData['documentNumber'] = '999';
+        $bus->dispatch(
+            new RegisterTransaction(
+                new TransactionId(self::TRANSACTION6_ID),
+                $transactionData,
+                [
+                    'name' => 'Jan Nowak',
+                    'email' => 'o@lo.com',
+                    'nip' => 'aaa',
+                    'phone' => '123',
+                    'loyaltyCardNumber' => 'sa21as222',
                     'address' => [
                         'street' => 'Bagno',
                         'address1' => '12',
