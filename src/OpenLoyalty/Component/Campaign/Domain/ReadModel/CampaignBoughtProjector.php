@@ -3,7 +3,6 @@
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-
 namespace OpenLoyalty\Component\Campaign\Domain\ReadModel;
 
 use Broadway\EventDispatcher\EventDispatcher;
@@ -45,9 +44,9 @@ class CampaignBoughtProjector extends Projector
     /**
      * CampaignUsageProjector constructor.
      *
-     * @param Repository $repository
+     * @param Repository         $repository
      * @param CampaignRepository $campaignRepository
-     * @param Repository $customerRepository
+     * @param Repository         $customerRepository
      */
     public function __construct(
         Repository $repository,
@@ -66,7 +65,7 @@ class CampaignBoughtProjector extends Projector
     {
         $campainId = new CampaignId($event->getCampaignId()->__toString());
         $campain = $this->campaignRepository->byId($campainId);
-        /** @var CustomerDetails $customer */
+        /* @var CustomerDetails $customer */
         $customer = $this->customerRepository->find($event->getCustomerId()->__toString());
 
         $this->storeCampaignUsages(
@@ -109,7 +108,7 @@ class CampaignBoughtProjector extends Projector
      */
     protected function applyCampaignUsageWasChanged(CampaignUsageWasChanged $event)
     {
-        /** @var CampaignBought $readModel */
+        /* @var CampaignBought $readModel */
         $campaignBoughtId = CampaignBought::createId(
             new CampaignId($event->getCampaignId()->__toString()),
             new CustomerId($event->getCustomerId()->__toString()),

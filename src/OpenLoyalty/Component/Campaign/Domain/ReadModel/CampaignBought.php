@@ -3,15 +3,12 @@
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-
 namespace OpenLoyalty\Component\Campaign\Domain\ReadModel;
 
 use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
-use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
 
 /**
  * Class CampaignUsage.
@@ -106,7 +103,7 @@ class CampaignBought implements SerializableReadModel
         $tmp = new self(
             new CampaignId($data['campaignId']),
             new CustomerId($data['customerId']),
-            (new \DateTime())->setTimestamp((int)$data['purchasedAt']),
+            (new \DateTime())->setTimestamp((int) $data['purchasedAt']),
             new Coupon($data['coupon']),
             $data['campaignType'],
             $data['campaignName'],

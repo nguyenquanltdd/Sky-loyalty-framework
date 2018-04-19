@@ -12,7 +12,6 @@ use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
-use FOS\RestBundle\Request\ParamFetcherInterface;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignLimitException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotAllowedException;
@@ -346,9 +345,6 @@ class CampaignController extends FOSRestController
      *
      * @QueryParam(name="used", nullable=true, description="Used"))
      *
-     * @param Request $request
-     *
-     * @return \FOS\RestBundle\View\View
      * @param Request $request
      *
      * @return \FOS\RestBundle\View\View
