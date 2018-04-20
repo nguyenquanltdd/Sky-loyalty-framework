@@ -40,4 +40,4 @@ monolog:
 #    delivery_address: me@example.com
 
 open_loyalty_activation_code:
-  sms_gateway: world_text
+  sms_gateway: dummy

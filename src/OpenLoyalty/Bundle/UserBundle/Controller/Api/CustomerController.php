@@ -96,6 +96,7 @@ class CustomerController extends FOSRestController
         ];
 
         $params = $this->get('oloy.user.param_manager')->stripNulls($paramFetcher->all(), true, true, $types);
+
         if (isset($params['daysFromLastTransaction'])) {
             $days = $params['daysFromLastTransaction'];
             unset($params['daysFromLastTransaction']);
@@ -132,13 +133,13 @@ class CustomerController extends FOSRestController
         $repo = $this->get('oloy.user.read_model.repository.customer_details');
         $customers = $repo->findByParametersPaginated(
             $params,
-            $request->get('strict', false),
+            $request->get('strict', true),
             $pagination->getPage(),
             $pagination->getPerPage(),
             $pagination->getSort(),
             $pagination->getSortDirection()
         );
-        $total = $repo->countTotal($params, $request->get('strict', false));
+        $total = $repo->countTotal($params, $request->get('strict', true));
 
         return $this->view(
             [
