@@ -18,6 +18,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type as Numeric;
 
 /**
  * Class SellerRegistrationFormType.
@@ -66,11 +67,12 @@ class SellerRegistrationFormType extends AbstractType
                 new Email(),
             ],
         ]);
-        $builder->add('phone', EmailType::class, [
+        $builder->add('phone', TextType::class, [
             'label' => 'Phone',
             'required' => false,
             'constraints' => [
                 new PhoneNumber(),
+                new Numeric(['type' => 'numeric', 'message' => 'Incorrect phone number format, use +00000000000']),
             ],
         ]);
 

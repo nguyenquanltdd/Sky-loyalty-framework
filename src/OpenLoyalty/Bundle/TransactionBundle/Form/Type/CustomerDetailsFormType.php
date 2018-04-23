@@ -30,8 +30,8 @@ class CustomerDetailsFormType extends AbstractType
         $builder->add('phone', TextType::class, [
             'required' => false,
             'constraints' => [
-                new Numeric(['type' => 'numeric', 'message' => 'Incorrect phone number format, use +00000000000']),
                 new PhoneNumber(),
+                new Numeric(['type' => 'numeric', 'message' => 'Incorrect phone number format, use +00000000000']),
             ],
         ]);
         $builder->add('loyaltyCardNumber', TextType::class, [

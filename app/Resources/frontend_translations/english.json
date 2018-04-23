@@ -1025,6 +1025,9 @@
       "error": "Cannot resend activation code. Make sure that phone number is correct or wait for few minutes and try again.",
       "success": "Code was sent to your phone"
     },
+    "post_resend_activation_code": {
+      "success": "Code was sent to customer phone"
+    },
     "upload_settings_logo": {
       "success": "Logo has been saved"
     },

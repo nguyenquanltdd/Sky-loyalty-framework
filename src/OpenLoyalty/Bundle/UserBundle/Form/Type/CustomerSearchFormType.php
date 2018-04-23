@@ -11,6 +11,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Type as Numeric;
 
 /**
  * Class CustomerSearchFormType.
@@ -26,6 +27,7 @@ class CustomerSearchFormType extends AbstractType
             'required' => false,
             'constraints' => [
                 new PhoneNumber(),
+                new Numeric(['type' => 'numeric', 'message' => 'Incorrect phone number format, use +00000000000']),
             ],
         ]);
         $builder->add('email', TextType::class, [
