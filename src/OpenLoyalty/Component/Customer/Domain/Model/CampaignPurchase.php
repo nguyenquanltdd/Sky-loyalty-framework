@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Component\Customer\Domain\Model;
 
 use Broadway\Serializer\Serializable;
+use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
 
 /**
@@ -28,6 +29,9 @@ class CampaignPurchase implements Serializable
      */
     protected $campaignId;
 
+    /**
+     * @var Campaign
+     */
     protected $campaign;
 
     /**
@@ -119,7 +123,7 @@ class CampaignPurchase implements Serializable
     }
 
     /**
-     * @return mixed
+     * @return Campaign
      */
     public function getCampaign()
     {
@@ -127,9 +131,9 @@ class CampaignPurchase implements Serializable
     }
 
     /**
-     * @param mixed $campaign
+     * @param Campaign $campaign
      */
-    public function setCampaign($campaign)
+    public function setCampaign(Campaign $campaign)
     {
         $this->campaign = $campaign;
     }

@@ -19,7 +19,7 @@ class CustomerCampaignsControllerTest extends BaseApiTest
      */
     public function it_allows_to_buy_a_campaign()
     {
-        static::$kernel->boot();
+        static::bootKernel();
         $customerDetailsBefore = $this->getCustomerDetails(LoadUserData::USER_USERNAME);
         $accountBefore = $this->getCustomerAccount(new CustomerId($customerDetailsBefore->getCustomerId()->__toString()));
 
@@ -52,6 +52,62 @@ class CustomerCampaignsControllerTest extends BaseApiTest
             'Available points after campaign is bought should be '.(($accountBefore ? $accountBefore->getAvailableAmount() : 0) - 10)
             .', but it is '.($accountAfter ? $accountAfter->getAvailableAmount() : 0)
         );
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_serialized_response_with_proper_fields()
+    {
+        static::bootKernel();
+        $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
+        $client->request(
+            'GET',
+            '/api/customer/campaign/bought'
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('campaigns', $data);
+        $campaigns = $data['campaigns'];
+        $this->assertGreaterThan(0, count($campaigns));
+        $campaign = reset($campaigns);
+        $this->assertArrayHasKey('purchaseAt', $campaign, 'Missing purchaseAt data');
+        $this->assertArrayHasKey('costInPoints', $campaign, 'Missing costInPoints data');
+        $this->assertArrayHasKey('campaignId', $campaign, 'Missing campaignID data');
+        $this->assertInternalType('string', $campaign['campaignId'], 'Wrong campaignId type');
+        $this->assertArrayHasKey('used', $campaign, 'Missing used data');
+        $this->assertArrayHasKey('coupon', $campaign, 'Missing coupon data');
+        $coupon = $campaign['coupon'];
+        $this->assertArrayHasKey('code', $coupon, 'Missign coupon code value');
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_serialized_response_with_proper_fields_and_includes_details()
+    {
+        static::bootKernel();
+        $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
+        $client->request(
+            'GET',
+            '/api/customer/campaign/bought',
+            [
+                'includeDetails' => 1,
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('campaigns', $data);
+        $campaigns = $data['campaigns'];
+        $this->assertGreaterThan(0, count($campaigns), 'No bought campaigns');
+        $campaign = reset($campaigns);
+        $this->assertArrayHasKey('campaign', $campaign, 'No campaigns details');
+        $campaignDetails = $campaign['campaign'];
+        $this->assertArrayHasKey('campaignId', $campaignDetails, 'Campaign details has no id');
     }
 
     /**
