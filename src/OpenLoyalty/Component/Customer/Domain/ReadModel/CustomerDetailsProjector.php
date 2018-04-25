@@ -111,7 +111,7 @@ class CustomerDetailsProjector extends Projector
         if (isset($data['phone'])) {
             $readModel->setPhone($data['phone']);
         }
-        if (isset($data['email'])) {
+        if (array_key_exists('email', $data)) {
             $readModel->setEmail($data['email']);
         }
         if (!empty($data['gender'])) {
