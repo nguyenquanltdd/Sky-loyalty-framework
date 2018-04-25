@@ -33,7 +33,10 @@
         <exec command="bin/console broadway:event-store:schema:init -n" checkreturn="true" passthru="true"/>
         <exec command="bin/console doctrine:fixtures:load --env=test -n" checkreturn="true" passthru="true"/>
         <exec command="bin/console oloy:segment:recreate -vv" checkreturn="true" passthru="true"/>
-        <exec command="vendor/phpunit/phpunit/phpunit" checkreturn="true" passthru="true"/>
+        <exec command="vendor/phpunit/phpunit/phpunit src/OpenLoyalty/Bundle/ActivationCodeBundle/Test/Service/ActivationCodeManagerTest.php" checkreturn="true" passthru="true"/>
+    </target>
+    <target name="unit" description="Run unit tests">
+        <exec command="vendor/phpunit/phpunit/phpunit --testsuite Unit" checkreturn="true" passthru="true"/>
     </target>
     <target name="test-security" description="Setup everything and run tests">
         <exec command="bin/console oloy:user:projections:index:create --drop-old -n --env=test" checkreturn="true" passthru="true"/>

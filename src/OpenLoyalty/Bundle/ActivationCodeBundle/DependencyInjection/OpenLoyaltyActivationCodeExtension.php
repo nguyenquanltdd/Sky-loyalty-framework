@@ -27,6 +27,9 @@ class OpenLoyaltyActivationCodeExtension extends Extension
         if (array_key_exists('sms_gateway', $config)) {
             $container->setParameter('oloy.activation_code.sms_gateway', $config['sms_gateway']);
         }
+        if (array_key_exists('code_type', $config)) {
+            $container->setParameter('oloy.activation_code.code_type', $config['code_type']);
+        }
 
         $loader->load('services.yml');
         $loader->load('domain.yml');

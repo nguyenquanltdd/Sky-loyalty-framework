@@ -30,3 +30,4 @@ monolog:
 # using SMS
 #open_loyalty_activation_code:
 #  sms_gateway: world_text
+#  code_type: num

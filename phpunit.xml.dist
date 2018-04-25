@@ -23,6 +23,14 @@
         <testsuite name="Domain">
             <directory>src/OpenLoyalty/Component/*/Tests/Domain</directory>
         </testsuite>
+        <testsuite name="Integration">
+            <directory>src/OpenLoyalty/Bundle/*Bundle/Tests/Integration</directory>
+            <directory>src/OpenLoyalty/Component/*/Tests/Integration</directory>
+        </testsuite>
+        <testsuite name="Unit">
+            <directory>src/OpenLoyalty/Bundle/*Bundle/Tests/Unit</directory>
+            <directory>src/OpenLoyalty/Component/*/Tests/Unit</directory>
+        </testsuite>
     </testsuites>
 
     <filter>
