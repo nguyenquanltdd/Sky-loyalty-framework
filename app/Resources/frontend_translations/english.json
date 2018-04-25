@@ -1398,7 +1398,8 @@
       "title": "Account activation",
       "code": "Activation code",
       "resend_code": "Resend code",
-      "phone": "Phone number"
+      "phone": "Phone number",
+      "activate_or_resend_code": "Activate an account or resend a code"
     },
     "login": {
       "remember_me": "Keep me logged in",
