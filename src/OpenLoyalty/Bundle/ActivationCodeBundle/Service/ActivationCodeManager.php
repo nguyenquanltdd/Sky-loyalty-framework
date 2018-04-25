@@ -13,6 +13,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Exception\SmsSendException;
+use OpenLoyalty\Bundle\ActivationCodeBundle\Generator\CodeGenerator;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Message\Message;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Component\ActivationCode\Domain\ActivationCode;
@@ -43,7 +44,12 @@ class ActivationCodeManager
     /**
      * @var int
      */
-    protected $codeLength = 8;
+    protected $codeLength = 6;
+
+    /**
+     * @var CodeGenerator
+     */
+    protected $codeGenerator;
 
     /**
      * @var TranslatorInterface
@@ -61,12 +67,19 @@ class ActivationCodeManager
      * @param UuidGeneratorInterface $uuidGenerator
      * @param EntityManager          $em
      * @param TranslatorInterface    $translator
+     * @param CodeGenerator          $codeGenerator
      * @param string                 $loyaltyProgramName
      */
-    public function __construct(UuidGeneratorInterface $uuidGenerator, EntityManager $em, TranslatorInterface $translator, $loyaltyProgramName)
-    {
+    public function __construct(
+        UuidGeneratorInterface $uuidGenerator,
+        EntityManager $em,
+        TranslatorInterface $translator,
+        CodeGenerator $codeGenerator,
+        string $loyaltyProgramName
+    ) {
         $this->em = $em;
         $this->uuidGenerator = $uuidGenerator;
+        $this->codeGenerator = $codeGenerator;
         $this->translator = $translator;
         $this->loyaltyProgramName = $loyaltyProgramName;
     }
@@ -77,6 +90,14 @@ class ActivationCodeManager
     public function setSmsSender(SmsSender $smsSender)
     {
         $this->smsSender = $smsSender;
+    }
+
+    /**
+     * @param CodeGenerator $codeGenerator
+     */
+    public function setCodeGenerator(CodeGenerator $codeGenerator)
+    {
+        $this->codeGenerator = $codeGenerator;
     }
 
     /**
@@ -353,17 +374,7 @@ class ActivationCodeManager
      */
     protected function generateCode(string $objectType, string $objectId)
     {
-        $hash = hash('sha512', implode('', [
-            uniqid(mt_rand(), true),
-            microtime(true),
-            bin2hex(openssl_random_pseudo_bytes(100)),
-            $objectType,
-            $objectId,
-        ]));
-
-        $length = $this->getCodeLength();
-
-        return strtoupper(substr($hash,  mt_rand(0, strlen($hash) - $length - 1), $length));
+        return $this->codeGenerator->generate($objectType, $objectId, $this->getCodeLength());
     }
 
     /**

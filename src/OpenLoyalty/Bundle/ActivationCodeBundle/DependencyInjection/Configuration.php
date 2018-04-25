@@ -31,6 +31,13 @@ class Configuration implements ConfigurationInterface
                     DummySmsApi::GATEWAY_CODE,
                 ]
             )->end();
+        $rootNode->children()
+            ->enumNode('code_type')->values(
+                [
+                    'alphanum',
+                    'num',
+                ]
+            )->defaultValue('num')->end();
 
         return $treeBuilder;
     }

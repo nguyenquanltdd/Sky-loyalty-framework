@@ -41,3 +41,4 @@ monolog:
 
 open_loyalty_activation_code:
   sms_gateway: dummy
+  code_type: num

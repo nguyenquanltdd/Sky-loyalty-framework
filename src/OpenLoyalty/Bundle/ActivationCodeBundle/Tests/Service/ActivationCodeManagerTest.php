@@ -1,9 +1,10 @@
 <?php
 
-namespace OpenLoyalty\Bundle\ActivationCodeBundle\Test\Service;
+namespace OpenLoyalty\Bundle\ActivationCodeBundle\Tests\Service;
 
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use Doctrine\ORM\EntityManager;
+use OpenLoyalty\Bundle\ActivationCodeBundle\Generator\CodeGenerator;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActivationCodeManager;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Service\SmsSender;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
@@ -43,6 +44,11 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
     protected $translator;
 
     /**
+     * @var CodeGenerator|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected $codeGenerator;
+
+    /**
      * {@inheritdoc}
      */
     public function setUp()
@@ -67,6 +73,8 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
 
         $this->translator = $this->getMockBuilder(TranslatorInterface::class)->getMock();
         $this->translator->method('trans')->willReturn('content');
+
+        $this->codeGenerator = $this->getMockBuilder(CodeGenerator::class)->getMock();
     }
 
     /**
@@ -123,10 +131,13 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
             ->method('findOneBy')
             ->willReturn(null);
 
+        $this->codeGenerator->method('generate')->willReturn('1234567');
+
         $activationCode = $this->getActivationCodeManager(
             $this->uuidGenerator,
             $this->smsSender,
-            $this->em
+            $this->em,
+            $this->codeGenerator
         )->newCode($objectType, $objectId);
 
         $this->assertInstanceOf(ActivationCode::class, $activationCode);
@@ -134,6 +145,7 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($objectId, $activationCode->getObjectId());
         $this->assertEquals($objectId, $activationCode->getObjectId());
         $this->assertNotEmpty($activationCode->getCode());
+        $this->assertEquals('1234567', $activationCode->getCode());
     }
 
     /**
@@ -156,10 +168,13 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
         string $code,
         string $phone
     ) {
+        $this->codeGenerator->method('generate')->willReturn($code);
+
         $activationCodeManager = $this->getActivationCodeManager(
             $this->uuidGenerator,
             $this->smsSender,
-            $this->em
+            $this->em,
+            $this->codeGenerator
         );
 
         $activationCode = $this->getActivationCodeMock(
@@ -218,12 +233,13 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
      * @param UuidGeneratorInterface $uuidGenerator
      * @param SmsSender              $smsSender
      * @param EntityManager          $em
+     * @param CodeGenerator          $codeGenerator
      *
      * @return ActivationCodeManager
      */
-    protected function getActivationCodeManager(UuidGeneratorInterface $uuidGenerator, SmsSender $smsSender, EntityManager $em)
+    protected function getActivationCodeManager(UuidGeneratorInterface $uuidGenerator, SmsSender $smsSender, EntityManager $em, CodeGenerator $codeGenerator)
     {
-        $manager = new ActivationCodeManager($uuidGenerator, $em, $this->translator, 'OpenLoyalty');
+        $manager = new ActivationCodeManager($uuidGenerator, $em, $this->translator, $codeGenerator, 'OpenLoyalty');
         $manager->setSmsSender($smsSender);
 
         return $manager;

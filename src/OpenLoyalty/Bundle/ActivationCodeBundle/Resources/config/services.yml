@@ -1,7 +1,12 @@
 services:
   oloy.activation_code_manager:
     class: OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActivationCodeManager
-    arguments: ['@broadway.uuid.generator', '@doctrine.orm.entity_manager', '@translator', '%loyalty_program_name%']
+    arguments:
+      - '@broadway.uuid.generator'
+      - '@doctrine.orm.entity_manager'
+      - '@translator'
+      - '@oloy.activation_code.num'
+      - '%loyalty_program_name%'
   oloy.action_token_manager:
     class: OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActionTokenManager
     arguments:
@@ -22,3 +27,9 @@ services:
   oloy.activation_method.sms:
     class: OpenLoyalty\Bundle\ActivationCodeBundle\Method\SmsActivationMethod
     arguments: ['@oloy.activation_code_manager']
+  oloy.activation_code.alpha_num:
+    class: OpenLoyalty\Bundle\ActivationCodeBundle\Generator\AlphaNumericCodeGenerator
+  oloy.activation_code.num:
+    class: OpenLoyalty\Bundle\ActivationCodeBundle\Generator\NumericCodeGenerator
+    arguments:
+      - '@oloy.activation_code.alpha_num'
