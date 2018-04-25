@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Bundle\ActivationCodeBundle\Method;
 
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
+use OpenLoyalty\Bundle\UserBundle\Entity\User;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 
 /**
@@ -34,10 +35,10 @@ interface ActivationMethod
     public function sendTemporaryPassword(CustomerDetails $customer, string $password);
 
     /**
-     * @param Customer    $customer
+     * @param User        $customer
      * @param string|null $token
      *
      * @return bool
      */
-    public function sendPasswordReset(Customer $customer, string $token = null);
+    public function sendPasswordReset(User $customer, string $token = null);
 }

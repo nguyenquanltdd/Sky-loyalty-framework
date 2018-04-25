@@ -71,7 +71,11 @@ class ResetPasswordController extends FOSRestController
             $token = $user->getConfirmationToken();
         }
 
-        $this->get('oloy.action_token_manager')->sendPasswordReset($user, $token);
+        if ($user instanceof Customer) {
+            $this->get('oloy.action_token_manager')->sendPasswordReset($user, $token);
+        } else {
+            $this->get('oloy.activation_method.email')->sendPasswordReset($user, $token);
+        }
         $userManager->updateUser($user);
 
         return $this->view(['success' => true]);

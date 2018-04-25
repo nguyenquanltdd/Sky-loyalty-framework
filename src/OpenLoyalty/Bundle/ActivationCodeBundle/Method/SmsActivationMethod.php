@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\ActivationCodeBundle\Method;
 
 use OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActivationCodeManager;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
+use OpenLoyalty\Bundle\UserBundle\Entity\User;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 
 /**
@@ -59,7 +60,7 @@ class SmsActivationMethod implements ActivationMethod
     /**
      * {@inheritdoc}
      */
-    public function sendPasswordReset(Customer $customer, string $token = null)
+    public function sendPasswordReset(User $customer, string $token = null)
     {
         return $this->activationCodeManager->sendResetCode(
             $this->activationCodeManager->newCode(get_class($customer), $customer->getId()),

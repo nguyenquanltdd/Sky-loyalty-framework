@@ -97,7 +97,7 @@ class CustomerRegistrationFormType extends AbstractType
                     new Email(),
                 ],
             ]);
-            $builder->add('phone', EmailType::class, [
+            $builder->add('phone', TextType::class, [
                 'label' => 'Phone',
                 'required' => false,
                 'constraints' => [

@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Bundle\ActivationCodeBundle\Method;
 
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
+use OpenLoyalty\Bundle\UserBundle\Entity\User;
 use OpenLoyalty\Bundle\UserBundle\Service\EmailProvider;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 
@@ -86,7 +87,7 @@ class EmailActivationMethod implements ActivationMethod
     /**
      * {@inheritdoc}
      */
-    public function sendPasswordReset(Customer $customer, string $token = null)
+    public function sendPasswordReset(User $customer, string $token = null)
     {
         if (!$customer->getEmail()) {
             return false;
