@@ -18,6 +18,11 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
 {
     private $repository;
 
+    private $customer;
+
+    /**
+     * {@inheritdoc}
+     */
     protected function createProjector(InMemoryRepository $repository): Projector
     {
         $this->repository = $repository;
@@ -25,31 +30,38 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
         $campaignRepository->method('byId')->willReturn(
             new Campaign(new CampaignId('11111111-0000-0000-0000-000000000000'), ['reward' => 'Reward'])
         );
-        $customer = $this->getMockBuilder(Customer::class)->getMock();
-        $customer->method('getEmail')->willReturn('customerEmail');
-        $customer->method('getPhone')->willReturn('customerPhone');
+        $this->customer = $this->getMockBuilder(Customer::class)->getMock();
         $customerRepository = $this->getMockBuilder(CustomerDetailsRepository::class)->getMock();
-        $customerRepository->method('find')->willReturn($customer);
+        $customerRepository->method('find')->willReturn($this->customer);
 
         return new CampaignBoughtProjector($repository, $campaignRepository, $customerRepository);
     }
 
     /**
      * @test
+     *
+     * @dataProvider getDataProvider
+     *
+     * @param string|null $customerEmail
+     * @param string|null $customerPhone
      */
-    public function it_creates_a_read_model_when_campaign_was_bought_by_custome()
+    public function it_creates_a_read_model_when_campaign_was_bought_by_customer($customerEmail, $customerPhone)
     {
         $customerId = new \OpenLoyalty\Component\Customer\Domain\CustomerId('00000000-0000-0000-0000-000000000000');
         $campaignId = new \OpenLoyalty\Component\Customer\Domain\CampaignId('11111111-0000-0000-0000-000000000000');
         $coupon = new \OpenLoyalty\Component\Customer\Domain\Model\Coupon('testCoupon');
+
+        $this->customer->method('getEmail')->willReturn($customerEmail);
+        $this->customer->method('getPhone')->willReturn($customerPhone);
+
         $expectedData = [
             'customerId' => $customerId->__toString(),
             'campaignId' => $campaignId->__toString(),
             'coupon' => $coupon->getCode(),
             'campaignType' => 'Reward',
             'campaignName' => 'campaignName',
-            'customerEmail' => 'customerEmail',
-            'customerPhone' => 'customerPhone',
+            'customerEmail' => $customerEmail,
+            'customerPhone' => $customerPhone,
             'used' => false,
         ];
         $this->scenario->given(array())
@@ -76,6 +88,10 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
         $customerId = new \OpenLoyalty\Component\Customer\Domain\CustomerId('00000000-0000-0000-0000-000000000000');
         $campaignId = new \OpenLoyalty\Component\Customer\Domain\CampaignId('11111111-0000-0000-0000-000000000000');
         $coupon = new \OpenLoyalty\Component\Customer\Domain\Model\Coupon('testCoupon');
+
+        $this->customer->method('getEmail')->willReturn('customerEmail');
+        $this->customer->method('getPhone')->willReturn('customerPhone');
+
         $expectedData = [
             'customerId' => $customerId->__toString(),
             'campaignId' => $campaignId->__toString(),
@@ -102,5 +118,21 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
         unset($result['purchasedAt']);
 
         $this->assertEquals($expectedData, $result);
+    }
+
+    /**
+     * Data provider for a customer.
+     *
+     * @return array
+     */
+    public function getDataProvider()
+    {
+        return [
+            ['customerEmail', 'customerPhone'],
+            [null, 'customerPhone'],
+            ['customerEmail', null],
+            ['customerEmail', ''],
+            ['', 'customerPhone'],
+        ];
     }
 }

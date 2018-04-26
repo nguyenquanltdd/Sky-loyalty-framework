@@ -61,7 +61,17 @@ class CampaignBought implements SerializableReadModel
     private $used;
 
     /**
-     * CampaignUsage constructor.
+     * CampaignBought constructor.
+     *
+     * @param CampaignId  $campaignId
+     * @param CustomerId  $customerId
+     * @param \DateTime   $purchasedAt
+     * @param Coupon      $coupon
+     * @param string      $campaignType
+     * @param string      $campaignName
+     * @param string|null $customerEmail
+     * @param string|null $customerPhone
+     * @param bool        $used
      */
     public function __construct(
         CampaignId $campaignId,
@@ -70,8 +80,8 @@ class CampaignBought implements SerializableReadModel
         Coupon $coupon,
         string $campaignType,
         string $campaignName,
-        string $customerEmail,
-        string $customerPhone,
+        $customerEmail,
+        $customerPhone,
         bool $used = false
     ) {
         $this->campaignId = $campaignId;

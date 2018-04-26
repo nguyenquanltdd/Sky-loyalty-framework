@@ -87,8 +87,8 @@ class CampaignBoughtProjector extends Projector
         Coupon $coupon,
         string $couponType,
         string $campaignName,
-        string $customerEmail,
-        string $customerPhone
+        $customerEmail,
+        $customerPhone
     ) {
         $readModel = new CampaignBought(
             $campaignId,
