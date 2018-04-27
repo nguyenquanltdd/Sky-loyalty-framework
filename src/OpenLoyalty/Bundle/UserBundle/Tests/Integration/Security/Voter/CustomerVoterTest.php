@@ -1,8 +1,8 @@
 <?php
 
-namespace OpenLoyalty\Bundle\UserBundle\Tests\Security\Voter;
+namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Security\Voter;
 
-use OpenLoyalty\Bundle\CoreBundle\Tests\BaseVoterTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
 use OpenLoyalty\Bundle\UserBundle\Security\Voter\CustomerVoter;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;

@@ -1,8 +1,8 @@
 <?php
 
-namespace OpenLoyalty\Bundle\UserBundle\Tests\Controller\Api;
+namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Controller\Api;
 
-use OpenLoyalty\Bundle\CoreBundle\Tests\BaseApiTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 
 /**
  * Class ChangePasswordControllerTest.

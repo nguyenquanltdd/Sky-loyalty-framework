@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\ActivationCodeBundle\Tests\Service;
+namespace OpenLoyalty\Bundle\ActivationCodeBundle\Tests\Unit\Service;
 
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use Doctrine\ORM\EntityManager;
@@ -135,9 +135,9 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
 
         $activationCode = $this->getActivationCodeManager(
             $this->uuidGenerator,
-            $this->smsSender,
             $this->em,
-            $this->codeGenerator
+            $this->codeGenerator,
+            $this->smsSender
         )->newCode($objectType, $objectId);
 
         $this->assertInstanceOf(ActivationCode::class, $activationCode);
@@ -172,9 +172,9 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
 
         $activationCodeManager = $this->getActivationCodeManager(
             $this->uuidGenerator,
-            $this->smsSender,
             $this->em,
-            $this->codeGenerator
+            $this->codeGenerator,
+            $this->smsSender
         );
 
         $activationCode = $this->getActivationCodeMock(
@@ -188,6 +188,67 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
         $this->smsSender->expects($this->once())->method('send');
 
         $activationCodeManager->sendCode($activationCode, $phone);
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_exception_if_no_sms_sender()
+    {
+        $this->codeGenerator->method('generate')->willReturn('1234');
+
+        $activationCodeManager = $this->getActivationCodeManager(
+            $this->uuidGenerator,
+            $this->em,
+            $this->codeGenerator
+        );
+
+        $activationCode = $this->getActivationCodeMock(
+            new ActivationCodeId('542ecfc0-1543-11e8-b642-0ed5f89f718b'),
+            'test',
+            'test',
+            '1234'
+        );
+
+        $this->repository
+            ->method('countByObjectTypeAndObjectId')
+            ->willReturn(1);
+
+        $this->expectException(\RuntimeException::class);
+        $activationCodeManager->sendCode($activationCode, '123456000');
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_false_if_no_sms_sender_set_when_checking_settings()
+    {
+        $activationCodeManager = $this->getActivationCodeManager(
+            $this->uuidGenerator,
+            $this->em,
+            $this->codeGenerator
+        );
+
+        $result = $activationCodeManager->hasNeededSettings();
+        $this->assertFalse($result);
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_true_if_sms_sender_is_set_while_checking_settings()
+    {
+        $this->smsSender->expects($this->once())->method('hasNeededSettings')->willReturn(true);
+
+        $activationCodeManager = $this->getActivationCodeManager(
+            $this->uuidGenerator,
+            $this->em,
+            $this->codeGenerator,
+            $this->smsSender
+        );
+
+        $result = $activationCodeManager->hasNeededSettings();
+        $this->assertTrue($result);
     }
 
     /**
@@ -231,16 +292,19 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @param UuidGeneratorInterface $uuidGenerator
-     * @param SmsSender              $smsSender
      * @param EntityManager          $em
      * @param CodeGenerator          $codeGenerator
+     * @param SmsSender|null         $smsSender
      *
      * @return ActivationCodeManager
      */
-    protected function getActivationCodeManager(UuidGeneratorInterface $uuidGenerator, SmsSender $smsSender, EntityManager $em, CodeGenerator $codeGenerator)
+    protected function getActivationCodeManager(UuidGeneratorInterface $uuidGenerator, EntityManager $em, CodeGenerator $codeGenerator, SmsSender $smsSender = null)
     {
         $manager = new ActivationCodeManager($uuidGenerator, $em, $this->translator, $codeGenerator, 'OpenLoyalty');
-        $manager->setSmsSender($smsSender);
+
+        if (null !== $smsSender) {
+            $manager->setSmsSender($smsSender);
+        }
 
         return $manager;
     }

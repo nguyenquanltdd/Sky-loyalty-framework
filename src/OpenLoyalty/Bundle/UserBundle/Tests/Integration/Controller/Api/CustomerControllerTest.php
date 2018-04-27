@@ -1,8 +1,8 @@
 <?php
 
-namespace OpenLoyalty\Bundle\UserBundle\Tests\Controller\Api;
+namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Controller\Api;
 
-use OpenLoyalty\Bundle\CoreBundle\Tests\BaseApiTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Component\Customer\Tests\Domain\Command\CustomerCommandHandlerTest;

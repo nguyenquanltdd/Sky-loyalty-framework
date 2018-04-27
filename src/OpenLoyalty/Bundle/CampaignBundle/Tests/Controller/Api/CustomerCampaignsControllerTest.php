@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Controller\Api;
 
-use OpenLoyalty\Bundle\CoreBundle\Tests\BaseApiTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\CampaignBundle\DataFixtures\ORM\LoadCampaignData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Component\Account\Domain\CustomerId;

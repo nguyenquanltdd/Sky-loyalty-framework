@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\UserBundle\Tests\Service;
+namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Service;
 
 use OpenLoyalty\Bundle\EmailBundle\Model\MessageInterface;
 use OpenLoyalty\Bundle\EmailBundle\Service\MessageFactoryInterface;

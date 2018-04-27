@@ -3,7 +3,7 @@
 namespace OpenLoyalty\Bundle\SegmentBundle\Tests\Controller\Api;
 
 use Doctrine\Common\Collections\Collection;
-use OpenLoyalty\Bundle\CoreBundle\Tests\BaseApiTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
 use OpenLoyalty\Bundle\SegmentBundle\DataFixtures\ORM\LoadSegmentData;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\Anniversary;

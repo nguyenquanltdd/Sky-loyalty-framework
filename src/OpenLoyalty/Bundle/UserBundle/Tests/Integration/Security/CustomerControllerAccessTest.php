@@ -1,8 +1,8 @@
 <?php
 
-namespace OpenLoyalty\Bundle\UserBundle\Tests\Security;
+namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Security;
 
-use OpenLoyalty\Bundle\CoreBundle\Tests\BaseAccessControlTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseAccessControlTest;
 
 /**
  * Class CustomerControllerAccessTest.

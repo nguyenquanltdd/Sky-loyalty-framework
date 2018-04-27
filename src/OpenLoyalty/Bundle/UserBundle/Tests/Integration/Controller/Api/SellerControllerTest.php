@@ -1,9 +1,9 @@
 <?php
 
-namespace OpenLoyalty\Bundle\UserBundle\Tests\Controller\Api;
+namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Controller\Api;
 
 use Broadway\ReadModel\Repository;
-use OpenLoyalty\Bundle\CoreBundle\Tests\BaseApiTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetails;

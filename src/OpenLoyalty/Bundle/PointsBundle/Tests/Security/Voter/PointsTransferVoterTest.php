@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\PointsBundle\Tests\Security\Voter;
 
-use OpenLoyalty\Bundle\CoreBundle\Tests\BaseVoterTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
 use OpenLoyalty\Bundle\PointsBundle\Security\Voter\PointsTransferVoter;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;

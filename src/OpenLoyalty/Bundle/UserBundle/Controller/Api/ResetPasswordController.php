@@ -16,6 +16,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 
 /**
  * Class ResetPasswordController.
@@ -54,8 +55,12 @@ class ResetPasswordController extends FOSRestController
         } else {
             $provider = $this->get('oloy.user.all_users_provider');
         }
-        /** @var $user User */
-        $user = $provider->loadUserByUsername($username);
+        /* @var $user User */
+        try {
+            $user = $provider->loadUserByUsername($username);
+        } catch (UsernameNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage());
+        }
 
         if (null === $user) {
             return $this->view(['success' => true]);
@@ -71,11 +76,12 @@ class ResetPasswordController extends FOSRestController
             $token = $user->getConfirmationToken();
         }
 
-        if ($user instanceof Customer) {
+        if ($user instanceof Customer && !empty($user->getPhone())) {
             $this->get('oloy.action_token_manager')->sendPasswordReset($user, $token);
         } else {
             $this->get('oloy.activation_method.email')->sendPasswordReset($user, $token);
         }
+
         $userManager->updateUser($user);
 
         return $this->view(['success' => true]);

@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\PosBundle\Tests\Security\Voter;
 
-use OpenLoyalty\Bundle\CoreBundle\Tests\BaseVoterTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
 use OpenLoyalty\Bundle\PosBundle\Security\Voter\PosVoter;
 use OpenLoyalty\Component\Pos\Domain\Pos;
 use OpenLoyalty\Component\Pos\Domain\PosId;

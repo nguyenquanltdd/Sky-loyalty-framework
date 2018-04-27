@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\UserBundle\Tests;
+namespace OpenLoyalty\Bundle\CoreBundle\Tests\Integration;
 
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;

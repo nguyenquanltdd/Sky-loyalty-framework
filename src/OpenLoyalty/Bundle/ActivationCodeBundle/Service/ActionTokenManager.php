@@ -149,6 +149,9 @@ class ActionTokenManager
         }
     }
 
+    /**
+     * @return ActivationMethod|null
+     */
     private function getMethod()
     {
         $current = $this->getCurrentMethod();

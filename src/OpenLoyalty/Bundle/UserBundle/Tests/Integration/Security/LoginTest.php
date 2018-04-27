@@ -1,8 +1,8 @@
 <?php
 
-namespace OpenLoyalty\Bundle\UserBundle\Tests\Security;
+namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Security;
 
-use OpenLoyalty\Bundle\CoreBundle\Tests\BaseApiTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 
 /**

@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\PointsBundle\Tests\Security;
 
-use OpenLoyalty\Bundle\CoreBundle\Tests\BaseAccessControlTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseAccessControlTest;
 
 /**
  * Class CustomerPointsTransferControllerAccessTest.

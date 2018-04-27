@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Security;
 
-use OpenLoyalty\Bundle\CoreBundle\Tests\BaseAccessControlTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseAccessControlTest;
 use OpenLoyalty\Bundle\CampaignBundle\DataFixtures\ORM\LoadCampaignData;
 use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;

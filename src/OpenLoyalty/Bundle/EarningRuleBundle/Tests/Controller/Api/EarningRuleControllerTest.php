@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Controller\Api;
 
-use OpenLoyalty\Bundle\CoreBundle\Tests\BaseApiTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\EarningRuleBundle\DataFixtures\ORM\LoadEarningRuleData;
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleId;

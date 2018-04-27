@@ -31,13 +31,25 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class LoadUserData extends AbstractFixture implements FixtureInterface, ContainerAwareInterface, OrderedFixtureInterface
 {
+    const ADMIN_ID = '22200000-0000-474c-b092-b0dd880c07e2';
     const ADMIN_USERNAME = 'admin';
     const ADMIN_PASSWORD = 'open';
+
+    const USER_USER_ID = '00000000-0000-474c-b092-b0dd880c07e1';
     const USER_USERNAME = 'user@oloy.com';
     const USER_PASSWORD = 'loyalty';
-    const ADMIN_ID = '22200000-0000-474c-b092-b0dd880c07e2';
+    const USER_PHONE_NUMBER = '+48234234000';
+
+    const USER1_USER_ID = '11111111-0000-474c-b092-b0dd880c07e1';
+    const USER1_USERNAME = 'user-1@oloy.com';
+    const USER1_PASSWORD = 'loyalty';
+    const USER1_PHONE_NUMBER = '+48456456000';
+
     const TEST_USER_ID = '00000000-0000-474c-b092-b0dd880c07e2';
-    const USER_USER_ID = '00000000-0000-474c-b092-b0dd880c07e1';
+    const TEST_USERNAME = 'user-temp@oloy.com';
+    const TEST_PASSWORD = 'loyalty';
+    const TEST_USER_PHONE_NUMBER = '+48345345000';
+
     const TEST_SELLER_ID = '00000000-0000-474c-b092-b0dd880c07e4';
     const TEST_SELLER2_ID = '00000000-0000-474c-b092-b0dd880c07e5';
 
@@ -46,6 +58,9 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
      */
     private $container;
 
+    /**
+     * {@inheritdoc}
+     */
     public function setContainer(ContainerInterface $container = null)
     {
         $this->container = $container;
@@ -126,10 +141,11 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
     {
         $bus = $this->container->get('broadway.command_handling.command_bus');
 
+        // USER
         $customerId = new CustomerId(static::USER_USER_ID);
         $command = new RegisterCustomer(
             $customerId,
-            $this->getDefaultCustomerData('John', 'Doe', $this::USER_USERNAME, '+48234234000')
+            $this->getDefaultCustomerData('John', 'Doe', $this::USER_USERNAME, $this::USER_PHONE_NUMBER)
         );
 
         $bus->dispatch($command);
@@ -147,12 +163,38 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
         $user->setIsActive(true);
         $user->setStatus(Status::typeActiveNoCard());
 
-        $user->setEmail('user@oloy.com');
+        $user->setEmail($this::USER_USERNAME);
         $manager->persist($user);
         $this->addReference('user-1', $user);
 
+        // USER1
+        $customerId = new CustomerId(static::USER1_USER_ID);
+        $command = new RegisterCustomer(
+            $customerId,
+            $this->getDefaultCustomerData('John1', 'Doe1', $this::USER1_USERNAME, $this::USER1_PHONE_NUMBER)
+        );
+
+        $bus->dispatch($command);
+        $bus->dispatch(new ActivateCustomer($customerId));
+
+        $user = new Customer($customerId);
+        $user->setPlainPassword($this::USER1_PASSWORD);
+        $user->setPhone($command->getCustomerData()['phone']);
+
+        $password = $this->container->get('security.password_encoder')
+                                    ->encodePassword($user, $user->getPlainPassword());
+
+        $user->addRole($this->getReference('role_participant'));
+        $user->setPassword($password);
+        $user->setIsActive(true);
+        $user->setStatus(Status::typeActiveNoCard());
+
+        $user->setEmail($this::USER1_USERNAME);
+        $manager->persist($user);
+
+        // USER_TEST
         $customerId = new CustomerId(self::TEST_USER_ID);
-        $command = new RegisterCustomer($customerId, $this->getDefaultCustomerData('Jane', 'Doe', 'user-temp@oloy.com', '+48345345000'));
+        $command = new RegisterCustomer($customerId, $this->getDefaultCustomerData('Jane', 'Doe', $this::TEST_USERNAME, $this::TEST_USER_PHONE_NUMBER));
         $bus->dispatch($command);
         $bus->dispatch(new UpdateCustomerAddress($customerId, [
             'street' => 'Bagno',
@@ -167,7 +209,7 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
         $bus->dispatch(new ActivateCustomer($customerId));
 
         $user = new Customer($customerId);
-        $user->setPlainPassword($this::USER_PASSWORD);
+        $user->setPlainPassword($this::TEST_PASSWORD);
 
         $password = $this->container->get('security.password_encoder')
             ->encodePassword($user, $user->getPlainPassword());

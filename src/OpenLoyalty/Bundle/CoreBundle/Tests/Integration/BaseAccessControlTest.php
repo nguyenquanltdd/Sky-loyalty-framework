@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\CoreBundle\Tests;
+namespace OpenLoyalty\Bundle\CoreBundle\Tests\Integration;
 
 use Symfony\Component\HttpKernel\Client;
 

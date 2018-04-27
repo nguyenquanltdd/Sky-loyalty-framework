@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\UserBundle\Tests\Controller;
+namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Controller;
 
 use OpenLoyalty\Component\Customer\Domain\Customer;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;

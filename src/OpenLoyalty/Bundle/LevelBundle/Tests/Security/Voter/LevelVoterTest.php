@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\LevelBundle\Tests\Security\Voter;
 
-use OpenLoyalty\Bundle\CoreBundle\Tests\BaseVoterTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
 use OpenLoyalty\Bundle\LevelBundle\Security\Voter\LevelVoter;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelId;

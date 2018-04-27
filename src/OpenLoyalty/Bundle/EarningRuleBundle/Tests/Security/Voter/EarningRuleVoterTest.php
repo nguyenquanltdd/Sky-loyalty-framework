@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Security\Voter;
 
-use OpenLoyalty\Bundle\CoreBundle\Tests\BaseVoterTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
 use OpenLoyalty\Bundle\EarningRuleBundle\Security\Voter\EarningRuleVoter;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleId;

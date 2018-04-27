@@ -3,7 +3,7 @@
 namespace OpenLoyalty\Bundle\AnalyticsBundle\Tests\Security\Voter;
 
 use OpenLoyalty\Bundle\AnalyticsBundle\Security\Voter\AnalyticsVoter;
-use OpenLoyalty\Bundle\CoreBundle\Tests\BaseVoterTest;
+use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
 
 /**
  * Class AnalyticsVoterTest.

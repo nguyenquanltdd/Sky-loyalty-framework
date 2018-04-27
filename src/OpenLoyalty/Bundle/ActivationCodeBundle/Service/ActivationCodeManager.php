@@ -311,6 +311,10 @@ class ActivationCodeManager
      */
     public function hasNeededSettings()
     {
+        if (null === $this->smsSender) {
+            return false;
+        }
+
         return $this->smsSender->hasNeededSettings();
     }
 
