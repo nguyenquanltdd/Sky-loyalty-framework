@@ -58,6 +58,12 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
       column: limit_per_user
     coupons:
       type: campaign_coupons_json_array
+    rewardValue:
+      type: decimal
+      scale: 2
+      precision: 14
+      nullable: true
+      column: reward_value
   embedded:
     campaignActivity:
       class: OpenLoyalty\Component\Campaign\Domain\Model\CampaignActivity

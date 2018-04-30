@@ -163,6 +163,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility = new CampaignVisibility();
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
+        $campaign->setRewardValue(1950.50);
 
         return $campaign;
     }
@@ -209,6 +210,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility = new CampaignVisibility();
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
+        $campaign->setRewardValue(100);
 
         return $campaign;
     }
@@ -255,6 +257,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility = new CampaignVisibility();
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
+        $campaign->setRewardValue(100);
 
         return $campaign;
     }
@@ -296,6 +299,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility = new CampaignVisibility();
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
+        $campaign->setRewardValue(100);
 
         return $campaign;
     }
@@ -337,6 +341,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility = new CampaignVisibility();
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
+        $campaign->setRewardValue(100);
 
         return $campaign;
     }
@@ -378,6 +383,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility = new CampaignVisibility();
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
+        $campaign->setRewardValue(200.95);
 
         return $campaign;
     }
@@ -409,6 +415,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility = new CampaignVisibility();
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
+        $campaign->setRewardValue(199.95);
 
         return $campaign;
     }
@@ -447,6 +454,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility = new CampaignVisibility();
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
+        $campaign->setRewardValue(100);
 
         return $campaign;
     }
@@ -481,6 +489,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility = new CampaignVisibility();
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
+        $campaign->setRewardValue(9.95);
 
         return $campaign;
     }
@@ -524,6 +533,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility = new CampaignVisibility();
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
+        $campaign->setRewardValue(99.99);
 
         return $campaign;
     }
@@ -558,6 +568,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility = new CampaignVisibility();
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
+        $campaign->setRewardValue(100.99);
 
         return $campaign;
     }
@@ -604,6 +615,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility = new CampaignVisibility();
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
+        $campaign->setRewardValue(100);
 
         return $campaign;
     }

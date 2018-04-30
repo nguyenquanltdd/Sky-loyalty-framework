@@ -117,6 +117,11 @@ class Campaign
      */
     protected $campaignPhoto;
 
+    /**
+     * @var float
+     */
+    protected $rewardValue;
+
     public function __construct(CampaignId $campaignId, array $data = [])
     {
         $this->campaignId = $campaignId;
@@ -198,6 +203,10 @@ class Campaign
 
         if (isset($data['usageInstruction'])) {
             $this->setUsageInstruction($data['usageInstruction']);
+        }
+
+        if (isset($data['rewardValue'])) {
+            $this->setRewardValue($data['rewardValue']);
         }
     }
 
@@ -567,5 +576,21 @@ class Campaign
     public function hasCampaignPhoto(): bool
     {
         return $this->campaignPhoto instanceof CampaignPhoto && $this->campaignPhoto->getPath();
+    }
+
+    /**
+     * @param float $rewardValue
+     */
+    public function setRewardValue($rewardValue)
+    {
+        $this->rewardValue = round((float) $rewardValue, 2);
+    }
+
+    /**
+     * @return float
+     */
+    public function getRewardValue(): float
+    {
+        return (float) $this->rewardValue;
     }
 }

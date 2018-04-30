@@ -891,6 +891,8 @@
     "active": "Active",
     "inactive": "Inactive",
     "cost_in_points": "Cost in points",
+    "reward_value": "Reward value",
+    "reward_value_prompt": "Value of reward",
     "limit": "Limit",
     "discount_code": "Discount code",
     "value_code": "Value code",

@@ -1,12 +1,13 @@
 <?php
 
-namespace OpenLoyalty\Component\Campaign\Tests\Domain\Command;
+namespace OpenLoyalty\Component\Campaign\Tests\Integration\Domain\Command;
 
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\Command\CreateCampaign;
 use OpenLoyalty\Component\Campaign\Domain\LevelId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
+use OpenLoyalty\Component\Campaign\Tests\Domain\Command\CampaignCommandHandlerTest;
 
 /**
  * Class CreateCampaignTest.

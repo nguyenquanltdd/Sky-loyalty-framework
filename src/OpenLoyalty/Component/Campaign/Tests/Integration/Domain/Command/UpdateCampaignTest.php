@@ -1,12 +1,13 @@
 <?php
 
-namespace OpenLoyalty\Component\Campaign\Tests\Domain\Command;
+namespace OpenLoyalty\Component\Campaign\Tests\Integration\Domain\Command;
 
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\Command\UpdateCampaign;
 use OpenLoyalty\Component\Campaign\Domain\LevelId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
+use OpenLoyalty\Component\Campaign\Tests\Domain\Command\CampaignCommandHandlerTest;
 
 /**
  * Class UpdateCampaignTest.
@@ -45,6 +46,7 @@ class UpdateCampaignTest extends CampaignCommandHandlerTest
                 'visibleFrom' => new \DateTime('2016-02-01'),
                 'visibleTo' => new \DateTime('2016-02-11'),
             ],
+            'rewardValue' => 99.95,
 
         ]);
         $handler->handle($command);
@@ -52,5 +54,6 @@ class UpdateCampaignTest extends CampaignCommandHandlerTest
         $this->assertNotNull($campaign);
         $this->assertInstanceOf(Campaign::class, $campaign);
         $this->assertEquals('test', $campaign->getName());
+        $this->assertEquals(99.95, $campaign->getRewardValue());
     }
 }

@@ -42,6 +42,7 @@ class Campaign extends BaseCampaign
             'campaignActivity' => $this->campaignActivity->toArray(),
             'campaignVisibility' => $this->campaignVisibility->toArray(),
             'usageInstruction' => $this->usageInstruction,
+            'rewardValue' => $this->rewardValue,
         ];
     }
 
