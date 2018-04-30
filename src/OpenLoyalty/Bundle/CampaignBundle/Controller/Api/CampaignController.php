@@ -30,6 +30,7 @@ use OpenLoyalty\Component\Campaign\Domain\Command\UpdateCampaign;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\LevelId;
 use OpenLoyalty\Component\Campaign\Domain\SegmentId;
+use OpenLoyalty\Component\Customer\Domain\CampaignId as CustomerCampaignId;
 use OpenLoyalty\Component\Customer\Domain\Command\BuyCampaign;
 use OpenLoyalty\Component\Customer\Domain\Command\ChangeCampaignUsage;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
@@ -627,7 +628,7 @@ class CampaignController extends FOSRestController
         $bus->dispatch(
             new BuyCampaign(
                 $customer->getCustomerId(),
-                new \OpenLoyalty\Component\Customer\Domain\CampaignId($campaign->getCampaignId()->__toString()),
+                new CustomerCampaignId($campaign->getCampaignId()->__toString()),
                 $campaign->getName(),
                 $campaign->getCostInPoints(),
                 $coupon
@@ -762,7 +763,7 @@ class CampaignController extends FOSRestController
         $bus->dispatch(
             new ChangeCampaignUsage(
                 $customer->getCustomerId(),
-                new \OpenLoyalty\Component\Customer\Domain\CampaignId($campaign->getCampaignId()->__toString()),
+                new CustomerCampaignId($campaign->getCampaignId()->__toString()),
                 new Coupon($coupon),
                 $used
             )
