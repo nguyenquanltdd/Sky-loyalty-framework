@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Component\Level\Domain\Command;
 
 use Broadway\CommandHandling\SimpleCommandHandler;
+use Doctrine\ORM\OptimisticLockException;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
 use OpenLoyalty\Component\Level\Domain\Model\Reward;
@@ -141,6 +142,33 @@ class LevelCommandHandler extends SimpleCommandHandler
             $level->setSpecialRewards([]);
         }
 
+        $this->levelRepository->save($level);
+    }
+
+    /**
+     * @param SetLevelPhoto $command
+     *
+     * @throws OptimisticLockException
+     */
+    public function handleSetLevelPhoto(SetLevelPhoto $command)
+    {
+        /** @var Level $level */
+        $level = $this->levelRepository->byId($command->getLevelId());
+        $level->setPhoto($command->getLevelPhoto());
+
+        $this->levelRepository->save($level);
+    }
+
+    /**
+     * @param RemoveLevelPhoto $command
+     *
+     * @throws OptimisticLockException
+     */
+    public function handleRemoveLevelPhoto(RemoveLevelPhoto $command)
+    {
+        /** @var Level $level */
+        $level = $this->levelRepository->byId($command->getLevelId());
+        $level->removePhoto();
         $this->levelRepository->save($level);
     }
 }

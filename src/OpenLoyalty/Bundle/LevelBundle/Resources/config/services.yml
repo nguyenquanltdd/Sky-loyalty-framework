@@ -18,3 +18,20 @@ services:
     arguments: ['@oloy.level.repository']
     tags:
       - { name: request.param_converter, priority: 2, converter: level_converter }
+
+  oloy.level.photos_filesystem:
+    class:     Gaufrette\Filesystem
+    factory:   ['@knp_gaufrette.filesystem_map', get]
+    arguments: ['campaign_photos']
+
+  oloy.level.photo_uploader:
+    class: OpenLoyalty\Bundle\LevelBundle\Service\LevelPhotoUploader
+    arguments: ["@oloy.level.photos_filesystem"]
+
+  oloy.level.validator.image:
+    class: OpenLoyalty\Bundle\LevelBundle\Validator\Constraints\ImageValidator
+    arguments:
+      - '%oloy.level.photos_min_width%'
+      - '%oloy.level.photos_min_height%'
+    tags:
+      - { name: validator.constraint_validator }

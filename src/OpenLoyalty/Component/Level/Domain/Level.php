@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Component\Level\Domain;
 
+use OpenLoyalty\Component\Level\Domain\Model\LevelPhoto;
 use OpenLoyalty\Component\Level\Domain\Model\Reward;
 use Assert\Assertion as Assert;
 
@@ -57,6 +58,11 @@ class Level
      * @var float
      */
     protected $minOrder;
+
+    /**
+     * @var LevelPhoto
+     */
+    protected $photo;
 
     /**
      * Level constructor.
@@ -219,5 +225,29 @@ class Level
     public function setMinOrder($minOrder)
     {
         $this->minOrder = $minOrder;
+    }
+
+    /**
+     * @param LevelPhoto $levelPhoto
+     */
+    public function setPhoto(LevelPhoto $levelPhoto)
+    {
+        $this->photo = $levelPhoto;
+    }
+
+    /**
+     * @return LevelPhoto
+     */
+    public function getPhoto()
+    {
+        return $this->photo;
+    }
+
+    /**
+     * Removes photo.
+     */
+    public function removePhoto()
+    {
+        $this->photo = null;
     }
 }

@@ -7,18 +7,23 @@ namespace OpenLoyalty\Bundle\LevelBundle\Controller\Api;
 
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\LevelBundle\Form\Type\LevelFormType;
+use OpenLoyalty\Bundle\LevelBundle\Form\Type\LevelPhotoFormType;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomersBelongingToOneLevel;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomersBelongingToOneLevelRepository;
 use OpenLoyalty\Component\Level\Domain\Command\ActivateLevel;
 use OpenLoyalty\Component\Level\Domain\Command\CreateLevel;
 use OpenLoyalty\Component\Level\Domain\Command\DeactivateLevel;
+use OpenLoyalty\Component\Level\Domain\Command\RemoveLevelPhoto;
+use OpenLoyalty\Component\Level\Domain\Command\SetLevelPhoto;
 use OpenLoyalty\Component\Level\Domain\Command\UpdateLevel;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelId;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -281,5 +286,109 @@ class LevelController extends FOSRestController
         }
 
         return $this->view();
+    }
+
+    /**
+     * Add photo to level.
+     *
+     * @Route(name="oloy.level.add_photo", path="/level/{level}/photo")
+     * @Method("POST")
+     * @Security("is_granted('EDIT', level)")
+     * @ApiDoc(
+     *     name="Add photo to Level",
+     *     section="Level",
+     *     input={"class" = "OpenLoyalty\Bundle\LevelBundle\Form\Type\LevelPhotoFormType", "name" = "photo"}
+     * )
+     *
+     * @param Request $request
+     * @param Level   $level
+     *
+     * @return View
+     */
+    public function addPhotoAction(Request $request, Level $level)
+    {
+        $form = $this->get('form.factory')->createNamed('photo', LevelPhotoFormType::class);
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            /** @var UploadedFile $file */
+            $file = $form->getData()->getFile();
+            $uploader = $this->get('oloy.level.photo_uploader');
+            try {
+                $uploader->remove($level->getPhoto());
+                $photo = $uploader->upload($file);
+                $command = new SetLevelPhoto($level->getLevelId(), $photo);
+                $this->get('broadway.command_handling.command_bus')->dispatch($command);
+
+                return $this->view([], Response::HTTP_OK);
+            } catch (\Exception $ex) {
+                return $this->view(['error' => $ex->getMessage()], Response::HTTP_BAD_REQUEST);
+            }
+        }
+
+        return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * Get level photo.
+     *
+     * @Route(name="oloy.level.get_photo", path="/level/{level}/photo")
+     * @Method("GET")
+     * @ApiDoc(
+     *     name="Get level photo",
+     *     section="Level"
+     * )
+     *
+     * @param Level $level
+     *
+     * @return Response
+     */
+    public function getPhotoAction(Level $level)
+    {
+        $photo = $level->getPhoto();
+        if (!$photo) {
+            throw $this->createNotFoundException();
+        }
+        $content = $this->get('oloy.level.photo_uploader')->get($photo);
+        if (!$content) {
+            throw $this->createNotFoundException();
+        }
+
+        $response = new Response($content);
+        $response->headers->set('Content-Disposition', 'inline');
+        $response->headers->set('Content-Type', $photo->getMime());
+
+        return $response;
+    }
+
+    /**
+     * Remove photo from level.
+     *
+     * @Route(name="oloy.level.remove_photo", path="/level/{level}/photo")
+     * @Method("DELETE")
+     * @Security("is_granted('EDIT', level)")
+     * @ApiDoc(
+     *     name="Delete photo from Level",
+     *     section="Level"
+     * )
+     *
+     * @param Level $level
+     *
+     * @return View
+     */
+    public function removePhotoAction(Level $level)
+    {
+        $uploader = $this->get('oloy.level.photo_uploader');
+        $uploader->remove($level->getPhoto());
+
+        $command = new RemoveLevelPhoto($level->getLevelId());
+
+        try {
+            $this->get('broadway.command_handling.command_bus')->dispatch($command);
+
+            return $this->view([], Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return $this->view(['error' => $ex->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
     }
 }

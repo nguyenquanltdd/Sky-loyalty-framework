@@ -391,7 +391,8 @@
     "add_special_reward": "Add special reward",
     "users_in_level": "Customers in level",
     "assign_pos": "Assign POS",
-    "min_order": "Min order value"
+    "min_order": "Min order value",
+    "photo": "Level photo"
   },
   "earning_rule": {
     "reward": "Reward",
@@ -1143,10 +1144,16 @@
     },
     "post_single_level": {
       "success": "You successfully added level.",
-      "error": "An error occurred"
+      "error": "An error occurred",
+      "warning": "Level added without photo"
     },
     "put_single_level": {
       "success": "You successfully edited level.",
+      "error": "An error occurred",
+      "warning": "Level edited without photo"
+    },
+    "delete_level_image": {
+      "success": "Image deleted",
       "error": "An error occurred"
     },
     "get_segments": {

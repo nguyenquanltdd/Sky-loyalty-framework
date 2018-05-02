@@ -22,6 +22,22 @@ class OpenLoyaltyLevelExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container)
     {
+        $configuration = new Configuration();
+        $config = $this->processConfiguration($configuration, $configs);
+
+        $value = $config['photos_adapter_env'];
+        if (!$value || !getenv($value)) {
+            $value = $config['photos_adapter'];
+            if (!$value) {
+                throw new \LogicException('photos_adapter_env or photos_adapter must be configured');
+            }
+        } else {
+            $value = getenv($value);
+        }
+        $container->setParameter('oloy.level.photos_adapter', $value);
+        $container->setParameter('oloy.level.photos_min_width', $config['photos_min_width']);
+        $container->setParameter('oloy.level.photos_min_height', $config['photos_min_height']);
+
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('domain.yml');
         $loader->load('services.yml');

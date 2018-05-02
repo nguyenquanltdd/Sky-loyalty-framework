@@ -34,6 +34,8 @@ OpenLoyalty\Component\Level\Domain\Level:
   embedded:
     reward:
       class: OpenLoyalty\Component\Level\Domain\Model\Reward
+    photo:
+      class: OpenLoyalty\Component\Level\Domain\Model\LevelPhoto
   oneToMany:
     specialRewards:
       targetEntity: OpenLoyalty\Component\Level\Domain\SpecialReward

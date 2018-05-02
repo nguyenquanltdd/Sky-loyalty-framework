@@ -4,3 +4,5 @@ OpenLoyalty\Component\Level\Domain\Level:
     levelId:
       expose: true
       inline: true
+    photo:
+      exclude: true
