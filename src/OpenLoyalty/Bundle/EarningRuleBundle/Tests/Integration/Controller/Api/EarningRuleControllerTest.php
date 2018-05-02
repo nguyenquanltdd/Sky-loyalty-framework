@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Controller\Api;
+namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Integration\Controller\Api;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\BaseApiTest;
 use OpenLoyalty\Bundle\EarningRuleBundle\DataFixtures\ORM\LoadEarningRuleData;
@@ -10,6 +10,7 @@ use OpenLoyalty\Component\EarningRule\Domain\EarningRuleRepository;
 use OpenLoyalty\Component\EarningRule\Domain\EventEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\PointsEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\ProductPurchaseEarningRule;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * Class EarningRuleControllerTest.
@@ -174,6 +175,90 @@ class EarningRuleControllerTest extends BaseApiTest
         $rule = $this->repository->byId(new EarningRuleId($data['earningRuleId']));
         $this->assertInstanceOf(EventEarningRule::class, $rule);
         $this->assertEquals('test event - edited', $rule->getEventName());
+    }
+
+    /**
+     * @test
+     */
+    public function it_adds_new_photo_to_earning_rule()
+    {
+        $rules = $this->repository->findAllActive();
+        /** @var EarningRule $first */
+        $first = reset($rules);
+        $client = $this->createAuthenticatedClient();
+        $filesystem = static::$kernel->getContainer()->get('filesystem');
+        $filesystem->copy(__DIR__.'/../../../data/sample.png', __DIR__.'/../../../data/sample_test.png');
+        $uploadedFile = new UploadedFile(__DIR__.'/../../../data/sample_test.png', 'sample_test.png');
+
+        $client->request(
+            'POST',
+            '/api/earningRule/'.$first->getEarningRuleId().'/photo',
+            [],
+            [
+                'photo' => ['file' => $uploadedFile],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals('200', $response->getStatusCode());
+
+        $getClient = $this->createAuthenticatedClient();
+        $getClient->request(
+            'GET',
+            '/api/earningRule/'.$first->getEarningRuleId().'/photo'
+        );
+        $getResponse = $getClient->getResponse();
+        $this->assertEquals(200, $getResponse->getStatusCode());
+    }
+
+    public function it_removes_photo_from_earning_rule()
+    {
+        $rules = $this->repository->findAllActive();
+
+        if (!count($rules)) {
+            return;
+        }
+
+        /** @var EarningRule $first */
+        $first = reset($rules);
+
+        $client = $this->createAuthenticatedClient();
+        $filesystem = static::$kernel->getContainer()->get('filesystem');
+        $filesystem->copy(__DIR__.'/../../../data/sample.png', __DIR__.'/../../../data/sample_test.png');
+        $uploadedFile = new UploadedFile(__DIR__.'/../../../data/sample_test.png', 'sample_test.png');
+
+        $client->request(
+            'POST',
+            '/api/earningRule/'.$first->getEarningRuleId().'/photo',
+            [],
+            [
+                'photo' => ['file' => $uploadedFile],
+            ]
+        );
+
+        $client->request(
+            'GET',
+            '/api/earningRule/'.$first->getEarningRuleId().'/photo'
+        );
+        $getResponse = $client->getResponse();
+        $this->assertEquals(200, $getResponse->getStatusCode());
+
+        $client->request(
+            'DELETE',
+            '/api/earningRule/'.$first->getEarningRuleId().'/photo'
+        );
+
+        $deleteResponse = $client->getResponse();
+
+        $this->assertEquals(200, $deleteResponse->getStatusCode());
+
+        $client->request(
+            'GET',
+            '/api/earningRule/'.$first->getEarningRuleId().'/photo'
+        );
+        $checkResponse = $client->getResponse();
+        $this->assertEquals(404, $checkResponse->getStatusCode());
     }
 
     protected function getMainData($name = 'test')

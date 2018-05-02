@@ -9,9 +9,9 @@ use OpenLoyalty\Component\EarningRule\Domain\EarningRuleId;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleRepository;
 
 /**
- * Class EarningRuleCommandHandlerTest.
+ * Class EarningRuleCommandHandlerAbstract.
  */
-abstract class EarningRuleCommandHandlerTest extends \PHPUnit_Framework_TestCase
+abstract class EarningRuleCommandHandlerAbstract extends \PHPUnit_Framework_TestCase
 {
     protected $inMemoryRepository;
 

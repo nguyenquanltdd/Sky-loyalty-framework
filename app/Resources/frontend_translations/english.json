@@ -425,6 +425,7 @@
     "list": "Earning points rules list",
     "basic_info": "Basic Informations",
     "limit_info": "Usage limit",
+    "photo": "Earning rule photo",
     "limit": {
       "active": "Usage limit active",
       "active_prompt": "",
@@ -1122,11 +1123,13 @@
     },
     "put_earning_rule": {
       "success": "You successfully edited earning points rule.",
-      "error": "An error occurred"
+      "error": "An error occurred",
+      "warning": "Couldn't uploaded earning points rule's image"
     },
     "post_earning_rule": {
       "success": "Earning points rule added",
-      "error": "An error occurred"
+      "error": "An error occurred",
+      "warning": "Earning rule added without photo"
     },
     "get_levels_list": {
       "error": "Cannot get levels list"
@@ -1294,6 +1297,10 @@
       "error": "An error occurred"
     },
     "get_redeemed_campaigns": {
+      "error": "An error occurred"
+    },
+    "delete_earning_rule_image": {
+      "success": "Image deleted",
       "error": "An error occurred"
     }
   },

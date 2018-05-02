@@ -17,6 +17,8 @@ OpenLoyalty\Component\EarningRule\Domain\EarningRule:
       exclude: true
     segments:
       exclude: true
+    earningRulePhoto:
+      exclude: true
   virtual_properties:
       getFlatLevels:
           serialized_name: levels
