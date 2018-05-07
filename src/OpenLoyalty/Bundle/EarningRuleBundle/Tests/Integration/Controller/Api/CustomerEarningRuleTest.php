@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Controller\Api;
+namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Integration\Controller\Api;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;

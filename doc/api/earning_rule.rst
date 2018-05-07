@@ -763,3 +763,182 @@ Exemplary Response
 	{
 	  "points": 1
 	}
+
+Get earning rule's photo
+--------------------
+
+To get earning rule's photo you will need to cal the ``/api/earningRule/<earningRule>/photo`` endpoint with the ``GET`` method.
+
+Definition
+^^^^^^^^^^
+
+.. code-block:: text
+
+    GET /api/earningRule/<earningRule>/photo
+
++---------------+----------------+--------------------------------------+
+| Parameter     | Parameter type | Description                          |
++===============+================+======================================+
+| Authorization | header         | Token received during authentication |
++---------------+----------------+--------------------------------------+
+| <earningRule> | query          | Earning rule ID                      |
++---------------+----------------+--------------------------------------+
+
+Example
+^^^^^^^
+
+To get earning rule's photo ``earningRule = 000096cf-32a3-43bd-9034-4df343e5fd93`` use the below method:
+
+.. code-block:: bash
+
+    curl http://localhost:8181/api/earningRule/000096cf-32a3-43bd-9034-4df343e5fd93/photo \
+        -X "GET" \
+        -H "Accept: application/json" \
+        -H "Content-type: application/x-www-form-urlencoded" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
+
+.. note::
+
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
+
+.. note::
+
+    The *earningRule = 000096cf-32a3-43bd-9034-4df343e5fd93* id is an exemplary value. Your value can be different.
+    Check in the list of all earning rules if you are not sure which id should be used.
+
+Exemplary Response
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    STATUS: 200 OK
+
+.. note::
+
+    In the response you will get raw file content with a proper ``Content-Type`` header, for example:
+    ``Content-Type: image/jpeg``.
+
+Exemplary Response
+^^^^^^^^^^^^^^^^^^
+
+The earning rule may not have photo at all and you will receive a below response.
+
+.. code-block:: text
+
+    STATUS: 404 Not Found
+
+.. code-block:: json
+
+    {
+      "error": {
+        "code": 404,
+        "message": "Not Found"
+      }
+    }
+
+Remove earning rule's photo
+-----------------------
+
+To remove earning rule's photo you will need to cal the ``/api/earningRule/<earningRule>/photo`` endpoint with the ``DELETE`` method.
+
+Definition
+^^^^^^^^^^
+
+.. code-block:: text
+
+    DELETE /api/earningRule/<earningRule>/photo
+
++---------------+----------------+--------------------------------------+
+| Parameter     | Parameter type | Description                          |
++===============+================+======================================+
+| Authorization | header         | Token received during authentication |
++---------------+----------------+--------------------------------------+
+| <earningRule> | query          | Earning rule ID                      |
++---------------+----------------+--------------------------------------+
+
+Example
+^^^^^^^
+
+To remove earning rule's photo ``earningRule = 000096cf-32a3-43bd-9034-4df343e5fd93`` use the below method:
+
+.. code-block:: bash
+
+    curl http://localhost:8181/api/earningRule/000096cf-32a3-43bd-9034-4df343e5fd93/photo \
+        -X "DELETE" \
+        -H "Accept: application/json" \
+        -H "Content-type: application/x-www-form-urlencoded" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
+
+.. note::
+
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
+
+.. note::
+
+    The *earningRule = 000096cf-32a3-43bd-9034-4df343e5fd93* id is an exemplary value. Your value can be different.
+    Check in the list of all earning rules if you are not sure which id should be used.
+
+Exemplary Response
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    STATUS: 200 OK
+
+Add a photo to the earning rule
+---------------------------
+
+To add a photo to the earning rule you will need to cal the ``/api/earningRule/<earningRule>/photo`` endpoint with the ``POST`` method.
+
+Definition
+^^^^^^^^^^
+
+.. code-block:: text
+
+    POST /api/earningRule/<earningRule>/photo
+
++---------------+----------------+--------------------------------------+
+| Parameter     | Parameter type | Description                          |
++===============+================+======================================+
+| Authorization | header         | Token received during authentication |
++---------------+----------------+--------------------------------------+
+| <earningRule> | query          | Earning rule ID                      |
++---------------+----------------+--------------------------------------+
+| photo[file]   | request        | Absolute path to the photo           |
++---------------+----------------+--------------------------------------+
+
+Example
+^^^^^^^
+
+To get earning rule's photo ``earningRule = 000096cf-32a3-43bd-9034-4df343e5fd93`` use the below method:
+
+.. code-block:: bash
+
+    curl http://localhost:8181/api/earningRule/000096cf-32a3-43bd-9034-4df343e5fd93/photo \
+        -X "POST" \
+        -H "Accept: application/json" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
+        -d "photo[file]=C:\fakepath\Photo.png"
+
+.. note::
+
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
+
+.. note::
+
+    The *earningRule = 000096cf-32a3-43bd-9034-4df343e5fd93* id is an exemplary value. Your value can be different.
+    Check in the list of all earning rules if you are not sure which id should be used.
+
+.. note::
+
+    The *photo[file]=C:\fakepath\Photo.png* is an exemplary value. Your value can be different.
+
+Exemplary Response
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    STATUS: 200 OK

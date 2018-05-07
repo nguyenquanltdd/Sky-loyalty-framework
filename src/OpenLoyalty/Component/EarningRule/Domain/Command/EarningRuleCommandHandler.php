@@ -7,12 +7,14 @@ namespace OpenLoyalty\Component\EarningRule\Domain\Command;
 
 use Broadway\CommandHandling\SimpleCommandHandler;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
+use Doctrine\ORM\OptimisticLockException;
 use OpenLoyalty\Component\EarningRule\Domain\CustomEventEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleRepository;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleUsage;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleUsageId;
 use OpenLoyalty\Component\EarningRule\Domain\Exception\CustomEventEarningRuleAlreadyExistsException;
+use OpenLoyalty\Component\EarningRule\Domain\Exception\EarningRuleDoesNotExistException;
 
 /**
  * Class EarningRuleCommandHandler.
@@ -100,5 +102,43 @@ class EarningRuleCommandHandler extends SimpleCommandHandler
         );
         $rule->addUsage($usage);
         $this->earningRuleRepository->save($rule);
+    }
+
+    /**
+     * @param SetEarningRulePhoto $command
+     *
+     * @throws EarningRuleDoesNotExistException
+     * @throws OptimisticLockException
+     */
+    public function handleSetEarningRulePhoto(SetEarningRulePhoto $command)
+    {
+        /** @var EarningRule $earningRule */
+        $earningRule = $this->earningRuleRepository->byId($command->getEarningRuleId());
+        if (is_null($earningRule)) {
+            throw new EarningRuleDoesNotExistException();
+        }
+
+        $earningRule->setEarningRulePhoto($command->getEarningRulePhoto());
+
+        $this->earningRuleRepository->save($earningRule);
+    }
+
+    /**
+     * @param RemoveEarningRulePhoto $command
+     *
+     * @throws EarningRuleDoesNotExistException
+     * @throws OptimisticLockException
+     */
+    public function handleRemoveEarningRulePhoto(RemoveEarningRulePhoto $command)
+    {
+        /** @var EarningRule $earningRule */
+        $earningRule = $this->earningRuleRepository->byId($command->getEarningRuleId());
+
+        if (is_null($earningRule)) {
+            throw new EarningRuleDoesNotExistException();
+        }
+
+        $earningRule->removeEarningRulePhoto();
+        $this->earningRuleRepository->save($earningRule);
     }
 }

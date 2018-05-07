@@ -47,3 +47,5 @@ parameters:
 
     campaign_photos_adapter: campaign_photos_local
     campaign_photos_adapter_env: CAMPAIGN_PHOTOS_ADAPTER
+    earning_rule_photos_adapter: earning_rule_photos_local
+    earning_rule_photos_adapter_env: EARNING_RULE_PHOTOS_ADAPTER

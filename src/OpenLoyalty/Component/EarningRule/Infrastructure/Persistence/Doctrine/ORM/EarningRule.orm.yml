@@ -42,3 +42,6 @@ OpenLoyalty\Component\EarningRule\Domain\EarningRule:
       mappedBy: earningRule
       cascade: ["all"]
       orphanRemoval: true
+  embedded:
+    earningRulePhoto:
+      class: OpenLoyalty\Component\EarningRule\Domain\Model\EarningRulePhoto

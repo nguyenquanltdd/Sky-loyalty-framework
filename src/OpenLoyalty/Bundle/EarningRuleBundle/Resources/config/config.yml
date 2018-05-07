@@ -15,3 +15,9 @@ jms_serializer:
         EarningRule:
           namespace_prefix: "OpenLoyalty\\Component\\EarningRule\\Domain"
           path: "@OpenLoyaltyEarningRuleBundle/Resources/config/serializer"
+
+open_loyalty_earning_rule:
+    photos_adapter: "%earning_rule_photos_adapter%"
+    photos_adapter_env: "%earning_rule_photos_adapter_env%"
+    photos_min_width: 600
+    photos_min_height: 600

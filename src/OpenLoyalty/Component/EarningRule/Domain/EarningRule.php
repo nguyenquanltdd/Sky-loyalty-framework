@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Component\EarningRule\Domain;
 
 use Assert\Assertion as Assert;
+use OpenLoyalty\Component\EarningRule\Domain\Model\EarningRulePhoto;
 
 /**
  * Class EarningRule.
@@ -77,6 +78,10 @@ abstract class EarningRule
      * @var EarningRuleUsage[]
      */
     protected $usages;
+    /**
+     * @var EarningRulePhoto
+     */
+    protected $earningRulePhoto;
 
     /**
      * EarningRule constructor.
@@ -315,5 +320,29 @@ abstract class EarningRule
         return array_map(function (SegmentId $segmentId) {
             return $segmentId->__toString();
         }, $this->segments);
+    }
+
+    /**
+     * @return EarningRulePhoto
+     */
+    public function getEarningRulePhoto(): EarningRulePhoto
+    {
+        return $this->earningRulePhoto;
+    }
+
+    /**
+     * @param EarningRulePhoto $earningRulePhoto
+     */
+    public function setEarningRulePhoto(EarningRulePhoto $earningRulePhoto)
+    {
+        $this->earningRulePhoto = $earningRulePhoto;
+    }
+
+    /**
+     * Removes Earning Rule Photo.
+     */
+    public function removeEarningRulePhoto()
+    {
+        $this->earningRulePhoto = null;
     }
 }

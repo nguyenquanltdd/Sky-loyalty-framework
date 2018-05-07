@@ -35,3 +35,19 @@ services:
     class: OpenLoyalty\Bundle\EarningRuleBundle\Service\OloyEarningRuleValidator
     arguments: ['@oloy.earning_rule.usage_repository', '@oloy.earning_rule.repository']
 
+  oloy.earning_rule.photos_filesystem:
+    class:     Gaufrette\Filesystem
+    factory:   ['@knp_gaufrette.filesystem_map', get]
+    arguments: ['earning_rule_photos']
+
+  oloy.earning_rule.photo_uploader:
+    class: OpenLoyalty\Bundle\EarningRuleBundle\Service\EarningRulePhotoUploader
+    arguments: ["@oloy.campaign.photos_filesystem"]
+
+  oloy.earning_rule.validator.image:
+    class: OpenLoyalty\Bundle\EarningRuleBundle\Validator\Constraints\ImageValidator
+    arguments:
+      - '%oloy.earning_rule.photos_min_width%'
+      - '%oloy.earning_rule.photos_min_height%'
+    tags:
+      - { name: validator.constraint_validator }

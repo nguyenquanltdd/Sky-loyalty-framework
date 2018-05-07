@@ -12,7 +12,7 @@ use OpenLoyalty\Component\EarningRule\Domain\ProductPurchaseEarningRule;
 /**
  * Class CreateEarningRuleTest.
  */
-class CreateEarningRuleTest extends EarningRuleCommandHandlerTest
+class CreateEarningRuleTest extends EarningRuleCommandHandlerAbstract
 {
     /**
      * @test

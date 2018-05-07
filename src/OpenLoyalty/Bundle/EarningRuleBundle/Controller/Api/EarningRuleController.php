@@ -8,9 +8,12 @@ namespace OpenLoyalty\Bundle\EarningRuleBundle\Controller\Api;
 use Broadway\CommandHandling\CommandBus;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\CreateEarningRuleFormType;
+use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\EarningRulePhotoFormType;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\EditEarningRuleFormType;
+use OpenLoyalty\Bundle\EarningRuleBundle\Service\EarningRulePhotoUploader;
 use OpenLoyalty\Component\Account\Domain\CustomerId;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\CustomEventOccurredSystemEvent;
@@ -18,6 +21,8 @@ use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\EarningRule\Domain\Command\ActivateEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\Command\CreateEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\Command\DeactivateEarningRule;
+use OpenLoyalty\Component\EarningRule\Domain\Command\RemoveEarningRulePhoto;
+use OpenLoyalty\Component\EarningRule\Domain\Command\SetEarningRulePhoto;
 use OpenLoyalty\Component\EarningRule\Domain\Command\UpdateEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\Command\UseCustomEventEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRule;
@@ -28,6 +33,7 @@ use OpenLoyalty\Component\Account\Infrastructure\Exception\EarningRuleLimitExcee
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRule as BundleEarningRule;
@@ -327,5 +333,111 @@ class EarningRuleController extends FOSRestController
             ));
 
         return $this->view(['points' => $event->getEvaluationResult()->getPoints()], Response::HTTP_OK);
+    }
+
+    /**
+     * Add photo to earning rule.
+     *
+     * @Route(name="oloy.earning_rule.add_photo", path="/earningRule/{earningRule}/photo")
+     * @Method("POST")
+     * @Security("is_granted('EDIT', earningRule)")
+     * @ApiDoc(
+     *     name="Add photo to earning rule",
+     *     section="Earning Rule",
+     *     input={"class" = "OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\EarningRulePhotoFormType", "name" = "photo"}
+     * )
+     *
+     * @param Request     $request
+     * @param EarningRule $earningRule
+     *
+     * @return View
+     */
+    public function addPhotoAction(Request $request, EarningRule $earningRule)
+    {
+        /** @var EarningRulePhotoFormType $form */
+        $form = $this->get('form.factory')->createNamed('photo', EarningRulePhotoFormType::class);
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            /** @var UploadedFile $file */
+            $file = $form->getData()->getFile();
+            /** @var EarningRulePhotoUploader $uploader */
+            $uploader = $this->get('oloy.earning_rule.photo_uploader');
+
+            try {
+                $uploader->remove($earningRule->getEarningRulePhoto());
+                $photo = $uploader->upload($file);
+                $command = new SetEarningRulePhoto($earningRule->getEarningRuleId(), $photo);
+                $this->get('broadway.command_handling.command_bus')->dispatch($command);
+
+                return $this->view([], Response::HTTP_OK);
+            } catch (\Exception $ex) {
+                return $this->view($ex->getMessage(), Response::HTTP_BAD_REQUEST);
+            }
+        }
+
+        return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * Remove photo from earning rule.
+     *
+     * @Route(name="oloy.earning_rule.remove_photo", path="/earningRule/{earningRule}/photo")
+     * @Method("DELETE")
+     * @Security("is_granted('EDIT', earningRule)")
+     * @ApiDoc(
+     *     name="Delete photo from Earning rule",
+     *     section="Earning Rule"
+     * )
+     *
+     * @param EarningRule $earningRule
+     *
+     * @return View
+     */
+    public function removePhotoAction(EarningRule $earningRule)
+    {
+        $uploader = $this->get('oloy.earning_rule.photo_uploader');
+        $uploader->remove($earningRule->getEarningRulePhoto());
+
+        $command = new RemoveEarningRulePhoto($earningRule->getEarningRuleId());
+        try {
+            $this->get('broadway.command_handling.command_bus')->dispatch($command);
+        } catch (\Exception $ex) {
+            return $this->view($ex->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+
+        return $this->view([], Response::HTTP_OK);
+    }
+
+    /**
+     * Get earning rule photo.
+     *
+     * @Route(name="oloy.earning_rule.get_photo", path="/earningRule/{earningRule}/photo")
+     * @Method("GET")
+     * @ApiDoc(
+     *     name="Get earning rule photo",
+     *     section="Earning Rule"
+     * )
+     *
+     * @param EarningRule $earningRule
+     *
+     * @return Response
+     */
+    public function getPhotoAction(EarningRule $earningRule)
+    {
+        $photo = $earningRule->getEarningRulePhoto();
+        if (!$photo) {
+            throw $this->createNotFoundException();
+        }
+        $content = $this->get('oloy.earning_rule.photo_uploader')->get($photo);
+        if (!$content) {
+            throw $this->createNotFoundException();
+        }
+
+        $response = new Response($content);
+        $response->headers->set('Content-Disposition', 'inline');
+        $response->headers->set('Content-Type', $photo->getMime());
+
+        return $response;
     }
 }
