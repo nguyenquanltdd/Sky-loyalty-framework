@@ -26,3 +26,6 @@ OpenLoyalty\Component\EarningRule\Domain\EarningRule:
       getFlatSegments:
           serialized_name: segments
           type: array
+      hasEarningRulePhoto:
+          serialized_name: hasPhoto
+          type: boolean

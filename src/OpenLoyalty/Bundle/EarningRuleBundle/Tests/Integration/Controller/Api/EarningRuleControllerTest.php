@@ -130,6 +130,8 @@ class EarningRuleControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('type', $data);
+        $this->assertArrayHasKey('hasPhoto', $data);
+        $this->assertInternalType('bool', $data['hasPhoto']);
         $this->assertEquals(EarningRule::TYPE_EVENT, $data['type']);
     }
 

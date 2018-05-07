@@ -250,4 +250,12 @@ class Level
     {
         $this->photo = null;
     }
+
+    /**
+     * @return bool
+     */
+    public function hasLevelPhoto(): bool
+    {
+        return $this->photo instanceof LevelPhoto && $this->photo->getPath();
+    }
 }

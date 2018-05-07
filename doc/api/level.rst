@@ -64,7 +64,8 @@ Exemplary Response
           "reward": {
           "name": "test reward",
           "value": 0.14,
-          "code": "abc"
+          "code": "abc",
+          "hasPhoto": false
         },
       "specialRewards": [],
       "customersCount": 4
@@ -75,6 +76,7 @@ Exemplary Response
           "description": "example level",
           "active": true,
           "conditionValue": 20,
+          "hasPhoto": false,
           "reward": {
             "name": "test reward",
             "value": 0.15,
@@ -509,6 +511,7 @@ Exemplary Response
 		  "description": "example level",
 		  "active": true,
 		  "conditionValue": 200,
+          "hasPhoto": false,
 		  "reward": {
 			"name": "test reward",
 			"value": 0.2,
@@ -544,6 +547,7 @@ Exemplary Response
 		  "description": "example level",
 		  "active": true,
 		  "conditionValue": 20,
+          "hasPhoto": false,
 		  "reward": {
 			"name": "test reward",
 			"value": 0.15,
@@ -607,6 +611,7 @@ Exemplary Response
 	  "description": "example level",
 	  "active": true,
 	  "conditionValue": 200,
+      "hasPhoto": false,
 	  "reward": {
 		"name": "test reward",
 		"value": 0.2,

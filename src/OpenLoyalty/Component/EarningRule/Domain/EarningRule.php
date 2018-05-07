@@ -345,4 +345,12 @@ abstract class EarningRule
     {
         $this->earningRulePhoto = null;
     }
+
+    /**
+     * @return bool
+     */
+    public function hasEarningRulePhoto(): bool
+    {
+        return $this->earningRulePhoto instanceof EarningRulePhoto && $this->earningRulePhoto->getPath();
+    }
 }

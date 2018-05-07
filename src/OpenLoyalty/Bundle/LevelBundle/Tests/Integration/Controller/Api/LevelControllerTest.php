@@ -72,6 +72,8 @@ class LevelControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
         $this->assertArrayHasKey('id', $data);
+        $this->assertArrayHasKey('hasPhoto', $data);
+        $this->assertInternalType('bool', $data['hasPhoto']);
         $this->assertEquals($level->getLevelId()->__toString(), $data['id']);
     }
 

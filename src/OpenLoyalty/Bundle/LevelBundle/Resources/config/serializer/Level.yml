@@ -6,3 +6,7 @@ OpenLoyalty\Component\Level\Domain\Level:
       inline: true
     photo:
       exclude: true
+  virtual_properties:
+    hasLevelPhoto:
+      serialized_name: hasPhoto
+      type: boolean

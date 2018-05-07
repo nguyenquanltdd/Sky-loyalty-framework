@@ -80,6 +80,7 @@ Exemplary Response
 		  "pointsAmount": 100,
 		  "limit": {},
 		  "type": "custom_event",
+          "hasPhoto": false,
 		  "usageUrl": "http://backend.openloyalty.test.openloyalty.io/api/v1/earnRule/facebook_like/customer/:customerId",
 		  "segmentNames": [],
 		  "levelNames": {
@@ -103,6 +104,7 @@ Exemplary Response
 			"active": false
 		  },
 		  "type": "custom_event",
+          "hasPhoto": false,
 		  "usageUrl": "http://backend.openloyalty.test.openloyalty.io/api/v1/earnRule/custom_event_name/customer/:customerId",
 		  "segmentNames": [],
 		  "levelNames": {
@@ -183,6 +185,7 @@ Exemplary Response
 	  "pointsAmount": 100,
 	  "limit": {},
 	  "type": "custom_event",
+	  "hasPhoto": false,
 	  "usageUrl": "http://backend.openloyalty.test.openloyalty.io/api/v1/earnRule/facebook_like/customer/:customerId",
 	  "segmentNames": [],
 	  "levelNames": {
@@ -273,6 +276,7 @@ Exemplary Response
 		  "pointsAmount": 100,
 		  "limit": {},
 		  "type": "custom_event",
+          "hasPhoto": false,
 		  "usageUrl": "http://backend.openloyalty.test.openloyalty.io/api/v1/earnRule/facebook_like/customer/:customerId",
 		  "segmentNames": [],
 		  "levelNames": {
@@ -295,6 +299,7 @@ Exemplary Response
 		  "eventName": "test event",
 		  "pointsAmount": 100,
 		  "type": "event",
+          "hasPhoto": false,
 		  "segmentNames": [],
 		  "levelNames": {
 			"000096cf-32a3-43bd-9034-4df343e5fd93": "level0"
@@ -372,6 +377,7 @@ Exemplary Response
 	  "eventName": "oloy.customer.newsletter_subscription",
 	  "pointsAmount": 85,
 	  "type": "event",
+      "hasPhoto": false,
 	  "segmentNames": [],
 	  "levelNames": {
 		"000096cf-32a3-43bd-9034-4df343e5fd93": "level0"
