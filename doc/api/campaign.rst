@@ -288,7 +288,8 @@ Exemplary Response
           },
           "usageLeft": 1,
           "visibleForCustomersCount": 0,
-          "usersWhoUsedThisCampaignCount": 0
+          "usersWhoUsedThisCampaignCount": 0,
+          "hasPhoto": false
         },
         {
           "levels": [
@@ -329,7 +330,8 @@ Exemplary Response
           "will_be_active_to": "2018-01-01T00:00:00+0100",
           "usageLeft": 1,
           "visibleForCustomersCount": 0,
-          "usersWhoUsedThisCampaignCount": 0
+          "usersWhoUsedThisCampaignCount": 0,
+          "hasPhoto": false
         },
         {
           "levels": [
@@ -370,7 +372,8 @@ Exemplary Response
           },
           "usageLeft": 2,
           "visibleForCustomersCount": 0,
-          "usersWhoUsedThisCampaignCount": 0
+          "usersWhoUsedThisCampaignCount": 0,
+          "hasPhoto": false
         }
       ],
       "total": 3
@@ -600,7 +603,8 @@ Exemplary Response
       },
       "usageLeft": 2,
       "visibleForCustomersCount": 0,
-      "usersWhoUsedThisCampaignCount": 0
+      "usersWhoUsedThisCampaignCount": 0,
+      "hasPhoto": false
     }
 
 Get available campaign for a customer
@@ -707,7 +711,8 @@ Exemplary Response
           "usageLeftForCustomer": 1,
           "canBeBoughtByCustomer": true,
           "visibleForCustomersCount": 2,
-          "usersWhoUsedThisCampaignCount": 0
+          "usersWhoUsedThisCampaignCount": 0,
+          "hasPhoto": false
         }
       ],
       "total": 1
