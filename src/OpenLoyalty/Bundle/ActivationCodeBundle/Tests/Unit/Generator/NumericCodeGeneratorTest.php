@@ -72,6 +72,8 @@ class NumericCodeGeneratorTest extends \PHPUnit_Framework_TestCase
             [8, hash('sha512', '1234567891023123')],
             [2, hash('sha512', 'F2')],
             [4, hash('sha512', 'SG2345GDHJ74DHE365')],
+            [4, 'ABCDEFGHIJKLMNOPRSTUWXYZ123'],
+            [12, 'ABC'],
         ];
     }
 }
