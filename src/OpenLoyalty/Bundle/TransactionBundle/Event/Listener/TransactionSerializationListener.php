@@ -75,13 +75,15 @@ class TransactionSerializationListener implements EventSubscriberInterface
                 'type' => PointsTransferDetails::TYPE_ADDING,
             ]);
 
+            $carry = 0;
             if (count($transfers) > 0) {
-                $event->getVisitor()->addData('pointsEarned', array_reduce($transfers, function ($carry, PointsTransferDetails $transfer) {
+                $carry = array_reduce($transfers, function ($carry, PointsTransferDetails $transfer) {
                     $carry += $transfer->getValue();
 
                     return $carry;
-                }));
+                });
             }
+            $event->getVisitor()->addData('pointsEarned', $carry);
 
             if ($transaction->getPosId()) {
                 $pos = $this->posRepository->byId(new PosId($transaction->getPosId()->__toString()));
