@@ -38,6 +38,14 @@ class NumericCodeGenerator implements CodeGenerator
         $hash = $this->alphaNumCodeGenerator->generate($objectType, $objectId, 0);
         $hash = preg_replace('/[^0-9,.]/', '', $hash);
 
-        return (int) substr($hash,  0, $length);
+        $hash = (int) substr($hash,  0, $length);
+
+        // prevent a situation where a hash is shorter than expected
+        while (strlen($hash) < $length) {
+            $hash = $hash.uniqid(mt_rand(), true).microtime(true);
+            $hash = (int) substr($hash,  0, $length);
+        }
+
+        return $hash;
     }
 }
