@@ -16,6 +16,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Form\Type\LogoFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\SettingsFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\TranslationsFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
+use OpenLoyalty\Bundle\SettingsBundle\Service\LogoUploader;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
@@ -54,6 +55,59 @@ class SettingsController extends FOSRestController
      */
     public function addLogoAction(Request $request)
     {
+        return $this->addPhoto($request, LogoUploader::LOGO);
+    }
+
+    /**
+     * Add small logo.
+     *
+     * @Route(name="oloy.settings.add_small_logo", path="/settings/small-logo")
+     * @Method("POST")
+     * @Security("is_granted('EDIT_SETTINGS')")
+     * @ApiDoc(
+     *     name="Add small logo to loyalty program",
+     *     section="Settings",
+     *     input={"class" = "OpenLoyalty\Bundle\SettingsBundle\Form\Type\LogoFormType", "name" = "photo"}
+     * )
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function addSmallLogoAction(Request $request)
+    {
+        return $this->addPhoto($request, LogoUploader::SMALL_LOGO);
+    }
+
+    /**
+     * Add hero image.
+     *
+     * @Route(name="oloy.settings.add_hero_image", path="/settings/hero-image")
+     * @Method("POST")
+     * @Security("is_granted('EDIT_SETTINGS')")
+     * @ApiDoc(
+     *     name="Add hero image to loyalty program",
+     *     section="Settings",
+     *     input={"class" = "OpenLoyalty\Bundle\SettingsBundle\Form\Type\LogoFormType", "name" = "photo"}
+     * )
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function addHeroImageAction(Request $request)
+    {
+        return $this->addPhoto($request, LogoUploader::HERO_IMAGE);
+    }
+
+    /**
+     * @param Request $request
+     * @param string  $entryName
+     *
+     * @return View
+     */
+    private function addPhoto(Request $request, string $entryName)
+    {
         $form = $this->get('form.factory')->createNamed('photo', LogoFormType::class);
         $form->handleRequest($request);
 
@@ -64,15 +118,15 @@ class SettingsController extends FOSRestController
 
             $settingsManager = $this->get('ol.settings.manager');
             $settings = $settingsManager->getSettings();
-            $logo = $settings->getEntry('logo');
+            $logo = $settings->getEntry($entryName);
             if ($logo) {
                 $uploader->remove($logo->getValue());
-                $settingsManager->removeSettingByKey('logo');
+                $settingsManager->removeSettingByKey($entryName);
             }
 
             $photo = $uploader->upload($file);
 
-            $settings->addEntry(new FileSettingEntry('logo', $photo));
+            $settings->addEntry(new FileSettingEntry($entryName, $photo));
             $settingsManager->save($settings);
 
             return $this->view([], Response::HTTP_OK);
@@ -96,14 +150,60 @@ class SettingsController extends FOSRestController
      */
     public function removeLogoAction()
     {
+        return $this->removePhoto(LogoUploader::LOGO);
+    }
+
+    /**
+     * Remove small logo.
+     *
+     * @Route(name="oloy.settings.remove_small_logo", path="/settings/small-logo")
+     * @Method("DELETE")
+     * @Security("is_granted('EDIT_SETTINGS')")
+     * @ApiDoc(
+     *     name="Delete small logo",
+     *     section="Settings"
+     * )
+     *
+     * @return View
+     */
+    public function removeSmallLogoAction()
+    {
+        return $this->removePhoto(LogoUploader::SMALL_LOGO);
+    }
+
+    /**
+     * Remove hero imag.
+     *
+     * @Route(name="oloy.settings.remove_hero_image", path="/settings/hero-image")
+     * @Method("DELETE")
+     * @Security("is_granted('EDIT_SETTINGS')")
+     * @ApiDoc(
+     *     name="Delete hero image",
+     *     section="Settings"
+     * )
+     *
+     * @return View
+     */
+    public function removeHeroImageAction()
+    {
+        return $this->removePhoto(LogoUploader::HERO_IMAGE);
+    }
+
+    /**
+     * @param string $entryName
+     *
+     * @return View
+     */
+    private function removePhoto(string $entryName)
+    {
         $settingsManager = $this->get('ol.settings.manager');
         $settings = $settingsManager->getSettings();
-        $logo = $settings->getEntry('logo');
+        $logo = $settings->getEntry($entryName);
         if ($logo) {
             $logo = $logo->getValue();
             $uploader = $this->get('oloy.settings.logo_uploader');
             $uploader->remove($logo);
-            $settingsManager->removeSettingByKey('logo');
+            $settingsManager->removeSettingByKey($entryName);
         }
 
         return $this->view([], Response::HTTP_OK);
@@ -123,9 +223,53 @@ class SettingsController extends FOSRestController
      */
     public function getLogoAction()
     {
+        return $this->getPhoto(LogoUploader::LOGO);
+    }
+
+    /**
+     * Get small logo.
+     *
+     * @Route(name="oloy.settings.get_small_logo", path="/settings/small-logo")
+     * @Method("GET")
+     * @ApiDoc(
+     *     name="Get small logo",
+     *     section="Settings"
+     * )
+     *
+     * @return Response
+     */
+    public function getSmallLogoAction()
+    {
+        return $this->getPhoto(LogoUploader::SMALL_LOGO);
+    }
+
+    /**
+     * Get hero image.
+     *
+     * @Route(name="oloy.settings.get_hero_image", path="/settings/hero-image")
+     * @Method("GET")
+     * @ApiDoc(
+     *     name="Get hero image",
+     *     section="Settings"
+     * )
+     *
+     * @return Response
+     */
+    public function getHeroImageAction()
+    {
+        return $this->getPhoto(LogoUploader::HERO_IMAGE);
+    }
+
+    /**
+     * @param string $entryName
+     *
+     * @return Response
+     */
+    private function getPhoto(string $entryName)
+    {
         $settingsManager = $this->get('ol.settings.manager');
         $settings = $settingsManager->getSettings();
-        $logoEntry = $settings->getEntry('logo');
+        $logoEntry = $settings->getEntry($entryName);
         $logo = null;
 
         if ($logoEntry) {

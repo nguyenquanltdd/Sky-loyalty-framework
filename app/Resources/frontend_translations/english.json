@@ -723,6 +723,8 @@
   "settings": {
     "logo": "Logo",
     "program_logo": "Program logo",
+    "small_logo": "Small logo",
+    "hero_image": "Hero image",
     "title": "Settings",
     "currency": "Currency",
     "heading": "Settings",
@@ -1023,6 +1025,14 @@
       "success": "Logo has been deleted",
       "error": "Logo has not been deleted"
     },
+    "delete_settings_small_logo": {
+      "success": "Small logo has been deleted",
+      "error": "Small logo has not been deleted"
+    },
+    "delete_settings_hero_image": {
+      "success": "Hero image has been deleted",
+      "error": "Hero image has not been deleted"
+    },
     "post_resend_customer_code": {
       "error": "Cannot resend activation code. Make sure that phone number is correct or wait for few minutes and try again.",
       "success": "Code was sent to your phone"
@@ -1032,6 +1042,12 @@
     },
     "upload_settings_logo": {
       "success": "Logo has been saved"
+    },
+    "upload_settings_small_logo": {
+      "success": "Small logo has been saved"
+    },
+    "upload_settings_hero_image": {
+      "success": "Hero image has been saved"
     },
     "customer_search": {
       "success": "Success",
