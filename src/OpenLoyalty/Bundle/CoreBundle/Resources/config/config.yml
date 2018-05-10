@@ -16,6 +16,7 @@ imports:
   - { resource: "@OpenLoyaltyTransactionBundle/Resources/config/config.yml"}
   - { resource: "@OpenLoyaltyUserBundle/Resources/config/config.yml"}
   - { resource: "@OpenLoyaltyUtilityBundle/Resources/config/config.yml"}
+  - { resource: "@OpenLoyaltyImportBundle/Resources/config/config.yml"}
 
 doctrine:
     dbal:
@@ -39,6 +40,10 @@ knp_gaufrette:
       local:
         directory: "%kernel.root_dir%/uploads/"
         create:     true
+    import_file_local:
+      local:
+        directory: "%kernel.root_dir%/var/import/"
+        create:     true
   filesystems:
     frontend_translations:
       adapter: frontend_translations
@@ -49,3 +54,6 @@ knp_gaufrette:
     logo:
       adapter: "campaign_photos_local"
       alias: logo_filesystem
+    import:
+      adapter: "import_file_local"
+      alias: import_filesystem

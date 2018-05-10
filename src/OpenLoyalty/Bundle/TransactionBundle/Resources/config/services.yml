@@ -80,3 +80,25 @@ services:
       - '@broadway.command_handling.command_bus'
       - '@broadway.event_dispatcher'
       - '@security.authorization_checker'
+
+  oloy.transaction.import.transaction_node_streamer:
+    class: OpenLoyalty\Bundle\ImportBundle\Importer\XMLUniqueNodeStringFileStreamer
+    arguments:
+        - "transaction"
+
+  oloy.transaction.import.transaction_import_processor:
+    class: OpenLoyalty\Bundle\TransactionBundle\Import\TransactionImportProcessor
+    arguments:
+        - "@broadway.command_handling.command_bus"
+
+  oloy.transaction.import.transaction_xml_import_converter:
+    class: OpenLoyalty\Bundle\TransactionBundle\Import\TransactionXmlImportConverter
+    arguments:
+        - "@broadway.uuid.generator"
+
+  oloy.transaction.import.transaction_importer:
+    parent: "oloy.import.importer.xml_importer"
+    calls:
+      - [setProcessor, ['@oloy.transaction.import.transaction_import_processor']]
+      - [setXmlStreamer, ['@oloy.transaction.import.transaction_node_streamer']]
+      - [setConverter, ['@oloy.transaction.import.transaction_xml_import_converter']]

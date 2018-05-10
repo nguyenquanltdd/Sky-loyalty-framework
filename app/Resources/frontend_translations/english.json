@@ -39,7 +39,8 @@
     "loading": "loading",
     "home": "Home",
     "upload": "Upload",
-    "remove": "Remove"
+    "remove": "Remove",
+    "import": "Import"
   },
   "users": {
     "heading": "Users",
@@ -708,6 +709,9 @@
     "transaction_document_number_prompt": "Find transaction by document number",
     "customer_id_prompt": "Put customer unique ID",
     "link": "Match with customer",
+    "import": "Import",
+    "import_title": "Import transactions",
+    "import_xml_field": "XML file",
     "heading": "Transactions",
     "transaction_id": "Transaction id",
     "points_earned": "Points earned",
@@ -1019,6 +1023,11 @@
     "heading": "Admin profile"
   },
   "xhr": {
+    "import": {
+      "success": "All items has been imported successfully (Processed {{ processed }})",
+      "warning": "Items has been imported with some errors (Processed {{ processed }}, Success {{ success }}, Failed  {{ failed }})",
+      "error": "Import process failed"
+    },
     "delete_settings_logo": {
       "success": "Logo has been deleted",
       "error": "Logo has not been deleted"

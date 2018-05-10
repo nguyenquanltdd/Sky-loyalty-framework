@@ -10,7 +10,11 @@ use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
+use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use OpenLoyalty\Bundle\ImportBundle\Form\Type\ImportFileFormType;
+use OpenLoyalty\Bundle\ImportBundle\Importer\XMLImporter;
+use OpenLoyalty\Bundle\ImportBundle\Service\ImportFileManager;
 use OpenLoyalty\Bundle\TransactionBundle\Form\Type\ManuallyAssignCustomerToTransactionFormType;
 use OpenLoyalty\Bundle\TransactionBundle\Form\Type\TransactionFormType;
 use OpenLoyalty\Bundle\TransactionBundle\Form\Type\TransactionSimulationFormType;
@@ -28,6 +32,7 @@ use OpenLoyalty\Component\Transaction\Domain\TransactionId;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -390,6 +395,46 @@ class TransactionController extends FOSRestController
             }
 
             return $this->view(['transactionId' => $result->__toString()]);
+        }
+
+        return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * Import transactions.
+     *
+     * @Route(name="oloy.transaction.import", path="/admin/transaction/import")
+     * @Method("POST")
+     * @Security("is_granted('CREATE_TRANSACTION')")
+     * @ApiDoc(
+     *     name="Import transactions",
+     *     section="Transactions",
+     *     input={"class" = "OpenLoyalty\Bundle\ImportBundle\Form\Type\ImportFileFormType", "name" = "file"}
+     * )
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function importAction(Request $request)
+    {
+        $form = $this->get('form.factory')->createNamed('file', ImportFileFormType::class);
+
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            /** @var UploadedFile $file */
+            $file = $form->getData()->getFile();
+
+            /** @var ImportFileManager $fileManager */
+            $fileManager = $this->get('oloy.import.service.import_file_manager');
+            $importFile = $fileManager->upload($file, 'transactions');
+
+            /** @var XMLImporter $importer */
+            $importer = $this->container->get('oloy.transaction.import.transaction_importer');
+            $result = $importer->import($fileManager->getAbsolutePath($importFile));
+
+            return $this->view($result, Response::HTTP_OK);
         }
 
         return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
