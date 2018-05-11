@@ -666,7 +666,10 @@
     "select_customer": "Select customer",
     "points_to_add": "Points to add/spend",
     "points_to_spend": "Points to spend",
-    "actions": "Actions"
+    "actions": "Actions",
+    "import": "Import",
+    "import_title": "Import points transfers",
+    "import_xml_field": "XML file"
   },
   "transaction": {
     "customer_loyalty_card_number": "Loyalty card number",
@@ -1026,7 +1029,8 @@
     "import": {
       "success": "All items has been imported successfully (Processed {{ processed }})",
       "warning": "Items has been imported with some errors (Processed {{ processed }}, Success {{ success }}, Failed  {{ failed }})",
-      "error": "Import process failed"
+      "error": "Import process failed",
+      "no_data": "There are no records to process"
     },
     "delete_settings_logo": {
       "success": "Logo has been deleted",

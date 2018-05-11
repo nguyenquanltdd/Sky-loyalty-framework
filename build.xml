@@ -26,7 +26,10 @@
         <exec command="bin/console doctrine:fixtures:load -n -vvv" checkreturn="true" passthru="true"/>
         <exec command="bin/console oloy:segment:recreate -vv" checkreturn="true" passthru="true"/>
     </target>
-    <target name="test" description="Setup everything and run some test">
+    <target name="fix-code" description="Fix code">
+        <exec command="bin/php-cs-fixer fix src" checkreturn="true" passthru="true"/>
+    </target>
+    <target name="test" description="Setup everything and run some tests">
         <echo>
             phing test -Dsrc=src/OpenLoyalty/Bundle/TransactionBundle/Tests/Controller/Api/TransactionControllerTest.php -Dno-build
         </echo>

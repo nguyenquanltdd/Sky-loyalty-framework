@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\TransactionBundle\Tests\Form\Type;
+namespace OpenLoyalty\Bundle\TransactionBundle\Tests\Integration\Form\Type;
 
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
 use OpenLoyalty\Bundle\TransactionBundle\Form\Type\TransactionFormType;

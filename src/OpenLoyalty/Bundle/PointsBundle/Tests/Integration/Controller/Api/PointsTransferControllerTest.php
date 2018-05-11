@@ -1,16 +1,63 @@
 <?php
 
-namespace OpenLoyalty\Bundle\PointsBundle\Tests\Controller\Api;
+namespace OpenLoyalty\Bundle\PointsBundle\Tests\Integration\Controller\Api;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\PointsBundle\DataFixtures\ORM\LoadAccountsWithTransfersData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
+use OpenLoyalty\Component\Import\Infrastructure\ImportResultItem;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * Class PointsTransferControllerTest.
  */
 class PointsTransferControllerTest extends BaseApiTest
 {
+    /**
+     * @test
+     */
+    public function it_imports_points_transfer()
+    {
+        $xmlContent = file_get_contents(__DIR__.'/import.xml');
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/points/transfer/import',
+            [],
+            [
+                'file' => [
+                    'file' => $this->createUploadedFile($xmlContent, 'import.xml', 'application/xml', UPLOAD_ERR_OK),
+                ],
+            ]
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+
+        $this->assertArrayHasKey('items', $data);
+        $this->assertCount(2, $data['items']);
+        $this->assertArrayHasKey('status', $data['items'][0]);
+        $this->assertTrue($data['items'][0]['status'] == ImportResultItem::SUCCESS);
+    }
+
+    /**
+     * @param string $content
+     * @param string $originalName
+     * @param string $mimeType
+     * @param string $error
+     *
+     * @return UploadedFile
+     */
+    private function createUploadedFile($content, $originalName, $mimeType, $error)
+    {
+        $path = tempnam(sys_get_temp_dir(), uniqid());
+        file_put_contents($path, $content);
+
+        return new UploadedFile($path, $originalName, $mimeType, filesize($path), $error, true);
+    }
+
     /**
      * @test
      */
@@ -108,6 +155,7 @@ class PointsTransferControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
+
         $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('error', $data);
         $this->assertEquals('this transfer cannot be canceled', $data['error']);
