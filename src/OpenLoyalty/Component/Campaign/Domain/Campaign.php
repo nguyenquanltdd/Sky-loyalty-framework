@@ -560,4 +560,12 @@ class Campaign
     {
         $this->campaignPhoto = $campaignPhoto;
     }
+
+    /**
+     * @return bool
+     */
+    public function hasCampaignPhoto(): bool
+    {
+        return $this->campaignPhoto instanceof CampaignPhoto && $this->campaignPhoto->getPath();
+    }
 }

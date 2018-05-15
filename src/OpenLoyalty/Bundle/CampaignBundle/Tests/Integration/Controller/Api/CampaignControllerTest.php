@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Controller\Api;
+namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Integration\Controller\Api;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\CampaignBundle\DataFixtures\ORM\LoadCampaignData;
@@ -241,8 +241,50 @@ class CampaignControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('campaignId', $data);
+        $this->assertArrayHasKey('hasPhoto', $data);
+        $this->assertInternalType('bool', $data['hasPhoto']);
+        $this->assertArrayHasKey('levels', $data);
+        $this->assertInternalType('array', $data['levels']);
+        $this->assertArrayHasKey('segments', $data);
+        $this->assertInternalType('array', $data['segments']);
+        $this->assertArrayHasKey('coupons', $data);
+        $this->assertInternalType('array', $data['coupons']);
+        $this->assertArrayHasKey('reward', $data);
+        $this->assertInternalType('string', $data['reward']);
+        $this->assertArrayHasKey('name', $data);
+        $this->assertInternalType('string', $data['name']);
+        $this->assertArrayHasKey('active', $data);
+        $this->assertInternalType('bool', $data['active']);
+        $this->assertArrayHasKey('costInPoints', $data);
+        $this->assertInternalType('int', $data['costInPoints']);
+        $this->assertArrayHasKey('singleCoupon', $data);
+        $this->assertInternalType('bool', $data['singleCoupon']);
+        $this->assertArrayHasKey('unlimited', $data);
+        $this->assertInternalType('bool', $data['unlimited']);
+        $this->assertArrayHasKey('limit', $data);
+        $this->assertInternalType('int', $data['limit']);
+        $this->assertArrayHasKey('limitPerUser', $data);
+        $this->assertInternalType('int', $data['limitPerUser']);
+        $this->assertArrayHasKey('campaignActivity', $data);
+        $this->assertInternalType('array', $data['campaignActivity']);
+        $this->assertArrayHasKey('campaignVisibility', $data);
+        $this->assertInternalType('array', $data['campaignVisibility']);
+        $this->assertArrayHasKey('segmentNames', $data);
+        $this->assertInternalType('array', $data['segmentNames']);
+        $this->assertArrayHasKey('levelNames', $data);
+        $this->assertInternalType('array', $data['levelNames']);
+        $this->assertArrayHasKey('usageLeft', $data);
+        $this->assertInternalType('int', $data['usageLeft']);
+        $this->assertArrayHasKey('visibleForCustomersCount', $data);
+        $this->assertInternalType('int', $data['visibleForCustomersCount']);
+        $this->assertArrayHasKey('usersWhoUsedThisCampaignCount', $data);
+        $this->assertInternalType('int', $data['usersWhoUsedThisCampaignCount']);
         $this->assertEquals(LoadCampaignData::CAMPAIGN_ID, $data['campaignId']);
     }
+
+    /**
+     * "levels": [.
+     */
 
     /**
      * @test
