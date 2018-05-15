@@ -631,7 +631,8 @@ class CampaignController extends FOSRestController
                 new CustomerCampaignId($campaign->getCampaignId()->__toString()),
                 $campaign->getName(),
                 $campaign->getCostInPoints(),
-                $coupon
+                $coupon,
+                $campaign->getReward()
             )
         );
 
@@ -693,7 +694,8 @@ class CampaignController extends FOSRestController
                 $pagination->getPage(),
                 $pagination->getPerPage(),
                 $pagination->getSort(),
-                $pagination->getSortDirection()
+                $pagination->getSortDirection(),
+                true
             );
 
         if ($request->get('includeDetails', false)) {
@@ -709,7 +711,7 @@ class CampaignController extends FOSRestController
         return $this->view(
             [
                 'campaigns' => $campaigns,
-                'total' => $repo->countPurchasesByCustomerId($customer->getCustomerId()),
+                'total' => $repo->countPurchasesByCustomerId($customer->getCustomerId(), true),
             ],
             200
         );

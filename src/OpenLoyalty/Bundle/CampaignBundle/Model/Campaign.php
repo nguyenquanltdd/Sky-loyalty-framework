@@ -32,6 +32,7 @@ class Campaign extends BaseCampaign
             'moreInformationLink' => $this->moreInformationLink,
             'active' => $this->active,
             'costInPoints' => $this->costInPoints,
+            'pointValue' => $this->pointValue,
             'levels' => $this->levels,
             'segments' => $this->segments,
             'unlimited' => $this->unlimited,
@@ -39,8 +40,8 @@ class Campaign extends BaseCampaign
             'limit' => $this->limit,
             'limitPerUser' => $this->limitPerUser,
             'coupons' => $this->coupons,
-            'campaignActivity' => $this->campaignActivity->toArray(),
-            'campaignVisibility' => $this->campaignVisibility->toArray(),
+            'campaignActivity' => $this->campaignActivity ? $this->campaignActivity->toArray() : null,
+            'campaignVisibility' => $this->campaignVisibility ? $this->campaignVisibility->toArray() : null,
             'usageInstruction' => $this->usageInstruction,
             'rewardValue' => $this->rewardValue,
             'tax' => $this->tax,
@@ -55,6 +56,10 @@ class Campaign extends BaseCampaign
     public function validateLimit(ExecutionContextInterface $context)
     {
         if ($this->unlimited) {
+            return;
+        }
+
+        if ($this->reward == self::REWARD_TYPE_CASHBACK) {
             return;
         }
 
@@ -76,6 +81,22 @@ class Campaign extends BaseCampaign
             $message = 'This collection should contain 1 element or more.';
             $context->buildViolation($message)->atPath('levels')->addViolation();
             $context->buildViolation($message)->atPath('segments')->addViolation();
+        }
+    }
+
+    /**
+     * @param ExecutionContextInterface $context
+     * @Assert\Callback()
+     */
+    public function validateCoupons(ExecutionContextInterface $context)
+    {
+        if ($this->reward == self::REWARD_TYPE_CASHBACK) {
+            return;
+        }
+
+        if (count($this->coupons) == 0) {
+            $message = 'This collection should contain 1 element or more.';
+            $context->buildViolation($message)->atPath('coupons')->addViolation();
         }
     }
 

@@ -63,17 +63,19 @@ interface CustomerDetailsRepository extends Repository
      * @param int        $perPage
      * @param null       $sortField
      * @param string     $direction
+     * @param bool       $showCashback
      *
      * @return CampaignPurchase[]
      */
-    public function findPurchasesByCustomerIdPaginated(CustomerId $customerId, $page = 1, $perPage = 10, $sortField = null, $direction = 'DESC');
+    public function findPurchasesByCustomerIdPaginated(CustomerId $customerId, $page = 1, $perPage = 10, $sortField = null, $direction = 'DESC', $showCashback = false);
 
     /**
      * @param CustomerId $customerId
+     * @param bool       $showCashback
      *
      * @return int
      */
-    public function countPurchasesByCustomerId(CustomerId $customerId);
+    public function countPurchasesByCustomerId(CustomerId $customerId, $showCashback = false);
 
     /**
      * @param $criteria

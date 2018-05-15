@@ -103,6 +103,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
                 )
             )
         );
+        $qb->andWhere('c.reward != :cashback')->setParameter('cashback', Campaign::REWARD_TYPE_CASHBACK);
 
         $qb->andWhere('c.active = :true')->setParameter('true', true);
         $qb->setParameter('now', new \DateTime());
@@ -132,6 +133,8 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
                 )
             );
 
+            $qb->andWhere('e.reward != :cashback')->setParameter('cashback', Campaign::REWARD_TYPE_CASHBACK);
+
             $qb->andWhere('e.active = :true')->setParameter('true', true);
             $qb->setParameter('now', new \DateTime());
         }
@@ -145,6 +148,29 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     public function getActiveCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC')
     {
         $qb = $this->getCampaignsForLevelAndSegmentQueryBuilder($segmentIds, $levelId, $page, $perPage, $sortField, $direction);
+        $qb->andWhere(
+            $qb->expr()->orX(
+                'c.campaignActivity.allTimeActive = :true',
+                $qb->expr()->andX(
+                    'c.campaignActivity.activeFrom <= :now',
+                    'c.campaignActivity.activeTo >= :now'
+                )
+            )
+        );
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * @param SegmentId[]  $segmentIds
+     * @param LevelId|null $levelId
+     *
+     * @return Campaign[]
+     */
+    public function getActiveCashbackCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null)
+    {
+        $qb = $this->getCampaignsForLevelAndSegmentQueryBuilder($segmentIds, $levelId);
+        $qb->andWhere('c.reward = :reward')->setParameter('reward', Campaign::REWARD_TYPE_CASHBACK);
         $qb->andWhere(
             $qb->expr()->orX(
                 'c.campaignActivity.allTimeActive = :true',
@@ -173,6 +199,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
                 )
             )
         );
+        $qb->andWhere('c.reward != :cashback')->setParameter('cashback', Campaign::REWARD_TYPE_CASHBACK);
 
         return $qb->getQuery()->getResult();
     }

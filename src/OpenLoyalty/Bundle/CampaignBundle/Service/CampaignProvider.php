@@ -7,12 +7,16 @@ namespace OpenLoyalty\Bundle\CampaignBundle\Service;
 
 use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
+use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
+use OpenLoyalty\Component\Campaign\Domain\LevelId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignUsage;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignUsageRepository;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CouponUsage;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CouponUsageRepository;
+use OpenLoyalty\Component\Campaign\Domain\SegmentId;
+use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomersBelongingToOneLevel;
 use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomers;
 
@@ -47,6 +51,11 @@ class CampaignProvider
     private $campaignUsageRepository;
 
     /**
+     * @var CampaignRepository
+     */
+    private $campaignRepository;
+
+    /**
      * CampaignCustomersProvider constructor.
      *
      * @param Repository              $segmentedCustomersRepository
@@ -54,19 +63,56 @@ class CampaignProvider
      * @param CouponUsageRepository   $couponUsageRepository
      * @param CampaignValidator       $campaignValidator
      * @param CampaignUsageRepository $campaignUsageRepository
+     * @param CampaignRepository      $campaignRepository
      */
     public function __construct(
         Repository $segmentedCustomersRepository,
         Repository $customerBelongingToOneLevelRepository,
         CouponUsageRepository $couponUsageRepository,
         CampaignValidator $campaignValidator,
-        CampaignUsageRepository $campaignUsageRepository
+        CampaignUsageRepository $campaignUsageRepository,
+        CampaignRepository $campaignRepository
     ) {
         $this->segmentedCustomersRepository = $segmentedCustomersRepository;
         $this->customerBelongingToOneLevelRepository = $customerBelongingToOneLevelRepository;
         $this->couponUsageRepository = $couponUsageRepository;
         $this->campaignValidator = $campaignValidator;
         $this->campaignUsageRepository = $campaignUsageRepository;
+        $this->campaignRepository = $campaignRepository;
+    }
+
+    /**
+     * @param CustomerDetails $customer
+     *
+     * @return null|Campaign
+     */
+    public function getCashbackForCustomer(CustomerDetails $customer)
+    {
+        $customerSegments = $this->segmentedCustomersRepository->findBy(['customerId' => $customer->getCustomerId()->__toString()]);
+        $segments = array_map(function (SegmentedCustomers $segmentedCustomers) {
+            return new SegmentId($segmentedCustomers->getSegmentId()->__toString());
+        }, $customerSegments);
+
+        $availableCampaigns = $this->campaignRepository->getActiveCashbackCampaignsForLevelAndSegment(
+            $segments,
+            new LevelId($customer->getLevelId()->__toString())
+        );
+
+        if (!$availableCampaigns) {
+            return;
+        }
+
+        /** @var Campaign $best */
+        $best = null;
+
+        /** @var Campaign $campaign */
+        foreach ($availableCampaigns as $campaign) {
+            if (null == $best || $campaign->getPointValue() > $best->getPointValue()) {
+                $best = $campaign;
+            }
+        }
+
+        return $best;
     }
 
     public function visibleForCustomers(Campaign $campaign)

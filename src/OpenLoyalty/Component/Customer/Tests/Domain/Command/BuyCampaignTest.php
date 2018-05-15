@@ -2,6 +2,7 @@
 
 namespace OpenLoyalty\Component\Customer\Tests\Domain\Command;
 
+use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\Command\BuyCampaign;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
@@ -27,9 +28,9 @@ class BuyCampaignTest extends CustomerCommandHandlerTest
             ->given([
                 new CustomerWasRegistered($customerId, CustomerCommandHandlerTest::getCustomerData()),
             ])
-            ->when(new BuyCampaign($customerId, $campaignId, 'test', 99, new Coupon('123')))
+            ->when(new BuyCampaign($customerId, $campaignId, 'test', 99, new Coupon('123'), Campaign::REWARD_TYPE_DISCOUNT_CODE))
             ->then([
-                new CampaignWasBoughtByCustomer($customerId, $campaignId, 'test', 99, new Coupon('123')),
+                new CampaignWasBoughtByCustomer($customerId, $campaignId, 'test', 99, new Coupon('123'), Campaign::REWARD_TYPE_DISCOUNT_CODE),
             ]);
     }
 }

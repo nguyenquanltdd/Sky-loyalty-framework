@@ -30,7 +30,12 @@ class CampaignPurchase implements Serializable
     protected $campaignId;
 
     /**
-     * @var Campaign
+     * @var string
+     */
+    protected $reward;
+
+    /**
+     * @var string
      */
     protected $campaign;
 
@@ -51,13 +56,15 @@ class CampaignPurchase implements Serializable
      * @param int        $costInPoints
      * @param CampaignId $campaignId
      * @param Coupon     $coupon
+     * @param $reward
      */
-    public function __construct(\DateTime $purchaseAt, $costInPoints, CampaignId $campaignId, Coupon $coupon)
+    public function __construct(\DateTime $purchaseAt, $costInPoints, CampaignId $campaignId, Coupon $coupon, $reward)
     {
         $this->purchaseAt = $purchaseAt;
         $this->costInPoints = $costInPoints;
         $this->campaignId = $campaignId;
         $this->coupon = $coupon;
+        $this->reward = $reward;
     }
 
     /**
@@ -84,17 +91,25 @@ class CampaignPurchase implements Serializable
         return $this->campaignId;
     }
 
+    /**
+     * @param array $data
+     *
+     * @return CampaignPurchase
+     */
     public static function deserialize(array $data)
     {
         $date = new \DateTime();
         $date->setTimestamp($data['purchaseAt']);
 
-        $purchase = new self($date, $data['costInPoints'], new CampaignId($data['campaignId']), new Coupon($data['coupon']));
+        $purchase = new self($date, $data['costInPoints'], new CampaignId($data['campaignId']), new Coupon($data['coupon']), $data['reward']);
         $purchase->setUsed($data['used']);
 
         return $purchase;
     }
 
+    /**
+     * @return array
+     */
     public function serialize(): array
     {
         return [
@@ -103,6 +118,8 @@ class CampaignPurchase implements Serializable
             'campaignId' => $this->campaignId->__toString(),
             'coupon' => $this->coupon->getCode(),
             'used' => $this->used,
+            'reward' => $this->reward,
+            'isNotCashback' => $this->reward == Campaign::REWARD_TYPE_CASHBACK ? 0 : 1,
         ];
     }
 
@@ -123,7 +140,7 @@ class CampaignPurchase implements Serializable
     }
 
     /**
-     * @return Campaign
+     * @return string
      */
     public function getCampaign()
     {
@@ -131,9 +148,9 @@ class CampaignPurchase implements Serializable
     }
 
     /**
-     * @param Campaign $campaign
+     * @param string $campaign
      */
-    public function setCampaign(Campaign $campaign)
+    public function setCampaign($campaign)
     {
         $this->campaign = $campaign;
     }
@@ -144,5 +161,21 @@ class CampaignPurchase implements Serializable
     public function getCoupon()
     {
         return $this->coupon;
+    }
+
+    /**
+     * @return string
+     */
+    public function getReward()
+    {
+        return $this->reward;
+    }
+
+    /**
+     * @param string $reward
+     */
+    public function setReward($reward)
+    {
+        $this->reward = $reward;
     }
 }

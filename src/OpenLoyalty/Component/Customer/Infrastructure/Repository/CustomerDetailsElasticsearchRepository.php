@@ -7,6 +7,7 @@ namespace OpenLoyalty\Component\Customer\Infrastructure\Repository;
 
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
+use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Exception\ToManyResultsException;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
@@ -24,6 +25,15 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
                 'match' => 'campaignPurchases',
                 'mapping' => [
                     'type' => 'nested',
+                ],
+            ],
+        ],
+        [
+            'nestedCampaignPurchasesReward' => [
+                'path_match' => 'campaignPurchases.reward',
+                'mapping' => [
+                    'type' => 'string',
+                    'index' => 'not_analyzed',
                 ],
             ],
         ],
@@ -134,7 +144,8 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         $page = 1,
         $perPage = 10,
         $sortField = null,
-        $direction = 'DESC'
+        $direction = 'DESC',
+        $showCashback = false
     ) {
         if ($sortField) {
             $sort = [
@@ -150,11 +161,51 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         $innerHits = [
             'size' => $perPage,
             'from' => ($page - 1) * $perPage,
-            'query' => ['match_all' => []],
+            'query' => [
+                'query' => [
+                    'bool' => [
+                        'must_not' => [
+                            [
+                                'term' => [
+                                    'campaignPurchases.reward' => Campaign::REWARD_TYPE_CASHBACK,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         if ($sort) {
             $innerHits['sort'] = $sort;
+        }
+
+        if ($showCashback) {
+            $innerHits = [
+                'size' => $perPage,
+                'from' => ($page - 1) * $perPage,
+                'query' => [
+                    'match_all' => [],
+                ],
+            ];
+        } else {
+            $innerHits = [
+                'size' => $perPage,
+                'from' => ($page - 1) * $perPage,
+                'query' => [
+                    'query' => [
+                        'bool' => [
+                            'must_not' => [
+                                [
+                                    'term' => [
+                                        'campaignPurchases.reward' => Campaign::REWARD_TYPE_CASHBACK,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
         }
 
         $query = array(
@@ -241,7 +292,7 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
     /**
      * {@inheritdoc}
      */
-    public function countPurchasesByCustomerId(CustomerId $customerId)
+    public function countPurchasesByCustomerId(CustomerId $customerId, $showCashback = false)
     {
         $query = array(
             'ids' => [
@@ -260,7 +311,7 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
                         'nested' => ['path' => 'campaignPurchases'],
                         'aggregations' => [
                             'campaign_purchases_count' => [
-                                'value_count' => ['field' => 'campaignPurchases.campaignId'],
+                                'sum' => ['field' => 'campaignPurchases.isNotCashback'],
                             ],
                         ],
                     ],

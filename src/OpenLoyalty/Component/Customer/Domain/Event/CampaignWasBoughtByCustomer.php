@@ -39,7 +39,22 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
      */
     protected $campaignName;
 
-    public function __construct(CustomerId $customerId, CampaignId $campaignId, $campaignName, $costInPoints, Coupon $coupon)
+    /**
+     * @var string
+     */
+    protected $reward;
+
+    /**
+     * CampaignWasBoughtByCustomer constructor.
+     *
+     * @param CustomerId $customerId
+     * @param CampaignId $campaignId
+     * @param $campaignName
+     * @param $costInPoints
+     * @param Coupon $coupon
+     * @param $reward
+     */
+    public function __construct(CustomerId $customerId, CampaignId $campaignId, $campaignName, $costInPoints, Coupon $coupon, $reward)
     {
         parent::__construct($customerId);
         $this->campaignId = $campaignId;
@@ -48,6 +63,7 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
         $this->costInPoints = $costInPoints;
         $this->coupon = $coupon;
         $this->campaignName = $campaignName;
+        $this->reward = $reward;
     }
 
     /**
@@ -58,6 +74,9 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
         return $this->campaignId;
     }
 
+    /**
+     * @return array
+     */
     public function serialize(): array
     {
         return array_merge(
@@ -68,13 +87,19 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
                 'createdAt' => $this->createdAt->getTimestamp(),
                 'coupon' => $this->coupon->getCode(),
                 'campaignName' => $this->campaignName,
+                'reward' => $this->reward,
             ]
         );
     }
 
+    /**
+     * @param array $data
+     *
+     * @return CampaignWasBoughtByCustomer
+     */
     public static function deserialize(array $data)
     {
-        $bought = new self(new CustomerId($data['customerId']), new CampaignId($data['campaignId']), $data['campaignName'], $data['costInPoints'], new Coupon($data['coupon']));
+        $bought = new self(new CustomerId($data['customerId']), new CampaignId($data['campaignId']), $data['campaignName'], $data['costInPoints'], new Coupon($data['coupon']), $data['reward']);
         $date = new \DateTime();
         $date->setTimestamp($data['createdAt']);
         $bought->createdAt = $date;
@@ -112,5 +137,13 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
     public function getCampaignName()
     {
         return $this->campaignName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getReward()
+    {
+        return $this->reward;
     }
 }

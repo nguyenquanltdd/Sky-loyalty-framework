@@ -14,6 +14,7 @@ use OpenLoyalty\Component\Account\Domain\Command\SpendPoints;
 use OpenLoyalty\Component\Account\Domain\Model\SpendPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
+use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 
 /**
@@ -76,7 +77,7 @@ class SpendPointsOnCampaignListener implements EventListener
                     $points,
                     null,
                     false,
-                    $event->getCampaignName().', coupon: '.$event->getCoupon()->getCode()
+                    $event->getReward() == Campaign::REWARD_TYPE_CASHBACK ? ($event->getCampaignName().', cashback') : ($event->getCampaignName().', coupon: '.$event->getCoupon()->getCode())
                 )
             )
         );

@@ -12,6 +12,9 @@ use Symfony\Component\Form\AbstractType;
  */
 class EditCampaignFormType extends AbstractType
 {
+    /**
+     * {@inheritdoc}
+     */
     public function getParent()
     {
         return CampaignFormType::class;

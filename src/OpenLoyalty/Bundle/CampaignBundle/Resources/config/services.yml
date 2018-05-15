@@ -28,6 +28,7 @@ services:
       - '@oloy.campaign.read_model.repository.coupon_usage'
       - '@oloy.campaign.campaign_validator'
       - '@oloy.campaign.read_model.repository.campaign_usage'
+      - '@oloy.campaign.repository'
 
   oloy.campaign.campaign_validator:
     class: OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator
