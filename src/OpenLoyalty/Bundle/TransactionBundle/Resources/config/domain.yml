@@ -38,3 +38,4 @@ services:
     lazy: true
     tags:
       - { name: broadway.domain.event_listener }
+

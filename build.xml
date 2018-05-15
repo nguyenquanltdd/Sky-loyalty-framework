@@ -26,14 +26,23 @@
         <exec command="bin/console doctrine:fixtures:load -n -vvv" checkreturn="true" passthru="true"/>
         <exec command="bin/console oloy:segment:recreate -vv" checkreturn="true" passthru="true"/>
     </target>
-    <target name="test" description="Setup everything and run tests">
-        <exec command="bin/console oloy:user:projections:index:create --drop-old -n" checkreturn="true" passthru="true"/>
-        <exec command="bin/console doctrine:schema:update --env=test -n --force" checkreturn="true" passthru="true"/>
-        <exec command="bin/console broadway:event-store:schema:drop -n" checkreturn="true" passthru="true"/>
-        <exec command="bin/console broadway:event-store:schema:init -n" checkreturn="true" passthru="true"/>
-        <exec command="bin/console doctrine:fixtures:load --env=test -n" checkreturn="true" passthru="true"/>
-        <exec command="bin/console oloy:segment:recreate -vv" checkreturn="true" passthru="true"/>
-        <exec command="vendor/phpunit/phpunit/phpunit" checkreturn="true" passthru="true"/>
+    <target name="test" description="Setup everything and run some test">
+        <echo>
+            phing test -Dsrc=src/OpenLoyalty/Bundle/TransactionBundle/Tests/Controller/Api/TransactionControllerTest.php -Dno-build
+        </echo>
+        <property name="src" value="" />
+        <if>
+            <isset property="no-build" />
+            <else>
+                <exec command="bin/console oloy:user:projections:index:create --drop-old -n" checkreturn="true" passthru="true"/>
+                <exec command="bin/console doctrine:schema:update --env=test -n --force" checkreturn="true" passthru="true"/>
+                <exec command="bin/console broadway:event-store:schema:drop -n" checkreturn="true" passthru="true"/>
+                <exec command="bin/console broadway:event-store:schema:init -n" checkreturn="true" passthru="true"/>
+                <exec command="bin/console doctrine:fixtures:load --env=test -n" checkreturn="true" passthru="true"/>
+                <exec command="bin/console oloy:segment:recreate -vv" checkreturn="true" passthru="true"/>
+            </else>
+        </if>
+        <exec command="vendor/phpunit/phpunit/phpunit ${src} --stop-on-error --stop-on-failure -v" checkreturn="true" passthru="true"/>
     </target>
     <target name="unit" description="Run unit tests">
         <exec command="vendor/phpunit/phpunit/phpunit --testsuite Unit" checkreturn="true" passthru="true"/>

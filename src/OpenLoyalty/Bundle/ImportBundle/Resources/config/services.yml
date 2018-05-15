@@ -1,0 +1,12 @@
+services:
+  oloy.import.importer.xml_importer:
+    class: OpenLoyalty\Bundle\ImportBundle\Importer\XMLImporter
+
+  oloy.import.import_filesystem:
+    class:     Gaufrette\Filesystem
+    factory:   ["@knp_gaufrette.filesystem_map", get]
+    arguments: ["import"]
+
+  oloy.import.service.import_file_manager:
+    class: OpenLoyalty\Bundle\ImportBundle\Service\ImportFileManager
+    arguments: ["@oloy.import.import_filesystem", "%oloy.import.dir%"]

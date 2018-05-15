@@ -8,8 +8,10 @@ use OpenLoyalty\Bundle\SettingsBundle\Entity\JsonSettingEntry;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
+use OpenLoyalty\Component\Import\Infrastructure\ImportResultItem;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * Class TransactionControllerTest.
@@ -17,6 +19,51 @@ use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 class TransactionControllerTest extends BaseApiTest
 {
     const PHONE_NUMBER = '+48123123000';
+
+    /**
+     * @test
+     */
+    public function it_imports_transactions()
+    {
+        $xmlContent = file_get_contents(__DIR__.'/import.xml');
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/admin/transaction/import',
+            [],
+            [
+                'file' => [
+                    'file' => $this->createUploadedFile($xmlContent, 'import.xml', 'application/xml', UPLOAD_ERR_OK),
+                ],
+            ]
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+
+        $this->assertArrayHasKey('items', $data);
+        $this->assertCount(2, $data['items']);
+        $this->assertArrayHasKey('status', $data['items'][0]);
+        $this->assertTrue($data['items'][0]['status'] == ImportResultItem::SUCCESS);
+    }
+
+    /**
+     * @param $content
+     * @param $originalName
+     * @param $mimeType
+     * @param $error
+     *
+     * @return UploadedFile
+     */
+    private function createUploadedFile($content, $originalName, $mimeType, $error)
+    {
+        $path = tempnam(sys_get_temp_dir(), uniqid());
+        file_put_contents($path, $content);
+
+        return new UploadedFile($path, $originalName, $mimeType, filesize($path), $error, true);
+    }
 
     /**
      * @test

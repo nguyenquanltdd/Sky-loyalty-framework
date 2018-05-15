@@ -3338,7 +3338,49 @@
                 }
             ],
             "description": "SalesManago API",
-            "time": "2016-08-02 10:10:44"
+            "time": "2016-08-02T10:10:44+00:00"
+        },
+        {
+            "name": "prewk/xml-string-streamer",
+            "version": "0.11.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/prewk/xml-string-streamer.git",
+                "reference": "5c167c835b07d44d4d9412febe031a09a69dafbd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/prewk/xml-string-streamer/zipball/5c167c835b07d44d4d9412febe031a09a69dafbd",
+                "reference": "5c167c835b07d44d4d9412febe031a09a69dafbd",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "mockery/mockery": "^0.8.0",
+                "phpunit/phpunit": "^4.8 || ^5.7.21",
+                "prewk/xml-faker": "^0.0.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Prewk\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "prewk",
+                    "email": "oskar.thornblad@gmail.com"
+                }
+            ],
+            "description": "Stream large XML files with low memory consumption",
+            "homepage": "https://github.com/prewk/xml-string-streamer",
+            "time": "2017-10-03 21:15:29"
         },
         {
             "name": "psr/cache",

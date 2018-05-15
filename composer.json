@@ -48,8 +48,9 @@
         "broadway/read-model-elasticsearch": "^0.3.0",
         "broadway/event-store-dbal": "^0.2.0",
         "ramsey/uuid-doctrine": "1.4.3",
+        "misd/phone-number-bundle": "^1.3",
         "smsapi/php-client": "^1.8",
-        "misd/phone-number-bundle": "^1.3"
+        "prewk/xml-string-streamer": "^0.11.0"
     },
     "require-dev": {
         "symfony/phpunit-bridge": "^3.0",

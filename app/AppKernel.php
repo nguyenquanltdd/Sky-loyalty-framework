@@ -50,6 +50,7 @@ class AppKernel extends Kernel
             new Knp\Bundle\GaufretteBundle\KnpGaufretteBundle(),
             new OpenLoyalty\Bundle\CoreBundle\OpenLoyaltyCoreBundle(),
             new OpenLoyaltyPlugin\SalesManagoBundle\SalesManagoBundle(),
+            new OpenLoyalty\Bundle\ImportBundle\OpenLoyaltyImportBundle(),
             new OpenLoyalty\Bundle\WorldTextBundle\OpenLoyaltyWorldTextBundle(),
         ];
 
