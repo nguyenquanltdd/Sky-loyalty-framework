@@ -19,6 +19,10 @@ class LogoUploader
      */
     protected $filesystem;
 
+    const LOGO = 'logo';
+    const SMALL_LOGO = 'small-logo';
+    const HERO_IMAGE = 'hero-image';
+
     /**
      * FileUploader constructor.
      *

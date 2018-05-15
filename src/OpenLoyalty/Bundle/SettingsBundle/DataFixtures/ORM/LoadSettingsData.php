@@ -69,6 +69,18 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
         $entry4 = new FileSettingEntry('logo', $logo);
         $settings->addEntry($entry4);
 
+        $smallLogo = new Logo();
+        $smallLogo->setMime('image/svg+xml');
+        $smallLogo->setPath('logo/logo.svg');
+        $entry5 = new FileSettingEntry('small-logo', $smallLogo);
+        $settings->addEntry($entry5);
+
+        $heroImage = new Logo();
+        $heroImage->setMime('image/svg+xml');
+        $heroImage->setPath('logo/logo.svg');
+        $entry6 = new FileSettingEntry('hero-image', $heroImage);
+        $settings->addEntry($entry6);
+
         $earningStatuses = new JsonSettingEntry('customerStatusesEarning');
         $earningStatuses->setValue([Status::TYPE_ACTIVE]);
         $settings->addEntry($earningStatuses);
