@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\PointsBundle\Tests\Service;
+namespace OpenLoyalty\Bundle\PointsBundle\Tests\Integration\Service;
 
 use Broadway\ReadModel\Repository;
 use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator;

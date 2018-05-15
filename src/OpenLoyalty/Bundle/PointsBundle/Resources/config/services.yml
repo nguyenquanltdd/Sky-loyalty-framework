@@ -35,3 +35,26 @@ services:
     arguments: ['@oloy.user.email_provider', '@oloy.user.read_model.repository.customer_details']
     tags:
       - { name: broadway.event_listener, method: onChange, event: oloy.account.available_points_amount_changed}
+
+  oloy.account.points_transfers.import.points_transfer_node_streamer:
+    class: OpenLoyalty\Bundle\ImportBundle\Importer\XMLUniqueNodeStringFileStreamer
+    arguments:
+        - "pointsTransfer"
+
+  oloy.account.points_transfers.import.points_transfer_import_processor:
+    class: OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferImportProcessor
+    arguments:
+        - "@broadway.command_handling.command_bus"
+
+  oloy.account.points_transfers.import.points_transfer_xml_import_converter:
+    class: OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferXmlImportConverter
+    arguments:
+        - "@broadway.uuid.generator"
+        - "@oloy.points.account.repository.account_details"
+
+  oloy.account.points_transfers.import.points_transfer_importer:
+    parent: "oloy.import.importer.xml_importer"
+    calls:
+      - [setProcessor, ['@oloy.account.points_transfers.import.points_transfer_import_processor']]
+      - [setXmlStreamer, ['@oloy.account.points_transfers.import.points_transfer_node_streamer']]
+      - [setConverter, ['@oloy.account.points_transfers.import.points_transfer_xml_import_converter']]

@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\TransactionBundle\Tests\Security;
+namespace OpenLoyalty\Bundle\TransactionBundle\Tests\Integration\Security;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseAccessControlTest;
 use OpenLoyalty\Bundle\TransactionBundle\DataFixtures\ORM\LoadTransactionData;

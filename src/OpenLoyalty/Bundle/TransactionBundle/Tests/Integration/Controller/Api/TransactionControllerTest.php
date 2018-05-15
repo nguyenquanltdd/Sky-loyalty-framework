@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\TransactionBundle\Tests\Controller\Api;
+namespace OpenLoyalty\Bundle\TransactionBundle\Tests\Integration\Controller\Api;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
@@ -50,10 +50,10 @@ class TransactionControllerTest extends BaseApiTest
     }
 
     /**
-     * @param $content
-     * @param $originalName
-     * @param $mimeType
-     * @param $error
+     * @param string $content
+     * @param string $originalName
+     * @param string $mimeType
+     * @param string $error
      *
      * @return UploadedFile
      */

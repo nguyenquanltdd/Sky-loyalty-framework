@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\TransactionBundle\Tests\Security\Voter;
+namespace OpenLoyalty\Bundle\TransactionBundle\Tests\Integration\Security\Voter;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
 use OpenLoyalty\Bundle\TransactionBundle\DataFixtures\ORM\LoadTransactionData;

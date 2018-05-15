@@ -11,6 +11,9 @@ use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use OpenLoyalty\Bundle\ImportBundle\Form\Type\ImportFileFormType;
+use OpenLoyalty\Bundle\ImportBundle\Importer\XMLImporter;
+use OpenLoyalty\Bundle\ImportBundle\Service\ImportFileManager;
 use OpenLoyalty\Bundle\PointsBundle\Form\Type\AddPointsFormType;
 use OpenLoyalty\Bundle\PointsBundle\Form\Type\SpendPointsFormType;
 use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
@@ -28,6 +31,7 @@ use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsReposito
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -260,5 +264,45 @@ class PointsTransferController extends FOSRestController
         }
 
         return $this->view([], 200);
+    }
+
+    /**
+     * Import transfers points.
+     *
+     * @Route(name="oloy.points.transfer.import", path="/points/transfer/import")
+     * @Method("POST")
+     * @Security("is_granted('ADD_POINTS') or is_granted('SPEND_POINTS')")
+     * @ApiDoc(
+     *     name="Import points transfers",
+     *     section="Points transfers",
+     *     input={"class" = "OpenLoyalty\Bundle\ImportBundle\Form\Type\ImportFileFormType", "name" = "file"}
+     * )
+     *
+     * @param Request $request
+     *
+     * @return \FOS\RestBundle\View\View
+     */
+    public function importAction(Request $request)
+    {
+        $form = $this->get('form.factory')->createNamed('file', ImportFileFormType::class);
+
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            /** @var UploadedFile $file */
+            $file = $form->getData()->getFile();
+
+            /** @var ImportFileManager $fileManager */
+            $fileManager = $this->get('oloy.import.service.import_file_manager');
+            $importFile = $fileManager->upload($file, 'transactions');
+
+            /** @var XMLImporter $importer */
+            $importer = $this->container->get('oloy.account.points_transfers.import.points_transfer_importer');
+            $result = $importer->import($fileManager->getAbsolutePath($importFile));
+
+            return $this->view($result, Response::HTTP_OK);
+        }
+
+        return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
     }
 }

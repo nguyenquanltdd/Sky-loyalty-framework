@@ -117,6 +117,7 @@ class XMLImporter implements FileImporter
             } catch (ImportProcessException $ex) {
                 $results[] = ImportResultItem::error(
                     $entity,
+                    $identifier ?? '',
                     sprintf('Process exception: %s', $ex->getMessage()),
                     $ex
                 );

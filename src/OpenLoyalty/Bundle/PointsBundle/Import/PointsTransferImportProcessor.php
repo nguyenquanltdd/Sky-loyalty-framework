@@ -4,23 +4,24 @@
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Bundle\TransactionBundle\Import;
+namespace OpenLoyalty\Bundle\PointsBundle\Import;
 
 use Broadway\CommandHandling\CommandBus;
+use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
+use OpenLoyalty\Component\Account\Domain\Command\SpendPoints;
 use OpenLoyalty\Component\Import\Infrastructure\ImporterProcessor;
 use OpenLoyalty\Component\Import\Infrastructure\ProcessImportResult;
-use OpenLoyalty\Component\Transaction\Domain\Command\RegisterTransaction;
 
 /**
- * Class TransactionImportProcessor.
+ * Class PointsTransferImportProcessor.
  */
-class TransactionImportProcessor implements ImporterProcessor
+class PointsTransferImportProcessor implements ImporterProcessor
 {
     /** @var CommandBus */
     protected $commandBus;
 
     /**
-     * TransactionImportProcessor constructor.
+     * PointsTransferImportProcessor constructor.
      *
      * @param CommandBus $commandBus
      */
@@ -34,12 +35,12 @@ class TransactionImportProcessor implements ImporterProcessor
      */
     public function processItem($entity): ProcessImportResult
     {
-        if (!$entity instanceof RegisterTransaction) {
-            throw new \InvalidArgumentException('Entity object is not RegisterTransaction');
+        if (!$entity instanceof AddPoints && !$entity instanceof SpendPoints) {
+            throw new \InvalidArgumentException('Entity object is not AddPoints|SpendPoints');
         }
 
         $this->commandBus->dispatch($entity);
 
-        return new ProcessImportResult($entity->getTransactionId());
+        return new ProcessImportResult($entity->getPointsTransfer()->getId());
     }
 }

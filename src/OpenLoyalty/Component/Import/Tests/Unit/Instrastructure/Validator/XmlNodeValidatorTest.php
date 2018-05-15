@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\ImportBundle\Tests\Unit\Importer;
+namespace OpenLoyalty\Component\Import\Tests\Unit\Infrastructure\Validator;
 
 use OpenLoyalty\Component\Import\Infrastructure\Validator\XmlNodeValidator;
 

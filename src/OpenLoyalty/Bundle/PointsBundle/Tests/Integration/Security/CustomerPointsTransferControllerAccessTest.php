@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\PointsBundle\Tests\Security;
+namespace OpenLoyalty\Bundle\PointsBundle\Tests\Integration\Security;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseAccessControlTest;
 
