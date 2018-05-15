@@ -204,7 +204,7 @@ class CustomerDetailsProjector extends Projector
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
-        $readModel->addCampaignPurchase(new CampaignPurchase($event->getCreatedAt(), $event->getCostInPoints(), $event->getCampaignId(), $event->getCoupon()));
+        $readModel->addCampaignPurchase(new CampaignPurchase($event->getCreatedAt(), $event->getCostInPoints(), $event->getCampaignId(), $event->getCoupon(), $event->getReward()));
 
         $this->repository->save($readModel);
     }

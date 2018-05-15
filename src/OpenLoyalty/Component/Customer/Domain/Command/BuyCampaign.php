@@ -34,13 +34,29 @@ class BuyCampaign extends CustomerCommand
      */
     protected $coupon;
 
-    public function __construct(CustomerId $customerId, CampaignId $campaignId, $campaignName, $costInPoints, Coupon $coupon)
+    /**
+     * @var string
+     */
+    protected $reward;
+
+    /**
+     * BuyCampaign constructor.
+     *
+     * @param CustomerId $customerId
+     * @param CampaignId $campaignId
+     * @param $campaignName
+     * @param $costInPoints
+     * @param Coupon $coupon
+     * @param $reward
+     */
+    public function __construct(CustomerId $customerId, CampaignId $campaignId, $campaignName, $costInPoints, Coupon $coupon, $reward)
     {
         parent::__construct($customerId);
         $this->campaignId = $campaignId;
         $this->campaignName = $campaignName;
         $this->costInPoints = $costInPoints;
         $this->coupon = $coupon;
+        $this->reward = $reward;
     }
 
     /**
@@ -73,5 +89,13 @@ class BuyCampaign extends CustomerCommand
     public function getCampaignName()
     {
         return $this->campaignName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getReward()
+    {
+        return $this->reward;
     }
 }

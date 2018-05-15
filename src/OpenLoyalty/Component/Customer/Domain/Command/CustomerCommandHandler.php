@@ -228,7 +228,8 @@ class CustomerCommandHandler extends SimpleCommandHandler
             $command->getCampaignId(),
             $command->getCampaignName(),
             $command->getCostInPoints(),
-            $command->getCoupon()
+            $command->getCoupon(),
+            $command->getReward()
         );
         $this->repository->save($customer);
     }

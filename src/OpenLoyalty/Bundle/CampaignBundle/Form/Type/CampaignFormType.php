@@ -21,7 +21,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\GreaterThan;
 use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\LessThan;
@@ -35,6 +34,9 @@ use Symfony\Component\Validator\Constraints\Valid;
  */
 class CampaignFormType extends AbstractType
 {
+    /**
+     * {@inheritdoc}
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $rewardTypes = [
@@ -43,7 +45,15 @@ class CampaignFormType extends AbstractType
             Campaign::REWARD_TYPE_FREE_DELIVERY_CODE,
             Campaign::REWARD_TYPE_GIFT_CODE,
             Campaign::REWARD_TYPE_VALUE_CODE,
+            Campaign::REWARD_TYPE_CASHBACK,
         ];
+
+        $builder->add($builder->create('coupons', CollectionType::class, [
+            'entry_type' => TextType::class,
+            'allow_add' => true,
+            'allow_delete' => true,
+            'error_bubbling' => false,
+        ])->addModelTransformer(new CouponsDataTransformer()));
 
         $builder->add('reward', ChoiceType::class, [
             'choices' => array_combine($rewardTypes, $rewardTypes),
@@ -88,11 +98,7 @@ class CampaignFormType extends AbstractType
         $builder->add('active', CheckboxType::class, [
             'required' => false,
         ]);
-        $builder->add('costInPoints', NumberType::class, [
-            'scale' => 2,
-            'required' => false,
-            'constraints' => [new NotBlank()],
-        ]);
+
         $builder->add('target', ChoiceType::class, [
             'required' => false,
             'choices' => [
@@ -117,50 +123,66 @@ class CampaignFormType extends AbstractType
                 'error_bubbling' => false,
             ])->addModelTransformer(new SegmentsDataTransformer())
         );
-        $builder->add('unlimited', CheckboxType::class, [
-            'required' => false,
-        ]);
-        $builder->add('singleCoupon', CheckboxType::class, [
-            'required' => false,
-        ]);
-        $builder->add('limit', IntegerType::class, [
-            'required' => false,
-        ]);
-        $builder->add('limitPerUser', IntegerType::class, [
-            'required' => false,
-        ]);
-        $builder->add(
-            $builder->create('coupons', CollectionType::class, [
-                'entry_type' => TextType::class,
-                'allow_add' => true,
-                'allow_delete' => true,
-                'constraints' => [new Count(['min' => 1])],
-                'error_bubbling' => false,
-            ])->addModelTransformer(new CouponsDataTransformer())
-        );
 
-        $builder->add('campaignVisibility', CampaignVisibilityFormType::class, [
-            'constraints' => [new Valid()],
-        ]);
         $builder->add('campaignActivity', CampaignActivityFormType::class, [
             'constraints' => [new Valid()],
         ]);
 
-        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
-            $data = $event->getData();
-            if (!isset($data['target'])) {
-                return;
-            }
-            $target = $data['target'];
-            if ($target == 'level') {
-                $data['segments'] = [];
-            } elseif ($target == 'segment') {
-                $data['levels'] = [];
-            }
-            $event->setData($data);
-        });
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, [$this, 'adjustCampaignForm']);
     }
 
+    /**
+     * @param FormEvent $event
+     */
+    public function adjustCampaignForm(FormEvent $event)
+    {
+        $data = $event->getData();
+        $form = $event->getForm();
+        if (isset($data['reward']) && $data['reward'] == Campaign::REWARD_TYPE_CASHBACK) {
+            $form->add('pointValue', NumberType::class, [
+                'scale' => 2,
+                'required' => false,
+                'constraints' => [new NotBlank()],
+            ]);
+        } else {
+            $form->add('costInPoints', NumberType::class, [
+                'scale' => 2,
+                'required' => false,
+                'constraints' => [new NotBlank()],
+            ]);
+            $form->add('unlimited', CheckboxType::class, [
+                'required' => false,
+            ]);
+            $form->add('singleCoupon', CheckboxType::class, [
+                'required' => false,
+            ]);
+            $form->add('limit', IntegerType::class, [
+                'required' => false,
+            ]);
+            $form->add('limitPerUser', IntegerType::class, [
+                'required' => false,
+            ]);
+
+            $form->add('campaignVisibility', CampaignVisibilityFormType::class, [
+                'constraints' => [new Valid()],
+            ]);
+        }
+
+        if (!isset($data['target'])) {
+            return;
+        }
+        $target = $data['target'];
+        if ($target == 'level') {
+            $data['segments'] = [];
+        } elseif ($target == 'segment') {
+            $data['levels'] = [];
+        }
+        $event->setData($data);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([

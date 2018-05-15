@@ -21,6 +21,7 @@ class Campaign
     const REWARD_TYPE_FREE_DELIVERY_CODE = 'free_delivery_code';
     const REWARD_TYPE_GIFT_CODE = 'gift_code';
     const REWARD_TYPE_EVENT_CODE = 'event_code';
+    const REWARD_TYPE_CASHBACK = 'cashback';
 
     /**
      * @var CampaignId
@@ -61,6 +62,11 @@ class Campaign
      * @var float
      */
     protected $costInPoints = 0; // 0 (free) or greater
+
+    /**
+     * @var float
+     */
+    protected $pointValue; // cashback
 
     /**
      * @var LevelId[]
@@ -164,8 +170,39 @@ class Campaign
             $this->active = $data['active'];
         }
 
-        if (isset($data['costInPoints'])) {
-            $this->costInPoints = $data['costInPoints'];
+        if ($this->reward == self::REWARD_TYPE_CASHBACK) {
+            if (isset($data['pointValue'])) {
+                $this->pointValue = $data['pointValue'];
+            }
+            $this->unlimited = true;
+            $this->singleCoupon = true;
+        } else {
+            if (isset($data['costInPoints'])) {
+                $this->costInPoints = $data['costInPoints'];
+            }
+            if (isset($data['unlimited'])) {
+                $this->unlimited = $data['unlimited'];
+            }
+            if (isset($data['limit'])) {
+                $this->limit = $data['limit'];
+            }
+            if (isset($data['limitPerUser'])) {
+                $this->limitPerUser = $data['limitPerUser'];
+            }
+
+            if (isset($data['coupons'])) {
+                $this->coupons = $data['coupons'];
+            }
+            if (isset($data['singleCoupon'])) {
+                $this->singleCoupon = $data['singleCoupon'];
+            };
+            if (isset($data['campaignVisibility'])) {
+                $this->campaignVisibility = new CampaignVisibility(
+                    isset($data['campaignVisibility']['allTimeVisible']) ? $data['campaignVisibility']['allTimeVisible'] : true,
+                    isset($data['campaignVisibility']['visibleFrom']) ? $data['campaignVisibility']['visibleFrom'] : null,
+                    isset($data['campaignVisibility']['visibleTo']) ? $data['campaignVisibility']['visibleTo'] : null
+                );
+            }
         }
 
         if (isset($data['levels'])) {
@@ -176,38 +213,11 @@ class Campaign
             $this->segments = $data['segments'];
         }
 
-        if (isset($data['unlimited'])) {
-            $this->unlimited = $data['unlimited'];
-        }
-
-        if (isset($data['limit'])) {
-            $this->limit = $data['limit'];
-        }
-
-        if (isset($data['limitPerUser'])) {
-            $this->limitPerUser = $data['limitPerUser'];
-        }
-
-        if (isset($data['coupons'])) {
-            $this->coupons = $data['coupons'];
-        }
-        if (isset($data['singleCoupon'])) {
-            $this->singleCoupon = $data['singleCoupon'];
-        };
-
         if (isset($data['campaignActivity'])) {
             $this->campaignActivity = new CampaignActivity(
                 isset($data['campaignActivity']['allTimeActive']) ? $data['campaignActivity']['allTimeActive'] : true,
                 isset($data['campaignActivity']['activeFrom']) ? $data['campaignActivity']['activeFrom'] : null,
                 isset($data['campaignActivity']['activeTo']) ? $data['campaignActivity']['activeTo'] : null
-            );
-        }
-
-        if (isset($data['campaignVisibility'])) {
-            $this->campaignVisibility = new CampaignVisibility(
-                isset($data['campaignVisibility']['allTimeVisible']) ? $data['campaignVisibility']['allTimeVisible'] : true,
-                isset($data['campaignVisibility']['visibleFrom']) ? $data['campaignVisibility']['visibleFrom'] : null,
-                isset($data['campaignVisibility']['visibleTo']) ? $data['campaignVisibility']['visibleTo'] : null
             );
         }
 
@@ -526,6 +536,7 @@ class Campaign
             self::REWARD_TYPE_FREE_DELIVERY_CODE,
             self::REWARD_TYPE_GIFT_CODE,
             self::REWARD_TYPE_VALUE_CODE,
+            self::REWARD_TYPE_CASHBACK,
         ]);
         Assert::keyIsset($data, 'name');
         Assert::keyIsset($data, 'levels');
@@ -535,20 +546,27 @@ class Campaign
         Assert::isArray($data['segments']);
         Assert::allIsInstanceOf($data['segments'], SegmentId::class);
         Assert::true(count($data['segments']) > 0 || count($data['levels']) > 0, 'There must be at least one level or one segment');
-        if (!isset($data['unlimited']) || !$data['unlimited']) {
-            Assert::keyIsset($data, 'limit');
-            Assert::greaterOrEqualThan($data['limit'], 1);
-            Assert::keyIsset($data, 'limitPerUser');
-            Assert::greaterOrEqualThan($data['limitPerUser'], 1);
+        if ($data['reward'] != self::REWARD_TYPE_CASHBACK) {
+            if (!isset($data['unlimited']) || !$data['unlimited']) {
+                Assert::keyIsset($data, 'limit');
+                Assert::greaterOrEqualThan($data['limit'], 1);
+                Assert::keyIsset($data, 'limitPerUser');
+                Assert::greaterOrEqualThan($data['limitPerUser'], 1);
+            }
+            Assert::keyIsset($data, 'coupons');
+            Assert::isArray($data['coupons']);
+            Assert::allIsInstanceOf($data['coupons'], Coupon::class);
+            Assert::keyIsset($data, 'campaignVisibility');
+            CampaignVisibility::validateRequiredData($data['campaignVisibility']);
         }
 
-        Assert::keyIsset($data, 'coupons');
-        Assert::isArray($data['coupons']);
-        Assert::allIsInstanceOf($data['coupons'], Coupon::class);
+        if ($data['reward'] == self::REWARD_TYPE_CASHBACK) {
+            Assert::notBlank($data['pointValue']);
+            Assert::greaterOrEqualThan($data['pointValue'], 0);
+        }
+
         Assert::keyIsset($data, 'campaignActivity');
-        Assert::keyIsset($data, 'campaignVisibility');
         CampaignActivity::validateRequiredData($data['campaignActivity']);
-        CampaignVisibility::validateRequiredData($data['campaignVisibility']);
     }
 
     public function getFlatLevels()
@@ -586,6 +604,30 @@ class Campaign
     public function setCampaignPhoto($campaignPhoto)
     {
         $this->campaignPhoto = $campaignPhoto;
+    }
+
+    /**
+     * @return float
+     */
+    public function getPointValue()
+    {
+        return $this->pointValue;
+    }
+
+    /**
+     * @param float $pointValue
+     */
+    public function setPointValue($pointValue)
+    {
+        $this->pointValue = $pointValue;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCashback()
+    {
+        return $this->reward == self::REWARD_TYPE_CASHBACK;
     }
 
     /**
@@ -652,5 +694,19 @@ class Campaign
     public function hasCampaignPhoto(): bool
     {
         return $this->campaignPhoto instanceof CampaignPhoto && $this->campaignPhoto->getPath();
+    }
+
+    /**
+     * @param $pointsAmount
+     *
+     * @return float
+     */
+    public function calculateCashbackAmount($pointsAmount)
+    {
+        if (!$this->isCashback()) {
+            return;
+        }
+
+        return round($pointsAmount * $this->getPointValue(), 2);
     }
 }

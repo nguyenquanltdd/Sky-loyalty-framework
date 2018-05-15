@@ -36,6 +36,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
     const FIRST_PURCHASE_CAMPAIGN_ID = '000096cf-32a3-43bd-9034-4df343e5fd86';
     const SECOND_PRODUCT_CAMPAIGN_ID = '000096cf-32a3-43bd-9034-4df343e5fd87';
     const SECOND_PURCHASE_CAMPAIGN_ID = '000096cf-32a3-43bd-9034-4df343e5fd78';
+    const CASHBACK_CAMPAIGN_ID = '000096cf-32a3-43bd-9034-4df343e5fd70';
 
     /**
      * @param ObjectManager $manager
@@ -126,6 +127,13 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
                 new CreateCampaign(
                     new CampaignId(self::SECOND_PURCHASE_CAMPAIGN_ID),
                     $this->getSecondPurchaseCampaignData()->toArray()
+                )
+            );
+        $this->container->get('broadway.command_handling.command_bus')
+            ->dispatch(
+                new CreateCampaign(
+                    new CampaignId(self::CASHBACK_CAMPAIGN_ID),
+                    $this->getCashbackCampaignData()->toArray()
                 )
             );
     }
@@ -632,6 +640,29 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setRewardValue(100);
         $campaign->setTax(20);
         $campaign->setTaxPriceValue(20);
+
+        return $campaign;
+    }
+
+    protected function getCashbackCampaignData()
+    {
+        $campaign = new Campaign();
+        $campaign->setActive(true);
+        $campaign->setLevels(
+            [
+                new LevelId(LoadLevelData::LEVEL2_ID),
+                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL3_ID),
+                new LevelId(LoadLevelData::LEVEL4_ID),
+            ]
+        );
+
+        $campaign->setReward(Campaign::REWARD_TYPE_CASHBACK);
+        $campaign->setName('Cashback');
+        $campaignActivity = new CampaignActivity();
+        $campaignActivity->setAllTimeActive(true);
+        $campaign->setCampaignActivity($campaignActivity);
+        $campaign->setPointValue(0.1);
 
         return $campaign;
     }

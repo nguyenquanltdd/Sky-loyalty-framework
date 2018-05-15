@@ -173,10 +173,10 @@ class Customer extends EventSourcedAggregateRoot
         );
     }
 
-    public function buyCampaign(CampaignId $campaignId, $campaignName, $costInPoints, Coupon $coupon)
+    public function buyCampaign(CampaignId $campaignId, $campaignName, $costInPoints, Coupon $coupon, $reward)
     {
         $this->apply(
-            new CampaignWasBoughtByCustomer($this->getId(), $campaignId, $campaignName, $costInPoints, $coupon)
+            new CampaignWasBoughtByCustomer($this->getId(), $campaignId, $campaignName, $costInPoints, $coupon, $reward)
         );
     }
 

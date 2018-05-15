@@ -241,7 +241,8 @@ class CustomerCampaignsController extends FOSRestController
                 new \OpenLoyalty\Component\Customer\Domain\CampaignId($campaign->getCampaignId()->__toString()),
                 $campaign->getName(),
                 $campaign->getCostInPoints(),
-                $coupon
+                $coupon,
+                $campaign->getReward()
             )
         );
 

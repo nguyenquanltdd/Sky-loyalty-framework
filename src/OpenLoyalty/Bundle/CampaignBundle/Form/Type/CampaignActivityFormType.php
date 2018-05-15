@@ -17,6 +17,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class CampaignActivityFormType extends AbstractType
 {
+    /**
+     * {@inheritdoc}
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('allTimeActive', CheckboxType::class, [
@@ -34,6 +37,9 @@ class CampaignActivityFormType extends AbstractType
         ]);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([

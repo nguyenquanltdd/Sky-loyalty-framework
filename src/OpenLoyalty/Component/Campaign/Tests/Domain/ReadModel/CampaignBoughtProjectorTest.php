@@ -69,7 +69,10 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
                 new CampaignWasBoughtByCustomer(
                     $customerId,
                     $campaignId,
-                    'campaignName', '1', $coupon
+                    'campaignName',
+                    '1',
+                    $coupon,
+                    Campaign::REWARD_TYPE_DISCOUNT_CODE
                 )
             );
 
@@ -107,7 +110,10 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
                     new CampaignWasBoughtByCustomer(
                         $customerId,
                         $campaignId,
-                        'campaignName', '1', $coupon
+                        'campaignName',
+                        '1',
+                        $coupon,
+                        Campaign::REWARD_TYPE_DISCOUNT_CODE
                     ),
                 )
             )

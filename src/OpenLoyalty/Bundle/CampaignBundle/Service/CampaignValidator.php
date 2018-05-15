@@ -97,6 +97,29 @@ class CampaignValidator
         }
     }
 
+    /**
+     * @param float      $points
+     * @param CustomerId $customerId
+     *
+     * @return bool
+     *
+     * @throws NotEnoughPointsException
+     */
+    public function hasCustomerEnoughPointsForCashback($points, CustomerId $customerId)
+    {
+        $accounts = $this->accountDetailsRepository->findBy(['customerId' => $customerId->__toString()]);
+        if (count($accounts) == 0) {
+            throw new NotEnoughPointsException();
+        }
+        /** @var AccountDetails $account */
+        $account = reset($accounts);
+        if ($account->getAvailableAmount() < $points) {
+            throw new NotEnoughPointsException();
+        }
+
+        return true;
+    }
+
     public function isCampaignActive(Campaign $campaign)
     {
         if (!$campaign->isActive()) {
@@ -117,6 +140,10 @@ class CampaignValidator
 
     public function isCampaignVisible(Campaign $campaign)
     {
+        if ($campaign->isCashback()) {
+            return false;
+        }
+
         $campaignVisibility = $campaign->getCampaignVisibility();
         if ($campaignVisibility->isAllTimeVisible()) {
             return true;

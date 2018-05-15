@@ -11,6 +11,7 @@ use OpenLoyalty\Component\Account\Domain\Model\SpendPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Account\Infrastructure\Event\Listener\SpendPointsOnCampaignListener;
+use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
@@ -57,7 +58,8 @@ class SpendPointsOnCampaignListenerTest extends \PHPUnit_Framework_TestCase
             new CampaignId($this->uuid),
             'test',
             10,
-            new Coupon('123')
+            new Coupon('123'),
+            Campaign::REWARD_TYPE_DISCOUNT_CODE
         ));
     }
 

@@ -27,6 +27,7 @@ class CampaignVoter extends Voter
     const BUY = 'BUY';
     const BUY_FOR_CUSTOMER = 'BUY_FOR_CUSTOMER';
     const MARK_COUPON_AS_USED = 'MARK_COUPON_AS_USED';
+    const CASHBACK = 'CASHBACK';
 
     /**
      * @var CampaignProvider
@@ -55,6 +56,7 @@ class CampaignVoter extends Voter
                 self::LIST_CAMPAIGNS_BOUGHT_BY_ME,
                 self::LIST_CAMPAIGNS_AVAILABLE_FOR_ME,
                 self::BUY_FOR_CUSTOMER,
+                self::CASHBACK,
         ]);
     }
 
@@ -90,6 +92,8 @@ class CampaignVoter extends Voter
                 return $user->hasRole('ROLE_PARTICIPANT');
             case self::MARK_COUPON_AS_USED:
                 return $user->hasRole('ROLE_ADMIN') || $user->hasRole('ROLE_PARTICIPANT');
+            case self::CASHBACK:
+                return $user->hasRole('ROLE_ADMIN');
             default:
                 return false;
         }
