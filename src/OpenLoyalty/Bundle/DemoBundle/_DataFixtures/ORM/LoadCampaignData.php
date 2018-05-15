@@ -342,6 +342,8 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
         $campaign->setRewardValue(100);
+        $campaign->setTax(20);
+        $campaign->setTaxPriceValue(20);
 
         return $campaign;
     }
@@ -384,6 +386,8 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
         $campaign->setRewardValue(200.95);
+        $campaign->setTax(20);
+        $campaign->setTaxPriceValue(40.19);
 
         return $campaign;
     }
@@ -416,6 +420,8 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
         $campaign->setRewardValue(199.95);
+        $campaign->setTax(20);
+        $campaign->setTaxPriceValue(39.99);
 
         return $campaign;
     }
@@ -455,6 +461,8 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
         $campaign->setRewardValue(100);
+        $campaign->setTax(20);
+        $campaign->setTaxPriceValue(20);
 
         return $campaign;
     }
@@ -490,6 +498,8 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
         $campaign->setRewardValue(9.95);
+        $campaign->setTax(20);
+        $campaign->setTaxPriceValue(1.99);
 
         return $campaign;
     }
@@ -534,6 +544,8 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
         $campaign->setRewardValue(99.99);
+        $campaign->setTax(20);
+        $campaign->setTaxPriceValue(19.99);
 
         return $campaign;
     }
@@ -569,6 +581,8 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
         $campaign->setRewardValue(100.99);
+        $campaign->setTax(20);
+        $campaign->setTaxPriceValue(20.19);
 
         return $campaign;
     }
@@ -616,6 +630,8 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
         $campaign->setRewardValue(100);
+        $campaign->setTax(20);
+        $campaign->setTaxPriceValue(20);
 
         return $campaign;
     }

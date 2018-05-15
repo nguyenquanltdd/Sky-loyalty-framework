@@ -43,6 +43,8 @@ class Campaign extends BaseCampaign
             'campaignVisibility' => $this->campaignVisibility->toArray(),
             'usageInstruction' => $this->usageInstruction,
             'rewardValue' => $this->rewardValue,
+            'tax' => $this->tax,
+            'taxPriceValue' => $this->taxPriceValue,
         ];
     }
 
@@ -74,6 +76,19 @@ class Campaign extends BaseCampaign
             $message = 'This collection should contain 1 element or more.';
             $context->buildViolation($message)->atPath('levels')->addViolation();
             $context->buildViolation($message)->atPath('segments')->addViolation();
+        }
+    }
+
+    /**
+     * @param ExecutionContextInterface $context
+     * @Assert\Callback()
+     */
+    public function validateTax(ExecutionContextInterface $context)
+    {
+        if (!empty($this->tax)) {
+            if (!filter_var($this->tax, FILTER_VALIDATE_INT)) {
+                $context->buildViolation('This value should be of type integer.')->atPath('tax')->addViolation();
+            }
         }
     }
 }

@@ -47,7 +47,8 @@ class UpdateCampaignTest extends CampaignCommandHandlerTest
                 'visibleTo' => new \DateTime('2016-02-11'),
             ],
             'rewardValue' => 99.95,
-
+            'taxPriceValue' => 100.50,
+            'tax' => 23,
         ]);
         $handler->handle($command);
         $campaign = $this->inMemoryRepository->byId($campaignId);
@@ -55,5 +56,7 @@ class UpdateCampaignTest extends CampaignCommandHandlerTest
         $this->assertInstanceOf(Campaign::class, $campaign);
         $this->assertEquals('test', $campaign->getName());
         $this->assertEquals(99.95, $campaign->getRewardValue());
+        $this->assertEquals(100.50, $campaign->getTaxPriceValue());
+        $this->assertEquals(23, $campaign->getTax());
     }
 }

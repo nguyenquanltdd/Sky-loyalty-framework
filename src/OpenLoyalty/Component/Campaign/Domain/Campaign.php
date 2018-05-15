@@ -122,6 +122,16 @@ class Campaign
      */
     protected $rewardValue;
 
+    /**
+     * @var int
+     */
+    protected $tax;
+
+    /**
+     * @var float
+     */
+    protected $taxPriceValue;
+
     public function __construct(CampaignId $campaignId, array $data = [])
     {
         $this->campaignId = $campaignId;
@@ -205,8 +215,16 @@ class Campaign
             $this->setUsageInstruction($data['usageInstruction']);
         }
 
-        if (isset($data['rewardValue'])) {
+        if (array_key_exists('rewardValue', $data)) {
             $this->setRewardValue($data['rewardValue']);
+        }
+
+        if (array_key_exists('tax', $data)) {
+            $this->setTax($data['tax']);
+        }
+
+        if (array_key_exists('taxPriceValue', $data)) {
+            $this->setTaxPriceValue($data['taxPriceValue']);
         }
     }
 
@@ -571,26 +589,68 @@ class Campaign
     }
 
     /**
+     * @param float|null $rewardValue
+     *
+     * @return $this
+     */
+    public function setRewardValue($rewardValue)
+    {
+        if (is_null($rewardValue)) {
+            $this->rewardValue = null;
+
+            return $this;
+        }
+
+        $this->rewardValue = round((float) $rewardValue, 2);
+
+        return $this;
+    }
+
+    /**
+     * @return float|null
+     */
+    public function getRewardValue()
+    {
+        return $this->rewardValue;
+    }
+
+    /**
+     * @param int|null $tax
+     */
+    public function setTax($tax)
+    {
+        $this->tax = $tax;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTax(): int
+    {
+        return (int) $this->tax;
+    }
+
+    /**
+     * @param float $taxPriceValue
+     */
+    public function setTaxPriceValue($taxPriceValue)
+    {
+        $this->taxPriceValue = $taxPriceValue;
+    }
+
+    /**
+     * @return float|null
+     */
+    public function getTaxPriceValue()
+    {
+        return $this->taxPriceValue;
+    }
+
+    /**
      * @return bool
      */
     public function hasCampaignPhoto(): bool
     {
         return $this->campaignPhoto instanceof CampaignPhoto && $this->campaignPhoto->getPath();
-    }
-
-    /**
-     * @param float $rewardValue
-     */
-    public function setRewardValue($rewardValue)
-    {
-        $this->rewardValue = round((float) $rewardValue, 2);
-    }
-
-    /**
-     * @return float
-     */
-    public function getRewardValue(): float
-    {
-        return (float) $this->rewardValue;
     }
 }

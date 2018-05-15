@@ -61,6 +61,8 @@ class CampaignControllerTest extends BaseApiTest
                         'visibleFrom' => (new \DateTime('2016-02-01'))->format('Y-m-d H:i'),
                         'visibleTo' => (new \DateTime('2037-02-11'))->format('Y-m-d H:i'),
                     ],
+                    'taxPriceValue' => 99.95,
+                    'tax' => 23,
                 ],
             ]
         );
@@ -71,6 +73,8 @@ class CampaignControllerTest extends BaseApiTest
         $this->assertArrayHasKey('campaignId', $data);
         $campaign = $this->repository->byId(new CampaignId($data['campaignId']));
         $this->assertInstanceOf(Campaign::class, $campaign);
+        $this->assertEquals(99.95, $campaign->getTaxPriceValue());
+        $this->assertEquals(23, $campaign->getTax());
     }
     /**
      * @test
@@ -145,6 +149,8 @@ class CampaignControllerTest extends BaseApiTest
                         'visibleFrom' => (new \DateTime('2016-02-01'))->format('Y-m-d H:i'),
                         'visibleTo' => (new \DateTime('2037-02-11'))->format('Y-m-d H:i'),
                     ],
+                    'taxPriceValue' => 300.95,
+                    'tax' => 23,
                 ],
             ]
         );
@@ -156,6 +162,8 @@ class CampaignControllerTest extends BaseApiTest
         $campaign = $this->repository->byId(new CampaignId($data['campaignId']));
         $this->assertInstanceOf(Campaign::class, $campaign);
         $this->assertEquals('test', $campaign->getName());
+        $this->assertEquals(300.95, $campaign->getTaxPriceValue());
+        $this->assertEquals(23, $campaign->getTax());
     }
 
     /**

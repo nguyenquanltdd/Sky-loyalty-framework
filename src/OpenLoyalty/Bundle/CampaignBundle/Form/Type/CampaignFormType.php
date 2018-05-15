@@ -22,7 +22,11 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Count;
+use Symfony\Component\Validator\Constraints\GreaterThan;
+use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
+use Symfony\Component\Validator\Constraints\LessThan;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Constraints\Valid;
 
@@ -64,6 +68,18 @@ class CampaignFormType extends AbstractType
         $builder->add('rewardValue', NumberType::class, [
             'scale' => 2,
             'required' => false,
+            'constraints' => [new Optional(), new GreaterThan(['value' => 0]), new LessThan(['value' => 999999999])],
+        ]);
+
+        $builder->add('tax', NumberType::class, [
+            'required' => false,
+            'constraints' => [new Optional(), new GreaterThanOrEqual(['value' => 0]), new LessThan(['value' => 99])],
+        ]);
+
+        $builder->add('taxPriceValue', NumberType::class, [
+            'scale' => 2,
+            'required' => false,
+            'constraints' => [new Optional(), new GreaterThan(['value' => 0]), new LessThan(['value' => 999999999])],
         ]);
 
         $builder->add('usageInstruction', TextareaType::class, [
