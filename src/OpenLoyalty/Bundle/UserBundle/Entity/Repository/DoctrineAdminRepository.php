@@ -6,6 +6,10 @@
 namespace OpenLoyalty\Bundle\UserBundle\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
+use OpenLoyalty\Bundle\UserBundle\Exception\AdminNotFoundException;
 use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortByFilter;
 use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortFilter;
 
@@ -64,5 +68,22 @@ class DoctrineAdminRepository extends EntityRepository implements AdminRepositor
         $result = $qb->getQuery()->getResult();
 
         return count($result) > 0;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findById(string $adminId): Admin
+    {
+        try {
+            $qb = $this->createQueryBuilder('u');
+            $qb->andWhere('u.id = :id')->setParameter('id', $adminId);
+
+            return $qb->getQuery()->getSingleResult();
+        } catch (NoResultException | NonUniqueResultException $e) {
+            throw new AdminNotFoundException();
+        } catch (\Exception $e) {
+            throw new AdminNotFoundException();
+        }
     }
 }

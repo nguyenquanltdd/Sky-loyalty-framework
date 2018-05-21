@@ -202,7 +202,6 @@ services:
       class: OpenLoyalty\Bundle\UserBundle\CQRS\Handler\AdminHandler
       arguments:
         - '@oloy.user.user_manager'
-        - '@broadway.uuid.generator'
         - '@oloy.user.repository.admin'
       lazy: true
       tags:

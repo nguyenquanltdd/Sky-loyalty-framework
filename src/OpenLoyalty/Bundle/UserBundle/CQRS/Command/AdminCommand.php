@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\CQRS\Command;
 
-use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
+use OpenLoyalty\Bundle\UserBundle\CQRS\AdminId;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -13,19 +13,112 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class AdminCommand
 {
-    public $firstName;
+    /**
+     * @var AdminId
+     */
+    protected $adminId;
 
-    public $lastName;
+    /**
+     * @var string
+     */
+    protected $firstName;
 
-    public $phone;
+    /**
+     * @var string
+     */
+    protected $lastName;
+
+    /**
+     * @var string
+     */
+    protected $phone;
 
     /**
      * @Assert\NotBlank()
+     *
+     * @var string
      */
-    public $email;
+    protected $email;
 
     /**
-     * @var Admin
+     * AdminCommand constructor.
+     *
+     * @param AdminId $adminId
      */
-    public $admin;
+    public function __construct(AdminId $adminId)
+    {
+        $this->adminId = $adminId;
+    }
+
+    /**
+     * @return AdminId
+     */
+    public function getAdminId(): AdminId
+    {
+        return $this->adminId;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFirstName(): ? string
+    {
+        return $this->firstName;
+    }
+
+    /**
+     * @param string $firstName
+     */
+    public function setFirstName(string $firstName) : void
+    {
+        $this->firstName = $firstName;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getLastName(): ? string
+    {
+        return $this->lastName;
+    }
+
+    /**
+     * @param string $lastName
+     */
+    public function setLastName(string $lastName) : void
+    {
+        $this->lastName = $lastName;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPhone(): ? string
+    {
+        return $this->phone;
+    }
+
+    /**
+     * @param string $phone
+     */
+    public function setPhone(string $phone) : void
+    {
+        $this->phone = $phone;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getEmail(): ? string
+    {
+        return $this->email;
+    }
+
+    /**
+     * @param string $email
+     */
+    public function setEmail(string $email) : void
+    {
+        $this->email = $email;
+    }
 }

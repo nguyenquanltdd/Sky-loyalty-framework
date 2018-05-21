@@ -6,7 +6,11 @@
 namespace OpenLoyalty\Bundle\UserBundle\Entity\Repository;
 
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
+use OpenLoyalty\Bundle\UserBundle\Exception\AdminNotFoundException;
 
+/**
+ * Interface AdminRepository.
+ */
 interface AdminRepository
 {
     /**
@@ -19,6 +23,9 @@ interface AdminRepository
      */
     public function findAllPaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'ASC');
 
+    /**
+     * @return int
+     */
     public function countTotal();
 
     /**
@@ -28,4 +35,13 @@ interface AdminRepository
      * @return bool
      */
     public function isEmailExist($email, $excludedId = null);
+
+    /**
+     * @param string $adminId
+     *
+     * @throws AdminNotFoundException
+     *
+     * @return Admin
+     */
+    public function findById(string $adminId): Admin;
 }

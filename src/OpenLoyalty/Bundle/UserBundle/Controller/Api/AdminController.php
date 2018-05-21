@@ -8,7 +8,9 @@ namespace OpenLoyalty\Bundle\UserBundle\Controller\Api;
 use Broadway\CommandHandling\SimpleCommandBus;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use OpenLoyalty\Bundle\UserBundle\CQRS\AdminId;
 use OpenLoyalty\Bundle\UserBundle\CQRS\Command\AdminCommand;
 use OpenLoyalty\Bundle\UserBundle\CQRS\Command\CreateAdmin;
 use OpenLoyalty\Bundle\UserBundle\CQRS\Command\EditAdmin;
@@ -23,6 +25,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class AdminController.
@@ -50,7 +53,7 @@ class AdminController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function listAction(Request $request)
     {
@@ -69,7 +72,7 @@ class AdminController extends FOSRestController
         return $this->view([
             'users' => $users,
             'total' => $total,
-        ], 200);
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -78,7 +81,7 @@ class AdminController extends FOSRestController
      * @param Request    $request
      * @param Admin|null $admin
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      * @Route(name="oloy.user.edit_admin", path="/admin/data/{admin}")
      *
      * @Method("PUT")
@@ -102,16 +105,16 @@ class AdminController extends FOSRestController
 
         if ($admin->getId() == $this->getUser()->getId()) {
             $type = AdminSelfEditFormType::class;
-            $command = new SelfEditAdmin($admin);
+            $command = new SelfEditAdmin(new AdminId($admin->getId()));
         } else {
             $type = AdminFormType::class;
-            $command = new EditAdmin($admin);
+            $command = new EditAdmin(new AdminId($admin->getId()));
         }
 
         $form = $this->get('form.factory')->createNamed('admin', $type, $command, [
             'method' => 'PUT',
             'validation_groups' => function (FormInterface $form) {
-                if (!$form->get('external')->getData()) {
+                if ($form->has('external') && !$form->get('external')->getData()) {
                     return ['Default', 'internal'];
                 } else {
                     return ['Default', 'external'];
@@ -125,7 +128,7 @@ class AdminController extends FOSRestController
             return $this->handleAdminCommand($command, $form);
         }
 
-        return $this->view($form->getErrors(), 400);
+        return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
     }
 
     /**
@@ -133,7 +136,7 @@ class AdminController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      * @Route(name="oloy.user.create_admin", path="/admin/data")
      *
      * @Method("POST")
@@ -150,7 +153,10 @@ class AdminController extends FOSRestController
     public function createAction(Request $request)
     {
         $this->denyAccessUnlessGranted('CREATE_USER');
-        $command = new CreateAdmin();
+
+        $adminId = new AdminId($this->get('broadway.uuid.generator')->generate());
+        $command = new CreateAdmin($adminId);
+
         $form = $this->get('form.factory')->createNamed('admin', AdminFormType::class, $command, [
             'method' => 'POST',
             'validation_groups' => function (FormInterface $form) {
@@ -168,7 +174,7 @@ class AdminController extends FOSRestController
             return $this->handleAdminCommand($command, $form);
         }
 
-        return $this->view($form->getErrors(), 400);
+        return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
     }
 
     /**
@@ -176,7 +182,7 @@ class AdminController extends FOSRestController
      *
      * @param Admin|null $admin
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      * @Route(name="oloy.user.get_admin", path="/admin/data/{admin}")
      *
      * @Method("GET")
@@ -195,9 +201,17 @@ class AdminController extends FOSRestController
 
         $this->denyAccessUnlessGranted('VIEW', $admin);
 
-        return $this->view($admin, 200);
+        return $this->view($admin, Response::HTTP_OK);
     }
 
+    /**
+     * @param AdminCommand  $command
+     * @param FormInterface $form
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
     protected function handleAdminCommand(AdminCommand $command, FormInterface $form)
     {
         /** @var SimpleCommandBus $commandBus */
@@ -207,13 +221,15 @@ class AdminController extends FOSRestController
         } catch (EmailAlreadyExistException $e) {
             $form->get('email')->addError(new FormError($e->getMessage()));
 
-            return $this->view($form->getErrors(), 400);
+            return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
         } catch (\DomainException $e) {
             $form->addError(new FormError($e->getMessage()));
 
-            return $this->view($form->getErrors(), 400);
+            return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
+        } catch (\Exception $e) {
+            return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->view(null, 200);
+        return $this->view($command->getAdminId(), Response::HTTP_OK);
     }
 }

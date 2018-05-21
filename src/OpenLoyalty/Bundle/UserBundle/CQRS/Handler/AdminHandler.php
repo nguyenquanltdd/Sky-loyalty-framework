@@ -6,11 +6,11 @@
 namespace OpenLoyalty\Bundle\UserBundle\CQRS\Handler;
 
 use Broadway\CommandHandling\CommandHandler;
-use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Bundle\UserBundle\CQRS\Command\CreateAdmin;
 use OpenLoyalty\Bundle\UserBundle\CQRS\Command\EditAdmin;
 use OpenLoyalty\Bundle\UserBundle\CQRS\Command\SelfEditAdmin;
 use OpenLoyalty\Bundle\UserBundle\Entity\Repository\AdminRepository;
+use OpenLoyalty\Bundle\UserBundle\Exception\AdminNotFoundException;
 use OpenLoyalty\Bundle\UserBundle\Exception\EmailAlreadyExistException;
 use OpenLoyalty\Bundle\UserBundle\Service\UserManager;
 
@@ -25,11 +25,6 @@ class AdminHandler implements CommandHandler
     protected $userManager;
 
     /**
-     * @var UuidGeneratorInterface
-     */
-    protected $uuidGenerator;
-
-    /**
      * @var AdminRepository
      */
     protected $adminRepository;
@@ -37,22 +32,19 @@ class AdminHandler implements CommandHandler
     /**
      * AdminHandler constructor.
      *
-     * @param UserManager            $userManager
-     * @param UuidGeneratorInterface $uuidGenerator
-     * @param AdminRepository        $adminRepository
+     * @param UserManager     $userManager
+     * @param AdminRepository $adminRepository
      */
     public function __construct(
         UserManager $userManager,
-        UuidGeneratorInterface $uuidGenerator,
         AdminRepository $adminRepository
     ) {
         $this->userManager = $userManager;
-        $this->uuidGenerator = $uuidGenerator;
         $this->adminRepository = $adminRepository;
     }
 
     /**
-     * @param mixed $command
+     * {@inheritdoc}
      */
     public function handle($command)
     {
@@ -66,51 +58,70 @@ class AdminHandler implements CommandHandler
         }
     }
 
+    /**
+     * @param CreateAdmin $command
+     */
     protected function handleCreateAdmin(CreateAdmin $command)
     {
-        if ($this->adminRepository->isEmailExist($command->email)) {
+        if ($this->adminRepository->isEmailExist($command->getEmail())) {
             throw new EmailAlreadyExistException();
         }
-        $id = $this->uuidGenerator->generate();
-        $admin = $this->userManager->createNewAdmin($id);
-        $admin->setApiKey($command->apiKey);
-        $admin->setEmail($command->email);
-        $admin->setFirstName($command->firstName);
-        $admin->setLastName($command->lastName);
-        $admin->setPhone($command->phone);
-        $admin->setPlainPassword($command->plainPassword);
-        $admin->setExternal($command->external);
-        $admin->setIsActive($command->isActive);
+
+        $admin = $this->userManager->createNewAdmin($command->getAdminId());
+        $admin->setApiKey($command->getApiKey());
+        $admin->setEmail($command->getEmail());
+        $admin->setFirstName($command->getFirstName());
+        $admin->setLastName($command->getLastName());
+        $admin->setPhone($command->getPhone());
+        $admin->setPlainPassword($command->getPlainPassword());
+        $admin->setExternal($command->isExternal());
+        $admin->setIsActive($command->isActive());
         $this->userManager->updateUser($admin);
     }
 
+    /**
+     * @param EditAdmin $command
+     *
+     * @throws EmailAlreadyExistException
+     * @throws AdminNotFoundException
+     */
     protected function handleEditAdmin(EditAdmin $command)
     {
-        if ($this->adminRepository->isEmailExist($command->email, $command->admin->getId())) {
+        if ($this->adminRepository->isEmailExist($command->getEmail(), $command->getAdminId()->__toString())) {
             throw new EmailAlreadyExistException();
         }
-        $admin = $command->admin;
-        $admin->setApiKey($command->apiKey);
-        $admin->setEmail($command->email);
-        $admin->setFirstName($command->firstName);
-        $admin->setLastName($command->lastName);
-        $admin->setPhone($command->phone);
-        $admin->setPlainPassword($command->plainPassword);
-        $admin->setExternal($command->external);
-        $admin->setIsActive($command->isActive);
+
+        $admin = $this->adminRepository->findById($command->getAdminId()->__toString());
+
+        $admin->setApiKey($command->getApiKey());
+        $admin->setEmail($command->getEmail());
+        $admin->setFirstName($command->getFirstName());
+        $admin->setLastName($command->getLastName());
+        $admin->setPhone($command->getPhone());
+        $admin->setPlainPassword($command->getPlainPassword());
+        $admin->setExternal($command->isExternal());
+        $admin->setIsActive($command->isActive());
         $this->userManager->updateUser($admin);
     }
 
+    /**
+     * @param SelfEditAdmin $command
+     *
+     * @throws EmailAlreadyExistException
+     * @throws AdminNotFoundException
+     */
     protected function handleSelfEditAdmin(SelfEditAdmin $command)
     {
-        if ($this->adminRepository->isEmailExist($command->email, $command->admin->getId())) {
+        if ($this->adminRepository->isEmailExist($command->getEmail(), $command->getAdminId()->__toString())) {
             throw new EmailAlreadyExistException();
         }
-        $admin = $command->admin;
-        $admin->setEmail($command->email);
-        $admin->setFirstName($command->firstName);
-        $admin->setLastName($command->lastName);
-        $admin->setPhone($command->phone);
+
+        $admin = $this->adminRepository->findById($command->getAdminId()->__toString());
+
+        $admin->setEmail($command->getEmail());
+        $admin->setFirstName($command->getFirstName());
+        $admin->setLastName($command->getLastName());
+        $admin->setPhone($command->getPhone());
         $this->userManager->updateUser($admin);
     }
 }

@@ -18,6 +18,9 @@ use Symfony\Component\Form\FormEvents;
  */
 class AdminFormType extends AbstractType
 {
+    /**
+     * {@inheritdoc}
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('plainPassword', TextType::class, [
@@ -50,6 +53,9 @@ class AdminFormType extends AbstractType
         });
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getParent()
     {
         return AdminSelfEditFormType::class;

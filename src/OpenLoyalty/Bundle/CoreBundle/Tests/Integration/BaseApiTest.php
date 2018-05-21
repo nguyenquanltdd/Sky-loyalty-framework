@@ -3,6 +3,8 @@
 namespace OpenLoyalty\Bundle\CoreBundle\Tests\Integration;
 
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
+use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
+use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -76,7 +78,7 @@ abstract class BaseApiTest extends WebTestCase
     /**
      * @param string $customerId
      *
-     * @return null|object
+     * @return null|Customer
      */
     protected function getCustomerEntity($customerId)
     {
@@ -84,5 +86,18 @@ abstract class BaseApiTest extends WebTestCase
             ->getRepository('OpenLoyaltyUserBundle:Customer')->findOneBy(['id' => $customerId]);
 
         return $customer;
+    }
+
+    /**
+     * @param string $adminId
+     *
+     * @return null|Admin
+     */
+    protected function getAdminEntity(string $adminId)
+    {
+        $admin = static::$kernel->getContainer()->get('doctrine.orm.entity_manager')
+            ->getRepository('OpenLoyaltyUserBundle:Admin')->findOneBy(['id' => $adminId]);
+
+        return $admin;
     }
 }

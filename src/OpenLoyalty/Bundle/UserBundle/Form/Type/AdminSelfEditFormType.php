@@ -16,6 +16,9 @@ use Symfony\Component\Validator\Constraints\Type as Numeric;
  */
 class AdminSelfEditFormType extends AbstractType
 {
+    /**
+     * {@inheritdoc}
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('firstName', TextType::class, [

@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Component\Account\Domain;
 
+use Assert\AssertionFailedException;
 use OpenLoyalty\Component\Core\Domain\Model\Identifier;
 use Assert\Assertion as Assert;
 
@@ -16,7 +17,11 @@ class CustomerId implements Identifier
     private $customerId;
 
     /**
+     * CustomerId constructor.
+     *
      * @param string $customerId
+     *
+     * @throws AssertionFailedException
      */
     public function __construct($customerId)
     {
