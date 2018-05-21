@@ -799,4 +799,52 @@ class TransactionControllerTest extends BaseApiTest
         $this->assertNotNull($transaction->getCustomerId());
         $this->assertEquals(LoadUserData::USER_USER_ID, $transaction->getCustomerId()->__toString());
     }
+
+    /**
+     * @test
+     */
+    public function it_returns_a_transactions_list_with_required_fields()
+    {
+        $client = $this->createAuthenticatedClient(LoadUserData::ADMIN_USERNAME, LoadUserData::ADMIN_PASSWORD);
+        $client->request(
+            'GET',
+            '/api/transaction'
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+        $this->assertArrayHasKey('transactions', $data);
+        $this->assertArrayHasKey('total', $data);
+
+        $transactions = $data['transactions'];
+
+        foreach ($transactions as $transaction) {
+            $this->assertArrayHasKey('grossValue', $transaction);
+            $this->assertArrayHasKey('transactionId', $transaction);
+            $this->assertArrayHasKey('documentNumber', $transaction);
+            $this->assertArrayHasKey('purchaseDate', $transaction);
+            $this->assertArrayHasKey('purchasePlace', $transaction);
+            $this->assertArrayHasKey('documentType', $transaction);
+            $this->assertArrayHasKey('currency', $transaction);
+            $this->assertArrayHasKey('pointsEarned', $transaction);
+
+            $this->assertArrayHasKey('customerData', $transaction);
+            $customerData = $transaction['customerData'];
+            $this->assertArrayHasKey('name', $customerData);
+
+            $this->assertArrayHasKey('items', $transaction);
+            $items = $transaction['items'];
+            $this->assertInternalType('array', $items);
+
+            foreach ($items as $item) {
+                $this->assertArrayHasKey('sku', $item);
+                $this->assertArrayHasKey('code', $item['sku']);
+                $this->assertArrayHasKey('name', $item);
+                $this->assertArrayHasKey('quantity', $item);
+                $this->assertArrayHasKey('grossValue', $item);
+                $this->assertArrayHasKey('category', $item);
+            }
+        }
+    }
 }
