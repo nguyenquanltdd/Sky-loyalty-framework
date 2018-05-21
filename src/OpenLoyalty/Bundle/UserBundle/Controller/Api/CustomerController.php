@@ -133,13 +133,13 @@ class CustomerController extends FOSRestController
         $repo = $this->get('oloy.user.read_model.repository.customer_details');
         $customers = $repo->findByParametersPaginated(
             $params,
-            $request->get('strict', true),
+            $request->get('strict', false),
             $pagination->getPage(),
             $pagination->getPerPage(),
             $pagination->getSort(),
             $pagination->getSortDirection()
         );
-        $total = $repo->countTotal($params, $request->get('strict', true));
+        $total = $repo->countTotal($params, $request->get('strict', false));
 
         return $this->view(
             [

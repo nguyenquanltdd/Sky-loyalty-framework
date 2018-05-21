@@ -543,44 +543,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allows_to_get_customers_list_filtered_by_first_name()
-    {
-        $client = $this->createAuthenticatedClient();
-        $client->request(
-            'GET',
-            '/api/customer?firstName=John'
-        );
-
-        $response = $client->getResponse();
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $this->assertTrue(count($data['customers']) > 0);
-        $this->assertEquals('John', $data['customers'][0]['firstName']);
-    }
-
-    /**
-     * @test
-     */
-    public function it_allows_to_get_customers_list_filtered_by_email()
-    {
-        $client = $this->createAuthenticatedClient();
-        $client->request(
-            'GET',
-            '/api/customer?email=user@oloy.com'
-        );
-
-        $response = $client->getResponse();
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $this->assertCount(1, $data['customers']);
-        $this->assertEquals('John', $data['customers'][0]['firstName']);
-        $this->assertEquals('user@oloy.com', $data['customers'][0]['email']);
-    }
-
-    /**
-     * @test
-     */
-    public function it_allows_to_assing_pos_to_customer()
+    public function it_allows_to_assign_pos_to_customer()
     {
         $client = $this->createAuthenticatedClient();
         $posId = new PosId('00000000-0000-0000-0000-000000000011');
@@ -624,8 +587,8 @@ class CustomerControllerTest extends BaseApiTest
             '/api/customer/register',
             [
                 'customer' => [
-                    'firstName' => 'John',
-                    'lastName' => 'Doe',
+                    'firstName' => 'John Marks',
+                    'lastName' => 'Doe Smith',
                     'email' => 'marketing@doe.com',
                     'agreement1' => true,
                     'agreement2' => true,
@@ -790,9 +753,8 @@ class CustomerControllerTest extends BaseApiTest
 
     /**
      * @test
-     * @depends it_dont_add_points_after_customer_send_false_agreement2
      */
-    public function it_dont_add_points_after_2nd_attempt_to_newsletter_subscription()
+    public function it_do_not_add_points_after_2nd_attempt_to_newsletter_subscription()
     {
         $client = $this->createAuthenticatedClient();
         $customerId = LoadUserData::TEST_USER_ID;
@@ -834,5 +796,204 @@ class CustomerControllerTest extends BaseApiTest
         //Test newsletter subscribe flag
         $customer = $this->getCustomerEntity($customerId);
         $this->assertTrue($customer->getNewsletterUsedFlag());
+    }
+
+    /**
+     * @test
+     *
+     * @dataProvider getPartialPhrases
+     *
+     * @param string $field
+     * @param string $phrase
+     * @param int    $counter
+     */
+    public function it_allows_to_get_customers_list_filtered_by_partial_phrase($field, $phrase, $counter)
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/customer',
+            [$field => $phrase, 'perPage' => 1000]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertTrue(
+            count($data['customers']) == $counter,
+            'Expected records '.$counter.' but found '.count($data['customers'])
+        );
+        $this->assertEquals($counter, $data['total'], 'Expected total = '.$counter.' but found '.$data['total']);
+
+        foreach ($data['customers'] as $customer) {
+            $this->assertTrue(
+                array_key_exists($field, $customer),
+                'Field '.$field.' does not exists'
+            );
+            $this->assertTrue(
+                (strpos($customer[$field], $phrase) !== false),
+                'Searching phrase '.$phrase.' but found '.$customer[$field]
+            );
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getPartialPhrases()
+    {
+        return [
+            ['firstName', 'Jo', 11],
+            ['firstName', 'Marks', 1],
+            ['firstName', '1', 1],
+            ['firstName', 'John1', 1],
+            ['lastName', 'Doe', 11],
+            ['lastName', 'Doe1', 1],
+            ['lastName', 'Smith', 1],
+            ['phone', '48', 3],
+            ['phone', '645', 1],
+            ['email', '@', 11],
+            ['email', 'user-1', 1],
+            ['loyaltyCardNumber', '000000', 3],
+            ['transactionsAmount', '3', 0],
+            ['transactionsAmount', '60', 1],
+            ['transactionsAmount', '15', 1],
+            ['averageTransactionAmount', '3', 0],
+            ['averageTransactionAmount', '15', 1],
+            ['averageTransactionAmount', '7.5', 1],
+            ['transactionsCount', '4', 1],
+            ['transactionsCount', '2', 1],
+            ['transactionsCount', '0', 9],
+        ];
+    }
+
+    /**
+     * @test
+     *
+     * @dataProvider getStrictPhrases
+     *
+     * @param string $field
+     * @param string $phrase
+     * @param int    $counter
+     */
+    public function it_allows_to_get_customers_list_filtered_by_strict_phrase($field, $phrase, $counter)
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/customer',
+            [$field => $phrase, 'strict' => true]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertTrue(
+            count($data['customers']) == $counter,
+            'Expected records '.$counter.' but found '.count($data['customers'])
+        );
+        $this->assertEquals($counter, $data['total'], 'Expected total = '.$counter.' but found '.$data['total']);
+
+        foreach ($data['customers'] as $customer) {
+            $this->assertTrue(
+                array_key_exists($field, $customer),
+                'Field '.$field.' does not exists'
+            );
+            $this->assertTrue(
+                (strpos($customer[$field], $phrase) !== false),
+                'Searching phrase '.$phrase.' but found '.$customer[$field]
+            );
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getStrictPhrases()
+    {
+        return [
+            ['firstName', 'John', 9],
+            ['firstName', 'John Marks', 1],
+            ['firstName', '1', 0],
+            ['firstName', 'John1', 1],
+            ['lastName', 'Doe', 9],
+            ['lastName', 'Doe Smith', 1],
+            ['lastName', 'Doe1', 1],
+            ['lastName', '1', 0],
+            ['phone', '48', 0],
+            ['phone', '+48123123123', 1],
+            ['email', '@', 0],
+            ['email', 'user-1', 0],
+            ['loyaltyCardNumber', '000000', 1],
+            ['transactionsAmount', '3', 0],
+            ['transactionsAmount', '60', 1],
+            ['transactionsAmount', '15', 1],
+            ['averageTransactionAmount', '3', 0],
+            ['averageTransactionAmount', '15', 1],
+            ['averageTransactionAmount', '7.5', 1],
+            ['transactionsCount', '4', 1],
+            ['transactionsCount', '2', 1],
+            ['transactionsCount', '0', 9],
+        ];
+    }
+
+    /**
+     * @test
+     *
+     * @dataProvider getEmailOrPhone
+     *
+     * @param string     $field
+     * @param string     $phrase
+     * @param int        $counter
+     * @param array|null $columns
+     * @param bool       $strict
+     */
+    public function it_allows_to_get_customers_list_filtered_by_email_or_phone($field, $phrase, $counter, array $columns = null, $strict = false)
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/customer',
+            [$field => $phrase, 'strict' => $strict]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertTrue(
+            count($data['customers']) == $counter,
+            'Expected records '.$counter.' but found '.count($data['customers'])
+        );
+        $this->assertEquals($counter, $data['total'], 'Expected total = '.$counter.' but found '.$data['total']);
+
+        foreach ($data['customers'] as $customer) {
+            $result = false;
+            foreach ($columns as $column) {
+                $this->assertTrue(
+                    array_key_exists($column, $customer),
+                    'Field '.$column.' does not exists'
+                );
+
+                $result = $result || (strpos($customer[$column], $phrase) !== false);
+            }
+
+            $this->assertTrue(
+                $result,
+                'Searching phrase '.$phrase.' not found '
+            );
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getEmailOrPhone()
+    {
+        return [
+            ['emailOrPhone', 'user-1', 1, ['email', 'phone']],
+            ['emailOrPhone', 'user-1@oloy.com', 1, ['email', 'phone']],
+            ['emailOrPhone', '+48', 3, ['email', 'phone']],
+            ['emailOrPhone', '645', 1, ['email', 'phone']],
+        ];
     }
 }

@@ -16,12 +16,25 @@ use Elasticsearch\Common\Exceptions\Missing404Exception;
  */
 class OloyElasticsearchRepository extends ElasticSearchRepository implements Repository
 {
+    /** @var Client */
     protected $client;
+
+    /** @var Serializer */
     protected $serializer;
+
+    /** @var string */
     protected $index;
+
+    /** @var string */
     protected $class;
+
+    /** @var array */
     protected $notAnalyzedFields;
+
+    /** @var array */
     protected $dynamicFields = [];
+
+    /** @var int */
     private $maxResultWindowSize = 10000;
 
     /**
@@ -29,7 +42,7 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
      * @param Serializer $serializer
      * @param string     $index
      * @param string     $class
-     * @param array      $notAnalyzedFields = array
+     * @param array      $notAnalyzedFields
      */
     public function __construct(
         Client $client,
@@ -46,6 +59,9 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
         $this->notAnalyzedFields = $notAnalyzedFields;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function createIndex(): bool
     {
         $class = $this->class;
@@ -160,6 +176,16 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
         return isset($response['status']) && $response['status'] !== 'red';
     }
 
+    /**
+     * @param array  $params
+     * @param bool   $exact
+     * @param int    $page
+     * @param int    $perPage
+     * @param null   $sortField
+     * @param string $direction
+     *
+     * @return array
+     */
     public function findByParametersPaginated(
         array $params,
         $exact = true,
@@ -201,8 +227,9 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
                     $bool = ['should' => [], 'minimum_should_match' => 1];
                     foreach ($value['fields'] as $k => $v) {
                         if (!$exact) {
-                        } else {
                             $bool['should'][] = ['wildcard' => [$k => '*'.$v.'*']];
+                        } else {
+                            $bool['should'][] = ['term' => [$k => '*'.$v.'*']];
                         }
                     }
                     $filter[] = ['bool' => $bool];
@@ -216,7 +243,8 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
             } else {
                 $filter[] = [
                     'term' => [
-                        $key => $value,
+                        // term must not contain escaping chars as it search exact values
+                        $key => str_replace('\\', '', $value),
                     ],
                 ];
             }
@@ -249,6 +277,11 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
         return $this->paginatedQuery($query, $perPage === null ? null : ($page - 1) * $perPage, $perPage, $sort);
     }
 
+    /**
+     * @param array $notAnalyzedFields
+     *
+     * @return array
+     */
     private function createNotAnalyzedFieldsMapping(array $notAnalyzedFields)
     {
         $fields = array();
@@ -280,6 +313,12 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
         return true;
     }
 
+    /**
+     * @param array $params
+     * @param bool  $exact
+     *
+     * @return array
+     */
     public function findByParameters(array $params, $exact = true)
     {
         $filter = [];
@@ -297,6 +336,12 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
                             $key => $value['value'],
                         ],
                     ];
+                } elseif ($value['type'] == 'exists') {
+                    $filter[] = [
+                        'exists' => [
+                            'field' => $key,
+                        ],
+                    ];
                 } elseif ($value['type'] == 'allow_null') {
                     $filter[] = [
                         'bool' => [
@@ -310,8 +355,9 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
                     $bool = ['should' => [], 'minimum_should_match' => 1];
                     foreach ($value['fields'] as $k => $v) {
                         if (!$exact) {
-                        } else {
                             $bool['should'][] = ['wildcard' => [$k => '*'.$v.'*']];
+                        } else {
+                            $bool['should'][] = ['term' => [$k => '*'.$v.'*']];
                         }
                     }
                     $filter[] = ['bool' => $bool];
@@ -325,7 +371,8 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
             } else {
                 $filter[] = [
                     'term' => [
-                        $key => $value,
+                        // term must not contain escaping chars as it search exact values
+                        $key => str_replace('\\', '', $value),
                     ],
                 ];
             }
@@ -340,6 +387,12 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
         return $this->query($query);
     }
 
+    /**
+     * @param array $params
+     * @param bool  $exact
+     *
+     * @return int
+     */
     public function countTotal(array $params = [], $exact = true)
     {
         $filter = [];
@@ -357,6 +410,12 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
                             $key => $value['value'],
                         ],
                     ];
+                } elseif ($value['type'] == 'exists') {
+                    $filter[] = [
+                        'exists' => [
+                            'field' => $key,
+                        ],
+                    ];
                 } elseif ($value['type'] == 'allow_null') {
                     $filter[] = [
                         'bool' => [
@@ -370,8 +429,9 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
                     $bool = ['should' => [], 'minimum_should_match' => 1];
                     foreach ($value['fields'] as $k => $v) {
                         if (!$exact) {
-                        } else {
                             $bool['should'][] = ['wildcard' => [$k => '*'.$v.'*']];
+                        } else {
+                            $bool['should'][] = ['term' => [$k => '*'.$v.'*']];
                         }
                     }
                     $filter[] = ['bool' => $bool];
@@ -385,7 +445,8 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
             } else {
                 $filter[] = [
                     'term' => [
-                        $key => $value,
+                        // term must not contain escaping chars as it search exact values
+                        $key => str_replace('\\', '', $value),
                     ],
                 ];
             }
@@ -410,6 +471,14 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
         return $this->count($query);
     }
 
+    /**
+     * @param array $query
+     * @param int   $from
+     * @param int   $size
+     * @param null  $sort
+     *
+     * @return array
+     */
     protected function paginatedQuery(array $query, $from = 0, $size = 500, $sort = null)
     {
         $query = array(
@@ -429,6 +498,11 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
         );
     }
 
+    /**
+     * @param array $query
+     *
+     * @return array
+     */
     protected function searchAndDeserializeHits(array $query)
     {
         try {
@@ -444,11 +518,21 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
         return $this->deserializeHits($result['hits']['hits']);
     }
 
+    /**
+     * @param array $hits
+     *
+     * @return array
+     */
     protected function deserializeHits(array $hits)
     {
         return array_map(array($this, 'deserializeHit'), $hits);
     }
 
+    /**
+     * @param array $hit
+     *
+     * @return mixed
+     */
     private function deserializeHit(array $hit)
     {
         return $this->serializer->deserialize(
@@ -459,6 +543,11 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
         );
     }
 
+    /**
+     * @param array $query
+     *
+     * @return int
+     */
     protected function count(array $query)
     {
         $query = array(
@@ -482,11 +571,7 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
     }
 
     /**
-     * @param array $query
-     * @param array $facets
-     * @param int   $size
-     *
-     * @return array
+     * {@inheritdoc}
      */
     protected function search(array $query, array $facets = array(), int $size = 500): array
     {
@@ -508,6 +593,9 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function query(array $query)
     {
         return $this->searchAndDeserializeHits(
