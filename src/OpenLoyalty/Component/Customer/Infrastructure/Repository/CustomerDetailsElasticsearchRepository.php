@@ -21,6 +21,26 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
 {
     protected $dynamicFields = [
         [
+            'firstName' => [
+                'match' => 'firstName',
+                'match_mapping_type' => 'string',
+                'mapping' => [
+                    'type' => 'string',
+                    'analyzer' => 'small_letters',
+                ],
+            ],
+        ],
+        [
+            'lastName' => [
+                'match' => 'lastName',
+                'match_mapping_type' => 'string',
+                'mapping' => [
+                    'type' => 'string',
+                    'analyzer' => 'small_letters',
+                ],
+            ],
+        ],
+        [
             'nestedCampaignPurchases' => [
                 'match' => 'campaignPurchases',
                 'mapping' => [

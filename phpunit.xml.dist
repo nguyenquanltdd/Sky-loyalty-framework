@@ -5,12 +5,13 @@
          xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.8/phpunit.xsd"
          backupGlobals="false"
          colors="true"
-         bootstrap="app/autoload.php"
+         bootstrap="tests/bootstrap.php"
 >
     <php>
         <ini name="error_reporting" value="-1" />
         <server name="KERNEL_DIR" value="app/" />
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak" />
+        <env name="SYMFONY_ENV" value="prod" />
     </php>
 
     <testsuites>
@@ -40,6 +41,12 @@
                 <directory>src/*Bundle/Resources</directory>
                 <directory>src/*/*Bundle/Resources</directory>
                 <directory>src/*/Bundle/*Bundle/Resources</directory>
+                <directory>src/OpenLoyalty/Bundle/*Bundle/Tests/Integration</directory>
+                <directory>src/OpenLoyalty/Component/*/Tests/Integration</directory>
+                <directory>src/OpenLoyalty/Bundle/*Bundle/Tests/Unit</directory>
+                <directory>src/OpenLoyalty/Component/*/Tests/Unit</directory>
+                <directory>src/OpenLoyalty/Component/*/Tests/Domain</directory>
+                <directory>tests/OpenLoyalty/Bundle/*Bundle/Tests/Security</directory>
             </exclude>
         </whitelist>
     </filter>

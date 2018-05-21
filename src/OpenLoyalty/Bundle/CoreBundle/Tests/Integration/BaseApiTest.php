@@ -41,7 +41,7 @@ abstract class BaseApiTest extends WebTestCase
      * @param Client $client
      * @param string $customerId
      *
-     * @return string
+     * @return float
      */
     protected function getCustomerPoints(Client $client, $customerId)
     {
@@ -54,7 +54,7 @@ abstract class BaseApiTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('points', $data);
 
-        return $data['points'];
+        return (float) $data['points'];
     }
 
     /**
