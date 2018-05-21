@@ -41,6 +41,7 @@ class SettingsFormTypeTest extends TypeTestCase
         'returns' => true,
         'allTimeActive' => true,
         'excludeDeliveryCostsFromTierAssignment' => true,
+        'webhooks' => false,
     ];
 
     protected $integerEntries = [

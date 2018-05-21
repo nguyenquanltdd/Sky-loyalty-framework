@@ -26,5 +26,6 @@ class OpenLoyaltyUtilityExtension extends Extension
         $loader->load('services.yml');
         $loader->load('domain.yml');
         $loader->load('voters.yml');
+        $loader->load('webhooks.yml');
     }
 }

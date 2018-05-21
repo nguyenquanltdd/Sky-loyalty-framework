@@ -209,7 +209,7 @@ services:
         - '@oloy.level.repository'
         - '@oloy.user.read_model.repository.customer_details'
       tags:
-        - { name: broadway.event_listener, event: oloy.customer.level_changed, method: sendEmail }
+        - { name: broadway.event_listener, event: oloy.customer.level_changed_automatically, method: sendEmail }
   oloy.user.listener.user_registered_with_invitation_token:
       class: OpenLoyalty\Bundle\UserBundle\EventListener\UserRegisteredWithInvitationTokenListener
       arguments:

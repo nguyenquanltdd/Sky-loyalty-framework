@@ -1,6 +1,9 @@
 <?php
-
-namespace OpenLoyalty\Bundle\Transaction\Security\Voter;
+/**
+ * Copyright © 2017 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
+namespace OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Security;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
 use OpenLoyalty\Bundle\UtilityBundle\Security\Voter\UtilityVoter;

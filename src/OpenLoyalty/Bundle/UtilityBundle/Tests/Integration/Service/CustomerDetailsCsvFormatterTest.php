@@ -1,6 +1,9 @@
 <?php
-
-namespace OpenLoyalty\Bundle\UtilityBundle\TestsBundle\Service;
+/**
+ * Copyright © 2017 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
+namespace OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Service;
 
 use Broadway\ReadModel\Repository;
 use OpenLoyalty\Bundle\UtilityBundle\Service\CustomerDetailsCsvFormatter;

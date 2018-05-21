@@ -13,6 +13,7 @@ use OpenLoyalty\Component\Customer\Domain\CustomerRepository;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerActivatedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerAgreementsUpdatedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerDeactivatedSystemEvent;
+use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerLevelChangedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRegisteredSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRemovedManuallyLevelSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
@@ -83,7 +84,7 @@ class CustomerCommandHandler extends SimpleCommandHandler
 
         $this->eventDispatcher->dispatch(
             CustomerSystemEvents::CUSTOMER_REGISTERED,
-            [new CustomerRegisteredSystemEvent($command->getCustomerId())]
+            [new CustomerRegisteredSystemEvent($command->getCustomerId(), $customerData)]
         );
     }
 
@@ -210,6 +211,10 @@ class CustomerCommandHandler extends SimpleCommandHandler
             CustomerSystemEvents::CUSTOMER_UPDATED,
             [new CustomerUpdatedSystemEvent($customerId)]
         );
+
+        $this->eventDispatcher->dispatch(CustomerSystemEvents::CUSTOMER_LEVEL_CHANGED, [
+            new CustomerLevelChangedSystemEvent($customerId, $command->getLevelId()),
+        ]);
     }
 
     /**

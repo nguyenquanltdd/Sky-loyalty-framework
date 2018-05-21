@@ -3,6 +3,7 @@ services:
     class: OpenLoyalty\Component\Transaction\Domain\Command\TransactionCommandHandler
     arguments:
       - '@oloy.transaction.repository'
+      - '@broadway.event_dispatcher'
     lazy: true
     tags:
       - { name: broadway.command_handler }

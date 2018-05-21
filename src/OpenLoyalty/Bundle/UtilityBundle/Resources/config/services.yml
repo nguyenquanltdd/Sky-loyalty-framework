@@ -1,4 +1,5 @@
 services:
+
   oloy.utility.customer.details.csv.formatter:
     class: OpenLoyalty\Bundle\UtilityBundle\Service\CustomerDetailsCsvFormatter
     arguments:

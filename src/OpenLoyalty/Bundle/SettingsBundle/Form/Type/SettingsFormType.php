@@ -30,7 +30,11 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Url;
+use Symfony\Component\Validator\Constraints\UrlValidator;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * Class SettingsFormType.
@@ -222,6 +226,23 @@ class SettingsFormType extends AbstractType
                 ])
                 ->addModelTransformer(new BooleanSettingDataTransformer('allTimeActive', $this->settingsManager))
         );
+        $builder->add(
+            $builder
+                ->create('webhooks', CheckboxType::class, [
+                    'required' => false,
+                ])
+                ->addModelTransformer(new BooleanSettingDataTransformer('webhooks', $this->settingsManager))
+        );
+        $builder->add(
+            $builder
+                ->create('uriWebhooks', TextType::class, [
+                    'required' => false,
+                    'constraints' => [
+                        new Callback([$this, 'checkUrl']),
+                    ],
+                ])
+                ->addModelTransformer(new StringSettingDataTransformer('uriWebhooks', $this->settingsManager))
+        );
         $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
             $data = $event->getData();
             if (!$data instanceof Settings) {
@@ -321,6 +342,19 @@ class SettingsFormType extends AbstractType
                 ->addModelTransformer(new ChoicesToJsonSettingDataTransformer('excludedLevelCategories', $this->settingsManager))
         );
         $this->addSmsConfig($builder);
+    }
+
+    /**
+     * @param StringSettingEntry        $value
+     * @param ExecutionContextInterface $context
+     */
+    public function checkUrl(/* StringSettingEntry */ $value, ExecutionContextInterface $context)
+    {
+        if ($value) {
+            $validator = new UrlValidator();
+            $validator->initialize($context);
+            $validator->validate($value->getValue(), new Url());
+        }
     }
 
     /**

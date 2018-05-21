@@ -18,6 +18,9 @@ use OpenLoyalty\Component\Transaction\Domain\SystemEvent\CustomerAssignedToTrans
  */
 class ApplyEarningRuleToTransactionListener extends BaseApplyEarningRuleListener
 {
+    /**
+     * @param CustomerAssignedToTransactionSystemEvent $event
+     */
     public function onRegisteredTransaction(CustomerAssignedToTransactionSystemEvent $event)
     {
         $customerId = $event->getCustomerId();

@@ -196,7 +196,7 @@ class CalculateCustomerLevelListener
                     )
                 );
 
-                $this->eventDispatcher->dispatch(CustomerSystemEvents::CUSTOMER_LEVEL_CHANGED, [
+                $this->eventDispatcher->dispatch(CustomerSystemEvents::CUSTOMER_LEVEL_CHANGED_AUTOMATICALLY, [
                     new CustomerLevelChangedSystemEvent($customer->getCustomerId(), new LevelId($levelId)),
                 ]);
             }
@@ -218,16 +218,18 @@ class CalculateCustomerLevelListener
             }
         }
 
-        $this->commandBus->dispatch(
-            new MoveCustomerToLevel(
-                new CustomerId($customerId->__toString()),
-                new LevelId($newLevelId)
-            )
-        );
+        if (!$currentLevel || $currentLevel->getLevelId()->__toString() !== $newLevelId) {
+            $this->commandBus->dispatch(
+                new MoveCustomerToLevel(
+                    new CustomerId($customerId->__toString()),
+                    new LevelId($newLevelId)
+                )
+            );
 
-        $this->eventDispatcher->dispatch(CustomerSystemEvents::CUSTOMER_LEVEL_CHANGED, [
-            new CustomerLevelChangedSystemEvent($customer->getCustomerId(), new LevelId($newLevelId)),
-        ]);
+            $this->eventDispatcher->dispatch(CustomerSystemEvents::CUSTOMER_LEVEL_CHANGED_AUTOMATICALLY, [
+                new CustomerLevelChangedSystemEvent($customer->getCustomerId(), new LevelId($newLevelId)),
+            ]);
+        }
     }
 
     /**
@@ -266,7 +268,7 @@ class CalculateCustomerLevelListener
                 )
             );
 
-            $this->eventDispatcher->dispatch(CustomerSystemEvents::CUSTOMER_LEVEL_CHANGED, [
+            $this->eventDispatcher->dispatch(CustomerSystemEvents::CUSTOMER_LEVEL_CHANGED_AUTOMATICALLY, [
                 new CustomerLevelChangedSystemEvent($customer->getCustomerId(), new LevelId($levelId)),
             ]);
         }

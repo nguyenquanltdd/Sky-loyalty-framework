@@ -117,7 +117,40 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     * @dataProvider testLevelsWithAssigned
+     */
+    public function it_does_not_move_customer_level_by_transaction_if_cur_level_is_the_same_like_target()
+    {
+        $customerId = '00000000-0000-0000-0000-000000000000';
+        $levelIdString = '00000000-0000-0000-0000-000000000003';
+        $levelId = new LevelLevelId($levelIdString);
+        $level = new Level($levelId, 'test', 10);
+        $level->setReward(new Reward('level_0_reward', 10, 'level'));
+
+        $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
+        $commandBus->expects($this->never())->method('dispatch');
+
+        $listener = new CalculateCustomerLevelListener(
+            $this->getLevelIdProvider($level),
+            $this->getCustomerDetailsRepository(new CustomerLevelId($levelIdString)),
+            $commandBus,
+            $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_TRANSACTIONS),
+            $this->getExcludeDeliveryCostsProvider(false),
+            $this->getLevelRepository($level),
+            $this->getDispatcher(),
+            $this->getCustomerStatusProvider()
+        );
+
+        $listener->handle(new CustomerAssignedToTransactionSystemEvent(
+            new TransactionId('00000000-0000-0000-0000-000000000000'),
+            new TransactionCustomerId($customerId),
+            20,
+            20
+        ));
+    }
+
+    /**
+     * @test
+     * @dataProvider getLevelsWithAssignedProvider
      *
      * @param CustomerLevelId $currentLevelId
      * @param CustomerLevelId $assignedLevel
@@ -322,15 +355,20 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         return $mock;
     }
 
-    protected function getLevelRepository()
+    protected function getLevelRepository(Level $givenLevel = null)
     {
         $mock = $this->getMockBuilder(LevelRepository::class)
-        ->disableOriginalConstructor()
-        ->getMock();
-        $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
+            ->disableOriginalConstructor()
+            ->getMock();
+        if ($givenLevel) {
+            $level = $givenLevel;
+        } else {
+            $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
+            $level = new Level($levelId, 'abcd', 20);
+        }
         $mock
             ->method('byId')
-            ->will($this->returnValue(new Level($levelId, 'abcd', 20)));
+            ->will($this->returnValue($level));
 
         return $mock;
     }
@@ -377,7 +415,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         return $mock;
     }
 
-    public function testLevelsWithAssigned()
+    public function getLevelsWithAssignedProvider()
     {
         return [
             [

@@ -1,6 +1,9 @@
 <?php
-
-namespace OpenLoyalty\Bundle\UtilityBundle\Tests\Controller\Api;
+/**
+ * Copyright © 2017 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
+namespace OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Controller\Api;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
@@ -29,6 +32,7 @@ class UtilityControllerTest extends BaseApiTest
         $this->assertEquals(200, $statusCode);
         $this->assertEquals('text/csv; charset=utf-8', $contentType);
     }
+
     /**
      * @test
      */

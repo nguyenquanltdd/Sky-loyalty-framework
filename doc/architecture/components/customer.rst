@@ -14,4 +14,5 @@ System events dispatched by component
     const CUSTOMER_LOGGED_IN = 'oloy.customer.logged_in';
     const CUSTOMER_REFERRAL = 'oloy.customer.referral';
     const NEWSLETTER_SUBSCRIPTION = 'oloy.customer.newsletter_subscription';
+    const CUSTOMER_LEVEL_CHANGED_AUTOMATICALLY = 'oloy.customer.level_changed_automatically';
     const CUSTOMER_LEVEL_CHANGED = 'oloy.customer.level_changed';

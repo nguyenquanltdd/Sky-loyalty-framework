@@ -795,7 +795,11 @@
     "account_activation_method": "Account activation method",
     "account_activation_method_prompt": "",
     "smsApiKey": "Api key",
-    "smsApiToken": "SmsApi token"
+    "smsApiToken": "SmsApi token",
+    "webhooks": "Webhooks",
+    "enable_webhooks": "Enable webhooks",
+    "uri_webhooks": "URI",
+    "uri_webhooks_prompt": "e.g. https://example.com/webhook.php"
   },
   "segment": {
     "add": "Add segment",
