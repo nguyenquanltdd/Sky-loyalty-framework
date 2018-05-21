@@ -28,6 +28,7 @@ use OpenLoyalty\Component\Customer\Domain\Command\AssignSellerToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\DeactivateCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\MoveCustomerToLevel;
 use OpenLoyalty\Component\Customer\Domain\Command\NewsletterSubscription;
+use OpenLoyalty\Component\Customer\Domain\Command\RemoveManuallyAssignedLevel;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\PosId;
@@ -86,6 +87,7 @@ class CustomerController extends FOSRestController
      * @QueryParam(name="transactionsCount", nullable=true, description="transactionsCount"))
      * @QueryParam(name="daysFromLastTransaction", nullable=true, description="daysFromLastTransaction"))
      * @QueryParam(name="hoursFromLastUpdate", nullable=true, description="hoursFromLastUpdate"))
+     * @QueryParam(name="manuallyAssignedLevel", nullable=true, description="manuallyAssignedLevel"))
      */
     public function listAction(Request $request, ParamFetcher $paramFetcher)
     {
@@ -126,6 +128,14 @@ class CustomerController extends FOSRestController
                     'phone' => $emailOrPhone,
                 ],
             ];
+        }
+        if (isset($params['manuallyAssignedLevel'])) {
+            if ($params['manuallyAssignedLevel']) {
+                $params['manuallyAssignedLevelId'] = [
+                    'type' => 'exists',
+                ];
+            }
+            unset($params['manuallyAssignedLevel']);
         }
         $pagination = $this->get('oloy.pagination')->handleFromRequest($request, 'createdAt', 'desc');
 
@@ -529,6 +539,11 @@ class CustomerController extends FOSRestController
                 return $this->view($ret, Response::HTTP_BAD_REQUEST);
             }
 
+            /** @var CustomerDetailsRepository $repo */
+            $repo = $this->get('oloy.user.read_model.repository.customer_details');
+            /** @var CustomerDetails $customer */
+            $customer = $repo->find($customer->getCustomerId()->__toString());
+
             $levelId = $form->get('levelId')->getData();
             $posId = $form->get('posId')->getData();
             $sellerId = $form->has('sellerId') ? $form->get('sellerId')->getData() : null;
@@ -539,19 +554,17 @@ class CustomerController extends FOSRestController
                 );
             }
             if ($levelId) {
-                $commandBus->dispatch(
-                    new MoveCustomerToLevel($customer->getCustomerId(), new LevelId($levelId), true)
-                );
+                if ($customer->getLevelId() != $levelId) {
+                    $commandBus->dispatch(
+                        new MoveCustomerToLevel($customer->getCustomerId(), new LevelId($levelId), true)
+                    );
+                }
             }
             if ($sellerId) {
                 $commandBus->dispatch(
                     new AssignSellerToCustomer($customer->getCustomerId(), new \OpenLoyalty\Component\Customer\Domain\SellerId($sellerId))
                 );
             }
-
-            /** @var CustomerDetailsRepository $repo */
-            $repo = $this->get('oloy.user.read_model.repository.customer_details');
-            $customer = $repo->find($customer->getCustomerId()->__toString());
 
             if ($customer->isAgreement2()) {
                 $em = $this->getDoctrine()->getManager();
@@ -574,7 +587,7 @@ class CustomerController extends FOSRestController
      * @return View
      * @Route(name="oloy.customer.add_customer_to_level", path="/customer/{customer}/level")
      * @Method("POST")
-     * @Security("is_granted('ADD_TO_LEVEL', customer)")
+     * @Security("is_granted('ASSIGN_CUSTOMER_LEVEL', customer)")
      *
      * @ApiDoc(
      *     name="Add customer to level",
@@ -898,5 +911,43 @@ class CustomerController extends FOSRestController
                 new NewsletterSubscription($customerId)
             );
         }
+    }
+
+    /**
+     * Method allows to remove customer from manually assigned level.
+     *
+     * @param Request         $request
+     * @param CustomerDetails $customer
+     *
+     * @return View
+     * @Route(name="oloy.customer.remove_customer_from_manually_assigned_level",
+     *     path="/customer/{customer}/remove-manually-level")
+     * @Method("POST")
+     * @Security("is_granted('ASSIGN_CUSTOMER_LEVEL', customer)")
+     *
+     * @ApiDoc(
+     *     name="Remove customer from manually assigned level",
+     *     section="Customer",
+     *     statusCodes={
+     *       204="Returned when successful",
+     *       400="Returned when customer is not assigned to level manually",
+     *     }
+     * )
+     */
+    public function removeCustomerFromManuallyAssignedLevelAction(Request $request, CustomerDetails $customer)
+    {
+        $manuallyAssignedLevelId = $customer->getManuallyAssignedLevelId();
+        if (!$manuallyAssignedLevelId) {
+            return $this->view(
+                ['error' => 'Customer is not assigned to level manually'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $this->get('broadway.command_handling.command_bus')->dispatch(
+            new RemoveManuallyAssignedLevel($customer->getCustomerId())
+        );
+
+        return $this->view(null, Response::HTTP_NO_CONTENT);
     }
 }

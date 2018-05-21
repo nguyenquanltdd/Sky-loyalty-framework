@@ -19,4 +19,5 @@ class CustomerSystemEvents
     const CUSTOMER_REFERRAL = 'oloy.customer.referral';
     const NEWSLETTER_SUBSCRIPTION = 'oloy.customer.newsletter_subscription';
     const CUSTOMER_LEVEL_CHANGED = 'oloy.customer.level_changed';
+    const CUSTOMER_MANUALLY_LEVEL_REMOVED = 'oloy.customer.manually_level_removed';
 }

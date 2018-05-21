@@ -18,6 +18,7 @@ use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Domain\PosId;
 use OpenLoyalty\Component\Customer\Domain\SellerId;
 use OpenLoyalty\Component\Customer\Domain\TransactionId;
+use OpenLoyalty\Component\Level\Domain\ReadModel\LevelDetails;
 
 /**
  * Class CustomerDetails.
@@ -178,6 +179,11 @@ class CustomerDetails implements SerializableReadModel
      * @var Label[]
      */
     protected $labels = [];
+
+    /**
+     * @var LevelDetails|null
+     */
+    protected $level;
 
     /**
      * CustomerDetails constructor.
@@ -347,6 +353,10 @@ class CustomerDetails implements SerializableReadModel
             $customer->setLastTransactionDate($tmp);
         }
 
+        if (isset($data['level'])) {
+            $customer->level = LevelDetails::deserialize($data['level']);
+        }
+
         $labels = [];
         if (isset($data['labels'])) {
             foreach ($data['labels'] as $label) {
@@ -402,6 +412,7 @@ class CustomerDetails implements SerializableReadModel
             'amountExcludedForLevel' => $this->amountExcludedForLevel,
             'lastTransactionDate' => $this->lastTransactionDate ? $this->lastTransactionDate->getTimestamp() : null,
             'labels' => $labels,
+            'level' => $this->getLevel() ? $this->getLevel()->serialize() : null,
             'transactionIds' => array_map(function (TransactionId $transactionId) {
                 return $transactionId->__toString();
             }, $this->transactionIds),
@@ -903,6 +914,22 @@ class CustomerDetails implements SerializableReadModel
     public function setAmountExcludedForLevel($amountExcludedForLevel)
     {
         $this->amountExcludedForLevel = $amountExcludedForLevel;
+    }
+
+    /**
+     * @return LevelDetails|null
+     */
+    public function getLevel(): ? LevelDetails
+    {
+        return $this->level;
+    }
+
+    /**
+     * @param LevelDetails|null $level
+     */
+    public function setLevel(? LevelDetails $level)
+    {
+        $this->level = $level;
     }
 
     public static function resolveOptions($data)

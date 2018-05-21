@@ -188,6 +188,12 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
                             $key => $value['value'],
                         ],
                     ];
+                } elseif ($value['type'] == 'exists') {
+                    $filter[] = [
+                        'exists' => [
+                            'field' => $key,
+                        ],
+                    ];
                 } elseif ($value['type'] == 'allow_null') {
                     $filter[] = [
                         'bool' => [

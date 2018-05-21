@@ -138,10 +138,10 @@ class Customer extends EventSourcedAggregateRoot
         );
     }
 
-    public function addToLevel(LevelId $levelId = null, $manually = false)
+    public function addToLevel(LevelId $levelId = null, $manually = false, $removeLevelManually = false)
     {
         $this->apply(
-            new CustomerWasMovedToLevel($this->getId(), $levelId, $manually)
+            new CustomerWasMovedToLevel($this->getId(), $levelId, $manually, $removeLevelManually)
         );
     }
 

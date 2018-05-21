@@ -6,12 +6,14 @@
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
 use Broadway\ReadModel\Projector;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerDetailsWereUpdated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasActivated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasDeactivated;
+use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasMovedToLevel;
 use OpenLoyalty\Component\Customer\Domain\Event\PosWasAssignedToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Event\SellerWasAssignedToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Model\Address;
@@ -25,6 +27,10 @@ use OpenLoyalty\Component\Customer\Domain\Model\Company;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Domain\TransactionId;
+use OpenLoyalty\Component\Level\Domain\Level;
+use OpenLoyalty\Component\Level\Domain\LevelId;
+use OpenLoyalty\Component\Level\Domain\LevelRepository;
+use OpenLoyalty\Component\Level\Domain\ReadModel\LevelDetails;
 use OpenLoyalty\Component\Transaction\Domain\Event\CustomerWasAssignedToTransaction;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
@@ -35,6 +41,9 @@ use OpenLoyalty\Component\Transaction\Domain\Transaction;
  */
 class CustomerDetailsProjector extends Projector
 {
+    /**
+     * @var Repository
+     */
     private $repository;
 
     /**
@@ -43,17 +52,65 @@ class CustomerDetailsProjector extends Projector
     private $transactionDetailsRepository;
 
     /**
+     * @var LevelRepository
+     */
+    private $levelRepository;
+
+    /**
      * CustomerDetailsProjector constructor.
      *
-     * @param                              $repository
+     * @param $repository
      * @param TransactionDetailsRepository $transactionDetailsRepository
+     * @param LevelRepository              $levelRepository
      */
-    public function __construct($repository, TransactionDetailsRepository $transactionDetailsRepository)
+    public function __construct($repository, TransactionDetailsRepository $transactionDetailsRepository, LevelRepository $levelRepository)
     {
         $this->repository = $repository;
         $this->transactionDetailsRepository = $transactionDetailsRepository;
+        $this->levelRepository = $levelRepository;
     }
 
+    /**
+     * @param CustomerWasMovedToLevel $event
+     */
+    public function applyCustomerWasMovedToLevel(CustomerWasMovedToLevel $event)
+    {
+        $customerId = $event->getCustomerId();
+        $levelId = $event->getLevelId();
+
+        /** @var CustomerDetails $customer */
+        $customer = $this->getReadModel($customerId);
+
+        if ($levelId) {
+            $customer->setLevelId($levelId);
+
+            if ($event->isRemoveLevelManually()) {
+                $customer->setManuallyAssignedLevelId(null);
+            } elseif ($event->isManually()) {
+                $customer->setManuallyAssignedLevelId($levelId);
+            }
+
+            /** @var Level $level */
+            $level = $this->levelRepository->byId(new LevelId($levelId->__toString()));
+            if ($level) {
+                $levelDetails = new LevelDetails($level->getLevelId());
+                $levelDetails->setName($level->getName());
+                $customer->setLevel($levelDetails);
+            }
+        } else {
+            $customer->setLevel(null);
+            $customer->setLevelId(null);
+            if ($event->isManually()) {
+                $customer->setManuallyAssignedLevelId(null);
+            }
+        }
+
+        $this->repository->save($customer);
+    }
+
+    /**
+     * @param CustomerWasRegistered $event
+     */
     protected function applyCustomerWasRegistered(CustomerWasRegistered $event)
     {
         /** @var CustomerDetails $readModel */
@@ -96,6 +153,9 @@ class CustomerDetailsProjector extends Projector
         $this->repository->save($readModel);
     }
 
+    /**
+     * @param CustomerDetailsWereUpdated $event
+     */
     protected function applyCustomerDetailsWereUpdated(CustomerDetailsWereUpdated $event)
     {
         /** @var CustomerDetails $readModel */
@@ -145,6 +205,9 @@ class CustomerDetailsProjector extends Projector
         $this->repository->save($readModel);
     }
 
+    /**
+     * @param CustomerAddressWasUpdated $event
+     */
     protected function applyCustomerAddressWasUpdated(CustomerAddressWasUpdated $event)
     {
         /** @var CustomerDetails $readModel */
@@ -155,6 +218,9 @@ class CustomerDetailsProjector extends Projector
         $this->repository->save($readModel);
     }
 
+    /**
+     * @param CustomerCompanyDetailsWereUpdated $event
+     */
     protected function applyCustomerCompanyDetailsWereUpdated(CustomerCompanyDetailsWereUpdated $event)
     {
         /** @var CustomerDetails $readModel */
@@ -170,6 +236,9 @@ class CustomerDetailsProjector extends Projector
         $this->repository->save($readModel);
     }
 
+    /**
+     * @param CustomerLoyaltyCardNumberWasUpdated $event
+     */
     protected function applyCustomerLoyaltyCardNumberWasUpdated(CustomerLoyaltyCardNumberWasUpdated $event)
     {
         /** @var CustomerDetails $readModel */
@@ -180,6 +249,9 @@ class CustomerDetailsProjector extends Projector
         $this->repository->save($readModel);
     }
 
+    /**
+     * @param PosWasAssignedToCustomer $event
+     */
     protected function applyPosWasAssignedToCustomer(PosWasAssignedToCustomer $event)
     {
         /** @var CustomerDetails $readModel */
@@ -190,6 +262,9 @@ class CustomerDetailsProjector extends Projector
         $this->repository->save($readModel);
     }
 
+    /**
+     * @param SellerWasAssignedToCustomer $event
+     */
     protected function applySellerWasAssignedToCustomer(SellerWasAssignedToCustomer $event)
     {
         /** @var CustomerDetails $readModel */
@@ -200,6 +275,9 @@ class CustomerDetailsProjector extends Projector
         $this->repository->save($readModel);
     }
 
+    /**
+     * @param CampaignWasBoughtByCustomer $event
+     */
     protected function applyCampaignWasBoughtByCustomer(CampaignWasBoughtByCustomer $event)
     {
         /** @var CustomerDetails $readModel */
@@ -209,6 +287,9 @@ class CustomerDetailsProjector extends Projector
         $this->repository->save($readModel);
     }
 
+    /**
+     * @param CampaignUsageWasChanged $event
+     */
     protected function applyCampaignUsageWasChanged(CampaignUsageWasChanged $event)
     {
         /** @var CustomerDetails $readModel */
@@ -226,6 +307,9 @@ class CustomerDetailsProjector extends Projector
         }
     }
 
+    /**
+     * @param CustomerWasDeactivated $event
+     */
     protected function applyCustomerWasDeactivated(CustomerWasDeactivated $event)
     {
         /** @var CustomerDetails $readModel */
@@ -235,6 +319,9 @@ class CustomerDetailsProjector extends Projector
         $this->repository->save($readModel);
     }
 
+    /**
+     * @param CustomerWasActivated $event
+     */
     protected function applyCustomerWasActivated(CustomerWasActivated $event)
     {
         /** @var CustomerDetails $readModel */
@@ -244,6 +331,9 @@ class CustomerDetailsProjector extends Projector
         $this->repository->save($readModel);
     }
 
+    /**
+     * @param CustomerWasAssignedToTransaction $event
+     */
     public function applyCustomerWasAssignedToTransaction(CustomerWasAssignedToTransaction $event)
     {
         $readModel = $this->getReadModel(new CustomerId($event->getCustomerId()->__toString()));
@@ -277,6 +367,11 @@ class CustomerDetailsProjector extends Projector
         $this->repository->save($readModel);
     }
 
+    /**
+     * @param CustomerId $userId
+     *
+     * @return null|CustomerDetails
+     */
     private function getReadModel(CustomerId $userId)
     {
         $readModel = $this->repository->find($userId->__toString());

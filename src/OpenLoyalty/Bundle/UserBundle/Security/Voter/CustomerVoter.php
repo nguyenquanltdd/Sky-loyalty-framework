@@ -21,7 +21,7 @@ class CustomerVoter extends Voter
     const VIEW = 'VIEW';
     const EDIT = 'EDIT';
     const VIEW_STATUS = 'VIEW_STATUS';
-    const ADD_TO_LEVEL = 'ADD_TO_LEVEL';
+    const ASSIGN_CUSTOMER_LEVEL = 'ASSIGN_CUSTOMER_LEVEL';
     const ASSIGN_POS = 'ASSIGN_POS';
     const DEACTIVATE = 'DEACTIVATE';
     const ACTIVATE = 'ACTIVATE';
@@ -44,7 +44,7 @@ class CustomerVoter extends Voter
     public function supports($attribute, $subject)
     {
         return $subject instanceof CustomerDetails && in_array($attribute, [
-            self::VIEW, self::EDIT, self::VIEW_STATUS, self::ADD_TO_LEVEL, self::ASSIGN_POS, self::DEACTIVATE, self::ACTIVATE,
+            self::VIEW, self::EDIT, self::VIEW_STATUS, self::ASSIGN_CUSTOMER_LEVEL, self::ASSIGN_POS, self::DEACTIVATE, self::ACTIVATE,
         ]) || $subject == null && in_array($attribute, [
             self::LIST_CUSTOMERS, self::CREATE_CUSTOMER,
         ]);
@@ -70,7 +70,7 @@ class CustomerVoter extends Voter
                 return $user->hasRole('ROLE_ADMIN') || $user->hasRole('ROLE_SELLER');
             case self::ACTIVATE:
                 return $user->hasRole('ROLE_ADMIN') || $user->hasRole('ROLE_SELLER');
-            case self::ADD_TO_LEVEL:
+            case self::ASSIGN_CUSTOMER_LEVEL:
                 return $this->canAddToLevel($user, $subject);
             case self::VIEW:
                 return $this->canView($user, $subject);

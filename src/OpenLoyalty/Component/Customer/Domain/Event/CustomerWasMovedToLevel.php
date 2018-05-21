@@ -28,13 +28,28 @@ class CustomerWasMovedToLevel extends CustomerEvent
      */
     protected $manually = false;
 
-    public function __construct(CustomerId $customerId, LevelId $levelId = null, $manually = false)
+    /**
+     * @var bool
+     */
+    protected $removeLevelManually = false;
+
+    /**
+     * CustomerWasMovedToLevel constructor.
+     *
+     * @param CustomerId   $customerId
+     * @param LevelId|null $levelId
+     * @param bool         $manually
+     * @param bool         $removeLevelManually
+     */
+    public function __construct(CustomerId $customerId, LevelId $levelId = null, $manually = false,
+                                bool $removeLevelManually = false)
     {
         parent::__construct($customerId);
         $this->levelId = $levelId;
         $this->updateAt = new \DateTime();
         $this->updateAt->setTimestamp(time());
         $this->manually = $manually;
+        $this->removeLevelManually = $removeLevelManually;
     }
 
     public function serialize(): array
@@ -43,6 +58,7 @@ class CustomerWasMovedToLevel extends CustomerEvent
            'levelId' => $this->levelId ? $this->levelId->__toString() : null,
             'updatedAt' => $this->updateAt ? $this->updateAt->getTimestamp() : null,
             'manually' => $this->manually,
+            'removeLevelManually' => $this->removeLevelManually,
         ]);
     }
 
@@ -53,7 +69,12 @@ class CustomerWasMovedToLevel extends CustomerEvent
      */
     public static function deserialize(array $data)
     {
-        $event = new self(new CustomerId($data['customerId']), $data['levelId'] ? new LevelId($data['levelId']) : null, $data['manually']);
+        $event = new self(
+            new CustomerId($data['customerId']),
+            $data['levelId'] ? new LevelId($data['levelId']) : null,
+            $data['manually'],
+            isset($data['removeLevelManually']) ? $data['removeLevelManually'] : false
+        );
         if (isset($data['updatedAt'])) {
             $date = new \DateTime();
             $date->setTimestamp($data['updatedAt']);
@@ -93,5 +114,21 @@ class CustomerWasMovedToLevel extends CustomerEvent
     public function isManually()
     {
         return $this->manually;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRemoveLevelManually(): bool
+    {
+        return $this->removeLevelManually;
+    }
+
+    /**
+     * @param bool $removeLevelManually
+     */
+    public function setRemoveLevelManually(bool $removeLevelManually)
+    {
+        $this->removeLevelManually = $removeLevelManually;
     }
 }

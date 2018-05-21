@@ -7,12 +7,74 @@ use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Component\Customer\Tests\Domain\Command\CustomerCommandHandlerTest;
 use OpenLoyalty\Component\Customer\Domain\PosId;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class CustomerControllerTest.
  */
 class CustomerControllerTest extends BaseApiTest
 {
+    /**
+     * @test
+     */
+    public function it_allows_to_set_customer_level_manually()
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            sprintf('/api/customer/%s/level', LoadUserData::USER_USER_ID),
+            [
+                'levelId' => LoadLevelData::LEVEL3_ID,
+            ]
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(
+            Response::HTTP_OK,
+            $response->getStatusCode(),
+            'Response should have status 200'
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_allows_to_remove_customer_manually_level()
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            sprintf('/api/customer/%s/remove-manually-level', LoadUserData::USER_USER_ID)
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(
+            Response::HTTP_NO_CONTENT,
+            $response->getStatusCode(),
+            'Response should have status 204'
+        );
+    }
+
+    /**
+     * @test
+     * @depends it_allows_to_remove_customer_manually_level
+     */
+    public function it_does_not_allow_to_remove_manually_level_when_is_not_manually_assigned()
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            sprintf('/api/customer/%s/remove-manually-level', LoadUserData::USER_USER_ID)
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(
+            Response::HTTP_BAD_REQUEST,
+            $response->getStatusCode(),
+            'Response should have status 400'
+        );
+    }
+
     /**
      * @test
      */

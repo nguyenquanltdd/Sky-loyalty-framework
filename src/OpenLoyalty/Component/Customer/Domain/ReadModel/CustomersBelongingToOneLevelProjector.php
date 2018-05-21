@@ -49,13 +49,18 @@ class CustomersBelongingToOneLevelProjector extends Projector
         $this->levelRepository = $levelRepository;
     }
 
+    /**
+     * @param CustomerWasMovedToLevel $event
+     */
     public function applyCustomerWasMovedToLevel(CustomerWasMovedToLevel $event)
     {
         $customerId = $event->getCustomerId();
         $levelId = $event->getLevelId();
+
         /** @var CustomerDetails $customer */
         $customer = $this->customerDetailsRepository->find($customerId->__toString());
         $currentLevel = $customer->getLevelId();
+
         if ($currentLevel) {
             $oldReadModel = $this->getReadModel($currentLevel, false);
             if ($oldReadModel) {
@@ -73,28 +78,26 @@ class CustomersBelongingToOneLevelProjector extends Projector
         if ($levelId) {
             $readModel = $this->getReadModel($levelId);
             $readModel->addCustomer($customer);
-            $customer->setLevelId($levelId);
-            if ($event->isManually()) {
-                $customer->setManuallyAssignedLevelId($levelId);
-            }
             $this->customersBelongingToOneLevelRepository->save($readModel);
+
             /** @var Level $level */
             $level = $this->levelRepository->byId(new \OpenLoyalty\Component\Level\Domain\LevelId($readModel->getLevelId()->__toString()));
             if ($level) {
                 $level->setCustomersCount(count($readModel->getCustomers()));
                 $this->levelRepository->save($level);
             }
-        } else {
-            $customer->setLevelId(null);
-            if ($event->isManually()) {
-                $customer->setManuallyAssignedLevelId(null);
-            }
         }
 
         $this->customerDetailsRepository->save($customer);
     }
 
-    private function getReadModel(LevelId $levelId, $createIfNull = true)
+    /**
+     * @param LevelId $levelId
+     * @param bool    $createIfNull
+     *
+     * @return null|CustomersBelongingToOneLevel
+     */
+    private function getReadModel(LevelId $levelId, $createIfNull = true): ? CustomersBelongingToOneLevel
     {
         $readModel = $this->customersBelongingToOneLevelRepository->find($levelId->__toString());
 

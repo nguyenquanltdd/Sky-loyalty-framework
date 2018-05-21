@@ -4,24 +4,30 @@ namespace OpenLoyalty\Component\Customer\Tests\Infrastructure\SystemEvent\Listen
 
 use Broadway\CommandHandling\CommandBus;
 use Broadway\EventDispatcher\EventDispatcher;
+use OpenLoyalty\Bundle\UserBundle\Model\CustomerStatus;
+use OpenLoyalty\Bundle\UserBundle\Status\CustomerStatusProvider;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountCreatedSystemEvent;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AvailablePointsAmountChangedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\Command\MoveCustomerToLevel;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
+use OpenLoyalty\Component\Customer\Domain\LevelId;
 use OpenLoyalty\Component\Customer\Domain\LevelIdProvider;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
+use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRemovedManuallyLevelSystemEvent;
 use OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener\CalculateCustomerLevelListener;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Customer\Domain\LevelId as CustomerLevelId;
-use OpenLoyalty\Component\Level\Domain\LevelId;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
 use OpenLoyalty\Component\Level\Domain\Model\Reward;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\CustomerAssignedToTransactionSystemEvent;
 use OpenLoyalty\Component\Transaction\Domain\TransactionId;
 use OpenLoyalty\Component\Customer\Infrastructure\ExcludeDeliveryCostsProvider;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
+use OpenLoyalty\Component\Transaction\Domain\CustomerId as TransactionCustomerId;
+use OpenLoyalty\Component\Account\Domain\CustomerId as AccountCustomerId;
+use OpenLoyalty\Component\Level\Domain\LevelId as LevelLevelId;
 
 /**
  * Class CalculateCustomerLevelListenerTest.
@@ -35,10 +41,10 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_moves_customer_to_correct_level_by_transaction()
+    public function it_moves_customer_to_correct_level_after_remove_manually_level()
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
-        $levelId = new LevelId('00000000-0000-0000-0000-000000000003');
+        $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $level = new Level($levelId, 'test', 10);
 
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
@@ -46,7 +52,9 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->equalTo(
                 new MoveCustomerToLevel(
                     new CustomerId($customerId),
-                    new \OpenLoyalty\Component\Customer\Domain\LevelId($levelId->__toString())
+                    new LevelId($levelId->__toString()),
+                    true,
+                    true
                 )
             )
         );
@@ -58,12 +66,50 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_TRANSACTIONS),
             $this->getExcludeDeliveryCostsProvider(false),
             $this->getLevelRepository(),
-            $this->getDispatcher()
+            $this->getDispatcher(),
+            $this->getCustomerStatusProvider(100)
+        );
+
+        $listener->handle(new CustomerRemovedManuallyLevelSystemEvent(
+            new CustomerId($customerId)
+        ));
+    }
+
+    /**
+     * @test
+     */
+    public function it_moves_customer_to_correct_level_by_transaction()
+    {
+        $customerId = '00000000-0000-0000-0000-000000000000';
+        $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
+        $level = new Level($levelId, 'test', 10);
+
+        $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
+        $commandBus->expects($this->once())->method('dispatch')->with(
+            $this->equalTo(
+                new MoveCustomerToLevel(
+                    new CustomerId($customerId),
+                    new LevelId($levelId->__toString()),
+                    false,
+                    false
+                )
+            )
+        );
+
+        $listener = new CalculateCustomerLevelListener(
+            $this->getLevelIdProvider($level),
+            $this->getCustomerDetailsRepository(),
+            $commandBus,
+            $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_TRANSACTIONS),
+            $this->getExcludeDeliveryCostsProvider(false),
+            $this->getLevelRepository(),
+            $this->getDispatcher(),
+            $this->getCustomerStatusProvider()
         );
 
         $listener->handle(new CustomerAssignedToTransactionSystemEvent(
             new TransactionId('00000000-0000-0000-0000-000000000000'),
-            new \OpenLoyalty\Component\Transaction\Domain\CustomerId($customerId),
+            new TransactionCustomerId($customerId),
             20,
             20
         ));
@@ -72,6 +118,11 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      * @dataProvider testLevelsWithAssigned
+     *
+     * @param CustomerLevelId $currentLevelId
+     * @param CustomerLevelId $assignedLevel
+     * @param $transactionAmount
+     * @param CustomerLevelId|null $resultLevelId
      */
     public function it_moves_customer_to_correct_level_by_transaction_with_manually_assigned_level(
         CustomerLevelId $currentLevelId,
@@ -92,7 +143,9 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo(
                     new MoveCustomerToLevel(
                         new CustomerId($customerId),
-                        $resultLevelId
+                        $resultLevelId,
+                        false,
+                        false
                     )
                 )
             );
@@ -105,12 +158,13 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_TRANSACTIONS),
             $this->getExcludeDeliveryCostsProvider(false),
             $levelsRepo,
-            $this->getDispatcher()
+            $this->getDispatcher(),
+            $this->getCustomerStatusProvider()
         );
 
         $listener->handle(new CustomerAssignedToTransactionSystemEvent(
             new TransactionId('00000000-0000-0000-0000-000000000000'),
-            new \OpenLoyalty\Component\Transaction\Domain\CustomerId($customerId),
+            new TransactionCustomerId($customerId),
             $transactionAmount,
             $transactionAmount
         ));
@@ -122,7 +176,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     public function it_moves_customer_to_correct_level_on_registration()
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
-        $levelId = new LevelId('00000000-0000-0000-0000-000000000003');
+        $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $level = new Level($levelId, 'test', 0);
 
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
@@ -130,7 +184,9 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->equalTo(
                 new MoveCustomerToLevel(
                     new CustomerId($customerId),
-                    new \OpenLoyalty\Component\Customer\Domain\LevelId($levelId->__toString())
+                    new LevelId($levelId->__toString()),
+                    false,
+                    false
                 )
             )
         );
@@ -142,12 +198,13 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_TRANSACTIONS),
             $this->getExcludeDeliveryCostsProvider(false),
             $this->getLevelRepository(),
-            $this->getDispatcher()
+            $this->getDispatcher(),
+            $this->getCustomerStatusProvider()
         );
 
         $listener->handle(new AccountCreatedSystemEvent(
             new AccountId('00000000-0000-0000-0000-000000000000'),
-            new \OpenLoyalty\Component\Account\Domain\CustomerId($customerId)
+            new AccountCustomerId($customerId)
         ));
     }
 
@@ -157,7 +214,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     public function it_moves_customer_to_correct_level_by_points()
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
-        $levelId = new LevelId('00000000-0000-0000-0000-000000000003');
+        $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $level = new Level($levelId, 'test', 10);
 
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
@@ -165,7 +222,9 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->equalTo(
                 new MoveCustomerToLevel(
                     new CustomerId($customerId),
-                    new \OpenLoyalty\Component\Customer\Domain\LevelId($levelId->__toString())
+                    new LevelId($levelId->__toString()),
+                    false,
+                    false
                 )
             )
         );
@@ -177,11 +236,12 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
             $this->getExcludeDeliveryCostsProvider(true),
             $this->getLevelRepository(),
-            $this->getDispatcher()
+            $this->getDispatcher(),
+            $this->getCustomerStatusProvider()
         );
         $listener->handle(new AvailablePointsAmountChangedSystemEvent(
             new AccountId('00000000-0000-0000-0000-000000000000'),
-            new \OpenLoyalty\Component\Account\Domain\CustomerId($customerId),
+            new AccountCustomerId($customerId),
             20,
             20
         ));
@@ -267,7 +327,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $mock = $this->getMockBuilder(LevelRepository::class)
         ->disableOriginalConstructor()
         ->getMock();
-        $levelId = new LevelId('00000000-0000-0000-0000-000000000003');
+        $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $mock
             ->method('byId')
             ->will($this->returnValue(new Level($levelId, 'abcd', 20)));
@@ -282,13 +342,36 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         ->getMock();
         $mock
             ->method('byId')
-            ->with($this->isInstanceOf(LevelId::class))
-            ->will($this->returnCallback(function (LevelId $id) use ($levels) {
+            ->with($this->isInstanceOf(LevelLevelId::class))
+            ->will($this->returnCallback(function (LevelLevelId $id) use ($levels) {
                 if (isset($levels[$id->__toString()])) {
                     return $levels[$id->__toString()];
                 }
 
                 return;
+            }));
+
+        return $mock;
+    }
+
+    /**
+     * @param float $points
+     *
+     * @return CustomerStatusProvider
+     */
+    protected function getCustomerStatusProvider(float $points = 0)
+    {
+        $mock = $this->getMockBuilder(CustomerStatusProvider::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $mock
+            ->method('getStatus')
+            ->with($this->isInstanceOf(CustomerId::class))
+            ->will($this->returnCallback(function (CustomerId $id) use ($points) {
+                $status = new CustomerStatus($id);
+                $status->setPoints($points);
+
+                return $status;
             }));
 
         return $mock;
@@ -331,21 +414,21 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     {
         $level = [];
         $level[static::LEVEL_WITH_REWARD_10_FROM_0] = new Level(
-            new LevelId(static::LEVEL_WITH_REWARD_10_FROM_0),
+            new LevelLevelId(static::LEVEL_WITH_REWARD_10_FROM_0),
             'level_0',
             0
         );
         $level[static::LEVEL_WITH_REWARD_10_FROM_0]->setReward(new Reward('level_0_reward', 10, 'level'));
 
         $level[static::LEVEL_WITH_REWARD_200_FROM_20] = new Level(
-            new LevelId(static::LEVEL_WITH_REWARD_200_FROM_20),
+            new LevelLevelId(static::LEVEL_WITH_REWARD_200_FROM_20),
             'level_1',
             20
         );
         $level[static::LEVEL_WITH_REWARD_200_FROM_20]->setReward(new Reward('level_1_reward', 200, 'level'));
 
         $level[static::LEVEL_WITH_REWARD_300_FROM_30] = new Level(
-            new LevelId(static::LEVEL_WITH_REWARD_300_FROM_30),
+            new LevelLevelId(static::LEVEL_WITH_REWARD_300_FROM_30),
             'level_2',
             30
         );

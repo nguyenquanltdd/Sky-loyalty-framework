@@ -92,6 +92,7 @@ services:
     arguments:
       - '@oloy.user.read_model.repository.customer_details'
       - '@oloy.transaction.read_model.repository.transaction_details'
+      - '@oloy.level.repository'
   oloy.user.customer.read_model.projector.invitation_details:
     class: 'OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetailsProjector'
     tags:
@@ -130,6 +131,7 @@ services:
       - { name: broadway.event_listener, event: oloy.transaction.customer_assigned, method: handle }
       - { name: broadway.event_listener, event: oloy.account.created, method: handle }
       - { name: broadway.event_listener, event: oloy.account.available_points_amount_changed, method: handle }
+      - { name: broadway.event_listener, event: oloy.customer.manually_level_removed, method: handle }
     arguments:
       - '@oloy.user.level_id_provider'
       - '@oloy.user.read_model.repository.customer_details'
@@ -138,6 +140,7 @@ services:
       - '@oloy.user.exclude_delivery_costs_provider'
       - '@oloy.level.repository'
       - '@broadway.event_dispatcher'
+      - '@oloy.customer_status_provider'
   oloy.user.customer.listener.create_account:
     class: 'OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener\CreateAccountListener'
     tags:

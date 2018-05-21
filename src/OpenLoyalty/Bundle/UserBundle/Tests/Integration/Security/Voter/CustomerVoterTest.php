@@ -27,7 +27,7 @@ class CustomerVoterTest extends BaseVoterTest
             CustomerVoter::CREATE_CUSTOMER => ['seller' => true, 'customer' => false, 'admin' => true],
             CustomerVoter::LIST_CUSTOMERS => ['seller' => true, 'customer' => false, 'admin' => true],
             CustomerVoter::ASSIGN_POS => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::CUSTOMER_ID],
-            CustomerVoter::ADD_TO_LEVEL => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::CUSTOMER_ID],
+            CustomerVoter::ASSIGN_CUSTOMER_LEVEL => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::CUSTOMER_ID],
             CustomerVoter::DEACTIVATE => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::CUSTOMER_ID],
             CustomerVoter::VIEW => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::CUSTOMER_ID],
             CustomerVoter::VIEW_STATUS => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::CUSTOMER_ID],

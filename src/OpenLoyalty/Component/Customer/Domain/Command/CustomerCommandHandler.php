@@ -14,6 +14,7 @@ use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerActivatedSystemEve
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerAgreementsUpdatedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerDeactivatedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRegisteredSystemEvent;
+use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRemovedManuallyLevelSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerUpdatedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\NewsletterSubscriptionSystemEvent;
@@ -64,6 +65,9 @@ class CustomerCommandHandler extends SimpleCommandHandler
         $this->auditManager = $auditManager;
     }
 
+    /**
+     * @param RegisterCustomer $command
+     */
     public function handleRegisterCustomer(RegisterCustomer $command)
     {
         $customerData = $command->getCustomerData();
@@ -83,6 +87,9 @@ class CustomerCommandHandler extends SimpleCommandHandler
         );
     }
 
+    /**
+     * @param UpdateCustomerAddress $command
+     */
     public function handleUpdateCustomerAddress(UpdateCustomerAddress $command)
     {
         $customerId = $command->getCustomerId();
@@ -96,6 +103,9 @@ class CustomerCommandHandler extends SimpleCommandHandler
         );
     }
 
+    /**
+     * @param UpdateCustomerCompanyDetails $command
+     */
     public function handleUpdateCustomerCompanyDetails(UpdateCustomerCompanyDetails $command)
     {
         $customerId = $command->getCustomerId();
@@ -109,6 +119,9 @@ class CustomerCommandHandler extends SimpleCommandHandler
         );
     }
 
+    /**
+     * @param UpdateCustomerLoyaltyCardNumber $command
+     */
     public function handleUpdateCustomerLoyaltyCardNumber(UpdateCustomerLoyaltyCardNumber $command)
     {
         $customerId = $command->getCustomerId();
@@ -123,6 +136,9 @@ class CustomerCommandHandler extends SimpleCommandHandler
         );
     }
 
+    /**
+     * @param UpdateCustomerDetails $command
+     */
     public function handleUpdateCustomerDetails(UpdateCustomerDetails $command)
     {
         $customerId = $command->getCustomerId();
@@ -180,12 +196,15 @@ class CustomerCommandHandler extends SimpleCommandHandler
         );
     }
 
+    /**
+     * @param MoveCustomerToLevel $command
+     */
     public function handleMoveCustomerToLevel(MoveCustomerToLevel $command)
     {
         $customerId = $command->getCustomerId();
         /** @var Customer $customer */
         $customer = $this->repository->load($customerId->__toString());
-        $customer->addToLevel($command->getLevelId(), $command->isManually());
+        $customer->addToLevel($command->getLevelId(), $command->isManually(), $command->isRemoveLevelManually());
         $this->repository->save($customer);
         $this->eventDispatcher->dispatch(
             CustomerSystemEvents::CUSTOMER_UPDATED,
@@ -193,6 +212,9 @@ class CustomerCommandHandler extends SimpleCommandHandler
         );
     }
 
+    /**
+     * @param AssignPosToCustomer $command'
+     */
     public function handleAssignPosToCustomer(AssignPosToCustomer $command)
     {
         $customerId = $command->getCustomerId();
@@ -206,6 +228,9 @@ class CustomerCommandHandler extends SimpleCommandHandler
         );
     }
 
+    /**
+     * @param AssignSellerToCustomer $command
+     */
     public function handleAssignSellerToCustomer(AssignSellerToCustomer $command)
     {
         $customerId = $command->getCustomerId();
@@ -219,6 +244,9 @@ class CustomerCommandHandler extends SimpleCommandHandler
         );
     }
 
+    /**
+     * @param BuyCampaign $command
+     */
     public function handleBuyCampaign(BuyCampaign $command)
     {
         $customerId = $command->getCustomerId();
@@ -234,6 +262,9 @@ class CustomerCommandHandler extends SimpleCommandHandler
         $this->repository->save($customer);
     }
 
+    /**
+     * @param ChangeCampaignUsage $command
+     */
     public function handleChangeCampaignUsage(ChangeCampaignUsage $command)
     {
         $customerId = $command->getCustomerId();
@@ -243,6 +274,9 @@ class CustomerCommandHandler extends SimpleCommandHandler
         $this->repository->save($customer);
     }
 
+    /**
+     * @param DeactivateCustomer $command
+     */
     public function handleDeactivateCustomer(DeactivateCustomer $command)
     {
         $customerId = $command->getCustomerId();
@@ -256,6 +290,9 @@ class CustomerCommandHandler extends SimpleCommandHandler
         );
     }
 
+    /**
+     * @param ActivateCustomer $command
+     */
     public function handleActivateCustomer(ActivateCustomer $command)
     {
         $customerId = $command->getCustomerId();
@@ -269,11 +306,32 @@ class CustomerCommandHandler extends SimpleCommandHandler
         );
     }
 
+    /**
+     * @param NewsletterSubscription $command
+     */
     public function handleNewsletterSubscription(NewsletterSubscription $command)
     {
         $this->eventDispatcher->dispatch(
             CustomerSystemEvents::NEWSLETTER_SUBSCRIPTION,
             [new NewsletterSubscriptionSystemEvent($command->getCustomerId())]
+        );
+    }
+
+    /**
+     * @param RemoveManuallyAssignedLevel $command
+     */
+    public function handleRemoveManuallyAssignedLevel(RemoveManuallyAssignedLevel $command)
+    {
+        $customerId = $command->getCustomerId();
+
+        $this->eventDispatcher->dispatch(
+            CustomerSystemEvents::CUSTOMER_MANUALLY_LEVEL_REMOVED,
+            [new CustomerRemovedManuallyLevelSystemEvent($customerId)]
+        );
+
+        $this->eventDispatcher->dispatch(
+            CustomerSystemEvents::CUSTOMER_UPDATED,
+            [new CustomerUpdatedSystemEvent($customerId)]
         );
     }
 }

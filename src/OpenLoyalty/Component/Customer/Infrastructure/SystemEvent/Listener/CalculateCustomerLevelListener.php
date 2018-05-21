@@ -7,6 +7,7 @@ namespace OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener;
 
 use Broadway\CommandHandling\CommandBus;
 use Broadway\EventDispatcher\EventDispatcher;
+use OpenLoyalty\Bundle\UserBundle\Status\CustomerStatusProvider;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountCreatedSystemEvent;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AvailablePointsAmountChangedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\Command\MoveCustomerToLevel;
@@ -16,6 +17,7 @@ use OpenLoyalty\Component\Customer\Domain\LevelIdProvider;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerLevelChangedSystemEvent;
+use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRemovedManuallyLevelSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
 use OpenLoyalty\Component\Customer\Domain\TransactionId;
 use OpenLoyalty\Component\Level\Domain\Level;
@@ -54,13 +56,20 @@ class CalculateCustomerLevelListener
      */
     protected $excludeDeliveryCostsProvider;
 
-    /** @var LevelRepository */
+    /**
+     * @var LevelRepository
+     */
     protected $levelRepository;
 
     /**
      * @var EventDispatcher
      */
     protected $eventDispatcher;
+
+    /**
+     * @var CustomerStatusProvider
+     */
+    protected $customerStatusProvider;
 
     /**
      * CalculateCustomerLevelListener constructor.
@@ -72,6 +81,7 @@ class CalculateCustomerLevelListener
      * @param ExcludeDeliveryCostsProvider $excludeDeliveryCostsProvider
      * @param LevelRepository              $levelRepository
      * @param EventDispatcher              $eventDispatcher
+     * @param CustomerStatusProvider       $customerStatusProvider
      */
     public function __construct(
         LevelIdProvider $levelIdProvider,
@@ -80,7 +90,8 @@ class CalculateCustomerLevelListener
         TierAssignTypeProvider $tierAssignTypeProvider,
         ExcludeDeliveryCostsProvider $excludeDeliveryCostsProvider,
         LevelRepository $levelRepository,
-        EventDispatcher $eventDispatcher
+        EventDispatcher $eventDispatcher,
+        CustomerStatusProvider $customerStatusProvider
     ) {
         $this->levelIdProvider = $levelIdProvider;
         $this->customerDetailsRepository = $customerDetailsRepository;
@@ -89,12 +100,18 @@ class CalculateCustomerLevelListener
         $this->excludeDeliveryCostsProvider = $excludeDeliveryCostsProvider;
         $this->levelRepository = $levelRepository;
         $this->eventDispatcher = $eventDispatcher;
+        $this->customerStatusProvider = $customerStatusProvider;
     }
 
+    /**
+     * @param $event
+     */
     public function handle($event)
     {
         if ($event instanceof AccountCreatedSystemEvent) {
             $this->handleAccountCreated($event);
+        } elseif ($event instanceof CustomerRemovedManuallyLevelSystemEvent) {
+            $this->handleRemovedManuallyLevel($event);
         } elseif ($this->tierAssignTypeProvider->getType() == TierAssignTypeProvider::TYPE_POINTS && $event instanceof AvailablePointsAmountChangedSystemEvent) {
             $this->handlePoints($event);
         } elseif ($this->tierAssignTypeProvider->getType() == TierAssignTypeProvider::TYPE_TRANSACTIONS && $event instanceof CustomerAssignedToTransactionSystemEvent) {
@@ -102,6 +119,36 @@ class CalculateCustomerLevelListener
         }
     }
 
+    /**
+     * @param CustomerRemovedManuallyLevelSystemEvent $event
+     */
+    protected function handleRemovedManuallyLevel(CustomerRemovedManuallyLevelSystemEvent $event)
+    {
+        $customerId = $event->getCustomerId();
+        $status = $this->customerStatusProvider->getStatus($customerId);
+        $currentAmount = $status->getPoints() ?? 0;
+
+        /** @var CustomerDetails $customer */
+        $customer = $this->customerDetailsRepository->find($customerId->__toString());
+        $levelId = $this->levelIdProvider->findLevelIdByConditionValueWithTheBiggestReward($currentAmount);
+
+        $this->commandBus->dispatch(
+            new MoveCustomerToLevel(
+                new CustomerId($customerId->__toString()),
+                $levelId ? new LevelId($levelId) : null,
+                true,
+                true
+            )
+        );
+
+        $this->eventDispatcher->dispatch(CustomerSystemEvents::CUSTOMER_LEVEL_CHANGED, [
+            new CustomerLevelChangedSystemEvent($customer->getCustomerId(), new LevelId($levelId)),
+        ]);
+    }
+
+    /**
+     * @param CustomerAssignedToTransactionSystemEvent $event
+     */
     protected function handleTransaction(CustomerAssignedToTransactionSystemEvent $event)
     {
         $transactionId = $event->getTransactionId();
@@ -183,6 +230,9 @@ class CalculateCustomerLevelListener
         ]);
     }
 
+    /**
+     * @param AvailablePointsAmountChangedSystemEvent $event
+     */
     protected function handlePoints(AvailablePointsAmountChangedSystemEvent $event)
     {
         $customerId = $event->getCustomerId();
@@ -222,6 +272,9 @@ class CalculateCustomerLevelListener
         }
     }
 
+    /**
+     * @param AccountCreatedSystemEvent $event
+     */
     protected function handleAccountCreated(AccountCreatedSystemEvent $event)
     {
         $customerId = $event->getCustomerId();
