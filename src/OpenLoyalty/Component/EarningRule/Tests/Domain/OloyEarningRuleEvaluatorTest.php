@@ -5,11 +5,13 @@ namespace OpenLoyalty\Component\EarningRule\Tests\Domain;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Component\Account\Domain\TransactionId;
+use OpenLoyalty\Component\Core\Domain\Model\LabelMultiplier;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetailsRepository;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\EarningRuleAlgorithmFactoryInterface;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\MultiplyPointsForProductRuleAlgorithm;
+use OpenLoyalty\Component\EarningRule\Domain\Algorithm\MultiplyPointsByProductLabelsRuleAlgorithm;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\PointsEarningRuleAlgorithm;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\ProductPurchaseEarningRuleAlgorithm;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
@@ -17,6 +19,7 @@ use OpenLoyalty\Component\Core\Domain\Model\SKU;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleId;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleRepository;
 use OpenLoyalty\Component\EarningRule\Domain\EventEarningRule;
+use OpenLoyalty\Component\EarningRule\Domain\MultiplyPointsByProductLabelsEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\MultiplyPointsForProductEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\OloyEarningRuleEvaluator;
 use OpenLoyalty\Component\EarningRule\Domain\PointsEarningRule;
@@ -243,6 +246,65 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(704, $points);
     }
 
+    public function productLabelMultipliersProvider()
+    {
+        return [
+            [[new LabelMultiplier('color', 'red', 3)], 704],
+            [
+                [
+                    new LabelMultiplier('color', 'red', 3),
+                    new LabelMultiplier('color', 'blue', 6),
+                ],
+                2704,
+            ],
+            [
+                [
+                    new LabelMultiplier('color', 'red', 0),
+                    new LabelMultiplier('color', 'blue', 2),
+                    new LabelMultiplier('size', 'xxl', 2),
+                ],
+                960,
+            ],
+            [
+                [
+                    new LabelMultiplier('color', 'red', 0),
+                    new LabelMultiplier('color', 'blue', 0),
+                ],
+                160,
+            ],
+            [
+                [
+                    new LabelMultiplier('color', 'blue', 2),
+                    new LabelMultiplier('color', 'orange', 3),
+                ],
+                1008,
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider productLabelMultipliersProvider
+     * @param array $labelMultipliers
+     * @param int $expectedPoints
+     */
+    public function it_returns_proper_value_for_given_transaction_and_multiply_points_rule_by_label_multipliers(array $labelMultipliers, int $expectedPoints)
+    {
+        $pointsEarningRule = new PointsEarningRule(new EarningRuleId('00000000-0000-0000-0000-000000000000'));
+        $pointsEarningRule->setPointValue(4);
+        $pointsEarningRule->setExcludeDeliveryCost(false);
+
+        $multiplyPointsEarningRule = new MultiplyPointsByProductLabelsEarningRule(
+            new EarningRuleId('00000000-0000-0000-0000-000000000000')
+        );
+        $multiplyPointsEarningRule->setLabelMultipliers($labelMultipliers);
+
+        $evaluator = $this->getEarningRuleEvaluator([$pointsEarningRule, $multiplyPointsEarningRule]);
+
+        $points = $evaluator->evaluateTransaction(new TransactionId('00000000-0000-0000-0000-000000000000'), new CustomerId(static::USER_ID));
+        $this->assertEquals($expectedPoints, $points);
+    }
+
     /**
      * @test
      */
@@ -367,9 +429,10 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
     protected function getEarningRuleAlgorithmFactory()
     {
         $algorithms = [
-            PointsEarningRule::class => new PointsEarningRuleAlgorithm(0),
-            MultiplyPointsForProductEarningRule::class => new MultiplyPointsForProductRuleAlgorithm(2),
-            ProductPurchaseEarningRule::class => new ProductPurchaseEarningRuleAlgorithm(3),
+            PointsEarningRule::class => new PointsEarningRuleAlgorithm(),
+            MultiplyPointsForProductEarningRule::class => new MultiplyPointsForProductRuleAlgorithm(),
+            ProductPurchaseEarningRule::class => new ProductPurchaseEarningRuleAlgorithm(),
+            MultiplyPointsByProductLabelsEarningRule::class => new MultiplyPointsByProductLabelsRuleAlgorithm(),
         ];
 
         $mock = $this->createMock(EarningRuleAlgorithmFactoryInterface::class);

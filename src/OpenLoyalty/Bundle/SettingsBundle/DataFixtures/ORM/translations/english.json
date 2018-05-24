@@ -424,6 +424,11 @@
     "add_excluded_sku": "Add SKU",
     "add_earning_rule": "Add earning points rule",
     "add_excluded_label": "Add excluded label",
+    "add_label_multiplier": "Add label multiplier",
+    "label_multipliers": "Label multipliers",
+    "key_prompt": "",
+    "label_value_prompt": "",
+    "label_multiplier_prompt": "",
     "name_prompt": "",
     "details": "Earning rule details",
     "edit": "Edit earning points rule",
@@ -484,6 +489,7 @@
       "custom_event": "Custom event rule",
       "product_purchase": "Product purchase",
       "multiply_for_product": "Multiply earned points",
+      "multiply_by_product_labels": "Multiply earned points by product labels",
       "referral": "Customer Referral"
     },
     "referral_events": {

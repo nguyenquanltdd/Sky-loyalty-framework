@@ -43,6 +43,7 @@ class CreateEarningRuleFormType extends BaseEarningRuleFormType
                 'Custom event rule' => EarningRule::TYPE_CUSTOM_EVENT,
                 'Product purchase' => EarningRule::TYPE_PRODUCT_PURCHASE,
                 'Multiply earned points' => EarningRule::TYPE_MULTIPLY_FOR_PRODUCT,
+                'Multiply earned points by labels' => EarningRule::TYPE_MULTIPLY_BY_PRODUCT_LABELS,
                 'Referral' => EarningRule::TYPE_REFERRAL,
             ],
         ]);
@@ -196,6 +197,15 @@ class CreateEarningRuleFormType extends BaseEarningRuleFormType
                     'constraints' => [new NotBlank()],
                 ])
                 ->add('labels', LabelsFormType::class);
+        } elseif ($type == EarningRule::TYPE_MULTIPLY_BY_PRODUCT_LABELS) {
+            $form
+                ->add('labelMultipliers', CollectionType::class, [
+                    'allow_add' => true,
+                    'allow_delete' => true,
+                    'entry_type' => LabelMultipliersFormType::class,
+                    'error_bubbling' => false,
+                    'constraints' => [new Count(['min' => 1])],
+                ]);
         }
         if (!isset($data['target'])) {
             return;

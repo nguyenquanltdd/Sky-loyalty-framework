@@ -15,12 +15,16 @@ abstract class AbstractRuleAlgorithm implements EarningRuleAlgorithmInterface
      */
     protected $priority;
 
+    const HIGH_PRIORITY = 1;
+    const MEDIUM_PRIORITY = 2;
+    const LOW_PRIORITY = 3;
+
     /**
      * AbstractRuleAlgorithm constructor.
      *
      * @param int $priority
      */
-    public function __construct($priority = 0)
+    public function __construct($priority = self::HIGH_PRIORITY)
     {
         $this->priority = $priority;
     }

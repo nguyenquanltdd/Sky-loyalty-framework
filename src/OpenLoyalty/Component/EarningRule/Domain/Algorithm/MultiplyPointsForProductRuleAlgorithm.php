@@ -19,7 +19,7 @@ class MultiplyPointsForProductRuleAlgorithm extends AbstractRuleAlgorithm
      */
     public function __construct()
     {
-        parent::__construct(2);
+        parent::__construct(self::MEDIUM_PRIORITY);
     }
 
     /**

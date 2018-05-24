@@ -8,6 +8,7 @@ OpenLoyalty\Component\EarningRule\Domain\EarningRule:
       custom_event: OpenLoyalty\Component\EarningRule\Domain\CustomEventEarningRule
       product_purchase: OpenLoyalty\Component\EarningRule\Domain\ProductPurchaseEarningRule
       multiply_for_product: OpenLoyalty\Component\EarningRule\Domain\MultiplyPointsForProductEarningRule
+      multiply_by_product_labels: OpenLoyalty\Component\EarningRule\Domain\MultiplyPointsByProductLabelsEarningRule
       referral: OpenLoyalty\Component\EarningRule\Domain\ReferralEarningRule
   properties:
     earningRuleId:

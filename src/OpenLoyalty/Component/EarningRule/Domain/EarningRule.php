@@ -18,6 +18,7 @@ abstract class EarningRule
     const TYPE_CUSTOM_EVENT = 'custom_event';
     const TYPE_PRODUCT_PURCHASE = 'product_purchase';
     const TYPE_MULTIPLY_FOR_PRODUCT = 'multiply_for_product';
+    const TYPE_MULTIPLY_BY_PRODUCT_LABELS = 'multiply_by_product_labels';
     const TYPE_REFERRAL = 'referral';
 
     const TYPE_MAP = [
@@ -26,6 +27,7 @@ abstract class EarningRule
         self::TYPE_POINTS => PointsEarningRule::class,
         self::TYPE_PRODUCT_PURCHASE => ProductPurchaseEarningRule::class,
         self::TYPE_MULTIPLY_FOR_PRODUCT => MultiplyPointsForProductEarningRule::class,
+        self::TYPE_MULTIPLY_BY_PRODUCT_LABELS => MultiplyPointsByProductLabelsEarningRule::class,
         self::TYPE_REFERRAL => ReferralEarningRule::class,
     ];
 
