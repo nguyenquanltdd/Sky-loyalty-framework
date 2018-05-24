@@ -1070,13 +1070,16 @@
       "success": "Code was sent to customer phone"
     },
     "upload_settings_logo": {
-      "success": "Logo has been saved"
+      "success": "Logo has been saved",
+      "error": "Logo hasn't been saved"
     },
     "upload_settings_small_logo": {
-      "success": "Small logo has been saved"
+      "success": "Small logo has been saved",
+      "error": "Small logo hasn't been saved"
     },
     "upload_settings_hero_image": {
-      "success": "Hero image has been saved"
+      "success": "Hero image has been saved",
+      "error": "Hero image hasn't been saved"
     },
     "customer_search": {
       "success": "Success",
