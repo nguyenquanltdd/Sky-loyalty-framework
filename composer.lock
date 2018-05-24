@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1abd0193ff5edc2984bc5244092f5c83",
-    "content-hash": "6d3645770aff49aec893ba302ab54729",
+    "hash": "05c118c35bcd01312e5d78a9f18fdb0d",
+    "content-hash": "6b040bc84aa71e3fc4c26588d13114b1",
     "packages": [
         {
             "name": "beberlei/DoctrineExtensions",
@@ -3338,7 +3338,7 @@
                 }
             ],
             "description": "SalesManago API",
-            "time": "2016-08-02T10:10:44+00:00"
+            "time": "2016-08-02 10:10:44"
         },
         {
             "name": "prewk/xml-string-streamer",
