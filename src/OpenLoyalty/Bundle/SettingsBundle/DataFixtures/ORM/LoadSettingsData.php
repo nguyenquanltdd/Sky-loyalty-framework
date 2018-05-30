@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\SettingsBundle\DataFixtures\ORM;
 
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
+use Gaufrette\Filesystem;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\BooleanSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\FileSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\IntegerSettingEntry;
@@ -19,6 +20,9 @@ use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
 use Symfony\Bridge\Doctrine\Tests\Fixtures\ContainerAwareFixture;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\HttpKernel\Kernel;
 
 /**
  * Class LoadSettingsData.
@@ -32,6 +36,8 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
      */
     public function load(ObjectManager $manager)
     {
+        $this->loadDefaultTranslations();
+
         $settings = new Settings();
 
         $currency = new StringSettingEntry('currency', 'eur');
@@ -116,6 +122,29 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
         $settings->addEntry($accountActivationMethod);
 
         $this->getContainer()->get('ol.settings.manager')->save($settings);
+    }
+
+    /**
+     * Copy default translations to translations directory.
+     */
+    protected function loadDefaultTranslations(): void
+    {
+        /** @var Filesystem $fileSystem */
+        $fileSystem = $this->getContainer()->get('ol.settings.frontend_translations_filesystem');
+
+        /** @var Kernel $kernel */
+        $kernel = $this->getContainer()->get('kernel');
+
+        $transDir = $kernel->locateResource('@OpenLoyaltySettingsBundle/DataFixtures/ORM/translations/');
+        $finder = Finder::create();
+        $finder->files()->in($transDir);
+
+        /** @var SplFileInfo $file */
+        foreach ($finder as $file) {
+            if (!$fileSystem->has($file->getFilename())) {
+                $fileSystem->write($file->getFilename(), $file->getContents());
+            }
+        }
     }
 
     /**
