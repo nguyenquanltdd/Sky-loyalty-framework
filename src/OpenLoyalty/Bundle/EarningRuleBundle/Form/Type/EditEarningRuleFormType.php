@@ -8,7 +8,6 @@ namespace OpenLoyalty\Bundle\EarningRuleBundle\Form\Type;
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRule;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\LevelsDataTransformer;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\SegmentsDataTransformer;
-use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Exception\InvalidArgumentException;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -21,14 +20,18 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * Class EditEarningRuleFormType.
  */
-class EditEarningRuleFormType extends AbstractType
+class EditEarningRuleFormType extends BaseEarningRuleFormType
 {
+    /**
+     * {@inheritdoc}
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $type = $options['type'];
@@ -56,6 +59,9 @@ class EditEarningRuleFormType extends AbstractType
                     'allow_add' => true,
                     'allow_delete' => true,
                     'error_bubbling' => false,
+                    'constraints' => [
+                        new Callback([$this, 'validateTarget']),
+                    ],
                 ])->addModelTransformer(new LevelsDataTransformer())
             )
             ->add(
@@ -64,6 +70,9 @@ class EditEarningRuleFormType extends AbstractType
                     'allow_add' => true,
                     'allow_delete' => true,
                     'error_bubbling' => false,
+                    'constraints' => [
+                        new Callback([$this, 'validateTarget']),
+                    ],
                 ])->addModelTransformer(new SegmentsDataTransformer())
             )
             ->add('active', CheckboxType::class, [
@@ -183,6 +192,9 @@ class EditEarningRuleFormType extends AbstractType
         });
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setRequired([

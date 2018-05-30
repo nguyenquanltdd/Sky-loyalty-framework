@@ -17,6 +17,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 class EarningRuleControllerTest extends BaseApiTest
 {
+    const LEVEL_ID = 'f99748f2-bf86-11e6-a4a6-cec0c932ce01';
+
     /**
      * @var EarningRuleRepository
      */
@@ -44,6 +46,9 @@ class EarningRuleControllerTest extends BaseApiTest
                     'type' => EarningRule::TYPE_EVENT,
                     'eventName' => 'test event',
                     'pointsAmount' => 100,
+                    'levels' => [
+                        self::LEVEL_ID,
+                    ],
                 ]),
             ]
         );
@@ -70,6 +75,9 @@ class EarningRuleControllerTest extends BaseApiTest
                     'type' => EarningRule::TYPE_PRODUCT_PURCHASE,
                     'skuIds' => ['test sku'],
                     'pointsAmount' => 100,
+                    'levels' => [
+                        self::LEVEL_ID,
+                    ],
                 ]),
             ]
         );
@@ -99,6 +107,9 @@ class EarningRuleControllerTest extends BaseApiTest
                     'excludedLabels' => 'asas:aaa;ccc:eee',
                     'excludeDeliveryCost' => true,
                     'minOrderValue' => 111.11,
+                    'levels' => [
+                        self::LEVEL_ID,
+                    ],
                 ]),
             ]
         );
@@ -166,6 +177,9 @@ class EarningRuleControllerTest extends BaseApiTest
                 'earningRule' => array_merge($this->getMainData(), [
                     'eventName' => 'test event - edited',
                     'pointsAmount' => 100,
+                    'levels' => [
+                        self::LEVEL_ID,
+                    ],
                 ]),
             ]
         );

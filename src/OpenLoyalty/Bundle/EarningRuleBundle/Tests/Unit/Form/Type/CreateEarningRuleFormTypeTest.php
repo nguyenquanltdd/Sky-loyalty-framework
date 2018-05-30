@@ -1,6 +1,9 @@
 <?php
-
-namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Form\Type;
+/**
+ * Copyright © 2017 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
+namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Unit\Form\Type;
 
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\CreateEarningRuleFormType;
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRule;
