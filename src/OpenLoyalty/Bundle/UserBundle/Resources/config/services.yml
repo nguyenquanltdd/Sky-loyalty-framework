@@ -8,6 +8,11 @@ parameters:
       - { template: 'OpenLoyaltyUserBundle:email:new_level.html.twig', subject: '{{ program_name }} - new level', variables: ['program_name', 'level_name', 'level_discount', 'ecommerce_address'] }
 
 services:
+
+  OpenLoyalty\Bundle\UserBundle\Controller\:
+      resource: '../../Controller'
+      tags: ['controller.service_arguments']
+
   oloy.user.all_users_provider:
     class: OpenLoyalty\Bundle\UserBundle\Service\UserProvider
     arguments:
@@ -74,6 +79,7 @@ services:
     tags:
       - { name: form.type }
   oloy.user.form_handler.customer_registration:
+    autowire: true
     class: OpenLoyalty\Bundle\UserBundle\Form\Handler\CustomerRegistrationFormHandler
     arguments:
       - '@broadway.command_handling.command_bus'
@@ -217,3 +223,28 @@ services:
         - '@broadway.command_handling.command_bus'
       tags:
         - { name: kernel.event_listener, event: user.invitation.user_registered_with_invitation_token, method: handle }
+
+  OpenLoyalty\Bundle\UserBundle\Service\RegisterCustomerManager:
+    arguments:
+      - '@oloy.user.user_manager'
+      - '@oloy.user.customer.unique_validator'
+      - '@broadway.command_handling.command_bus'
+      - '@oloy.user.read_model.repository.customer_details'
+      - '@doctrine.orm.entity_manager'
+
+  OpenLoyalty\Bundle\UserBundle\Import\CustomerNodeStreamer: ~
+
+  OpenLoyalty\Bundle\UserBundle\Import\CustomerImportProcessor:
+    autowire: true
+    arguments:
+        - '@broadway.uuid.generator'
+        - '@broadway.command_handling.command_bus'
+        - '@oloy.action_token_manager'
+
+  OpenLoyalty\Bundle\UserBundle\Import\CustomerXmlImportConverter: ~
+
+  OpenLoyalty\Bundle\UserBundle\Import\CustomerXmlImporter:
+    calls:
+      - [setProcessor, ['@OpenLoyalty\Bundle\UserBundle\Import\CustomerImportProcessor']]
+      - [setXmlStreamer, ['@OpenLoyalty\Bundle\UserBundle\Import\CustomerNodeStreamer']]
+      - [setConverter, ['@OpenLoyalty\Bundle\UserBundle\Import\CustomerXmlImportConverter']]

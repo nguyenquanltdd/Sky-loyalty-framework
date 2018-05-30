@@ -34,7 +34,7 @@ abstract class AbstractFileImportCommand extends Command implements ContainerAwa
     /**
      * @return FileImporter
      */
-    abstract protected function getImporter();
+    abstract protected function getImporter(): FileImporter;
 
     /**
      * {@inheritdoc}

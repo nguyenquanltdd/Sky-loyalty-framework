@@ -1,4 +1,9 @@
 services:
+
+  OpenLoyalty\Bundle\PointsBundle\Controller\:
+      resource: '../../Controller'
+      tags: ['controller.service_arguments']
+
   oloy.account.form_type.add_points:
       class: OpenLoyalty\Bundle\PointsBundle\Form\Type\AddPointsFormType
       arguments:
@@ -36,25 +41,19 @@ services:
     tags:
       - { name: broadway.event_listener, method: onChange, event: oloy.account.available_points_amount_changed}
 
-  oloy.account.points_transfers.import.points_transfer_node_streamer:
-    class: OpenLoyalty\Bundle\ImportBundle\Importer\XMLUniqueNodeStringFileStreamer
-    arguments:
-        - "pointsTransfer"
+  OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferNodeStreamer: ~
 
-  oloy.account.points_transfers.import.points_transfer_import_processor:
-    class: OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferImportProcessor
+  OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferImportProcessor:
     arguments:
         - "@broadway.command_handling.command_bus"
 
-  oloy.account.points_transfers.import.points_transfer_xml_import_converter:
-    class: OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferXmlImportConverter
+  OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferXmlImportConverter:
     arguments:
         - "@broadway.uuid.generator"
         - "@oloy.points.account.repository.account_details"
 
-  oloy.account.points_transfers.import.points_transfer_importer:
-    parent: "oloy.import.importer.xml_importer"
+  OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferXmlImporter:
     calls:
-      - [setProcessor, ['@oloy.account.points_transfers.import.points_transfer_import_processor']]
-      - [setXmlStreamer, ['@oloy.account.points_transfers.import.points_transfer_node_streamer']]
-      - [setConverter, ['@oloy.account.points_transfers.import.points_transfer_xml_import_converter']]
+      - [setProcessor, ['@OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferImportProcessor']]
+      - [setXmlStreamer, ['@OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferNodeStreamer']]
+      - [setConverter, ['@OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferXmlImportConverter']]

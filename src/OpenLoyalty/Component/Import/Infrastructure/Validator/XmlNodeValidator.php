@@ -1,23 +1,31 @@
 <?php
-
 /**
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Component\Import\Infrastructure\Validator;
 
+use Ramsey\Uuid\Uuid;
+
 /**
  * Class XmlNodeValidator.
  */
 class XmlNodeValidator
 {
+    const DATE_CONVERT_FORMAT = 'Y-m-d';
+
+    const DATE_TIME_FORMAT = 'datetime';
     const DATE_FORMAT = 'date';
     const DECIMAL_FORMAT = 'decimal';
     const INTEGER_FORMAT = 'integer';
+    const VALID_CONST_FORMAT = 'valid_const';
+    const BOOL_FORMAT = 'bool';
+    const UUID_FORMAT = 'uuid';
 
     private $defaultRequirements = [
         'required' => false,
         'format' => null,
+        'values' => [],
     ];
 
     /**
@@ -37,13 +45,20 @@ class XmlNodeValidator
 
         if ($requirements['format']) {
             $value = $element->xpath($xpath);
-            if (!isset($value[0])) {
-                return sprintf('%s has format specified but not value', $xpath);
-            }
-            $parsedValue = (string) $value[0];
+            $parsedValue = isset($value[0]) ? (string) $value[0] : '';
 
             switch ($requirements['format']) {
                 case self::DATE_FORMAT:
+                    $dt = \DateTime::createFromFormat(self::DATE_CONVERT_FORMAT, $parsedValue);
+                    if (!$dt) {
+                        return sprintf(
+                            '%s has invalid date format (%s required)',
+                            $xpath,
+                            self::DATE_CONVERT_FORMAT
+                        );
+                    }
+                    break;
+                case self::DATE_TIME_FORMAT:
                     $dt = \DateTime::createFromFormat(DATE_ATOM, $parsedValue);
                     if (!$dt) {
                         return sprintf('%s has invalid date format (ATOM required)', $xpath);
@@ -57,6 +72,23 @@ class XmlNodeValidator
                 case self::INTEGER_FORMAT:
                     if ((string) (int) $parsedValue != $parsedValue) {
                         return sprintf('%s should be integer value', $xpath);
+                    }
+                    break;
+                case self::BOOL_FORMAT:
+                    $requirements['values'] = ['true', 'false'];
+                    // pass to valid const format
+                case self::VALID_CONST_FORMAT:
+                    if (!empty($parsedValue) && !in_array($parsedValue, $requirements['values'])) {
+                        return sprintf(
+                            '%s should one of (%s)',
+                                $xpath,
+                                implode(', ', $requirements['values'])
+                        );
+                    }
+                    break;
+                case self::UUID_FORMAT:
+                    if (!empty($parsedValue) && !Uuid::isValid($parsedValue)) {
+                        return sprintf('%s should be UUID', $xpath);
                     }
                     break;
             }

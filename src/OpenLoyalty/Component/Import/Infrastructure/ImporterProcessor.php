@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
@@ -14,7 +13,7 @@ interface ImporterProcessor
     /**
      * @param mixed $entity
      *
-     * @throws \InvalidArgumentException
+     * @throws \Exception
      *
      * @return ProcessImportResult
      */

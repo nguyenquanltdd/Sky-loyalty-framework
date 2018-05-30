@@ -14,6 +14,8 @@ use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\AuditBundle\Service\AuditManagerInterface;
+use OpenLoyalty\Bundle\ImportBundle\Form\Type\ImportFileFormType;
+use OpenLoyalty\Bundle\ImportBundle\Service\ImportFileManager;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
 use OpenLoyalty\Bundle\UserBundle\Entity\Status;
@@ -22,12 +24,13 @@ use OpenLoyalty\Bundle\UserBundle\Event\UserRegisteredWithInvitationToken;
 use OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerEditFormType;
 use OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerRegistrationFormType;
 use OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerSelfRegistrationFormType;
+use OpenLoyalty\Bundle\UserBundle\Import\CustomerXmlImporter;
+use OpenLoyalty\Bundle\UserBundle\Service\RegisterCustomerManager;
 use OpenLoyalty\Component\Customer\Domain\Command\ActivateCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\AssignPosToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\AssignSellerToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\DeactivateCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\MoveCustomerToLevel;
-use OpenLoyalty\Component\Customer\Domain\Command\NewsletterSubscription;
 use OpenLoyalty\Component\Customer\Domain\Command\RemoveManuallyAssignedLevel;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
@@ -41,6 +44,7 @@ use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetails;
 use OpenLoyalty\Component\Seller\Domain\SellerId;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -308,14 +312,10 @@ class CustomerController extends FOSRestController
     /**
      * Method allows to register new customer.
      *
-     * @param Request $request
+     * @param Request                 $request
+     * @param RegisterCustomerManager $registerCustomerManager
      *
      * @return View
-     *
-     * @throws \Assert\AssertionFailedException
-     * @throws \Doctrine\DBAL\Exception\UniqueConstraintViolationException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \Exception
      * @Route(name="oloy.customer.admin_register_customer", path="/admin/customer/register")
      * @Route(name="oloy.customer.register_customer", path="/customer/register")
      * @Route(name="oloy.customer.seller.register_customer", path="/seller/customer/register")
@@ -332,7 +332,7 @@ class CustomerController extends FOSRestController
      *     }
      * )
      */
-    public function registerCustomerAction(Request $request)
+    public function registerCustomerAction(Request $request, RegisterCustomerManager $registerCustomerManager)
     {
         $loggedUser = $this->getUser();
         $accountActivationMethod = $this->get('oloy.action_token_manager')->getCurrentMethod();
@@ -397,14 +397,14 @@ class CustomerController extends FOSRestController
                     $commandBus->dispatch(
                         new ActivateCustomer($customerId)
                     );
-                    $this->activateAccount($user);
+                    $registerCustomerManager->activate($user);
                 } else {
                     $this->get('oloy.action_token_manager')
                         ->sendActivationMessage($user);
                 }
 
                 if ($agreement2) {
-                    $this->dispatchNewsletterSubscriptionEvent($user, $customerId);
+                    $registerCustomerManager->dispatchNewsletterSubscriptionEvent($user, $customerId);
                 }
 
                 return $this->view(
@@ -489,8 +489,9 @@ class CustomerController extends FOSRestController
     /**
      * Method allows to update customer details.
      *
-     * @param Request         $request
-     * @param CustomerDetails $customer
+     * @param Request                 $request
+     * @param CustomerDetails         $customer
+     * @param RegisterCustomerManager $registerCustomerManager
      *
      * @return View
      * @Route(name="oloy.customer.edit_customer", path="/customer/{customer}")
@@ -507,7 +508,7 @@ class CustomerController extends FOSRestController
      *     }
      * )
      */
-    public function editCustomerAction(Request $request, CustomerDetails $customer)
+    public function editCustomerAction(Request $request, CustomerDetails $customer, RegisterCustomerManager $registerCustomerManager)
     {
         $loggedUser = $this->getUser();
         $accountActivationMethod = $this->get('oloy.action_token_manager')->getCurrentMethod();
@@ -569,7 +570,7 @@ class CustomerController extends FOSRestController
             if ($customer->isAgreement2()) {
                 $em = $this->getDoctrine()->getManager();
                 $user = $em->getRepository('OpenLoyaltyUserBundle:Customer')->findOneBy(['id' => $customer->getId()]);
-                $this->dispatchNewsletterSubscriptionEvent($user, $customer->getCustomerId());
+                $registerCustomerManager->dispatchNewsletterSubscriptionEvent($user, $customer->getCustomerId());
             }
 
             return $this->view($customer);
@@ -799,18 +800,19 @@ class CustomerController extends FOSRestController
      * )
      *
      * @param $token
+     * @param RegisterCustomerManager $registerCustomerManager
      *
      * @return View
      */
-    public function activateAccountAction($token)
+    public function activateAccountAction($token, RegisterCustomerManager $registerCustomerManager)
     {
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('OpenLoyaltyUserBundle:Customer')->findOneBy(['actionToken' => $token]);
 
         if ($user instanceof Customer && $token == $user->getActionToken()) {
-            $this->activateAccount($user);
+            $registerCustomerManager->activate($user);
 
-            return $this->view('', 200);
+            return $this->view('', Response::HTTP_OK);
         } else {
             throw new NotFoundHttpException('bad_token');
         }
@@ -828,10 +830,11 @@ class CustomerController extends FOSRestController
      * )
      *
      * @param $token
+     * @param RegisterCustomerManager $registerCustomerManager
      *
      * @return View
      */
-    public function activateSmsAccountAction($token)
+    public function activateSmsAccountAction($token, RegisterCustomerManager $registerCustomerManager)
     {
         $code = $this->get('oloy.activation_code_manager')->findValidCode($token, Customer::class);
         if (null === $code) {
@@ -842,33 +845,11 @@ class CustomerController extends FOSRestController
         $user = $em->getRepository('OpenLoyaltyUserBundle:Customer')->find($code->getObjectId());
 
         if ($user instanceof Customer && $user->isNew()) {
-            $this->activateAccount($user);
+            $registerCustomerManager->activate($user);
 
             return $this->view('', Response::HTTP_OK);
         } else {
             throw new NotFoundHttpException('bad_token');
-        }
-    }
-
-    /**
-     * @param Customer $user
-     */
-    protected function activateAccount(Customer $user)
-    {
-        $user->setIsActive(true);
-        $user->setStatus(Status::typeActiveNoCard());
-        $commandBus = $this->get('broadway.command_handling.command_bus');
-        $commandBus->dispatch(
-            new ActivateCustomer(new CustomerId($user->getId()))
-        );
-        $this->get('oloy.user.user_manager')->updateUser($user);
-
-        $customerId = new CustomerId($user->getId());
-
-        $repo = $this->get('oloy.user.read_model.repository.customer_details');
-        $customer = $repo->find($user->getId());
-        if ($customer->isAgreement2()) {
-            $this->dispatchNewsletterSubscriptionEvent($user, $customerId);
         }
     }
 
@@ -892,23 +873,6 @@ class CustomerController extends FOSRestController
             // assign pos and send email
             $this->get('broadway.command_handling.command_bus')->dispatch(
                 new AssignPosToCustomer($customerId, new PosId($sellerDetails->getPosId()->__toString()))
-            );
-        }
-    }
-
-    /**
-     * @param User       $user
-     * @param CustomerId $customerId
-     */
-    protected function dispatchNewsletterSubscriptionEvent(User $user, CustomerId $customerId)
-    {
-        if ($user instanceof User && !$user->getNewsletterUsedFlag()) {
-            $user->setNewsletterUsedFlag(true);
-            $this->getDoctrine()->getManager()->flush();
-
-            $commandBus = $this->get('broadway.command_handling.command_bus');
-            $commandBus->dispatch(
-                new NewsletterSubscription($customerId)
             );
         }
     }
@@ -949,5 +913,41 @@ class CustomerController extends FOSRestController
         );
 
         return $this->view(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Import customers.
+     *
+     * @Route(name="oloy.customer.import", path="/admin/customer/import")
+     * @Method("POST")
+     * @Security("is_granted('CREATE_CUSTOMER')")
+     * @ApiDoc(
+     *     name="Import customers",
+     *     section="Customer",
+     *     input={"class" = "OpenLoyalty\Bundle\ImportBundle\Form\Type\ImportFileFormType", "name" = "file"}
+     * )
+     *
+     * @param Request             $request
+     * @param CustomerXmlImporter $importer
+     * @param ImportFileManager   $importFileManager
+     *
+     * @return View
+     */
+    public function importAction(Request $request, CustomerXmlImporter $importer, ImportFileManager $importFileManager)
+    {
+        $form = $this->get('form.factory')->createNamed('file', ImportFileFormType::class);
+
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            /** @var UploadedFile $file */
+            $file = $form->getData()->getFile();
+            $importFile = $importFileManager->upload($file, 'customers');
+            $result = $importer->import($importFileManager->getAbsolutePath($importFile));
+
+            return $this->view($result, Response::HTTP_OK);
+        }
+
+        return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
     }
 }

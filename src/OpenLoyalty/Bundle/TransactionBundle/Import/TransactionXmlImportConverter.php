@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
@@ -40,7 +39,7 @@ class TransactionXmlImportConverter extends AbstractXMLImportConverter
             $element,
             [
                 'documentNumber' => ['required' => true],
-                'purchaseDate' => ['format' => XmlNodeValidator::DATE_FORMAT, 'required' => true],
+                'purchaseDate' => ['format' => XmlNodeValidator::DATE_TIME_FORMAT, 'required' => true],
                 'customer' => ['required' => true],
                 'documentType' => ['required' => true],
                 'items' => ['required' => true],

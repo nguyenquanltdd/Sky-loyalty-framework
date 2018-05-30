@@ -1,4 +1,9 @@
 services:
+
+  OpenLoyalty\Bundle\TransactionBundle\Controller\:
+      resource: '../../Controller'
+      tags: ['controller.service_arguments']
+
   oloy.transaction.form_type.label:
     class: OpenLoyalty\Bundle\TransactionBundle\Form\Type\LabelFormType
     tags:
@@ -81,24 +86,18 @@ services:
       - '@broadway.event_dispatcher'
       - '@security.authorization_checker'
 
-  oloy.transaction.import.transaction_node_streamer:
-    class: OpenLoyalty\Bundle\ImportBundle\Importer\XMLUniqueNodeStringFileStreamer
-    arguments:
-        - "transaction"
+  OpenLoyalty\Bundle\TransactionBundle\Import\TransactionNodeStreamer: ~
 
-  oloy.transaction.import.transaction_import_processor:
-    class: OpenLoyalty\Bundle\TransactionBundle\Import\TransactionImportProcessor
+  OpenLoyalty\Bundle\TransactionBundle\Import\TransactionImportProcessor:
     arguments:
         - "@broadway.command_handling.command_bus"
 
-  oloy.transaction.import.transaction_xml_import_converter:
-    class: OpenLoyalty\Bundle\TransactionBundle\Import\TransactionXmlImportConverter
+  OpenLoyalty\Bundle\TransactionBundle\Import\TransactionXmlImportConverter:
     arguments:
         - "@broadway.uuid.generator"
 
-  oloy.transaction.import.transaction_importer:
-    parent: "oloy.import.importer.xml_importer"
+  OpenLoyalty\Bundle\TransactionBundle\Import\TransactionXmlImporter:
     calls:
-      - [setProcessor, ['@oloy.transaction.import.transaction_import_processor']]
-      - [setXmlStreamer, ['@oloy.transaction.import.transaction_node_streamer']]
-      - [setConverter, ['@oloy.transaction.import.transaction_xml_import_converter']]
+      - [setProcessor, ['@OpenLoyalty\Bundle\TransactionBundle\Import\TransactionImportProcessor']]
+      - [setXmlStreamer, ['@OpenLoyalty\Bundle\TransactionBundle\Import\TransactionNodeStreamer']]
+      - [setConverter, ['@OpenLoyalty\Bundle\TransactionBundle\Import\TransactionXmlImportConverter']]

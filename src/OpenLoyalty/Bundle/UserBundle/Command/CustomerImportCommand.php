@@ -3,16 +3,16 @@
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Bundle\TransactionBundle\Command;
+namespace OpenLoyalty\Bundle\UserBundle\Command;
 
 use OpenLoyalty\Bundle\ImportBundle\Command\AbstractFileImportCommand;
-use OpenLoyalty\Bundle\TransactionBundle\Import\TransactionXmlImporter;
+use OpenLoyalty\Bundle\UserBundle\Import\CustomerXmlImporter;
 use OpenLoyalty\Component\Import\Infrastructure\FileImporter;
 
 /**
- * Class TransactionImportCommand.
+ * Class CustomerImportCommand.
  */
-class TransactionImportCommand extends AbstractFileImportCommand
+class CustomerImportCommand extends AbstractFileImportCommand
 {
     /**
      * {@inheritdoc}
@@ -22,8 +22,8 @@ class TransactionImportCommand extends AbstractFileImportCommand
         parent::configure();
 
         $this
-            ->setName('oloy:transaction:import')
-            ->setDescription('Import transaction from XML file');
+            ->setName('oloy:customer:import')
+            ->setDescription('Import customers from XML file');
     }
 
     /**
@@ -31,6 +31,6 @@ class TransactionImportCommand extends AbstractFileImportCommand
      */
     protected function getImporter(): FileImporter
     {
-        return $this->container->get(TransactionXmlImporter::class);
+        return $this->container->get(CustomerXmlImporter::class);
     }
 }

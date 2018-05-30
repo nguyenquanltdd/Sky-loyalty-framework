@@ -12,18 +12,13 @@ use OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActionTokenManager;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Bundle\UserBundle\Entity\Status;
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
+use OpenLoyalty\Bundle\UserBundle\Service\RegisterCustomerManager;
 use OpenLoyalty\Bundle\UserBundle\Service\UserManager;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
-use OpenLoyalty\Component\Customer\Domain\Command\MoveCustomerToLevel;
-use OpenLoyalty\Component\Customer\Domain\Command\RegisterCustomer;
-use OpenLoyalty\Component\Customer\Domain\Command\UpdateCustomerAddress;
-use OpenLoyalty\Component\Customer\Domain\Command\UpdateCustomerCompanyDetails;
-use OpenLoyalty\Component\Customer\Domain\Command\UpdateCustomerLoyaltyCardNumber;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Exception\EmailAlreadyExistsException;
 use OpenLoyalty\Component\Customer\Domain\Exception\LoyaltyCardNumberAlreadyExistsException;
 use OpenLoyalty\Component\Customer\Domain\Exception\PhoneAlreadyExistsException;
-use OpenLoyalty\Component\Customer\Domain\LevelId;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -64,6 +59,11 @@ class CustomerRegistrationFormHandler
     private $actionTokenManager;
 
     /**
+     * @var RegisterCustomerManager
+     */
+    protected $registerCustomerManager;
+
+    /**
      * CustomerRegistrationFormHandler constructor.
      *
      * @param CommandBus              $commandBus
@@ -72,6 +72,7 @@ class CustomerRegistrationFormHandler
      * @param UuidGeneratorInterface  $uuidGenerator
      * @param CustomerUniqueValidator $customerUniqueValidator
      * @param ActionTokenManager      $actionTokenManager
+     * @param RegisterCustomerManager $registerCustomerManager
      */
     public function __construct(
         CommandBus $commandBus,
@@ -79,7 +80,8 @@ class CustomerRegistrationFormHandler
         EntityManager $em,
         UuidGeneratorInterface $uuidGenerator,
         CustomerUniqueValidator $customerUniqueValidator,
-        ActionTokenManager $actionTokenManager
+        ActionTokenManager $actionTokenManager,
+        RegisterCustomerManager $registerCustomerManager
     ) {
         $this->commandBus = $commandBus;
         $this->userManager = $userManager;
@@ -87,6 +89,7 @@ class CustomerRegistrationFormHandler
         $this->uuidGenerator = $uuidGenerator;
         $this->customerUniqueValidator = $customerUniqueValidator;
         $this->actionTokenManager = $actionTokenManager;
+        $this->registerCustomerManager = $registerCustomerManager;
     }
 
     /**
@@ -115,70 +118,17 @@ class CustomerRegistrationFormHandler
 
         $customerData['labels'] = $labels;
 
-        $command = new RegisterCustomer($customerId, $customerData);
-
-        $email = $customerData['email'];
-        $emailExists = false;
-        if ($email) {
-            if ($this->userManager->isCustomerExist($email)) {
-                $emailExists = 'This email is already taken';
-            }
-            try {
-                $this->customerUniqueValidator->validateEmailUnique($email, $customerId);
-            } catch (EmailAlreadyExistsException $e) {
-                $emailExists = $e->getMessage();
-            }
-        }
-        if ($emailExists) {
-            $form->get('email')->addError(new FormError($emailExists));
-        }
-        if (isset($customerData['loyaltyCardNumber'])) {
-            try {
-                $this->customerUniqueValidator->validateLoyaltyCardNumberUnique(
-                    $customerData['loyaltyCardNumber'],
-                    $customerId
-                );
-            } catch (LoyaltyCardNumberAlreadyExistsException $e) {
-                $form->get('loyaltyCardNumber')->addError(new FormError($e->getMessage()));
-            }
-        }
-        if (isset($customerData['phone']) && $customerData['phone']) {
-            try {
-                $this->customerUniqueValidator->validatePhoneUnique($customerData['phone']);
-            } catch (PhoneAlreadyExistsException $e) {
-                $form->get('phone')->addError(new FormError($e->getMessage()));
-            }
+        try {
+            return $this->registerCustomerManager->register($customerId, $customerData, $password);
+        } catch (EmailAlreadyExistsException $ex) {
+            $form->get('email')->addError(new FormError($ex->getMessage()));
+        } catch (LoyaltyCardNumberAlreadyExistsException $ex) {
+            $form->get('loyaltyCardNumber')->addError(new FormError($ex->getMessage()));
+        } catch (PhoneAlreadyExistsException $ex) {
+            $form->get('phone')->addError(new FormError($ex->getMessage()));
         }
 
-        if ($form->getErrors(true)->count() > 0) {
-            return $form->getErrors();
-        }
-
-        $this->commandBus->dispatch($command);
-        if (isset($customerData['address'])) {
-            $updateAddressCommand = new UpdateCustomerAddress($customerId, $customerData['address']);
-            $this->commandBus->dispatch($updateAddressCommand);
-        }
-        if (isset($customerData['company']) && $customerData['company'] && $customerData['company']['name'] && $customerData['company']['nip']) {
-            $updateCompanyDataCommand = new UpdateCustomerCompanyDetails($customerId, $customerData['company']);
-            $this->commandBus->dispatch($updateCompanyDataCommand);
-        }
-        if (isset($customerData['loyaltyCardNumber'])) {
-            $loyaltyCardCommand = new UpdateCustomerLoyaltyCardNumber($customerId, $customerData['loyaltyCardNumber']);
-            $this->commandBus->dispatch($loyaltyCardCommand);
-        }
-
-        if (isset($customerData['level'])) {
-            $this->commandBus->dispatch(
-                new MoveCustomerToLevel($customerId, new LevelId($customerData['level']), true)
-            );
-        }
-
-        return $this->userManager->createNewCustomer(
-            $customerId,
-            $email,
-            $password,
-            isset($customerData['phone']) ? $customerData['phone'] : null);
+        return;
     }
 
     /**

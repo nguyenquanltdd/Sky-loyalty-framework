@@ -13,11 +13,11 @@ use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\ImportBundle\Form\Type\ImportFileFormType;
-use OpenLoyalty\Bundle\ImportBundle\Importer\XMLImporter;
 use OpenLoyalty\Bundle\ImportBundle\Service\ImportFileManager;
 use OpenLoyalty\Bundle\TransactionBundle\Form\Type\ManuallyAssignCustomerToTransactionFormType;
 use OpenLoyalty\Bundle\TransactionBundle\Form\Type\TransactionFormType;
 use OpenLoyalty\Bundle\TransactionBundle\Form\Type\TransactionSimulationFormType;
+use OpenLoyalty\Bundle\TransactionBundle\Import\TransactionXmlImporter;
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetails;
@@ -32,8 +32,8 @@ use OpenLoyalty\Component\Transaction\Domain\TransactionId;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Form\FormError;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -412,11 +412,13 @@ class TransactionController extends FOSRestController
      *     input={"class" = "OpenLoyalty\Bundle\ImportBundle\Form\Type\ImportFileFormType", "name" = "file"}
      * )
      *
-     * @param Request $request
+     * @param Request                $request
+     * @param TransactionXmlImporter $importer
+     * @param ImportFileManager      $importFileManager
      *
      * @return View
      */
-    public function importAction(Request $request)
+    public function importAction(Request $request, TransactionXmlImporter $importer, ImportFileManager $importFileManager)
     {
         $form = $this->get('form.factory')->createNamed('file', ImportFileFormType::class);
 
@@ -425,14 +427,8 @@ class TransactionController extends FOSRestController
         if ($form->isValid()) {
             /** @var UploadedFile $file */
             $file = $form->getData()->getFile();
-
-            /** @var ImportFileManager $fileManager */
-            $fileManager = $this->get('oloy.import.service.import_file_manager');
-            $importFile = $fileManager->upload($file, 'transactions');
-
-            /** @var XMLImporter $importer */
-            $importer = $this->container->get('oloy.transaction.import.transaction_importer');
-            $result = $importer->import($fileManager->getAbsolutePath($importFile));
+            $importFile = $importFileManager->upload($file, 'transactions');
+            $result = $importer->import($importFileManager->getAbsolutePath($importFile));
 
             return $this->view($result, Response::HTTP_OK);
         }

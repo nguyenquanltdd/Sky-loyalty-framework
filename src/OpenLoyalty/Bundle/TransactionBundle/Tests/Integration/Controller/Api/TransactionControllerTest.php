@@ -6,18 +6,20 @@ use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\JsonSettingEntry;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
+use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Import\Infrastructure\ImportResultItem;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * Class TransactionControllerTest.
  */
 class TransactionControllerTest extends BaseApiTest
 {
+    use UploadedFileTrait;
+
     const PHONE_NUMBER = '+48123123000';
 
     /**
@@ -47,22 +49,6 @@ class TransactionControllerTest extends BaseApiTest
         $this->assertCount(2, $data['items']);
         $this->assertArrayHasKey('status', $data['items'][0]);
         $this->assertTrue($data['items'][0]['status'] == ImportResultItem::SUCCESS);
-    }
-
-    /**
-     * @param string $content
-     * @param string $originalName
-     * @param string $mimeType
-     * @param string $error
-     *
-     * @return UploadedFile
-     */
-    private function createUploadedFile($content, $originalName, $mimeType, $error)
-    {
-        $path = tempnam(sys_get_temp_dir(), uniqid());
-        file_put_contents($path, $content);
-
-        return new UploadedFile($path, $originalName, $mimeType, filesize($path), $error, true);
     }
 
     /**

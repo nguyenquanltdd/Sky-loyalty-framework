@@ -12,10 +12,10 @@ use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\ImportBundle\Form\Type\ImportFileFormType;
-use OpenLoyalty\Bundle\ImportBundle\Importer\XMLImporter;
 use OpenLoyalty\Bundle\ImportBundle\Service\ImportFileManager;
 use OpenLoyalty\Bundle\PointsBundle\Form\Type\AddPointsFormType;
 use OpenLoyalty\Bundle\PointsBundle\Form\Type\SpendPointsFormType;
+use OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferXmlImporter;
 use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
 use OpenLoyalty\Component\Account\Domain\Command\CancelPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Command\SpendPoints;
@@ -278,11 +278,13 @@ class PointsTransferController extends FOSRestController
      *     input={"class" = "OpenLoyalty\Bundle\ImportBundle\Form\Type\ImportFileFormType", "name" = "file"}
      * )
      *
-     * @param Request $request
+     * @param Request                   $request
+     * @param PointsTransferXmlImporter $importer
+     * @param ImportFileManager         $importFileManager
      *
      * @return \FOS\RestBundle\View\View
      */
-    public function importAction(Request $request)
+    public function importAction(Request $request, PointsTransferXmlImporter $importer, ImportFileManager $importFileManager)
     {
         $form = $this->get('form.factory')->createNamed('file', ImportFileFormType::class);
 
@@ -291,14 +293,8 @@ class PointsTransferController extends FOSRestController
         if ($form->isValid()) {
             /** @var UploadedFile $file */
             $file = $form->getData()->getFile();
-
-            /** @var ImportFileManager $fileManager */
-            $fileManager = $this->get('oloy.import.service.import_file_manager');
-            $importFile = $fileManager->upload($file, 'transactions');
-
-            /** @var XMLImporter $importer */
-            $importer = $this->container->get('oloy.account.points_transfers.import.points_transfer_importer');
-            $result = $importer->import($fileManager->getAbsolutePath($importFile));
+            $importFile = $importFileManager->upload($file, 'transfers');
+            $result = $importer->import($importFileManager->getAbsolutePath($importFile));
 
             return $this->view($result, Response::HTTP_OK);
         }

@@ -7,6 +7,5 @@ services:
     factory:   ["@knp_gaufrette.filesystem_map", get]
     arguments: ["import"]
 
-  oloy.import.service.import_file_manager:
-    class: OpenLoyalty\Bundle\ImportBundle\Service\ImportFileManager
+  OpenLoyalty\Bundle\ImportBundle\Service\ImportFileManager:
     arguments: ["@oloy.import.import_filesystem", "%oloy.import.dir%"]

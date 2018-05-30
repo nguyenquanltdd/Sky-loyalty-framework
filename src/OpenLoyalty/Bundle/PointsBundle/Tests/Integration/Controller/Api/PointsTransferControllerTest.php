@@ -5,14 +5,16 @@ namespace OpenLoyalty\Bundle\PointsBundle\Tests\Integration\Controller\Api;
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\PointsBundle\DataFixtures\ORM\LoadAccountsWithTransfersData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
+use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
 use OpenLoyalty\Component\Import\Infrastructure\ImportResultItem;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * Class PointsTransferControllerTest.
  */
 class PointsTransferControllerTest extends BaseApiTest
 {
+    use UploadedFileTrait;
+
     /**
      * @test
      */
@@ -40,22 +42,6 @@ class PointsTransferControllerTest extends BaseApiTest
         $this->assertCount(2, $data['items']);
         $this->assertArrayHasKey('status', $data['items'][0]);
         $this->assertTrue($data['items'][0]['status'] == ImportResultItem::SUCCESS);
-    }
-
-    /**
-     * @param string $content
-     * @param string $originalName
-     * @param string $mimeType
-     * @param string $error
-     *
-     * @return UploadedFile
-     */
-    private function createUploadedFile($content, $originalName, $mimeType, $error)
-    {
-        $path = tempnam(sys_get_temp_dir(), uniqid());
-        file_put_contents($path, $content);
-
-        return new UploadedFile($path, $originalName, $mimeType, filesize($path), $error, true);
     }
 
     /**

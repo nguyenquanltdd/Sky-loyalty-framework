@@ -5,8 +5,10 @@ namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Controller\Api;
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
+use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
 use OpenLoyalty\Component\Customer\Tests\Domain\Command\CustomerCommandHandlerTest;
 use OpenLoyalty\Component\Customer\Domain\PosId;
+use OpenLoyalty\Component\Import\Infrastructure\ImportResultItem;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -14,6 +16,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CustomerControllerTest extends BaseApiTest
 {
+    use UploadedFileTrait;
+
     /**
      * @test
      */
@@ -1044,6 +1048,35 @@ class CustomerControllerTest extends BaseApiTest
                 'Searching phrase '.$phrase.' not found '
             );
         }
+    }
+
+    /**
+     * @test
+     */
+    public function it_imports_customers()
+    {
+        $xmlContent = file_get_contents(__DIR__.'/import.xml');
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/admin/customer/import',
+            [],
+            [
+                'file' => [
+                    'file' => $this->createUploadedFile($xmlContent, 'import.xml', 'application/xml', UPLOAD_ERR_OK),
+                ],
+            ]
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+
+        $this->assertArrayHasKey('items', $data);
+        $this->assertCount(1, $data['items']);
+        $this->assertArrayHasKey('status', $data['items'][0]);
+        $this->assertTrue($data['items'][0]['status'] == ImportResultItem::SUCCESS);
     }
 
     /**

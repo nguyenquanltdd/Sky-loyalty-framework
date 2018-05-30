@@ -6,6 +6,8 @@
 namespace OpenLoyalty\Bundle\PointsBundle\Command;
 
 use OpenLoyalty\Bundle\ImportBundle\Command\AbstractFileImportCommand;
+use OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferXmlImporter;
+use OpenLoyalty\Component\Import\Infrastructure\FileImporter;
 
 /**
  * Class PointsTransferImportCommand.
@@ -27,8 +29,8 @@ class PointsTransferImportCommand extends AbstractFileImportCommand
     /**
      * {@inheritdoc}
      */
-    protected function getImporter()
+    protected function getImporter(): FileImporter
     {
-        return $this->container->get('oloy.account.points_transfers.import.points_transfer_importer');
+        return $this->container->get(PointsTransferXmlImporter::class);
     }
 }
