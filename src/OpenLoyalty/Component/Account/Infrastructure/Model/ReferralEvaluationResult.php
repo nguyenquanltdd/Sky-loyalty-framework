@@ -19,9 +19,18 @@ class ReferralEvaluationResult extends EvaluationResult
      */
     protected $invitation;
 
-    public function __construct($earningRuleId, $points, $rewardType, InvitationDetails $invitationDetails)
+    /**
+     * ReferralEvaluationResult constructor.
+     *
+     * @param string            $earningRuleId
+     * @param float             $points
+     * @param string            $rewardType
+     * @param InvitationDetails $invitationDetails
+     * @param string            $name
+     */
+    public function __construct($earningRuleId, $points, $rewardType, InvitationDetails $invitationDetails, string $name = '')
     {
-        parent::__construct($earningRuleId, $points);
+        parent::__construct($earningRuleId, $points, $name);
         $this->rewardType = $rewardType;
         $this->invitation = $invitationDetails;
     }

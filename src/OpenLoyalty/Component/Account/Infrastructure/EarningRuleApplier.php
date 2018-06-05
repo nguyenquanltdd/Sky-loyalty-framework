@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Component\Account\Infrastructure;
 
 use OpenLoyalty\Component\Account\Infrastructure\Model\EvaluationResult;
+use OpenLoyalty\Component\EarningRule\Domain\Algorithm\RuleNameContextInterface;
 
 interface EarningRuleApplier
 {
@@ -30,12 +31,23 @@ interface EarningRuleApplier
     /**
      * Return number of points for this event.
      *
-     * @param string $eventName
-     * @param string $customerId
+     * @param string                        $eventName
+     * @param string                        $customerId
+     * @param RuleNameContextInterface|null $context
      *
      * @return int
      */
-    public function evaluateEvent($eventName, $customerId);
+    public function evaluateEvent($eventName, $customerId, RuleNameContextInterface $context = null);
+
+    /**
+     * Return number of points for this event.
+     *
+     * @param string      $eventName
+     * @param string|null $customerId
+     *
+     * @return array
+     */
+    public function evaluateEventWithContext(string $eventName, ? string $customerId) : array;
 
     /**
      * Return number of points for this custom event.

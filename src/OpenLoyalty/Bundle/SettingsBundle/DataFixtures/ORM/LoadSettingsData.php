@@ -63,23 +63,37 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
         $entry3->setValue(['category_excluded_from_level']);
         $settings->addEntry($entry3);
 
-        $logo = new Logo();
-        $logo->setMime('image/svg+xml');
-        $logo->setPath('logo/logo.svg');
-        $entry4 = new FileSettingEntry('logo', $logo);
-        $settings->addEntry($entry4);
+        // copy logo
+        $rootDirectory = $this->getContainer()->getParameter('kernel.root_dir');
+        $destinationDirectory = $rootDirectory.'/uploads/logo';
+        $filesystem = $this->getContainer()->get('filesystem');
+        if (!$filesystem->exists($destinationDirectory)) {
+            $filesystem->mkdir($destinationDirectory);
 
-        $smallLogo = new Logo();
-        $smallLogo->setMime('image/svg+xml');
-        $smallLogo->setPath('logo/logo.svg');
-        $entry5 = new FileSettingEntry('small-logo', $smallLogo);
-        $settings->addEntry($entry5);
+            $kernel = $this->getContainer()->get('kernel');
+            $filesystem->copy(
+                $kernel->locateResource('@OpenLoyaltySettingsBundle/Resources/images/logo/logo.png'),
+                $destinationDirectory.'/logo.png'
+            );
 
-        $heroImage = new Logo();
-        $heroImage->setMime('image/svg+xml');
-        $heroImage->setPath('logo/logo.svg');
-        $entry6 = new FileSettingEntry('hero-image', $heroImage);
-        $settings->addEntry($entry6);
+            $logo = new Logo();
+            $logo->setMime('image/png');
+            $logo->setPath('logo/logo.png');
+            $entry4 = new FileSettingEntry('logo', $logo);
+            $settings->addEntry($entry4);
+
+            $smallLogo = new Logo();
+            $smallLogo->setMime('image/png');
+            $smallLogo->setPath('logo/logo.png');
+            $entry5 = new FileSettingEntry('small-logo', $smallLogo);
+            $settings->addEntry($entry5);
+
+            $heroImage = new Logo();
+            $heroImage->setMime('image/png');
+            $heroImage->setPath('logo/logo.png');
+            $entry6 = new FileSettingEntry('hero-image', $heroImage);
+            $settings->addEntry($entry6);
+        }
 
         $earningStatuses = new JsonSettingEntry('customerStatusesEarning');
         $earningStatuses->setValue([Status::TYPE_ACTIVE]);

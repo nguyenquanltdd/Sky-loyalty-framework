@@ -10,7 +10,7 @@ use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 /**
  * Class RuleEvaluationContext.
  */
-class RuleEvaluationContext implements RuleEvaluationContextInterface
+class RuleEvaluationContext extends RuleNameContext implements RuleEvaluationContextInterface
 {
     /** @var array */
     private $products;
@@ -21,11 +21,6 @@ class RuleEvaluationContext implements RuleEvaluationContextInterface
     private $transaction;
 
     /**
-     * @var array
-     */
-    private $earningRuleNames = [];
-
-    /**
      * RuleEvaluationContext constructor.
      *
      * @param TransactionDetails $transaction
@@ -34,22 +29,6 @@ class RuleEvaluationContext implements RuleEvaluationContextInterface
     {
         $this->products = [];
         $this->transaction = $transaction;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addEarningRuleName($earningRuleId, $earningRuleName)
-    {
-        $this->earningRuleNames[$earningRuleId] = $earningRuleName;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getEarningRuleNames()
-    {
-        return implode(', ', $this->earningRuleNames);
     }
 
     /**
