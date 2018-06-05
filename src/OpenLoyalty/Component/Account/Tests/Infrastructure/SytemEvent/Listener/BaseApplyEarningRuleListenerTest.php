@@ -50,7 +50,7 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
     protected function getApplierForEvent($returnValue)
     {
         $mock = $this->getMockBuilder(EarningRuleApplier::class)->getMock();
-        $mock->method('evaluateEvent')->with($this->logicalOr(
+        $mock->method('evaluateEventWithContext')->with($this->logicalOr(
             $this->equalTo(AccountSystemEvents::ACCOUNT_CREATED),
             $this->equalTo(TransactionSystemEvents::CUSTOMER_FIRST_TRANSACTION),
             $this->equalTo(CustomerSystemEvents::CUSTOMER_LOGGED_IN),

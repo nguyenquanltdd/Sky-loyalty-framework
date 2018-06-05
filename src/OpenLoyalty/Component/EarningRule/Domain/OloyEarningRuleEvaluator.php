@@ -12,6 +12,8 @@ use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetailsRepository;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\EarningRuleAlgorithmFactoryInterface;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\EarningRuleAlgorithmInterface;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\RuleEvaluationContext;
+use OpenLoyalty\Component\EarningRule\Domain\Algorithm\RuleNameContext;
+use OpenLoyalty\Component\EarningRule\Domain\Algorithm\RuleNameContextInterface;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use OpenLoyalty\Component\Account\Infrastructure\EarningRuleApplier;
@@ -213,7 +215,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     /**
      * {@inheritdoc}
      */
-    public function evaluateEvent($eventName, $customerId)
+    public function evaluateEvent($eventName, $customerId, RuleNameContextInterface $context = null)
     {
         $points = 0;
 
@@ -228,10 +230,27 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         foreach ($earningRules as $earningRule) {
             if ($earningRule->getPointsAmount() > $points) {
                 $points = $earningRule->getPointsAmount();
+                if (null !== $context) {
+                    $context->addEarningRuleName($earningRule->getEarningRuleId(), $earningRule->getName());
+                }
             }
         }
 
         return round((float) $points, 2);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function evaluateEventWithContext(string $eventName, ? string $customerId) : array
+    {
+        $context = new RuleNameContext();
+        $points = $this->evaluateEvent($eventName, $customerId, $context);
+
+        return [
+            'points' => $points,
+            'comment' => $context->getEarningRuleNames(),
+        ];
     }
 
     /**
@@ -240,7 +259,9 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
      * @param string $eventName
      * @param string $customerId
      *
-     * @return int
+     * @return int|EvaluationResult
+     *
+     * @throws \Doctrine\ORM\ORMException
      */
     public function evaluateCustomEvent($eventName, $customerId)
     {
@@ -267,7 +288,8 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
             if (null == $result || $earningRule->getPointsAmount() > $result->getPoints()) {
                 $result = new EvaluationResult(
                     $earningRule->getEarningRuleId()->__toString(),
-                    $earningRule->getPointsAmount()
+                    $earningRule->getPointsAmount(),
+                    $earningRule->getName()
                 );
             }
         }
@@ -279,7 +301,9 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
      * @param string $eventName
      * @param string $customerId
      *
-     * @return ReferralEvaluationResult[]
+     * @throws \Doctrine\ORM\ORMException
+     *
+     * @return null|EvaluationResult|ReferralEvaluationResult[]
      */
     public function evaluateReferralEvent($eventName, $customerId)
     {
@@ -307,7 +331,8 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
                     $earningRule->getEarningRuleId()->__toString(),
                     $earningRule->getPointsAmount(),
                     $earningRule->getRewardType(),
-                    $invitation
+                    $invitation,
+                    $earningRule->getName()
                 );
             }
         }

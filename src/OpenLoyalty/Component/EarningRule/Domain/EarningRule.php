@@ -37,7 +37,7 @@ abstract class EarningRule
     /**
      * @var string
      */
-    protected $name;
+    protected $name = '';
 
     /**
      * @var string

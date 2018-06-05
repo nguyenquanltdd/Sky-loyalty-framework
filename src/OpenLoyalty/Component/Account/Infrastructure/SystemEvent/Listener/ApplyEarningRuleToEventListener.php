@@ -14,6 +14,7 @@ use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountCreatedSystemEvent;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\CustomEventOccurredSystemEvent;
+use OpenLoyalty\Component\Account\Infrastructure\Exception\EarningRuleLimitExceededException;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerAttachedToInvitationSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerLoggedInSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
@@ -34,6 +35,15 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
      */
     protected $earningRuleLimitValidator;
 
+    /**
+     * ApplyEarningRuleToEventListener constructor.
+     *
+     * @param CommandBus                     $commandBus
+     * @param Repository                     $accountDetailsRepository
+     * @param UuidGeneratorInterface         $uuidGenerator
+     * @param EarningRuleApplier             $earningRuleApplier
+     * @param EarningRuleLimitValidator|null $earningRuleLimitValidator
+     */
     public function __construct(
         CommandBus $commandBus,
         Repository $accountDetailsRepository,
@@ -45,6 +55,11 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
         $this->earningRuleLimitValidator = $earningRuleLimitValidator;
     }
 
+    /**
+     * @param CustomEventOccurredSystemEvent $event
+     *
+     * @throws EarningRuleLimitExceededException
+     */
     public function onCustomEvent(CustomEventOccurredSystemEvent $event)
     {
         $result = $this->earningRuleApplier->evaluateCustomEvent($event->getEventName(), $event->getCustomerId());
@@ -64,48 +79,72 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
                 new PointsTransferId($this->uuidGenerator->generate()),
                 $result->getPoints(),
                 null,
-                false
+                false,
+                $result->getName()
+
             ))
         );
         $event->setEvaluationResult($result);
     }
 
+    /**
+     * @param AccountCreatedSystemEvent $event
+     */
     public function onCustomerRegistered(AccountCreatedSystemEvent $event)
     {
-        $points = $this->earningRuleApplier->evaluateEvent(AccountSystemEvents::ACCOUNT_CREATED, $event->getCustomerId());
-        if ($points > 0) {
+        $result = $this->earningRuleApplier->evaluateEventWithContext(
+            AccountSystemEvents::ACCOUNT_CREATED,
+            $event->getCustomerId()
+        );
+
+        if (array_key_exists('points', $result) && $result['points'] > 0) {
             $this->commandBus->dispatch(
-                new AddPoints($event->getAccountId(), new AddPointsTransfer(
-                    new PointsTransferId($this->uuidGenerator->generate()),
-                    $points,
-                    null,
-                    false
-                ))
+                new AddPoints($event->getAccountId(),
+                    new AddPointsTransfer(
+                        new PointsTransferId($this->uuidGenerator->generate()),
+                        $result['points'],
+                        null,
+                        false,
+                        null,
+                        $result['comment']
+                    )
+                )
             );
         }
     }
 
+    /**
+     * @param CustomerAttachedToInvitationSystemEvent $event
+     */
     public function onCustomerAttachedToInvitation(CustomerAttachedToInvitationSystemEvent $event)
     {
         $this->evaluateReferral(ReferralEarningRule::EVENT_REGISTER, $event->getCustomerId()->__toString());
     }
 
+    /**
+     * @param CustomerFirstTransactionSystemEvent $event
+     */
     public function onFirstTransaction(CustomerFirstTransactionSystemEvent $event)
     {
-        $points = $this->earningRuleApplier->evaluateEvent(TransactionSystemEvents::CUSTOMER_FIRST_TRANSACTION, $event->getCustomerId());
+        $result = $this->earningRuleApplier->evaluateEventWithContext(
+            TransactionSystemEvents::CUSTOMER_FIRST_TRANSACTION,
+            $event->getCustomerId()
+        );
         $account = $this->getAccountDetails($event->getCustomerId()->__toString());
 
         if (!$account) {
             return;
         }
 
-        if ($points > 0) {
+        if (array_key_exists('points', $result) && $result['points'] > 0) {
             $this->commandBus->dispatch(
                 new AddPoints($account->getAccountId(), new AddPointsTransfer(
                     new PointsTransferId($this->uuidGenerator->generate()),
-                    $points,
+                    $result['points'],
                     null,
-                    false
+                    false,
+                    null,
+                    $result['comment']
                 ))
             );
         }
@@ -113,10 +152,17 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
         $this->evaluateReferral(ReferralEarningRule::EVENT_FIRST_PURCHASE, $event->getCustomerId()->__toString());
     }
 
+    /**
+     * @param CustomerLoggedInSystemEvent $event
+     */
     public function onCustomerLogin(CustomerLoggedInSystemEvent $event)
     {
-        $points = $this->earningRuleApplier->evaluateEvent(CustomerSystemEvents::CUSTOMER_LOGGED_IN, $event->getCustomerId());
-        if ($points <= 0) {
+        $result = $this->earningRuleApplier->evaluateEventWithContext(
+            CustomerSystemEvents::CUSTOMER_LOGGED_IN,
+            $event->getCustomerId()
+        );
+
+        if (!array_key_exists('points', $result) || $result['points'] <= 0) {
             return;
         }
         $account = $this->getAccountDetails($event->getCustomerId()->__toString());
@@ -126,19 +172,30 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
         }
 
         $this->commandBus->dispatch(
-            new AddPoints($account->getAccountId(), new AddPointsTransfer(
-                new PointsTransferId($this->uuidGenerator->generate()),
-                $points,
-                null,
-                false
-            ))
+            new AddPoints($account->getAccountId(),
+                new AddPointsTransfer(
+                    new PointsTransferId($this->uuidGenerator->generate()),
+                    $result['points'],
+                    null,
+                    false,
+                    null,
+                    $result['comment']
+                )
+            )
         );
     }
 
+    /**
+     * @param NewsletterSubscriptionSystemEvent $event
+     */
     public function onNewsletterSubscription(NewsletterSubscriptionSystemEvent $event)
     {
-        $points = $this->earningRuleApplier->evaluateEvent(CustomerSystemEvents::NEWSLETTER_SUBSCRIPTION, $event->getCustomerId());
-        if ($points <= 0) {
+        $result = $this->earningRuleApplier->evaluateEventWithContext(
+            CustomerSystemEvents::NEWSLETTER_SUBSCRIPTION,
+            $event->getCustomerId()
+        );
+
+        if (!array_key_exists('points', $result) || $result['points'] <= 0) {
             return;
         }
         $account = $this->getAccountDetails($event->getCustomerId()->__toString());
@@ -151,12 +208,12 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
             new AddPoints(
                 $account->getAccountId(),
                 new AddPointsTransfer(
-                new PointsTransferId($this->uuidGenerator->generate()),
-                $points,
-                null,
-                false,
-                null,
-                'Newsletter subscription'
+                    new PointsTransferId($this->uuidGenerator->generate()),
+                    $result['points'],
+                    null,
+                    false,
+                    null,
+                    $result['comment']
                 )
             )
         );

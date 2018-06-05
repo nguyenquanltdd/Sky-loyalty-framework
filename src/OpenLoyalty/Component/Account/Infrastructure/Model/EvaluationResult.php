@@ -21,15 +21,22 @@ class EvaluationResult
     protected $points = null;
 
     /**
+     * @var string
+     */
+    protected $name;
+
+    /**
      * EvaluationResult constructor.
      *
      * @param string $earningRuleId
-     * @param int    $points
+     * @param float  $points
+     * @param string $name
      */
-    public function __construct($earningRuleId, $points)
+    public function __construct($earningRuleId, $points, string $name = '')
     {
         $this->earningRuleId = $earningRuleId;
         $this->points = $points;
+        $this->name = $name;
     }
 
     /**
@@ -46,5 +53,13 @@ class EvaluationResult
     public function getPoints()
     {
         return $this->points;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
     }
 }
