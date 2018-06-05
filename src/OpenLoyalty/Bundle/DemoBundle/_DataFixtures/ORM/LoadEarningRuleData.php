@@ -11,6 +11,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use OpenLoyalty\Component\EarningRule\Domain\Command\CreateEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleId;
+use OpenLoyalty\Component\Level\Domain\LevelId;
 use Symfony\Bridge\Doctrine\Tests\Fixtures\ContainerAwareFixture;
 
 /**
@@ -28,6 +29,9 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
     const PURCHASE_RULE_ID = '00000000-0000-474c-b092-b0dd880c07e2';
     const PURCHASE_RULE_ID2 = 'd1af76dc-b676-4bb2-b0b7-c8a1055df273';
 
+    /**
+     * {@inheritdoc}
+     */
     public function load(ObjectManager $manager)
     {
         $ruleData = array_merge(
@@ -144,6 +148,9 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             );
     }
 
+    /**
+     * @return array
+     */
     protected function getMainData()
     {
         return [
@@ -153,9 +160,18 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             'endAt' => (new \DateTime('+1 month'))->getTimestamp(),
             'active' => true,
             'allTimeActive' => false,
+            'levels' => [
+                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL2_ID),
+                new LevelId(LoadLevelData::LEVEL3_ID),
+                new LevelId(LoadLevelData::LEVEL4_ID),
+            ],
         ];
     }
 
+    /**
+     * @return array
+     */
     protected function getPointsMainData()
     {
         return [
@@ -163,9 +179,18 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             'description' => 'Customers earn 1 point after spending 1 EUR for purchases registered in loyalty program',
             'active' => true,
             'allTimeActive' => true,
+            'levels' => [
+                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL2_ID),
+                new LevelId(LoadLevelData::LEVEL3_ID),
+                new LevelId(LoadLevelData::LEVEL4_ID),
+            ],
         ];
     }
 
+    /**
+     * @return array
+     */
     protected function getBlackFridayData()
     {
         $startDate = \DateTime::createFromFormat('Y-m-d H:i', '2016-12-02 01:00');
@@ -178,9 +203,18 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             'allTimeActive' => false,
             'startAt' => $startDate->getTimestamp(),
             'endAt' => $endDate->getTimestamp(),
+            'levels' => [
+                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL2_ID),
+                new LevelId(LoadLevelData::LEVEL3_ID),
+                new LevelId(LoadLevelData::LEVEL4_ID),
+            ],
         ];
     }
 
+    /**
+     * @return array
+     */
     protected function getSpecificProductPromotionData()
     {
         return [
@@ -188,9 +222,18 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             'description' => 'Customers earn 120 points after purchasing product Pmo000m (SKU)',
             'active' => true,
             'allTimeActive' => true,
+            'levels' => [
+                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL2_ID),
+                new LevelId(LoadLevelData::LEVEL3_ID),
+                new LevelId(LoadLevelData::LEVEL4_ID),
+            ],
         ];
     }
 
+    /**
+     * @return array
+     */
     protected function getFirstPurchaseData()
     {
         return [
@@ -198,9 +241,18 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             'description' => 'Customers earn 50 points after first purchase registered in loyalty program',
             'active' => true,
             'allTimeActive' => true,
+            'levels' => [
+                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL2_ID),
+                new LevelId(LoadLevelData::LEVEL3_ID),
+                new LevelId(LoadLevelData::LEVEL4_ID),
+            ],
         ];
     }
 
+    /**
+     * @return array
+     */
     protected function getCustomerLoggedInData()
     {
         return [
@@ -208,6 +260,12 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             'description' => 'Customers earn 5 points after logging in to the loyalty program client cockpit',
             'active' => true,
             'allTimeActive' => true,
+            'levels' => [
+                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL2_ID),
+                new LevelId(LoadLevelData::LEVEL3_ID),
+                new LevelId(LoadLevelData::LEVEL4_ID),
+            ],
         ];
     }
 
@@ -218,6 +276,12 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             'description' => 'Customers earn 2x points after purchasing product msj003xl (SKU)',
             'active' => true,
             'allTimeActive' => true,
+            'levels' => [
+                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL2_ID),
+                new LevelId(LoadLevelData::LEVEL3_ID),
+                new LevelId(LoadLevelData::LEVEL4_ID),
+            ],
         ];
     }
 
@@ -229,6 +293,9 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
         return 1;
     }
 
+    /**
+     * @return array
+     */
     protected function getRegistrationData()
     {
         return [
@@ -236,6 +303,12 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             'description' => 'Customers earn 100 points after registration to loyalty program',
             'active' => true,
             'allTimeActive' => true,
+            'levels' => [
+                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL2_ID),
+                new LevelId(LoadLevelData::LEVEL3_ID),
+                new LevelId(LoadLevelData::LEVEL4_ID),
+            ],
         ];
     }
 }
