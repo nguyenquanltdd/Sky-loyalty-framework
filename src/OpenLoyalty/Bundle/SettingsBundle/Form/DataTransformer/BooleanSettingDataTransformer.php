@@ -70,9 +70,6 @@ class BooleanSettingDataTransformer implements DataTransformerInterface
      */
     public function reverseTransform($value)
     {
-        if (null === $value) {
-            return $value;
-        }
         $entry = $this->settingsManager->getSettingByKey($this->key);
         if (!$entry) {
             $entry = new BooleanSettingEntry($this->key);

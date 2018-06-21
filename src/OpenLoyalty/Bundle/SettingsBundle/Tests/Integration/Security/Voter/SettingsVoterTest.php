@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\SettingsBundle\Tests\Security\Voter;
+namespace OpenLoyalty\Bundle\SettingsBundle\Tests\Integration\Security\Voter;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
 use OpenLoyalty\Bundle\SettingsBundle\Security\Voter\SettingsVoter;

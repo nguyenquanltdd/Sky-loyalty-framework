@@ -17,11 +17,20 @@ class Settings
      */
     protected $entries = [];
 
+    /**
+     * @param string $name
+     *
+     * @return SettingsEntry|void
+     */
     public function __get($name)
     {
         return $this->getEntry($name);
     }
 
+    /**
+     * @param string $name
+     * @param mixed  $value
+     */
     public function __set($name, $value)
     {
         $this->addEntry($value);
@@ -45,11 +54,19 @@ class Settings
         return false;
     }
 
+    /**
+     * @param SettingsEntry $entry
+     */
     public function addEntry(SettingsEntry $entry)
     {
         $this->entries[$entry->getKey()] = $entry;
     }
 
+    /**
+     * @param string $key
+     *
+     * @return SettingsEntry|void
+     */
     public function getEntry($key)
     {
         if (!isset($this->entries[$key])) {
@@ -67,6 +84,11 @@ class Settings
         return $this->entries;
     }
 
+    /**
+     * @param array $entries
+     *
+     * @return Settings
+     */
     public static function fromArray(array $entries)
     {
         $settings = new self();
@@ -79,6 +101,9 @@ class Settings
         return $settings;
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         $ret = [];

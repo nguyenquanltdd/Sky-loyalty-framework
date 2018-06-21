@@ -318,15 +318,15 @@ class SettingsController extends FOSRestController
         $form = $this->get('form.factory')->createNamed('settings', SettingsFormType::class, $settingsManager->getSettings());
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
-            $settingsManager->save($form->getData());
-
-            return $this->view([
-                'settings' => $form->getData()->toArray(),
-            ]);
+        if (!$form->isValid()) {
+            return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
+        $settingsManager->save($form->getData());
+
+        return $this->view([
+            'settings' => $form->getData()->toArray(),
+        ]);
     }
 
     /**
@@ -441,7 +441,11 @@ class SettingsController extends FOSRestController
      */
     public function getTranslationByKeyAction($key)
     {
-        $translationsEntry = $this->get('ol.settings.translations')->getTranslationsByKey($key);
+        try {
+            $translationsEntry = $this->get('ol.settings.translations')->getTranslationsByKey($key);
+        } catch (\Exception $e) {
+            throw $this->createNotFoundException($e->getMessage(), $e);
+        }
 
         return $this->view($translationsEntry, 200);
     }

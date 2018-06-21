@@ -31,6 +31,11 @@ class FileBasedTranslationsProvider implements TranslationsProvider
     protected $fallbackFile;
 
     /**
+     * @var array
+     */
+    protected $ignoredFiles = ['.gitkeep'];
+
+    /**
      * FileBasedTranslationsProvider constructor.
      *
      * @param SettingsManager $settingsManager
@@ -45,7 +50,7 @@ class FileBasedTranslationsProvider implements TranslationsProvider
     }
 
     /**
-     * @return TranslationsEntry
+     * {@inheritdoc}
      */
     public function getCurrentTranslations()
     {
@@ -71,6 +76,9 @@ class FileBasedTranslationsProvider implements TranslationsProvider
         return new TranslationsEntry($name, $content);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getTranslationsByKey($key)
     {
         if (!$this->filesystem->has($key)) {
@@ -83,12 +91,19 @@ class FileBasedTranslationsProvider implements TranslationsProvider
         return new TranslationsEntry($key, $content, $updateDate);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getAvailableTranslationsList()
     {
         $keys = $this->filesystem->keys();
         $translations = [];
 
         foreach ($keys as $key) {
+            if (in_array($key, $this->ignoredFiles)) {
+                continue;
+            }
+
             $updateDate = new \DateTime();
             $updateDate->setTimestamp($this->filesystem->get($key)->getMtime());
             $translations[] = new TranslationsEntry($key, null, $updateDate);
@@ -97,11 +112,17 @@ class FileBasedTranslationsProvider implements TranslationsProvider
         return $translations;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function hasTranslation($key)
     {
         return $this->filesystem->has($key);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function save(TranslationsEntry $entry, $key = null, $overwrite = true)
     {
         try {
@@ -116,6 +137,11 @@ class FileBasedTranslationsProvider implements TranslationsProvider
         }
     }
 
+    /**
+     * @param TranslationsEntry $entry
+     *
+     * @throws NotExistException
+     */
     public function remove(TranslationsEntry $entry)
     {
         try {

@@ -5,8 +5,13 @@
  */
 namespace OpenLoyalty\Bundle\SettingsBundle\Service;
 
+use OpenLoyalty\Bundle\SettingsBundle\Exception\AlreadyExistException;
+use OpenLoyalty\Bundle\SettingsBundle\Exception\NotExistException;
 use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
 
+/**
+ * Interface TranslationsProvider.
+ */
 interface TranslationsProvider
 {
     /**
@@ -14,8 +19,16 @@ interface TranslationsProvider
      */
     public function getCurrentTranslations();
 
+    /**
+     * @param string $key
+     *
+     * @return TranslationsEntry
+     */
     public function getTranslationsByKey($key);
 
+    /**
+     * @return array
+     */
     public function getAvailableTranslationsList();
 
     /**
@@ -25,5 +38,13 @@ interface TranslationsProvider
      */
     public function hasTranslation($key);
 
-    public function save(TranslationsEntry $entry);
+    /**
+     * @param TranslationsEntry $entry
+     * @param null              $key
+     * @param bool              $overwrite
+     *
+     * @throws AlreadyExistException
+     * @throws NotExistException
+     */
+    public function save(TranslationsEntry $entry, $key = null, $overwrite = true);
 }

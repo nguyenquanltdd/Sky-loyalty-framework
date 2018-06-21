@@ -5,13 +5,12 @@
  */
 
 if (isset($_ENV['BOOTSTRAP_PHING_SETUP'])) {
-    passthru(sprintf('composer install'));
     passthru(sprintf(
         'php "%s/../bin/console" cache:clear --env=%s --no-warmup',
         __DIR__,
-        'prod'
+        'test'
     ));
-    passthru(sprintf('phing setup'));
+    passthru(sprintf('phing prepare-for-tests'));
 }
 
 require __DIR__.'/../app/autoload.php';

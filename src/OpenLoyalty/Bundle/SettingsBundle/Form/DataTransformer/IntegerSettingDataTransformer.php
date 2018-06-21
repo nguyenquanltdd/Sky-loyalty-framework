@@ -8,7 +8,6 @@ namespace OpenLoyalty\Bundle\SettingsBundle\Form\DataTransformer;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\IntegerSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use Symfony\Component\Form\DataTransformerInterface;
-use Symfony\Component\Form\Exception\TransformationFailedException;
 
 /**
  * Class IntegerSettingDataTransformer.
@@ -38,13 +37,7 @@ class IntegerSettingDataTransformer implements DataTransformerInterface
     }
 
     /**
-     * Transforms a value from the original representation to a transformed representation.
-     *
-     * @param mixed $value The value in the original representation
-     *
-     * @return mixed The value in the transformed representation
-     *
-     * @throws TransformationFailedException When the transformation fails.
+     * {@inheritdoc}
      */
     public function transform($value)
     {
@@ -59,21 +52,10 @@ class IntegerSettingDataTransformer implements DataTransformerInterface
     }
 
     /**
-     * Transforms a value from the transformed representation to its original
-     * representation.
-     *
-     * @param mixed $value The value in the transformed representation
-     *
-     * @return mixed The value in the original representation
-     *
-     * @throws TransformationFailedException When the transformation fails.
+     * {@inheritdoc}
      */
     public function reverseTransform($value)
     {
-        if (null == $value) {
-            return $value;
-        }
-
         $entry = $this->settingsManager->getSettingByKey($this->key);
         if (!$entry) {
             $entry = new IntegerSettingEntry($this->key);

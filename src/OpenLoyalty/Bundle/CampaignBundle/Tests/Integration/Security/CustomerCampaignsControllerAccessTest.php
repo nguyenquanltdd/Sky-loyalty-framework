@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Security;
+namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Integration\Security;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseAccessControlTest;
 use OpenLoyalty\Bundle\CampaignBundle\DataFixtures\ORM\LoadCampaignData;

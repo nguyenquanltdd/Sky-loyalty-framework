@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Form\Type;
+namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Integration\Form\Type;
 
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignActivityFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignFormType;

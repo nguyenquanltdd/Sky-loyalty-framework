@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Security;
+namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Integration\Security;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseAccessControlTest;
 use OpenLoyalty\Bundle\EarningRuleBundle\DataFixtures\ORM\LoadEarningRuleData;

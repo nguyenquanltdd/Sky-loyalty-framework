@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Form\DataTransformer;
+namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Integration\Form\DataTransformer;
 
 use OpenLoyalty\Bundle\CampaignBundle\Form\DataTransformer\CouponsDataTransformer;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;

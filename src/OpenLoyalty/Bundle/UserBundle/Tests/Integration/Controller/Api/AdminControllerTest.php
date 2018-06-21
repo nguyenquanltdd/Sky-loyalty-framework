@@ -212,7 +212,7 @@ class AdminControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200 '.print_r($response->getContent()));
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
 
         $admin = $this->getAdminEntity($admin['id']);
         $this->assertInstanceOf(Admin::class, $admin);

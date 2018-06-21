@@ -6,25 +6,25 @@
         <echo>By default I do nothing! Add -l to see all available tasks</echo>
     </target>
 
-    <target name="ci-setup-test" description="Setup everything and test (for CI)" depends="generate-jwt-keys">
-        <exec command="bin/console oloy:user:projections:index:create --drop-old -n" checkreturn="true" passthru="true"/>
-        <exec command="bin/console doctrine:schema:update --env=test -n --force" checkreturn="true" passthru="true"/>
+    <target name="prepare-for-tests">
+        <property name="env" value="test" />
+        <exec command="bin/console oloy:user:projections:index:create --drop-old -n --env=${env}" checkreturn="true" passthru="true"/>
+        <exec command="bin/console doctrine:schema:update --env=${env} -n --force" checkreturn="true" passthru="true"/>
         <exec command="bin/console broadway:event-store:schema:drop -n" checkreturn="true" passthru="true"/>
         <exec command="bin/console broadway:event-store:schema:init -n" checkreturn="true" passthru="true"/>
-        <exec command="bin/console doctrine:fixtures:load --env=test -n" checkreturn="true" passthru="true"/>
+        <exec command="bin/console doctrine:fixtures:load --env=${env} -n" checkreturn="true" passthru="true"/>
         <exec command="bin/console oloy:segment:recreate -vv" checkreturn="true" passthru="true"/>
-        <exec command="bin/console security:check --env=dev" checkreturn="true" passthru="true"/>
+    </target>
+    <target name="ci-setup-test" description="Setup everything and test (for CI)" depends="generate-jwt-keys,prepare-for-tests">
+        <exec command="bin/console security:check --env=test" checkreturn="true" passthru="true"/>
         <exec command="bin/console doctrine:schema:validate --env=test --skip-sync" checkreturn="true" passthru="true"/>
         <exec command="vendor/phpunit/phpunit/phpunit" checkreturn="true" passthru="true"/>
         <exec command="bin/php-cs-fixer fix --dry-run --diff src" checkreturn="true" passthru="true"/>
     </target>
     <target name="setup" description="Setup everything" depends="generate-jwt-keys">
-        <exec command="bin/console oloy:user:projections:index:create --drop-old -n" checkreturn="true" passthru="true"/>
-        <exec command="bin/console doctrine:schema:update --force" checkreturn="true" passthru="true"/>
-        <exec command="bin/console broadway:event-store:schema:drop -n" checkreturn="true" passthru="true"/>
-        <exec command="bin/console broadway:event-store:schema:init -n" checkreturn="true" passthru="true"/>
-        <exec command="bin/console doctrine:fixtures:load -n -vvv" checkreturn="true" passthru="true"/>
-        <exec command="bin/console oloy:segment:recreate -vv" checkreturn="true" passthru="true"/>
+        <phingcall target="prepare-for-tests">
+            <property name="env" value="prod" />
+        </phingcall>
     </target>
     <target name="fix-code" description="Fix code">
         <exec command="bin/php-cs-fixer fix src" checkreturn="true" passthru="true"/>
@@ -37,12 +37,7 @@
         <if>
             <isset property="no-build" />
             <else>
-                <exec command="bin/console oloy:user:projections:index:create --drop-old -n" checkreturn="true" passthru="true"/>
-                <exec command="bin/console doctrine:schema:update --env=test -n --force" checkreturn="true" passthru="true"/>
-                <exec command="bin/console broadway:event-store:schema:drop -n" checkreturn="true" passthru="true"/>
-                <exec command="bin/console broadway:event-store:schema:init -n" checkreturn="true" passthru="true"/>
-                <exec command="bin/console doctrine:fixtures:load --env=test -n" checkreturn="true" passthru="true"/>
-                <exec command="bin/console oloy:segment:recreate -vv" checkreturn="true" passthru="true"/>
+                <phingcall target="prepare-for-tests" />
             </else>
         </if>
         <exec command="vendor/phpunit/phpunit/phpunit ${src} --stop-on-error --stop-on-failure -v" checkreturn="true" passthru="true"/>

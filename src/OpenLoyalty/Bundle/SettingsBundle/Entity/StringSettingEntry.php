@@ -20,11 +20,17 @@ class StringSettingEntry extends SettingsEntry
      */
     protected $stringValue;
 
+    /**
+     * @param $value
+     */
     public function setValue($value)
     {
         $this->stringValue = (string) $value;
     }
 
+    /**
+     * @return string
+     */
     public function getValue()
     {
         return $this->stringValue;

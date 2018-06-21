@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Security\Voter;
+namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Integration\Security\Voter;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
 use OpenLoyalty\Bundle\EarningRuleBundle\Security\Voter\EarningRuleVoter;

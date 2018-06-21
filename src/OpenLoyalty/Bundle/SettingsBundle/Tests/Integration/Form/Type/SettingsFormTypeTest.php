@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenLoyalty\Bundle\SettingsBundle\Tests\Form\Type;
+namespace OpenLoyalty\Bundle\SettingsBundle\Tests\Integration\Form\Type;
 
 use OpenLoyalty\Bundle\ActivationCodeBundle\Service\DummySmsApi;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\BooleanSettingEntry;
@@ -13,6 +13,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Service\TranslationsProvider;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\UserBundle\Entity\Status;
+use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\PreloadedExtension;
 use Symfony\Component\Form\Test\TypeTestCase;
@@ -35,6 +36,8 @@ class SettingsFormTypeTest extends TypeTestCase
         'programPointsPlural' => 'ps',
         'helpEmailAddress' => 'email',
         'tierAssignType' => 'points',
+        'accountActivationMethod' => 'email',
+        'uriWebhooks' => '',
     ];
 
     protected $booleanEntries = [

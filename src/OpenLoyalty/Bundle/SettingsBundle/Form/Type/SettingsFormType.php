@@ -15,6 +15,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
 use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\SettingsBundle\Service\TranslationsProvider;
+use OpenLoyalty\Bundle\SettingsBundle\Validator\Constraints\NotEmptyValue;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
@@ -89,7 +90,7 @@ class SettingsFormType extends AbstractType
                         'USD' => 'usd',
                         'EUR' => 'eur',
                     ],
-                    'constraints' => [new NotBlank()],
+                    'constraints' => [new NotEmptyValue()],
                 ])
                 ->addModelTransformer(new StringSettingDataTransformer('currency', $this->settingsManager))
         );
@@ -105,7 +106,7 @@ class SettingsFormType extends AbstractType
                             return $entry->getKey();
                         }, $translations)
                     ),
-                    'constraints' => [new NotBlank()],
+                    'constraints' => [new NotEmptyValue()],
                 ])
                 ->addModelTransformer(new StringSettingDataTransformer('defaultFrontendTranslations', $this->settingsManager))
         );
@@ -116,7 +117,7 @@ class SettingsFormType extends AbstractType
                     'choices' => array_combine(Status::getAvailableStatuses(), Status::getAvailableStatuses()),
                     'multiple' => true,
                     'required' => true,
-                    'constraints' => [new NotBlank()],
+                    'constraints' => [new NotEmptyValue()],
                 ])
                 ->addModelTransformer(new ChoicesToJsonSettingDataTransformer('customerStatusesEarning', $this->settingsManager))
         );
@@ -135,7 +136,7 @@ class SettingsFormType extends AbstractType
                     'choices' => array_combine(Status::getAvailableStatuses(), Status::getAvailableStatuses()),
                     'multiple' => true,
                     'required' => true,
-                    'constraints' => [new NotBlank()],
+                    'constraints' => [new NotEmptyValue()],
                 ])
                 ->addModelTransformer(new ChoicesToJsonSettingDataTransformer('customerStatusesSpending', $this->settingsManager))
         );
@@ -143,14 +144,14 @@ class SettingsFormType extends AbstractType
             $builder
                 ->create('timezone', TimezoneType::class, [
                     'preferred_choices' => ['Europe/Warsaw'],
-                    'constraints' => [new NotBlank()],
+                    'constraints' => [new NotEmptyValue()],
                 ])
                 ->addModelTransformer(new StringSettingDataTransformer('timezone', $this->settingsManager))
         );
         $builder->add(
             $builder
                 ->create('programName', TextType::class, [
-                    'constraints' => [new NotBlank()],
+                    'constraints' => [new NotEmptyValue()],
                 ])
                 ->addModelTransformer(new StringSettingDataTransformer('programName', $this->settingsManager))
         );
@@ -185,14 +186,14 @@ class SettingsFormType extends AbstractType
         $builder->add(
             $builder
                 ->create('programPointsSingular', TextType::class, [
-                    'constraints' => [new NotBlank()],
+                    'constraints' => [new NotEmptyValue()],
                 ])
                 ->addModelTransformer(new StringSettingDataTransformer('programPointsSingular', $this->settingsManager))
         );
         $builder->add(
             $builder
                 ->create('programPointsPlural', TextType::class, [
-                    'constraints' => [new NotBlank()],
+                    'constraints' => [new NotEmptyValue()],
                 ])
                 ->addModelTransformer(new StringSettingDataTransformer('programPointsPlural', $this->settingsManager))
         );
@@ -269,6 +270,9 @@ class SettingsFormType extends AbstractType
             $data = $event->getData();
             /** @var StringSettingEntry $activationMethod */
             $activationMethod = $data->getEntry('accountActivationMethod');
+            if (empty($activationMethod->getValue())) {
+                $event->getForm()->get('accountActivationMethod')->addError(new FormError((new NotEmptyValue())->message));
+            }
 
             if (!$data instanceof Settings ||
                 null === $this->smsGateway ||
@@ -348,7 +352,7 @@ class SettingsFormType extends AbstractType
      * @param StringSettingEntry        $value
      * @param ExecutionContextInterface $context
      */
-    public function checkUrl(/* StringSettingEntry */ $value, ExecutionContextInterface $context)
+    public function checkUrl($value, ExecutionContextInterface $context)
     {
         if ($value) {
             $validator = new UrlValidator();
