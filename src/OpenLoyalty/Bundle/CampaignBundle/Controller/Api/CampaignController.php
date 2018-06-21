@@ -191,6 +191,7 @@ class CampaignController extends FOSRestController
         $response = new Response($content);
         $response->headers->set('Content-Disposition', 'inline');
         $response->headers->set('Content-Type', $photo->getMime());
+        $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
 
         return $response;
     }
