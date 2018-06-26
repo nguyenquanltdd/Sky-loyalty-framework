@@ -223,6 +223,12 @@ services:
       tags:
         - { name: kernel.event_listener, event: user.invitation.user_registered_with_invitation_token, method: handle }
 
+  OpenLoyalty\Bundle\UserBundle\Service\AccountDetailsProvider:
+      public: true
+      arguments:
+        - '@oloy.user.customer.repository'
+        - '@oloy.points.account.repository.account_details'
+
   OpenLoyalty\Bundle\UserBundle\Service\RegisterCustomerManager:
     arguments:
       - '@oloy.user.user_manager'

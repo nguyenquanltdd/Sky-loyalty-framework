@@ -8,13 +8,14 @@ namespace OpenLoyalty\Component\Campaign\Domain\ReadModel;
 use Broadway\EventDispatcher\EventDispatcher;
 use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\Repository;
+use OpenLoyalty\Bundle\CampaignBundle\Model\Campaign;
+use OpenLoyalty\Bundle\UserBundle\Service\AccountDetailsProviderInterface;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
-use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 
 /**
  * Class CampaignUsageProjector.
@@ -37,25 +38,25 @@ class CampaignBoughtProjector extends Projector
     private $campaignRepository;
 
     /**
-     * @var Repository
+     * @var AccountDetailsProviderInterface
      */
-    private $customerRepository;
+    private $accountDetailsProvider;
 
     /**
      * CampaignUsageProjector constructor.
      *
-     * @param Repository         $repository
-     * @param CampaignRepository $campaignRepository
-     * @param Repository         $customerRepository
+     * @param Repository                      $repository
+     * @param CampaignRepository              $campaignRepository
+     * @param AccountDetailsProviderInterface $accountDetailsProvider
      */
     public function __construct(
         Repository $repository,
         CampaignRepository $campaignRepository,
-        Repository $customerRepository
+        AccountDetailsProviderInterface $accountDetailsProvider
     ) {
         $this->repository = $repository;
         $this->campaignRepository = $campaignRepository;
-        $this->customerRepository = $customerRepository;
+        $this->accountDetailsProvider = $accountDetailsProvider;
     }
 
     /**
@@ -64,22 +65,44 @@ class CampaignBoughtProjector extends Projector
     protected function applyCampaignWasBoughtByCustomer(CampaignWasBoughtByCustomer $event)
     {
         $campainId = new CampaignId($event->getCampaignId()->__toString());
-        $campain = $this->campaignRepository->byId($campainId);
-        /* @var CustomerDetails $customer */
-        $customer = $this->customerRepository->find($event->getCustomerId()->__toString());
+
+        /** @var Campaign $campaign */
+        $campaign = $this->campaignRepository->byId($campainId);
+        $customer = $this->accountDetailsProvider->getCustomerById($event->getCustomerId());
+        $account = $this->accountDetailsProvider->getAccountByCustomer($customer);
 
         $this->storeCampaignUsages(
             $campainId,
             new CustomerId($event->getCustomerId()->__toString()),
             $event->getCreatedAt(),
             new Coupon($event->getCoupon()->getCode()),
-            $campain->getReward(),
-            $event->getCampaignName(),
+            $campaign->getReward(),
+            $campaign->getName(),
             $customer->getEmail(),
-            $customer->getPhone()
+            $customer->getPhone(),
+            $customer->getFirstName(),
+            $customer->getLastName(),
+            $campaign->getCostInPoints(),
+            (int) $account->getAvailableAmount(),
+            $campaign->getTaxPriceValue()
         );
     }
 
+    /**
+     * @param CampaignId $campaignId
+     * @param CustomerId $customerId
+     * @param \DateTime  $boughtAt
+     * @param Coupon     $coupon
+     * @param string     $couponType
+     * @param string     $campaignName
+     * @param string     $customerEmail
+     * @param string     $customerPhone
+     * @param string     $customerName
+     * @param string     $customerLastname
+     * @param int        $costInPoints
+     * @param int        $currentPointsAmount
+     * @param float|null $taxPriceValue
+     */
     private function storeCampaignUsages(
         CampaignId $campaignId,
         CustomerId $customerId,
@@ -87,8 +110,13 @@ class CampaignBoughtProjector extends Projector
         Coupon $coupon,
         string $couponType,
         string $campaignName,
-        $customerEmail,
-        $customerPhone
+        ? string $customerEmail,
+        ? string $customerPhone,
+        string $customerName,
+        string $customerLastname,
+        int $costInPoints,
+        int $currentPointsAmount,
+        ? float $taxPriceValue
     ) {
         $readModel = new CampaignBought(
             $campaignId,
@@ -98,8 +126,15 @@ class CampaignBoughtProjector extends Projector
             $couponType,
             $campaignName,
             $customerEmail,
-            $customerPhone
+            $customerPhone,
+            null,
+            $customerName,
+            $customerLastname,
+            $costInPoints,
+            $currentPointsAmount,
+            $taxPriceValue
         );
+
         $this->repository->save($readModel);
     }
 

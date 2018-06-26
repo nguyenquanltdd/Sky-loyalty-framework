@@ -342,10 +342,14 @@ class CampaignController extends FOSRestController
      *      {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
      *      {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
      *      {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
+     *      {"name"="purchasedAtFrom", "dataType"="string", "required"=false, "description"="Purchased date from filter"},
+     *      {"name"="purchasedAtTo", "dataType"="string", "required"=false, "description"="Purchased date to filter"},
      *     }
      * )
      *
      * @QueryParam(name="used", nullable=true, description="Used"))
+     * @QueryParam(name="purchasedAtFrom", nullable=true, description="Range date filter"))
+     * @QueryParam(name="purchasedAtTo", nullable=true, description="Range date filter"))
      *
      * @param Request $request
      *
@@ -356,6 +360,19 @@ class CampaignController extends FOSRestController
         $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
         $repo = $this->get('oloy.campaign.read_model.repository.campaign_bought');
         $params = $this->get('oloy.user.param_manager')->stripNulls($paramFetcher->all());
+
+        // extract ES-like params for date range filter
+        $this->get('oloy.user.param_manager')
+            ->appendDateRangeFilter(
+                $params,
+                'purchasedAt',
+                $params['purchasedAtFrom'] ?? null,
+                $params['purchasedAtTo'] ?? null
+            );
+
+        unset($params['purchasedAtFrom']);
+        unset($params['purchasedAtTo']);
+
         $boughtCampaigns = $repo->findByParametersPaginated(
             $params,
             true,

@@ -987,7 +987,12 @@
     "delivered": "Delivered/used",
     "usage_types.both": "Both",
     "usage_types.true": "Used",
-    "usage_types.false": "Delivered"
+    "usage_types.false": "Delivered",
+    "customer_name": "Customer's first name",
+    "customer_lastname": "Customer's surname",
+    "current_points_amount": "Customer active points amount",
+    "date_from": "Date from",
+    "date_to": "Date to"
   },
   "registration": {
     "basic_info": "Basic Informations",
