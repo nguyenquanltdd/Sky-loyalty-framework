@@ -66,3 +66,6 @@ oloy_plugin_api:
 oloy_audit:
     resource: "@OpenLoyaltyAuditBundle/Resources/config/api_routing.yml"
     prefix:   /api
+terms_conditions:
+  path: /terms-conditions
+  controller: OpenLoyalty\Bundle\SettingsBundle\Controller\Api\SettingsController::getConditionsFileAction

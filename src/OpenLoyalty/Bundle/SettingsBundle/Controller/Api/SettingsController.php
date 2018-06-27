@@ -12,10 +12,12 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Service\SmsSender;
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRuleLimit;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\FileSettingEntry;
+use OpenLoyalty\Bundle\SettingsBundle\Form\Type\ConditionsFileType;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\LogoFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\SettingsFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\TranslationsFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
+use OpenLoyalty\Bundle\SettingsBundle\Service\ConditionsUploader;
 use OpenLoyalty\Bundle\SettingsBundle\Service\LogoUploader;
 use OpenLoyalty\Bundle\SettingsBundle\Service\TemplateProvider;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
@@ -99,6 +101,50 @@ class SettingsController extends FOSRestController
     public function addHeroImageAction(Request $request)
     {
         return $this->addPhoto($request, LogoUploader::HERO_IMAGE);
+    }
+
+    /**
+     * Add conditions file.
+     *
+     * @Route(name="oloy.settings.add_conditions_file", path="/settings/conditions-file")
+     * @Method("POST")
+     * @Security("is_granted('EDIT_SETTINGS')")
+     * @ApiDoc(
+     *     name="Add conditions file to loyalty program",
+     *     section="Settings",
+     *     input={"class" = "OpenLoyalty\Bundle\SettingsBundle\Form\Type\ConditionsFileType", "name" = "conditions"}
+     * )
+     *
+     * @param Request $request
+     * @param ConditionsUploader $conditionsUploader
+     * @return View
+     */
+    public function addConditionsFileAction(Request $request, ConditionsUploader $conditionsUploader)
+    {
+        $form = $this->get('form.factory')->createNamed('conditions', ConditionsFileType::class);
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            /** @var UploadedFile $file */
+            $file = $form->getData()->getFile();
+
+            $settingsManager = $this->get('ol.settings.manager');
+            $settings = $settingsManager->getSettings();
+            $conditions = $settings->getEntry(ConditionsUploader::CONDITIONS);
+            if ($conditions) {
+                $conditionsUploader->remove($conditions->getValue());
+                $settingsManager->removeSettingByKey(ConditionsUploader::CONDITIONS);
+            }
+
+            $conditions = $conditionsUploader->upload($file);
+
+            $settings->addEntry(new FileSettingEntry(ConditionsUploader::CONDITIONS, $conditions));
+            $settingsManager->save($settings);
+
+            return $this->view([], Response::HTTP_OK);
+        }
+
+        return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
     }
 
     /**
@@ -191,6 +237,34 @@ class SettingsController extends FOSRestController
     }
 
     /**
+     * Remove conditions file.
+     *
+     * @Route(name="oloy.settings.remove_conditions_file", path="/settings/conditions-file")
+     * @Method("DELETE")
+     * @Security("is_granted('EDIT_SETTINGS')")
+     * @ApiDoc(
+     *     name="Delete conditions file",
+     *     section="Settings"
+     * )
+     *
+     * @param ConditionsUploader $conditionsUploader
+     * @return View
+     */
+    public function removeConditionsFileAction(ConditionsUploader $conditionsUploader)
+    {
+        $settingsManager = $this->get('ol.settings.manager');
+        $settings = $settingsManager->getSettings();
+        $conditions = $settings->getEntry(ConditionsUploader::CONDITIONS);
+        if ($conditions) {
+            $conditions = $conditions->getValue();
+            $conditionsUploader->remove($conditions);
+            $settingsManager->removeSettingByKey(ConditionsUploader::CONDITIONS);
+        }
+
+        return $this->view([], Response::HTTP_OK);
+    }
+
+    /**
      * @param string $entryName
      *
      * @return View
@@ -259,6 +333,40 @@ class SettingsController extends FOSRestController
     public function getHeroImageAction()
     {
         return $this->getPhoto(LogoUploader::HERO_IMAGE);
+    }
+
+    /**
+     * Get conditions files.
+     *
+     * @Route(name="oloy.settings.get_conditions_file", path="/settings/conditions-file")
+     * @Method("GET")
+     * @param ConditionsUploader $conditionsUploader
+     * @return Response
+     */
+    public function getConditionsFileAction(ConditionsUploader $conditionsUploader)
+    {
+        $settingsManager = $this->get('ol.settings.manager');
+        $settings = $settingsManager->getSettings();
+        $conditionsEntry = $settings->getEntry(ConditionsUploader::CONDITIONS);
+        $conditions = null;
+
+        if ($conditionsEntry) {
+            $conditions = $conditionsEntry->getValue();
+        }
+        if (!$conditions) {
+            throw $this->createNotFoundException();
+        }
+
+        $content = $conditionsUploader->get($conditions);
+        if (!$content) {
+            throw $this->createNotFoundException();
+        }
+
+        $response = new Response($content);
+        $response->headers->set('Content-Disposition', 'attachment; filename=terms_conditions.pdf');
+        $response->headers->set('Content-Type', $conditions->getMime());
+
+        return $response;
     }
 
     /**

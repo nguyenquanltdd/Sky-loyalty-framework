@@ -104,6 +104,16 @@ security:
             methods: ["GET"]
             stateless: true
             anonymous: true
+        settings_conditions_file:
+            pattern:  ^/api/settings/conditions-file
+            methods: ["GET"]
+            stateless: true
+            anonymous: true
+        settings_conditions_file_pdf:
+            pattern:  ^/api/settings/terms-conditions
+            methods: ["GET"]
+            stateless: true
+            anonymous: true
         settings_activation_method:
             pattern:  ^/api/settings/activation-method
             methods: ["GET"]
@@ -168,6 +178,8 @@ security:
         - { path: ^/api/settings/logo, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
         - { path: ^/api/settings/small-logo, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
         - { path: ^/api/settings/hero-image, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
+        - { path: ^/api/settings/conditions-file, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
+        - { path: ^/api/settings/terms-conditions, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
         - { path: ^/api/settings/activation-method, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
         - { path: ^/api/settings/css, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
         - { path: ^/api/translations, roles: IS_AUTHENTICATED_ANONYMOUSLY }

@@ -6,7 +6,7 @@
 namespace OpenLoyalty\Bundle\SettingsBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use OpenLoyalty\Bundle\SettingsBundle\Model\Logo;
+use OpenLoyalty\Bundle\SettingsBundle\Model\FileInterface;
 
 /**
  * Class FileSettingEntry.
@@ -26,11 +26,12 @@ class FileSettingEntry extends SettingsEntry
      */
     public function setValue($value)
     {
-        if (!$value instanceof Logo) {
+        if (!$value instanceof FileInterface) {
             return;
         }
 
         $this->value = [
+            '__class' => get_class($value),
             'path' => $value->getPath(),
             'originalName' => $value->getOriginalName(),
             'mime' => $value->getMime(),
@@ -42,17 +43,14 @@ class FileSettingEntry extends SettingsEntry
      */
     public function getValue()
     {
-        $logo = new Logo();
-
-        if (array_key_exists('path', $this->value)
+        if (array_key_exists('__class', $this->value)
             && array_key_exists('path', $this->value)
-            && array_key_exists('path', $this->value)
+            && array_key_exists('originalName', $this->value)
+            && array_key_exists('mime', $this->value)
         ) {
-            $logo->setPath($this->value['path']);
-            $logo->setOriginalName($this->value['originalName']);
-            $logo->setMime($this->value['mime']);
-        }
+            $className = $this->value['__class'];
 
-        return $logo;
+            return call_user_func(sprintf('%s::deserialize', $className), $this->value);
+        }
     }
 }

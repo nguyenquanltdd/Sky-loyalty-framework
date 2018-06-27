@@ -9,9 +9,9 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class Logo.
+ * Class Conditions.
  */
-class Logo implements FileInterface
+class Conditions implements FileInterface
 {
     /**
      * @var string
@@ -32,8 +32,8 @@ class Logo implements FileInterface
      * @var UploadedFile
      * @Assert\NotBlank()
      * @Assert\File(
-     *     mimeTypes={"image/png", "image/jpeg", "image/svg+xml", "text/html"},
-     *     maxSize="2M"
+     *     mimeTypes={"application/pdf"},
+     *     maxSize="10M"
      * )
      */
     protected $file;
@@ -109,9 +109,6 @@ class Logo implements FileInterface
     {
         $obj = new self();
         foreach ($data as $k => $v) {
-            if (empty($v)) {
-                continue;
-            }
             switch ($k) {
                 case 'originalName':
                     $obj->setOriginalName($v);

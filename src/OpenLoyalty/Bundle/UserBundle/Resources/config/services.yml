@@ -1,7 +1,7 @@
 parameters:
   oloy.emails:
-      - { template: 'OpenLoyaltyUserBundle:email:registration.html.twig', subject: 'Account created', variables: ['url'] }
-      - { template: 'OpenLoyaltyUserBundle:email:registration_with_temporary_password.html.twig', subject: 'Account created', variables: ['program_name', 'email', 'loyalty_card_number', 'phone', 'password', 'customer_panel_url'] }
+      - { template: 'OpenLoyaltyUserBundle:email:registration.html.twig', subject: 'Account created', variables: ['url', 'conditions_file'] }
+      - { template: 'OpenLoyaltyUserBundle:email:registration_with_temporary_password.html.twig', subject: 'Account created', variables: ['program_name', 'email', 'loyalty_card_number', 'phone', 'password', 'customer_panel_url', 'conditions_file'] }
       - { template: 'OpenLoyaltyUserBundle:email:password_reset.html.twig', subject: 'Password reset requested', variables: ['program_name', 'url_reset_password'] }
       - { template: 'OpenLoyaltyUserBundle:email:customer_reward_bought.html.twig', subject: '{{ program_name }} - new reward', variables: ['program_name', 'reward_name', 'reward_code', 'reward_instructions', 'ecommerce_address'] }
       - { template: 'OpenLoyaltyUserBundle:email:new_points.html.twig', subject: '{{ program_name }} - new points', variables: ['program_name', 'added_points_amount', 'active_points_amount', 'ecommerce_address'] }

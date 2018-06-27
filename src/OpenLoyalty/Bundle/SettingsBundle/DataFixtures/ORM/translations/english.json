@@ -758,6 +758,7 @@
     "program_name_prompt": "",
     "program_url_prompt": "",
     "conditions_url": "Conditions URL",
+    "conditions_file": "Conditions File",
     "program_conditions_url_prompt": "",
     "program_faq_url_prompt": "",
     "program_points_singular_prompt": "",
@@ -1080,6 +1081,10 @@
       "success": "Hero image has been deleted",
       "error": "Hero image has not been deleted"
     },
+    "delete_settings_conditions_file": {
+      "success": "Conditions file has been deleted",
+      "error": "Conditions file has not been deleted"
+    },
     "post_resend_customer_code": {
       "error": "Cannot resend activation code. Make sure that phone number is correct or wait for few minutes and try again.",
       "success": "Code was sent to your phone"
@@ -1098,6 +1103,10 @@
     "upload_settings_hero_image": {
       "success": "Hero image has been saved",
       "error": "Hero image hasn't been saved"
+    },
+    "upload_settings_conditions_file": {
+      "success": "Conditions file has been saved",
+      "error": "Conditions file hasn't been saved"
     },
     "customer_search": {
       "success": "Success",
@@ -1492,7 +1501,8 @@
       "password": "Password",
       "log_in": "Sign in",
       "forgot": "Forgot password?",
-      "heading": "Login to your account"
+      "heading": "Login to your account",
+      "get_terms_conditions": "Get terms & conditions"
     },
     "registration": {
       "basic_info": "Basic Informations",

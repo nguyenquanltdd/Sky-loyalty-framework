@@ -44,6 +44,10 @@ knp_gaufrette:
       local:
         directory: "%kernel.root_dir%/var/import/"
         create:     true
+    public_uploads:
+      local:
+        directory: "%kernel.project_dir%/web/uploads/"
+        create:     true
   filesystems:
     frontend_translations:
       adapter: frontend_translations
@@ -57,3 +61,6 @@ knp_gaufrette:
     import:
       adapter: "import_file_local"
       alias: import_filesystem
+    uploads:
+      adapter: "public_uploads"
+      alias: public_uploads

@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\UserBundle\Service;
 
 use OpenLoyalty\Bundle\EmailBundle\Mailer\OloyMailer;
 use OpenLoyalty\Bundle\EmailBundle\Service\MessageFactoryInterface;
+use OpenLoyalty\Bundle\SettingsBundle\Service\ConditionsUploader;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetails;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
@@ -97,6 +98,7 @@ class EmailProvider
                 'phone' => $registeredUser->getPhone(),
                 'password' => $password,
                 'customer_panel_url' => $this->customerPanelUrl,
+                'conditions_file' => $this->customerPanelUrl.'#!/'.ConditionsUploader::CONDITIONS_FILENAME,
             ]
         );
     }
@@ -129,6 +131,7 @@ class EmailProvider
             [
                 'username' => $registeredUser->getEmail(),
                 'url' => $url,
+                'conditions_file' => $this->customerPanelUrl.'#!/'.ConditionsUploader::CONDITIONS_FILENAME,
             ]
         );
     }

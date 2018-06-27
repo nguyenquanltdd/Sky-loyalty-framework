@@ -888,7 +888,122 @@ Exemplary Response
 
 	No Content
 
-	
+
+Remove conditions terms file
+-----------
+
+To remove a conditions terms file you will need to call the ``/api/settings/logo`` endpoint with the ``DELETE`` method.
+
+Definition
+^^^^^^^^^^
+
+.. code-block:: text
+
+    DELETE /api/settings/logo
+
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| Parameter                                      | Parameter type |  Description                                                               |
++================================================+================+============================================================================+
+| Authorization                                  | header         | Token received during authentication                                       |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+
+Example
+^^^^^^^
+
+.. code-block:: bash
+
+	curl http://localhost:8181/api/settings/logo \
+	    -X "DELETE" \
+	    -H "Accept: application/json" \
+	    -H "Content-type: application/x-www-form-urlencoded" \
+	    -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
+
+Exemplary Response
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    STATUS: 200 OK
+
+.. code-block:: json
+
+	No Content
+
+
+
+
+Get conditions terms file
+--------
+
+To retrieve a logo you will need to call the ``/terms-conditions`` endpoint with the ``GET`` method.
+
+Definition
+^^^^^^^^^^
+
+.. code-block:: text
+
+    GET /terms-conditions
+
+
+Example
+^^^^^^^
+
+.. code-block:: bash
+
+	curl http://localhost:8181/terms-conditions
+
+
+Exemplary Response
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    STATUS: 200 OK
+
+
+Add conditions terms file
+--------
+
+To add a logo you will need to call the ``/api/settings/conditions-file`` endpoint with the ``POST`` method.
+
+Definition
+^^^^^^^^^^
+
+.. code-block:: text
+
+    POST /api/settings/conditions-file
+
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| Parameter                                      | Parameter type |  Description                                                               |
++================================================+================+============================================================================+
+| Authorization                                  | header         | Token received during authentication                                       |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| conditions[file]                                    | request        |  Path of logo file                                                         |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+
+Example
+^^^^^^^
+
+.. code-block:: bash
+
+	curl http://localhost:8181/api/settings/logo \
+	    -X "POST" \
+	    -H "Accept: application/json" \
+	    -H "Content-type: application/x-www-form-urlencoded" \
+	    -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
+		-d "conditions[file]=C:\fakepath\conditions.pdf"
+
+Exemplary Response
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    STATUS: 200 OK
+
+.. code-block:: json
+
+	No Content
+
 Get current translations
 ------------------------
 
