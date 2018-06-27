@@ -94,7 +94,14 @@ class LoadCustomersAndTransactionsData extends AbstractFixture implements Fixtur
             }
 
             $command = new RegisterCustomer($customerId, $customerData);
-            $bus->dispatch($command);
+
+            // in order to prevent duplicated fake email.
+            try {
+                $bus->dispatch($command);
+            } catch (\Exception $ex) {
+                continue;
+            }
+
             $bus->dispatch(new ActivateCustomer($customerId));
 
             $user = new Customer($customerId);
