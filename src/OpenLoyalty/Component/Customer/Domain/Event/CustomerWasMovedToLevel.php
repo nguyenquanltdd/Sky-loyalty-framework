@@ -41,9 +41,12 @@ class CustomerWasMovedToLevel extends CustomerEvent
      * @param bool         $manually
      * @param bool         $removeLevelManually
      */
-    public function __construct(CustomerId $customerId, LevelId $levelId = null, $manually = false,
-                                bool $removeLevelManually = false)
-    {
+    public function __construct(
+        CustomerId $customerId,
+        LevelId $levelId = null,
+        $manually = false,
+        bool $removeLevelManually = false
+    ) {
         parent::__construct($customerId);
         $this->levelId = $levelId;
         $this->updateAt = new \DateTime();

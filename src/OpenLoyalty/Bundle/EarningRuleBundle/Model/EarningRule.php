@@ -72,7 +72,7 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
     protected $skuIds;
 
     /**
-     * @var array;
+     * @var array
      */
     protected $labels = [];
 

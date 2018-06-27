@@ -46,6 +46,8 @@ Definition
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | campaign[segments]                             | request        |  Array of segment IDs. *(required only if ``target=segment``)*             |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| campaign[labels]                               | request        | *(optional)* Informational labels in format "key:value;key1:value1"        |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | campaign[unlimited]                            | request        |  Set 1 if unlimited, otherwise 0                                           |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | campaign[singleCoupon]                         | request        |  Set 1 if single coupon, otherwise 0                                       |
@@ -91,6 +93,7 @@ Example
         -d "campaign[active]=1" \
         -d "campaign[costInPoints]=100" \
         -d "campaign[target]=level" \
+        -d "campaign[labels]=type:promotion;type:cashback" \
         -d "campaign[levels][0]=e82c96cf-32a3-43bd-9034-4df343e5fd94" \
         -d "campaign[levels][1]=000096cf-32a3-43bd-9034-4df343e5fd94" \
         -d "campaign[unlimited]=0" \
@@ -207,21 +210,24 @@ Definition
 
     GET /api/campaign
 
-+-------------------------------------+----------------+---------------------------------------------------+
-| Parameter                           | Parameter type | Description                                       |
-+=====================================+================+===================================================+
-| Authorization                       | header         | Token received during authentication              |
-+-------------------------------------+----------------+---------------------------------------------------+
-| page                                | query          | *(optional)* Start from page, by default 1        |
-+-------------------------------------+----------------+---------------------------------------------------+
-| perPage                             | query          | *(optional)* Number of items to display per page, |
-|                                     |                | by default = 10                                   |
-+-------------------------------------+----------------+---------------------------------------------------+
-| sort                                | query          | *(optional)* Sort by column name                  |
-+-------------------------------------+----------------+---------------------------------------------------+
-| direction                           | query          | *(optional)* Direction of sorting [ASC, DESC],    |
-|                                     |                | by default = ASC                                  |
-+-------------------------------------+----------------+---------------------------------------------------+
++-------------------------------------+----------------+----------------------------------------------------+
+| Parameter                           | Parameter type | Description                                        |
++=====================================+================+====================================================+
+| Authorization                       | header         | Token received during authentication               |
++-------------------------------------+----------------+----------------------------------------------------+
+| labels                              | request        | *(optional)* Array of labels with key and/or value |
+|                                     |                | ie. labels[0][key]=key&labels[0][value]=value      |
++-------------------------------------+----------------+----------------------------------------------------+
+| page                                | query          | *(optional)* Start from page, by default 1         |
++-------------------------------------+----------------+----------------------------------------------------+
+| perPage                             | query          | *(optional)* Number of items to display per page,  |
+|                                     |                | by default = 10                                    |
++-------------------------------------+----------------+----------------------------------------------------+
+| sort                                | query          | *(optional)* Sort by column name                   |
++-------------------------------------+----------------+----------------------------------------------------+
+| direction                           | query          | *(optional)* Direction of sorting [ASC, DESC],     |
+|                                     |                | by default = ASC                                   |
++-------------------------------------+----------------+----------------------------------------------------+
 
 To see the first page of all campaigns use the below method:
 
@@ -239,6 +245,19 @@ Example
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
+
+
+.. note::
+
+    In below example you can get all Reward Campaigns that have label with key and value. You can
+    filter only by label's key or value if you want and specify as many condition as you want.
+
+.. code-block:: bash
+
+    curl http://localhost:8181/api/campaign?labels[0][key]=key&labels[0][value]=value \
+        -X "GET" -H "Accept: application/json" \
+        -H "Content-type: application/x-www-form-urlencoded" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -286,6 +305,12 @@ Exemplary Response
           "levelNames": {
             "000096cf-32a3-43bd-9034-4df343e5fd94": "level2"
           },
+          "labels": [
+            {
+              "key": "type",
+              "value": "promotion"
+            }
+          ],
           "usageLeft": 1,
           "visibleForCustomersCount": 0,
           "usersWhoUsedThisCampaignCount": 0,
@@ -416,6 +441,8 @@ Definition
 | campaign[target]                               | request        |  Set ``level`` to choose target from defined levels.                       |
 |                                                |                |  Set ``segment`` to choose target from defined segments                    |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| campaign[labels]                               | request        | *(optional)* Informational labels in format "key:value;key1:value1"        |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | campaign[levels]                               | request        |  Array of level IDs. *(required only if ``target=level``)*                 |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | campaign[segments]                             | request        |  Array of segment IDs. *(required only if ``target=segment``)*             |
@@ -467,6 +494,7 @@ Example
         -d "campaign[active]=1" \
         -d "campaign[costInPoints]=100" \
         -d "campaign[target]=level" \
+        -d "campaign[labels]=type:promotion;type:cashback" \
         -d "campaign[levels][0]=e82c96cf-32a3-43bd-9034-4df343e5fd94" \
         -d "campaign[levels][1]=000096cf-32a3-43bd-9034-4df343e5fd94" \
         -d "campaign[unlimited]=0" \
@@ -595,6 +623,12 @@ Exemplary Response
         "visibleFrom": "2017-10-05T10:59:00+0200",
         "visibleTo": "2018-10-05T10:59:00+0200"
       },
+      "labels": [
+        {
+          "key": "type",
+          "value": "promotion"
+        }
+      ],
       "usageInstruction": "Use discount code as you like",
       "segmentNames": [],
       "levelNames": {
@@ -712,7 +746,13 @@ Exemplary Response
           "canBeBoughtByCustomer": true,
           "visibleForCustomersCount": 2,
           "usersWhoUsedThisCampaignCount": 0,
-          "hasPhoto": false
+          "hasPhoto": false,
+          "labels": [
+            {
+              "key": "type",
+              "value": "promotion"
+            }
+          ],
         }
       ],
       "total": 1
@@ -1302,6 +1342,12 @@ Exemplary Response
             "e82c96cf-32a3-43bd-9034-4df343e5fd94": "level1",
             "000096cf-32a3-43bd-9034-4df343e5fd94": "level2"
           },
+          "labels": [
+            {
+              "key": "type",
+              "value": "promotion"
+            }
+          ],
           "usageLeft": 0,
           "visibleForCustomersCount": 2,
           "usersWhoUsedThisCampaignCount": 1
@@ -1425,6 +1471,12 @@ Exemplary Response
       "unlimited": false,
       "limit": 10,
       "limitPerUser": 1,
+      "labels": [
+        {
+          "key": "type",
+          "value": "promotion"
+        }
+      ],
       "campaignActivity": {
         "allTimeActive": false,
         "activeFrom": "2017-09-05T10:59:00+0200",
@@ -1544,6 +1596,12 @@ Exemplary Response
             "visibleFrom": "2016-01-01T00:00:00+0100",
             "visibleTo": "2018-01-01T00:00:00+0100"
           },
+          "labels": [
+            {
+              "key": "type",
+              "value": "promotion"
+            }
+          ],
           "segmentNames": [],
           "levelNames": {
             "000096cf-32a3-43bd-9034-4df343e5fd93": "level0",

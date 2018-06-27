@@ -11,6 +11,7 @@ use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
+use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 
 /**
@@ -61,6 +62,7 @@ class CampaignControllerTest extends BaseApiTest
                         'visibleFrom' => (new \DateTime('2016-02-01'))->format('Y-m-d H:i'),
                         'visibleTo' => (new \DateTime('2037-02-11'))->format('Y-m-d H:i'),
                     ],
+                    'labels' => 'key0:value0;key1:value1',
                     'taxPriceValue' => 99.95,
                     'tax' => 23,
                 ],
@@ -75,6 +77,13 @@ class CampaignControllerTest extends BaseApiTest
         $this->assertInstanceOf(Campaign::class, $campaign);
         $this->assertEquals(99.95, $campaign->getTaxPriceValue());
         $this->assertEquals(23, $campaign->getTax());
+        $this->assertInternalType('array', $campaign->getLabels());
+        $this->assertCount(2, $campaign->getLabels());
+        foreach ($campaign->getLabels() as $key => $label) {
+            $this->assertInstanceOf(Label::class, $label);
+            $this->assertEquals('key'.$key, $label->getKey());
+            $this->assertEquals('value'.$key, $label->getValue());
+        }
     }
     /**
      * @test
@@ -139,6 +148,7 @@ class CampaignControllerTest extends BaseApiTest
                     'limit' => 10,
                     'limitPerUser' => 2,
                     'coupons' => ['123'],
+                    'labels' => 'type:promotion',
                     'campaignActivity' => [
                         'allTimeActive' => false,
                         'activeFrom' => (new \DateTime('2016-01-01'))->format('Y-m-d H:i'),
@@ -164,6 +174,12 @@ class CampaignControllerTest extends BaseApiTest
         $this->assertEquals('test', $campaign->getName());
         $this->assertEquals(300.95, $campaign->getTaxPriceValue());
         $this->assertEquals(23, $campaign->getTax());
+        $this->assertInternalType('array', $campaign->getLabels());
+        $this->assertCount(1, $campaign->getLabels());
+        $label = $campaign->getLabels()[0];
+        $this->assertInstanceOf(Label::class, $label);
+        $this->assertEquals('type', $label->getKey());
+        $this->assertEquals('promotion', $label->getValue());
     }
 
     /**
@@ -217,6 +233,44 @@ class CampaignControllerTest extends BaseApiTest
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('campaigns', $data);
         $this->assertTrue(count($data['campaigns']) > 0, 'Contains at least one element');
+    }
+
+    /**
+     * @test
+     *
+     * @dataProvider getCampaignsFilters
+     *
+     * @param array $filters
+     * @param int   $expectedCount
+     */
+    public function it_filters_campaigns_list(array $filters, int $expectedCount)
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/campaign',
+            $filters
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('campaigns', $data);
+        $this->assertArrayHasKey('total', $data);
+        $this->assertCount($expectedCount, $data['campaigns']);
+        $this->assertEquals($expectedCount, $data['total']);
+    }
+
+    /**
+     * @return array
+     */
+    public function getCampaignsFilters()
+    {
+        return [
+            [['labels' => [['key' => 'key0'], ['value' => 'value0']]], 1],
+            [['labels' => [['key' => 'type']]], 3],
+            [['labels' => [['key' => 'test']]], 0],
+        ];
     }
 
     /**
@@ -288,11 +342,11 @@ class CampaignControllerTest extends BaseApiTest
         $this->assertArrayHasKey('usersWhoUsedThisCampaignCount', $data);
         $this->assertInternalType('int', $data['usersWhoUsedThisCampaignCount']);
         $this->assertEquals(LoadCampaignData::CAMPAIGN_ID, $data['campaignId']);
+        $this->assertInternalType('array', $data['labels']);
+        $this->assertCount(1, $data['labels']);
+        $this->assertArrayHasKey('key', $data['labels'][0]);
+        $this->assertArrayHasKey('value', $data['labels'][0]);
     }
-
-    /**
-     * "levels": [.
-     */
 
     /**
      * @test

@@ -88,7 +88,8 @@ class ImportFileManager
      */
     protected function getFileName(UploadedFile $uploadedFile, string $prefixName = ''): string
     {
-        return sprintf('%s-%s-%s.%s',
+        return sprintf(
+            '%s-%s-%s.%s',
             $prefixName,
             date('Y-m-d_Hi'),
             uniqid(),

@@ -5,12 +5,15 @@
  */
 namespace OpenLoyalty\Component\Campaign\Domain;
 
+/**
+ * Interface CampaignRepository.
+ */
 interface CampaignRepository
 {
     /**
      * @param CampaignId $campaignId
      *
-     * @return null|object
+     * @return null|Campaign
      */
     public function byId(CampaignId $campaignId);
 

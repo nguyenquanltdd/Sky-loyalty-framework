@@ -99,7 +99,8 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
 
         if (array_key_exists('points', $result) && $result['points'] > 0) {
             $this->commandBus->dispatch(
-                new AddPoints($event->getAccountId(),
+                new AddPoints(
+                    $event->getAccountId(),
                     new AddPointsTransfer(
                         new PointsTransferId($this->uuidGenerator->generate()),
                         $result['points'],
@@ -172,7 +173,8 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
         }
 
         $this->commandBus->dispatch(
-            new AddPoints($account->getAccountId(),
+            new AddPoints(
+                $account->getAccountId(),
                 new AddPointsTransfer(
                     new PointsTransferId($this->uuidGenerator->generate()),
                     $result['points'],

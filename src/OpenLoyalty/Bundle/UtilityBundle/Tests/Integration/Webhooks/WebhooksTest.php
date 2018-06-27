@@ -76,19 +76,23 @@ class WebhooksTest extends BaseApiTest
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey(
-            CustomerWebhookListener::CUSTOMER_REGISTERED_WEBHOOK_TYPE, $types,
+            CustomerWebhookListener::CUSTOMER_REGISTERED_WEBHOOK_TYPE,
+            $types,
             'customer.registered has not been invoked'
         );
         $this->assertArrayHasKey(
-            CustomerWebhookListener::CUSTOMER_UPDATED_WEBHOOK_TYPE, $types,
+            CustomerWebhookListener::CUSTOMER_UPDATED_WEBHOOK_TYPE,
+            $types,
             'customer.updated has not been invoked'
         );
         $this->assertArrayHasKey(
-            CustomerWebhookListener::CUSTOMER_LEVEL_CHANGED_WEBHOOK_TYPE, $types,
+            CustomerWebhookListener::CUSTOMER_LEVEL_CHANGED_WEBHOOK_TYPE,
+            $types,
             'customer.level_changed has not been invoked'
         );
         $this->assertArrayHasKey(
-            AccountWebhookListener::ACCOUNT_AVAILABLE_POINTS_AMOUNT_CHANGED_WEBHOOK_TYPE, $types,
+            AccountWebhookListener::ACCOUNT_AVAILABLE_POINTS_AMOUNT_CHANGED_WEBHOOK_TYPE,
+            $types,
             'account.available_points_amount_changed has not invoked'
         );
     }
@@ -148,7 +152,8 @@ class WebhooksTest extends BaseApiTest
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey(
-            TransactionWebhookListener::TRANSACTION_REGISTERED_WEBHOOK_TYPE, $types,
+            TransactionWebhookListener::TRANSACTION_REGISTERED_WEBHOOK_TYPE,
+            $types,
                 'transaction.registered has not been invoked'
         );
     }

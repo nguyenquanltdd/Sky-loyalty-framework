@@ -15,6 +15,10 @@ services:
     class: OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignVisibilityFormType
     tags:
       - { name: form.type }
+  oloy.campaign.form_type.labels:
+    class: OpenLoyalty\Bundle\CampaignBundle\Form\Type\LabelsFormType
+    tags:
+      - { name: form.type }
   oloy.campaign.param_converter:
     class: OpenLoyalty\Bundle\CampaignBundle\ParamConverter\CampaignParamConverter
     arguments: ['@oloy.campaign.repository']

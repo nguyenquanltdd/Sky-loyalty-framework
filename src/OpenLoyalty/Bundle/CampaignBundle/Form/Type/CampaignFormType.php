@@ -128,6 +128,10 @@ class CampaignFormType extends AbstractType
             'constraints' => [new Valid()],
         ]);
 
+        $builder->add('labels', LabelsFormType::class, [
+            'required' => false,
+        ]);
+
         $builder->addEventListener(FormEvents::PRE_SUBMIT, [$this, 'adjustCampaignForm']);
     }
 

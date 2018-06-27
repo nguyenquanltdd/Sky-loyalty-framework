@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Bundle\CampaignBundle\Model;
 
 use OpenLoyalty\Component\Campaign\Domain\Campaign as BaseCampaign;
+use OpenLoyalty\Component\Core\Domain\Model\Label;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -20,10 +21,25 @@ class Campaign extends BaseCampaign
      */
     public function __construct()
     {
+        // nothing to do
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
+        $labels = array_map(
+            function ($label) {
+                if (!$label instanceof Label) {
+                    return;
+                }
+
+                return $label->serialize();
+            },
+            $this->labels
+        );
+
         return [
             'reward' => $this->reward,
             'name' => $this->name,
@@ -46,6 +62,7 @@ class Campaign extends BaseCampaign
             'rewardValue' => $this->rewardValue,
             'tax' => $this->tax,
             'taxPriceValue' => $this->taxPriceValue,
+            'labels' => $labels,
         ];
     }
 

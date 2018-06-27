@@ -36,9 +36,12 @@ class MoveCustomerToLevel extends CustomerCommand
      * @param bool         $manually
      * @param bool         $removeLevelManually
      */
-    public function __construct(CustomerId $customerId, ? LevelId $levelId = null, bool $manually = false,
-                                bool $removeLevelManually = false)
-    {
+    public function __construct(
+        CustomerId $customerId,
+        ? LevelId $levelId = null,
+        bool $manually = false,
+        bool $removeLevelManually = false
+    ) {
         parent::__construct($customerId);
         $this->levelId = $levelId;
         $this->manually = $manually;

@@ -7,7 +7,6 @@ namespace OpenLoyalty\Bundle\UserBundle\Form\Type;
 
 use Misd\PhoneNumberBundle\Validator\Constraints\PhoneNumber;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
-use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\LabelsFormType;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
 use OpenLoyalty\Component\Pos\Domain\Pos;
@@ -143,6 +142,7 @@ class CustomerRegistrationFormType extends AbstractType
             'label' => 'Loyalty card number',
             'required' => false,
         ]);
+
         $builder->add('labels', LabelsFormType::class, [
             'required' => false,
         ]);

@@ -5,6 +5,7 @@ doctrine:
             campaign_levels_json_array: OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Type\CampaignLevelsJsonArrayDoctrineType
             campaign_segments_json_array: OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Type\CampaignSegmentsJsonArrayDoctrineType
             campaign_coupons_json_array: OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Type\CampaignCouponsJsonArrayDoctrineType
+            labels_json_array: OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Type\LabelsJsonArrayDoctrineType
 
 jms_serializer:
     metadata:

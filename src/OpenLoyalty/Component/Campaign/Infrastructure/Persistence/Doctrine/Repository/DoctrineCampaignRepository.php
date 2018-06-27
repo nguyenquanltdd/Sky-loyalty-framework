@@ -81,6 +81,54 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     }
 
     /**
+     * @param array  $params
+     * @param int    $page
+     * @param int    $perPage
+     * @param null   $sortField
+     * @param string $direction
+     *
+     * @return array
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function findByParametersPaginated(
+        array $params,
+        $page = 1,
+        $perPage = 10,
+        $sortField = null,
+        $direction = 'ASC'
+    ) {
+        $qb = $this->getCampaignsForLabelsQueryBuilder($params);
+
+        if ($sortField) {
+            $qb->orderBy(
+                'c.'.$this->validateSort($sortField),
+                $this->validateSortBy($direction)
+            );
+        }
+
+        $qb->setMaxResults($perPage);
+        $qb->setFirstResult(($page - 1) * $perPage);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return int
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function countFindByParameters(array $params)
+    {
+        $qb = $this->getCampaignsForLabelsQueryBuilder($params);
+        $qb->select('count(c.campaignId)');
+
+        return $qb->getQuery()->getSingleScalarResult();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function findAllVisiblePaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'ASC')
@@ -247,6 +295,40 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
         if ($perPage) {
             $qb->setMaxResults($perPage);
             $qb->setFirstResult(($page - 1) * $perPage);
+        }
+
+        return $qb;
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return \Doctrine\ORM\QueryBuilder
+     * @throws \Doctrine\ORM\ORMException
+     */
+    protected function getCampaignsForLabelsQueryBuilder(array $params)
+    {
+        $this->getEntityManager()->getConfiguration()->addCustomStringFunction('cast', Cast::class);
+        $qb = $this->createQueryBuilder('c');
+
+        if (array_key_exists('labels', $params) && is_array($params['labels'])) {
+            foreach ($params['labels'] as $label) {
+                $searchLabel = '';
+                if (array_key_exists('key', $label)) {
+                    $searchLabel .= '"key":"' . $label['key'] . '"';
+                }
+                if (array_key_exists('value', $label)) {
+                    if (!empty($searchLabel)) {
+                        $searchLabel .= ',';
+                    }
+                    $searchLabel .= '"value":"' . $label['value'] . '"';
+                }
+
+                if (!empty($searchLabel)) {
+                    $qb->andWhere($qb->expr()->like('cast(c.labels as text)', ':label'));
+                    $qb->setParameter('label', '%' . $searchLabel . '%');
+                }
+            }
         }
 
         return $qb;

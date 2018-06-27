@@ -77,6 +77,7 @@ class XmlNodeValidator
                 case self::BOOL_FORMAT:
                     $requirements['values'] = ['true', 'false'];
                     // pass to valid const format
+                    // no break
                 case self::VALID_CONST_FORMAT:
                     if (!empty($parsedValue) && !in_array($parsedValue, $requirements['values'])) {
                         return sprintf(

@@ -135,7 +135,8 @@ class RegisterCustomerManager
             $customerId,
             $email,
             $plainPassword,
-            isset($customerData['phone']) ? $customerData['phone'] : null);
+            isset($customerData['phone']) ? $customerData['phone'] : null
+        );
     }
 
     /**

@@ -78,13 +78,17 @@ class XmlImporterTest extends \PHPUnit_Framework_TestCase
         );
         $result = $xmlImporter->import('test.xml');
 
-        $convertedObjects = array_map(function (ImportResultItem $x) { return $x->getObject(); }, $result->getItems());
+        $convertedObjects = array_map(function (ImportResultItem $x) {
+            return $x->getObject();
+        }, $result->getItems());
 
         $this->assertTrue(
             $convertedObjects == ['converted_name_1', 'converted_name_2']
         );
 
-        $statuses = array_map(function (ImportResultItem $x) { return $x->getStatus(); }, $result->getItems());
+        $statuses = array_map(function (ImportResultItem $x) {
+            return $x->getStatus();
+        }, $result->getItems());
 
         $this->assertTrue(
             $statuses == [ImportResultItem::SUCCESS, ImportResultItem::SUCCESS]
@@ -103,13 +107,17 @@ class XmlImporterTest extends \PHPUnit_Framework_TestCase
         );
         $result = $xmlImporter->import('test.xml');
 
-        $convertedObjects = array_map(function (ImportResultItem $x) { return $x->getObject(); }, $result->getItems());
+        $convertedObjects = array_map(function (ImportResultItem $x) {
+            return $x->getObject();
+        }, $result->getItems());
 
         $this->assertTrue(
             $convertedObjects == ['converted_name_1', '<item><name>invalid_convert_name_2</name></item>']
         );
 
-        $statuses = array_map(function (ImportResultItem $x) { return $x->getStatus(); }, $result->getItems());
+        $statuses = array_map(function (ImportResultItem $x) {
+            return $x->getStatus();
+        }, $result->getItems());
 
         $this->assertTrue(
             $statuses == [ImportResultItem::SUCCESS, ImportResultItem::ERROR]
@@ -128,13 +136,17 @@ class XmlImporterTest extends \PHPUnit_Framework_TestCase
         );
         $result = $xmlImporter->import('test.xml');
 
-        $convertedObjects = array_map(function (ImportResultItem $x) { return $x->getObject(); }, $result->getItems());
+        $convertedObjects = array_map(function (ImportResultItem $x) {
+            return $x->getObject();
+        }, $result->getItems());
 
         $this->assertTrue(
             $convertedObjects == ['converted_name_1', 'converted_invalid_process_name_2']
         );
 
-        $statuses = array_map(function (ImportResultItem $x) { return $x->getStatus(); }, $result->getItems());
+        $statuses = array_map(function (ImportResultItem $x) {
+            return $x->getStatus();
+        }, $result->getItems());
 
         $this->assertTrue(
             $statuses == [ImportResultItem::SUCCESS, ImportResultItem::ERROR]

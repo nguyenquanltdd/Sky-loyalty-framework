@@ -178,7 +178,10 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
         );
 
         $activationCode = $this->getActivationCodeMock(
-            $activationCodeId, $objectType, $objectId, $code
+            $activationCodeId,
+            $objectType,
+            $objectId,
+            $code
         );
 
         $this->repository

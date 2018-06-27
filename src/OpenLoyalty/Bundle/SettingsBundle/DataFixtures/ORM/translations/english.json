@@ -640,7 +640,6 @@
   },
   "transfer": {
     "comment": "Comment",
-    "issuer": "Issuer",
     "list": "Points transfers list",
     "add_transfer": "Add transfer",
     "transfer_type": "Transfer type",
@@ -818,14 +817,12 @@
     "active_prompt": "",
     "type_prompt": "",
     "days_prompt": "",
-    "type_prompt": "",
     "from_date_prompt": "",
     "to_date_prompt": "",
     "min_prompt": "",
     "mas_prompt": "",
     "from_amount_prompt": "",
     "to_amount_prompt": "",
-    "type_prompt": "",
     "anniversary_type_prompt": "",
     "anniversary_type_days_prompt": "",
     "pos_ids_prompt": "",
@@ -835,7 +832,6 @@
     "label_value_prompt": "",
     "maker_prompt": "",
     "skus_prompt": "",
-    "anniversary_type_prompt": "",
     "users": "Customers",
     "parts": "Segment parts",
     "add_criterion": "Add OR condition",
@@ -886,6 +882,13 @@
     }
   },
   "campaign": {
+    "label_key_prompt": "",
+    "label_value_prompt": "",
+    "key": "Key",
+    "value": "Value",
+    "add_label": "Add label",
+    "label": "Label",
+    "labels": "Labels",
     "more_information_link": "More information link",
     "more_information_link_prompt": "",
     "coupons_count": "Coupons count ",
@@ -904,8 +907,6 @@
     "reward": "Campaign type",
     "coupons": "Coupon codes",
     "unlimited": "Use of the coupon code is not limited",
-    "add_heading": "Add reward campaign",
-    "heading": "Reward campaign",
     "name": "Name",
     "active": "Active",
     "inactive": "Inactive",
@@ -957,8 +958,6 @@
     "conditions_description": "Condition description",
     "levels": "Levels",
     "segments": "Segments",
-    "unlimited": "Unlimited",
-    "coupons": "Coupons",
     "visibility": "Visibility",
     "all_time_visible": "All time visible",
     "visible_from": "Visible From",
@@ -974,7 +973,6 @@
     "purchase_at": "Purchased at",
     "coupon": "Coupon",
     "used_by_user": "Used by customers",
-    "coupon_used": "Used by customers",
     "all_time": "All time",
     "photo": "Campaign photo",
     "redeemed_heading": "Reedemed rewards",
@@ -1225,10 +1223,6 @@
     },
     "post_activate_level": {
       "success": "Level status changed",
-      "error": "An error occurred"
-    },
-    "post_activate_rule": {
-      "success": "Success",
       "error": "An error occurred"
     },
     "post_deactivate_segment": {

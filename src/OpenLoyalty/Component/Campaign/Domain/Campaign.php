@@ -9,6 +9,7 @@ use OpenLoyalty\Component\Campaign\Domain\Model\CampaignActivity;
 use OpenLoyalty\Component\Campaign\Domain\Model\CampaignPhoto;
 use OpenLoyalty\Component\Campaign\Domain\Model\CampaignVisibility;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
+use OpenLoyalty\Component\Core\Domain\Model\Label;
 use Assert\Assertion as Assert;
 
 /**
@@ -138,6 +139,17 @@ class Campaign
      */
     protected $taxPriceValue;
 
+    /**
+     * @var Label[]
+     */
+    protected $labels = [];
+
+    /**
+     * Campaign constructor.
+     *
+     * @param CampaignId $campaignId
+     * @param array      $data
+     */
     public function __construct(CampaignId $campaignId, array $data = [])
     {
         $this->campaignId = $campaignId;
@@ -235,6 +247,17 @@ class Campaign
 
         if (array_key_exists('taxPriceValue', $data)) {
             $this->setTaxPriceValue($data['taxPriceValue']);
+        }
+
+        if (array_key_exists('labels', $data)) {
+            $labels = [];
+            foreach ($data['labels'] as $label) {
+                if ($label == null) {
+                    continue;
+                }
+                $labels[] = Label::deserialize($label);
+            }
+            $this->labels = $labels;
         }
     }
 
@@ -686,6 +709,22 @@ class Campaign
     public function getTaxPriceValue()
     {
         return $this->taxPriceValue;
+    }
+
+    /**
+     * @return Label[]
+     */
+    public function getLabels(): array
+    {
+        return $this->labels;
+    }
+
+    /**
+     * @param Label[] $labels
+     */
+    public function setLabels(array $labels)
+    {
+        $this->labels = $labels;
     }
 
     /**

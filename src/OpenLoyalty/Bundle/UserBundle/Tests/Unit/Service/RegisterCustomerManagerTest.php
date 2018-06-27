@@ -34,10 +34,11 @@ class RegisterCustomerManagerTest extends \PHPUnit_Framework_TestCase
      *
      * @return RegisterCustomerManager
      */
-    protected function getRegisterCustomerManagerInstance(? UserManager $userManagerMock = null,
+    protected function getRegisterCustomerManagerInstance(
+        ? UserManager $userManagerMock = null,
                                                           ? CustomerUniqueValidator $customerUniqueValidator = null,
-                                                          ? CommandBus $commandBus = null) : RegisterCustomerManager
-    {
+                                                          ? CommandBus $commandBus = null
+    ) : RegisterCustomerManager {
         $userManagerMock = $userManagerMock
             ?? $this->getMockBuilder(UserManager::class)->disableOriginalConstructor()->getMock();
 

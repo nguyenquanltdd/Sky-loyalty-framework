@@ -79,6 +79,10 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
       precision: 14
       nullable: true
       column: tax_price_value
+    labels:
+      type: labels_json_array
+      column: labels
+      nullable: true
   embedded:
     campaignActivity:
       class: OpenLoyalty\Component\Campaign\Domain\Model\CampaignActivity

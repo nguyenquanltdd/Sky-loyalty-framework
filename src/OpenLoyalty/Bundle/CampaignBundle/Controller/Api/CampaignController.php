@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\CampaignBundle\Controller\Api;
 
 use Broadway\CommandHandling\CommandBus;
 use FOS\RestBundle\Context\Context;
+use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -293,31 +294,39 @@ class CampaignController extends FOSRestController
      *     }
      * )
      *
-     * @param Request $request
+     * @param Request       $request
+     * @param ParamFetcher  $paramFetcher
+     *
      * @View(serializerGroups={"admin", "Default"})
      *
      * @return \FOS\RestBundle\View\View
+     *
+     * @QueryParam(name="labels", nullable=true, description="filter by labels"))
      */
-    public function getListAction(Request $request)
+    public function getListAction(Request $request, ParamFetcher $paramFetcher)
     {
         $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
 
+        $params = $paramFetcher->all();
+
         $campaignRepository = $this->get('oloy.campaign.repository');
+
         $campaigns = $campaignRepository
-            ->findAllPaginated(
+            ->findByParametersPaginated(
+                $params,
                 $pagination->getPage(),
                 $pagination->getPerPage(),
                 $pagination->getSort(),
                 $pagination->getSortDirection()
             );
-        $total = $campaignRepository->countTotal();
+        $total = $campaignRepository->countFindByParameters($params);
 
         $view = $this->view(
             [
                 'campaigns' => $campaigns,
                 'total' => $total,
             ],
-            200
+            Response::HTTP_OK
         );
 
         $context = new Context();
