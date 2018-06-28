@@ -57,6 +57,16 @@ interface LevelRepository
     public function findAllPaginated($page = 1, $perPage = 10, $sortField = 'levelId', $direction = 'DESC');
 
     /**
+     * @param int|null    $page
+     * @param int|null    $perPage
+     * @param null|string $sortField
+     * @param null|string $direction
+     *
+     * @return mixed
+     */
+    public function findActivePaginated(? int $page = 1, ? int $perPage = 10, ? string $sortField = null, ? string $direction = 'ASC');
+
+    /**
      * @return mixed
      *
      * @throws \Doctrine\ORM\NoResultException

@@ -4,6 +4,7 @@ namespace OpenLoyalty\Bundle\LevelBundle\Tests\Security;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseAccessControlTest;
 use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class LevelControllerAccessTest.
@@ -92,5 +93,19 @@ class LevelControllerAccessTest extends BaseAccessControlTest
         ];
 
         $this->checkClients($clients, '/api/level/'.LoadLevelData::LEVEL_ID.'/customers');
+    }
+
+    /**
+     * @test
+     */
+    public function only_customer_has_access_to_active_levels_list()
+    {
+        $clients = [
+            ['client' => $this->getCustomerClient(), 'not_status' => Response::HTTP_FORBIDDEN, 'name' => 'customer'],
+            ['client' => $this->getSellerClient(), 'status' => Response::HTTP_FORBIDDEN, 'name' => 'seller'],
+            ['client' => $this->getAdminClient(), 'status' => Response::HTTP_FORBIDDEN, 'name' => 'admin'],
+        ];
+
+        $this->checkClients($clients, '/api/customer/level');
     }
 }

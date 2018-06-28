@@ -8,6 +8,7 @@ namespace OpenLoyalty\Bundle\LevelBundle\Controller\Api;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
+use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\LevelBundle\Form\Type\LevelFormType;
 use OpenLoyalty\Bundle\LevelBundle\Form\Type\LevelPhotoFormType;
@@ -390,5 +391,51 @@ class LevelController extends FOSRestController
         } catch (\Exception $ex) {
             return $this->view(['error' => $ex->getMessage()], Response::HTTP_BAD_REQUEST);
         }
+    }
+
+    /**
+     * Method will return complete list of levels.
+     *
+     * @Route(name="oloy.customer.level.list", path="/customer/level")
+     * @Method("GET")
+     * @Security("is_granted('CUSTOMER_LIST_LEVELS')")
+     * @Rest\View(serializerGroups={"customer"})
+     *
+     *
+     * @ApiDoc(
+     *     name="get Level list",
+     *     section="Customer Level",
+     *     parameters={
+     *      {"name"="page", "dataType"="integer", "required"=false, "description"="Page number"},
+     *      {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
+     *      {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
+     *      {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
+     *     }
+     * )
+     *
+     * @param Request $request
+     *
+     * @return \FOS\RestBundle\View\View
+     */
+    public function getAllVisibleLevelsAction(Request $request): View
+    {
+        $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
+
+        $levelRepository = $this->get('oloy.level.repository');
+
+        $levels = $levelRepository
+            ->findActivePaginated(
+                $pagination->getPage(),
+                $pagination->getPerPage(),
+                $pagination->getSort(),
+                $pagination->getSortDirection()
+            );
+
+        return $this->view(
+            [
+                'levels' => $levels,
+            ],
+            Response::HTTP_OK
+        );
     }
 }

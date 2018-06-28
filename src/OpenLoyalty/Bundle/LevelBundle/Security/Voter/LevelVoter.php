@@ -21,13 +21,14 @@ class LevelVoter extends Voter
     const LIST_CUSTOMERS = 'LIST_CUSTOMERS';
     const VIEW = 'VIEW';
     const ACTIVATE = 'ACTIVATE';
+    const CUSTOMER_LIST_LEVELS = 'CUSTOMER_LIST_LEVELS';
 
     public function supports($attribute, $subject)
     {
         return $subject instanceof Level && in_array($attribute, [
-            self::EDIT, self::VIEW, self::ACTIVATE, self::LIST_CUSTOMERS,
+            self::EDIT, self::VIEW, self::ACTIVATE, self::LIST_CUSTOMERS, self::CUSTOMER_LIST_LEVELS,
         ]) || $subject == null && in_array($attribute, [
-            self::CREATE_LEVEL, self::LIST_LEVELS,
+            self::CREATE_LEVEL, self::LIST_LEVELS, self::CUSTOMER_LIST_LEVELS,
         ]);
     }
 
@@ -53,6 +54,8 @@ class LevelVoter extends Voter
                 return $user->hasRole('ROLE_ADMIN');
             case self::ACTIVATE:
                 return $user->hasRole('ROLE_ADMIN');
+            case self::CUSTOMER_LIST_LEVELS:
+                return $user->hasRole('ROLE_PARTICIPANT');
             default:
                 return false;
         }

@@ -95,6 +95,29 @@ class DoctrineLevelRepository extends EntityRepository implements LevelRepositor
     /**
      * {@inheritdoc}
      */
+    public function findActivePaginated(? int $page = 1, ? int $perPage = 10, ? string $sortField = null, ? string $direction = 'ASC')
+    {
+        $qb = $this->createQueryBuilder('l');
+
+        $qb->andWhere('l.active = :true')->setParameter('true', true);
+
+        if ($sortField) {
+            $qb->orderBy(
+                sprintf('l.%s', $this->validateSort($sortField)),
+                $this->validateSortBy($direction)
+            );
+        }
+        if ($perPage) {
+            $qb->setMaxResults($perPage);
+            $qb->setFirstResult(($page - 1) * $perPage);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function countTotal()
     {
         $qb = $this->createQueryBuilder('l');

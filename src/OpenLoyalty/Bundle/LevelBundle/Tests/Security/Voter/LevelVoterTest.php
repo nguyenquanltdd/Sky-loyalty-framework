@@ -27,6 +27,7 @@ class LevelVoterTest extends BaseVoterTest
             LevelVoter::ACTIVATE => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => self::LEVEL2_ID],
             LevelVoter::LIST_LEVELS => ['seller' => true, 'customer' => false, 'admin' => true],
             LevelVoter::LIST_CUSTOMERS => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => self::LEVEL2_ID],
+            LevelVoter::CUSTOMER_LIST_LEVELS => ['seller' => false, 'customer' => true, 'admin' => false, 'id' => self::LEVEL_ID],
         ];
 
         $voter = new LevelVoter();
