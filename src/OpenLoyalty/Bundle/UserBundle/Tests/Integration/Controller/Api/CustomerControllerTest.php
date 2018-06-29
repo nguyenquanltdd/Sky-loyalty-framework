@@ -1080,6 +1080,32 @@ class CustomerControllerTest extends BaseApiTest
     }
 
     /**
+     * @test
+     */
+    public function it_receives_levels_as_customer()
+    {
+        $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
+        $client->request(
+            'GET',
+            '/api/customer/level'
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+
+        $this->assertArrayHasKey('levels', $data);
+        $first = reset($data['levels']);
+
+        $this->assertArrayHasKey('name', $first);
+        $this->assertInternalType('string', $first['name']);
+        $this->assertArrayHasKey('hasPhoto', $first);
+        $this->assertInternalType('bool', $first['hasPhoto']);
+        $this->assertArrayHasKey('conditionValue', $first);
+        $this->assertInternalType('int', $first['conditionValue']);
+    }
+
+    /**
      * @return array
      */
     public function getEmailOrPhone()

@@ -8,6 +8,7 @@ namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Controller\Api;
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class AdminControllerTest.
@@ -212,7 +213,7 @@ class AdminControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200 ');
 
         $admin = $this->getAdminEntity($admin['id']);
         $this->assertInstanceOf(Admin::class, $admin);

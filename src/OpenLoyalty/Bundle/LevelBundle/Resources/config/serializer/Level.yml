@@ -1,12 +1,20 @@
 OpenLoyalty\Component\Level\Domain\Level:
   exlusion_policy: ALL
+  serialize_null: true
   properties:
     levelId:
       expose: true
       inline: true
     photo:
       exclude: true
+    name:
+      groups: ['Default', 'customer']
+    description:
+      groups: ['Default', 'customer']
+    conditionValue:
+      groups: ['Default', 'customer']
   virtual_properties:
     hasLevelPhoto:
       serialized_name: hasPhoto
       type: boolean
+      groups: ['Default', 'customer']
