@@ -56,6 +56,31 @@ class CampaignBought implements SerializableReadModel
     private $customerPhone;
 
     /**
+     * @var string
+     */
+    private $customerName;
+
+    /**
+     * @var string
+     */
+    private $customerLastname;
+
+    /**
+     * @var int
+     */
+    private $costInPoints;
+
+    /**
+     * @var int
+     */
+    private $currentPointsAmount;
+
+    /**
+     * @var float
+     */
+    private $taxPriceValue;
+
+    /**
      * @var bool
      */
     private $used;
@@ -72,6 +97,13 @@ class CampaignBought implements SerializableReadModel
      * @param string|null $customerEmail
      * @param string|null $customerPhone
      * @param bool        $used
+     * @param string      $customerName
+     * @param string      $customerLastname
+     * @param int         $costInPoints
+     * @param int         $currentPointsAmount
+     * @param float|null  $taxPriceValue
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         CampaignId $campaignId,
@@ -82,7 +114,12 @@ class CampaignBought implements SerializableReadModel
         string $campaignName,
         $customerEmail,
         $customerPhone,
-        bool $used = false
+        ? bool $used = false,
+        ? string $customerName = null,
+        ? string $customerLastname = null,
+        ? int $costInPoints = null,
+        ? int $currentPointsAmount = null,
+        ? float $taxPriceValue = null
     ) {
         $this->campaignId = $campaignId;
         $this->customerId = $customerId;
@@ -93,12 +130,17 @@ class CampaignBought implements SerializableReadModel
         $this->customerEmail = $customerEmail;
         $this->customerPhone = $customerPhone;
         $this->used = $used;
+        $this->customerName = $customerName;
+        $this->customerLastname = $customerLastname;
+        $this->costInPoints = $costInPoints;
+        $this->currentPointsAmount = $currentPointsAmount;
+        $this->taxPriceValue = $taxPriceValue;
     }
 
     /**
      * @return string
      */
-    public function getId(): string
+    public function getId() : string
     {
         return self::createId($this->campaignId, $this->customerId, $this->coupon);
     }
@@ -110,7 +152,7 @@ class CampaignBought implements SerializableReadModel
      */
     public static function deserialize(array $data)
     {
-        $tmp = new self(
+        return new self(
             new CampaignId($data['campaignId']),
             new CustomerId($data['customerId']),
             (new \DateTime())->setTimestamp((int) $data['purchasedAt']),
@@ -119,16 +161,19 @@ class CampaignBought implements SerializableReadModel
             $data['campaignName'],
             $data['customerEmail'],
             $data['customerPhone'],
-            $data['used']
+            $data['used'],
+            $data['customerName'] ?? null,
+            $data['customerLastname'] ?? null,
+            $data['costInPoints'] ?? null,
+            $data['currentPointsAmount'] ?? null,
+            $data['taxPriceValue'] ?? null
         );
-
-        return $tmp;
     }
 
     /**
      * @return array
      */
-    public function serialize(): array
+    public function serialize() : array
     {
         return [
             'campaignId' => $this->campaignId->__toString(),
@@ -140,10 +185,22 @@ class CampaignBought implements SerializableReadModel
             'customerEmail' => $this->customerEmail,
             'customerPhone' => $this->customerPhone,
             'used' => $this->used,
+            'customerName' => $this->customerName,
+            'customerLastname' => $this->customerLastname,
+            'costInPoints' => $this->costInPoints,
+            'currentPointsAmount' => $this->currentPointsAmount,
+            'taxPriceValue' => $this->taxPriceValue,
         ];
     }
 
-    public static function createId(CampaignId $campaignId, CustomerId $customerId, Coupon $coupon)
+    /**
+     * @param CampaignId $campaignId
+     * @param CustomerId $customerId
+     * @param Coupon     $coupon
+     *
+     * @return string
+     */
+    public static function createId(CampaignId $campaignId, CustomerId $customerId, Coupon $coupon) : string
     {
         return $campaignId->__toString().'_'.$customerId->__toString().'_'.$coupon->getCode();
     }

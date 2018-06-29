@@ -13,6 +13,7 @@ use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class CampaignControllerTest.
@@ -287,6 +288,24 @@ class CampaignControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('boughtCampaigns', $data);
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_bought_campaigns_list_filtered_by_future_date_from()
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/campaign/bought?purchasedAtFrom='.date('Y-m-d H:i:s')
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('boughtCampaigns', $data);
+        $this->assertArrayHasKey('total', $data);
+        $this->assertEquals(0, $data['total']);
     }
 
     /**

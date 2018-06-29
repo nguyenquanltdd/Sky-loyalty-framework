@@ -44,6 +44,34 @@ class EsParamManager implements ParamManager
         return $params;
     }
 
+    /**
+     * @param array       $params
+     * @param string      $key
+     * @param null|string $dateFrom
+     * @param null|string $dateTo
+     */
+    public function appendDateRangeFilter(array &$params, string $key, ? string $dateFrom, ? string $dateTo)
+    {
+        if (!$dateFrom && !$dateTo) {
+            return;
+        }
+
+        $param = [
+            'type' => 'range',
+            'value' => [],
+        ];
+
+        if (!is_null($dateFrom)) {
+            $param['value']['gte'] = strtotime(stripslashes($dateFrom));
+        }
+
+        if (!is_null($dateTo)) {
+            $param['value']['lte'] = strtotime(stripslashes($dateTo));
+        }
+
+        $params[$key] = $param;
+    }
+
     protected function escapeString($string)
     {
         $chars = array('\\',  '/', '+', '&&', '||', '!', '(', ')', '{', '}', '[', ']', '^', "'", '~', '?', ':');

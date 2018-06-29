@@ -1,4 +1,7 @@
 services:
+  _defaults:
+    autowire: true
+
   oloy.campaign.command_handler:
     class: OpenLoyalty\Component\Campaign\Domain\Command\CampaignCommandHandler
     arguments:
@@ -51,6 +54,5 @@ services:
     arguments:
       - '@oloy.campaign.read_model.repository.campaign_bought'
       - '@oloy.campaign.repository'
-      - '@oloy.user.read_model.repository.customer_details'
     tags:
       - { name: broadway.domain.event_listener }
