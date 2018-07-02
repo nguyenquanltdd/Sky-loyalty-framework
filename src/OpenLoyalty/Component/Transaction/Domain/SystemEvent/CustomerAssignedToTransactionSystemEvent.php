@@ -35,14 +35,27 @@ class CustomerAssignedToTransactionSystemEvent extends TransactionSystemEvent
      */
     protected $transactionsCount;
 
-    public function __construct(TransactionId $transactionId, CustomerId $customerId, $grossValue, $grossValueWithoutDeliveryCosts, $amountExcludedForLevel = 0, $transactionsCount = null)
-    {
+    /**
+     * @var bool
+     */
+    protected $return = false;
+
+    public function __construct(
+        TransactionId $transactionId,
+        CustomerId $customerId,
+        $grossValue,
+        $grossValueWithoutDeliveryCosts,
+        $amountExcludedForLevel = 0,
+        $transactionsCount = null,
+        $return = false
+    ) {
         parent::__construct($transactionId, []);
         $this->grossValue = $grossValue;
         $this->grossValueWithoutDeliveryCosts = $grossValueWithoutDeliveryCosts;
         $this->customerId = $customerId;
         $this->amountExcludedForLevel = $amountExcludedForLevel;
         $this->transactionsCount = $transactionsCount;
+        $this->return = $return;
     }
 
     /**
@@ -83,5 +96,13 @@ class CustomerAssignedToTransactionSystemEvent extends TransactionSystemEvent
     public function getTransactionsCount()
     {
         return $this->transactionsCount;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isReturn()
+    {
+        return $this->return;
     }
 }

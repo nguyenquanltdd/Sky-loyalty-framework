@@ -14,6 +14,7 @@ use OpenLoyalty\Component\Pos\Domain\Pos;
 use OpenLoyalty\Component\Pos\Domain\PosId;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
+use OpenLoyalty\Component\Transaction\Domain\Transaction;
 
 /**
  * Class TransactionSerializationListener.
@@ -68,20 +69,36 @@ class TransactionSerializationListener implements EventSubscriberInterface
             $currency = $this->settingsManager->getSettingByKey('currency');
             $currency = $currency ? $currency->getValue() : 'PLN';
             $event->getVisitor()->addData('currency', $currency);
-
-            $transfers = $this->transfersRepo->findBy([
-                'transactionId' => $transaction->getTransactionId()->__toString(),
-                'state' => PointsTransferDetails::STATE_ACTIVE,
-                'type' => PointsTransferDetails::TYPE_ADDING,
-            ]);
-
             $carry = 0;
-            if (count($transfers) > 0) {
-                $carry = array_reduce($transfers, function ($carry, PointsTransferDetails $transfer) {
-                    $carry += $transfer->getValue();
 
-                    return $carry;
-                });
+            if ($transaction->getDocumentType() == Transaction::TYPE_RETURN) {
+                $transfers = $this->transfersRepo->findBy([
+                    'transactionId' => $transaction->getTransactionId()->__toString(),
+                    'state' => PointsTransferDetails::STATE_ACTIVE,
+                    'type' => PointsTransferDetails::TYPE_SPENDING,
+                ]);
+
+                if (count($transfers) > 0) {
+                    $event->getVisitor()->addData('pointsRevoked', array_reduce($transfers, function ($carry, PointsTransferDetails $transfer) {
+                        $carry += $transfer->getValue();
+
+                        return $carry;
+                    }));
+                }
+            } else {
+                $transfers = $this->transfersRepo->findBy([
+                    'transactionId' => $transaction->getTransactionId()->__toString(),
+                    'state' => PointsTransferDetails::STATE_ACTIVE,
+                    'type' => PointsTransferDetails::TYPE_ADDING,
+                ]);
+
+                if (count($transfers) > 0) {
+                    $carry = array_reduce($transfers, function ($carry, PointsTransferDetails $transfer) {
+                        $carry += $transfer->getValue();
+
+                        return $carry;
+                    });
+                }
             }
             $event->getVisitor()->addData('pointsEarned', $carry);
 

@@ -6,12 +6,14 @@ use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\JsonSettingEntry;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
+use OpenLoyalty\Bundle\UserBundle\Status\CustomerStatusProvider;
 use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Import\Infrastructure\ImportResultItem;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class TransactionControllerTest.
@@ -388,26 +390,78 @@ class TransactionControllerTest extends BaseApiTest
         $this->assertEquals(LoadUserData::TEST_USER_ID, $transaction->getCustomerId()->__toString());
     }
 
+
     /**
      * @test
      */
-    public function it_register_new_return_transaction_and_assign_customer()
+    public function it_register_new_return_transaction_and_manually_assign_customer()
     {
+        static::bootKernel([]);
         static::$kernel->boot();
         /** @var CustomerDetailsRepository $customerRepo */
         $customerRepo = static::$kernel->getContainer()->get('oloy.user.read_model.repository.customer_details');
-        /** @var CustomerDetails $customer */
-        $customer = $customerRepo->findOneByCriteria(['email' => 'user@oloy.com'], 1);
-        $customer = reset($customer);
-        $transactionsCount = $customer->getTransactionsCount();
-        $transactionsAmount = $customer->getTransactionsAmount();
+
+        //create transaction with number 11238
 
         $formData = [
-            'revisedDocument' => '456',
             'transactionData' => [
-                'documentNumber' => '456-return',
+                'documentNumber' => '11238',
+                'documentType' => 'sell',
+                'purchaseDate' => (new \DateTime())->format('Y-m-d'),
+                'purchasePlace' => 'NY',
+            ],
+            'items' => [
+                0 => [
+                    'sku' => ['code' => '123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 6,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+                1 => [
+                    'sku' => ['code' => '1123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 3,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+            ],
+            'customerData' => [
+                'name' => 'Jon Doe',
+                'email' => LoadUserData::TEST_RETURN_USERNAME,
+                'nip' => '123-111-123-112',
+                'phone' => self::PHONE_NUMBER,
+                'loyaltyCardNumber' => 'sa2222',
+                'address' => [
+                    'street' => 'Street',
+                    'address1' => '12',
+                    'city' => 'NY',
+                    'country' => 'US',
+                    'province' => 'Seattle',
+                    'postal' => '00-800',
+                ],
+            ],
+        ];
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/transaction',
+            [
+                'transaction' => $formData,
+            ]
+        );
+
+        //create return transaction for 11238
+
+        $formData = [
+            'revisedDocument' => '11238',
+            'transactionData' => [
+                'documentNumber' => '999911238',
                 'documentType' => 'return',
-                'purchaseDate' => '2015-01-01',
+                'purchaseDate' => (new \DateTime())->format('Y-m-d'),
                 'purchasePlace' => 'wroclaw',
             ],
             'items' => [
@@ -415,7 +469,7 @@ class TransactionControllerTest extends BaseApiTest
                     'sku' => ['code' => '123'],
                     'name' => 'sku',
                     'quantity' => 1,
-                    'grossValue' => -1,
+                    'grossValue' => -6,
                     'category' => 'test',
                     'maker' => 'company',
                 ],
@@ -423,23 +477,19 @@ class TransactionControllerTest extends BaseApiTest
                     'sku' => ['code' => '1123'],
                     'name' => 'sku',
                     'quantity' => 2,
-                    'grossValue' => -2,
+                    'grossValue' => -3,
                     'category' => 'test',
                     'maker' => 'company',
                 ],
             ],
             'customerData' => [
-                'name' => 'Jan Nowak',
-                'email' => 'user@oloy.com',
-                'nip' => 'aaa',
-                'phone' => self::PHONE_NUMBER,
-                'loyaltyCardNumber' => 'sa2222',
+                'name' => 'Jon Doe',
                 'address' => [
-                    'street' => 'Bagno',
+                    'street' => 'Street',
                     'address1' => '12',
-                    'city' => 'Warszawa',
-                    'country' => 'PL',
-                    'province' => 'Mazowieckie',
+                    'city' => 'NY',
+                    'country' => 'US',
+                    'province' => 'Seattle',
                     'postal' => '00-800',
                 ],
             ],
@@ -454,44 +504,120 @@ class TransactionControllerTest extends BaseApiTest
             ]
         );
 
+
         $response = $client->getResponse();
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200'
+            .$response->getContent());
+
+
+        $formData = [
+            'transactionDocumentNumber' => '999911238',
+            'customerId' => LoadUserData::TEST_RETURN_USER_ID,
+        ];
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/admin/transaction/customer/assign',
+            [
+                'assign' => $formData,
+            ]
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200'
+            .$response->getContent());
+
         static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
-        /** @var TransactionDetails $transaction */
-        $transaction = $repo->find($data['transactionId']);
-        $this->assertInstanceOf(TransactionDetails::class, $transaction);
-        $this->assertNotNull($transaction->getCustomerId());
+
         /** @var CustomerDetails $customer */
-        $customer = $customerRepo->findOneByCriteria(['email' => 'user@oloy.com'], 1);
+        $customer = $customerRepo->findOneByCriteria(['email' => LoadUserData::TEST_RETURN_USERNAME], 1);
         $customer = reset($customer);
+
         $newTransactionsCount = $customer->getTransactionsCount();
         $newTransactionsAmount = $customer->getTransactionsAmount();
-        $this->assertEquals($transactionsCount - 1, $newTransactionsCount);
-        $this->assertEquals($transactionsAmount - 3, $newTransactionsAmount);
+
+        $this->assertEquals(0, $newTransactionsCount);
+        $this->assertEquals(0, $newTransactionsAmount);
+
+        /** @var CustomerStatusProvider $statusProvider */
+        $statusProvider = static::$kernel->getContainer()->get('oloy.customer_status_provider');
+        $status = $statusProvider->getStatus($customer->getCustomerId());
+
+        $this->assertEquals(0, $status->getPoints());
     }
 
     /**
      * @test
      */
-    public function it_register_new_return_transaction_not_complete_and_assign_customer()
+    public function it_register_new_return_transaction_and_assign_customer()
     {
+        static::bootKernel([]);
         static::$kernel->boot();
         /** @var CustomerDetailsRepository $customerRepo */
         $customerRepo = static::$kernel->getContainer()->get('oloy.user.read_model.repository.customer_details');
-        /** @var CustomerDetails $customer */
-        $customer = $customerRepo->findOneByCriteria(['email' => 'user-temp@oloy.com'], 1);
-        $customer = reset($customer);
-        $transactionsCount = $customer->getTransactionsCount();
-        $transactionsAmount = $customer->getTransactionsAmount();
+
+        //create transaction with number R/11234
 
         $formData = [
-            'revisedDocument' => '789',
             'transactionData' => [
-                'documentNumber' => '789-return',
+                'documentNumber' => 'R/11234',
+                'documentType' => 'sell',
+                'purchaseDate' => (new \DateTime())->format('Y-m-d'),
+                'purchasePlace' => 'NY',
+            ],
+            'items' => [
+                0 => [
+                    'sku' => ['code' => '123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 6,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+                1 => [
+                    'sku' => ['code' => '1123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 3,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+            ],
+            'customerData' => [
+                'name' => 'Jon Doe',
+                'email' => LoadUserData::TEST_RETURN_USERNAME,
+                'nip' => '123-111-123-112',
+                'phone' => self::PHONE_NUMBER,
+                'loyaltyCardNumber' => 'sa2222',
+                'address' => [
+                    'street' => 'Street',
+                    'address1' => '12',
+                    'city' => 'NY',
+                    'country' => 'US',
+                    'province' => 'Seattle',
+                    'postal' => '00-800',
+                ],
+            ],
+        ];
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/transaction',
+            [
+                'transaction' => $formData,
+            ]
+        );
+
+        //create return transaction for R/11234
+
+        $formData = [
+            'revisedDocument' => 'R/11234',
+            'transactionData' => [
+                'documentNumber' => 'R/11234-return',
                 'documentType' => 'return',
-                'purchaseDate' => '2015-01-01',
+                'purchaseDate' => (new \DateTime())->format('Y-m-d'),
                 'purchasePlace' => 'wroclaw',
             ],
             'items' => [
@@ -499,23 +625,31 @@ class TransactionControllerTest extends BaseApiTest
                     'sku' => ['code' => '123'],
                     'name' => 'sku',
                     'quantity' => 1,
-                    'grossValue' => -1,
+                    'grossValue' => -6,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+                1 => [
+                    'sku' => ['code' => '1123'],
+                    'name' => 'sku',
+                    'quantity' => 2,
+                    'grossValue' => -3,
                     'category' => 'test',
                     'maker' => 'company',
                 ],
             ],
             'customerData' => [
-                'name' => 'Jan Nowak',
-                'email' => 'user-temp@oloy.com',
-                'nip' => 'aaa',
+                'name' => 'Jon Doe',
+                'email' => LoadUserData::TEST_RETURN_USERNAME,
+                'nip' => '123-111-123-112',
                 'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'sa2222',
                 'address' => [
-                    'street' => 'Bagno',
+                    'street' => 'Street',
                     'address1' => '12',
-                    'city' => 'Warszawa',
-                    'country' => 'PL',
-                    'province' => 'Mazowieckie',
+                    'city' => 'NY',
+                    'country' => 'US',
+                    'province' => 'Seattle',
                     'postal' => '00-800',
                 ],
             ],
@@ -532,7 +666,8 @@ class TransactionControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200'
+            .$response->getContent());
         static::$kernel->boot();
         $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
         /** @var TransactionDetails $transaction */
@@ -540,12 +675,164 @@ class TransactionControllerTest extends BaseApiTest
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
         $this->assertNotNull($transaction->getCustomerId());
         /** @var CustomerDetails $customer */
-        $customer = $customerRepo->findOneByCriteria(['email' => 'user-temp@oloy.com'], 1);
+        $customer = $customerRepo->findOneByCriteria(['email' => LoadUserData::TEST_RETURN_USERNAME], 1);
         $customer = reset($customer);
+
         $newTransactionsCount = $customer->getTransactionsCount();
         $newTransactionsAmount = $customer->getTransactionsAmount();
-        $this->assertEquals($transactionsCount, $newTransactionsCount);
-        $this->assertEquals($transactionsAmount - 1, $newTransactionsAmount);
+
+        $this->assertEquals(0, $newTransactionsCount);
+        $this->assertEquals(0, $newTransactionsAmount);
+
+        /** @var CustomerStatusProvider $statusProvider */
+        $statusProvider = static::$kernel->getContainer()->get('oloy.customer_status_provider');
+        $status = $statusProvider->getStatus($customer->getCustomerId());
+
+        $this->assertEquals(0, $status->getPoints());
+    }
+
+    /**
+     * @test
+     */
+    public function it_register_new_return_transaction_not_complete_and_assign_customer()
+    {
+        static::bootKernel([]);
+        static::$kernel->boot();
+        /** @var CustomerDetailsRepository $customerRepo */
+        $customerRepo = static::$kernel->getContainer()->get('oloy.user.read_model.repository.customer_details');
+
+        //create transaction with number R/11235
+
+        $formData = [
+            'transactionData' => [
+                'documentNumber' => 'R/11235',
+                'documentType' => 'sell',
+                'purchaseDate' => (new \DateTime())->format('Y-m-d'),
+                'purchasePlace' => 'NY',
+            ],
+            'items' => [
+                0 => [
+                    'sku' => ['code' => '123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 6,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+                1 => [
+                    'sku' => ['code' => '1123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 3,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+            ],
+            'customerData' => [
+                'name' => 'Jon Doe',
+                'email' => LoadUserData::TEST_RETURN_USERNAME,
+                'nip' => '123-111-123-112',
+                'phone' => self::PHONE_NUMBER,
+                'loyaltyCardNumber' => 'sa2222',
+                'address' => [
+                    'street' => 'Street',
+                    'address1' => '12',
+                    'city' => 'NY',
+                    'country' => 'US',
+                    'province' => 'Seattle',
+                    'postal' => '00-800',
+                ],
+            ],
+        ];
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/transaction',
+            [
+                'transaction' => $formData,
+            ]
+        );
+
+        //create return transaction for R/11235
+
+        $formData = [
+            'revisedDocument' => 'R/11235',
+            'transactionData' => [
+                'documentNumber' => 'R/11235-return',
+                'documentType' => 'return',
+                'purchaseDate' => (new \DateTime())->format('Y-m-d'),
+                'purchasePlace' => 'wroclaw',
+            ],
+            'items' => [
+                0 => [
+                    'sku' => ['code' => '123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => -2,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+                1 => [
+                    'sku' => ['code' => '1123'],
+                    'name' => 'sku',
+                    'quantity' => 2,
+                    'grossValue' => -1,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+            ],
+            'customerData' => [
+                'name' => 'Jon Doe',
+                'email' => LoadUserData::TEST_RETURN_USERNAME,
+                'nip' => '123-111-123-112',
+                'phone' => self::PHONE_NUMBER,
+                'loyaltyCardNumber' => 'sa2222',
+                'address' => [
+                    'street' => 'Street',
+                    'address1' => '12',
+                    'city' => 'NY',
+                    'country' => 'US',
+                    'province' => 'Seattle',
+                    'postal' => '00-800',
+                ],
+            ],
+        ];
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/transaction',
+            [
+                'transaction' => $formData,
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200'
+            .$response->getContent());
+        static::$kernel->boot();
+        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        /** @var TransactionDetails $transaction */
+        $transaction = $repo->find($data['transactionId']);
+        $this->assertInstanceOf(TransactionDetails::class, $transaction);
+        $this->assertNotNull($transaction->getCustomerId());
+        /** @var CustomerDetails $customer */
+        $customer = $customerRepo->findOneByCriteria(['email' => LoadUserData::TEST_RETURN_USERNAME], 1);
+        $customer = reset($customer);
+
+        $newTransactionsCount = $customer->getTransactionsCount();
+        $newTransactionsAmount = $customer->getTransactionsAmount();
+
+        $this->assertEquals(1, $newTransactionsCount);
+        $this->assertEquals(6, $newTransactionsAmount);
+
+        /** @var CustomerStatusProvider $statusProvider */
+        $statusProvider = static::$kernel->getContainer()->get('oloy.customer_status_provider');
+        $status = $statusProvider->getStatus($customer->getCustomerId());
+
+        $this->assertEquals(4.6, $status->getPoints());
     }
 
     /**

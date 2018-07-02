@@ -63,7 +63,7 @@ class Account extends EventSourcedAggregateRoot
 
     public function spendPoints(SpendPointsTransfer $pointsTransfer)
     {
-        if ($this->getAvailableAmount() < $pointsTransfer->getValue()) {
+        if (!$pointsTransfer->getTransactionId() && $this->getAvailableAmount() < $pointsTransfer->getValue()) {
             throw new NotEnoughPointsException();
         }
         $this->apply(

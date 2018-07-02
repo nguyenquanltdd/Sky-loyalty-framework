@@ -909,26 +909,26 @@ class CustomerControllerTest extends BaseApiTest
     public function getPartialPhrases()
     {
         return [
-            ['firstName', 'Jo', 11],
+            ['firstName', 'Jo', 12],
             ['firstName', 'Marks', 1],
             ['firstName', '1', 1],
             ['firstName', 'John1', 1],
             ['lastName', 'Doe', 11],
             ['lastName', 'Doe1', 1],
             ['lastName', 'Smith', 1],
-            ['phone', '48', 3],
+            ['phone', '48', 4],
             ['phone', '645', 1],
-            ['email', '@', 11],
+            ['email', '@', 12],
             ['email', 'user-1', 1],
             ['loyaltyCardNumber', '000000', 3],
             ['transactionsAmount', '3', 0],
-            ['transactionsAmount', '60', 1],
-            ['transactionsAmount', '15', 1],
+            ['transactionsAmount', '60', 0],
+            ['transactionsAmount', '15', 0],
             ['averageTransactionAmount', '3', 0],
-            ['averageTransactionAmount', '15', 1],
-            ['averageTransactionAmount', '7.5', 1],
+            ['averageTransactionAmount', '15', 0],
+            ['averageTransactionAmount', '7.5', 0],
             ['transactionsCount', '4', 1],
-            ['transactionsCount', '2', 1],
+            ['transactionsCount', '2', 0],
             ['transactionsCount', '0', 9],
         ];
     }
@@ -992,13 +992,13 @@ class CustomerControllerTest extends BaseApiTest
             ['email', 'user-1', 0],
             ['loyaltyCardNumber', '000000', 1],
             ['transactionsAmount', '3', 0],
-            ['transactionsAmount', '60', 1],
-            ['transactionsAmount', '15', 1],
+            ['transactionsAmount', '60', 0],
+            ['transactionsAmount', '15', 0],
             ['averageTransactionAmount', '3', 0],
-            ['averageTransactionAmount', '15', 1],
-            ['averageTransactionAmount', '7.5', 1],
+            ['averageTransactionAmount', '15', 0],
+            ['averageTransactionAmount', '7.5', 0],
             ['transactionsCount', '4', 1],
-            ['transactionsCount', '2', 1],
+            ['transactionsCount', '2', 0],
             ['transactionsCount', '0', 9],
         ];
     }
@@ -1113,7 +1113,7 @@ class CustomerControllerTest extends BaseApiTest
         return [
             ['emailOrPhone', 'user-1', 1, ['email', 'phone']],
             ['emailOrPhone', 'user-1@oloy.com', 1, ['email', 'phone']],
-            ['emailOrPhone', '+48', 3, ['email', 'phone']],
+            ['emailOrPhone', '+48', 4, ['email', 'phone']],
             ['emailOrPhone', '645', 1, ['email', 'phone']],
         ];
     }

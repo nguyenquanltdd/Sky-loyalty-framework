@@ -92,6 +92,12 @@ class PointsTransferSerializationListener implements EventSubscriberInterface
                     $event->getVisitor()->setData('transactionDocumentNumber', $transaction->getDocumentNumber());
                 }
             }
+            if ($transfer->getRevisedTransactionId()) {
+                $transaction = $this->transactionDetailsRepository->find($transfer->getRevisedTransactionId()->__toString());
+                if ($transaction instanceof TransactionDetails) {
+                    $event->getVisitor()->setData('revisedTransactionDocumentNumber', $transaction->getDocumentNumber());
+                }
+            }
         }
     }
 }

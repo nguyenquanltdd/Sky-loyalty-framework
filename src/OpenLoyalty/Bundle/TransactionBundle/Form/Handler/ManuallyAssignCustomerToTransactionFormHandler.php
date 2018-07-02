@@ -17,6 +17,7 @@ use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\CustomerAssignedToTransactionSystemEvent;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
+use OpenLoyalty\Component\Transaction\Domain\Transaction;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
@@ -150,14 +151,15 @@ class ManuallyAssignCustomerToTransactionFormHandler
 
         $this->eventDispatcher->dispatch(
             TransactionSystemEvents::CUSTOMER_ASSIGNED_TO_TRANSACTION,
-            [
-                new CustomerAssignedToTransactionSystemEvent(
-                    $transaction->getTransactionId(),
-                    new CustomerId($customer->getCustomerId()->__toString()),
-                    $transaction->getGrossValue(),
-                    $transaction->getGrossValueWithoutDeliveryCosts()
-                ),
-            ]
+            [new CustomerAssignedToTransactionSystemEvent(
+                $transaction->getTransactionId(),
+                new CustomerId($customer->getCustomerId()->__toString()),
+                $transaction->getGrossValue(),
+                $transaction->getGrossValueWithoutDeliveryCosts(),
+                0,
+                null,
+                $transaction->getDocumentType() == Transaction::TYPE_RETURN
+            )]
         );
 
         return $transaction->getTransactionId();

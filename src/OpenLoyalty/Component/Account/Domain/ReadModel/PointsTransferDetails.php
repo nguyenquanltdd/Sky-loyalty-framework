@@ -89,6 +89,11 @@ class PointsTransferDetails implements SerializableReadModel
     protected $transactionId;
 
     /**
+     * @var TransactionId
+     */
+    protected $revisedTransactionId;
+
+    /**
      * @var string
      */
     protected $posIdentifier;
@@ -158,6 +163,9 @@ class PointsTransferDetails implements SerializableReadModel
         if (isset($data['transactionId'])) {
             $newTransfer->transactionId = new TransactionId($data['transactionId']);
         }
+        if (isset($data['revisedTransactionId'])) {
+            $newTransfer->revisedTransactionId = new TransactionId($data['revisedTransactionId']);
+        }
         if (isset($data['comment'])) {
             $newTransfer->comment = $data['comment'];
         }
@@ -187,6 +195,7 @@ class PointsTransferDetails implements SerializableReadModel
             'createdAt' => $this->createdAt->getTimestamp(),
             'state' => $this->state,
             'transactionId' => $this->transactionId ? $this->transactionId->__toString() : null,
+            'revisedTransactionId' => $this->revisedTransactionId ? $this->revisedTransactionId->__toString() : null,
             'comment' => $this->comment,
             'posIdentifier' => $this->posIdentifier,
             'issuer' => $this->issuer,
@@ -417,5 +426,21 @@ class PointsTransferDetails implements SerializableReadModel
     public function setIssuer($issuer)
     {
         $this->issuer = $issuer;
+    }
+
+    /**
+     * @return TransactionId
+     */
+    public function getRevisedTransactionId()
+    {
+        return $this->revisedTransactionId;
+    }
+
+    /**
+     * @param TransactionId $revisedTransactionId
+     */
+    public function setRevisedTransactionId($revisedTransactionId)
+    {
+        $this->revisedTransactionId = $revisedTransactionId;
     }
 }

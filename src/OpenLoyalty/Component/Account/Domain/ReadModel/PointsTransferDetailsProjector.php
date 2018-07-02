@@ -113,6 +113,17 @@ class PointsTransferDetailsProjector extends Projector
         $readModel->setType(PointsTransferDetails::TYPE_SPENDING);
         $readModel->setComment($transfer->getComment());
         $readModel->setIssuer($transfer->getIssuer());
+        $readModel->setTransactionId($transfer->getTransactionId());
+        $readModel->setRevisedTransactionId($transfer->getRevisedTransactionId());
+        if ($transfer->getTransactionId()) {
+            $transaction = $this->transactionDetailsRepository->find($transfer->getTransactionId()->__toString());
+            if ($transaction instanceof TransactionDetails && $transaction->getPosId()) {
+                $pos = $this->posRepository->byId(new PosId($transaction->getPosId()->__toString()));
+                if ($pos instanceof Pos) {
+                    $readModel->setPosIdentifier($pos->getIdentifier());
+                }
+            }
+        }
         $this->repository->save($readModel);
     }
 

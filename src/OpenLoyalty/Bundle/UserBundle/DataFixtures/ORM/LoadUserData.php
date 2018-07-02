@@ -50,6 +50,11 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
     const TEST_PASSWORD = 'loyalty';
     const TEST_USER_PHONE_NUMBER = '+48345345000';
 
+    const TEST_RETURN_USER_ID = '11000000-0000-474c-b092-b0dd880c07e2';
+    const TEST_RETURN_USERNAME = 'return@oloy.com';
+    const TEST_RETURN_PASSWORD = 'return';
+    const TEST_RETURN_USER_PHONE_NUMBER = '+48123123787';
+
     const TEST_SELLER_ID = '00000000-0000-474c-b092-b0dd880c07e4';
     const TEST_SELLER2_ID = '00000000-0000-474c-b092-b0dd880c07e5';
 
@@ -224,6 +229,34 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
 
         $manager->persist($user);
 
+        // Return test user
+
+        $customerId = new CustomerId(static::TEST_RETURN_USER_ID);
+        $command = new RegisterCustomer(
+            $customerId,
+            $this->getDefaultCustomerData('Jon', 'Returner', $this::TEST_RETURN_USERNAME, $this::TEST_RETURN_USER_PHONE_NUMBER)
+        );
+
+        $bus->dispatch($command);
+        $bus->dispatch(new ActivateCustomer($customerId));
+
+        $user = new Customer($customerId);
+        $user->setPlainPassword($this::TEST_RETURN_PASSWORD);
+        $user->setPhone($command->getCustomerData()['phone']);
+
+        $password = $this->container->get('security.password_encoder')
+            ->encodePassword($user, $user->getPlainPassword());
+
+        $user->addRole($this->getReference('role_participant'));
+        $user->setPassword($password);
+        $user->setIsActive(true);
+        $user->setStatus(Status::typeActiveNoCard());
+
+        $user->setEmail($this::TEST_RETURN_USERNAME);
+        $manager->persist($user);
+        $this->addReference('return-user', $user);
+
+        $manager->persist($user);
         $manager->flush();
     }
 

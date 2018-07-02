@@ -348,15 +348,41 @@ class CustomerDetailsProjector extends Projector
                 $revisedTransaction = reset($tmp);
             }
         }
+
+        $returnAmount = 0;
+        $returnWithoutDeliveryAmount = 0;
         if ($revisedTransaction instanceof TransactionDetails) {
-            if ($revisedTransaction->getGrossValue() + $transaction->getGrossValue() <= 0) {
+            $grossValue = $transaction->getGrossValue();
+            $grossValueWithoutDelivery = $transaction->getGrossValueWithoutDeliveryCosts();
+            // make return amount always negative
+            $returnAmount = $grossValue > 0 ? ($grossValue * -1) : $grossValue;
+            $returnWithoutDeliveryAmount = $grossValueWithoutDelivery > 0 ? ($grossValueWithoutDelivery * -1) : $grossValueWithoutDelivery;
+
+            if ($revisedTransaction->getGrossValue() + $returnAmount <= 0) {
                 $readModel->setTransactionsCount($readModel->getTransactionsCount() - 1);
             }
         } else {
             $readModel->setTransactionsCount($readModel->getTransactionsCount() + 1);
         }
-        $readModel->setTransactionsAmount($readModel->getTransactionsAmount() + $transaction->getGrossValue());
-        $readModel->setTransactionsAmountWithoutDeliveryCosts($readModel->getTransactionsAmountWithoutDeliveryCosts() + $transaction->getGrossValueWithoutDeliveryCosts());
+
+        if ($returnAmount < 0) {
+            $result = $readModel->getTransactionsAmount() + $returnAmount;
+            if ($result < 0) { // prevent a negative transaction's amount
+                $readModel->setTransactionsAmount(0);
+            } else {
+                $readModel->setTransactionsAmount($result);
+            }
+        } else {
+            $readModel->setTransactionsAmount($readModel->getTransactionsAmount() + $transaction->getGrossValue());
+        }
+
+        if ($returnWithoutDeliveryAmount < 0) {
+            // if return transaction type: add a negative amount
+            $readModel->setTransactionsAmountWithoutDeliveryCosts($readModel->getTransactionsAmountWithoutDeliveryCosts() + $returnWithoutDeliveryAmount);
+        } else {
+            $readModel->setTransactionsAmountWithoutDeliveryCosts($readModel->getTransactionsAmountWithoutDeliveryCosts() + $transaction->getGrossValueWithoutDeliveryCosts());
+        }
+
         $readModel->addTransactionId(new TransactionId($event->getTransactionId()->__toString()));
         $readModel->setAverageTransactionAmount($readModel->getTransactionsCount() == 0 ? 0 : $readModel->getTransactionsAmount() / $readModel->getTransactionsCount());
         $readModel->setAmountExcludedForLevel($readModel->getAmountExcludedForLevel() + $transaction->getAmountExcludedForLevel());

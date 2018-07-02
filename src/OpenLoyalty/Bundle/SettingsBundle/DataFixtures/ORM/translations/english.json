@@ -655,6 +655,9 @@
     "email": "E-mail",
     "customer_loyalty_card_number": "Loyalty card number",
     "pos_identifier": "POS",
+    "details": "Details",
+    "revised_transaction": "Revised transaction",
+    "revised_transaction_id": "Revised transaction id",
     "issuer": {
       "title": "Issuer",
       "system": "system",
@@ -720,6 +723,7 @@
     "heading": "Transactions",
     "transaction_id": "Transaction id",
     "points_earned": "Points earned",
+    "points_revoked": "Points revoked",
     "pos_name": "POS name",
     "sum": "SUM",
     "amount": "Amount",

@@ -22,6 +22,7 @@ use OpenLoyalty\Component\Transaction\Domain\SystemEvent\CustomerAssignedToTrans
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\CustomerFirstTransactionSystemEvent;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
 use OpenLoyalty\Component\Customer\Domain\CustomerId as ClientId;
+use OpenLoyalty\Component\Transaction\Domain\Transaction;
 
 /**
  * Class AssignCustomerToTransactionListener.
@@ -89,16 +90,15 @@ class AssignCustomerToTransactionListener implements EventListener
             $transaction = $this->transactionDetailsRepository->find($event->getTransactionId()->__toString());
             $this->eventDispatcher->dispatch(
                 TransactionSystemEvents::CUSTOMER_ASSIGNED_TO_TRANSACTION,
-                [
-                    new CustomerAssignedToTransactionSystemEvent(
-                        $event->getTransactionId(),
-                        new CustomerId($customerId),
-                        $transaction->getGrossValue(),
-                        $transaction->getGrossValueWithoutDeliveryCosts(),
-                        $transaction->getAmountExcludedForLevel(),
-                        $transactionsCount
-                    ),
-                ]
+                [new CustomerAssignedToTransactionSystemEvent(
+                    $event->getTransactionId(),
+                    new CustomerId($customerId),
+                    $transaction->getGrossValue(),
+                    $transaction->getGrossValueWithoutDeliveryCosts(),
+                    $transaction->getAmountExcludedForLevel(),
+                    $transactionsCount,
+                    $transaction->getDocumentType() == Transaction::TYPE_RETURN
+                )]
             );
 
             if ($transactionsCount == 0) {

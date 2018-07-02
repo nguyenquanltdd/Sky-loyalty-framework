@@ -26,7 +26,7 @@ class ApplyEarningRuleToTransactionListener extends BaseApplyEarningRuleListener
         $customerId = $event->getCustomerId();
         $transactionId = $event->getTransactionId();
         $accounts = $this->accountDetailsRepository->findBy(['customerId' => $customerId->__toString()]);
-        if (count($accounts) == 0) {
+        if (count($accounts) == 0 || $event->isReturn()) {
             return;
         }
 
