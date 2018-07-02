@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Bundle\CampaignBundle\DataFixtures\ORM;
 
 use Doctrine\Common\Persistence\ObjectManager;
+use Faker\Provider\Uuid;
 use OpenLoyalty\Bundle\CampaignBundle\Model\Campaign;
 use OpenLoyalty\Bundle\CampaignBundle\Model\CampaignActivity;
 use OpenLoyalty\Bundle\CampaignBundle\Model\CampaignVisibility;
@@ -60,13 +61,13 @@ class LoadCampaignData extends ContainerAwareFixture
 
         $campaign = new Campaign();
         $campaign->setActive(false);
-        $campaign->setCostInPoints(10);
+        $campaign->setCostInPoints(5);
         $campaign->setLimit(10);
         $campaign->setUnlimited(false);
         $campaign->setLimitPerUser(2);
-        $campaign->setLevels([new LevelId(LoadLevelData::LEVEL2_ID)]);
+        $campaign->setLevels([new LevelId(LoadLevelData::LEVEL2_ID), new LevelId(LoadLevelData::LEVEL_ID)]);
         $campaign->setSegments([new SegmentId(LoadSegmentData::SEGMENT2_ID)]);
-        $campaign->setCoupons([new Coupon('123')]);
+        $campaign->setCoupons([new Coupon('123'), new Coupon('1233'), new Coupon('1234')]);
         $campaign->setReward(Campaign::REWARD_TYPE_DISCOUNT_CODE);
         $campaign->setName('for test');
         $campaign->setLabels([new Label('type', 'test')]);
@@ -105,5 +106,41 @@ class LoadCampaignData extends ContainerAwareFixture
                         ->dispatch(
                             new CreateCampaign(new CampaignId(self::CAMPAIGN3_ID), $campaign->toArray())
                         );
+
+        $this->loadRandomActiveCampaigns();
+    }
+
+    /**
+     * add some extra random data.
+     */
+    protected function loadRandomActiveCampaigns()
+    {
+        $commandBus = $this->container->get('broadway.command_handling.command_bus');
+        for ($i = 0; $i < 10; ++$i) {
+            $randomId = Uuid::uuid();
+            $campaign = new Campaign();
+            $campaign->setActive($i % 2 == 0);
+            $campaign->setCostInPoints(1);
+            $campaign->setLimit(rand(10, 50));
+            $campaign->setUnlimited(false);
+            $campaign->setLimitPerUser(10);
+            $campaign->setLevels([new LevelId(LoadLevelData::LEVEL_ID), new LevelId(LoadLevelData::LEVEL2_ID)]);
+            $campaign->setCoupons([new Coupon(rand(100, 1000))]);
+            $campaign->setReward($i % 2 == 0 ? Campaign::REWARD_TYPE_DISCOUNT_CODE : Campaign::REWARD_TYPE_FREE_DELIVERY_CODE);
+            $campaign->setName(sprintf('%s', $i));
+            $campaignActivity = new CampaignActivity();
+            $campaignActivity->setAllTimeActive(false);
+            $campaignActivity->setActiveFrom(new \DateTime('now'));
+            $campaignActivity->setActiveTo(new \DateTime(sprintf('+%u days', rand(10, 30))));
+            $campaign->setCampaignActivity($campaignActivity);
+            $campaignVisibility = new CampaignVisibility();
+            $campaignVisibility->setAllTimeVisible(true);
+            $campaign->setCampaignVisibility($campaignVisibility);
+
+            $commandBus
+                ->dispatch(
+                    new CreateCampaign(new CampaignId($randomId), $campaign->toArray())
+                );
+        }
     }
 }

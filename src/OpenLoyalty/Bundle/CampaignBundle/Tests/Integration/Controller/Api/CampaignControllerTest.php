@@ -276,6 +276,42 @@ class CampaignControllerTest extends BaseApiTest
 
     /**
      * @test
+     * @dataProvider sortParamsProvider
+     */
+    public function it_returns_campaigns_list_sorted($field, $direction, $oppositeDirection)
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            sprintf('/api/campaign?sort=%s&direction=%s', $field, $direction)
+        );
+        $sortedResponse = $client->getResponse();
+        $sortedData = json_decode($sortedResponse->getContent(), true);
+        $this->assertEquals(200, $sortedResponse->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('campaigns', $sortedData);
+        $firstElementSorted = reset($sortedData['campaigns']);
+        $sortedSize = count($sortedData['campaigns']);
+
+        if ($sortedData['total'] < 2) {
+            return;
+        }
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            sprintf('/api/campaign?sort=%s&direction=%s', $direction, $oppositeDirection)
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $firstElement = reset($data['campaigns']);
+        $size = count($data['campaigns']);
+
+        $this->assertNotEquals($firstElement['campaignId'], $firstElementSorted['campaignId']);
+        $this->assertEquals($size, $sortedSize);
+    }
+
+    /**
+     * @test
      */
     public function it_returns_bought_campaigns_list()
     {
@@ -405,6 +441,22 @@ class CampaignControllerTest extends BaseApiTest
             'Available points after campaign is bought should be '.(($accountBefore ? $accountBefore->getAvailableAmount() : 0) - 10)
             .', but it is '.($accountAfter ? $accountAfter->getAvailableAmount() : 0)
         );
+    }
+
+    /**
+     * @return array
+     */
+    public function sortParamsProvider()
+    {
+        return [
+            ['campaignId', 'asc', 'desc'],
+            ['name', 'asc', 'desc'],
+            ['description', 'asc', 'desc'],
+            ['reward', 'asc', 'desc'],
+            ['costInPoints', 'asc', 'desc'],
+            ['hasPhoto', 'asc', 'desc'],
+            ['usageLeft', 'asc', 'desc'],
+        ];
     }
 
     /**
