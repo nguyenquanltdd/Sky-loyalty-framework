@@ -16,6 +16,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\SettingsBundle\Service\TranslationsProvider;
 use OpenLoyalty\Bundle\SettingsBundle\Validator\Constraints\NotEmptyValue;
+use OpenLoyalty\Bundle\SettingsBundle\Validator\Constraints\ValidHexColor;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
@@ -243,6 +244,20 @@ class SettingsFormType extends AbstractType
                     ],
                 ])
                 ->addModelTransformer(new StringSettingDataTransformer('uriWebhooks', $this->settingsManager))
+        );
+        $builder->add(
+            $builder
+                ->create('accentColor', TextType::class, [
+                    'constraints' => [
+                        new ValidHexColor(),
+                    ],
+                ])
+                ->addModelTransformer(new StringSettingDataTransformer('accentColor', $this->settingsManager))
+        );
+        $builder->add(
+            $builder
+                ->create('cssTemplate', TextType::class)
+                ->addModelTransformer(new StringSettingDataTransformer('cssTemplate', $this->settingsManager))
         );
         $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
             $data = $event->getData();

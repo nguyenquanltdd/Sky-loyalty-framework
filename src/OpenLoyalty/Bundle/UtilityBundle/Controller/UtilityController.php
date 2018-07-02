@@ -114,7 +114,7 @@ class UtilityController extends FOSRestController
             }
         });
 
-        $response->setStatusCode(200);
+        $response->setStatusCode(Response::HTTP_OK);
         $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
         $date = new \DateTime('now');
         $filename = str_replace(' ', '-', $baseFilename).'-'.$date->format('Y-m-d-H-i-s');

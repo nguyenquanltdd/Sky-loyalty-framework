@@ -1126,3 +1126,35 @@ Exemplary Response
 	  "Bad credentials": "Bad credentials"
 	}
 
+Get custom css
+--------------
+
+These endpoints will allow you to provide customized CSS file which can be used in frontend application.
+
+
+Definition
+^^^^^^^^^^
+
+.. code-block:: text
+
+    GET /api/settings/css
+
+Example
+^^^^^^^
+
+.. code-block:: bash
+
+	curl http://localhost:8181/api/settings/css \
+	    -X "GET" \
+	    -H "Accept: text/css" \
+
+Exemplary Response
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    STATUS: 200 OK
+
+.. code-block:: css
+
+	.text { color: #123123; }

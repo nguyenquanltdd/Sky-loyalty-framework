@@ -1,0 +1,49 @@
+<?php
+/**
+ * Copyright © 2017 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
+namespace OpenLoyalty\Bundle\SettingsBundle\Tests\Unit\Provider;
+
+use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
+use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
+use OpenLoyalty\Bundle\SettingsBundle\Service\TemplateProvider;
+
+/**
+ * Class TemplateProviderTest.
+ */
+class TemplateProviderTest extends \PHPUnit_Framework_TestCase
+{
+    /**
+     * @test
+     */
+    public function checks_if_parsed_css_is_valid()
+    {
+        $settingsManager = $this->getMockBuilder(SettingsManager::class)->getMock();
+
+        $settingsManager->method('getSettingByKey')
+            ->willReturnOnConsecutiveCalls(
+                new StringSettingEntry('cssTemplate', '.test { color: {{ACCENT_COLOR}}; }'),
+                new StringSettingEntry('accentColor', '#abcabc')
+            );
+
+        $templateProvider = new TemplateProvider($settingsManager);
+
+        $this->assertSame('.test { color: #abcabc; }', $templateProvider->getCssContent());
+    }
+
+    /**
+     * @test
+     */
+    public function checks_if_parsed_css_is_valid_for_default_values()
+    {
+        $settingsManager = $this->getMockBuilder(SettingsManager::class)->getMock();
+
+        $settingsManager->method('getSettingByKey')
+            ->willReturn(null);
+
+        $templateProvider = new TemplateProvider($settingsManager);
+
+        $this->assertSame('', $templateProvider->getCssContent());
+    }
+}

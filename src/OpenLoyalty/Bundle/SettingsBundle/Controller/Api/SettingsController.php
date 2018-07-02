@@ -17,6 +17,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Form\Type\SettingsFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\TranslationsFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Service\LogoUploader;
+use OpenLoyalty\Bundle\SettingsBundle\Service\TemplateProvider;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
@@ -650,5 +651,28 @@ class SettingsController extends FOSRestController
         } else {
             throw $this->createNotFoundException();
         }
+    }
+
+    /**
+     * Method will return customized CSS.
+     *
+     * @Route(name="oloy.settings.css", path="/settings/css")
+     * @Method("GET")
+     * @ApiDoc(
+     *     section="Settings"
+     * )
+     *
+     * @param TemplateProvider $templateProvider
+     *
+     * @return Response
+     */
+    public function cssAction(TemplateProvider $templateProvider)
+    {
+        $response = new Response();
+        $response->setStatusCode(Response::HTTP_OK);
+        $response->headers->set('Content-Type', 'text/css; charset=utf-8');
+        $response->setContent($templateProvider->getCssContent());
+
+        return $response;
     }
 }
