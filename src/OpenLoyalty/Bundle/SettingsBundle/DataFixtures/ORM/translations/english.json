@@ -730,6 +730,11 @@
     }
   },
   "settings": {
+    "template": "Template",
+    "accent_color": "Accent color",
+    "accent_color_prompt": "Hex color (#000000)",
+    "css_template": "Css template",
+    "css_template_prompt": "",
     "logo": "Logo",
     "program_logo": "Program logo",
     "small_logo": "Small logo",

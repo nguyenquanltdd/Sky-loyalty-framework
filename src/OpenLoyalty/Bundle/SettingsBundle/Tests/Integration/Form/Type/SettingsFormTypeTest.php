@@ -38,6 +38,8 @@ class SettingsFormTypeTest extends TypeTestCase
         'tierAssignType' => 'points',
         'accountActivationMethod' => 'email',
         'uriWebhooks' => '',
+        'accentColor' => '#000abc',
+        'cssTemplate' => 'body { color: red; }',
     ];
 
     protected $booleanEntries = [

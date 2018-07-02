@@ -25,6 +25,25 @@ class SettingsControllerTest extends BaseApiTest
     /**
      * @test
      */
+    public function it_returns_css()
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/settings/css'
+        );
+        $response = $client->getResponse();
+        $statusCode = $response->getStatusCode();
+        $contentType = $response->headers->get('Content-Type');
+
+        $this->assertTrue(mb_strlen($response) > 10, 'Content body less than 10B');
+        $this->assertEquals(200, $statusCode);
+        $this->assertEquals('text/css; charset=utf-8', $contentType);
+    }
+
+    /**
+     * @test
+     */
     public function it_removes_a_logo()
     {
         $client = $this->createAuthenticatedClient();
@@ -131,6 +150,8 @@ class SettingsControllerTest extends BaseApiTest
             'excludeDeliveryCostsFromTierAssignment' => false,
             'excludedDeliverySKUs' => [],
             'excludedLevelSKUs' => [],
+            'accentColor' => '',
+            'cssTemplate' => '',
         ];
 
         $client->request(
@@ -306,6 +327,8 @@ class SettingsControllerTest extends BaseApiTest
         $this->assertArrayHasKey('tierAssignType', $settings);
         $this->assertArrayHasKey('defaultFrontendTranslations', $settings);
         $this->assertArrayHasKey('accountActivationMethod', $settings);
+        $this->assertArrayHasKey('accentColor', $settings);
+        $this->assertArrayHasKey('cssTemplate', $settings);
     }
 
     /**

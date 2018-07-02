@@ -127,6 +127,11 @@ security:
             stateless: true
             provider: customer_provider
             lexik_jwt: ~
+        settings_css:
+            pattern:  ^/api/settings/css
+            methods: ["GET"]
+            stateless: true
+            anonymous: true
         admin_api:
             pattern:   ^/api
             stateless: true
@@ -164,5 +169,6 @@ security:
         - { path: ^/api/settings/small-logo, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
         - { path: ^/api/settings/hero-image, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
         - { path: ^/api/settings/activation-method, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
+        - { path: ^/api/settings/css, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
         - { path: ^/api/translations, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
