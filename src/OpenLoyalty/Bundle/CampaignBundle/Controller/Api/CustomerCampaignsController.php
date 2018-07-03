@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Bundle\CampaignBundle\Controller\Api;
 
 use Broadway\CommandHandling\CommandBus;
+use Doctrine\ORM\Query\QueryException;
 use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -30,6 +31,7 @@ use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomers;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class CustomerCampaignsController.
@@ -73,15 +75,20 @@ class CustomerCampaignsController extends FOSRestController
         }, $customerSegments);
 
         $campaignRepository = $this->get('oloy.campaign.repository');
-        $campaigns = $campaignRepository
-            ->getVisibleCampaignsForLevelAndSegment(
-                $segments,
-                new LevelId($customer->getLevelId()->__toString()),
-                null,
-                null,
-                $pagination->getSort(),
-                $pagination->getSortDirection()
-            );
+
+        try {
+            $campaigns = $campaignRepository
+                ->getVisibleCampaignsForLevelAndSegment(
+                    $segments,
+                    new LevelId($customer->getLevelId()->__toString()),
+                    null,
+                    null,
+                    $pagination->getSort(),
+                    $pagination->getSortDirection()
+                );
+        } catch (QueryException $exception) {
+            return $this->view($exception->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
 
         $campaigns = array_filter($campaigns, function (Campaign $campaign) use ($customer) {
             $usageLeft = $this->get('oloy.campaign.campaign_provider')->getUsageLeft($campaign);

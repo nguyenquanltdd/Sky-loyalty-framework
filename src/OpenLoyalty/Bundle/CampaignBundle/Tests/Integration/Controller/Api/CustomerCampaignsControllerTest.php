@@ -111,6 +111,61 @@ class CustomerCampaignsControllerTest extends BaseApiTest
     }
 
     /**
+     * @test
+     * @dataProvider sortParamsProvider
+     */
+    public function it_returns_available_campaigns_list_sorted($field, $direction, $oppositeDirection)
+    {
+        $client = $this->createAuthenticatedClient(LoadUserData::TEST_USERNAME, LoadUserData::TEST_PASSWORD, 'customer');
+        $client->request(
+            'GET',
+            sprintf('/api/customer/campaign/available?sort=%s&direction=%s', $field, $direction)
+        );
+        $sortedResponse = $client->getResponse();
+        $sortedData = json_decode($sortedResponse->getContent(), true);
+        $this->assertEquals(200, $sortedResponse->getStatusCode(), 'Response should have status 200');
+
+        $this->assertArrayHasKey('campaigns', $sortedData);
+
+        if ($sortedData['total'] < 2) {
+            return;
+        }
+
+        $firstElementSorted = reset($sortedData['campaigns']);
+        $sortedSize = count($sortedData['campaigns']);
+
+        $client = $this->createAuthenticatedClient(LoadUserData::TEST_USERNAME, LoadUserData::TEST_PASSWORD, 'customer');
+        $client->request(
+            'GET',
+            sprintf('/api/customer/campaign/available?sort=%s&direction=%s', $direction, $oppositeDirection)
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $firstElement = reset($data['campaigns']);
+        $size = count($data['campaigns']);
+
+        $this->assertNotEquals($firstElement['campaignId'], $firstElementSorted['campaignId']);
+        $this->assertEquals($size, $sortedSize);
+    }
+
+    /**
+     * @return array
+     */
+    public function sortParamsProvider()
+    {
+        return [
+            ['campaignId', 'asc', 'desc'],
+            ['name', 'asc', 'desc'],
+            ['description', 'asc', 'desc'],
+            ['reward', 'asc', 'desc'],
+            ['active', 'asc', 'desc'],
+            ['costInPoints', 'asc', 'desc'],
+            ['hasPhoto', 'asc', 'desc'],
+            ['usageLeft', 'asc', 'desc'],
+        ];
+    }
+
+    /**
      * @param CustomerId $customerId
      *
      * @return AccountDetails|null

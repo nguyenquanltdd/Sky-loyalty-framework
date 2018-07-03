@@ -288,7 +288,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
 
         if ($sortField) {
             $qb->orderBy(
-                'e.'.$this->validateSort($sortField),
+                'c.'.$this->validateSort($sortField),
                 $this->validateSortBy($direction)
             );
         }
