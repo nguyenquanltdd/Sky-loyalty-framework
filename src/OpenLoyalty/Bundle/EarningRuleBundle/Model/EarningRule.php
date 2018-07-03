@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\EarningRuleBundle\Model;
 
+use OpenLoyalty\Component\Core\Domain\Model\LabelMultiplier;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRule as BaseEarningRule;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Core\Domain\Model\SKU;
@@ -50,6 +51,11 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
      * @var SKU[]
      */
     protected $excludedSKUs = [];
+
+    /**
+     * @var LabelMultiplier[]
+     */
+    protected $labelMultipliers = [];
 
     /**
      * @var Label[]
@@ -127,6 +133,17 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
             $this->labels
         );
 
+        $labelMultipliers = array_map(
+            function ($labelMultiplier) {
+                if (is_array($labelMultiplier)) {
+                    return $labelMultiplier;
+                } elseif ($labelMultiplier instanceof LabelMultiplier) {
+                    return $labelMultiplier->serialize();
+                }
+            },
+            $this->labelMultipliers
+        );
+
         $data = [
             'name' => $this->getName(),
             'description' => $this->getDescription(),
@@ -146,6 +163,7 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
             'skuIds' => $this->getSkuIds(),
             'multiplier' => $this->multiplier,
             'labels' => $labels,
+            'labelMultipliers' => $labelMultipliers,
             'rewardType' => $this->rewardType,
         ];
         if ($this->limit && $this->type == self::TYPE_CUSTOM_EVENT) {
@@ -356,6 +374,22 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
     public function setLabels(array $labels)
     {
         $this->labels = $labels;
+    }
+
+    /**
+     * @return LabelMultiplier[]
+     */
+    public function getLabelMultipliers(): array
+    {
+        return $this->labelMultipliers;
+    }
+
+    /**
+     * @param LabelMultiplier[] $labelMultipliers
+     */
+    public function setLabelMultipliers(array $labelMultipliers): void
+    {
+        $this->labelMultipliers = $labelMultipliers;
     }
 
     /**

@@ -174,6 +174,15 @@ class EditEarningRuleFormType extends BaseEarningRuleFormType
                     'constraints' => [new NotBlank()],
                 ])
                 ->add('labels', LabelsFormType::class);
+        } elseif ($type == EarningRule::TYPE_MULTIPLY_BY_PRODUCT_LABELS) {
+            $builder
+                ->add('labelMultipliers', CollectionType::class, [
+                    'allow_add' => true,
+                    'allow_delete' => true,
+                    'entry_type' => LabelMultipliersFormType::class,
+                    'error_bubbling' => false,
+                    'constraints' => [new Count(['min' => 1])],
+                ]);
         } else {
             throw new InvalidArgumentException('Wrong "type" provided');
         }

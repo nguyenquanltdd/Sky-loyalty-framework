@@ -404,7 +404,7 @@ Definition
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | earningRule[type]                              | request        |  The type of earning points. Possible types: Custom event rule, Customer   |
 |                                                |                |	 Referral, Event Rule, General spending rule, Multiple earned points,      |
-|                                                |                |  Product Purchase                                                          |
+|                                                |                |  Product Purchase, Multiple by product labels                              |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | earningRule[rewardType]                        | request        |  Who will be rewarded. Possible types:                                     |
 |                                                |                |  referred,referrer, both                                                   |
@@ -453,8 +453,12 @@ Definition
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | earningRule[multiplier]                        | request        |  Points gained for purchase product will be multiplied by this factor      |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| earningRule[labelMultipliers]                  | request        |  Points gained for purchase product by labels will be multiplied           |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | earningRule[skuIds][0]                         | request        |  Refers to products with the given SKU                                     |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
+
+
 
 Example
 ^^^^^^^
@@ -533,7 +537,7 @@ Definition
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | earningRule[type]                              | request        |  The type of earning points. Possible types: Custom event rule, Customer   |
 |                                                |                |	 Referral, Event Rule, General spending rule, Multiple earned points,      |
-|                                                |                |  Product Purchase                                                          |
+|                                                |                |  Product Purchase, Multiple by product labels                              |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | earningRule[rewardType]                        | request        |  Who will be rewarded. Possible types:                                     |
 |                                                |                |  referred,referrer, both                                                   |
@@ -581,6 +585,8 @@ Definition
 |                                                |                |  labels                                                                    |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | earningRule[multiplier]                        | request        |  Points gained for purchase product will be multiplied by this factor      |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| earningRule[labelMultipliers]                  | request        |  Points gained for purchase product by labels will be multiplied           |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | earningRule[skuIds][0]                         | request        |  Refers to products with the given SKU                                     |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+

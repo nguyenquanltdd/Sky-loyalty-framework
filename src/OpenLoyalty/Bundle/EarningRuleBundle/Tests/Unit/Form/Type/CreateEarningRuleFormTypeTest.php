@@ -75,6 +75,42 @@ class CreateEarningRuleFormTypeTest extends TypeTestCase
         }
     }
 
+    /**
+     * @test
+     */
+    public function it_has_valid_data_when_creating_new_event_earning_multiply_rule()
+    {
+        $formData = array_merge($this->getMainData(), [
+            'type' => EarningRule::TYPE_MULTIPLY_BY_PRODUCT_LABELS,
+            'labelMultipliers' => [
+                [
+                    'key' => 'test',
+                    'value' => 'example',
+                    'multiplier' => 1,
+                ],
+                [
+                    'key' => 'test2',
+                    'value' => 'example2',
+                    'multiplier' => 3,
+                ],
+            ],
+        ]);
+
+        $form = $this->factory->create(CreateEarningRuleFormType::class);
+
+        $form->submit($formData);
+
+        $this->assertTrue($form->isSynchronized());
+        $this->assertTrue($form->isValid());
+
+        $view = $form->createView();
+        $children = $view->children;
+
+        foreach (array_keys($formData) as $key) {
+            $this->assertArrayHasKey($key, $children);
+        }
+    }
+
     protected function getMainData()
     {
         return [

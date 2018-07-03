@@ -18,7 +18,7 @@ class PointsEarningRuleAlgorithm extends AbstractRuleAlgorithm
      */
     public function __construct()
     {
-        parent::__construct(1);
+        parent::__construct(self::HIGH_PRIORITY);
     }
 
     /**

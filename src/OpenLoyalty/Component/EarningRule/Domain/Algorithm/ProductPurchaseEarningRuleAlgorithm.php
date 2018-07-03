@@ -18,7 +18,7 @@ class ProductPurchaseEarningRuleAlgorithm extends AbstractRuleAlgorithm
      */
     public function __construct()
     {
-        parent::__construct(3);
+        parent::__construct(self::LOW_PRIORITY);
     }
 
     /**

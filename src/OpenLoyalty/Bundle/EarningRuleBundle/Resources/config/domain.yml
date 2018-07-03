@@ -29,6 +29,10 @@ services:
     class: OpenLoyalty\Component\EarningRule\Domain\Algorithm\MultiplyPointsForProductRuleAlgorithm
     tags:
       - { name: oloy.earning_rule.algorithm, alias: MultiplyPointsForProductEarningRule }
+  oloy.earning_rule.algorithm.multiply_points_by_product_labels:
+    class: OpenLoyalty\Component\EarningRule\Domain\Algorithm\MultiplyPointsByProductLabelsRuleAlgorithm
+    tags:
+      - { name: oloy.earning_rule.algorithm, alias: MultiplyPointsByProductLabelsEarningRule }
   oloy.earning_rule.applier:
     class: OpenLoyalty\Component\EarningRule\Domain\OloyEarningRuleEvaluator
     arguments:
