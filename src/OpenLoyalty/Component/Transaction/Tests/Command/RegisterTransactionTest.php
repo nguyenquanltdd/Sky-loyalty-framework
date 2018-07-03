@@ -2,6 +2,7 @@
 
 namespace OpenLoyalty\Component\Transaction\Tests\Command;
 
+use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Transaction\Domain\Command\RegisterTransaction;
 use OpenLoyalty\Component\Transaction\Domain\Event\TransactionWasRegistered;
 use OpenLoyalty\Component\Transaction\Domain\PosId;
@@ -75,6 +76,92 @@ class RegisterTransactionTest extends TransactionCommandHandlerTest
                     $transactionData,
                     $customerData,
                     $items
+                ),
+            ));
+    }
+
+    /**
+     * @test
+     */
+    public function it_registers_new_transaction_with_labels()
+    {
+        $transactionId = new TransactionId('00000000-0000-0000-0000-000000000000');
+        $transactionData = [
+            'documentNumber' => '123',
+            'purchasePlace' => 'wroclaw',
+            'purchaseDate' => '1471859115',
+            'documentType' => 'sell',
+        ];
+        $items = [
+            [
+                'sku' => ['code' => 'SKU1'],
+                'name' => 'item 1',
+                'quantity' => 1,
+                'grossValue' => 1,
+                'category' => 'aaa',
+                'maker' => 'sss',
+                'labels' => [
+                    [
+                        'key' => 'test',
+                        'value' => 'label',
+                    ],
+                ],
+            ],
+            [
+                'sku' => ['code' => 'SKU2'],
+                'name' => 'item 2',
+                'quantity' => 2,
+                'grossValue' => 2,
+                'category' => 'bbb',
+                'maker' => 'ccc',
+            ],
+        ];
+
+        $customerData = [
+            'name' => 'Jan Nowak',
+            'email' => 'ol@oy.com',
+            'nip' => 'aaa',
+            'phone' => '123',
+            'loyaltyCardNumber' => '222',
+            'address' => [
+                'street' => 'Bagno',
+                'address1' => '12',
+                'city' => 'Warszawa',
+                'country' => 'PL',
+                'province' => 'Mazowieckie',
+                'postal' => '00-800',
+            ],
+        ];
+
+        $this->scenario
+            ->withAggregateId($transactionId)
+            ->given([])
+            ->when(new RegisterTransaction(
+                $transactionId,
+                $transactionData,
+                $customerData,
+                $items,
+                null,
+                null,
+                null,
+                null,
+                null,
+                [['key' => 'test_label', 'value' => 'some value']]
+            ))
+            ->then(array(
+                new TransactionWasRegistered(
+                    $transactionId,
+                    $transactionData,
+                    $customerData,
+                    $items,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    [
+                        new Label('test_label', 'some value'),
+                    ]
                 ),
             ));
     }

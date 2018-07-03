@@ -69,6 +69,9 @@ class TransactionFormTest extends TypeTestCase
                 'purchaseDate' => '2015-01-01',
                 'purchasePlace' => 'wroclaw',
             ],
+            'labels' => [
+                ['key' => 'first label', 'value' => 'test'],
+            ],
             'items' => [
                 0 => [
                     'sku' => ['code' => '123'],

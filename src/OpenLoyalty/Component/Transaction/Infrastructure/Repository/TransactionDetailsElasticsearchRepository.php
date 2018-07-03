@@ -53,6 +53,15 @@ class TransactionDetailsElasticsearchRepository extends OloyElasticsearchReposit
             ],
         ],
         [
+            'transaction_label_value' => [
+                'path_match' => 'labels.*',
+                'mapping' => [
+                    'type' => 'string',
+                    'analyzer' => 'small_letters',
+                ],
+            ],
+        ],
+        [
             'document_number_raw' => [
                 'match' => 'documentNumberRaw',
                 'match_mapping_type' => 'string',
@@ -198,6 +207,36 @@ class TransactionDetailsElasticsearchRepository extends OloyElasticsearchReposit
         return $this->query($query);
     }
 
+    /**
+     * @param array  $params
+     * @param bool   $exact
+     * @param int    $page
+     * @param int    $perPage
+     * @param null   $sortField
+     * @param string $direction
+     *
+     * @return array
+     */
+    public function findByParametersPaginated(
+        array $params,
+        $exact = true,
+        $page = 1,
+        $perPage = 10,
+        $sortField = null,
+        $direction = 'DESC'
+    ) {
+        $params = $this->prepareLabels($params);
+
+        return parent::findByParametersPaginated($params, $exact, $page, $perPage, $sortField, $direction);
+    }
+
+    public function countTotal(array $params = [], $exact = true)
+    {
+        $params = $this->prepareLabels($params);
+
+        return parent::countTotal($params, $exact);
+    }
+
     public function getAvailableLabels()
     {
         $query = array(
@@ -250,5 +289,38 @@ class TransactionDetailsElasticsearchRepository extends OloyElasticsearchReposit
         }
 
         return $val;
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return array
+     */
+    private function prepareLabels(array $params): array
+    {
+        if (isset($params['labels'])) {
+            $labelsFilter = $params['labels'];
+            unset($params['labels']);
+
+            foreach ($labelsFilter as $label) {
+                $fields = [];
+                if (empty($label['key']) && empty($label['value'])) {
+                    continue;
+                }
+                if (!empty($label['key'])) {
+                    $fields['labels.key'] = $label['key'];
+                }
+                if (!empty($label['value'])) {
+                    $fields['labels.value'] = $label['value'];
+                }
+                $params[] = [
+                    'type' => 'multiple_all',
+                    'exact' => true,
+                    'fields' => $fields,
+                ];
+            }
+        }
+
+        return $params;
     }
 }

@@ -6,11 +6,14 @@ use Broadway\ReadModel\InMemory\InMemoryRepository;
 use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\Testing\ProjectorScenarioTestCase;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
+use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
 use OpenLoyalty\Component\Transaction\Domain\CustomerId;
 use OpenLoyalty\Component\Transaction\Domain\Event\CustomerWasAssignedToTransaction;
+use OpenLoyalty\Component\Transaction\Domain\Event\LabelsWereAppendedToTransaction;
+use OpenLoyalty\Component\Transaction\Domain\Event\LabelsWereUpdated;
 use OpenLoyalty\Component\Transaction\Domain\Event\TransactionWasRegistered;
 use OpenLoyalty\Component\Transaction\Domain\PosId;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
@@ -85,9 +88,25 @@ class TransactionDetailsProjectorTest extends ProjectorScenarioTestCase
             ])
         );
         $expectedReadModel->setPosId($posId);
+        $expectedReadModel->setLabels([
+            new Label('test_label', 'some value'),
+        ]);
 
         $this->scenario->given([])
-            ->when(new TransactionWasRegistered($transactionId, $transactionData, $customerData, $items, $posId))
+            ->when(new TransactionWasRegistered(
+                $transactionId,
+                $transactionData,
+                $customerData,
+                $items,
+                $posId,
+                null,
+                null,
+                null,
+                null,
+                [
+                    new Label('test_label', 'some value'),
+                ]
+            ))
             ->then([
                 $expectedReadModel,
             ]);
@@ -121,6 +140,85 @@ class TransactionDetailsProjectorTest extends ProjectorScenarioTestCase
                 new TransactionWasRegistered($transactionId, $this->getTransactionData(), $this->getCustomerData()),
             ])
             ->when(new CustomerWasAssignedToTransaction($transactionId, $customerId))
+            ->then(array(
+                $expectedReadModel,
+            ));
+    }
+
+    /**
+     * @test
+     */
+    public function it_updates_read_model_when_labels_are_appended_to_transaction()
+    {
+        $transactionId = new TransactionId('00000000-0000-0000-0000-000000000000');
+
+        $expectedReadModel = TransactionDetails::deserialize(
+            array_merge([
+                'transactionId' => $transactionId->__toString(),
+                'customerData' => $this->getCustomerData(),
+            ], $this->getTransactionData())
+        );
+        $expectedReadModel->setLabels([
+            new Label('test_label', 'some value'),
+            new Label('added label', 'test'),
+        ]);
+        $this->scenario
+            ->given([
+                new TransactionWasRegistered(
+                    $transactionId,
+                    $this->getTransactionData(),
+                    $this->getCustomerData(),
+                    [],
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    [
+                        new Label('test_label', 'some value'),
+                    ]
+                ),
+            ])
+            ->when(new LabelsWereAppendedToTransaction($transactionId, [['key' => 'added label', 'value' => 'test']]))
+            ->then(array(
+                $expectedReadModel,
+            ));
+    }
+
+    /**
+     * @test
+     */
+    public function it_updates_read_model_when_labels_are_updated()
+    {
+        $transactionId = new TransactionId('00000000-0000-0000-0000-000000000000');
+
+        $expectedReadModel = TransactionDetails::deserialize(
+            array_merge([
+                'transactionId' => $transactionId->__toString(),
+                'customerData' => $this->getCustomerData(),
+            ], $this->getTransactionData())
+        );
+        $expectedReadModel->setLabels([
+            new Label('edited label', 'test'),
+        ]);
+        $this->scenario
+            ->given([
+                new TransactionWasRegistered(
+                    $transactionId,
+                    $this->getTransactionData(),
+                    $this->getCustomerData(),
+                    [],
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    [
+                        new Label('test_label', 'some value'),
+                    ]
+                ),
+            ])
+            ->when(new LabelsWereUpdated($transactionId, [['key' => 'edited label', 'value' => 'test']]))
             ->then(array(
                 $expectedReadModel,
             ));

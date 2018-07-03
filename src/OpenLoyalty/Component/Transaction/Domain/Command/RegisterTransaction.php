@@ -52,6 +52,11 @@ class RegisterTransaction extends TransactionCommand
      */
     protected $excludedCategories;
 
+    /**
+     * @var array
+     */
+    protected $labels;
+
     private $requiredTransactionFields = [
         'documentNumber',
         'purchasePlace',
@@ -79,7 +84,8 @@ class RegisterTransaction extends TransactionCommand
         array $excludedDeliverySKUs = null,
         array $excludedLevelSKUs = null,
         array $excludedCategories = null,
-        $revisedDocument = null
+        $revisedDocument = null,
+        array $labels = []
     ) {
         parent::__construct($transactionId);
         foreach ($this->requiredTransactionFields as $field) {
@@ -99,6 +105,7 @@ class RegisterTransaction extends TransactionCommand
         $this->transactionData = $transactionData;
         $this->customerData = $customerData;
         $this->items = $items;
+        $this->labels = $labels;
         $this->posId = $posId;
         $this->excludedDeliverySKUs = $excludedDeliverySKUs;
         $this->excludedLevelSKUs = $excludedLevelSKUs;
@@ -167,5 +174,13 @@ class RegisterTransaction extends TransactionCommand
     public function getRevisedDocument()
     {
         return $this->revisedDocument;
+    }
+
+    /**
+     * @return array
+     */
+    public function getLabels()
+    {
+        return $this->labels;
     }
 }

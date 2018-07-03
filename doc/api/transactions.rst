@@ -244,6 +244,12 @@ Exemplary Response
 			  "country": "PL"
 			}
 		  },
+          "labels": [
+            {
+              "key": "scan_id",
+              "value": "123"
+            }
+          ],
 		  "items": [
 			{
 			  "sku": {
@@ -303,6 +309,12 @@ Exemplary Response
 			  "country": "PL"
 			}
 		  },
+          "labels": [
+            {
+              "key": "scan_id",
+              "value": "343"
+            }
+          ],
 		  "items": [
 			{
 			  "sku": {
@@ -412,6 +424,12 @@ Exemplary Response
 		  "country": "PL"
 		}
 	  },
+      "labels": [
+        {
+          "key": "scan_id",
+          "value": "123"
+        }
+      ],
 	  "items": [
 		{
 		  "sku": {
@@ -545,6 +563,12 @@ Exemplary Response
           "country": "PL"
         }
       },
+      "labels": [
+        {
+          "key": "scan_id",
+          "value": "123"
+        }
+      ],
       "items": [
         {
           "sku": {
@@ -603,6 +627,12 @@ Exemplary Response
           "country": "PL"
         }
       },
+      "labels": [
+        {
+          "key": "scan_id",
+          "value": "222"
+        }
+      ],
       "items": [
         {
           "sku": {
@@ -724,6 +754,12 @@ Exemplary Response
 			  "country": "PL"
 			}
 		  },
+          "labels": [
+            {
+              "key": "scan_id",
+              "value": "333"
+            }
+          ],
 		  "items": [
 			{
 			  "sku": {
@@ -824,6 +860,12 @@ Exemplary Response
 			  "country": "PL"
 			}
 		  },
+          "labels": [
+            {
+              "key": "scan_id",
+              "value": "123"
+            }
+          ],
 		  "items": [
 			{
 			  "sku": {
@@ -898,6 +940,11 @@ Definition
 | direction                           | query          | *(optional)* Direction of sorting [ASC, DESC],    |
 |                                     |                | by default = ASC                                  |
 +-------------------------------------+----------------+---------------------------------------------------+
+| labels                              | query          | *(optional)* Filter transactions by labels.       |
+|                                     |                | Format "labels[0][key]=label_key                  |
+|                                     |                | & labels[0][value]=first_value                    |
+|                                     |                | & labels[1][key]=another_key"                     |
++-------------------------------------+----------------+---------------------------------------------------+
 
 Example
 ^^^^^^^
@@ -950,6 +997,12 @@ Exemplary Response
 			  "country": "PL"
 			}
 		  },
+          "labels": [
+            {
+              "key": "scan_id",
+              "value": "123"
+            }
+          ],
 		  "items": [
 			{
 			  "sku": {
@@ -1009,6 +1062,12 @@ Exemplary Response
 			  "country": "PL"
 			}
 		  },
+          "labels": [
+            {
+              "key": "scan_id",
+              "value": "234"
+            }
+          ],
 		  "items": [
 			{
 			  "sku": {
@@ -1112,6 +1171,14 @@ Definition
 +----------------------------------------------+----------------+---------------------------------------------------+
 | transaction[customerData][address][country]  | query          | *(optional)* Country                              |
 +----------------------------------------------+----------------+---------------------------------------------------+
+| transaction[labels][0][key]                  | query          | *(optional)* First label key                      |
++----------------------------------------------+----------------+---------------------------------------------------+
+| transaction[labels][0][value]                | query          | *(optional)* First label value                    |
++----------------------------------------------+----------------+---------------------------------------------------+
+| transaction[labels][1][key]                  | query          | *(optional)* Second label key                     |
++----------------------------------------------+----------------+---------------------------------------------------+
+| transaction[labels][1][value]                | query          | *(optional)* Second label value                   |
++----------------------------------------------+----------------+---------------------------------------------------+
 
 Example
 ^^^^^^^
@@ -1163,9 +1230,130 @@ Exemplary Response
 	{
 	  "transactionId": "d5b1119a-698b-40b4-9ac4-8ef704fa4433"
 	}
+
+Update transaction labels
+-------------------------
+
+To update transaction labels you will need to log in as admin and call the ``/api/admin/transaction/labels`` endpoint with the ``POST`` method.
+
+Definition
+^^^^^^^^^^
+
+.. code-block:: text
+
+    POST  /api/admin/transaction/labels
+
++----------------------------------------------+----------------+---------------------------------------------------+
+| Parameter                                    | Parameter type | Description                                       |
++==============================================+================+===================================================+
+| Authorization                                | header         | Token received during authentication              |
++----------------------------------------------+----------------+---------------------------------------------------+
+| transaction_labels[transactionId]            | query          | Transaction ID                                    |
++----------------------------------------------+----------------+---------------------------------------------------+
+| transaction_labels[labels][0][key]           | query          | *(optional)* First label key                      |
++----------------------------------------------+----------------+---------------------------------------------------+
+| transaction_labels[labels][0][value]         | query          | *(optional)* First label value                    |
++----------------------------------------------+----------------+---------------------------------------------------+
+| transaction_labels[labels][1][key]           | query          | *(optional)* Second label key                     |
++----------------------------------------------+----------------+---------------------------------------------------+
+| transaction_labels[labels][1][value]         | query          | *(optional)* Second label value                   |
++----------------------------------------------+----------------+---------------------------------------------------+
+
+Example
+^^^^^^^
+
+.. code-block:: bash
+
+    curl http://localhost:8181/api/transaction \
+        -X "POST" \
+        -H "Accept: application/json" \
+        -H "Content-type: application/x-www-form-urlencoded" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
+		-d "transaction_labels[transactionId]=00000000-0000-1111-0000-000000000000" \
+		-d "transaction_labels[label][0][key]=some label" \
+		-d "transaction_labels[label][0][value]=some value"
+
+.. note::
+
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
+
+
+Exemplary Response
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    STATUS: 200 OK
+
+.. code-block:: json
+	{
+	  "transactionId": "d5b1119a-698b-40b4-9ac4-8ef704fa4433"
+	}
+
+Add new transaction labels as customer
+--------------------------------------
+
+To update transaction labels you will need to log in as customer and call the ``/api/customer/transaction/labels/append`` endpoint with the ``PUT`` method.
+Customer can only add new labels to transaction which is assigned to him.
+
+Definition
+^^^^^^^^^^
+
+.. code-block:: text
+
+    POST  /api/customer/transaction/labels/append
+
++----------------------------------------------+----------------+---------------------------------------------------+
+| Parameter                                    | Parameter type | Description                                       |
++==============================================+================+===================================================+
+| Authorization                                | header         | Token received during authentication              |
++----------------------------------------------+----------------+---------------------------------------------------+
+| append[transactionDocumentNumber]            | query          | Transaction ID                                    |
++----------------------------------------------+----------------+---------------------------------------------------+
+| append[labels][0][key]                       | query          | *(optional)* First label key                      |
++----------------------------------------------+----------------+---------------------------------------------------+
+| append[labels][0][value]                     | query          | *(optional)* First label value                    |
++----------------------------------------------+----------------+---------------------------------------------------+
+| append[labels][1][key]                       | query          | *(optional)* Second label key                     |
++----------------------------------------------+----------------+---------------------------------------------------+
+| append[labels][1][value]                     | query          | *(optional)* Second label value                   |
++----------------------------------------------+----------------+---------------------------------------------------+
+
+Example
+^^^^^^^
+
+.. code-block:: bash
+
+    curl http://localhost:8181/api/transaction \
+        -X "POST" \
+        -H "Accept: application/json" \
+        -H "Content-type: application/x-www-form-urlencoded" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
+		-d "append[transactionDocumentNumebr]=123" \
+		-d "append[label][0][key]=some label" \
+		-d "append[label][0][value]=some value"
+
+.. note::
+
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
+
+
+Exemplary Response
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    STATUS: 200 OK
+
+.. code-block:: json
+	{
+	  "transactionId": "d5b1119a-698b-40b4-9ac4-8ef704fa4433"
+	}
 	
-Get available labels
---------------------
+Get available item labels
+-------------------------
 
 To return available labels you will need to call the ``/api/transaction/item/labels`` endpoint with the ``GET`` method.
 
@@ -1373,6 +1561,12 @@ Exemplary Response
 		  "country": "PL"
 		}
 	  },
+      "labels": [
+        {
+          "key": "scan_id",
+          "value": "123"
+        }
+      ],
 	  "items": [
 		{
 		  "sku": {

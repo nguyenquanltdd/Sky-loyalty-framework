@@ -5,31 +5,35 @@
  */
 namespace OpenLoyalty\Bundle\TransactionBundle\Form\Type;
 
+use OpenLoyalty\Bundle\TransactionBundle\Model\AppendLabels;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * Class LabelFormType.
+ * Class AppendLabelsToTransactionFormType.
  */
-class LabelFormType extends AbstractType
+class AppendLabelsToTransactionFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('key', TextType::class, [
+        $builder->add('transactionDocumentNumber', TextType::class, [
             'required' => true,
-            'constraints' => $options['allow_empty'] ? [] : [new NotBlank()],
         ]);
-        $builder->add('value', TextType::class, [
-            'required' => true,
-            'constraints' => $options['allow_empty'] ? [] : [new NotBlank()],
+
+        $builder->add('labels', CollectionType::class, [
+            'allow_add' => true,
+            'allow_delete' => false,
+            'entry_type' => LabelFormType::class,
         ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(['allow_empty' => false]);
+        $resolver->setDefaults([
+            'data_class' => AppendLabels::class,
+        ]);
     }
 }

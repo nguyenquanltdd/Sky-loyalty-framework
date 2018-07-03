@@ -257,6 +257,9 @@
     "agreement1_prompt": "This agreement is required",
     "agreement2_prompt": "",
     "agreement3_prompt": "",
+    "import": "Import",
+    "import_xml_field": "XML file",
+    "import_title": "Import customers",
     "lc_number": "Loyalty card number",
     "company_data": "Company Data",
     "company_name": "Company name",
@@ -682,7 +685,16 @@
     "import_title": "Import points transfers",
     "import_xml_field": "XML file"
   },
+  "transaction_labels": {
+    "title": "Labels",
+    "value": "Value",
+    "value_prompt": "",
+    "key_prompt": "",
+    "key": "Key",
+    "add_label": "Add label"
+  },
   "transaction": {
+    "edit_labels": "Edit transaction labels",
     "customer_loyalty_card_number": "Loyalty card number",
     "customer_phone_number": "Phone number",
     "list": "Transactions list",
@@ -1309,6 +1321,10 @@
     },
     "post_transaction_assign": {
       "success": "Transaction has been assigned to Customer account.",
+      "error": "An error occurred while. Please check form form details."
+    },
+    "post_transaction_labels": {
+      "success": "Labels have been edited.",
       "error": "An error occurred while. Please check form form details."
     },
     "get_transfers": {

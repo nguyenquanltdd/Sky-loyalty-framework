@@ -61,6 +61,11 @@ class TransactionDetails implements SerializableReadModel
     protected $items;
 
     /**
+     * @var Label[]
+     */
+    protected $labels;
+
+    /**
      * @var PosId
      */
     protected $posId;
@@ -114,6 +119,13 @@ class TransactionDetails implements SerializableReadModel
             }
         }
 
+        $labels = [];
+        if (isset($data['labels'])) {
+            foreach ($data['labels'] as $label) {
+                $labels[] = Label::deserialize($label);
+            }
+        }
+
         if (is_numeric($data['purchaseDate'])) {
             $tmp = new \DateTime();
             $tmp->setTimestamp($data['purchaseDate']);
@@ -122,6 +134,7 @@ class TransactionDetails implements SerializableReadModel
         $customerData = $data['customerData'];
 
         $transaction = new self(new TransactionId($data['transactionId']));
+        $transaction->labels = $labels;
 
         $transaction->customerData = CustomerBasicData::deserialize($customerData);
         $transaction->items = $items;
@@ -159,6 +172,10 @@ class TransactionDetails implements SerializableReadModel
         foreach ($this->items as $item) {
             $items[] = $item->serialize();
         }
+        $labels = [];
+        foreach ($this->labels as $label) {
+            $labels[] = $label->serialize();
+        }
 
         return [
             'customerId' => $this->customerId ? $this->customerId->__toString() : null,
@@ -177,6 +194,7 @@ class TransactionDetails implements SerializableReadModel
                 $this->excludedLevelCategories
             ) : null,
             'revisedDocument' => $this->revisedDocument,
+            'labels' => $labels,
         ];
     }
 
@@ -523,5 +541,29 @@ class TransactionDetails implements SerializableReadModel
     public function setRevisedDocument($revisedDocument)
     {
         $this->revisedDocument = $revisedDocument;
+    }
+
+    /**
+     * @return Label[]
+     */
+    public function getLabels()
+    {
+        return $this->labels;
+    }
+
+    /**
+     * @param Label[] $labels
+     */
+    public function setLabels(array $labels)
+    {
+        $this->labels = $labels;
+    }
+
+    /**
+     * @param array $labels
+     */
+    public function appendLabels(array $labels)
+    {
+        $this->labels = array_merge($this->labels, $labels);
     }
 }

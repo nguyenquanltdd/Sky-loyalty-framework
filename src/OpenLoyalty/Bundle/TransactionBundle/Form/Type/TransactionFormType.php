@@ -62,6 +62,11 @@ class TransactionFormType extends AbstractType
             'required' => false,
             'choices' => array_combine($choices, $choices),
         ]);
+        $builder->add('labels', CollectionType::class, [
+            'allow_add' => true,
+            'allow_delete' => true,
+            'entry_type' => LabelFormType::class,
+        ]);
     }
 
     protected function buildTransactionDataForm(FormBuilderInterface $builder)

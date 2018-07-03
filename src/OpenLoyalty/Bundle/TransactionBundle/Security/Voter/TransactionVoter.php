@@ -22,8 +22,10 @@ class TransactionVoter extends Voter
     const LIST_CURRENT_POS_TRANSACTIONS = 'LIST_CURRENT_POS_TRANSACTIONS';
     const LIST_ITEM_LABELS = 'LIST_ITEM_LABELS';
     const VIEW = 'VIEW';
+    const EDIT_TRANSACTION_LABELS = 'EDIT_TRANSACTION_LABELS';
     const CREATE_TRANSACTION = 'CREATE_TRANSACTION';
     const ASSIGN_CUSTOMER_TO_TRANSACTION = 'ASSIGN_CUSTOMER_TO_TRANSACTION';
+    const APPEND_LABELS_TO_TRANSACTION = 'APPEND_LABELS_TO_TRANSACTION';
     const LIST_CUSTOMER_TRANSACTIONS = 'LIST_CUSTOMER_TRANSACTIONS';
 
     /**
@@ -44,10 +46,10 @@ class TransactionVoter extends Voter
     public function supports($attribute, $subject)
     {
         return $subject instanceof TransactionDetails && in_array($attribute, [
-            self::VIEW, self::ASSIGN_CUSTOMER_TO_TRANSACTION,
+            self::VIEW, self::ASSIGN_CUSTOMER_TO_TRANSACTION, self::APPEND_LABELS_TO_TRANSACTION,
         ]) || $subject == null && in_array($attribute, [
             self::LIST_TRANSACTIONS, self::LIST_CURRENT_CUSTOMER_TRANSACTIONS, self::LIST_CURRENT_POS_TRANSACTIONS,
-            self::LIST_ITEM_LABELS, self::CREATE_TRANSACTION,
+            self::LIST_ITEM_LABELS, self::CREATE_TRANSACTION, self::EDIT_TRANSACTION_LABELS,
         ]) || $subject instanceof CustomerDetails && in_array($attribute, [
             self::LIST_CUSTOMER_TRANSACTIONS,
         ]);
@@ -67,8 +69,12 @@ class TransactionVoter extends Voter
                 return $user->hasRole('ROLE_ADMIN');
             case self::CREATE_TRANSACTION:
                 return $user->hasRole('ROLE_ADMIN');
+            case self::EDIT_TRANSACTION_LABELS:
+                return $user->hasRole('ROLE_ADMIN');
             case self::ASSIGN_CUSTOMER_TO_TRANSACTION:
                 return $this->canAssign($user, $subject);
+            case self::APPEND_LABELS_TO_TRANSACTION:
+                return $this->canAppendLabels($user, $subject);
             case self::LIST_CURRENT_POS_TRANSACTIONS:
                 return $user->hasRole('ROLE_SELLER');
             case self::LIST_CURRENT_CUSTOMER_TRANSACTIONS:
@@ -112,6 +118,19 @@ class TransactionVoter extends Voter
         }
 
         if ($user->hasRole('ROLE_PARTICIPANT')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    protected function canAppendLabels(User $user, TransactionDetails $subject)
+    {
+        if (!$user->hasRole('ROLE_PARTICIPANT')) {
+            return false;
+        }
+
+        if ($subject->getCustomerId() && $subject->getCustomerId()->__toString() === $user->getId()) {
             return true;
         }
 

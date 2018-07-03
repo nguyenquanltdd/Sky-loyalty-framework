@@ -86,6 +86,20 @@ services:
       - '@broadway.event_dispatcher'
       - '@security.authorization_checker'
 
+  oloy.transaction.form_handler.append_labels_to_transaction:
+    class: OpenLoyalty\Bundle\TransactionBundle\Form\Handler\AppendLabelsToTransactionFormHandler
+    arguments:
+      - '@oloy.transaction.read_model.repository.transaction_details'
+      - '@broadway.command_handling.command_bus'
+      - '@security.authorization_checker'
+
+  oloy.transaction.form_handler.edit_transaction_labels:
+    class: OpenLoyalty\Bundle\TransactionBundle\Form\Handler\EditTransactionLabelsFormHandler
+    arguments:
+      - '@oloy.transaction.read_model.repository.transaction_details'
+      - '@broadway.command_handling.command_bus'
+      - '@security.authorization_checker'
+
   OpenLoyalty\Bundle\TransactionBundle\Import\TransactionNodeStreamer: ~
 
   OpenLoyalty\Bundle\TransactionBundle\Import\TransactionImportProcessor:

@@ -220,6 +220,12 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
                             'field' => $key,
                         ],
                     ];
+                } elseif ($value['type'] == 'exact') {
+                    $filter[] = [
+                        'term' => [
+                            $key => $value['value'],
+                        ],
+                    ];
                 } elseif ($value['type'] == 'allow_null') {
                     $filter[] = [
                         'bool' => [
@@ -236,6 +242,16 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
                             $bool['should'][] = ['wildcard' => [$k => '*'.$v.'*']];
                         } else {
                             $bool['should'][] = ['term' => [$k => '*'.$v.'*']];
+                        }
+                    }
+                    $filter[] = ['bool' => $bool];
+                } elseif ($value['type'] == 'multiple_all') {
+                    $bool = ['must' => []];
+                    foreach ($value['fields'] as $k => $v) {
+                        if (!isset($value['exact']) || !$value['exact']) {
+                            $bool['must'][] = ['wildcard' => [$k => '*'.$v.'*']];
+                        } else {
+                            $bool['must'][] = ['term' => [$k => $v]];
                         }
                     }
                     $filter[] = ['bool' => $bool];
@@ -367,6 +383,16 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
                         }
                     }
                     $filter[] = ['bool' => $bool];
+                } elseif ($value['type'] == 'multiple_all') {
+                    $bool = ['must' => []];
+                    foreach ($value['fields'] as $k => $v) {
+                        if (!isset($value['exact']) || !$value['exact']) {
+                            $bool['must'][] = ['wildcard' => [$k => '*'.$v.'*']];
+                        } else {
+                            $bool['must'][] = ['term' => [$k => $v]];
+                        }
+                    }
+                    $filter[] = ['bool' => $bool];
                 }
             } elseif (!$exact) {
                 $filter[] = [
@@ -438,6 +464,16 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
                             $bool['should'][] = ['wildcard' => [$k => '*'.$v.'*']];
                         } else {
                             $bool['should'][] = ['term' => [$k => '*'.$v.'*']];
+                        }
+                    }
+                    $filter[] = ['bool' => $bool];
+                } elseif ($value['type'] == 'multiple_all') {
+                    $bool = ['must' => []];
+                    foreach ($value['fields'] as $k => $v) {
+                        if (!isset($value['exact']) || !$value['exact']) {
+                            $bool['must'][] = ['wildcard' => [$k => '*'.$v.'*']];
+                        } else {
+                            $bool['must'][] = ['term' => [$k => $v]];
                         }
                     }
                     $filter[] = ['bool' => $bool];

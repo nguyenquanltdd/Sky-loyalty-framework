@@ -5,6 +5,7 @@ namespace OpenLoyalty\Bundle\TransactionBundle\Tests\Integration\Controller\Api;
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\JsonSettingEntry;
+use OpenLoyalty\Bundle\TransactionBundle\DataFixtures\ORM\LoadTransactionData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Bundle\UserBundle\Status\CustomerStatusProvider;
 use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
@@ -69,6 +70,56 @@ class TransactionControllerTest extends BaseApiTest
         $this->assertArrayHasKey('transactions', $data);
         $this->assertTrue(count($data['transactions']) > 0, 'Contains at least one element');
         $this->assertTrue($data['total'] > 0, 'Contains at least one element');
+    }
+
+    public function labelsForListProvider()
+    {
+        return [
+            [
+                [
+                    'labels' => [['key' => 'scan_id']],
+
+                ],
+                4,
+            ],
+            [
+                [
+                    'labels' => [['key' => 'scan_id', 'value' => 'abc123789def-abc123789def-abc123789def-abc123789def']],
+
+                ],
+                1,
+            ],
+            [
+                [
+                    'labels' => [['key' => 'scan_id'], ['value' => 'some value']],
+
+                ],
+                0,
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider labelsForListProvider
+     *
+     * @param array $labels
+     * @param $expectedCount
+     */
+    public function it_returns_transactions_list_filtered_by_labels(array $labels, $expectedCount)
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/transaction',
+            $labels
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('transactions', $data);
+        $this->assertTrue(count($data['transactions']) == $expectedCount, 'Contains '.$expectedCount.' element, instead of '.count($data['transactions']));
+        $this->assertTrue($data['total'] == count($data['transactions']), 'Total equals returned data');
     }
 
     /**
@@ -390,6 +441,141 @@ class TransactionControllerTest extends BaseApiTest
         $this->assertEquals(LoadUserData::TEST_USER_ID, $transaction->getCustomerId()->__toString());
     }
 
+    /**
+     * @test
+     */
+    public function it_register_new_transaction_with_labels()
+    {
+        $formData = [
+            'transactionData' => [
+                'documentNumber' => '123',
+                'documentType' => 'sell',
+                'purchaseDate' => '2015-01-01',
+                'purchasePlace' => 'wroclaw',
+            ],
+            'items' => [
+                0 => [
+                    'sku' => ['code' => '123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 1,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+                1 => [
+                    'sku' => ['code' => '1123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 11,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+            ],
+            'labels' => [
+                ['key' => 'test label', 'value' => 'some value'],
+            ],
+            'customerData' => [
+                'name' => 'Jan Nowak',
+                'email' => 'test@oloy.com',
+                'nip' => 'aaa',
+                'phone' => self::PHONE_NUMBER,
+                'loyaltyCardNumber' => 'not-present-in-system',
+                'address' => [
+                    'street' => 'Bagno',
+                    'address1' => '12',
+                    'city' => 'Warszawa',
+                    'country' => 'PL',
+                    'province' => 'Mazowieckie',
+                    'postal' => '00-800',
+                ],
+            ],
+        ];
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/transaction',
+            [
+                'transaction' => $formData,
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        static::$kernel->boot();
+        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        /** @var TransactionDetails $transaction */
+        $transaction = $repo->find($data['transactionId']);
+        $this->assertInstanceOf(TransactionDetails::class, $transaction);
+        $this->assertCount(1, $transaction->getLabels());
+        $this->assertEquals('test label', $transaction->getLabels()[0]->getKey());
+    }
+
+    /**
+     * @test
+     */
+    public function it_edits_labels()
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/admin/transaction/labels',
+            [
+                'transaction_labels' => [
+                    'transactionId' => LoadTransactionData::TRANSACTION7_ID,
+                    'labels' => [[
+                        'key' => 'new label added in api',
+                        'value' => 'test',
+                    ]],
+                ],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        static::$kernel->boot();
+        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        /** @var TransactionDetails $transaction */
+        $transaction = $repo->find($data['transactionId']);
+        $this->assertInstanceOf(TransactionDetails::class, $transaction);
+        $this->assertCount(1, $transaction->getLabels());
+        $this->assertEquals('new label added in api', $transaction->getLabels()[0]->getKey());
+    }
+
+    /**
+     * @test
+     */
+    public function it_append_labels_to_transaction()
+    {
+        $formData = [
+            'transactionDocumentNumber' => 'labels-test-transaction',
+            'labels' => [
+                ['key' => 'appended label', 'value' => 'test value'],
+            ],
+        ];
+
+        $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
+        $client->request(
+            'PUT',
+            '/api/customer/transaction/labels/append',
+            [
+                'append' => $formData,
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+        static::$kernel->boot();
+        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        /** @var TransactionDetails $transaction */
+        $transaction = $repo->find($data['transactionId']);
+        $this->assertInstanceOf(TransactionDetails::class, $transaction);
+        $this->assertCount(2, $transaction->getLabels());
+        $this->assertEquals('appended label', $transaction->getLabels()[1]->getKey());
+    }
 
     /**
      * @test

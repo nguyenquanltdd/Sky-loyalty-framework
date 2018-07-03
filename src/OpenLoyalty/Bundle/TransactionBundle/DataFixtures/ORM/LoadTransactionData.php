@@ -11,6 +11,7 @@ use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Factory;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
+use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Component\Transaction\Domain\Command\RegisterTransaction;
 use OpenLoyalty\Component\Transaction\Domain\PosId;
 use OpenLoyalty\Component\Transaction\Domain\TransactionId;
@@ -27,6 +28,7 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
     const TRANSACTION4_ID = '00000000-0000-1111-0000-000000000004';
     const TRANSACTION5_ID = '00000000-0000-1111-0000-000000000005';
     const TRANSACTION6_ID = '00000000-0000-1111-0000-000000000006';
+    const TRANSACTION7_ID = '00000000-0000-1111-0000-000000000007';
 
     public function load(ObjectManager $manager)
     {
@@ -92,7 +94,14 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
                 $transactionData,
                 $customerData,
                 $items,
-                new PosId(LoadPosData::POS_ID)
+                new PosId(LoadPosData::POS_ID),
+                null,
+                null,
+                null,
+                null,
+                [
+                    ['key' => 'scan_id', 'value' => 'abc123789def-abc123789def-abc123789def-abc123789def'],
+                ]
             )
         );
 
@@ -117,7 +126,15 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
                         'postal' => '00-800',
                     ],
                 ],
-                $items
+                $items,
+                null,
+                null,
+                null,
+                null,
+                null,
+                [
+                    ['key' => 'scan_id', 'value' => '456'],
+                ]
             )
         );
 
@@ -141,7 +158,15 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
                         'postal' => '00-800',
                     ],
                 ],
-                $items
+                $items,
+                null,
+                null,
+                null,
+                null,
+                null,
+                [
+                    ['key' => 'scan_id', 'value' => '789'],
+                ]
             )
         );
 
@@ -165,7 +190,15 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
                         'postal' => '00-800',
                     ],
                 ],
-                $items
+                $items,
+                null,
+                null,
+                null,
+                null,
+                null,
+                [
+                    ['key' => 'scan_id', 'value' => '111111'],
+                ]
             )
         );
 
@@ -214,6 +247,38 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
                     ],
                 ],
                 $items
+            )
+        );
+
+        $transactionData['documentNumber'] = 'labels-test-transaction';
+        $bus->dispatch(
+            new RegisterTransaction(
+                new TransactionId(self::TRANSACTION7_ID),
+                $transactionData,
+                [
+                    'name' => 'Jan Nowak',
+                    'email' => LoadUserData::USER_USERNAME,
+                    'nip' => 'aaa',
+                    'phone' => '123',
+                    'loyaltyCardNumber' => 'sa21as222',
+                    'address' => [
+                        'street' => 'Bagno',
+                        'address1' => '12',
+                        'city' => 'Warszawa',
+                        'country' => 'PL',
+                        'province' => 'Mazowieckie',
+                        'postal' => '00-800',
+                    ],
+                ],
+                [],
+                null,
+                null,
+                null,
+                null,
+                null,
+                [
+                    ['key' => 'existing label', 'value' => 'some value'],
+                ]
             )
         );
     }

@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Component\Transaction\Domain\Event;
 
+use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Transaction\Domain\Model\Item;
 use OpenLoyalty\Component\Transaction\Domain\PosId;
 use OpenLoyalty\Component\Transaction\Domain\TransactionId;
@@ -52,6 +53,11 @@ class TransactionWasRegistered extends TransactionEvent
     protected $revisedDocument;
 
     /**
+     * @var Label[]
+     */
+    protected $labels;
+
+    /**
      * TransactionEvent constructor.
      *
      * @param TransactionId $transactionId
@@ -63,6 +69,7 @@ class TransactionWasRegistered extends TransactionEvent
      * @param array         $excludedLevelSKUs
      * @param array         $excludedLevelCategories
      * @param null          $revisedDocument
+     * @param array         $labels
      */
     public function __construct(
         TransactionId $transactionId,
@@ -73,7 +80,8 @@ class TransactionWasRegistered extends TransactionEvent
         array $excludedDeliverySKUs = null,
         array $excludedLevelSKUs = null,
         array $excludedLevelCategories = null,
-        $revisedDocument = null
+        $revisedDocument = null,
+        array $labels = []
     ) {
         parent::__construct($transactionId);
         $itemsObjects = [];
@@ -84,6 +92,15 @@ class TransactionWasRegistered extends TransactionEvent
                 $itemsObjects[] = Item::deserialize($item);
             }
         }
+        $transactionLabels = [];
+        foreach ($labels as $label) {
+            if ($label instanceof Label) {
+                $transactionLabels[] = $label;
+            } else {
+                $transactionLabels[] = Label::deserialize($label);
+            }
+        }
+        $this->labels = $transactionLabels;
 
         if (is_numeric($transactionData['purchaseDate'])) {
             $tmp = new \DateTime();
@@ -166,6 +183,10 @@ class TransactionWasRegistered extends TransactionEvent
         foreach ($this->items as $item) {
             $items[] = $item->serialize();
         }
+        $labels = [];
+        foreach ($this->labels as $label) {
+            $labels[] = $label->serialize();
+        }
         $customerData = $this->customerData;
 
         $transactionData = $this->transactionData;
@@ -184,6 +205,7 @@ class TransactionWasRegistered extends TransactionEvent
             'excludedLevelSKUs' => $this->excludedLevelSKUs,
             'excludedLevelCategories' => $this->excludedLevelCategories,
             'revisedDocument' => $this->revisedDocument,
+            'labels' => $labels,
         ]);
     }
 
@@ -192,6 +214,10 @@ class TransactionWasRegistered extends TransactionEvent
         $items = [];
         foreach ($data['items'] as $item) {
             $items[] = Item::deserialize($item);
+        }
+        $labels = [];
+        foreach ($data['labels'] as $label) {
+            $labels[] = Label::deserialize($label);
         }
 
         $transactionData = $data['transactionData'];
@@ -211,7 +237,8 @@ class TransactionWasRegistered extends TransactionEvent
             isset($data['excludedDeliverySKUs']) ? $data['excludedDeliverySKUs'] : null,
             isset($data['excludedLevelSKUs']) ? $data['excludedLevelSKUs'] : null,
             isset($data['excludedLevelCategories']) ? $data['excludedLevelCategories'] : null,
-            isset($data['revisedDocument']) ? $data['revisedDocument'] : null
+            isset($data['revisedDocument']) ? $data['revisedDocument'] : null,
+            $labels
         );
     }
 
@@ -220,5 +247,13 @@ class TransactionWasRegistered extends TransactionEvent
     public function getRevisedDocument()
     {
         return $this->revisedDocument;
+    }
+
+    /**
+     * @return Label[]
+     */
+    public function getLabels()
+    {
+        return $this->labels;
     }
 }

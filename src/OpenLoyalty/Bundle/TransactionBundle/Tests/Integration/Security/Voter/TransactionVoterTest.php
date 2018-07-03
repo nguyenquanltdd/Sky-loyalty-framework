@@ -3,7 +3,6 @@
 namespace OpenLoyalty\Bundle\TransactionBundle\Tests\Integration\Security\Voter;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
-use OpenLoyalty\Bundle\TransactionBundle\DataFixtures\ORM\LoadTransactionData;
 use OpenLoyalty\Bundle\TransactionBundle\Security\Voter\TransactionVoter;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetailsRepository;
@@ -28,8 +27,10 @@ class TransactionVoterTest extends BaseVoterTest
             TransactionVoter::LIST_CURRENT_CUSTOMER_TRANSACTIONS => ['seller' => false, 'customer' => true, 'admin' => false],
             TransactionVoter::LIST_CURRENT_POS_TRANSACTIONS => ['seller' => true, 'customer' => false, 'admin' => false],
             TransactionVoter::VIEW => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::TRANSACTION_ID],
+            TransactionVoter::EDIT_TRANSACTION_LABELS => ['seller' => false, 'customer' => false, 'admin' => true],
             TransactionVoter::CREATE_TRANSACTION => ['seller' => false, 'customer' => false, 'admin' => true],
-            TransactionVoter::ASSIGN_CUSTOMER_TO_TRANSACTION => ['seller' => true, 'customer' => true, 'admin' => true, 'id' => LoadTransactionData::TRANSACTION_ID],
+            TransactionVoter::ASSIGN_CUSTOMER_TO_TRANSACTION => ['seller' => true, 'customer' => true, 'admin' => true, 'id' => self::TRANSACTION_ID],
+            TransactionVoter::APPEND_LABELS_TO_TRANSACTION => ['seller' => false, 'customer' => true, 'admin' => false, 'id' => self::TRANSACTION2_ID],
             TransactionVoter::LIST_ITEM_LABELS => ['seller' => true, 'customer' => true, 'admin' => true],
         ];
         $repo = $this->getMockBuilder(SellerDetailsRepository::class)->getMock();

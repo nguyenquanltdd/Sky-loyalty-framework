@@ -6,7 +6,10 @@
 namespace OpenLoyalty\Component\Transaction\Domain;
 
 use Broadway\EventSourcing\EventSourcedAggregateRoot;
+use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Transaction\Domain\Event\CustomerWasAssignedToTransaction;
+use OpenLoyalty\Component\Transaction\Domain\Event\LabelsWereAppendedToTransaction;
+use OpenLoyalty\Component\Transaction\Domain\Event\LabelsWereUpdated;
 use OpenLoyalty\Component\Transaction\Domain\Event\TransactionWasRegistered;
 
 /**
@@ -37,6 +40,11 @@ class Transaction extends EventSourcedAggregateRoot
     protected $revisedDocument;
 
     /**
+     * @var Label[]
+     */
+    protected $labels;
+
+    /**
      * @return string
      */
     public function getAggregateRootId(): string
@@ -53,7 +61,8 @@ class Transaction extends EventSourcedAggregateRoot
         array $excludedDeliverySKUs = null,
         array $excludedLevelSKUs = null,
         array $excludedLevelCategories = null,
-        $revisedCustomer = null
+        $revisedCustomer = null,
+        array $labels = []
     ) {
         $transaction = new self();
         $transaction->create(
@@ -65,7 +74,8 @@ class Transaction extends EventSourcedAggregateRoot
             $excludedDeliverySKUs,
             $excludedLevelSKUs,
             $excludedLevelCategories,
-            $revisedCustomer
+            $revisedCustomer,
+            $labels
         );
 
         return $transaction;
@@ -78,6 +88,20 @@ class Transaction extends EventSourcedAggregateRoot
         );
     }
 
+    public function appendLabels(array $labels = [])
+    {
+        $this->apply(
+            new LabelsWereAppendedToTransaction($this->transactionId, $labels)
+        );
+    }
+
+    public function setLabels(array $labels = [])
+    {
+        $this->apply(
+            new LabelsWereUpdated($this->transactionId, $labels)
+        );
+    }
+
     private function create(
         TransactionId $transactionId,
         array $transactionData,
@@ -87,7 +111,8 @@ class Transaction extends EventSourcedAggregateRoot
         array $excludedDeliverySKUs = null,
         array $excludedLevelSKUs = null,
         array $excludedLevelCategories = null,
-        $revisedDocument = null
+        $revisedDocument = null,
+        array $labels = []
     ) {
         $this->apply(
             new TransactionWasRegistered(
@@ -99,7 +124,8 @@ class Transaction extends EventSourcedAggregateRoot
                 $excludedDeliverySKUs,
                 $excludedLevelSKUs,
                 $excludedLevelCategories,
-                $revisedDocument
+                $revisedDocument,
+                $labels
             )
         );
     }
@@ -108,10 +134,21 @@ class Transaction extends EventSourcedAggregateRoot
     {
         $this->transactionId = $event->getTransactionId();
         $this->posId = $event->getPosId();
+        $this->labels = $event->getLabels();
     }
 
     protected function applyCustomerWasAssignedToTransaction(CustomerWasAssignedToTransaction $event)
     {
         $this->customerId = $event->getCustomerId();
+    }
+
+    protected function applyLabelsWereAppendedToTransaction(LabelsWereAppendedToTransaction $event)
+    {
+        $this->labels = array_merge($this->labels, $event->getLabels());
+    }
+
+    protected function applyLabelsWereUpdated(LabelsWereUpdated $event)
+    {
+        $this->labels = $event->getLabels();
     }
 }

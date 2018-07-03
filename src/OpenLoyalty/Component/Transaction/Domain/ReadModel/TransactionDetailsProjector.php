@@ -13,6 +13,8 @@ use OpenLoyalty\Component\Pos\Domain\Pos;
 use OpenLoyalty\Component\Pos\Domain\PosId;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
 use OpenLoyalty\Component\Transaction\Domain\Event\CustomerWasAssignedToTransaction;
+use OpenLoyalty\Component\Transaction\Domain\Event\LabelsWereAppendedToTransaction;
+use OpenLoyalty\Component\Transaction\Domain\Event\LabelsWereUpdated;
 use OpenLoyalty\Component\Transaction\Domain\Event\TransactionWasRegistered;
 use OpenLoyalty\Component\Transaction\Domain\Model\CustomerBasicData;
 use OpenLoyalty\Component\Transaction\Domain\TransactionId;
@@ -69,6 +71,7 @@ class TransactionDetailsProjector extends Projector
         $readModel->setExcludedLevelSKUs($event->getExcludedLevelSKUs());
         $readModel->setExcludedLevelCategories($event->getExcludedLevelCategories());
         $readModel->setRevisedDocument($event->getRevisedDocument());
+        $readModel->setLabels($event->getLabels());
 
         if ($readModel->getPosId()) {
             /** @var Pos $pos */
@@ -92,6 +95,20 @@ class TransactionDetailsProjector extends Projector
             $customerData = $readModel->getCustomerData();
             $customerData->updateEmailAndPhone($customer->getEmail(), $customer->getPhone());
         }
+        $this->repository->save($readModel);
+    }
+
+    public function applyLabelsWereAppendedToTransaction(LabelsWereAppendedToTransaction $event)
+    {
+        $readModel = $this->getReadModel($event->getTransactionId());
+        $readModel->appendLabels($event->getLabels());
+        $this->repository->save($readModel);
+    }
+
+    public function applyLabelsWereUpdated(LabelsWereUpdated $event)
+    {
+        $readModel = $this->getReadModel($event->getTransactionId());
+        $readModel->setLabels($event->getLabels());
         $this->repository->save($readModel);
     }
 

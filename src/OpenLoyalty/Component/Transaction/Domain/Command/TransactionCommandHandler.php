@@ -53,7 +53,8 @@ class TransactionCommandHandler extends SimpleCommandHandler
             $command->getExcludedDeliverySKUs(),
             $command->getExcludedLevelSKUs(),
             $command->getExcludedCategories(),
-            $command->getRevisedDocument()
+            $command->getRevisedDocument(),
+            $command->getLabels()
         );
 
         $this->repository->save($transaction);
@@ -68,6 +69,28 @@ class TransactionCommandHandler extends SimpleCommandHandler
                 $command->getPosId()
             )]
         );
+    }
+
+    /**
+     * @param AppendLabelsToTransaction $command
+     */
+    public function handleAppendLabelsToTransaction(AppendLabelsToTransaction $command)
+    {
+        /** @var Transaction $transaction */
+        $transaction = $this->repository->load($command->getTransactionId()->__toString());
+        $transaction->appendLabels($command->getLabels());
+        $this->repository->save($transaction);
+    }
+
+    /**
+     * @param EditTransactionLabels $command
+     */
+    public function handleEditTransactionLabels(EditTransactionLabels $command)
+    {
+        /** @var Transaction $transaction */
+        $transaction = $this->repository->load($command->getTransactionId()->__toString());
+        $transaction->setLabels($command->getLabels());
+        $this->repository->save($transaction);
     }
 
     /**

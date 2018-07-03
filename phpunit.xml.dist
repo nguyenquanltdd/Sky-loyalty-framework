@@ -10,8 +10,9 @@
     <php>
         <ini name="error_reporting" value="-1" />
         <server name="KERNEL_DIR" value="app/" />
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak" />
-        <env name="SYMFONY_ENV" value="prod" />
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled" />
+        <env name="SYMFONY_ENV" value="test" />
+        <server name="APP_ENV" value="test" />
     </php>
 
     <testsuites>
@@ -23,6 +24,9 @@
         </testsuite>
         <testsuite name="Domain">
             <directory>src/OpenLoyalty/Component/*/Tests/Domain</directory>
+        </testsuite>
+        <testsuite name="Component">
+            <directory>src/OpenLoyalty/Component/*/Tests</directory>
         </testsuite>
         <testsuite name="Integration">
             <directory>src/OpenLoyalty/Bundle/*Bundle/Tests/Integration</directory>
