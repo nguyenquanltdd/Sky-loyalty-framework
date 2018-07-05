@@ -18,3 +18,7 @@ OpenLoyalty\Component\Level\Domain\Level:
       serialized_name: hasPhoto
       type: boolean
       groups: ['Default', 'customer']
+    getIdAsString:
+      serialized_name: levelId
+      type: string
+      groups: ['customer']

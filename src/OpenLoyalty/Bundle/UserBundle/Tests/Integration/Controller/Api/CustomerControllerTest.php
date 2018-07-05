@@ -1097,6 +1097,10 @@ class CustomerControllerTest extends BaseApiTest
         $this->assertArrayHasKey('levels', $data);
         $first = reset($data['levels']);
 
+        $this->assertArrayHasKey('levelId', $first);
+        $this->assertInternalType('string', $first['levelId']);
+        $this->assertArrayHasKey('description', $first);
+        $this->assertInternalType('string', $first['description']);
         $this->assertArrayHasKey('name', $first);
         $this->assertInternalType('string', $first['name']);
         $this->assertArrayHasKey('hasPhoto', $first);

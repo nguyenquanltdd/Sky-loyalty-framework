@@ -95,6 +95,14 @@ class Level
     /**
      * @return string
      */
+    public function getIdAsString(): string
+    {
+        return $this->levelId->__toString();
+    }
+
+    /**
+     * @return string
+     */
     public function getName()
     {
         return $this->name;
