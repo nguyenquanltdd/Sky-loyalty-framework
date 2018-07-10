@@ -1038,7 +1038,16 @@
     "date_to": "Date to",
     "singleCoupon": "Single Coupon",
     "singleCoupon_prompt": "",
-    "reward_value_description": ""
+    "reward_value_description": "",
+    "date_to": "Date to",
+    "activity_statuses": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "all": "All"
+    },
+    "campaign_type": {
+      "all": "All"
+    }
   },
   "registration": {
     "basic_info": "Basic Information",

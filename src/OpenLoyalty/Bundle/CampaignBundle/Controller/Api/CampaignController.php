@@ -295,6 +295,9 @@ class CampaignController extends FOSRestController
      *      {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
      *      {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
      *      {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
+     *      {"name"="active", "dataType"="boolean", "required"=false, "description"="Filter by activity"},
+     *      {"name"="campaignType", "dataType"="string", "required"=false, "description"="Filter by campaign type"},
+     *      {"name"="name", "dataType"="string", "required"=false, "description"="Filter by campaign name"},
      *     }
      * )
      *
@@ -306,6 +309,9 @@ class CampaignController extends FOSRestController
      * @return \FOS\RestBundle\View\View
      *
      * @QueryParam(name="labels", nullable=true, description="filter by labels"))
+     * @QueryParam(name="active", nullable=true, description="filter by activity"))
+     * @QueryParam(name="campaignType", nullable=true, description="filter by campaign type"))
+     * @QueryParam(name="name", nullable=true, description="filter by campaign name"))
      */
     public function getListAction(Request $request, ParamFetcher $paramFetcher)
     {

@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
@@ -97,7 +98,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
         $sortField = null,
         $direction = 'ASC'
     ) {
-        $qb = $this->getCampaignsForLabelsQueryBuilder($params);
+        $qb = $this->getCampaignsByParamsQueryBuilder($params);
 
         if ($sortField) {
             $qb->orderBy(
@@ -122,7 +123,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      */
     public function countFindByParameters(array $params)
     {
-        $qb = $this->getCampaignsForLabelsQueryBuilder($params);
+        $qb = $this->getCampaignsByParamsQueryBuilder($params);
         $qb->select('count(c.campaignId)');
 
         return $qb->getQuery()->getSingleScalarResult();
@@ -306,7 +307,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      * @return \Doctrine\ORM\QueryBuilder
      * @throws \Doctrine\ORM\ORMException
      */
-    protected function getCampaignsForLabelsQueryBuilder(array $params)
+    protected function getCampaignsByParamsQueryBuilder(array $params): QueryBuilder
     {
         $this->getEntityManager()->getConfiguration()->addCustomStringFunction('cast', Cast::class);
         $qb = $this->createQueryBuilder('c');
@@ -328,6 +329,27 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
                     $qb->andWhere($qb->expr()->like('cast(c.labels as text)', ':label'));
                     $qb->setParameter('label', '%' . $searchLabel . '%');
                 }
+            }
+        }
+
+        if (array_key_exists('active', $params) && !is_null($params['active'])) {
+            if ($params['active']) {
+                $qb->andWhere('c.active = :true')->setParameter('true', true);
+            } else {
+                $qb->andWhere('c.active = :false')->setParameter('false', false);
+            }
+        }
+
+        if (array_key_exists('campaignType', $params) && !is_null($params['campaignType'])) {
+            if ($params['campaignType']) {
+                $qb->andWhere('c.reward = :campaignType')->setParameter('campaignType', $params['campaignType']);
+            }
+        }
+
+        if (array_key_exists('name', $params) && !is_null($params['name'])) {
+            if ($params['name']) {
+                $qb->andWhere($qb->expr()->like('c.name', ':name'))
+                    ->setParameter('name', '%' . urldecode($params['name']) . '%');
             }
         }
 

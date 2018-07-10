@@ -18,7 +18,7 @@ use Assert\Assertion as Assert;
 class Campaign
 {
     const REWARD_TYPE_DISCOUNT_CODE = 'discount_code';
-    const REWARD_TYPE_VALUE_CODE = 'value code';
+    const REWARD_TYPE_VALUE_CODE = 'value_code';
     const REWARD_TYPE_FREE_DELIVERY_CODE = 'free_delivery_code';
     const REWARD_TYPE_GIFT_CODE = 'gift_code';
     const REWARD_TYPE_EVENT_CODE = 'event_code';
