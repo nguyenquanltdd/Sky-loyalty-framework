@@ -21,6 +21,7 @@ use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignPhotoFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\EditCampaignFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Model\Campaign;
+use OpenLoyalty\Bundle\CoreBundle\Service\CSVGenerator;
 use OpenLoyalty\Component\Campaign\Domain\Campaign as DomainCampaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\Command\ChangeCampaignState;
@@ -41,9 +42,12 @@ use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomers;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 /**
  * Class CampaignController.
@@ -399,6 +403,61 @@ class CampaignController extends FOSRestController
                 'total' => $total,
             ]
         );
+    }
+
+    /**
+     * @param ParamFetcher $paramFetcher
+     *
+     * @Route(name="oloy.campaign.bought.csv", path="/campaign/bought/export/csv")
+     * @Security("is_granted('LIST_ALL_BOUGHT_CAMPAIGNS')")
+     * @Method("GET")
+     * @ApiDoc(
+     *     name="generate CSV of bought campaigns",
+     *     section="Campaign",
+     *     parameters={
+     *      {"name"="purchasedAtFrom", "dataType"="string", "required"=false, "description"="Purchased date from filter"},
+     *      {"name"="purchasedAtTo", "dataType"="string", "required"=false, "description"="Purchased date to filter"},
+     *     }
+     * )
+     * @QueryParam(name="purchasedAtFrom", nullable=true, description="Range date filter"))
+     * @QueryParam(name="purchasedAtTo", nullable=true, description="Range date filter"))
+     *
+     * @return Response|\FOS\RestBundle\View\View
+     */
+    public function exportBoughtAction(ParamFetcher $paramFetcher)
+    {
+        $params = $this->get('oloy.user.param_manager')->stripNulls($paramFetcher->all());
+        $generator = $this->get(CSVGenerator::class);
+        $repo = $this->get('oloy.campaign.read_model.repository.campaign_bought');
+        $headers = $this->getParameter('oloy.campaign.bought.export.headers');
+        $fields = $this->getParameter('oloy.campaign.bought.export.fields');
+        $filenamePrefix = $this->getParameter('oloy.campaign.bought.export.filename_prefix');
+
+        try {
+            // extract ES-like params for date range filter
+            $this->get('oloy.user.param_manager')
+                ->appendDateRangeFilter(
+                    $params,
+                    'purchasedAt',
+                    $params['purchasedAtFrom'] ?? null,
+                    $params['purchasedAtTo'] ?? null
+                );
+
+            unset($params['purchasedAtFrom']);
+            unset($params['purchasedAtTo']);
+            $content = $generator->generate($repo->findByParameters($params), $headers, $fields);
+            $handle = tmpfile();
+            fwrite($handle, $content);
+            $file = new File(stream_get_meta_data($handle)['uri'], false);
+            $file = $file->move($this->container->getParameter('kernel.project_dir').'/app/uploads');
+            $response = new BinaryFileResponse($file);
+            $response->deleteFileAfterSend(true);
+            $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT);
+
+            return $response;
+        } catch (\Exception $exception) {
+            return $this->view($exception->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
     }
 
     /**

@@ -1,6 +1,19 @@
 parameters:
 
 services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  OpenLoyalty\Bundle\CoreBundle\Service\CSVGenerator:
+    public: true
+    tags: ['controller.service_arguments']
+
+  OpenLoyalty\Bundle\CoreBundle\CSVGenerator\Mapper:
+    class: OpenLoyalty\Bundle\CoreBundle\CSVGenerator\Mapper
+    factory: [OpenLoyalty\Bundle\CoreBundle\CSVGenerator\Mapper, create]
+    arguments: ['%oloy.campaign.bought.export.mappings%']
+
   broadway.elasticsearch.client:
     class: Elasticsearch\Client
     factory: ['@broadway.elasticsearch.client_factory', create]

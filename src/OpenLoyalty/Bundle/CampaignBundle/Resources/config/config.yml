@@ -19,3 +19,13 @@ open_loyalty_campaign:
   photos_adapter_env: "%campaign_photos_adapter_env%"
   photos_min_width: 600
   photos_min_height: 600
+  campaign_bought:
+    export:
+      filename_prefix: 'redeemed_rewards_report'
+      default_headers: ['Name', 'Date', 'Cost', 'Tax value', 'email', 'phone', 'Firstname', 'Surname','Points balance', 'Is used']
+      default_fields: ['campaignName', 'purchasedAt', 'costInPoints', 'taxValue', 'customerEmail', 'phone', 'customerName', 'customerLastname','currentPointsAmount', 'used']
+      mappings:
+        purchasedAt:
+          conversion: timeToString
+        used:
+          conversion: boolToString

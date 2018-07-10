@@ -460,6 +460,23 @@ class CampaignControllerTest extends BaseApiTest
     }
 
     /**
+     * @test
+     */
+    public function it_returns_csv_response_when_exports_bought_data()
+    {
+        $filenamePrefix = static::$kernel->getContainer()->getParameter('oloy.campaign.bought.export.filename_prefix');
+        $expectedHeaderData = sprintf('attachment; filename="%s', $filenamePrefix);
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/campaign/bought/export/csv'
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertEquals(0, strpos($expectedHeaderData, $response->headers->get('content-disposition')));
+    }
+
+    /**
      * @param CustomerId $customerId
      *
      * @return AccountDetails|null

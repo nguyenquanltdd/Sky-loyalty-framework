@@ -331,7 +331,11 @@
       "used_confirmation": "Confirm reward usage",
       "used_confirmation_description": "Please confirm reward usage",
       "singleCoupon_prompt": "To redeem customers will be able to use the same coupon",
-      "singleCoupon": "Single coupon"
+      "singleCoupon": "Single coupon",
+      "export_csv": "Export CSV",
+      "export_title": "Export CSV report",
+      "date_from": "Date from",
+      "date_to": "Date to"
     },
     "tabs": {
       "transactions": "Transactions",

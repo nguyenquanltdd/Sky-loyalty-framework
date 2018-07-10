@@ -37,7 +37,10 @@ class OpenLoyaltyCampaignExtension extends Extension
         $container->setParameter('oloy.campaign.photos_adapter', $value);
         $container->setParameter('oloy.campaign.photos_min_width', $config['photos_min_width']);
         $container->setParameter('oloy.campaign.photos_min_height', $config['photos_min_height']);
-
+        $container->setParameter('oloy.campaign.bought.export.filename_prefix', $config['campaign_bought']['export']['filename_prefix']);
+        $container->setParameter('oloy.campaign.bought.export.headers', $config['campaign_bought']['export']['default_headers']);
+        $container->setParameter('oloy.campaign.bought.export.fields', $config['campaign_bought']['export']['default_fields']);
+        $container->setParameter('oloy.campaign.bought.export.mappings', $config['campaign_bought']['export']['mappings']);
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
         $loader->load('domain.yml');
