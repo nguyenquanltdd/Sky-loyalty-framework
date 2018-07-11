@@ -16,7 +16,7 @@ class StringSettingEntry extends SettingsEntry
 {
     /**
      * @var string
-     * @ORM\Column(type="string", name="string_value", length=2048)
+     * @ORM\Column(type="string", name="string_value", length=10240)
      */
     protected $stringValue;
 
