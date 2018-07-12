@@ -116,6 +116,7 @@ nelmio_cors:
           allow_headers: ['*']
           allow_methods: ['POST', 'PUT', 'GET', 'DELETE']
           max_age: 3600
+          forced_allow_origin_value: '*'
 
 gesdinet_jwt_refresh_token:
     ttl_update: true
