@@ -24,6 +24,7 @@ class OpenLoyaltyUserExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
 
         $container->setParameter('oloy.user.customerSearchMaxResults', $config['customer_search_max_results']);
+        $container->setParameter('master_api_key', null);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('domain.yml');

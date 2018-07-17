@@ -16,6 +16,7 @@ use OpenLoyalty\Bundle\ImportBundle\Service\ImportFileManager;
 use OpenLoyalty\Bundle\PointsBundle\Form\Type\AddPointsFormType;
 use OpenLoyalty\Bundle\PointsBundle\Form\Type\SpendPointsFormType;
 use OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferXmlImporter;
+use OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider;
 use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
 use OpenLoyalty\Component\Account\Domain\Command\CancelPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Command\SpendPoints;
@@ -121,6 +122,7 @@ class PointsTransferController extends FOSRestController
         $form = $this->get('form.factory')->createNamed('transfer', AddPointsFormType::class);
         $commandBus = $this->get('broadway.command_handling.command_bus');
         $uuidGenerator = $this->get('broadway.uuid.generator');
+        $currentUser = $this->getUser();
 
         $form->handleRequest($request);
 
@@ -146,7 +148,9 @@ class PointsTransferController extends FOSRestController
                     false,
                     null,
                     $data['comment'],
-                    PointsTransfer::ISSUER_ADMIN
+                    ($currentUser->getId() == MasterAdminProvider::INTERNAL_ID)
+                        ? PointsTransfer::ISSUER_API
+                        : PointsTransfer::ISSUER_ADMIN
                 )
             );
             $commandBus->dispatch($command);

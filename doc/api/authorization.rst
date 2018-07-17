@@ -95,10 +95,21 @@ Example
 Permanent token
 ---------------
 
-Permanent token is a constant string value assigned to the admin account in the Open Loyalty.
+Permanent token is a constant string value assigned to the admin account in the Open Loyalty or constant value which
+is not related to real user and is stored in configuration.
 
-Creating a permanent token
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Creating a permanent token in configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In order to activate configuration access token you need to add to parameters.yml value
+
+.. code-block:: text
+
+    parameters:
+        master_api_key: 371BBCF483524FD5A837B4095F7FBE96AFD46B678C0F025D5EED0316FD5D7762
+
+Creating a permanent user token
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Send request with the following parameters
 
@@ -184,8 +195,8 @@ Exemplary Fail Response
       "errors": []
     }
 
-Create a permanent token using the Admin Cockpit
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Create a permanent user token using the Admin Cockpit
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Create a new account in the administration panel.
 
