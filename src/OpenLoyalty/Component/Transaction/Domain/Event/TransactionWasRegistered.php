@@ -216,8 +216,10 @@ class TransactionWasRegistered extends TransactionEvent
             $items[] = Item::deserialize($item);
         }
         $labels = [];
-        foreach ($data['labels'] as $label) {
-            $labels[] = Label::deserialize($label);
+        if (array_key_exists('labels', $data)) {
+            foreach ($data['labels'] as $label) {
+                $labels[] = Label::deserialize($label);
+            }
         }
 
         $transactionData = $data['transactionData'];
