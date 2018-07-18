@@ -1,4 +1,6 @@
 services:
+  OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository: '@oloy.transaction.read_model.repository.transaction_details'
+
   oloy.transaction.command_handler:
     class: OpenLoyalty\Component\Transaction\Domain\Command\TransactionCommandHandler
     arguments:

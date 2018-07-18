@@ -5,7 +5,6 @@
  */
 namespace OpenLoyaltyPlugin\SalesManagoBundle\Event\Listener;
 
-use Doctrine\ORM\EntityRepository;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerAgreementsUpdatedSystemEvent;
 use OpenLoyaltyPlugin\SalesManagoBundle\Service\SalesManagoContactSegmentTagsSender;
 use OpenLoyaltyPlugin\SalesManagoBundle\Service\SalesManagoValidator;
@@ -15,19 +14,26 @@ use OpenLoyaltyPlugin\SalesManagoBundle\Service\SalesManagoValidator;
  */
 class CustomerAgreementUpdateListener
 {
+    /**
+     * @var SalesManagoContactSegmentTagsSender
+     */
     protected $sender;
-    protected $repository;
+
+    /**
+     * @var SalesManagoValidator
+     */
+    protected $validator;
 
     /**
      * CustomerCreateListener constructor.
      *
      * @param SalesManagoContactSegmentTagsSender $sender
-     * @param EntityRepository                    $repository
+     * @param SalesManagoValidator $validator
      */
-    public function __construct(SalesManagoContactSegmentTagsSender $sender, EntityRepository $repository)
+    public function __construct(SalesManagoContactSegmentTagsSender $sender, SalesManagoValidator $validator)
     {
         $this->sender = $sender;
-        $this->repository = $repository;
+        $this->validator = $validator;
     }
 
     /**
@@ -35,7 +41,7 @@ class CustomerAgreementUpdateListener
      */
     public function onCustomerAgreementUpdate(CustomerAgreementsUpdatedSystemEvent $event)
     {
-        if (SalesManagoValidator::verifySalesManagoEnabled($this->repository)) {
+        if ($this->validator->verifySalesManagoEnabled()) {
             $this->sender->customerAgreementChanged($event);
         }
     }

@@ -15,6 +15,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Entity\JsonSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Logo;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
+use OpenLoyalty\Bundle\SettingsBundle\Provider\AvailableMarketingVendors;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
@@ -133,6 +134,10 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
         $accountActivationMethod = new StringSettingEntry('accountActivationMethod');
         $accountActivationMethod->setValue(AccountActivationMethod::METHOD_EMAIL);
         $settings->addEntry($accountActivationMethod);
+
+        $marketingVendor = new StringSettingEntry('marketingVendorsValue');
+        $marketingVendor->setValue(AvailableMarketingVendors::NONE);
+        $settings->addEntry($marketingVendor);
 
         $this->getContainer()->get('ol.settings.manager')->save($settings);
     }

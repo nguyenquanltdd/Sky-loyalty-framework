@@ -5,7 +5,6 @@
  */
 namespace OpenLoyaltyPlugin\SalesManagoBundle\Event\Listener;
 
-use Doctrine\ORM\EntityRepository;
 use OpenLoyalty\Component\Segment\Domain\SystemEvent\CustomerAddedToSegmentSystemEvent;
 use OpenLoyalty\Component\Segment\Domain\SystemEvent\CustomerRemovedFromSegmentSystemEvent;
 use OpenLoyaltyPlugin\SalesManagoBundle\Service\SalesManagoContactSegmentTagsSender;
@@ -20,21 +19,22 @@ class CustomerSegmentListener
      * @var SalesManagoContactSegmentTagsSender
      */
     protected $sender;
+
     /**
-     * @var EntityRepository
+     * @var SalesManagoValidator
      */
-    protected $repository;
+    protected $validator;
 
     /**
      * CustomerSegmentListener constructor.
      *
      * @param SalesManagoContactSegmentTagsSender $sender
-     * @param EntityRepository                    $repository
+     * @param SalesManagoValidator                    $validator
      */
-    public function __construct(SalesManagoContactSegmentTagsSender $sender, EntityRepository $repository)
+    public function __construct(SalesManagoContactSegmentTagsSender $sender, SalesManagoValidator $validator)
     {
         $this->sender = $sender;
-        $this->repository = $repository;
+        $this->validator = $validator;
     }
 
     /**
@@ -42,7 +42,7 @@ class CustomerSegmentListener
      */
     public function onCustomerAddedToSegment(CustomerAddedToSegmentSystemEvent $event)
     {
-        if (SalesManagoValidator::verifySalesManagoEnabled($this->repository)) {
+        if ($this->validator->verifySalesManagoEnabled()) {
             $this->sender->customerSegmentAdd($event);
         }
     }
@@ -52,7 +52,7 @@ class CustomerSegmentListener
      */
     public function onCustomerRemovedFromSegment(CustomerRemovedFromSegmentSystemEvent $event)
     {
-        if (SalesManagoValidator::verifySalesManagoEnabled($this->repository)) {
+        if ($this->validator->verifySalesManagoEnabled()) {
             $this->sender->customerSegmentRemove($event);
         }
     }

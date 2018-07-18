@@ -1,9 +1,9 @@
-agreement1: Zgoda na program lojalnościowy
-agreement2: Zgoda na przetwarzanie danych
-levelId: Level klienta
-registration_date: Data rejestracji w programie lojalnościowym
+agreement1: Legal agreement
+agreement2: Marketing agreement
+levelId: Current customer's level
+registration_date: Registration date in loyalty's programme
 clv: CLV
-transactionsAmountToNextLevel: Ile $ brakuje do kolejnego levelu
+transactionsAmountToNextLevel: Transactions amount $ to next level
 avo: AVO
-levelDiscount: Zniżka wynikająca z levelu
-customer_orders: Liczba zamowien
+levelDiscount: Level's discount
+customer_orders: Orders number

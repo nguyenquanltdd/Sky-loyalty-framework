@@ -3,7 +3,7 @@
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Bundle\SettingsBundle\Tests\Unit\Provider;
+namespace OpenLoyalty\Bundle\SettingsBundle\Tests\Unit\Service;
 
 use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;

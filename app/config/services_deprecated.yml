@@ -1,0 +1,67 @@
+services:
+    _defaults:
+        public: true
+
+    ol.settings.form_type.settings:
+        alias: OpenLoyalty\Bundle\SettingsBundle\Form\Type\SettingsFormType
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    ol.settings.form_type.customers_indentification_priority:
+        alias: OpenLoyalty\Bundle\SettingsBundle\Form\Type\CustomersIdentificationPriority
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    ol.settings.manager:
+        alias: ol.doctrine_settings.manager
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    ol.doctrine_settings.manager:
+        alias: OpenLoyalty\Bundle\SettingsBundle\Service\DoctrineSettingsManager
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    ol.settings.translations.file_based:
+        alias: OpenLoyalty\Bundle\SettingsBundle\Service\FileBasedTranslationsProvider
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    ol.settings.translations:
+        alias: ol.settings.translations.file_based
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    ol.settings.validator.not_used_key:
+        alias: OpenLoyalty\Bundle\SettingsBundle\Validator\Constraints\NotUsedKeyValidator
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    ol.settings.validator.unique_key:
+        alias: OpenLoyalty\Bundle\SettingsBundle\Validator\Constraints\UniqueKeyValidator
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.settings.logo_uploader:
+        alias: OpenLoyalty\Bundle\SettingsBundle\Service\LogoUploader
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.activation_code_manager:
+        alias: OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActivationCodeManager
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.action_token_manager:
+        alias: OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActionTokenManager
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    open_loyalty.sms.dummy:
+        alias: OpenLoyalty\Bundle\ActivationCodeBundle\Service\DummySmsApi
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.activation_method.email:
+        alias: OpenLoyalty\Bundle\ActivationCodeBundle\Method\EmailActivationMethod
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.activation_method.sms:
+        alias: OpenLoyalty\Bundle\ActivationCodeBundle\Method\SmsActivationMethod
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.activation_code.alpha_num:
+        alias: OpenLoyalty\Bundle\ActivationCodeBundle\Generator\AlphaNumericCodeGenerator
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.activation_code.num:
+        alias: OpenLoyalty\Bundle\ActivationCodeBundle\Generator\NumericCodeGenerator
+        deprecated: The "%service_id%" service is deprecated since 2.8.0

@@ -5,14 +5,17 @@
  */
 namespace OpenLoyalty\Bundle\SettingsBundle\Form\Type;
 
+use OpenLoyalty\Bundle\ActivationCodeBundle\Provider\AvailableAccountActivationMethodsChoices;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Service\SmsSender;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
-use OpenLoyalty\Bundle\SettingsBundle\Form\DataTransformer\BooleanSettingDataTransformer;
-use OpenLoyalty\Bundle\SettingsBundle\Form\DataTransformer\ChoicesToJsonSettingDataTransformer;
-use OpenLoyalty\Bundle\SettingsBundle\Form\DataTransformer\IntegerSettingDataTransformer;
-use OpenLoyalty\Bundle\SettingsBundle\Form\DataTransformer\StringSettingDataTransformer;
+use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\ActivationMethodSubscriber;
+use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\AllTimeActiveSubscriber;
+use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\ExcludeDeliveryCostSubscriber;
+use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\MarketingVendorSubscriber;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
 use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
+use OpenLoyalty\Bundle\SettingsBundle\Provider\AvailableCustomerStatusesChoices;
+use OpenLoyalty\Bundle\SettingsBundle\Provider\AvailableMarketingVendors;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\SettingsBundle\Service\TranslationsProvider;
 use OpenLoyalty\Bundle\SettingsBundle\Validator\Constraints\NotEmptyValue;
@@ -21,16 +24,8 @@ use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\TimezoneType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormError;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -59,15 +54,41 @@ class SettingsFormType extends AbstractType
     protected $smsGateway = null;
 
     /**
+     * @var AvailableMarketingVendors
+     */
+    protected $marketingVendors;
+
+    /**
+     * @var AvailableCustomerStatusesChoices
+     */
+    protected $availableCustomerStatusesChoices;
+
+    /**
+     * @var AvailableAccountActivationMethodsChoices
+     */
+    protected $accountActivationMethodsChoices;
+
+    /**
      * SettingsFormType constructor.
      *
      * @param SettingsManager      $settingsManager
      * @param TranslationsProvider $translationsProvider
+     * @param AvailableMarketingVendors $marketingVendors
+     * @param AvailableCustomerStatusesChoices $availableCustomerStatusesChoices
+     * @param AvailableAccountActivationMethodsChoices $accountActivationMethodsChoices
      */
-    public function __construct(SettingsManager $settingsManager, TranslationsProvider $translationsProvider)
-    {
+    public function __construct(
+        SettingsManager $settingsManager,
+        TranslationsProvider $translationsProvider,
+        AvailableMarketingVendors $marketingVendors,
+        AvailableCustomerStatusesChoices $availableCustomerStatusesChoices,
+        AvailableAccountActivationMethodsChoices $accountActivationMethodsChoices
+    ) {
         $this->settingsManager = $settingsManager;
         $this->translationsProvider = $translationsProvider;
+        $this->marketingVendors = $marketingVendors;
+        $this->availableCustomerStatusesChoices = $availableCustomerStatusesChoices;
+        $this->accountActivationMethodsChoices = $accountActivationMethodsChoices;
     }
 
     /**
@@ -85,7 +106,7 @@ class SettingsFormType extends AbstractType
     {
         $builder->add(
             $builder
-                ->create('currency', ChoiceType::class, [
+                ->create('currency', SettingsChoicesType::class, [
                     'choices' => [
                         'PLN' => 'pln',
                         'USD' => 'usd',
@@ -93,12 +114,11 @@ class SettingsFormType extends AbstractType
                     ],
                     'constraints' => [new NotEmptyValue()],
                 ])
-                ->addModelTransformer(new StringSettingDataTransformer('currency', $this->settingsManager))
         );
         $translations = $this->translationsProvider->getAvailableTranslationsList();
         $builder->add(
             $builder
-                ->create('defaultFrontendTranslations', ChoiceType::class, [
+                ->create('defaultFrontendTranslations', SettingsChoicesType::class, [
                     'choices' => array_combine(
                         array_map(function (TranslationsEntry $entry) {
                             return $entry->getName();
@@ -109,257 +129,164 @@ class SettingsFormType extends AbstractType
                     ),
                     'constraints' => [new NotEmptyValue()],
                 ])
-                ->addModelTransformer(new StringSettingDataTransformer('defaultFrontendTranslations', $this->settingsManager))
         );
 
         $builder->add(
             $builder
-                ->create('customerStatusesEarning', ChoiceType::class, [
-                    'choices' => array_combine(Status::getAvailableStatuses(), Status::getAvailableStatuses()),
+                ->create('customerStatusesEarning', SettingsChoicesType::class, [
+                    'choices' => $this->availableCustomerStatusesChoices->getChoices()['choices'],
                     'multiple' => true,
                     'required' => true,
                     'constraints' => [new NotEmptyValue()],
+                    'transformTo' => 'json'
                 ])
-                ->addModelTransformer(new ChoicesToJsonSettingDataTransformer('customerStatusesEarning', $this->settingsManager))
         );
         $builder->add(
             $builder
-                ->create('accountActivationMethod', ChoiceType::class, [
-                    'choices' => array_combine(AccountActivationMethod::getAvailableMethods(), AccountActivationMethod::getAvailableMethods()),
+                ->create('accountActivationMethod', SettingsChoicesType::class, [
+                    'choices' => $this->accountActivationMethodsChoices->getChoices()['choices'],
                     'required' => true,
                     'constraints' => [new NotBlank()],
                 ])
-                ->addModelTransformer(new StringSettingDataTransformer('accountActivationMethod', $this->settingsManager))
         );
         $builder->add(
-            $builder
-                ->create('customerStatusesSpending', ChoiceType::class, [
-                    'choices' => array_combine(Status::getAvailableStatuses(), Status::getAvailableStatuses()),
-                    'multiple' => true,
+            $builder->create(
+                'marketingVendorsValue',
+                SettingsChoicesType::class,
+                [
+                    'choices' => array_keys($this->marketingVendors->getChoices()['choices']),
                     'required' => true,
-                    'constraints' => [new NotEmptyValue()],
-                ])
-                ->addModelTransformer(new ChoicesToJsonSettingDataTransformer('customerStatusesSpending', $this->settingsManager))
-        );
-        $builder->add(
-            $builder
-                ->create('timezone', TimezoneType::class, [
-                    'preferred_choices' => ['Europe/Warsaw'],
-                    'constraints' => [new NotEmptyValue()],
-                ])
-                ->addModelTransformer(new StringSettingDataTransformer('timezone', $this->settingsManager))
-        );
-        $builder->add(
-            $builder
-                ->create('programName', TextType::class, [
-                    'constraints' => [new NotEmptyValue()],
-                ])
-                ->addModelTransformer(new StringSettingDataTransformer('programName', $this->settingsManager))
-        );
-        $builder->add(
-            $builder
-                ->create('programConditionsUrl', TextType::class, [
-                    'required' => false,
-                ])
-                ->addModelTransformer(new StringSettingDataTransformer('programConditionsUrl', $this->settingsManager))
-        );
-        $builder->add(
-            $builder
-                ->create('programConditionsUrl', TextType::class, [
-                    'required' => false,
-                ])
-                ->addModelTransformer(new StringSettingDataTransformer('programConditionsUrl', $this->settingsManager))
-        );
-        $builder->add(
-            $builder
-                ->create('programFaqUrl', TextType::class, [
-                    'required' => false,
-                ])
-                ->addModelTransformer(new StringSettingDataTransformer('programFaqUrl', $this->settingsManager))
-        );
-        $builder->add(
-            $builder
-                ->create('programUrl', TextType::class, [
-                    'required' => false,
-                ])
-                ->addModelTransformer(new StringSettingDataTransformer('programUrl', $this->settingsManager))
-        );
-        $builder->add(
-            $builder
-                ->create('programPointsSingular', TextType::class, [
-                    'constraints' => [new NotEmptyValue()],
-                ])
-                ->addModelTransformer(new StringSettingDataTransformer('programPointsSingular', $this->settingsManager))
-        );
-        $builder->add(
-            $builder
-                ->create('programPointsPlural', TextType::class, [
-                    'constraints' => [new NotEmptyValue()],
-                ])
-                ->addModelTransformer(new StringSettingDataTransformer('programPointsPlural', $this->settingsManager))
-        );
-        $builder->add(
-            $builder
-                ->create('helpEmailAddress', TextType::class, [
-                    'required' => false,
-                ])
-                ->addModelTransformer(new StringSettingDataTransformer('helpEmailAddress', $this->settingsManager))
-        );
-        $builder->add(
-            $builder
-                ->create('returns', CheckboxType::class, [
-                    'required' => false,
-                ])
-                ->addModelTransformer(new BooleanSettingDataTransformer('returns', $this->settingsManager))
+                    'constraints' => [new NotBlank()],
+                ]
+            )
         );
 
         $builder->add(
             $builder
-                ->create('pointsDaysActive', IntegerType::class, [
+                ->create('customerStatusesSpending', SettingsChoicesType::class, [
+                    'choices' => $this->availableCustomerStatusesChoices->getChoices()['choices'],
+                    'multiple' => true,
+                    'required' => true,
+                    'constraints' => [new NotEmptyValue()],
+                    'transformTo' => 'json',
+                ])
+        );
+        $builder->add(
+            $builder
+                ->create('timezone', SettingsTimezoneType::class, [
+                    'preferred_choices' => ['Europe/Warsaw'],
+                    'constraints' => [new NotEmptyValue()],
+                ])
+        );
+        $builder->add(
+            $builder->create('programName', SettingsTextType::class, ['constraints' => [new NotEmptyValue()]])
+        );
+        $builder->add($builder->create('programConditionsUrl', SettingsTextType::class, ['required' => false]));
+        $builder->add($builder->create('programConditionsUrl', SettingsTextType::class, ['required' => false]));
+        $builder->add($builder->create('programFaqUrl', SettingsTextType::class, ['required' => false,]));
+        $builder->add($builder->create('programUrl', SettingsTextType::class, ['required' => false]));
+        $builder->add(
+            $builder
+                ->create('programPointsSingular', SettingsTextType::class, [
+                    'constraints' => [new NotEmptyValue()],
+                ])
+        );
+        $builder->add(
+            $builder->create('programPointsPlural', SettingsTextType::class, ['constraints' => [new NotEmptyValue()]])
+        );
+        $builder->add($builder->create('helpEmailAddress', SettingsTextType::class, ['required' => false]));
+        $builder->add($builder->create('returns', SettingsCheckboxType::class, ['required' => false]));
+
+        $builder->add(
+            $builder
+                ->create('pointsDaysActive', SettingsIntegerType::class, [
                     'required' => false,
                     'empty_data' => '',
                 ])
-                ->addModelTransformer(new IntegerSettingDataTransformer('pointsDaysActive', $this->settingsManager))
         );
+        $builder->add($builder->create('allTimeActive', SettingsCheckboxType::class, ['required' => false]));
+        $builder->add($builder->create('webhooks', SettingsCheckboxType::class, ['required' => false]));
         $builder->add(
             $builder
-                ->create('allTimeActive', CheckboxType::class, [
-                    'required' => false,
-                ])
-                ->addModelTransformer(new BooleanSettingDataTransformer('allTimeActive', $this->settingsManager))
-        );
-        $builder->add(
-            $builder
-                ->create('webhooks', CheckboxType::class, [
-                    'required' => false,
-                ])
-                ->addModelTransformer(new BooleanSettingDataTransformer('webhooks', $this->settingsManager))
-        );
-        $builder->add(
-            $builder
-                ->create('uriWebhooks', TextType::class, [
+                ->create('uriWebhooks', SettingsTextType::class, [
                     'required' => false,
                     'constraints' => [
                         new Callback([$this, 'checkUrl']),
                     ],
                 ])
-                ->addModelTransformer(new StringSettingDataTransformer('uriWebhooks', $this->settingsManager))
         );
         $builder->add(
             $builder
-                ->create('accentColor', TextType::class, [
+                ->create('accentColor', SettingsTextType::class, [
                     'constraints' => [
                         new ValidHexColor(),
                     ],
                 ])
-                ->addModelTransformer(new StringSettingDataTransformer('accentColor', $this->settingsManager))
         );
+        $builder->add($builder->create('cssTemplate', SettingsTextType::class));
+
         $builder->add(
             $builder
-                ->create('cssTemplate', TextType::class)
-                ->addModelTransformer(new StringSettingDataTransformer('cssTemplate', $this->settingsManager))
-        );
-        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
-            $data = $event->getData();
-            if (!$data instanceof Settings) {
-                return;
-            }
-            $allTime = $data->getEntry('allTimeActive');
-            if (!$allTime || !$allTime->getValue()) {
-                $days = $data->getEntry('pointsDaysActive');
-                if (!$days || !$days->getValue()) {
-                    $event->getForm()->get('pointsDaysActive')->addError(new FormError((new NotBlank())->message));
-                }
-            }
-            $excludeDeliveryCosts = $data->getEntry('excludeDeliveryCostsFromTierAssignment');
-            if ($excludeDeliveryCosts && $excludeDeliveryCosts->getValue()) {
-                $ex = $data->getEntry('excludedDeliverySKUs');
-
-                if (!$ex || !$ex->getValue() || count($ex->getValue()) == 0) {
-                    $event->getForm()->get('excludedDeliverySKUs')->addError(new FormError((new NotBlank())->message));
-                }
-            }
-        });
-        // validate sms sender credentials if any
-        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
-            $data = $event->getData();
-            /** @var StringSettingEntry $activationMethod */
-            $activationMethod = $data->getEntry('accountActivationMethod');
-            if (empty($activationMethod->getValue())) {
-                $event->getForm()->get('accountActivationMethod')->addError(new FormError((new NotEmptyValue())->message));
-            }
-
-            if (!$data instanceof Settings ||
-                null === $this->smsGateway ||
-                $activationMethod->getValue() !== AccountActivationMethod::METHOD_SMS
-            ) {
-                return;
-            }
-
-            $areCredentialsValid = $this->smsGateway->validateCredentials($data->toArray());
-            if (false === $areCredentialsValid) {
-                $event->getForm()->get('accountActivationMethod')->addError(new FormError('Bad credentials'));
-            }
-        });
-        $builder->add(
-            $builder
-                ->create('customersIdentificationPriority', CollectionType::class, [
+                ->create('customersIdentificationPriority', SettingsCollectionType::class, [
                     'required' => false,
                     'allow_add' => true,
                     'allow_delete' => true,
                     'entry_type' => CustomersIdentificationPriority::class,
+                    'transformTo' => 'json'
                 ])
-                ->addModelTransformer(new ChoicesToJsonSettingDataTransformer('customersIdentificationPriority', $this->settingsManager))
         );
+
         $builder->add(
             $builder
-                ->create('tierAssignType', ChoiceType::class, [
+                ->create('tierAssignType', SettingsChoicesType::class, [
                     'choices' => [
                         TierAssignTypeProvider::TYPE_POINTS => TierAssignTypeProvider::TYPE_POINTS,
                         TierAssignTypeProvider::TYPE_TRANSACTIONS => TierAssignTypeProvider::TYPE_TRANSACTIONS,
                     ],
                     'constraints' => [new NotBlank()],
                 ])
-                ->addModelTransformer(new StringSettingDataTransformer('tierAssignType', $this->settingsManager))
         );
         $builder->add(
             $builder
-                ->create('excludeDeliveryCostsFromTierAssignment', CheckboxType::class, [
-                    'required' => false,
-                ])
-                ->addModelTransformer(new BooleanSettingDataTransformer('excludeDeliveryCostsFromTierAssignment', $this->settingsManager))
+                ->create('excludeDeliveryCostsFromTierAssignment', SettingsCheckboxType::class, ['required' => false])
         );
         $builder->add(
             $builder
-                ->create('excludedDeliverySKUs', CollectionType::class, [
+                ->create('excludedDeliverySKUs', SettingsCollectionType::class, [
                     'required' => false,
                     'allow_add' => true,
                     'allow_delete' => true,
                     'entry_type' => TextType::class,
                     'error_bubbling' => false,
+                    'transformTo' => 'json',
                 ])
-                ->addModelTransformer(new ChoicesToJsonSettingDataTransformer('excludedDeliverySKUs', $this->settingsManager))
         );
         $builder->add(
             $builder
-                ->create('excludedLevelSKUs', CollectionType::class, [
+                ->create('excludedLevelSKUs', SettingsCollectionType::class, [
                     'required' => false,
                     'allow_add' => true,
                     'allow_delete' => true,
                     'entry_type' => TextType::class,
+                    'transformTo' => 'json',
                 ])
-                ->addModelTransformer(new ChoicesToJsonSettingDataTransformer('excludedLevelSKUs', $this->settingsManager))
         );
         $builder->add(
             $builder
-                ->create('excludedLevelCategories', CollectionType::class, [
+                ->create('excludedLevelCategories', SettingsCollectionType::class, [
                     'required' => false,
                     'allow_add' => true,
                     'allow_delete' => true,
                     'entry_type' => TextType::class,
+                    'transformTo' => 'json',
                 ])
-                ->addModelTransformer(new ChoicesToJsonSettingDataTransformer('excludedLevelCategories', $this->settingsManager))
         );
+
+        $builder->addEventSubscriber(new AllTimeActiveSubscriber());
+        $builder->addEventSubscriber(new ExcludeDeliveryCostSubscriber());
+        $builder->addEventSubscriber(new ActivationMethodSubscriber($this->smsGateway));
+        $builder->addEventSubscriber(new MarketingVendorSubscriber($this->marketingVendors));
+
         $this->addSmsConfig($builder);
     }
 
@@ -382,7 +309,7 @@ class SettingsFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => 'OpenLoyalty\Bundle\SettingsBundle\Model\Settings',
+            'data_class' => Settings::class,
             'allow_extra_fields' => true,
         ]);
     }
@@ -416,16 +343,13 @@ class SettingsFormType extends AbstractType
         switch ($type) {
             case 'text':
                 return $builder
-                    ->create($name, TextType::class, [])
-                    ->addModelTransformer(new StringSettingDataTransformer($name, $this->settingsManager));
+                    ->create($name, SettingsTextType::class, []);
             case 'bool':
                 return $builder
-                    ->create($name, CheckboxType::class, [])
-                    ->addModelTransformer(new BooleanSettingDataTransformer($name, $this->settingsManager));
+                    ->create($name, SettingsCheckboxType::class, []);
             case 'integer':
                 return $builder
-                    ->create($name, IntegerType::class, [])
-                    ->addModelTransformer(new IntegerSettingDataTransformer($name, $this->settingsManager));
+                    ->create($name, SettingsIntegerType::class, []);
         }
     }
 }

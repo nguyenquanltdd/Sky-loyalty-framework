@@ -3,7 +3,7 @@ Transactions
 
 These endpoints will allow you to easily manage transactions.
 
-	
+
 Assign customer to specific transaction
 ---------------------------------------
 
@@ -40,16 +40,16 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
-		-d "assign[transactionDocumentNumber]=888" \
-		-d "assign[customerId]=57524216-c059-405a-b951-3ab5c49bae14" \
-		-d "assign[customerLoyaltyCardNumber]=333" \
-		-d "assign[customerPhoneNumber]=333333"
+        -d "assign[transactionDocumentNumber]=888" \
+        -d "assign[customerId]=57524216-c059-405a-b951-3ab5c49bae14" \
+        -d "assign[customerLoyaltyCardNumber]=333" \
+        -d "assign[customerPhoneNumber]=333333"
 
 .. note::
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-	
+
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
 
@@ -59,10 +59,10 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "transactionId": "00000000-0000-1111-0000-000000000002"
-	}
-	
+    {
+      "transactionId": "00000000-0000-1111-0000-000000000002"
+    }
+
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
 
@@ -72,23 +72,23 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "form": {
-		"children": {
-		  "transactionDocumentNumber": {
-			"errors": [
-			  "Customer is already assign to this transaction"
-			]
-		  },
-		  "customerId": {},
-		  "customerLoyaltyCardNumber": {},
-		  "customerPhoneNumber": {}
-		}
-	  },
-	  "errors": []
-	}
-	
-	
+    {
+      "form": {
+        "children": {
+          "transactionDocumentNumber": {
+            "errors": [
+              "Customer is already assign to this transaction"
+            ]
+          },
+          "customerId": {},
+          "customerLoyaltyCardNumber": {},
+          "customerPhoneNumber": {}
+        }
+      },
+      "errors": []
+    }
+
+
 Assign customer to specific transaction (seller)
 ------------------------------------------------
 
@@ -125,16 +125,16 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
-		-d "assign[transactionDocumentNumber]=123" \
-		-d "assign[customerId]=57524216-c059-405a-b951-3ab5c49bae14" \
-		-d "assign[customerLoyaltyCardNumber]=333" \
-		-d "assign[customerPhoneNumber]=333333"
-		
+        -d "assign[transactionDocumentNumber]=123" \
+        -d "assign[customerId]=57524216-c059-405a-b951-3ab5c49bae14" \
+        -d "assign[customerLoyaltyCardNumber]=333" \
+        -d "assign[customerPhoneNumber]=333333"
+
 .. note::
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-	
+
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
 
@@ -144,11 +144,11 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "transactionId": "00000000-0000-1111-0000-000000000005"
-	}
+    {
+      "transactionId": "00000000-0000-1111-0000-000000000005"
+    }
 
-	
+
 Get complete list of all transactions (customer)
 ------------------------------------------------
 
@@ -203,12 +203,12 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
-		
+
 .. note::
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-	
+
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -219,142 +219,142 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "transactions": [
-		{
-		  "grossValue": 3,
-		  "transactionId": "00000000-0000-1111-0000-000000000003",
-		  "documentNumber": "456",
-		  "purchaseDate": "2018-02-20T09:45:04+0100",
-		  "purchasePlace": "wroclaw",
-		  "documentType": "sell",
-		  "customerId": "00000000-0000-474c-b092-b0dd880c07e1",
-		  "customerData": {
-			"email": "user@oloy.com",
-			"name": "Jan Nowak",
-			"nip": "aaa",
-			"phone": "123",
-			"loyaltyCardNumber": "sa2222",
-			"address": {
-			  "street": "Bagno",
-			  "address1": "12",
-			  "province": "Mazowieckie",
-			  "city": "Warszawa",
-			  "postal": "00-800",
-			  "country": "PL"
-			}
-		  },
+    {
+      "transactions": [
+        {
+          "grossValue": 3,
+          "transactionId": "00000000-0000-1111-0000-000000000003",
+          "documentNumber": "456",
+          "purchaseDate": "2018-02-20T09:45:04+0100",
+          "purchasePlace": "wroclaw",
+          "documentType": "sell",
+          "customerId": "00000000-0000-474c-b092-b0dd880c07e1",
+          "customerData": {
+            "email": "user@oloy.com",
+            "name": "Jan Nowak",
+            "nip": "aaa",
+            "phone": "123",
+            "loyaltyCardNumber": "sa2222",
+            "address": {
+              "street": "Bagno",
+              "address1": "12",
+              "province": "Mazowieckie",
+              "city": "Warszawa",
+              "postal": "00-800",
+              "country": "PL"
+            }
+          },
           "labels": [
             {
               "key": "scan_id",
               "value": "123"
             }
           ],
-		  "items": [
-			{
-			  "sku": {
-				"code": "SKU1"
-			  },
-			  "name": "item 1",
-			  "quantity": 1,
-			  "grossValue": 1,
-			  "category": "aaa",
-			  "maker": "sss",
-			  "labels": [
-				{
-				  "key": "test",
-				  "value": "label"
-				},
-				{
-				  "key": "test",
-				  "value": "label2"
-				}
-			  ]
-			},
-			{
-			  "sku": {
-				"code": "SKU2"
-			  },
-			  "name": "item 2",
-			  "quantity": 2,
-			  "grossValue": 2,
-			  "category": "bbb",
-			  "maker": "ccc",
-			  "labels": []
-			}
-		  ],
-		  "currency": "eur",
-		  "pointsEarned": 6.9
-		},
-		{
-		  "grossValue": 3,
-		  "transactionId": "00000000-0000-1111-0000-000000000005",
-		  "documentNumber": "888",
-		  "purchaseDate": "2018-02-20T09:45:04+0100",
-		  "purchasePlace": "wroclaw",
-		  "documentType": "sell",
-		  "customerId": "57524216-c059-405a-b951-3ab5c49bae14",
-		  "customerData": {
-			"email": "o@lo.com",
-			"name": "Jan Nowak",
-			"nip": "aaa",
-			"phone": "123",
-			"loyaltyCardNumber": "sa21as222",
-			"address": {
-			  "street": "Bagno",
-			  "address1": "12",
-			  "province": "Mazowieckie",
-			  "city": "Warszawa",
-			  "postal": "00-800",
-			  "country": "PL"
-			}
-		  },
+          "items": [
+            {
+              "sku": {
+                "code": "SKU1"
+              },
+              "name": "item 1",
+              "quantity": 1,
+              "grossValue": 1,
+              "category": "aaa",
+              "maker": "sss",
+              "labels": [
+                {
+                  "key": "test",
+                  "value": "label"
+                },
+                {
+                  "key": "test",
+                  "value": "label2"
+                }
+              ]
+            },
+            {
+              "sku": {
+                "code": "SKU2"
+              },
+              "name": "item 2",
+              "quantity": 2,
+              "grossValue": 2,
+              "category": "bbb",
+              "maker": "ccc",
+              "labels": []
+            }
+          ],
+          "currency": "eur",
+          "pointsEarned": 6.9
+        },
+        {
+          "grossValue": 3,
+          "transactionId": "00000000-0000-1111-0000-000000000005",
+          "documentNumber": "888",
+          "purchaseDate": "2018-02-20T09:45:04+0100",
+          "purchasePlace": "wroclaw",
+          "documentType": "sell",
+          "customerId": "57524216-c059-405a-b951-3ab5c49bae14",
+          "customerData": {
+            "email": "o@lo.com",
+            "name": "Jan Nowak",
+            "nip": "aaa",
+            "phone": "123",
+            "loyaltyCardNumber": "sa21as222",
+            "address": {
+              "street": "Bagno",
+              "address1": "12",
+              "province": "Mazowieckie",
+              "city": "Warszawa",
+              "postal": "00-800",
+              "country": "PL"
+            }
+          },
           "labels": [
             {
               "key": "scan_id",
               "value": "343"
             }
           ],
-		  "items": [
-			{
-			  "sku": {
-				"code": "SKU1"
-			  },
-			  "name": "item 1",
-			  "quantity": 1,
-			  "grossValue": 1,
-			  "category": "aaa",
-			  "maker": "sss",
-			  "labels": [
-				{
-				  "key": "test",
-				  "value": "label"
-				},
-				{
-				  "key": "test",
-				  "value": "label2"
-				}
-			  ]
-			},
-			{
-			  "sku": {
-				"code": "SKU2"
-			  },
-			  "name": "item 2",
-			  "quantity": 2,
-			  "grossValue": 2,
-			  "category": "bbb",
-			  "maker": "ccc",
-			  "labels": []
-			}
-		  ],
-		  "currency": "eur",
-		  "pointsEarned": 6
-		}
-	  ],
-	  "total": 2
-	}
-	
+          "items": [
+            {
+              "sku": {
+                "code": "SKU1"
+              },
+              "name": "item 1",
+              "quantity": 1,
+              "grossValue": 1,
+              "category": "aaa",
+              "maker": "sss",
+              "labels": [
+                {
+                  "key": "test",
+                  "value": "label"
+                },
+                {
+                  "key": "test",
+                  "value": "label2"
+                }
+              ]
+            },
+            {
+              "sku": {
+                "code": "SKU2"
+              },
+              "name": "item 2",
+              "quantity": 2,
+              "grossValue": 2,
+              "category": "bbb",
+              "maker": "ccc",
+              "labels": []
+            }
+          ],
+          "currency": "eur",
+          "pointsEarned": 6
+        }
+      ],
+      "total": 2
+    }
+
 Get transaction details
 -----------------------
 
@@ -366,7 +366,7 @@ Definition
 .. code-block:: text
 
     GET /api/customer/transaction/<transaction>
-	
+
 +-------------------------------------+----------------+---------------------------------------------------+
 | Parameter                           | Parameter type | Description                                       |
 +=====================================+================+===================================================+
@@ -385,12 +385,12 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
-		
+
 .. note::
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-	
+
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -401,73 +401,73 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "grossValue": 3,
-	  "transactionId": "00000000-0000-1111-0000-000000000003",
-	  "documentNumber": "456",
-	  "purchaseDate": "2018-02-20T09:45:04+0100",
-	  "purchasePlace": "wroclaw",
-	  "documentType": "sell",
-	  "customerId": "00000000-0000-474c-b092-b0dd880c07e1",
-	  "customerData": {
-		"email": "user@oloy.com",
-		"name": "Jan Nowak",
-		"nip": "aaa",
-		"phone": "123",
-		"loyaltyCardNumber": "sa2222",
-		"address": {
-		  "street": "Bagno",
-		  "address1": "12",
-		  "province": "Mazowieckie",
-		  "city": "Warszawa",
-		  "postal": "00-800",
-		  "country": "PL"
-		}
-	  },
+    {
+      "grossValue": 3,
+      "transactionId": "00000000-0000-1111-0000-000000000003",
+      "documentNumber": "456",
+      "purchaseDate": "2018-02-20T09:45:04+0100",
+      "purchasePlace": "wroclaw",
+      "documentType": "sell",
+      "customerId": "00000000-0000-474c-b092-b0dd880c07e1",
+      "customerData": {
+        "email": "user@oloy.com",
+        "name": "Jan Nowak",
+        "nip": "aaa",
+        "phone": "123",
+        "loyaltyCardNumber": "sa2222",
+        "address": {
+          "street": "Bagno",
+          "address1": "12",
+          "province": "Mazowieckie",
+          "city": "Warszawa",
+          "postal": "00-800",
+          "country": "PL"
+        }
+      },
       "labels": [
         {
           "key": "scan_id",
           "value": "123"
         }
       ],
-	  "items": [
-		{
-		  "sku": {
-			"code": "SKU1"
-		  },
-		  "name": "item 1",
-		  "quantity": 1,
-		  "grossValue": 1,
-		  "category": "aaa",
-		  "maker": "sss",
-		  "labels": [
-			{
-			  "key": "test",
-			  "value": "label"
-			},
-			{
-			  "key": "test",
-			  "value": "label2"
-			}
-		  ]
-		},
-		{
-		  "sku": {
-			"code": "SKU2"
-		  },
-		  "name": "item 2",
-		  "quantity": 2,
-		  "grossValue": 2,
-		  "category": "bbb",
-		  "maker": "ccc",
-		  "labels": []
-		}
-	  ],
-	  "currency": "eur",
-	  "pointsEarned": 6.9
-	}
-	
-	
+      "items": [
+        {
+          "sku": {
+            "code": "SKU1"
+          },
+          "name": "item 1",
+          "quantity": 1,
+          "grossValue": 1,
+          "category": "aaa",
+          "maker": "sss",
+          "labels": [
+            {
+              "key": "test",
+              "value": "label"
+            },
+            {
+              "key": "test",
+              "value": "label2"
+            }
+          ]
+        },
+        {
+          "sku": {
+            "code": "SKU2"
+          },
+          "name": "item 2",
+          "quantity": 2,
+          "grossValue": 2,
+          "category": "bbb",
+          "maker": "ccc",
+          "labels": []
+        }
+      ],
+      "currency": "eur",
+      "pointsEarned": 6.9
+    }
+
+
 Get complete list of all transactions (seller)
 ----------------------------------------------
 
@@ -522,12 +522,12 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
-		
+
 .. note::
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-	
+
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -538,9 +538,9 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "transactions": [
-		 {
+    {
+      "transactions": [
+         {
       "grossValue": 3,
       "transactionId": "00000000-0000-1111-0000-000000000004",
       "documentNumber": "789",
@@ -670,8 +670,8 @@ Exemplary Response
       "pointsEarned": 6
         }
       ],
-	  "total": 2
-	}
+      "total": 2
+    }
 
 Get logged in customer transactions (seller)
 --------------------------------------------
@@ -720,7 +720,7 @@ Example
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-	
+
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
 
@@ -729,63 +729,63 @@ Exemplary Response
     STATUS: 200 OK
 
 .. code-block:: json
-	
-	{
-	  "transactions": [
-		{
-		  "grossValue": 2200,
-		  "transactionId": "c13e4e89-2e9a-482d-8ab0-41a8eb9927ed",
-		  "documentNumber": "214124124130",
-		  "purchaseDate": "2017-08-23T00:00:00+0200",
-		  "documentType": "return",
-		  "customerId": "4b32a723-9923-46fc-a2bc-d09767e5e59b",
-		  "customerData": {
-			"email": "tomasztest8@wp.pl",
-			"name": "Firstname+Lastname",
-			"nip": "00000000000000",
-			"phone": "00000000000000",
-			"loyaltyCardNumber": "11111111111",
-			"address": {
-			  "street": "Street+name",
-			  "address1": "123",
-			  "province": "Dolnoslaskie",
-			  "city": "Wroclaw",
-			  "postal": "00-000",
-			  "country": "PL"
-			}
-		  },
+
+    {
+      "transactions": [
+        {
+          "grossValue": 2200,
+          "transactionId": "c13e4e89-2e9a-482d-8ab0-41a8eb9927ed",
+          "documentNumber": "214124124130",
+          "purchaseDate": "2017-08-23T00:00:00+0200",
+          "documentType": "return",
+          "customerId": "4b32a723-9923-46fc-a2bc-d09767e5e59b",
+          "customerData": {
+            "email": "tomasztest8@wp.pl",
+            "name": "Firstname+Lastname",
+            "nip": "00000000000000",
+            "phone": "00000000000000",
+            "loyaltyCardNumber": "11111111111",
+            "address": {
+              "street": "Street+name",
+              "address1": "123",
+              "province": "Dolnoslaskie",
+              "city": "Wroclaw",
+              "postal": "00-000",
+              "country": "PL"
+            }
+          },
           "labels": [
             {
               "key": "scan_id",
               "value": "333"
             }
           ],
-		  "items": [
-			{
-			  "sku": {
-				"code": "test0101"
-			  },
-			  "name": "Product+name",
-			  "quantity": 1,
-			  "grossValue": 2200,
-			  "category": "Category+Name",
-			  "maker": "Marker+name",
-			  "labels": [
-				{
-				  "key": "Label+key",
-				  "value": "Label+value"
-				}
-			  ]
-			}
-		  ],
-		  "excludedLevelCategories": [
-			"category_excluded_from_level"
-		  ],
-		  "currency": "eur"
-		}
-	  ],
-	  "total": 1
-	}
+          "items": [
+            {
+              "sku": {
+                "code": "test0101"
+              },
+              "name": "Product+name",
+              "quantity": 1,
+              "grossValue": 2200,
+              "category": "Category+Name",
+              "maker": "Marker+name",
+              "labels": [
+                {
+                  "key": "Label+key",
+                  "value": "Label+value"
+                }
+              ]
+            }
+          ],
+          "excludedLevelCategories": [
+            "category_excluded_from_level"
+          ],
+          "currency": "eur"
+        }
+      ],
+      "total": 1
+    }
 
 
 
@@ -800,8 +800,8 @@ Definition
 
 .. code-block:: text
 
-	GET /api/seller/transaction/<documentNumber>
-	
+    GET /api/seller/transaction/<documentNumber>
+
 +-------------------------------------+----------------+---------------------------------------------------+
 | Parameter                           | Parameter type | Description                                       |
 +=====================================+================+===================================================+
@@ -826,7 +826,7 @@ Example
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-	
+
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
 
@@ -835,63 +835,63 @@ Exemplary Response
     STATUS: 200 OK
 
 .. code-block:: json
-	
-	{
-	  "transactions": [
-		{
-		  "grossValue": 1500,
-		  "transactionId": "d5b1119a-698b-40b4-9ac4-8ef704fa4433",
-		  "documentNumber": "214124124125",
-		  "purchaseDate": "2017-08-22T00:00:00+0200",
-		  "documentType": "sell",
-		  "customerId": "4b32a723-9923-46fc-a2bc-d09767e5e59b",
-		  "customerData": {
-			"email": "tomasztest8@wp.pl",
-			"name": "Firstname+Lastname",
-			"nip": "00000000000000",
-			"phone": "00000000000000",
-			"loyaltyCardNumber": "11111111111",
-			"address": {
-			  "street": "Street+name",
-			  "address1": "123",
-			  "province": "Dolnoslaskie",
-			  "city": "Wroclaw",
-			  "postal": "00-000",
-			  "country": "PL"
-			}
-		  },
+
+    {
+      "transactions": [
+        {
+          "grossValue": 1500,
+          "transactionId": "d5b1119a-698b-40b4-9ac4-8ef704fa4433",
+          "documentNumber": "214124124125",
+          "purchaseDate": "2017-08-22T00:00:00+0200",
+          "documentType": "sell",
+          "customerId": "4b32a723-9923-46fc-a2bc-d09767e5e59b",
+          "customerData": {
+            "email": "tomasztest8@wp.pl",
+            "name": "Firstname+Lastname",
+            "nip": "00000000000000",
+            "phone": "00000000000000",
+            "loyaltyCardNumber": "11111111111",
+            "address": {
+              "street": "Street+name",
+              "address1": "123",
+              "province": "Dolnoslaskie",
+              "city": "Wroclaw",
+              "postal": "00-000",
+              "country": "PL"
+            }
+          },
           "labels": [
             {
               "key": "scan_id",
               "value": "123"
             }
           ],
-		  "items": [
-			{
-			  "sku": {
-				"code": "test0101"
-			  },
-			  "name": "Product+name",
-			  "quantity": 1,
-			  "grossValue": 1500,
-			  "category": "Category+Name",
-			  "maker": "Marker+name",
-			  "labels": [
-				{
-				  "key": "Label+key",
-				  "value": "Label+value"
-				}
-			  ]
-			}
-		  ],
-		  "excludedLevelCategories": [
-			"category_excluded_from_level"
-		  ],
-		  "currency": "eur"
-		}
-	  ],
-	  "total": 1
-	}
+          "items": [
+            {
+              "sku": {
+                "code": "test0101"
+              },
+              "name": "Product+name",
+              "quantity": 1,
+              "grossValue": 1500,
+              "category": "Category+Name",
+              "maker": "Marker+name",
+              "labels": [
+                {
+                  "key": "Label+key",
+                  "value": "Label+value"
+                }
+              ]
+            }
+          ],
+          "excludedLevelCategories": [
+            "category_excluded_from_level"
+          ],
+          "currency": "eur"
+        }
+      ],
+      "total": 1
+    }
 
 
 
@@ -956,12 +956,12 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
-		
+
 .. note::
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-	
+
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -972,141 +972,141 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "transactions": [
-		{
-		  "grossValue": 3,
-		  "transactionId": "00000000-0000-1111-0000-000000000003",
-		  "documentNumber": "456",
-		  "purchaseDate": "2018-02-20T09:45:04+0100",
-		  "purchasePlace": "wroclaw",
-		  "documentType": "sell",
-		  "customerId": "00000000-0000-474c-b092-b0dd880c07e1",
-		  "customerData": {
-			"email": "user@oloy.com",
-			"name": "Jan Nowak",
-			"nip": "aaa",
-			"phone": "123",
-			"loyaltyCardNumber": "sa2222",
-			"address": {
-			  "street": "Bagno",
-			  "address1": "12",
-			  "province": "Mazowieckie",
-			  "city": "Warszawa",
-			  "postal": "00-800",
-			  "country": "PL"
-			}
-		  },
+    {
+      "transactions": [
+        {
+          "grossValue": 3,
+          "transactionId": "00000000-0000-1111-0000-000000000003",
+          "documentNumber": "456",
+          "purchaseDate": "2018-02-20T09:45:04+0100",
+          "purchasePlace": "wroclaw",
+          "documentType": "sell",
+          "customerId": "00000000-0000-474c-b092-b0dd880c07e1",
+          "customerData": {
+            "email": "user@oloy.com",
+            "name": "Jan Nowak",
+            "nip": "aaa",
+            "phone": "123",
+            "loyaltyCardNumber": "sa2222",
+            "address": {
+              "street": "Bagno",
+              "address1": "12",
+              "province": "Mazowieckie",
+              "city": "Warszawa",
+              "postal": "00-800",
+              "country": "PL"
+            }
+          },
           "labels": [
             {
               "key": "scan_id",
               "value": "123"
             }
           ],
-		  "items": [
-			{
-			  "sku": {
-				"code": "SKU1"
-			  },
-			  "name": "item 1",
-			  "quantity": 1,
-			  "grossValue": 1,
-			  "category": "aaa",
-			  "maker": "sss",
-			  "labels": [
-				{
-				  "key": "test",
-				  "value": "label"
-				},
-				{
-				  "key": "test",
-				  "value": "label2"
-				}
-			  ]
-			},
-			{
-			  "sku": {
-				"code": "SKU2"
-			  },
-			  "name": "item 2",
-			  "quantity": 2,
-			  "grossValue": 2,
-			  "category": "bbb",
-			  "maker": "ccc",
-			  "labels": []
-			}
-		  ],
-		  "currency": "eur",
-		  "pointsEarned": 6.9
-		},
-		{
-		  "grossValue": 3,
-		  "transactionId": "00000000-0000-1111-0000-000000000005",
-		  "documentNumber": "888",
-		  "purchaseDate": "2018-02-20T09:45:04+0100",
-		  "purchasePlace": "wroclaw",
-		  "documentType": "sell",
-		  "customerId": "57524216-c059-405a-b951-3ab5c49bae14",
-		  "customerData": {
-			"email": "o@lo.com",
-			"name": "Jan Nowak",
-			"nip": "aaa",
-			"phone": "123",
-			"loyaltyCardNumber": "sa21as222",
-			"address": {
-			  "street": "Bagno",
-			  "address1": "12",
-			  "province": "Mazowieckie",
-			  "city": "Warszawa",
-			  "postal": "00-800",
-			  "country": "PL"
-			}
-		  },
+          "items": [
+            {
+              "sku": {
+                "code": "SKU1"
+              },
+              "name": "item 1",
+              "quantity": 1,
+              "grossValue": 1,
+              "category": "aaa",
+              "maker": "sss",
+              "labels": [
+                {
+                  "key": "test",
+                  "value": "label"
+                },
+                {
+                  "key": "test",
+                  "value": "label2"
+                }
+              ]
+            },
+            {
+              "sku": {
+                "code": "SKU2"
+              },
+              "name": "item 2",
+              "quantity": 2,
+              "grossValue": 2,
+              "category": "bbb",
+              "maker": "ccc",
+              "labels": []
+            }
+          ],
+          "currency": "eur",
+          "pointsEarned": 6.9
+        },
+        {
+          "grossValue": 3,
+          "transactionId": "00000000-0000-1111-0000-000000000005",
+          "documentNumber": "888",
+          "purchaseDate": "2018-02-20T09:45:04+0100",
+          "purchasePlace": "wroclaw",
+          "documentType": "sell",
+          "customerId": "57524216-c059-405a-b951-3ab5c49bae14",
+          "customerData": {
+            "email": "o@lo.com",
+            "name": "Jan Nowak",
+            "nip": "aaa",
+            "phone": "123",
+            "loyaltyCardNumber": "sa21as222",
+            "address": {
+              "street": "Bagno",
+              "address1": "12",
+              "province": "Mazowieckie",
+              "city": "Warszawa",
+              "postal": "00-800",
+              "country": "PL"
+            }
+          },
           "labels": [
             {
               "key": "scan_id",
               "value": "234"
             }
           ],
-		  "items": [
-			{
-			  "sku": {
-				"code": "SKU1"
-			  },
-			  "name": "item 1",
-			  "quantity": 1,
-			  "grossValue": 1,
-			  "category": "aaa",
-			  "maker": "sss",
-			  "labels": [
-				{
-				  "key": "test",
-				  "value": "label"
-				},
-				{
-				  "key": "test",
-				  "value": "label2"
-				}
-			  ]
-			},
-			{
-			  "sku": {
-				"code": "SKU2"
-			  },
-			  "name": "item 2",
-			  "quantity": 2,
-			  "grossValue": 2,
-			  "category": "bbb",
-			  "maker": "ccc",
-			  "labels": []
-			}
-		  ],
-		  "currency": "eur",
-		  "pointsEarned": 6
-		}
-	  ],
-	  "total": 2
-	}
+          "items": [
+            {
+              "sku": {
+                "code": "SKU1"
+              },
+              "name": "item 1",
+              "quantity": 1,
+              "grossValue": 1,
+              "category": "aaa",
+              "maker": "sss",
+              "labels": [
+                {
+                  "key": "test",
+                  "value": "label"
+                },
+                {
+                  "key": "test",
+                  "value": "label2"
+                }
+              ]
+            },
+            {
+              "sku": {
+                "code": "SKU2"
+              },
+              "name": "item 2",
+              "quantity": 2,
+              "grossValue": 2,
+              "category": "bbb",
+              "maker": "ccc",
+              "labels": []
+            }
+          ],
+          "currency": "eur",
+          "pointsEarned": 6
+        }
+      ],
+      "total": 2
+    }
 
 
 Register new transaction
@@ -1135,29 +1135,29 @@ Definition
 +----------------------------------------------+----------------+---------------------------------------------------+
 | transaction[items][][sku][code]              | query          | SKU Code                                          |
 +----------------------------------------------+----------------+---------------------------------------------------+
-| transaction[items][][name]	               | query          | Product name                                      |
+| transaction[items][][name]                   | query          | Product name                                      |
 +----------------------------------------------+----------------+---------------------------------------------------+
-| transaction[items][][quantity]	           | query          | Quantity                                          |
+| transaction[items][][quantity]               | query          | Quantity                                          |
 +----------------------------------------------+----------------+---------------------------------------------------+
-| transaction[items][][grossValue]	           | query          | Gross value                                       |
+| transaction[items][][grossValue]               | query          | Gross value                                       |
 +----------------------------------------------+----------------+---------------------------------------------------+
-| transaction[items][][category]	           | query          | Category Name                                     |
+| transaction[items][][category]               | query          | Category Name                                     |
 +----------------------------------------------+----------------+---------------------------------------------------+
-| transaction[items][][maker]	               | query          | Brand name                                        |
+| transaction[items][][maker]                   | query          | Brand name                                        |
 +----------------------------------------------+----------------+---------------------------------------------------+
 | transaction[items][][labels][][key]          | query          | Label key                                         |
 +----------------------------------------------+----------------+---------------------------------------------------+
 | transaction[items][][labels][][value]        | query          | Label value                                       |
 +----------------------------------------------+----------------+---------------------------------------------------+
-| transaction[customerData][name]	           | query          | Customer name                                     |
+| transaction[customerData][name]               | query          | Customer name                                     |
 +----------------------------------------------+----------------+---------------------------------------------------+
-| transaction[customerData][email]	           | query          | *(optional)* Customer email                       |
+| transaction[customerData][email]               | query          | *(optional)* Customer email                       |
 +----------------------------------------------+----------------+---------------------------------------------------+
-| transaction[customerData][phone]	           | query          | *(optional)* Customer phone                       |
+| transaction[customerData][phone]               | query          | *(optional)* Customer phone                       |
 +----------------------------------------------+----------------+---------------------------------------------------+
 | transaction[customerData][loyaltyCardNumber] | query          | *(optional)* Customer Loyalty card number         |
 +----------------------------------------------+----------------+---------------------------------------------------+
-| transaction[customerData][nip]	           | query          | *(optional)* Customer NIP                         |
+| transaction[customerData][nip]               | query          | *(optional)* Customer NIP                         |
 +----------------------------------------------+----------------+---------------------------------------------------+
 | transaction[customerData][address][street]   | query          | *(optional)* Street                               |
 +----------------------------------------------+----------------+---------------------------------------------------+
@@ -1165,7 +1165,7 @@ Definition
 +----------------------------------------------+----------------+---------------------------------------------------+
 | transaction[customerData][address][postal]   | query          | *(optional)* Postal code                          |
 +----------------------------------------------+----------------+---------------------------------------------------+
-| transaction[customerData][address][city]	   | query          | *(optional)* City                                 |
+| transaction[customerData][address][city]       | query          | *(optional)* City                                 |
 +----------------------------------------------+----------------+---------------------------------------------------+
 | transaction[customerData][address][province] | query          | *(optional)* Province                             |
 +----------------------------------------------+----------------+---------------------------------------------------+
@@ -1190,34 +1190,34 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
-		-d "transaction[items][0][sku][code]=test0101" \
-		-d "transaction[items][0][name]=Product+name" \
-		-d "transaction[items][0][quantity]=1" \
-		-d "transaction[items][0][grossValue]=1500.00" \
-		-d "transaction[items][0][category]=Category+Name" \
-		-d "transaction[items][0][maker]=Marker+name" \
-		-d "transaction[items][0][labels][0][key]=Label+key" \
-		-d "transaction[items][0][labels][0][value]=Label+value" \
-		-d "transaction[customerData][name]=Firstname+Lastname" \
-		-d "transaction[customerData][email]=tomasztest8@wp.pl" \
-		-d "transaction[customerData][phone]=00000000000000" \
-		-d "transaction[customerData][loyaltyCardNumber]=11111111111" \
-		-d "transaction[customerData][nip]=00000000000000" \
-		-d "transaction[customerData][address][street]=Street+name" \
-		-d "transaction[customerData][address][address1]=123" \
-		-d "transaction[customerData][address][postal]=00-000" \
-		-d "transaction[customerData][address][city]=Wroclaw" \
-		-d "transaction[customerData][address][province]=Dolnoslaskie" \
-		-d "transaction[customerData][address][country]=PL" \
-		-d "transaction[transactionData][documentNumber]=214124124125" \
-		-d "transaction[transactionData][purchaseDate]=2017-08-22" \
-		-d "transaction[transactionData][documentType]=return"
-		
+        -d "transaction[items][0][sku][code]=test0101" \
+        -d "transaction[items][0][name]=Product+name" \
+        -d "transaction[items][0][quantity]=1" \
+        -d "transaction[items][0][grossValue]=1500.00" \
+        -d "transaction[items][0][category]=Category+Name" \
+        -d "transaction[items][0][maker]=Marker+name" \
+        -d "transaction[items][0][labels][0][key]=Label+key" \
+        -d "transaction[items][0][labels][0][value]=Label+value" \
+        -d "transaction[customerData][name]=Firstname+Lastname" \
+        -d "transaction[customerData][email]=tomasztest8@wp.pl" \
+        -d "transaction[customerData][phone]=00000000000000" \
+        -d "transaction[customerData][loyaltyCardNumber]=11111111111" \
+        -d "transaction[customerData][nip]=00000000000000" \
+        -d "transaction[customerData][address][street]=Street+name" \
+        -d "transaction[customerData][address][address1]=123" \
+        -d "transaction[customerData][address][postal]=00-000" \
+        -d "transaction[customerData][address][city]=Wroclaw" \
+        -d "transaction[customerData][address][province]=Dolnoslaskie" \
+        -d "transaction[customerData][address][country]=PL" \
+        -d "transaction[transactionData][documentNumber]=214124124125" \
+        -d "transaction[transactionData][purchaseDate]=2017-08-22" \
+        -d "transaction[transactionData][documentType]=return"
+
 .. note::
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-	
+
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -1227,9 +1227,9 @@ Exemplary Response
     STATUS: 200 OK
 
 .. code-block:: json
-	{
-	  "transactionId": "d5b1119a-698b-40b4-9ac4-8ef704fa4433"
-	}
+    {
+      "transactionId": "d5b1119a-698b-40b4-9ac4-8ef704fa4433"
+    }
 
 Update transaction labels
 -------------------------
@@ -1269,9 +1269,9 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
-		-d "transaction_labels[transactionId]=00000000-0000-1111-0000-000000000000" \
-		-d "transaction_labels[label][0][key]=some label" \
-		-d "transaction_labels[label][0][value]=some value"
+        -d "transaction_labels[transactionId]=00000000-0000-1111-0000-000000000000" \
+        -d "transaction_labels[label][0][key]=some label" \
+        -d "transaction_labels[label][0][value]=some value"
 
 .. note::
 
@@ -1287,9 +1287,9 @@ Exemplary Response
     STATUS: 200 OK
 
 .. code-block:: json
-	{
-	  "transactionId": "d5b1119a-698b-40b4-9ac4-8ef704fa4433"
-	}
+    {
+      "transactionId": "d5b1119a-698b-40b4-9ac4-8ef704fa4433"
+    }
 
 Add new transaction labels as customer
 --------------------------------------
@@ -1330,9 +1330,9 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
-		-d "append[transactionDocumentNumebr]=123" \
-		-d "append[label][0][key]=some label" \
-		-d "append[label][0][value]=some value"
+        -d "append[transactionDocumentNumebr]=123" \
+        -d "append[label][0][key]=some label" \
+        -d "append[label][0][value]=some value"
 
 .. note::
 
@@ -1348,10 +1348,10 @@ Exemplary Response
     STATUS: 200 OK
 
 .. code-block:: json
-	{
-	  "transactionId": "d5b1119a-698b-40b4-9ac4-8ef704fa4433"
-	}
-	
+    {
+      "transactionId": "d5b1119a-698b-40b4-9ac4-8ef704fa4433"
+    }
+
 Get available item labels
 -------------------------
 
@@ -1380,7 +1380,7 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
-		
+
 .. note::
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
@@ -1388,7 +1388,7 @@ Example
 
 .. note::
 
-    The *label* or *label2* are an exemplary values. You can name labels as you like.	
+    The *label* or *label2* are an exemplary values. You can name labels as you like.
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -1399,14 +1399,14 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "labels": {
-		"test": [
-		  "label",
-		  "label2"
-		]
-	  }
-	}
+    {
+      "labels": {
+        "test": [
+          "label",
+          "label2"
+        ]
+      }
+    }
 
 
 Number of points which can be obtained after registering such transaction
@@ -1419,7 +1419,7 @@ Definition
 
 .. code-block:: text
 
-	POST /api/transaction/simulate 
+    POST /api/transaction/simulate
 
 +----------------------------------------------+----------------+---------------------------------------------------+
 | Parameter                                    | Parameter type | Description                                       |
@@ -1430,21 +1430,21 @@ Definition
 +----------------------------------------------+----------------+---------------------------------------------------+
 | transaction[items][][sku][code]              | query          | SKU code                                          |
 +----------------------------------------------+----------------+---------------------------------------------------+
-| transaction[items][][name]              	   | query          | Product name                                      |
+| transaction[items][][name]                     | query          | Product name                                      |
 +----------------------------------------------+----------------+---------------------------------------------------+
-| transaction[items][][quantity]       	       | query          | Quantity                                          |
+| transaction[items][][quantity]                  | query          | Quantity                                          |
 +----------------------------------------------+----------------+---------------------------------------------------+
-| transaction[items][][grossValue]       	   | query          | Gross value                                       |
+| transaction[items][][grossValue]              | query          | Gross value                                       |
 +----------------------------------------------+----------------+---------------------------------------------------+
-| transaction[items][][category]        	   | query          | Category name                                     |
+| transaction[items][][category]               | query          | Category name                                     |
 +----------------------------------------------+----------------+---------------------------------------------------+
-| transaction[items][][maker]            	   | query          | Brand name                                        |
+| transaction[items][][maker]                   | query          | Brand name                                        |
 +----------------------------------------------+----------------+---------------------------------------------------+
 | transaction[items][][labels][][key]          | query          | Label key                                         |
 +----------------------------------------------+----------------+---------------------------------------------------+
 | transaction[items][][labels][][value]        | query          | Label value                                       |
 +----------------------------------------------+----------------+---------------------------------------------------+
-| transaction[purchaseDate]           	       | query          | Purchase date                                     |
+| transaction[purchaseDate]                      | query          | Purchase date                                     |
 +----------------------------------------------+----------------+---------------------------------------------------+
 
 
@@ -1458,23 +1458,23 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
-		-d "transaction=00000000-0000-1111-0000-000000000099" \
-		-d "transaction[items][0][sku][code]=SKU1" \
-		-d "transaction[items][0][name]=item+8" \
-		-d "transaction[items][0][quantity]=1" \
-		-d "transaction[items][0][grossValue]=1" \
-		-d "transaction[items][0][category]=aaa" \
-		-d "transaction[items][0][maker]=sss" \
-		-d "transaction[items][0][labels][0]=labels" \
-		-d "transaction[items][0][labels][0][key]=test" \
-		-d "transaction[items][0][labels][0][value]=label" \
-		-d "transaction[purchaseDate]=2022-02-20T09:45:04+0100"
-		
+        -d "transaction=00000000-0000-1111-0000-000000000099" \
+        -d "transaction[items][0][sku][code]=SKU1" \
+        -d "transaction[items][0][name]=item+8" \
+        -d "transaction[items][0][quantity]=1" \
+        -d "transaction[items][0][grossValue]=1" \
+        -d "transaction[items][0][category]=aaa" \
+        -d "transaction[items][0][maker]=sss" \
+        -d "transaction[items][0][labels][0]=labels" \
+        -d "transaction[items][0][labels][0][key]=test" \
+        -d "transaction[items][0][labels][0][value]=label" \
+        -d "transaction[purchaseDate]=2022-02-20T09:45:04+0100"
+
 .. note::
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-	
+
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -1483,11 +1483,11 @@ Exemplary Response
 
     STATUS: 200 OK
 
-.. code-block:: json	
-		
-	{
-	  "points": 2.3
-	}		
+.. code-block:: json
+
+    {
+      "points": 2.3
+    }
 
 
 Get transaction details
@@ -1507,7 +1507,7 @@ Definition
 +==============================================+================+===================================================+
 | Authorization                                | header         | Token received during authentication              |
 +----------------------------------------------+----------------+---------------------------------------------------+
-| <transaction>                      		   | query          | Transaction ID                                    |
+| <transaction>                                 | query          | Transaction ID                                    |
 +----------------------------------------------+----------------+---------------------------------------------------+
 
 Example
@@ -1522,12 +1522,12 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
-		
+
 .. note::
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-	
+
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -1538,68 +1538,68 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "grossValue": 3,
-	  "transactionId": "00000000-0000-1111-0000-000000000005",
-	  "documentNumber": "888",
-	  "purchaseDate": "2018-02-20T09:45:04+0100",
-	  "purchasePlace": "wroclaw",
-	  "documentType": "sell",
-	  "customerId": "57524216-c059-405a-b951-3ab5c49bae14",
-	  "customerData": {
-		"email": "o@lo.com",
-		"name": "Jan Nowak",
-		"nip": "aaa",
-		"phone": "123",
-		"loyaltyCardNumber": "sa21as222",
-		"address": {
-		  "street": "Bagno",
-		  "address1": "12",
-		  "province": "Mazowieckie",
-		  "city": "Warszawa",
-		  "postal": "00-800",
-		  "country": "PL"
-		}
-	  },
+    {
+      "grossValue": 3,
+      "transactionId": "00000000-0000-1111-0000-000000000005",
+      "documentNumber": "888",
+      "purchaseDate": "2018-02-20T09:45:04+0100",
+      "purchasePlace": "wroclaw",
+      "documentType": "sell",
+      "customerId": "57524216-c059-405a-b951-3ab5c49bae14",
+      "customerData": {
+        "email": "o@lo.com",
+        "name": "Jan Nowak",
+        "nip": "aaa",
+        "phone": "123",
+        "loyaltyCardNumber": "sa21as222",
+        "address": {
+          "street": "Bagno",
+          "address1": "12",
+          "province": "Mazowieckie",
+          "city": "Warszawa",
+          "postal": "00-800",
+          "country": "PL"
+        }
+      },
       "labels": [
         {
           "key": "scan_id",
           "value": "123"
         }
       ],
-	  "items": [
-		{
-		  "sku": {
-			"code": "SKU1"
-		  },
-		  "name": "item 1",
-		  "quantity": 1,
-		  "grossValue": 1,
-		  "category": "aaa",
-		  "maker": "sss",
-		  "labels": [
-			{
-			  "key": "test",
-			  "value": "label"
-			},
-			{
-			  "key": "test",
-			  "value": "label2"
-			}
-		  ]
-		},
-		{
-		  "sku": {
-			"code": "SKU2"
-		  },
-		  "name": "item 2",
-		  "quantity": 2,
-		  "grossValue": 2,
-		  "category": "bbb",
-		  "maker": "ccc",
-		  "labels": []
-		}
-	  ],
-	  "currency": "eur",
-	  "pointsEarned": 6
-	}
+      "items": [
+        {
+          "sku": {
+            "code": "SKU1"
+          },
+          "name": "item 1",
+          "quantity": 1,
+          "grossValue": 1,
+          "category": "aaa",
+          "maker": "sss",
+          "labels": [
+            {
+              "key": "test",
+              "value": "label"
+            },
+            {
+              "key": "test",
+              "value": "label2"
+            }
+          ]
+        },
+        {
+          "sku": {
+            "code": "SKU2"
+          },
+          "name": "item 2",
+          "quantity": 2,
+          "grossValue": 2,
+          "category": "bbb",
+          "maker": "ccc",
+          "labels": []
+        }
+      ],
+      "currency": "eur",
+      "pointsEarned": 6
+    }

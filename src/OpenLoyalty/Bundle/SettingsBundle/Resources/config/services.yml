@@ -1,57 +1,58 @@
 services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    _instanceof:
+        OpenLoyalty\Bundle\SettingsBundle\Provider\ChoiceProvider:
+            tags:
+            - { name: ol.settings.choices }
+
+    OpenLoyalty\Bundle\SettingsBundle\Provider\:
+        resource: '../../Provider/*'
+
+    OpenLoyalty\Bundle\SettingsBundle\Service\:
+        resource: '../../Service/*'
+
+    OpenLoyalty\Bundle\SettingsBundle\Form\Type\:
+        resource: '../../Form/Type/*'
+        tags: ['form.type']
+
     OpenLoyalty\Bundle\SettingsBundle\Controller\:
         resource: '../../Controller'
         tags: ['controller.service_arguments']
-    ol.doctrine_settings.manager:
-        class: OpenLoyalty\Bundle\SettingsBundle\Service\DoctrineSettingsManager
-        arguments: ['@doctrine.orm.entity_manager']
-    ol.settings.manager:
-        alias: ol.doctrine_settings.manager
-    ol.settings.form_type.settings:
-        class: OpenLoyalty\Bundle\SettingsBundle\Form\Type\SettingsFormType
-        arguments: ['@ol.settings.manager', '@ol.settings.translations']
-        tags:
-         - { name: form.type }
-    ol.settings.form_type.customers_indentification_priority:
-        class: OpenLoyalty\Bundle\SettingsBundle\Form\Type\CustomersIdentificationPriority
-        tags:
-         - { name: form.type }
-    ol.settings.frontend_translations_filesystem:
-      class:     Gaufrette\Filesystem
-      factory:   ['@knp_gaufrette.filesystem_map', get]
-      arguments: ['frontend_translations']
 
-    ol.settings.translations.file_based:
-        class: OpenLoyalty\Bundle\SettingsBundle\Service\FileBasedTranslationsProvider
+    OpenLoyalty\Bundle\SettingsBundle\Validator\Constraints\:
+        resource: '../../Validator/Constraints/*'
+        tags: ['validator.constraint_validator']
+
+    OpenLoyalty\Bundle\SettingsBundle\Service\FileBasedTranslationsProvider:
         arguments:
-          - '@ol.settings.manager'
-          - '@ol.settings.frontend_translations_filesystem'
-          - '%fallback_frontend_translations_file%'
-    ol.settings.translations:
-      alias: ol.settings.translations.file_based
-    ol.settings.validator.not_used_key:
-        class: OpenLoyalty\Bundle\SettingsBundle\Validator\Constraints\NotUsedKeyValidator
-        arguments: ['@ol.settings.translations']
-        tags:
-          - { name: validator.constraint_validator }
-    ol.settings.validator.unique_key:
-        class: OpenLoyalty\Bundle\SettingsBundle\Validator\Constraints\UniqueKeyValidator
-        arguments: ['@ol.settings.translations']
-        tags:
-          - { name: validator.constraint_validator }
-    oloy.settings.photos_filesystem:
-      class:     Gaufrette\Filesystem
-      factory:   ['@knp_gaufrette.filesystem_map', get]
-      arguments: ['logo']
-    oloy.settings.uploads_filesystem:
-      class:     Gaufrette\Filesystem
-      factory:   ['@knp_gaufrette.filesystem_map', get]
-      arguments: ['uploads']
-    oloy.settings.logo_uploader:
-      class: OpenLoyalty\Bundle\SettingsBundle\Service\LogoUploader
-      arguments: ["@oloy.settings.photos_filesystem"]
+            $filesystem: '@ol.settings.frontend_translations_filesystem'
+            $fallbackFile: '%fallback_frontend_translations_file%'
+
     OpenLoyalty\Bundle\SettingsBundle\Service\ConditionsUploader:
-      arguments: ["@oloy.settings.uploads_filesystem"]
+        arguments: ['@oloy.settings.uploads_filesystem']
+
+    OpenLoyalty\Bundle\SettingsBundle\Service\LogoUploader:
+        arguments: ['@oloy.settings.photos_filesystem']
+
     OpenLoyalty\Bundle\SettingsBundle\Service\TemplateProvider:
-      arguments:
-        - '@ol.settings.manager'
+        arguments: ['@ol.settings.manager']
+
+    ol.settings.frontend_translations_filesystem:
+        class:     Gaufrette\Filesystem
+        factory:   ['@knp_gaufrette.filesystem_map', get]
+        arguments: ['frontend_translations']
+        public: true
+
+    oloy.settings.photos_filesystem:
+        class:     Gaufrette\Filesystem
+        factory:   ['@knp_gaufrette.filesystem_map', get]
+        arguments: ['logo']
+
+    oloy.settings.uploads_filesystem:
+        class:     Gaufrette\Filesystem
+        factory:   ['@knp_gaufrette.filesystem_map', get]
+        arguments: ['uploads']

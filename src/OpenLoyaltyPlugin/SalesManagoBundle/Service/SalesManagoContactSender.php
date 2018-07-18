@@ -5,12 +5,13 @@
  */
 namespace OpenLoyaltyPlugin\SalesManagoBundle\Service;
 
-use Doctrine\ORM\EntityRepository;
 use GuzzleHttp\Exception\RequestException;
+use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
+use OpenLoyaltyPlugin\SalesManagoBundle\Config\Config;
+use OpenLoyaltyPlugin\SalesManagoBundle\Config\InvalidConfigException;
 use OpenLoyaltyPlugin\SalesManagoBundle\DataProvider\DataProviderInterface;
-use OpenLoyaltyPlugin\SalesManagoBundle\Entity\Config;
 use OpenLoyaltyPlugin\SalesManagoBundle\Entity\Deadletter;
-use OpenLoyaltyPlugin\SalesManagoBundle\Entity\DeadletterRepository;
+use OpenLoyaltyPlugin\SalesManagoBundle\Repository\DeadletterRepository;
 use Pixers\SalesManagoAPI\Client;
 use Pixers\SalesManagoAPI\Exception\InvalidRequestException;
 use Pixers\SalesManagoAPI\SalesManago;
@@ -25,14 +26,12 @@ abstract class SalesManagoContactSender
      * @var SalesManago
      */
     protected $connector;
+
     /**
      * @var string
      */
     protected $ownerEmail;
-    /**
-     * @var EntityRepository
-     */
-    protected $repository;
+
     /**
      * @var LoggerInterface
      */
@@ -44,48 +43,86 @@ abstract class SalesManagoContactSender
     protected $dataProvider;
 
     /**
+     * @var DeadletterRepository
+     */
+    protected $deadletterRepository;
+
+    /**
+     * @var SettingsManager
+     */
+    protected $settings;
+
+    /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
      * SalesManagoContactSender constructor.
      *
-     * @param EntityRepository      $repository
      * @param LoggerInterface       $logger
      * @param DataProviderInterface $dataProvider
      * @param DeadletterRepository  $deadletterRepository
+     * @param SettingsManager       $settingsManager
+     * @param Config                $config
+     *
+     * @throws InvalidConfigException
      */
     public function __construct(
-        EntityRepository $repository,
         LoggerInterface $logger,
         DataProviderInterface $dataProvider,
-        DeadletterRepository $deadletterRepository
+        DeadletterRepository $deadletterRepository,
+        SettingsManager $settingsManager,
+        Config $config
     ) {
-        /* @var Config repository */
-        $this->repository = $repository;
         $this->logger = $logger;
         $this->dataProvider = $dataProvider;
         $this->deadletterRepository = $deadletterRepository;
+        $this->settings = $settingsManager;
+        $this->config = $config;
         $this->createClient();
     }
 
     /**
+     * Creates a SalesManago client instance
      */
     protected function createClient()
     {
-        if ($this->repository->findAll()) {
+        $isActive = $this->settings->getSettingByKey('marketingVendorsValue');
+        if ($isActive && $isActive->getValue() === Config::KEY) {
+            $config = $this->settings->getSettingByKey(Config::KEY);
 
-            /** @var Config $config */
-            $config = $this->repository->findAll()[0];
+            if ($config) {
+                $configArray = $config->getValue();
 
-            if ($config->getSalesManagoIsActive() === true) {
-                $endpoint = $config->getSalesManagoApiEndpoint();
-                $apiSecret = $config->getSalesManagoApiSecret();
-                $apiKey = $config->getSalesManagoApiKey();
-                $customerId = $config->getSalesManagoCustomerId();
+                // validate configuration
+                $requiredConfigFields = array_keys($this->config->getSettingsConfig());
+                $isValid = true;
+                foreach ($requiredConfigFields as $requiredConfigField) {
+                    if (!array_key_exists($requiredConfigField, $configArray)) {
+                        $isValid = false;
+                    }
+                    if (empty($configArray[$requiredConfigField])) {
+                        $isValid = false;
+                    }
+                }
+
+                // if configuration is not valid then do nothing
+                if (!$isValid) {
+                    return;
+                }
+
+                $endpoint = $configArray['api_url'];
+                $apiSecret = $configArray['api_secret'];
+                $apiKey = $configArray['api_key'];
+                $customerId = $configArray['customer_id'];
                 try {
                     $this->connector = $this->createConnector(new Client($customerId, $endpoint, $apiSecret, $apiKey));
                 } catch (\Exception $exception) {
                     $this->logger->debug(json_encode($exception->getMessage()));
                 }
 
-                $this->ownerEmail = $config->getSalesManagoOwnerEmail();
+                $this->ownerEmail = $configArray['email'];
             }
         }
     }

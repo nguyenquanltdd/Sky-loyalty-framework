@@ -8,7 +8,6 @@ imports:
   - { resource: "@OpenLoyaltyEmailSettingsBundle/Resources/config/config.yml"}
   - { resource: "@OpenLoyaltyLevelBundle/Resources/config/config.yml"}
   - { resource: "@OpenLoyaltyPaginationBundle/Resources/config/config.yml"}
-  - { resource: "@OpenLoyaltyPluginBundle/Resources/config/config.yml"}
   - { resource: "@OpenLoyaltyPointsBundle/Resources/config/config.yml"}
   - { resource: "@OpenLoyaltyPosBundle/Resources/config/config.yml"}
   - { resource: "@OpenLoyaltySegmentBundle/Resources/config/config.yml"}

@@ -1,4 +1,6 @@
 services:
+  OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository: '@oloy.user.read_model.repository.customer_details'
+
   oloy.user.customer.command_handler:
     class: OpenLoyalty\Component\Customer\Domain\Command\CustomerCommandHandler
     arguments:

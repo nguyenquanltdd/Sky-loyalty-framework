@@ -39,6 +39,7 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
     const USER_USERNAME = 'user@oloy.com';
     const USER_PASSWORD = 'loyalty';
     const USER_PHONE_NUMBER = '+48234234000';
+    const USER_LOYALTY_CARD_NUMBER = '47834433524';
 
     const USER1_USER_ID = '11111111-0000-474c-b092-b0dd880c07e1';
     const USER1_USERNAME = 'user-1@oloy.com';
@@ -150,10 +151,16 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
         $customerId = new CustomerId(static::USER_USER_ID);
         $command = new RegisterCustomer(
             $customerId,
-            $this->getDefaultCustomerData('John', 'Doe', $this::USER_USERNAME, $this::USER_PHONE_NUMBER)
+            $this->getDefaultCustomerData(
+                'John',
+                'Doe',
+                $this::USER_USERNAME,
+                $this::USER_PHONE_NUMBER
+            )
         );
 
         $bus->dispatch($command);
+        $bus->dispatch(new UpdateCustomerLoyaltyCardNumber($customerId, $this::USER_LOYALTY_CARD_NUMBER));
         $bus->dispatch(new ActivateCustomer($customerId));
 
         $user = new Customer($customerId);
@@ -260,8 +267,20 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
         $manager->flush();
     }
 
-    public static function getDefaultCustomerData($firstName, $lastName, $email, $phone = '00000')
-    {
+    /**
+     * @param string $firstName
+     * @param string $lastName
+     * @param string $email
+     * @param string $phone
+     *
+     * @return array
+     */
+    public static function getDefaultCustomerData(
+        $firstName,
+        $lastName,
+        $email,
+        $phone = '00000'
+    ) {
         return [
             'firstName' => $firstName,
             'lastName' => $lastName,
