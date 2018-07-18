@@ -5,10 +5,11 @@ namespace OpenLoyalty\Component\Account\Infrastructure\SystemEvent\Listener;
 use Broadway\CommandHandling\CommandBus;
 use Broadway\ReadModel\Repository;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
+use OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager;
 use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
-use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
+use OpenLoyalty\Component\Account\Infrastructure\PointsTransferManagerInterface;
 use OpenLoyalty\Component\Customer\Domain\Command\InvitedCustomerMadePurchase;
 use OpenLoyalty\Component\EarningRule\Domain\ReferralEarningRule;
 use OpenLoyalty\Component\Account\Infrastructure\EarningRuleApplier;
@@ -40,23 +41,31 @@ abstract class BaseApplyEarningRuleListener
     protected $earningRuleApplier;
 
     /**
+     * @var PointsTransfersManager
+     */
+    protected $pointsTransfersManager;
+
+    /**
      * ApplyEarningRuleToTransactionListener constructor.
      *
-     * @param CommandBus             $commandBus
-     * @param Repository             $accountDetailsRepository
-     * @param UuidGeneratorInterface $uuidGenerator
-     * @param EarningRuleApplier     $earningRuleApplier
+     * @param CommandBus                     $commandBus
+     * @param Repository                     $accountDetailsRepository
+     * @param UuidGeneratorInterface         $uuidGenerator
+     * @param EarningRuleApplier             $earningRuleApplier
+     * @param PointsTransferManagerInterface $pointsTransfersManager
      */
     public function __construct(
         CommandBus $commandBus,
         Repository $accountDetailsRepository,
         UuidGeneratorInterface $uuidGenerator,
-        EarningRuleApplier $earningRuleApplier
+        EarningRuleApplier $earningRuleApplier,
+        PointsTransferManagerInterface $pointsTransfersManager
     ) {
         $this->commandBus = $commandBus;
         $this->accountDetailsRepository = $accountDetailsRepository;
         $this->uuidGenerator = $uuidGenerator;
         $this->earningRuleApplier = $earningRuleApplier;
+        $this->pointsTransferManager = $pointsTransfersManager;
     }
 
     /**
@@ -114,14 +123,17 @@ abstract class BaseApplyEarningRuleListener
                     continue;
                 }
                 $this->commandBus->dispatch(
-                    new AddPoints($account->getAccountId(), new AddPointsTransfer(
-                        new PointsTransferId($this->uuidGenerator->generate()),
-                        $result->getPoints(),
-                        null,
-                        false,
-                        null,
-                        $customer['comment']
-                    ))
+                    new AddPoints(
+                        $account->getAccountId(),
+                        $this->pointsTransferManager->createAddPointsTransferInstance(
+                            new PointsTransferId($this->uuidGenerator->generate()),
+                            $result->getPoints(),
+                            null,
+                            false,
+                            null,
+                            $customer['comment']
+                        )
+                    )
                 );
                 if ($eventName == ReferralEarningRule::EVENT_EVERY_PURCHASE || $eventName == ReferralEarningRule::EVENT_FIRST_PURCHASE) {
                     $this->commandBus->dispatch(

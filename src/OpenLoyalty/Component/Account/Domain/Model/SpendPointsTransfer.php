@@ -37,7 +37,7 @@ class SpendPointsTransfer extends PointsTransfer
      */
     public function __construct(PointsTransferId $id, $value, \DateTime $createdAt = null, $canceled = false, $comment = null, $issuer = self::ISSUER_SYSTEM, TransactionId $transactionId = null, TransactionId $revisedTransactionId = null)
     {
-        parent::__construct($id, $value, $createdAt, $canceled, $comment, $issuer);
+        parent::__construct($id, $value, 0, $createdAt, $canceled, $comment, $issuer);
         $this->transactionId = $transactionId;
         $this->revisedTransactionId = $revisedTransactionId;
     }

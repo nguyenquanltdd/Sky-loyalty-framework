@@ -15,6 +15,40 @@ use OpenLoyalty\Component\Core\Infrastructure\Repository\OloyElasticsearchReposi
  */
 class PointsTransferDetailsElasticsearchRepository extends OloyElasticsearchRepository implements PointsTransferDetailsRepository
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function findAllActiveAddingTransfersExpiredAfter(int $timestamp): array
+    {
+        $filter = [];
+        $filter[] = [
+            'term' => [
+                'state' => PointsTransferDetails::STATE_ACTIVE,
+            ],
+        ];
+        $filter[] = [
+            'term' => [
+                'type' => PointsTransferDetails::TYPE_ADDING,
+            ],
+        ];
+
+        $filter[] = [
+            'range' => [
+                'expiresAt' => [
+                    'lt' => $timestamp,
+                ],
+            ],
+        ];
+
+        $query = [
+            'bool' => [
+                'must' => $filter,
+            ],
+        ];
+
+        return $this->query($query);
+    }
+
     public function findAllActiveAddingTransfersCreatedAfter($timestamp)
     {
         $filter = [];

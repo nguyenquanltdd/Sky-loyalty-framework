@@ -35,6 +35,16 @@ abstract class PointsTransfer implements Serializable
     protected $createdAt;
 
     /**
+     * @var \DateTime
+     */
+    protected $expiresAt;
+
+    /**
+     * @var int
+     */
+    protected $validityInDays;
+
+    /**
      * @var float
      */
     protected $value;
@@ -54,24 +64,39 @@ abstract class PointsTransfer implements Serializable
      *
      * @param PointsTransferId $id
      * @param int              $value
+     * @param int              $validityDuration
      * @param \DateTime        $createdAt
      * @param bool             $canceled
      * @param string|null      $comment
      * @param string           $issuer
+     *
+     * @throws \Assert\AssertionFailedException
      */
-    public function __construct(PointsTransferId $id, $value, \DateTime $createdAt = null, $canceled = false, $comment = null, $issuer = self::ISSUER_SYSTEM)
-    {
+    public function __construct(
+        PointsTransferId $id,
+        $value,
+        int $validityDuration,
+        \DateTime $createdAt = null,
+        $canceled = false,
+        $comment = null,
+        $issuer = self::ISSUER_SYSTEM
+    ) {
         $this->id = $id;
         Assert::notBlank($value);
         Assert::numeric($value);
         Assert::min($value, 1);
+
+        $this->validityInDays = (int) $validityDuration;
         $this->value = $value;
+
         if ($createdAt) {
             $this->createdAt = $createdAt;
         } else {
             $this->createdAt = new \DateTime();
             $this->createdAt->setTimestamp(time());
         }
+
+        $this->expiresAt = $this->getExpiresAtDate($this->validityInDays);
         $this->comment = $comment;
         $this->canceled = $canceled;
         $this->issuer = $issuer;
@@ -80,7 +105,7 @@ abstract class PointsTransfer implements Serializable
     /**
      * @return PointsTransferId
      */
-    public function getId()
+    public function getId() : PointsTransferId
     {
         return $this->id;
     }
@@ -88,15 +113,23 @@ abstract class PointsTransfer implements Serializable
     /**
      * @return \DateTime
      */
-    public function getCreatedAt()
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
 
     /**
+     * @return \DateTime
+     */
+    public function getExpiresAt(): ? \DateTime
+    {
+        return $this->expiresAt;
+    }
+
+    /**
      * @return float
      */
-    public function getValue()
+    public function getValue() : float
     {
         return (float) $this->value;
     }
@@ -110,6 +143,8 @@ abstract class PointsTransfer implements Serializable
             'id' => $this->id->__toString(),
             'value' => $this->value,
             'createdAt' => $this->createdAt->getTimestamp(),
+            'expiresAt' => $this->expiresAt->getTimestamp(),
+            'validityInDays' => $this->validityInDays,
             'canceled' => $this->canceled,
             'comment' => $this->comment,
             'issuer' => $this->issuer,
@@ -119,7 +154,7 @@ abstract class PointsTransfer implements Serializable
     /**
      * @return bool
      */
-    public function isCanceled()
+    public function isCanceled(): bool
     {
         return $this->canceled;
     }
@@ -127,7 +162,7 @@ abstract class PointsTransfer implements Serializable
     /**
      * @return string
      */
-    public function getComment()
+    public function getComment(): ? string
     {
         return $this->comment;
     }
@@ -135,8 +170,28 @@ abstract class PointsTransfer implements Serializable
     /**
      * @return string
      */
-    public function getIssuer()
+    public function getIssuer() : string
     {
         return $this->issuer;
+    }
+
+    /**
+     * @return int
+     */
+    public function getValidityInDays(): int
+    {
+        return $this->validityInDays;
+    }
+
+    /**
+     * @param int $days
+     *
+     * @return \DateTime
+     */
+    private function getExpiresAtDate(int $days): \DateTime
+    {
+        $startDate = clone $this->getCreatedAt();
+
+        return $startDate->modify(sprintf('+%u days', abs($days)));
     }
 }

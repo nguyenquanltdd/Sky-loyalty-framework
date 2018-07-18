@@ -59,6 +59,13 @@ class AddPointsFormType extends AbstractType
             ],
         ]);
 
+        $builder->add('validityDuration', NumberType::class, [
+            'scale' => 2,
+            'constraints' => [
+                new Range(['min' => 1]),
+            ],
+        ]);
+
         $builder->add('comment', TextType::class, [
             'required' => false,
         ]);

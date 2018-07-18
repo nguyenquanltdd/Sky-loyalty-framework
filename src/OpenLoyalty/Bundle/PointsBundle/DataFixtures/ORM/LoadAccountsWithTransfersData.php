@@ -8,12 +8,12 @@ namespace OpenLoyalty\Bundle\PointsBundle\DataFixtures\ORM;
 use Broadway\ReadModel\Repository;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
+use OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
 use OpenLoyalty\Component\Account\Domain\Command\ExpirePointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Command\SpendPoints;
-use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Model\SpendPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
@@ -34,22 +34,26 @@ class LoadAccountsWithTransfersData extends ContainerAwareFixture implements Ord
 
     public function load(ObjectManager $manager)
     {
+        /*
+         * @var PointsTransfersManager
+         */
+        $pointsTransferManager = $this->getContainer()->get(PointsTransfersManager::class);
         $commandBud = $this->container->get('broadway.command_handling.command_bus');
         $accountId = $this->getAccountIdByCustomerId(LoadUserData::TEST_USER_ID);
         $account2Id = $this->getAccountIdByCustomerId(LoadUserData::USER_USER_ID);
 
         $commandBud->dispatch(
-            new AddPoints(new AccountId($accountId), new AddPointsTransfer(new PointsTransferId(static::POINTS_ID), 100, new \DateTime('-29 days')))
+            new AddPoints(new AccountId($accountId), $pointsTransferManager->createAddPointsTransferInstance(new PointsTransferId(static::POINTS_ID), 100, new \DateTime('-29 days')))
         );
 
         $commandBud->dispatch(
-            new AddPoints(new AccountId($account2Id), new AddPointsTransfer(new PointsTransferId(static::POINTS22_ID), 100, new \DateTime('-29 days')))
+            new AddPoints(new AccountId($account2Id), $pointsTransferManager->createAddPointsTransferInstance(new PointsTransferId(static::POINTS22_ID), 100, new \DateTime('-29 days')))
         );
         $commandBud->dispatch(
-            new AddPoints(new AccountId($accountId), new AddPointsTransfer(new PointsTransferId(static::POINTS4_ID), 100, new \DateTime('-29 days')))
+            new AddPoints(new AccountId($accountId), $pointsTransferManager->createAddPointsTransferInstance(new PointsTransferId(static::POINTS4_ID), 100, new \DateTime('-29 days')))
         );
         $commandBud->dispatch(
-            new AddPoints(new AccountId($accountId), new AddPointsTransfer(new PointsTransferId(static::POINTS2_ID), 100, new \DateTime('-3 days')))
+            new AddPoints(new AccountId($accountId), $pointsTransferManager->createAddPointsTransferInstance(new PointsTransferId(static::POINTS2_ID), 100, new \DateTime('-3 days')))
         );
         $commandBud->dispatch(
             new SpendPoints(new AccountId($accountId), new SpendPointsTransfer(new PointsTransferId(static::POINTS3_ID), 100, null, false, 'Example comment'))

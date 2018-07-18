@@ -69,6 +69,11 @@ class PointsTransferDetails implements SerializableReadModel
     protected $createdAt;
 
     /**
+     * @var \DateTime
+     */
+    protected $expiresAt;
+
+    /**
      * @var float
      */
     protected $value = 0;
@@ -105,12 +110,15 @@ class PointsTransferDetails implements SerializableReadModel
 
     protected $issuer = PointsTransfer::ISSUER_SYSTEM;
 
+    protected $validityInDays;
+
     /**
      * PointsTransfer constructor.
      *
      * @param PointsTransferId $pointsTransferId
      * @param CustomerId       $customerId
      * @param AccountId        $accountId
+     * @param int              $validityInDays
      */
     public function __construct(
         PointsTransferId $pointsTransferId,
@@ -154,12 +162,19 @@ class PointsTransferDetails implements SerializableReadModel
         $newTransfer->value = $data['value'];
         $newTransfer->state = $data['state'];
         $newTransfer->type = $data['type'];
+
+        $newTransfer->validityInDays = $data['validityInDays'];
         if (isset($data['posIdentifier'])) {
             $newTransfer->posIdentifier = $data['posIdentifier'];
         }
         $createdAt = new \DateTime();
         $createdAt->setTimestamp($data['createdAt']);
         $newTransfer->createdAt = $createdAt;
+
+        $expiresAt = new \DateTime();
+        $expiresAt->setTimestamp($data['expiresAt']);
+        $newTransfer->expiresAt = $expiresAt;
+
         if (isset($data['transactionId'])) {
             $newTransfer->transactionId = new TransactionId($data['transactionId']);
         }
@@ -193,6 +208,8 @@ class PointsTransferDetails implements SerializableReadModel
             'value' => $this->value,
             'type' => $this->type,
             'createdAt' => $this->createdAt->getTimestamp(),
+            'expiresAt' => $this->expiresAt->getTimestamp(),
+            'validityInDays' => $this->validityInDays,
             'state' => $this->state,
             'transactionId' => $this->transactionId ? $this->transactionId->__toString() : null,
             'revisedTransactionId' => $this->revisedTransactionId ? $this->revisedTransactionId->__toString() : null,
@@ -255,9 +272,17 @@ class PointsTransferDetails implements SerializableReadModel
     /**
      * @return \DateTime
      */
-    public function getCreatedAt()
+    public function getCreatedAt(): ? \DateTime
     {
         return $this->createdAt;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getExpiresAt() : ? \DateTime
+    {
+        return $this->expiresAt;
     }
 
     /**
@@ -322,6 +347,22 @@ class PointsTransferDetails implements SerializableReadModel
     public function setCreatedAt($createdAt)
     {
         $this->createdAt = $createdAt;
+    }
+
+    /**
+     * @param \DateTime $expiresAt
+     */
+    public function setExpiresAt($expiresAt)
+    {
+        $this->expiresAt = $expiresAt;
+    }
+
+    /**
+     * @param int $days
+     */
+    public function setValidityInDays(int $days)
+    {
+        $this->validityInDays = $days;
     }
 
     /**

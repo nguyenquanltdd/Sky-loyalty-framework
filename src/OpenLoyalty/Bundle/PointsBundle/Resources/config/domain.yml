@@ -1,4 +1,8 @@
 services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
   oloy.points.account.command_handler:
     class: OpenLoyalty\Component\Account\Domain\Command\AccountCommandHandler
     arguments:
@@ -55,11 +59,11 @@ services:
   oloy.points.apply_earning_rule_listener.event:
     class: 'OpenLoyalty\Component\Account\Infrastructure\SystemEvent\Listener\ApplyEarningRuleToEventListener'
     arguments:
-      - '@broadway.command_handling.command_bus'
-      - '@oloy.points.account.repository.account_details'
-      - '@broadway.uuid.generator'
-      - '@oloy.earning_rule.applier'
-      - '@oloy.earning_rule.validator'
+       $commandBus: '@broadway.command_handling.command_bus'
+       $accountDetailsRepository: '@oloy.points.account.repository.account_details'
+       $uuidGenerator: '@broadway.uuid.generator'
+       $earningRuleApplier: '@oloy.earning_rule.applier'
+       $earningRuleLimitValidator: '@oloy.earning_rule.validator'
     tags:
       - { name: broadway.event_listener, event: oloy.account.created, method: onCustomerRegistered}
       - { name: broadway.event_listener, event: oloy.transaction.customer_first_transaction, method: onFirstTransaction}

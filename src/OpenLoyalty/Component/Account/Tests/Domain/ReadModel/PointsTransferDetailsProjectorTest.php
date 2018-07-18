@@ -6,6 +6,7 @@ use Broadway\ReadModel\InMemory\InMemoryRepository;
 use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\Repository;
 use Broadway\ReadModel\Testing\ProjectorScenarioTestCase;
+use OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManager;
 use OpenLoyalty\Component\Account\Domain\Account;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenCanceled;
@@ -60,7 +61,13 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $transactionRepo->method('find')->willReturn(null);
         $posRepo = $this->getMockBuilder(PosRepository::class)->getMock();
 
-        return new PointsTransferDetailsProjector($repository, $accountRepository, $customerRepository, $transactionRepo, $posRepo);
+        $generalSettings = $this->getMockBuilder(GeneralSettingsManager::class)->disableOriginalConstructor()->getMock();
+        $generalSettings
+            ->expects($this->any())
+            ->method('getPointsDaysActive')
+            ->willReturn($this->returnValue(GeneralSettingsManager::DEFAULT_POINTS_DURATION_VALIDITY_DAYS));
+
+        return new PointsTransferDetailsProjector($repository, $accountRepository, $customerRepository, $transactionRepo, $posRepo, $generalSettings);
     }
 
     /**
@@ -70,13 +77,18 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
     {
         $pointsId = new PointsTransferId('00000000-0000-0000-0000-000000000000');
         $expectedReadModel = $this->createReadModel($pointsId);
-        $expectedReadModel->setValue(100);
+        $expectedReadModel->setValue(100.0);
         $expectedReadModel->setState('active');
         $expectedReadModel->setType('adding');
+        $expectedReadModel->setValidityInDays(10);
+
         $date = new \DateTime();
         $expectedReadModel->setCreatedAt($date);
+        $expiresAtDate = clone $date;
+        $expiresAtDate->modify(sprintf('+%u days', 10));
+        $expectedReadModel->setExpiresAt($expiresAtDate);
         $this->scenario->given(array())
-            ->when(new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, $date)))
+            ->when(new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, 10, $date)))
             ->then(array(
                 $expectedReadModel,
             ));
@@ -89,11 +101,16 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
     {
         $pointsId = new PointsTransferId('00000000-0000-0000-0000-000000000000');
         $expectedReadModel = $this->createReadModel($pointsId);
-        $expectedReadModel->setValue(100);
+        $expectedReadModel->setValue(100.0);
         $expectedReadModel->setState('active');
         $expectedReadModel->setType('spending');
+
         $date = new \DateTime();
         $expectedReadModel->setCreatedAt($date);
+        $expiresAtDate = clone $date;
+        $expectedReadModel->setValidityInDays(0);
+        $expiresAtDate->modify(sprintf('+%u days', 0));
+        $expectedReadModel->setExpiresAt($expiresAtDate);
         $this->scenario->given(array())
             ->when(new PointsWereSpent($this->accountId, new SpendPointsTransfer($pointsId, 100, $date)))
             ->then(array(
@@ -108,14 +125,18 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
     {
         $pointsId = new PointsTransferId('00000000-0000-0000-0000-000000000000');
         $expectedReadModel = $this->createReadModel($pointsId);
-        $expectedReadModel->setValue(100);
+        $expectedReadModel->setValue(100.0);
         $expectedReadModel->setState('canceled');
         $expectedReadModel->setType('adding');
         $date = new \DateTime();
         $expectedReadModel->setCreatedAt($date);
+        $expectedReadModel->setValidityInDays(10);
+        $expiresAtDate = clone $date;
+        $expiresAtDate->modify(sprintf('+%u days', 10));
+        $expectedReadModel->setExpiresAt($expiresAtDate);
         $this->scenario
             ->given(array(
-                new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, $date)),
+                new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, 10, $date)),
             ))
             ->when(new PointsTransferHasBeenCanceled($this->accountId, $pointsId))
             ->then(array(
@@ -130,14 +151,18 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
     {
         $pointsId = new PointsTransferId('00000000-0000-0000-0000-000000000000');
         $expectedReadModel = $this->createReadModel($pointsId);
-        $expectedReadModel->setValue(100);
+        $expectedReadModel->setValue(100.0);
         $expectedReadModel->setState('expired');
         $expectedReadModel->setType('adding');
+        $expectedReadModel->setValidityInDays(10);
         $date = new \DateTime();
         $expectedReadModel->setCreatedAt($date);
+        $expiresAtDate = clone $date;
+        $expiresAtDate->modify(sprintf('+%u days', 10));
+        $expectedReadModel->setExpiresAt($expiresAtDate);
         $this->scenario
             ->given(array(
-                new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, $date)),
+                new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, 10, $date)),
             ))
             ->when(new PointsTransferHasBeenExpired($this->accountId, $pointsId))
             ->then(array(

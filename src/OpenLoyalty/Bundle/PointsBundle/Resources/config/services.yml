@@ -15,12 +15,18 @@ services:
       parent: 'oloy.account.form_type.add_points'
       tags:
         - { name: form.type }
-  oloy.account.points_transfers_manager:
-      class: OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager
+
+  OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager:
+      #alias: 'oloy.account.points_transfers_manager'
+      public: true
       arguments:
-        - '@broadway.command_handling.command_bus'
-        - '@oloy.points.account.repository.points_transfer_details'
-        - '@ol.settings.manager'
+        $commandBus: '@broadway.command_handling.command_bus'
+        $pointsTransferDetailsRepository: '@oloy.points.account.repository.points_transfer_details'
+        $settingsManager: '@OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManager'
+
+  oloy.account.points_transfers_manager:
+      alias: OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager
+
   oloy.account.points_transfers.serialization_listener:
       class: OpenLoyalty\Bundle\PointsBundle\Event\Listener\PointsTransferSerializationListener
       arguments:
@@ -51,6 +57,7 @@ services:
     arguments:
         - "@broadway.uuid.generator"
         - "@oloy.points.account.repository.account_details"
+        - '@OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager'
 
   OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferXmlImporter:
     calls:

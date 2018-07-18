@@ -29,6 +29,7 @@ class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleListenerTe
         $expected = new AddPoints($accountId, new AddPointsTransfer(
             new PointsTransferId($this->uuid),
             10,
+            0,
             null,
             false,
             null,
@@ -39,7 +40,8 @@ class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleListenerTe
             $this->getCommandBus($expected),
             $this->getAccountDetailsRepository(),
             $this->getUuidGenerator(),
-            $this->getApplierForEvent(['points' => 10, 'comment' => 'Test comment'])
+            $this->getApplierForEvent(['points' => 10, 'comment' => 'Test comment']),
+            $this->getPointsTransfersManager(10, 0, 'Test comment')
         );
 
         $listener->onCustomerRegistered(new AccountCreatedSystemEvent($accountId));
@@ -54,6 +56,7 @@ class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleListenerTe
         $expected = new AddPoints($accountId, new AddPointsTransfer(
             new PointsTransferId($this->uuid),
             10,
+            0,
             null,
             false,
             null,
@@ -64,7 +67,8 @@ class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleListenerTe
             $this->getCommandBus($expected),
             $this->getAccountDetailsRepository(),
             $this->getUuidGenerator(),
-            $this->getApplierForEvent(['points' => 10, 'comment' => 'Test comment'])
+            $this->getApplierForEvent(['points' => 10, 'comment' => 'Test comment']),
+            $this->getPointsTransfersManager(10, 0, 'Test comment')
         );
 
         $listener->onFirstTransaction(new CustomerFirstTransactionSystemEvent(new TransactionId($this->uuid), new CustomerId($this->uuid)));
@@ -79,6 +83,7 @@ class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleListenerTe
         $expected = new AddPoints($accountId, new AddPointsTransfer(
             new PointsTransferId($this->uuid),
             10,
+            0,
             null,
             false,
             null,
@@ -89,7 +94,8 @@ class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleListenerTe
             $this->getCommandBus($expected),
             $this->getAccountDetailsRepository(),
             $this->getUuidGenerator(),
-            $this->getApplierForEvent(['points' => 10, 'comment' => 'Test comment'])
+            $this->getApplierForEvent(['points' => 10, 'comment' => 'Test comment']),
+            $this->getPointsTransfersManager(10, 0, 'Test comment')
         );
 
         $listener->onCustomerLogin(new CustomerLoggedInSystemEvent(new \OpenLoyalty\Component\Customer\Domain\CustomerId($this->uuid)));
@@ -104,6 +110,7 @@ class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleListenerTe
         $expected = new AddPoints($accountId, new AddPointsTransfer(
             new PointsTransferId($this->uuid),
             100,
+            0,
             null,
             false,
             null,
@@ -114,7 +121,8 @@ class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleListenerTe
             $this->getCommandBus($expected),
             $this->getAccountDetailsRepository(),
             $this->getUuidGenerator(),
-            $this->getApplierForEvent(['points' => 100, 'comment' => 'Newsletter subscription comment'])
+            $this->getApplierForEvent(['points' => 100, 'comment' => 'Newsletter subscription comment']),
+            $this->getPointsTransfersManager(100, 0, 'Newsletter subscription comment')
         );
 
         $customerId = new \OpenLoyalty\Component\Customer\Domain\CustomerId($this->uuid);
@@ -129,14 +137,16 @@ class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleListenerTe
         $accountId = new AccountId($this->uuid);
         $expected = new AddPoints($accountId, new AddPointsTransfer(
             new PointsTransferId($this->uuid),
-            100
+            100,
+            30
         ));
 
         $listener = new ApplyEarningRuleToEventListener(
             $this->getCommandBus($expected),
             $this->getAccountDetailsRepository(),
             $this->getUuidGenerator(),
-            $this->getApplierForEvent(100)
+            $this->getApplierForEvent(100),
+            $this->getPointsTransfersManager(100, 30)
         );
 
         $customerId = new \OpenLoyalty\Component\Account\Domain\CustomerId($this->uuid);

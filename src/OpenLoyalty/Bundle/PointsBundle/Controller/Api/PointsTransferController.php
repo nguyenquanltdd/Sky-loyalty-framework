@@ -16,13 +16,13 @@ use OpenLoyalty\Bundle\ImportBundle\Service\ImportFileManager;
 use OpenLoyalty\Bundle\PointsBundle\Form\Type\AddPointsFormType;
 use OpenLoyalty\Bundle\PointsBundle\Form\Type\SpendPointsFormType;
 use OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferXmlImporter;
+use OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager;
 use OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider;
 use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
 use OpenLoyalty\Component\Account\Domain\Command\CancelPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Command\SpendPoints;
 use OpenLoyalty\Component\Account\Domain\Exception\CannotBeCanceledException;
 use OpenLoyalty\Component\Account\Domain\Exception\NotEnoughPointsException;
-use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Model\PointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Model\SpendPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
@@ -124,6 +124,7 @@ class PointsTransferController extends FOSRestController
         $uuidGenerator = $this->get('broadway.uuid.generator');
         $currentUser = $this->getUser();
 
+        $manager = $this->get(PointsTransfersManager::class);
         $form->handleRequest($request);
 
         if ($form->isValid()) {
@@ -141,7 +142,7 @@ class PointsTransferController extends FOSRestController
             $pointsTransferId = new PointsTransferId($uuidGenerator->generate());
             $command = new AddPoints(
                 $account->getAccountId(),
-                new AddPointsTransfer(
+                $manager->createAddPointsTransferInstance(
                     $pointsTransferId,
                     $data['points'],
                     null,
@@ -153,6 +154,7 @@ class PointsTransferController extends FOSRestController
                         : PointsTransfer::ISSUER_ADMIN
                 )
             );
+
             $commandBus->dispatch($command);
 
             return $this->view($pointsTransferId);

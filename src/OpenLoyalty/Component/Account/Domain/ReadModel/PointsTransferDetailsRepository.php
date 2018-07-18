@@ -9,6 +9,13 @@ use Broadway\ReadModel\Repository;
 
 interface PointsTransferDetailsRepository extends Repository
 {
+    /**
+     * @param int $timestamp
+     *
+     * @return array
+     */
+    public function findAllActiveAddingTransfersExpiredAfter(int $timestamp): array;
+
     public function findAllActiveAddingTransfersCreatedAfter($timestamp);
 
     public function findAllPaginated($page = 1, $perPage = 10, $sortField = 'earningRuleId', $direction = 'DESC');

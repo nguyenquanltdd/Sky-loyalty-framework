@@ -77,6 +77,7 @@ class PointsTransferControllerTest extends BaseApiTest
                 'transfer' => [
                     'customer' => LoadUserData::TEST_USER_ID,
                     'points' => 100,
+                    'validityDuration' => 50,
                 ],
             ]
         );
@@ -162,6 +163,7 @@ class PointsTransferControllerTest extends BaseApiTest
                 'transfer' => [
                     'customer' => LoadUserData::TEST_USER_ID,
                     'points' => 100,
+                    'validityDuration' => 60,
                 ],
             ]
         );

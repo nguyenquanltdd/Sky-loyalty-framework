@@ -8,13 +8,12 @@ namespace OpenLoyalty\Component\Account\Infrastructure\SystemEvent\Listener;
 use Broadway\CommandHandling\CommandBus;
 use Broadway\ReadModel\Repository;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
+use OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager;
 use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
-use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountCreatedSystemEvent;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\CustomEventOccurredSystemEvent;
-use OpenLoyalty\Component\Account\Infrastructure\Exception\EarningRuleLimitExceededException;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerAttachedToInvitationSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerLoggedInSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
@@ -42,6 +41,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
      * @param Repository                     $accountDetailsRepository
      * @param UuidGeneratorInterface         $uuidGenerator
      * @param EarningRuleApplier             $earningRuleApplier
+     * @param $pointsTransfersManager        $pointsTransfersManager
      * @param EarningRuleLimitValidator|null $earningRuleLimitValidator
      */
     public function __construct(
@@ -49,16 +49,17 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
         Repository $accountDetailsRepository,
         UuidGeneratorInterface $uuidGenerator,
         EarningRuleApplier $earningRuleApplier,
+        PointsTransfersManager $pointsTransfersManager,
         EarningRuleLimitValidator $earningRuleLimitValidator = null
     ) {
-        parent::__construct($commandBus, $accountDetailsRepository, $uuidGenerator, $earningRuleApplier);
+        parent::__construct($commandBus, $accountDetailsRepository, $uuidGenerator, $earningRuleApplier, $pointsTransfersManager);
         $this->earningRuleLimitValidator = $earningRuleLimitValidator;
     }
 
     /**
      * @param CustomEventOccurredSystemEvent $event
      *
-     * @throws EarningRuleLimitExceededException
+     * @throws \OpenLoyalty\Component\Account\Infrastructure\Exception\EarningRuleLimitExceededException
      */
     public function onCustomEvent(CustomEventOccurredSystemEvent $event)
     {
@@ -75,14 +76,17 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
         }
 
         $this->commandBus->dispatch(
-            new AddPoints($account->getAccountId(), new AddPointsTransfer(
-                new PointsTransferId($this->uuidGenerator->generate()),
-                $result->getPoints(),
-                null,
-                false,
-                $result->getName()
-
-            ))
+            new AddPoints(
+                $account->getAccountId(),
+                $this->pointsTransferManager->createAddPointsTransferInstance(
+                    new PointsTransferId($this->uuidGenerator->generate()),
+                    $result->getPoints(),
+                    null,
+                    false,
+                    null,
+                    $result->getName()
+                )
+            )
         );
         $event->setEvaluationResult($result);
     }
@@ -101,11 +105,11 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
             $this->commandBus->dispatch(
                 new AddPoints(
                     $event->getAccountId(),
-                    new AddPointsTransfer(
+                    $this->pointsTransferManager->createAddPointsTransferInstance(
                         new PointsTransferId($this->uuidGenerator->generate()),
                         $result['points'],
                         null,
-                        false,
+                        null,
                         null,
                         $result['comment']
                     )
@@ -139,14 +143,17 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
 
         if (array_key_exists('points', $result) && $result['points'] > 0) {
             $this->commandBus->dispatch(
-                new AddPoints($account->getAccountId(), new AddPointsTransfer(
-                    new PointsTransferId($this->uuidGenerator->generate()),
-                    $result['points'],
-                    null,
-                    false,
-                    null,
-                    $result['comment']
-                ))
+                new AddPoints(
+                    $account->getAccountId(),
+                    $this->pointsTransferManager->createAddPointsTransferInstance(
+                        new PointsTransferId($this->uuidGenerator->generate()),
+                        $result['points'],
+                        null,
+                        false,
+                        null,
+                        $result['comment']
+                    )
+                )
             );
         }
 
@@ -175,7 +182,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
         $this->commandBus->dispatch(
             new AddPoints(
                 $account->getAccountId(),
-                new AddPointsTransfer(
+                $this->pointsTransferManager->createAddPointsTransferInstance(
                     new PointsTransferId($this->uuidGenerator->generate()),
                     $result['points'],
                     null,
@@ -209,7 +216,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
         $this->commandBus->dispatch(
             new AddPoints(
                 $account->getAccountId(),
-                new AddPointsTransfer(
+                $this->pointsTransferManager->createAddPointsTransferInstance(
                     new PointsTransferId($this->uuidGenerator->generate()),
                     $result['points'],
                     null,

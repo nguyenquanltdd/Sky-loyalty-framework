@@ -15,7 +15,7 @@ services:
         deprecated: The "%service_id%" service is deprecated since 2.8.0
 
     ol.doctrine_settings.manager:
-        alias: OpenLoyalty\Bundle\SettingsBundle\Service\DoctrineSettingsManager
+        alias: OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManager
         deprecated: The "%service_id%" service is deprecated since 2.8.0
 
     ol.settings.translations.file_based:

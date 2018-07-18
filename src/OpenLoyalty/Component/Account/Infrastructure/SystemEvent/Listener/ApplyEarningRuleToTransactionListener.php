@@ -6,7 +6,6 @@
 namespace OpenLoyalty\Component\Account\Infrastructure\SystemEvent\Listener;
 
 use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
-use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Account\Domain\TransactionId;
@@ -38,14 +37,17 @@ class ApplyEarningRuleToTransactionListener extends BaseApplyEarningRuleListener
             /** @var AccountDetails $account */
             $account = reset($accounts);
             $this->commandBus->dispatch(
-                new AddPoints($account->getAccountId(), new AddPointsTransfer(
-                    new PointsTransferId($this->uuidGenerator->generate()),
-                    $points,
-                    null,
-                    false,
-                    new TransactionId($transactionId->__toString()),
-                    $comment
-                ))
+                new AddPoints(
+                    $account->getAccountId(),
+                    $this->pointsTransferManager->createAddPointsTransferInstance(
+                        new PointsTransferId($this->uuidGenerator->generate()),
+                        $points,
+                        null,
+                        false,
+                        new TransactionId($transactionId->__toString()),
+                        $comment
+                    )
+                )
             );
         }
 

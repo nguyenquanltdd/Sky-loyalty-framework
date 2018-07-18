@@ -5,7 +5,10 @@ namespace OpenLoyalty\Component\Account\Tests\Infrastructure\SytemEvent\Listener
 use Broadway\CommandHandling\CommandBus;
 use Broadway\ReadModel\Repository;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
+use OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager;
 use OpenLoyalty\Component\Account\Domain\AccountId;
+use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
+use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Component\Account\Domain\TransactionId;
@@ -37,6 +40,32 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
         $repo->method('findBy')->with($this->arrayHasKey('customerId'))->willReturn([$account]);
 
         return $repo;
+    }
+
+    /**
+     * @param int         $value
+     * @param int         $duration
+     * @param string:null $comment
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getPointsTransfersManager($value = 10, $duration = 0, $comment = null)
+    {
+        $pointsTransfer = new AddPointsTransfer(
+            new PointsTransferId($this->uuid),
+            $value,
+            $duration,
+            null,
+            false,
+            null,
+            $comment
+        );
+        $manager = $this->getMockBuilder(PointsTransfersManager::class)->disableOriginalConstructor()->getMock();
+        $manager->method('createAddPointsTransferInstance')->willReturn(
+            $pointsTransfer
+        );
+
+        return $manager;
     }
 
     protected function getCommandBus($expected)

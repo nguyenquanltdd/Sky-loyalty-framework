@@ -29,8 +29,8 @@ class ExpirePointsTransferTest extends AccountCommandHandlerTest
             ->withAggregateId($accountId)
             ->given([
                 new AccountWasCreated($accountId, $customerId),
-                new PointsWereAdded($accountId, new AddPointsTransfer($pointsTransferId, 100, new \DateTime('-11 days'))),
-                new PointsWereAdded($accountId, new AddPointsTransfer($pointsTransferId2, 100, new \DateTime('-10 days'))),
+                new PointsWereAdded($accountId, new AddPointsTransfer($pointsTransferId, 100, 5, new \DateTime('-11 days'))),
+                new PointsWereAdded($accountId, new AddPointsTransfer($pointsTransferId2, 100, 6, new \DateTime('-10 days'))),
             ])
             ->when(new ExpirePointsTransfer($accountId, $pointsTransferId))
             ->then(array(

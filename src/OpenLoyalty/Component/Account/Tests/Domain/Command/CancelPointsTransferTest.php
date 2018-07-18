@@ -28,7 +28,7 @@ class CancelPointsTransferTest extends AccountCommandHandlerTest
             ->withAggregateId($accountId)
             ->given([
                 new AccountWasCreated($accountId, $customerId),
-                new PointsWereAdded($accountId, new AddPointsTransfer($pointsTransferId, 100)),
+                new PointsWereAdded($accountId, new AddPointsTransfer($pointsTransferId, 100, 40)),
             ])
             ->when(new CancelPointsTransfer($accountId, $pointsTransferId))
             ->then(array(

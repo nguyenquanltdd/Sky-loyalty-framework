@@ -34,15 +34,26 @@ class AddPointsTransfer extends PointsTransfer
      *
      * @param PointsTransferId $id
      * @param int              $value
+     * @param int              $validityDuration
      * @param \DateTime        $createdAt
      * @param bool             $canceled
      * @param TransactionId    $transactionId
      * @param string           $comment
      * @param string           $issuer
+     *
+     * @throws \Assert\AssertionFailedException
      */
-    public function __construct(PointsTransferId $id, $value, \DateTime $createdAt = null, $canceled = false, TransactionId $transactionId = null, $comment = null, $issuer = self::ISSUER_SYSTEM)
-    {
-        parent::__construct($id, $value, $createdAt, $canceled, $comment, $issuer);
+    public function __construct(
+        PointsTransferId $id,
+        $value,
+        int $validityDuration,
+        \DateTime $createdAt = null,
+        $canceled = false,
+        TransactionId $transactionId = null,
+        $comment = null,
+        $issuer = self::ISSUER_SYSTEM
+    ) {
+        parent::__construct($id, $value, $validityDuration, $createdAt, $canceled, $comment, $issuer);
         $this->availableAmount = $value;
         $this->transactionId = $transactionId;
     }
@@ -51,6 +62,8 @@ class AddPointsTransfer extends PointsTransfer
      * @param array $data
      *
      * @return mixed The object instance
+     *
+     * @throws \Assert\AssertionFailedException
      */
     public static function deserialize(array $data)
     {
@@ -59,7 +72,19 @@ class AddPointsTransfer extends PointsTransfer
             $createdAt = new \DateTime();
             $createdAt->setTimestamp($data['createdAt']);
         }
-        $transfer = new self(new PointsTransferId($data['id']), $data['value'], $createdAt, $data['canceled']);
+
+        $transfer = new self(
+            new PointsTransferId($data['id']),
+            $data['value'],
+            $data['validityInDays'] ?? null,
+            $createdAt,
+            $data['canceled']
+        );
+
+        if (isset($data['validityInDays'])) {
+            $transfer->validityInDays = $data['validityInDays'];
+        }
+
         if (isset($data['availableAmount'])) {
             Assert::numeric($data['availableAmount']);
             Assert::min($data['availableAmount'], 0);
@@ -84,7 +109,10 @@ class AddPointsTransfer extends PointsTransfer
         return $transfer;
     }
 
-    public function serialize(): array
+    /**
+     * @return array
+     */
+    public function serialize() : array
     {
         return array_merge(
             parent::serialize(),
@@ -96,6 +124,13 @@ class AddPointsTransfer extends PointsTransfer
         );
     }
 
+    /**
+     * @param $value
+     *
+     * @return $this
+     *
+     * @throws \Assert\AssertionFailedException
+     */
     public function updateAvailableAmount($value)
     {
         Assert::notBlank($value);
@@ -106,6 +141,9 @@ class AddPointsTransfer extends PointsTransfer
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function cancel()
     {
         $this->canceled = true;
@@ -113,6 +151,9 @@ class AddPointsTransfer extends PointsTransfer
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function expire()
     {
         $this->expired = true;

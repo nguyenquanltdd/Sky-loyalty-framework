@@ -7,10 +7,10 @@ namespace OpenLoyalty\Bundle\PointsBundle\Import;
 
 use Broadway\ReadModel\Repository;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
+use OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
 use OpenLoyalty\Component\Account\Domain\Command\SpendPoints;
-use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Model\PointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Model\SpendPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
@@ -30,16 +30,24 @@ class PointsTransferXmlImportConverter extends AbstractXMLImportConverter
     /** @var  Repository */
     protected $accountRepository;
 
+    /** @var PointsTransfersManager */
+    protected $pointsTransfersManager;
+
     /**
      * PointsTransferXmlImportConverter constructor.
      *
      * @param UuidGeneratorInterface $uuidGenerator
      * @param Repository             $accountRepository
+     * @param PointsTransfersManager $manager
      */
-    public function __construct(UuidGeneratorInterface $uuidGenerator, Repository $accountRepository)
-    {
+    public function __construct(
+        UuidGeneratorInterface $uuidGenerator,
+        Repository $accountRepository,
+        PointsTransfersManager $manager
+    ) {
         $this->uuidGenerator = $uuidGenerator;
         $this->accountRepository = $accountRepository;
+        $this->pointsTransfersManager = $manager;
     }
 
     /**
@@ -71,6 +79,7 @@ class PointsTransferXmlImportConverter extends AbstractXMLImportConverter
                 'points' => ['format' => XmlNodeValidator::INTEGER_FORMAT, 'required' => true],
                 'customerId' => ['required' => true],
                 'type' => ['required' => true],
+                'validityDuration' => ['required' => true],
             ]
         );
 
@@ -82,7 +91,7 @@ class PointsTransferXmlImportConverter extends AbstractXMLImportConverter
             case PointsTransferDetails::TYPE_ADDING:
                 return new AddPoints(
                     new AccountId($account->getId()),
-                    new AddPointsTransfer(
+                    $this->pointsTransfersManager->createAddPointsTransferInstance(
                         $pointsTransferId,
                         (string) $element->{'points'},
                         null,

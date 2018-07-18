@@ -7,6 +7,7 @@ namespace OpenLoyalty\Component\Account\Domain\ReadModel;
 
 use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\Repository;
+use OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManagerInterface;
 use OpenLoyalty\Component\Account\Domain\Account;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenCanceled;
@@ -54,6 +55,11 @@ class PointsTransferDetailsProjector extends Projector
     private $posRepository;
 
     /**
+     * @var GeneralSettingsManagerInterface
+     */
+    private $settingsManager;
+
+    /**
      * PointsTransferDetailsProjector constructor.
      *
      * @param Repository                   $repository
@@ -67,13 +73,15 @@ class PointsTransferDetailsProjector extends Projector
         Repository $accountRepository,
         Repository $customerRepository,
         TransactionDetailsRepository $transactionDetailsRepository,
-        PosRepository $posRepository
+        PosRepository $posRepository,
+        GeneralSettingsManagerInterface $settingsManager
     ) {
         $this->repository = $repository;
         $this->accountRepository = $accountRepository;
         $this->customerRepository = $customerRepository;
         $this->transactionDetailsRepository = $transactionDetailsRepository;
         $this->posRepository = $posRepository;
+        $this->settingsManager = $settingsManager;
     }
 
     protected function applyPointsWereAdded(PointsWereAdded $event)
@@ -83,7 +91,9 @@ class PointsTransferDetailsProjector extends Projector
         /** @var PointsTransferDetails $readModel */
         $readModel = $this->getReadModel($id, $event->getAccountId());
         $readModel->setValue($transfer->getValue());
+        $readModel->setValidityInDays($transfer->getValidityInDays());
         $readModel->setCreatedAt($transfer->getCreatedAt());
+        $readModel->setExpiresAt($transfer->getExpiresAt());
         $readModel->setState($transfer->isCanceled() ? PointsTransferDetails::STATE_CANCELED : ($transfer->isExpired() ? PointsTransferDetails::STATE_EXPIRED : PointsTransferDetails::STATE_ACTIVE));
         $readModel->setType(PointsTransferDetails::TYPE_ADDING);
         $readModel->setTransactionId($transfer->getTransactionId());
@@ -108,7 +118,9 @@ class PointsTransferDetailsProjector extends Projector
         /** @var PointsTransferDetails $readModel */
         $readModel = $this->getReadModel($id, $event->getAccountId());
         $readModel->setValue($transfer->getValue());
+        $readModel->setValidityInDays($transfer->getValidityInDays());
         $readModel->setCreatedAt($transfer->getCreatedAt());
+        $readModel->setExpiresAt($transfer->getCreatedAt());
         $readModel->setState($transfer->isCanceled() ? PointsTransferDetails::STATE_CANCELED : PointsTransferDetails::STATE_ACTIVE);
         $readModel->setType(PointsTransferDetails::TYPE_SPENDING);
         $readModel->setComment($transfer->getComment());

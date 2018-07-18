@@ -28,9 +28,9 @@ class AddPointsTest extends AccountCommandHandlerTest
             ->given([
                 new AccountWasCreated($accountId, $customerId),
             ])
-            ->when(new AddPoints($accountId, new AddPointsTransfer($pointsTransferId, 100)))
+            ->when(new AddPoints($accountId, new AddPointsTransfer($pointsTransferId, 100, 40)))
             ->then(array(
-                new PointsWereAdded($accountId, new AddPointsTransfer($pointsTransferId, 100)),
+                new PointsWereAdded($accountId, new AddPointsTransfer($pointsTransferId, 100, 40)),
             ));
     }
 }

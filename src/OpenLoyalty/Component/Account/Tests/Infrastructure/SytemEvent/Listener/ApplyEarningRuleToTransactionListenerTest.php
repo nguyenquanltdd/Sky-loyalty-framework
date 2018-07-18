@@ -25,6 +25,7 @@ class ApplyEarningRuleToTransactionListenerTest extends BaseApplyEarningRuleList
         $expected = new AddPoints($accountId, new AddPointsTransfer(
             new PointsTransferId($this->uuid),
             10,
+            0,
             null,
             false,
             new \OpenLoyalty\Component\Account\Domain\TransactionId($this->uuid)
@@ -34,7 +35,8 @@ class ApplyEarningRuleToTransactionListenerTest extends BaseApplyEarningRuleList
             $this->getCommandBus($expected),
             $this->getAccountDetailsRepository(),
             $this->getUuidGenerator(),
-            $this->getApplierForTransaction(10)
+            $this->getApplierForTransaction(10),
+            $this->getPointsTransfersManager(10, 0)
         );
 
         $listener->onRegisteredTransaction(new CustomerAssignedToTransactionSystemEvent(

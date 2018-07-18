@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\PointsBundle\Command;
 
+use OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -21,7 +22,7 @@ class ExpireTransfersCommand extends ContainerAwareCommand
 
     public function run(InputInterface $input, OutputInterface $output)
     {
-        $manager = $this->getContainer()->get('oloy.account.points_transfers_manager');
+        $manager = $this->getContainer()->get(PointsTransfersManager::class);
         $transfers = $manager->expireTransfers();
 
         $output->writeln(count($transfers).' expired');

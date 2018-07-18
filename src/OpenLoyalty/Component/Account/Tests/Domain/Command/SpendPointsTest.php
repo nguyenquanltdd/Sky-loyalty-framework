@@ -32,7 +32,7 @@ class SpendPointsTest extends AccountCommandHandlerTest
             ->withAggregateId($accountId)
             ->given([
                 new AccountWasCreated($accountId, $customerId),
-                new PointsWereAdded($accountId, new AddPointsTransfer($pointsTransferId, 100)),
+                new PointsWereAdded($accountId, new AddPointsTransfer($pointsTransferId, 100, 10)),
             ])
             ->when(new SpendPoints($accountId, new SpendPointsTransfer($spendPointsTransferId, 10, $createdAt)))
             ->then(array(
@@ -54,7 +54,7 @@ class SpendPointsTest extends AccountCommandHandlerTest
             ->withAggregateId($accountId)
             ->given([
                 new AccountWasCreated($accountId, $customerId),
-                new PointsWereAdded($accountId, new AddPointsTransfer($pointsTransferId, 100)),
+                new PointsWereAdded($accountId, new AddPointsTransfer($pointsTransferId, 10, 100)),
                 new PointsWereSpent($accountId, new SpendPointsTransfer($spendPointsTransferId, 10)),
             ])
             ->when(
@@ -83,8 +83,8 @@ class SpendPointsTest extends AccountCommandHandlerTest
             ->withAggregateId($accountId)
             ->given([
                 new AccountWasCreated($accountId, $customerId),
-                new PointsWereAdded($accountId, new AddPointsTransfer($pointsTransferIds[0], 300, new \DateTime('2016-01-01'))),
-                new PointsWereAdded($accountId, new AddPointsTransfer($pointsTransferIds[1], 200, new \DateTime('2016-02-01'))),
+                new PointsWereAdded($accountId, new AddPointsTransfer($pointsTransferIds[0], 300, 1, new \DateTime('2016-01-01'))),
+                new PointsWereAdded($accountId, new AddPointsTransfer($pointsTransferIds[1], 200, 1, new \DateTime('2016-02-01'))),
                 new PointsWereSpent($accountId, new SpendPointsTransfer($pointsTransferIds[2], 200, new \DateTime('2016-02-15'))),
                 new PointsTransferHasBeenExpired($accountId, $pointsTransferIds[0]),
                 new PointsTransferHasBeenExpired($accountId, $pointsTransferIds[1]),

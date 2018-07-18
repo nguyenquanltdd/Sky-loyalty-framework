@@ -9,6 +9,9 @@ services:
             tags:
             - { name: ol.settings.choices }
 
+    OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManagerInterface: '@OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManager'
+    OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager: '@OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManager'
+
     OpenLoyalty\Bundle\SettingsBundle\Provider\:
         resource: '../../Provider/*'
 

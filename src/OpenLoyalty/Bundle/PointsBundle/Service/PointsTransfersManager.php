@@ -6,15 +6,21 @@
 namespace OpenLoyalty\Bundle\PointsBundle\Service;
 
 use Broadway\CommandHandling\CommandBus;
-use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
+use OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManager;
+use OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManagerInterface;
 use OpenLoyalty\Component\Account\Domain\Command\ExpirePointsTransfer;
+use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
+use OpenLoyalty\Component\Account\Domain\Model\PointsTransfer;
+use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsRepository;
+use OpenLoyalty\Component\Account\Domain\TransactionId;
+use OpenLoyalty\Component\Account\Infrastructure\PointsTransferManagerInterface;
 
 /**
  * Class PointsTransfersManager.
  */
-class PointsTransfersManager
+class PointsTransfersManager implements PointsTransferManagerInterface
 {
     /**
      * @var CommandBus
@@ -27,7 +33,7 @@ class PointsTransfersManager
     protected $pointsTransferDetailsRepository;
 
     /**
-     * @var SettingsManager
+     * @var GeneralSettingsManager
      */
     protected $settingsManager;
 
@@ -36,35 +42,29 @@ class PointsTransfersManager
      *
      * @param CommandBus                      $commandBus
      * @param PointsTransferDetailsRepository $pointsTransferDetailsRepository
-     * @param SettingsManager                 $settingsManager
+     * @param GeneralSettingsManagerInterface $settingsManager
      */
     public function __construct(
         CommandBus $commandBus,
         PointsTransferDetailsRepository $pointsTransferDetailsRepository,
-        SettingsManager $settingsManager
+        GeneralSettingsManagerInterface $settingsManager
     ) {
         $this->commandBus = $commandBus;
         $this->pointsTransferDetailsRepository = $pointsTransferDetailsRepository;
         $this->settingsManager = $settingsManager;
     }
 
+    /**
+     * @return array
+     */
     public function expireTransfers()
     {
         $allTime = $this->settingsManager->getSettingByKey('allTimeActive');
         if (null !== $allTime && $allTime->getValue()) {
             return [];
         }
-        $days = $this->settingsManager->getSettingByKey('pointsDaysActive');
-        if (!$days) {
-            $days = 60;
-        } else {
-            $days = $days->getValue();
-        }
-        $date = new \DateTime();
-        $date->setTime(0, 0, 0);
-        $date->modify('-'.$days.' days');
-        $timestamp = $date->getTimestamp();
-        $transfers = $this->pointsTransferDetailsRepository->findAllActiveAddingTransfersCreatedAfter($timestamp);
+
+        $transfers = $this->pointsTransferDetailsRepository->findAllActiveAddingTransfersExpiredAfter(time());
 
         /** @var PointsTransferDetails $transfer */
         foreach ($transfers as $transfer) {
@@ -75,5 +75,39 @@ class PointsTransfersManager
         }
 
         return $transfers;
+    }
+
+    /**
+     * @param PointsTransferId   $id
+     * @param int                $value
+     * @param \DateTime|null     $createdAt
+     * @param bool               $canceled
+     * @param TransactionId|null $transactionId
+     * @param string|null        $comment
+     * @param string             $issuer
+     *
+     * @return AddPointsTransfer
+     */
+    public function createAddPointsTransferInstance(
+        PointsTransferId $id,
+        $value,
+        \DateTime $createdAt = null,
+        $canceled = false,
+        TransactionId $transactionId = null,
+        ? string $comment = null,
+        $issuer = PointsTransfer::ISSUER_SYSTEM
+    ) : AddPointsTransfer {
+        $validtyDaysDuration = $this->settingsManager->getPointsDaysActive();
+
+        return new AddPointsTransfer(
+            $id,
+            $value,
+            $validtyDaysDuration,
+            $createdAt,
+            $canceled,
+            $transactionId,
+            $comment,
+            $issuer
+        );
     }
 }
