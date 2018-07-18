@@ -186,6 +186,7 @@ services:
   oloy.user.guard.token:
     class: OpenLoyalty\Bundle\UserBundle\Security\Authenticator\TokenAuthenticator
     public: false
+    autowire: true
 
   oloy.user.doctrine_repository.admin:
     class: OpenLoyalty\Bundle\UserBundle\Entity\Repository\DoctrineAdminRepository
@@ -253,3 +254,8 @@ services:
       - [setProcessor, ['@OpenLoyalty\Bundle\UserBundle\Import\CustomerImportProcessor']]
       - [setXmlStreamer, ['@OpenLoyalty\Bundle\UserBundle\Import\CustomerNodeStreamer']]
       - [setConverter, ['@OpenLoyalty\Bundle\UserBundle\Import\CustomerXmlImportConverter']]
+
+  OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider:
+    autowire: true
+    arguments:
+        - '%master_api_key%'

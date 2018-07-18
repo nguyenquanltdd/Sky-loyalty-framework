@@ -9,6 +9,8 @@ security:
         OpenLoyalty\Bundle\UserBundle\Entity\User: bcrypt
 
     providers:
+        master_admin_provider:
+            id: OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider
         admin_provider:
             id: oloy.user.admin_provider
         customer_provider:

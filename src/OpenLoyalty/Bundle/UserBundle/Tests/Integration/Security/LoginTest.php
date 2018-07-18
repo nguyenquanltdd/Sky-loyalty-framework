@@ -1,9 +1,13 @@
 <?php
-
+/**
+ * Copyright © 2017 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Security;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
+use OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider;
 
 /**
  * Class LoginTest.
@@ -76,6 +80,61 @@ class LoginTest extends BaseApiTest
         $this->assertTrue(in_array('ROLE_ADMIN', $token['roles']), 'ROLE_ADMIN should be present in token');
     }
 
+    /**
+     * @test
+     */
+    public function it_accepts_correct_master_api_credentials()
+    {
+        $client = static::createClient();
+        $container = static::$kernel->getContainer();
+        $container->set(
+            'OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider',
+            new MasterAdminProvider(
+                '1234',
+                $container->get('oloy.user.user_manager')
+            )
+        );
+
+        $client->request(
+            'GET',
+            '/api/admin',
+            [],
+            [],
+            ['HTTP_X-AUTH-TOKEN' => '1234']
+        );
+
+        $this->assertTrue($client->getResponse()->getStatusCode() == 200, 'Status code should be 200');
+    }
+
+    /**
+     * @test
+     */
+    public function it_deny_access_invalid_master_api_credentials()
+    {
+        $client = static::createClient();
+        $container = static::$kernel->getContainer();
+        $container->set(
+            'OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider',
+            new MasterAdminProvider(
+                '1234',
+                $container->get('oloy.user.user_manager')
+            )
+        );
+
+        $client->request(
+            'GET',
+            '/api/admin',
+            [],
+            [],
+            ['HTTP_X-AUTH-TOKEN' => 'invalid_token']
+        );
+
+        $this->assertTrue($client->getResponse()->getStatusCode() == 403, 'Status code should be 403');
+    }
+
+    /**
+     * @return array
+     */
     public function userProvider()
     {
         return [

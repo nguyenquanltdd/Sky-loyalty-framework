@@ -17,6 +17,7 @@ abstract class PointsTransfer implements Serializable
     const ISSUER_ADMIN = 'admin';
     const ISSUER_SELLER = 'seller';
     const ISSUER_SYSTEM = 'system';
+    const ISSUER_API = 'api';
 
     /**
      * @var PointsTransferId
