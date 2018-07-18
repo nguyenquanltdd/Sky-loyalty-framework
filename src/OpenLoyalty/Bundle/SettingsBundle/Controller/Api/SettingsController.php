@@ -23,6 +23,7 @@ use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -358,6 +359,19 @@ class SettingsController extends FOSRestController
         $response->headers->set('Content-Type', $conditions->getMime());
 
         return $response;
+    }
+
+    /**
+     * Get conditions url.
+     *
+     * @Route(name="oloy.settings.get_conditions_url", path="/settings/conditions-url")
+     * @Method("GET")
+     * @param ConditionsUploader $conditionsUploader
+     * @return Response
+     */
+    public function getConditionsUrlAction(ConditionsUploader $conditionsUploader)
+    {
+        return new JsonResponse(['url' => $conditionsUploader->getUrl()]);
     }
 
     /**

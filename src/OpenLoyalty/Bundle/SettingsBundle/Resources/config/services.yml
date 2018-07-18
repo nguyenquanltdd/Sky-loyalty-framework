@@ -33,7 +33,7 @@ services:
             $fallbackFile: '%fallback_frontend_translations_file%'
 
     OpenLoyalty\Bundle\SettingsBundle\Service\ConditionsUploader:
-        arguments: ['@oloy.settings.uploads_filesystem']
+        arguments: ['@oloy.settings.uploads_filesystem', '%frontend_customer_panel_url%']
 
     OpenLoyalty\Bundle\SettingsBundle\Service\LogoUploader:
         arguments: ['@oloy.settings.photos_filesystem']
