@@ -162,7 +162,6 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        var_dump($response->getContent());
         $this->assertEquals('200', $response->getStatusCode(), 'Cannot save required settings');
         $saved = json_decode($response->getContent(), true);
         $this->assertEquals(['settings' => $requiredSettings], $saved);

@@ -23,13 +23,20 @@ class ConditionsUploader
     const CONDITIONS_FILENAME = 'terms-conditions';
 
     /**
+     * @var string
+     */
+    private $customerPanelUrl;
+
+    /**
      * FileUploader constructor.
      *
      * @param Filesystem $filesystem
+     * @param string|null $customerPanelUrl
      */
-    public function __construct(Filesystem $filesystem)
+    public function __construct(Filesystem $filesystem, ? string $customerPanelUrl = null)
     {
         $this->filesystem = $filesystem;
+        $this->customerPanelUrl = $customerPanelUrl;
     }
 
     /**
@@ -78,5 +85,13 @@ class ConditionsUploader
         if ($this->filesystem->has($path)) {
             $this->filesystem->delete($path);
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return $this->customerPanelUrl.'#!/'.ConditionsUploader::CONDITIONS_FILENAME;
     }
 }
