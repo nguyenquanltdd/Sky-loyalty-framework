@@ -62,42 +62,42 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "transfers": [
-		{
-		  "pointsTransferId": "e82c96cf-32a3-43bd-9034-4df343e5f211",
-		  "accountId": "adbdb586-317b-4bed-8cc0-346199064d45",
-		  "customerId": "00000000-0000-474c-b092-b0dd880c07e1",
-		  "customerFirstName": "John",
-		  "customerLastName": "Doe",
-		  "customerEmail": "user@oloy.com",
-		  "customerPhone": "11111",
-		  "createdAt": "2018-01-21T09:45:05+0100",
-		  "value": 100,
-		  "state": "active",
-		  "type": "adding",
-		  "issuer": "system",
-		  "expireAt": "2018-02-20T09:45:05+0100"
-		},
-		{
-		  "pointsTransferId": "44b4a504-d62e-49c2-8e35-7d8a19d2642e",
-		  "accountId": "adbdb586-317b-4bed-8cc0-346199064d45",
-		  "customerId": "00000000-0000-474c-b092-b0dd880c07e1",
-		  "customerFirstName": "John",
-		  "customerLastName": "Doe",
-		  "customerEmail": "user@oloy.com",
-		  "customerPhone": "11111",
-		  "createdAt": "2018-02-19T09:45:05+0100",
-		  "value": 6.9,
-		  "state": "active",
-		  "type": "adding",
-		  "transactionId": {
-			"transactionId": "00000000-0000-1111-0000-000000000003"
-		  },
-		  "issuer": "system",
-		  "expireAt": "2018-03-21T09:45:05+0100",
-		  "transactionDocumentNumber": "456"
-		}
-	  ],
-	  "total": 2
-	}
+    {
+      "transfers": [
+        {
+          "pointsTransferId": "e82c96cf-32a3-43bd-9034-4df343e5f211",
+          "accountId": "adbdb586-317b-4bed-8cc0-346199064d45",
+          "customerId": "00000000-0000-474c-b092-b0dd880c07e1",
+          "customerFirstName": "John",
+          "customerLastName": "Doe",
+          "customerEmail": "user@oloy.com",
+          "customerPhone": "11111",
+          "createdAt": "2018-01-21T09:45:05+0100",
+          "value": 100,
+          "state": "active",
+          "type": "adding",
+          "issuer": "system",
+          "expireAt": "2018-02-20T09:45:05+0100"
+        },
+        {
+          "pointsTransferId": "44b4a504-d62e-49c2-8e35-7d8a19d2642e",
+          "accountId": "adbdb586-317b-4bed-8cc0-346199064d45",
+          "customerId": "00000000-0000-474c-b092-b0dd880c07e1",
+          "customerFirstName": "John",
+          "customerLastName": "Doe",
+          "customerEmail": "user@oloy.com",
+          "customerPhone": "11111",
+          "createdAt": "2018-02-19T09:45:05+0100",
+          "value": 6.9,
+          "state": "active",
+          "type": "adding",
+          "transactionId": {
+            "transactionId": "00000000-0000-1111-0000-000000000003"
+          },
+          "issuer": "system",
+          "expireAt": "2018-03-21T09:45:05+0100",
+          "transactionDocumentNumber": "456"
+        }
+      ],
+      "total": 2
+    }

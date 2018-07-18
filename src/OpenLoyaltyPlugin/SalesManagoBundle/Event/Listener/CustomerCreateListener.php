@@ -5,7 +5,6 @@
  */
 namespace OpenLoyaltyPlugin\SalesManagoBundle\Event\Listener;
 
-use Doctrine\ORM\EntityRepository;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRegisteredSystemEvent;
 use OpenLoyaltyPlugin\SalesManagoBundle\Service\SalesManagoContactUpdateSender;
 use OpenLoyaltyPlugin\SalesManagoBundle\Service\SalesManagoValidator;
@@ -15,19 +14,26 @@ use OpenLoyaltyPlugin\SalesManagoBundle\Service\SalesManagoValidator;
  */
 class CustomerCreateListener
 {
+    /**
+     * @var SalesManagoContactUpdateSender
+     */
     protected $sender;
-    protected $repository;
+
+    /**
+     * @var SalesManagoValidator
+     */
+    protected $validator;
 
     /**
      * CustomerCreateListener constructor.
      *
      * @param SalesManagoContactUpdateSender $sender
-     * @param EntityRepository               $repository
+     * @param SalesManagoValidator               $validator
      */
-    public function __construct(SalesManagoContactUpdateSender $sender, EntityRepository $repository)
+    public function __construct(SalesManagoContactUpdateSender $sender, SalesManagoValidator $validator)
     {
         $this->sender = $sender;
-        $this->repository = $repository;
+        $this->validator = $validator;
     }
 
     /**
@@ -35,7 +41,7 @@ class CustomerCreateListener
      */
     public function onCustomerCreated(CustomerRegisteredSystemEvent $event)
     {
-        if (SalesManagoValidator::verifySalesManagoEnabled($this->repository)) {
+        if ($this->validator->verifySalesManagoEnabled()) {
             $this->sender->customerCreated($event->getCustomerId());
         }
     }

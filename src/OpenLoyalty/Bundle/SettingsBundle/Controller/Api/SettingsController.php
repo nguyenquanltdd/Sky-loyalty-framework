@@ -9,8 +9,6 @@ use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use OpenLoyalty\Bundle\ActivationCodeBundle\Service\SmsSender;
-use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRuleLimit;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\FileSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\ConditionsFileType;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\LogoFormType;
@@ -20,17 +18,10 @@ use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Service\ConditionsUploader;
 use OpenLoyalty\Bundle\SettingsBundle\Service\LogoUploader;
 use OpenLoyalty\Bundle\SettingsBundle\Service\TemplateProvider;
-use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
-use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
+use OpenLoyalty\Bundle\SettingsBundle\Provider\ChoicesProvider;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
-use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
-use OpenLoyalty\Component\EarningRule\Domain\ReferralEarningRule;
-use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Component\Form\Extension\Core\Type\CountryType;
-use Symfony\Component\Form\Extension\Core\Type\LanguageType;
-use Symfony\Component\Form\Extension\Core\Type\TimezoneType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -659,106 +650,23 @@ class SettingsController extends FOSRestController
      * @ApiDoc(
      *     name="Get choices",
      *     section="Settings",
-     *     parameters={{"name"="type", "description"="allowed types: timezone, language, country, availableFrontendTranslations, earningRuleLimitPeriod, availableCustomerStatuses, availableAccountActivationMethods", "dataType"="string", "required"=true}}
+     *     requirements={{"name"="type", "description"="allowed types: timezone, language, country, availableFrontendTranslations, earningRuleLimitPeriod, availableCustomerStatuses, availableAccountActivationMethods", "dataType"="string", "required"=true}}
      * )
      *
-     * @param $type
+     * @param ChoicesProvider $choicesProvider
+     * @param string $type
      *
      * @return View
      */
-    public function getChoicesAction($type)
+    public function getChoicesAction(ChoicesProvider $choicesProvider, string $type)
     {
-        if ($type == 'promotedEvents') {
-            return $this->view(['choices' => [
-                'Customer logged in' => CustomerSystemEvents::CUSTOMER_LOGGED_IN,
-                'First purchase' => TransactionSystemEvents::CUSTOMER_FIRST_TRANSACTION,
-                'Account created' => AccountSystemEvents::ACCOUNT_CREATED,
-                'Newsletter subscription' => CustomerSystemEvents::NEWSLETTER_SUBSCRIPTION,
-            ]], 200);
-        }
+        $result = $choicesProvider->getChoices($type);
 
-        if ($type == 'language') {
-            $type = new LanguageType();
-            $choiceList = $type->loadChoiceList();
-            $choices = $choiceList ? $choiceList->getStructuredValues() : [];
-
-            return $this->view(['choices' => $choices], 200);
-        } elseif ($type == 'country') {
-            $type = new CountryType();
-            $choiceList = $type->loadChoiceList();
-            $choices = $choiceList ? $choiceList->getStructuredValues() : [];
-
-            return $this->view(['choices' => $choices], 200);
-        } elseif ($type == 'timezone') {
-            $type = new TimezoneType();
-            $choiceList = $type->loadChoiceList();
-            $choices = $choiceList ? $choiceList->getStructuredValues() : [];
-
-            return $this->view(['choices' => $choices], 200);
-        } elseif ($type == 'availableFrontendTranslations') {
-            $availableTranslationsList = $this->get('ol.settings.translations')->getAvailableTranslationsList();
-
-            return $this->view(
-                [
-                    'choices' => $availableTranslationsList,
-                ]
-            );
-        } elseif ($type == 'availableCustomerStatuses') {
-            $availableCustomerStatusesList = Status::getAvailableStatuses();
-
-            return $this->view(
-                [
-                    'choices' => $availableCustomerStatusesList,
-                ]
-            );
-        } elseif ($type == 'availableAccountActivationMethods') {
-            $availableAccountActivationMethodsList = AccountActivationMethod::getAvailableMethods();
-            if (!$this->container->has('oloy.activation.sms_gateway')) {
-                if (($key = array_search(AccountActivationMethod::METHOD_SMS, $availableAccountActivationMethodsList)) !== false) {
-                    unset($availableAccountActivationMethodsList[$key]);
-                }
-            }
-
-            return $this->view(
-                [
-                    'choices' => $availableAccountActivationMethodsList,
-                ]
-            );
-        } elseif ($type == 'smsGatewayConfig') {
-            $fields = [];
-
-            if ($this->container->has('oloy.activation.sms_gateway')) {
-                /** @var SmsSender $gateway */
-                $gateway = $this->get('oloy.activation.sms_gateway');
-                $fields = $gateway->getNeededSettings();
-            }
-
-            return $this->view(
-                [
-                    'fields' => $fields,
-                ]
-            );
-        } elseif ($type == 'earningRuleLimitPeriod') {
-            return $this->view(['choices' => [
-                '1 day' => EarningRuleLimit::PERIOD_DAY,
-                '1 week' => EarningRuleLimit::PERIOD_WEEK,
-                '1 month' => EarningRuleLimit::PERIOD_MONTH,
-            ]], 200);
-        } elseif ($type == 'referralEvents') {
-            return $this->view(['choices' => [
-                ReferralEarningRule::EVENT_REGISTER => ReferralEarningRule::EVENT_REGISTER,
-                ReferralEarningRule::EVENT_FIRST_PURCHASE => ReferralEarningRule::EVENT_FIRST_PURCHASE,
-                ReferralEarningRule::EVENT_EVERY_PURCHASE => ReferralEarningRule::EVENT_EVERY_PURCHASE,
-            ]], 200);
-        } elseif ($type == 'referralTypes') {
-            return $this->view(['choices' => [
-                ReferralEarningRule::TYPE_REFERRED => ReferralEarningRule::TYPE_REFERRED,
-                ReferralEarningRule::TYPE_REFERRER => ReferralEarningRule::TYPE_REFERRER,
-                ReferralEarningRule::TYPE_BOTH => ReferralEarningRule::TYPE_BOTH,
-            ]], 200);
-        } else {
+        if (empty($result)) {
             throw $this->createNotFoundException();
         }
+
+        return $this->view($result);
     }
 
     /**

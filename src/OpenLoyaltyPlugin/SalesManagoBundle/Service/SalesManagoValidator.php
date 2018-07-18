@@ -5,24 +5,40 @@
  */
 namespace OpenLoyaltyPlugin\SalesManagoBundle\Service;
 
-use Doctrine\ORM\EntityRepository;
-use OpenLoyaltyPlugin\SalesManagoBundle\Entity\Config;
+use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
+use OpenLoyaltyPlugin\SalesManagoBundle\Config\Config;
 
+/**
+ * Class SalesManagoValidator
+ */
 class SalesManagoValidator
 {
     /**
-     * @param EntityRepository $manager
+     * @var SettingsManager
+     */
+    private $settings;
+
+    /**
+     * SalesManagoValidator constructor.
      *
+     * @param SettingsManager $manager
+     */
+    public function __construct(SettingsManager $manager)
+    {
+        $this->settings = $manager;
+    }
+
+    /**
      * @return bool
      */
-    public static function verifySalesManagoEnabled(EntityRepository $manager)
+    public function verifySalesManagoEnabled()
     {
         try {
-            $config = $manager->findAll()[0];
+            $config = $this->settings->getSettingByKey('marketingVendorsValue');
         } catch (\Exception $e) {
             return false;
         }
-        if ($config instanceof Config && $config->getSalesManagoIsActive()) {
+        if ($config->getValue() === Config::KEY) {
             return true;
         }
 

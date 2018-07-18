@@ -213,7 +213,7 @@
     "delete_confirmation": "Deactivate this customer?",
     "edit": "Edit",
     "heading": "Customers",
-    "activate_confirmation": "Customer acrivation",
+    "activate_confirmation": "Customer activation",
     "activate_confirmation_description": "Do you want to activate customer?",
     "add_heading": "Add customer",
     "edit_heading": "Edit customer",
@@ -301,7 +301,7 @@
     "transactions_count": "Orders",
     "days_from_last_transaction": "Days from last order",
     "segments": "Segments",
-    "assigned_pos": "Assinged POS",
+    "assigned_pos": "Assigned POS",
     "no_segments": "Customer not assigned to any segment",
     "no_pos": "Customer is not assigned to any POS",
     "all_profile_details": "Show all profile details",
@@ -381,7 +381,7 @@
     "specialreward_startat_prompt": "",
     "specialreward_endat_prompt": "",
     "list": "Levels list",
-    "basic_info": "Basic Informations",
+    "basic_info": "Basic Information",
     "name": "Name",
     "description": "Description",
     "active": "Active",
@@ -427,7 +427,6 @@
     "custom_event_name_prompt": "",
     "points_amount_prompt": "",
     "all_time_active_prompt": "",
-    "exluded_labels": "Excluded labels",
     "add_excluded_sku": "Add SKU",
     "add_earning_rule": "Add earning points rule",
     "add_excluded_label": "Add excluded label",
@@ -440,7 +439,7 @@
     "details": "Earning rule details",
     "edit": "Edit earning points rule",
     "list": "Earning points rules list",
-    "basic_info": "Basic Informations",
+    "basic_info": "Basic Information",
     "limit_info": "Usage limit",
     "photo": "Earning rule photo",
     "limit": {
@@ -536,7 +535,7 @@
     "add_heading": "Add POS",
     "edit_heading": "Edit POS",
     "list": "POS list",
-    "basic_info": "Basic Informations",
+    "basic_info": "Basic Information",
     "name": "Name",
     "description": "Description",
     "identifier": "Identifier",
@@ -583,7 +582,7 @@
     "email": "E-mail",
     "phone": "Phone",
     "password": "Password",
-    "change_passowrd": "Change password",
+    "change_password": "Change password",
     "pass_prompt": "Enter password",
     "pos": "POS",
     "select_pos": "Select POS",
@@ -781,7 +780,7 @@
     "program_points_plural_prompt": "",
     "help_email_address_prompt": "",
     "all_time_active_prompt": "Is always active",
-    "posints_days_active_prompt": " [days]",
+    "points_days_active_prompt": " [days]",
     "tier_assign_type_prompt": "",
     "tier_assign_type": "Levels will be calculated with",
     "exclude_delivery_costs": "Delivery costs",
@@ -805,12 +804,11 @@
     "timezone": "Timezone",
     "select_timezone": "Select timezone",
     "lang": "Language",
-    "defaultTranslations": "Default transaltions file",
+    "defaultTranslations": "Default translation file",
     "defaultTranslations_prompt": "",
     "select_lang": "Select language",
     "program_name": "Program name",
     "program_url": "Program URL",
-    "coditions_url": "Conditons URL",
     "faq_url": "FAQ URL",
     "currency_singular": "Currency singular",
     "currency_plural": "Currency plural",
@@ -830,7 +828,22 @@
     "webhooks": "Webhooks",
     "enable_webhooks": "Enable webhooks",
     "uri_webhooks": "URI",
-    "uri_webhooks_prompt": "e.g. https://example.com/webhook.php"
+    "uri_webhooks_prompt": "e.g. https://example.com/webhook.php",
+    "marketing": "Marketing Automation Tool",
+    "marketing_vendor": "Choose integration",
+    "marketing_vendor_prompt": "",
+    "sales_manago": {
+      "api_url": "API URL",
+      "api_url_prompt": "",
+      "api_secret": "API secret",
+      "api_secret_prompt": "",
+      "api_key": "API key",
+      "api_key_prompt": "",
+      "customer_id": "Customer ID",
+      "customer_id_prompt": "",
+      "email": "Email",
+      "email_prompt": ""
+    }
   },
   "segment": {
     "add": "Add segment",
@@ -838,7 +851,7 @@
     "edit": "Edit segment",
     "details_heading": "Campaign details",
     "list": "Segments list",
-    "basic_info": "Basic informations",
+    "basic_info": "Basic Information",
     "name": "Name",
     "description": "Description",
     "heading": "Segments",
@@ -971,7 +984,7 @@
     "short_description_prompt": "",
     "active_prompt": "",
     "cost_in_points_prompt": "",
-    "coditions_description_prompt": "",
+    "conditions_description_prompt": "",
     "target_type_prompt": "",
     "segments_prompt": "",
     "unlimited_prompt": "Customers could use coupon codes without limits",
@@ -1007,8 +1020,8 @@
     "used_by_user": "Used by customers",
     "all_time": "All time",
     "photo": "Campaign photo",
-    "redeemed_heading": "Reedemed rewards",
-    "redeemed_list": "Reedemed rewards list",
+    "redeemed_heading": "Redeemed rewards",
+    "redeemed_list": "Redeemed rewards list",
     "reward_redeem_date": "Date and time",
     "customer_email":"Customer e-mail",
     "customer_phone": "Phone",
@@ -1022,10 +1035,13 @@
     "customer_lastname": "Customer's surname",
     "current_points_amount": "Customer active points amount",
     "date_from": "Date from",
-    "date_to": "Date to"
+    "date_to": "Date to",
+    "singleCoupon": "Single Coupon",
+    "singleCoupon_prompt": "",
+    "reward_value_description": ""
   },
   "registration": {
-    "basic_info": "Basic Informations",
+    "basic_info": "Basic Information",
     "phone": "Phone",
     "name": "First name",
     "description": "You can create account in loyalty program here.",
@@ -1033,7 +1049,6 @@
     "gender": "Gender",
     "male": "Male",
     "heading": "Create account",
-    "descrition": "You can create account in loyalty program here.",
     "check": {
       "first": "Achieve levels!",
       "second": "Earn points!",
@@ -1161,7 +1176,7 @@
       "success": "Success"
     },
     "post_password_reset": {
-      "error": "Error occured",
+      "error": "Error occurred",
       "success": "Password has been changed."
     },
     "post_activate_customer": {
@@ -1320,9 +1335,6 @@
       "success": "POS added",
       "error": "An error occurred"
     },
-    "get_transations": {
-      "error": "Cannot get transactions list"
-    },
     "post_transaction_assign": {
       "success": "Transaction has been assigned to Customer account.",
       "error": "An error occurred while. Please check form form details."
@@ -1373,7 +1385,7 @@
       "error": "Server error",
       "success": "Reward campaign edited"
     },
-    "get_ustomers_for_campaign": {
+    "get_customers_for_campaign": {
       "error": "An error occurred",
       "no_id": "Reward campaign ID not found"
     },
@@ -1446,7 +1458,7 @@
     "delete_confirmation": "Deactivate this customer?",
     "edit": "Edit",
     "heading": "Customers",
-    "activate_confirmation": "Customer acrivation",
+    "activate_confirmation": "Customer activation",
     "activate_confirmation_description": "Do you want to activate customer?",
     "add_heading": "Add customer",
     "edit_heading": "Edit customer",
@@ -1525,15 +1537,14 @@
       "get_terms_conditions": "Get terms & conditions"
     },
     "registration": {
-      "basic_info": "Basic Informations",
+      "basic_info": "Basic Information",
       "phone": "Phone",
       "name": "First name",
-      "description": "You can create account in loyalty program here.",
       "surname": "Last name",
       "gender": "Gender",
       "male": "Male",
       "heading": "Create account",
-      "descrition": "You can create account in loyalty program here.",
+      "description": "You can create account in loyalty program here.",
       "check": {
         "first": "Achieve levels!",
         "second": "Earn points!",
@@ -1600,7 +1611,7 @@
     "transaction_amount_without_delivery_costs_to_next_level": "You need <b>{{transactionsAmountToNextLevelWithoutDeliveryCosts}}</b> to the next level.",
     "transaction_amount_to_next_level": "You need <b>{{transactionsAmountToNextLevel}}</b> to the next level.",
     "rewards_title": "Get rewards",
-    "rewards": "Redeeme new rewards, you can use <br /><b>{{points}}</b> active points. <a href=\"#\" ui-sref=\"customer.panel.campaign-list\">Get rewards</a> or <a href=\"#\" ui-sref=\"customer.panel.bought-campaign-list\">See rewards</a> you have already redeemed.",
+    "rewards": "Redeem new rewards, you can use <br /><b>{{points}}</b> active points. <a href=\"#\" ui-sref=\"customer.panel.campaign-list\">Get rewards</a> or <a href=\"#\" ui-sref=\"customer.panel.bought-campaign-list\">See rewards</a> you have already redeemed.",
     "earning_rules_title": "Earn points",
     "earning_rules": "Learn <a href=\"#\" ui-sref=\"customer.panel.earning_rules\">how to earn new points</a>.",
     "invite": {

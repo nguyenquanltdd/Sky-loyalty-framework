@@ -90,7 +90,7 @@ class Contact
         $this->streetAddress = $data['address']['street'].' '.$data['address']['address1'];
         $this->zipCode = $data['address']['postal'];
         $this->country = $data['address']['country'];
-        $this->properties = $this->createProperities($data);
+        $this->properties = $this->createProperties($data);
         $this->birthday = date('Ymd', $data['birthDate']);
         $this->city = $data['address']['city'];
     }
@@ -207,7 +207,7 @@ class Contact
      *
      * @return array
      */
-    public function createProperities($data)
+    public function createProperties($data)
     {
         $properties = [
             'agreement1' => $data['agreement1'],

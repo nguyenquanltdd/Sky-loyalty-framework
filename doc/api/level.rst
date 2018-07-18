@@ -39,10 +39,10 @@ Example
 .. code-block:: bash
 
     curl http://localhost:8181/api/level \
-	    -X "GET" \
-	    -H "Accept: application/json" \
-	    -H "Content-type: application/x-www-form-urlencoded" \
-	    -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
+        -X "GET" \
+        -H "Accept: application/json" \
+        -H "Content-type: application/x-www-form-urlencoded" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -101,7 +101,7 @@ Definition
 .. code-block:: text
 
     POST /api/level/create
-	
+
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | Parameter                                      | Parameter type |  Description                                                               |
 +================================================+================+============================================================================+
@@ -143,29 +143,29 @@ Example
 
 .. code-block:: bash
 
-	curl http://localhost:8181/api/level/create \
-		-X "POST" \
-		-H "Accept: application/json" \
-		-H "Content-type: application/x-www-form-urlencoded" \
-		-H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
-		-d "level[name]=level4" \
-		-d "level[active]=1" \
-		-d "level[conditionValue]=4" \
-		-d "level[minOrder]=1" \
-		-d "level[description]=level4description" \
-		-d "level[reward][name]=reward4name" \
-		-d "level[reward][value]=4" \
-		-d "level[reward][code]=4" \
-		-d "level[specialRewards][0][name]=specialreward4" \
-		-d "level[specialRewards][0][value]=4" \
-		-d "level[specialRewards][0][code]=4" \
-		-d "level[specialRewards][0][active]=1" \
-		-d "level[specialRewards][0][startAt]=2018-02-01+08:33" \
-		-d "level[specialRewards][0][endAt]=2018-02-15+11:27" 
+    curl http://localhost:8181/api/level/create \
+        -X "POST" \
+        -H "Accept: application/json" \
+        -H "Content-type: application/x-www-form-urlencoded" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
+        -d "level[name]=level4" \
+        -d "level[active]=1" \
+        -d "level[conditionValue]=4" \
+        -d "level[minOrder]=1" \
+        -d "level[description]=level4description" \
+        -d "level[reward][name]=reward4name" \
+        -d "level[reward][value]=4" \
+        -d "level[reward][code]=4" \
+        -d "level[specialRewards][0][name]=specialreward4" \
+        -d "level[specialRewards][0][value]=4" \
+        -d "level[specialRewards][0][code]=4" \
+        -d "level[specialRewards][0][active]=1" \
+        -d "level[specialRewards][0][startAt]=2018-02-01+08:33" \
+        -d "level[specialRewards][0][endAt]=2018-02-15+11:27"
 
 .. note::
     To add new special reward for level you will need to add special reward.
-	
+
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
 
@@ -175,12 +175,12 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "id": "46284528-de11-4049-af2e-d2540c6fd8c7"
-	}
+    {
+      "id": "46284528-de11-4049-af2e-d2540c6fd8c7"
+    }
 
 
-	
+
 Get level details
 -----------------
 
@@ -192,7 +192,7 @@ Definition
 .. code-block:: text
 
     GET /api/level/<level>
-	
+
 +---------------+----------------+--------------------------------------+
 | Parameter     | Parameter type | Description                          |
 +===============+================+======================================+
@@ -208,7 +208,7 @@ To see the details of the admin user with ``level = 000096cf-32a3-43bd-9034-4df3
 
 .. code-block:: bash
 
-	curl http://localhost:8181/api/level/000096cf-32a3-43bd-9034-4df343e5fd93 \
+    curl http://localhost:8181/api/level/000096cf-32a3-43bd-9034-4df343e5fd93 \
         -X "GET" -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
@@ -222,34 +222,34 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "id": "000096cf-32a3-43bd-9034-4df343e5fd93",
-	  "name": "level0",
-	  "description": "example level",
-	  "active": true,
-	  "conditionValue": 0,
-	  "reward": {
-		"name": "test reward",
-		"value": 0.14,
-		"code": "abc"
-	  },
-	  "specialRewards": [],
-	  "customersCount": 4
-	}
+    {
+      "id": "000096cf-32a3-43bd-9034-4df343e5fd93",
+      "name": "level0",
+      "description": "example level",
+      "active": true,
+      "conditionValue": 0,
+      "reward": {
+        "name": "test reward",
+        "value": 0.14,
+        "code": "abc"
+      },
+      "specialRewards": [],
+      "customersCount": 4
+    }
 
-	
-Edit existing level	
+
+Edit existing level
 -------------------
 
 To edit existing level you will need to call the ``/api/level/<level>`` endpoint with the ``PUT`` method.
-	
+
 Definition
 ^^^^^^^^^^
 
 .. code-block:: text
 
     PUT /api/level/<level>
-	
+
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | Parameter                                      | Parameter type |  Description                                                               |
 +================================================+================+============================================================================+
@@ -287,34 +287,34 @@ Definition
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | level[specialRewards][][value]                 | request        |  First special reward value                                                |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-	
+
 Example
 ^^^^^^^
 To see the details of the admin user with ``level = c343a12d-b4dd-4dee-b2cd-d6fe1b021115`` use the below method:
 
 .. code-block:: bash
 
-	curl http://localhost:8181/api/level/c343a12d-b4dd-4dee-b2cd-d6fe1b021115 \
-	    -X "PUT" \
-		-H "Accept:\ application/json" \ 
-		-H "Content-type:\ application/x-www-form-urlencoded" \
-		-H "Authorization:\ Bearer\ eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
-	    -d "level[name]=level3xyz" \
-		-d "level[active]=1" \
-		-d "level[conditionValue]=3" \
-		-d "level[minOrder]=3" \
-		-d "level[description]=level3xyzdescription" \
-		-d "level[reward][name]=reward3xyzname" \
-		-d "level[reward][value]=3" \
-		-d "level[reward][code]=3" \
-		-d "level[specialRewards][0][name]=specialreward3xyzname" \
-		-d "level[specialRewards][0][value]=3" \
-		-d "level[specialRewards][0][code]=3" \
-		-d "level[specialRewards][0][active]=1" \
-		-d "level[specialRewards][0][startAt]=2018-02-01+8:20" \
-		-d "level[specialRewards][0][endAt]=2017-10-15+13:07"
-	
-	
+    curl http://localhost:8181/api/level/c343a12d-b4dd-4dee-b2cd-d6fe1b021115 \
+        -X "PUT" \
+        -H "Accept:\ application/json" \
+        -H "Content-type:\ application/x-www-form-urlencoded" \
+        -H "Authorization:\ Bearer\ eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
+        -d "level[name]=level3xyz" \
+        -d "level[active]=1" \
+        -d "level[conditionValue]=3" \
+        -d "level[minOrder]=3" \
+        -d "level[description]=level3xyzdescription" \
+        -d "level[reward][name]=reward3xyzname" \
+        -d "level[reward][value]=3" \
+        -d "level[reward][code]=3" \
+        -d "level[specialRewards][0][name]=specialreward3xyzname" \
+        -d "level[specialRewards][0][value]=3" \
+        -d "level[specialRewards][0][code]=3" \
+        -d "level[specialRewards][0][active]=1" \
+        -d "level[specialRewards][0][startAt]=2018-02-01+8:20" \
+        -d "level[specialRewards][0][endAt]=2017-10-15+13:07"
+
+
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
 
@@ -324,18 +324,18 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "id": "c343a12d-b4dd-4dee-b2cd-d6fe1b021115"
-	}	
+    {
+      "id": "c343a12d-b4dd-4dee-b2cd-d6fe1b021115"
+    }
 
-	
-	
 
-Activate or deactivate level	
+
+
+Activate or deactivate level
 ----------------------------
 
 To activate od deactivate level you will need to call the ``/api/level/<level>/activate`` endpoint with the ``POST`` method.
-	
+
 Definition
 ^^^^^^^^^^
 
@@ -359,12 +359,12 @@ To see the activated user with ``level = c343a12d-b4dd-4dee-b2cd-d6fe1b021115`` 
 
 .. code-block:: bash
 
-	curl http://localhost:8181/api/level/c343a12d-b4dd-4dee-b2cd-d6fe1b021115/activate \
-		-X "POST" \
-		-H "Accept:\ application/json" \ 
-		-H "Content-type:\ application/x-www-form-urlencoded" \
-		-H "Authorization:\ Bearer\ eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
-	
+    curl http://localhost:8181/api/level/c343a12d-b4dd-4dee-b2cd-d6fe1b021115/activate \
+        -X "POST" \
+        -H "Accept:\ application/json" \
+        -H "Content-type:\ application/x-www-form-urlencoded" \
+        -H "Authorization:\ Bearer\ eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
+
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
 
@@ -374,11 +374,11 @@ Exemplary Response
 
 .. code-block:: json
 
-	active = 1
-	
-	
-	
-	
+    active = 1
+
+
+
+
 Get list of customers assigned to specific level
 ------------------------------------------------
 
@@ -406,12 +406,12 @@ To see the list of campaigns for a level with ID ``customer = 000096cf-32a3-43bd
 
 .. code-block:: bash
     
-	curl http://localhost:8181/api/admin/level/000096cf-32a3-43bd-9034-4df343e5fd93/customers \
+    curl http://localhost:8181/api/admin/level/000096cf-32a3-43bd-9034-4df343e5fd93/customers \
         -X "GET" \
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
-		
+
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -422,35 +422,35 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "customers": [
-		{
-		  "customerId": "e7306b21-0732-42e5-9f88-ccf311a0f43d",
-		  "firstName": "Tomasz",
-		  "lastName": "Test7",
-		  "email": "tomasztest7@wp.pl"
-		},
-		{
-		  "customerId": "b9af6a8c-9cc5-4924-989c-e4af614ab2a3",
-		  "firstName": "alina",
-		  "lastName": "test",
-		  "email": "qwe@test.pl"
-		},
-		{
-		  "customerId": "00000000-0000-474c-b092-b0dd880c07e2",
-		  "firstName": "Jane",
-		  "lastName": "Doe",
-		  "email": "user-temp@oloy.com"
-		},
-		{
-		  "customerId": "00000000-0000-474c-b092-b0dd880c07e1",
-		  "firstName": "John",
-		  "lastName": "Doe",
-		  "email": "user@oloy.com"
-		}
-	  ],
-	  "total": 4
-	}
+    {
+      "customers": [
+        {
+          "customerId": "e7306b21-0732-42e5-9f88-ccf311a0f43d",
+          "firstName": "Tomasz",
+          "lastName": "Test7",
+          "email": "tomasztest7@wp.pl"
+        },
+        {
+          "customerId": "b9af6a8c-9cc5-4924-989c-e4af614ab2a3",
+          "firstName": "alina",
+          "lastName": "test",
+          "email": "qwe@test.pl"
+        },
+        {
+          "customerId": "00000000-0000-474c-b092-b0dd880c07e2",
+          "firstName": "Jane",
+          "lastName": "Doe",
+          "email": "user-temp@oloy.com"
+        },
+        {
+          "customerId": "00000000-0000-474c-b092-b0dd880c07e1",
+          "firstName": "John",
+          "lastName": "Doe",
+          "email": "user@oloy.com"
+        }
+      ],
+      "total": 4
+    }
 
 
 Get complete list of levels
@@ -487,13 +487,13 @@ Example
 
 .. code-block:: bash
 
-	curl http://localhost:8181/api/seller/level \
-	    -X "GET" \
-	    -H "Accept: application/json" \
-	    -H "Content-type: application/x-www-form-urlencoded" \
-	    -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
+    curl http://localhost:8181/api/seller/level \
+        -X "GET" \
+        -H "Accept: application/json" \
+        -H "Content-type: application/x-www-form-urlencoded" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
 
-		
+
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
 
@@ -503,65 +503,65 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "levels": [
-		{
-		  "id": "000096cf-32a3-43bd-9034-4df343e5fd94",
-		  "name": "level2",
-		  "description": "example level",
-		  "active": true,
-		  "conditionValue": 200,
+    {
+      "levels": [
+        {
+          "id": "000096cf-32a3-43bd-9034-4df343e5fd94",
+          "name": "level2",
+          "description": "example level",
+          "active": true,
+          "conditionValue": 200,
           "hasPhoto": false,
-		  "reward": {
-			"name": "test reward",
-			"value": 0.2,
-			"code": "abc"
-		  },
-		  "specialRewards": [
-			{
-			  "name": "special reward 2",
-			  "value": 0.11,
-			  "code": "spec2",
-			  "id": "e82c96cf-32a3-43bd-9034-4df343e50094",
-			  "active": false,
-			  "createdAt": "2018-02-19T09:45:00+0100",
-			  "startAt": "2016-09-10T00:00:00+0200",
-			  "endAt": "2016-11-10T00:00:00+0100"
-			},
-			{
-			  "name": "special reward",
-			  "value": 0.22,
-			  "code": "spec",
-			  "id": "e82c96cf-32a3-43bd-9034-4df343e5fd00",
-			  "active": true,
-			  "createdAt": "2018-02-19T09:45:00+0100",
-			  "startAt": "2016-10-10T00:00:00+0200",
-			  "endAt": "2016-11-10T00:00:00+0100"
-			}
-		  ],
-		  "customersCount": 1
-		},
-		{
-		  "id": "e82c96cf-32a3-43bd-9034-4df343e5fd94",
-		  "name": "level1",
-		  "description": "example level",
-		  "active": true,
-		  "conditionValue": 20,
+          "reward": {
+            "name": "test reward",
+            "value": 0.2,
+            "code": "abc"
+          },
+          "specialRewards": [
+            {
+              "name": "special reward 2",
+              "value": 0.11,
+              "code": "spec2",
+              "id": "e82c96cf-32a3-43bd-9034-4df343e50094",
+              "active": false,
+              "createdAt": "2018-02-19T09:45:00+0100",
+              "startAt": "2016-09-10T00:00:00+0200",
+              "endAt": "2016-11-10T00:00:00+0100"
+            },
+            {
+              "name": "special reward",
+              "value": 0.22,
+              "code": "spec",
+              "id": "e82c96cf-32a3-43bd-9034-4df343e5fd00",
+              "active": true,
+              "createdAt": "2018-02-19T09:45:00+0100",
+              "startAt": "2016-10-10T00:00:00+0200",
+              "endAt": "2016-11-10T00:00:00+0100"
+            }
+          ],
+          "customersCount": 1
+        },
+        {
+          "id": "e82c96cf-32a3-43bd-9034-4df343e5fd94",
+          "name": "level1",
+          "description": "example level",
+          "active": true,
+          "conditionValue": 20,
           "hasPhoto": false,
-		  "reward": {
-			"name": "test reward",
-			"value": 0.15,
-			"code": "abc"
-		  },
-		  "specialRewards": [],
-		  "customersCount": 1
-		}
-	  ],
-	  "total": 2
-	}
+          "reward": {
+            "name": "test reward",
+            "value": 0.15,
+            "code": "abc"
+          },
+          "specialRewards": [],
+          "customersCount": 1
+        }
+      ],
+      "total": 2
+    }
 
-	
-	
+
+
 Get level details
 -----------------
 
@@ -573,7 +573,7 @@ Definition
 .. code-block:: text
 
     GET /api/seller/level/<level>
-	
+
 +---------------+----------------+--------------------------------------+
 | Parameter     | Parameter type | Description                          |
 +===============+================+======================================+
@@ -589,13 +589,13 @@ To see the details of the customer user with ``level = 000096cf-32a3-43bd-9034-4
 
 .. code-block:: bash
 
-	curl http://localhost:8181/api/seller/level/000096cf-32a3-43bd-9034-4df343e5fd94 \
-	    -X "GET" \
-	    -H "Accept: application/json" \
-	    -H "Content-type: application/x-www-form-urlencoded" \
-	    -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
+    curl http://localhost:8181/api/seller/level/000096cf-32a3-43bd-9034-4df343e5fd94 \
+        -X "GET" \
+        -H "Accept: application/json" \
+        -H "Content-type: application/x-www-form-urlencoded" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
 
-		
+
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
 
@@ -605,42 +605,42 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "id": "000096cf-32a3-43bd-9034-4df343e5fd94",
-	  "name": "level2",
-	  "description": "example level",
-	  "active": true,
-	  "conditionValue": 200,
+    {
+      "id": "000096cf-32a3-43bd-9034-4df343e5fd94",
+      "name": "level2",
+      "description": "example level",
+      "active": true,
+      "conditionValue": 200,
       "hasPhoto": false,
-	  "reward": {
-		"name": "test reward",
-		"value": 0.2,
-		"code": "abc"
-	  },
-	  "specialRewards": [
-		{
-		  "name": "special reward 2",
-		  "value": 0.11,
-		  "code": "spec2",
-		  "id": "e82c96cf-32a3-43bd-9034-4df343e50094",
-		  "active": false,
-		  "createdAt": "2018-02-19T09:45:00+0100",
-		  "startAt": "2016-09-10T00:00:00+0200",
-		  "endAt": "2016-11-10T00:00:00+0100"
-		},
-		{
-		  "name": "special reward",
-		  "value": 0.22,
-		  "code": "spec",
-		  "id": "e82c96cf-32a3-43bd-9034-4df343e5fd00",
-		  "active": true,
-		  "createdAt": "2018-02-19T09:45:00+0100",
-		  "startAt": "2016-10-10T00:00:00+0200",
-		  "endAt": "2016-11-10T00:00:00+0100"
-		}
-	  ],
-	  "customersCount": 1
-	}
+      "reward": {
+        "name": "test reward",
+        "value": 0.2,
+        "code": "abc"
+      },
+      "specialRewards": [
+        {
+          "name": "special reward 2",
+          "value": 0.11,
+          "code": "spec2",
+          "id": "e82c96cf-32a3-43bd-9034-4df343e50094",
+          "active": false,
+          "createdAt": "2018-02-19T09:45:00+0100",
+          "startAt": "2016-09-10T00:00:00+0200",
+          "endAt": "2016-11-10T00:00:00+0100"
+        },
+        {
+          "name": "special reward",
+          "value": 0.22,
+          "code": "spec",
+          "id": "e82c96cf-32a3-43bd-9034-4df343e5fd00",
+          "active": true,
+          "createdAt": "2018-02-19T09:45:00+0100",
+          "startAt": "2016-10-10T00:00:00+0200",
+          "endAt": "2016-11-10T00:00:00+0100"
+        }
+      ],
+      "customersCount": 1
+    }
 
 Get level's photo
 --------------------

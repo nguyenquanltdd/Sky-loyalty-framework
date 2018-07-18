@@ -1,4 +1,5 @@
-parameters:
+imports:
+    - { resource: services_deprecated.yml }
 
 services:
   _defaults:

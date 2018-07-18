@@ -38,11 +38,11 @@ Example
 
 .. code-block:: bash
 
-	curl http://localhost:8181/api/customer/level \
-	    -X "GET" \
-	    -H "Accept: application/json" \
-	    -H "Content-type: application/x-www-form-urlencoded" \
-	    -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
+    curl http://localhost:8181/api/customer/level \
+        -X "GET" \
+        -H "Accept: application/json" \
+        -H "Content-type: application/x-www-form-urlencoded" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
 
 
 Exemplary Response
@@ -54,20 +54,20 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "levels": [
-		{
-		  "name": "level1",
-		  "description": "example level",
-		  "conditionValue": 20,
+    {
+      "levels": [
+        {
+          "name": "level1",
+          "description": "example level",
+          "conditionValue": 20,
           "hasPhoto": true
-		},
-		{
-		  "name": "level2",
-		  "description": "example level",
-		  "conditionValue": 200,
+        },
+        {
+          "name": "level2",
+          "description": "example level",
+          "conditionValue": 200,
           "hasPhoto": false
-		},
-	  ],
-	  "total": 2
-	}
+        },
+      ],
+      "total": 2
+    }

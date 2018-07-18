@@ -3,7 +3,7 @@ Security
 
 These endpoints will allow you to easily manage password.
 
-	
+
 Change logged user password
 ---------------------------
 
@@ -36,20 +36,20 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
-		-d "currentPassword=example123!@#" \
-		-d "plainPassword=example321!@#"
-		
+        -d "currentPassword=example123!@#" \
+        -d "plainPassword=example321!@#"
+
 .. note::
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-	
+
 .. note::
 
      Your password must be at least 8 characters long.
      Your password must include both upper and lower case letters.
      Your password must include at least one number.
-     Your password must contain at least one special character.	
+     Your password must contain at least one special character.
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -60,10 +60,10 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "success": true
-	}
-	
+    {
+      "success": true
+    }
+
 Change logged user password (customer)
 --------------------------------------
 
@@ -96,20 +96,20 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
-		-d "currentPassword=example123!@#" \
-		-d "plainPassword=example321!@#"
-		
+        -d "currentPassword=example123!@#" \
+        -d "plainPassword=example321!@#"
+
 .. note::
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-	
+
 .. note::
 
      Your password must be at least 8 characters long.
      Your password must include both upper and lower case letters.
      Your password must include at least one number.
-     Your password must contain at least one special character.	
+     Your password must contain at least one special character.
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -120,10 +120,10 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "success": true
-	}
-	
+    {
+      "success": true
+    }
+
 Change logged user password (seller)
 ------------------------------------
 
@@ -156,20 +156,20 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
-		-d "currentPassword=example123!@#" \
-		-d "plainPassword=example321!@#"
-		
+        -d "currentPassword=example123!@#" \
+        -d "plainPassword=example321!@#"
+
 .. note::
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-	
+
 .. note::
 
      Your password must be at least 8 characters long.
      Your password must include both upper and lower case letters.
      Your password must include at least one number.
-     Your password must contain at least one special character.	
+     Your password must contain at least one special character.
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -180,11 +180,11 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "success": true
-	}
+    {
+      "success": true
+    }
 
-	
+
 Set new password after reset password requesting
 ------------------------------------------------
 
@@ -217,20 +217,20 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
-		-d "reset[plainPassword]=example123!@#" \
-		-d "token=AIENe11JjR2kj3XGiWuZmQ88gZYAgM7VR5inxtbswaY"
-		
+        -d "reset[plainPassword]=example123!@#" \
+        -d "token=AIENe11JjR2kj3XGiWuZmQ88gZYAgM7VR5inxtbswaY"
+
 .. note::
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* or *AIENe11JjR2kj3XGiWuZmQ8...* authorization token are an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-	
+
 .. note::
 
      Your password must be at least 8 characters long.
      Your password must include both upper and lower case letters.
      Your password must include at least one number.
-     Your password must contain at least one special character.	
+     Your password must contain at least one special character.
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -241,11 +241,11 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "success": true
-	}
-	
-	
+    {
+      "success": true
+    }
+
+
 "Forgot password" functionality
 -------------------------------
 
@@ -257,7 +257,7 @@ Definition
 .. code-block:: text
 
     POST /api/password/reset/request
-	
+
 +-------------------------------------+----------------+---------------------------------------------------+
 | Parameter                           | Parameter type | Description                                       |
 +=====================================+================+===================================================+
@@ -276,13 +276,13 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
-		-d "username=admin"
-		
+        -d "username=admin"
+
 .. note::
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-	
+
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -293,11 +293,11 @@ Exemplary Response
 
 .. code-block:: json
 
-	{
-	  "success": true
-	}
-	
-	
+    {
+      "success": true
+    }
+
+
 Log out current user
 --------------------
 
@@ -309,7 +309,7 @@ Definition
 .. code-block:: text
 
     GET /api/token/revoke
-	
+
 +-------------------------------------+----------------+---------------------------------------------------+
 | Parameter                           | Parameter type | Description                                       |
 +=====================================+================+===================================================+
@@ -326,12 +326,12 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
-		
+
 .. note::
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-	
+
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -342,7 +342,6 @@ Exemplary Response
 
 .. code-block:: json
 
-	[]
-	
+    []
 
-	
+

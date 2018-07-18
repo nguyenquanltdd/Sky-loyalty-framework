@@ -5,6 +5,8 @@
  */
 namespace OpenLoyalty\Bundle\ActivationCodeBundle\DependencyInjection\CompilerPass;
 
+use OpenLoyalty\Bundle\ActivationCodeBundle\Provider\AvailableAccountActivationMethodsChoices;
+use OpenLoyalty\Bundle\ActivationCodeBundle\Provider\SmsGatewayConfigFields;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Service\DummySmsApi;
 use OpenLoyalty\Bundle\SmsApiBundle\SmsApi\OloySmsApi;
 use OpenLoyalty\Bundle\WorldTextBundle\Service\WorldTextSender;
@@ -51,11 +53,17 @@ class InjectSmsGatewayCompilerPass implements CompilerPassInterface
             throw new InvalidConfigurationException(sprintf('Sms gateway (%s) does not exist', $smsGateway));
         }
 
-        $manager = $container->getDefinition('oloy.activation_code_manager');
+        $manager = $container->findDefinition('oloy.activation_code_manager');
         $manager->addMethodCall('setSmsSender', [new Reference($service)]);
         $container->setAlias('oloy.activation.sms_gateway', $service);
 
-        $manager = $container->getDefinition('ol.settings.form_type.settings');
+        $manager = $container->findDefinition('ol.settings.form_type.settings');
         $manager->addMethodCall('setSmsSender', [new Reference('oloy.activation.sms_gateway')]);
+
+        $manager = $container->getDefinition(SmsGatewayConfigFields::class);
+        $manager->setArgument('$smsGateway', new Reference($service));
+
+        $manager = $container->getDefinition(AvailableAccountActivationMethodsChoices::class);
+        $manager->setArgument('$smsGateway', new Reference($service));
     }
 }

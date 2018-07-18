@@ -20,16 +20,30 @@ class JsonSettingEntry extends SettingsEntry implements \ArrayAccess, \IteratorA
      */
     protected $jsonValue;
 
+    /**
+     * {@inheritdoc}
+     */
     public function setValue($value)
     {
         $this->jsonValue = $value;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getValue()
     {
         $array = $this->jsonValue;
-        usort($array, function ($a, $b) {
+
+        // indicator is an array sortable
+        $isSortable = false;
+
+        usort($array, function ($a, $b) use (&$isSortable) {
             if (isset($a['priority']) && isset($b['priority'])) {
+
+                // because array has priority field it's sortable so set to true
+                $isSortable = true;
+
                 if ($a['priority'] == $b['priority']) {
                     return 0;
                 }
@@ -40,29 +54,50 @@ class JsonSettingEntry extends SettingsEntry implements \ArrayAccess, \IteratorA
             return 0;
         });
 
+        // if array is not sortable (doesn't have priority field) we must return
+        // original value cause usort resets keys
+        if (!$isSortable) {
+            return $this->jsonValue;
+        }
+
         return $array;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function offsetExists($offset)
     {
         return isset($this->jsonValue[$offset]);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function offsetGet($offset)
     {
         return $this->jsonValue[$offset];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function offsetSet($offset, $value)
     {
         $this->jsonValue[$offset] = $value;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function offsetUnset($offset)
     {
         unset($this->jsonValue[$offset]);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getIterator()
     {
         return new \ArrayIterator($this->jsonValue);

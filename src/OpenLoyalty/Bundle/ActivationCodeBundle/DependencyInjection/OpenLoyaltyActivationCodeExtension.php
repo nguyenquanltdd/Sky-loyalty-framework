@@ -21,6 +21,9 @@ class OpenLoyaltyActivationCodeExtension extends Extension
     public function load(array $configs, ContainerBuilder $container)
     {
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('services.yml');
+        $loader->load('domain.yml');
+
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
@@ -30,8 +33,5 @@ class OpenLoyaltyActivationCodeExtension extends Extension
         if (array_key_exists('code_type', $config)) {
             $container->setParameter('oloy.activation_code.code_type', $config['code_type']);
         }
-
-        $loader->load('services.yml');
-        $loader->load('domain.yml');
     }
 }

@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass="OpenLoyaltyPlugin\SalesManagoBundle\Entity\DeadletterRepository")
+ * @ORM\Entity(repositoryClass="OpenLoyaltyPlugin\SalesManagoBundle\Repository\DeadletterRepository")
  * @ORM\Table(name="salesManagoDeadletter")
  */
 class Deadletter
