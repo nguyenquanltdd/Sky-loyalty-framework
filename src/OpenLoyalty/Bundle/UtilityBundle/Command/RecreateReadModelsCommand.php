@@ -11,6 +11,7 @@ use Broadway\Domain\DomainMessage;
 use Broadway\EventHandling\SimpleEventBus;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
@@ -35,6 +36,7 @@ class RecreateReadModelsCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this->setName('oloy:utility:read-models:recreate');
+        $this->addOption('force', 'force', InputOption::VALUE_NONE);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -45,8 +47,10 @@ class RecreateReadModelsCommand extends ContainerAwareCommand
             .'oloy:user:projections:purge (backup of es data is recommended).'.PHP_EOL.'Do you want to continue?',
             true
         );
-        if (!$helper->ask($input, $output, $question)) {
-            return;
+        if (!$input->getOption('force')) {
+            if (!$helper->ask($input, $output, $question)) {
+                return;
+            }
         }
 
         $connection = $this->getContainer()->get('doctrine')->getConnection();
