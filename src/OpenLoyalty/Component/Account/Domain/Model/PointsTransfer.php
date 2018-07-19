@@ -105,7 +105,7 @@ abstract class PointsTransfer implements Serializable
     /**
      * @return PointsTransferId
      */
-    public function getId() : PointsTransferId
+    public function getId(): PointsTransferId
     {
         return $this->id;
     }
@@ -129,7 +129,7 @@ abstract class PointsTransfer implements Serializable
     /**
      * @return float
      */
-    public function getValue() : float
+    public function getValue(): float
     {
         return (float) $this->value;
     }
@@ -170,7 +170,7 @@ abstract class PointsTransfer implements Serializable
     /**
      * @return string
      */
-    public function getIssuer() : string
+    public function getIssuer(): string
     {
         return $this->issuer;
     }

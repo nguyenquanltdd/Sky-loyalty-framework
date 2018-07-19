@@ -36,7 +36,6 @@ class OpenLoyaltyAuditBundle extends Bundle
             [],
             false,
             ['OpenLoyaltyAudit' => 'OpenLoyalty\Component\Audit\Domain']
-
         );
     }
 }

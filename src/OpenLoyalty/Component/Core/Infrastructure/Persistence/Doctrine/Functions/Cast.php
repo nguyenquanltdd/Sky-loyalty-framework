@@ -81,6 +81,7 @@ class Cast extends FunctionNode
         $this->parameters[self::TYPE_KEY] = $type;
         $parser->match(Lexer::T_CLOSE_PARENTHESIS);
     }
+
     /**
      * Check that given type is supported.
      *

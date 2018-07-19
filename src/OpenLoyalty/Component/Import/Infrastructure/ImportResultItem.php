@@ -102,7 +102,7 @@ class ImportResultItem
     /**
      * @return string
      */
-    public function getStatus() : string
+    public function getStatus(): string
     {
         return $this->status;
     }
@@ -134,7 +134,7 @@ class ImportResultItem
     /**
      * @return string
      */
-    public function getIdentifier() : string
+    public function getIdentifier(): string
     {
         return $this->identifier;
     }
@@ -142,7 +142,7 @@ class ImportResultItem
     /**
      * @return \Exception
      */
-    public function getException() : \Exception
+    public function getException(): \Exception
     {
         return $this->exception;
     }

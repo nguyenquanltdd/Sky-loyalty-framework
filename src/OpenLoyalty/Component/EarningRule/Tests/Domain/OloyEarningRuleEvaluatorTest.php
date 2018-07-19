@@ -285,8 +285,9 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      * @dataProvider productLabelMultipliersProvider
+     *
      * @param array $labelMultipliers
-     * @param int $expectedPoints
+     * @param int   $expectedPoints
      */
     public function it_returns_proper_value_for_given_transaction_and_multiply_points_rule_by_label_multipliers(array $labelMultipliers, int $expectedPoints)
     {

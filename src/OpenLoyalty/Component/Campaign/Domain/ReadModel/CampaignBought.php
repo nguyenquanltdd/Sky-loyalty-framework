@@ -140,7 +140,7 @@ class CampaignBought implements SerializableReadModel
     /**
      * @return string
      */
-    public function getId() : string
+    public function getId(): string
     {
         return self::createId($this->campaignId, $this->customerId, $this->coupon);
     }
@@ -173,7 +173,7 @@ class CampaignBought implements SerializableReadModel
     /**
      * @return array
      */
-    public function serialize() : array
+    public function serialize(): array
     {
         return [
             'campaignId' => $this->campaignId->__toString(),
@@ -200,7 +200,7 @@ class CampaignBought implements SerializableReadModel
      *
      * @return string
      */
-    public static function createId(CampaignId $campaignId, CustomerId $customerId, Coupon $coupon) : string
+    public static function createId(CampaignId $campaignId, CustomerId $customerId, Coupon $coupon): string
     {
         return $campaignId->__toString().'_'.$customerId->__toString().'_'.$coupon->getCode();
     }

@@ -223,7 +223,6 @@ class LoadSegmentData extends ContainerAwareFixture implements OrderedFixtureInt
                                 'posIds' => ['00000000-0000-474c-1111-b0dd880c87c2'],
                             ],
                         ],
-
                     ],
                 ],
             ]
@@ -268,7 +267,6 @@ class LoadSegmentData extends ContainerAwareFixture implements OrderedFixtureInt
                                 ],
                             ],
                         ],
-
                     ],
                 ],
             ]

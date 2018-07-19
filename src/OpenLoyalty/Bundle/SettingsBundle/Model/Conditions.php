@@ -41,7 +41,7 @@ class Conditions implements FileInterface
     /**
      * {@inheritdoc}
      */
-    public function getFile() : ? UploadedFile
+    public function getFile(): ? UploadedFile
     {
         return $this->file;
     }
@@ -49,7 +49,7 @@ class Conditions implements FileInterface
     /**
      * {@inheritdoc}
      */
-    public function setFile(UploadedFile $file) : void
+    public function setFile(UploadedFile $file): void
     {
         $this->file = $file;
     }
@@ -57,7 +57,7 @@ class Conditions implements FileInterface
     /**
      * {@inheritdoc}
      */
-    public function getPath() : ? string
+    public function getPath(): ? string
     {
         return $this->path;
     }
@@ -65,7 +65,7 @@ class Conditions implements FileInterface
     /**
      * {@inheritdoc}
      */
-    public function setPath(string $path) : void
+    public function setPath(string $path): void
     {
         $this->path = $path;
     }
@@ -73,7 +73,7 @@ class Conditions implements FileInterface
     /**
      * {@inheritdoc}
      */
-    public function getOriginalName() : ? string
+    public function getOriginalName(): ? string
     {
         return $this->originalName;
     }
@@ -81,7 +81,7 @@ class Conditions implements FileInterface
     /**
      * {@inheritdoc}
      */
-    public function setOriginalName(string $originalName) : void
+    public function setOriginalName(string $originalName): void
     {
         $this->originalName = $originalName;
     }
@@ -89,7 +89,7 @@ class Conditions implements FileInterface
     /**
      * {@inheritdoc}
      */
-    public function getMime() : ? string
+    public function getMime(): ? string
     {
         return $this->mime;
     }
@@ -97,7 +97,7 @@ class Conditions implements FileInterface
     /**
      * {@inheritdoc}
      */
-    public function setMime(string $mime) : void
+    public function setMime(string $mime): void
     {
         $this->mime = $mime;
     }

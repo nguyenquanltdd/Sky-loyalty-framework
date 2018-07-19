@@ -38,7 +38,7 @@ class EarningRulePhoto extends DomainEarningRulePhoto
      *
      * @return EarningRulePhoto
      */
-    public function setFile(UploadedFile $file) : self
+    public function setFile(UploadedFile $file): self
     {
         $this->file = $file;
 

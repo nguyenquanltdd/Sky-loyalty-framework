@@ -9,7 +9,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyaltyPlugin\SalesManagoBundle\Config\Config;
 
 /**
- * Class SalesManagoValidator
+ * Class SalesManagoValidator.
  */
 class SalesManagoValidator
 {

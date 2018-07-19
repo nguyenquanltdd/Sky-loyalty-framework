@@ -3,11 +3,10 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-
 namespace OpenLoyalty\Bundle\SettingsBundle\Provider;
 
 /**
- * Class ChoicesProvider
+ * Class ChoicesProvider.
  */
 class ChoicesProvider
 {
@@ -24,9 +23,6 @@ class ChoicesProvider
         $this->providers[] = $choiceProvider;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getChoices(string $type): array
     {
         foreach ($this->providers as $provider) {

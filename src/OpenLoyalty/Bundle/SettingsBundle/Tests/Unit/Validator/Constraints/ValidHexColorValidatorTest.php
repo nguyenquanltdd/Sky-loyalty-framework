@@ -28,7 +28,7 @@ class ValidHexColorValidatorTest extends ConstraintValidatorTestCase
 
     /**
      * @test
-     * @expectedException Symfony\Component\Form\Exception\UnexpectedTypeException
+     * @expectedException \Symfony\Component\Form\Exception\UnexpectedTypeException
      */
     public function throws_exception_when_invalid_type()
     {

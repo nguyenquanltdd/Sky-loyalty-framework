@@ -84,7 +84,7 @@ abstract class SalesManagoContactSender
     }
 
     /**
-     * Creates a SalesManago client instance
+     * Creates a SalesManago client instance.
      */
     protected function createClient()
     {

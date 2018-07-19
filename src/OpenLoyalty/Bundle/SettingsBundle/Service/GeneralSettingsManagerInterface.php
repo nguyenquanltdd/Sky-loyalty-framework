@@ -38,17 +38,17 @@ interface GeneralSettingsManagerInterface
     /**
      * @return null|string
      */
-    public function getConditionsUrl() : ? string;
+    public function getConditionsUrl(): ? string;
 
     /**
      * @return null|string
      */
-    public function FAQUrl() : ? string;
+    public function FAQUrl(): ? string;
 
     /**
      * @return string
      */
-    public function getPointsSingular() : string;
+    public function getPointsSingular(): string;
 
     /**
      * @return string
@@ -63,12 +63,12 @@ interface GeneralSettingsManagerInterface
     /**
      * @return bool|null
      */
-    public function isAllTimeActive() : ? bool;
+    public function isAllTimeActive(): ? bool;
 
     /**
      * @return int
      */
-    public function getPointsDaysActive() : int;
+    public function getPointsDaysActive(): int;
 
     /**
      * @return bool

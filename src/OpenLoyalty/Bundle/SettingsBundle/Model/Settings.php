@@ -41,7 +41,7 @@ class Settings
      *
      * @param string $key
      *
-     * @return bool Return true if success, otherwise false.
+     * @return bool return true if success, otherwise false
      */
     public function removeEntry($key)
     {

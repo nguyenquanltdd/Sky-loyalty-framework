@@ -61,7 +61,7 @@ class TransactionRegisteredEvent
     /**
      * @return TransactionId
      */
-    public function getTransactionId() : TransactionId
+    public function getTransactionId(): TransactionId
     {
         return $this->transactionId;
     }

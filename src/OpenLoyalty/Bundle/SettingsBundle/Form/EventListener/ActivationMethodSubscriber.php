@@ -3,7 +3,6 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-
 namespace OpenLoyalty\Bundle\SettingsBundle\Form\EventListener;
 
 use OpenLoyalty\Bundle\ActivationCodeBundle\Service\SmsSender;
@@ -17,7 +16,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 
 /**
- * Class ActivationMethodSubscriber
+ * Class ActivationMethodSubscriber.
  */
 class ActivationMethodSubscriber implements EventSubscriberInterface
 {

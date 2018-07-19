@@ -18,6 +18,7 @@ class Cast
      * @var array
      */
     public $parameters;
+
     /**
      * @param array $parameters
      */
@@ -43,9 +44,6 @@ class Cast
         return $expression;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getSql(SqlWalker $sqlWalker)
     {
         /** @var Node $value */

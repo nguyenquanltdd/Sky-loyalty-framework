@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 /**
- * Class MasterAdminProvider
+ * Class MasterAdminProvider.
  */
 class MasterAdminProvider implements UserProviderInterface
 {
@@ -29,6 +29,7 @@ class MasterAdminProvider implements UserProviderInterface
 
     /**
      * MasterAdminProvider constructor.
+     *
      * @param string|null $masterApiKey
      * @param UserManager $userManager
      */
@@ -55,6 +56,7 @@ class MasterAdminProvider implements UserProviderInterface
         $user = $this->userManager->createNewAdmin($id);
         $user->setUsername(self::USERNAME);
         $user->setPassword($this->masterApiKey);
+
         return $user;
     }
 

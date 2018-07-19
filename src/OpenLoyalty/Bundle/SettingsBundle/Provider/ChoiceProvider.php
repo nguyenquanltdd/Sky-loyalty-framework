@@ -3,11 +3,10 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-
 namespace OpenLoyalty\Bundle\SettingsBundle\Provider;
 
 /**
- * Interface ChoiceProvider
+ * Interface ChoiceProvider.
  */
 interface ChoiceProvider
 {

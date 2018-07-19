@@ -6,7 +6,7 @@
 namespace OpenLoyalty\Component\EarningRule\Domain\Algorithm;
 
 /**
- * Class EarningRuleAlgorithmException
+ * Class EarningRuleAlgorithmException.
  */
 class EarningRuleAlgorithmException extends \Exception
 {

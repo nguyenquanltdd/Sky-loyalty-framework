@@ -23,6 +23,7 @@ class CustomerWasRegisteredTest extends SerializableEventTestCase
         unset($data['createdAt']);
         $this->assertEquals(CustomerCommandHandlerTest::getCustomerData(), $data);
     }
+
     /**
      * @return CustomerWasRegistered
      */

@@ -3,7 +3,6 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-
 namespace OpenLoyalty\Bundle\SettingsBundle\Form\EventListener;
 
 use OpenLoyalty\Bundle\SettingsBundle\Provider\AvailableMarketingVendors;
@@ -12,7 +11,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 
 /**
- * Class MarketingVendorSubscriber
+ * Class MarketingVendorSubscriber.
  */
 class MarketingVendorSubscriber implements EventSubscriberInterface
 {
@@ -30,7 +29,7 @@ class MarketingVendorSubscriber implements EventSubscriberInterface
     {
         $this->marketingVendors = $marketingVendors;
     }
-    
+
     /**
      * {@inheritdoc}
      */

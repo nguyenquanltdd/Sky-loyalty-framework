@@ -29,9 +29,10 @@ class LabelMultiplier implements Serializable
 
     /**
      * LabelMultiplier constructor.
+     *
      * @param string $key
      * @param string $value
-     * @param float $multiplier
+     * @param float  $multiplier
      */
     public function __construct(string $key, string $value, float $multiplier)
     {
@@ -43,7 +44,7 @@ class LabelMultiplier implements Serializable
     /**
      * @return string
      */
-    public function getKey() : string
+    public function getKey(): string
     {
         return $this->key;
     }
@@ -51,7 +52,7 @@ class LabelMultiplier implements Serializable
     /**
      * @return string
      */
-    public function getValue() : string
+    public function getValue(): string
     {
         return $this->value;
     }
@@ -66,6 +67,7 @@ class LabelMultiplier implements Serializable
 
     /**
      * @param array $data
+     *
      * @return LabelMultiplier The object instance
      */
     public static function deserialize(array $data)

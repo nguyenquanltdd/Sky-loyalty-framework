@@ -26,5 +26,5 @@ interface AccountDetailsProviderInterface
      *
      * @return AccountDetails
      */
-    public function getAccountByCustomer(Customer $customer) : AccountDetails;
+    public function getAccountByCustomer(Customer $customer): AccountDetails;
 }

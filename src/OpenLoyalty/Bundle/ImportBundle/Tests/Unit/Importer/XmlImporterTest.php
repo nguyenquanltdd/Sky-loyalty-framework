@@ -16,7 +16,7 @@ use Prewk\XmlStringStreamer;
 class XmlImporterTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @param int $correctNodes
+     * @param int   $correctNodes
      * @param array ...$nodes
      *
      * @return XMLImporter

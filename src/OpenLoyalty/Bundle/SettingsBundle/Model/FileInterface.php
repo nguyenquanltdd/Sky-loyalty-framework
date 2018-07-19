@@ -15,27 +15,27 @@ interface FileInterface
     /**
      * @return null|UploadedFile
      */
-    public function getFile() : ? UploadedFile;
+    public function getFile(): ? UploadedFile;
 
     /**
      * @param UploadedFile $file
      */
-    public function setFile(UploadedFile $file) : void;
+    public function setFile(UploadedFile $file): void;
 
     /**
      * @return null|string
      */
-    public function getPath() : ? string;
+    public function getPath(): ? string;
 
     /**
      * @param string $path
      */
-    public function setPath(string $path) : void;
+    public function setPath(string $path): void;
 
     /**
      * @return null|string
      */
-    public function getOriginalName() : ? string;
+    public function getOriginalName(): ? string;
 
     /**
      * @param string $originalName
@@ -47,17 +47,17 @@ interface FileInterface
     /**
      * @return null|string
      */
-    public function getMime() : ? string;
+    public function getMime(): ? string;
 
     /**
      * @param string $mime
      */
-    public function setMime(string $mime) : void;
+    public function setMime(string $mime): void;
 
     /**
      * @param array $data
      *
      * @return FileInterface
      */
-    public static function deserialize(array $data = []) : FileInterface;
+    public static function deserialize(array $data = []): FileInterface;
 }

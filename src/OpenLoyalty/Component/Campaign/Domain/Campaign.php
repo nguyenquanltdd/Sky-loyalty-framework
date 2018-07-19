@@ -207,7 +207,7 @@ class Campaign
             }
             if (isset($data['singleCoupon'])) {
                 $this->singleCoupon = $data['singleCoupon'];
-            };
+            }
             if (isset($data['campaignVisibility'])) {
                 $this->campaignVisibility = new CampaignVisibility(
                     isset($data['campaignVisibility']['allTimeVisible']) ? $data['campaignVisibility']['allTimeVisible'] : true,

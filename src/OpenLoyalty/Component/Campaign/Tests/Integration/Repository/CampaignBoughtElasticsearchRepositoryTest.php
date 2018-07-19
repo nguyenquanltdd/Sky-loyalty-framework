@@ -5,7 +5,6 @@
  */
 namespace OpenLoyalty\Component\Campaign\Infrastructure\Repository;
 
-use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**

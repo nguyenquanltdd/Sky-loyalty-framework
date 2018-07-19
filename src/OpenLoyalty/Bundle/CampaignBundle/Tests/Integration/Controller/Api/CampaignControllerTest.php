@@ -86,6 +86,7 @@ class CampaignControllerTest extends BaseApiTest
             $this->assertEquals('value'.$key, $label->getValue());
         }
     }
+
     /**
      * @test
      */
@@ -128,6 +129,7 @@ class CampaignControllerTest extends BaseApiTest
         $this->objectHasAttribute('singleCoupon', $campaign);
         $this->assertEquals(true, $campaign->isSingleCoupon());
     }
+
     /**
      * @test
      */

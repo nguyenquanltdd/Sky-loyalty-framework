@@ -3,7 +3,6 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-
 namespace OpenLoyalty\Bundle\SettingsBundle\Provider;
 
 use Symfony\Component\Form\Extension\Core\Type\LanguageType;

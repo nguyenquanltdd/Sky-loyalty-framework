@@ -9,7 +9,6 @@ use Doctrine\Common\Cache\Cache;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Method\ActivationMethod;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
-use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;

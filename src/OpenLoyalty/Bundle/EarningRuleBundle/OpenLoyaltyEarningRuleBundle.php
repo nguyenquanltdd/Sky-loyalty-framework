@@ -36,7 +36,6 @@ class OpenLoyaltyEarningRuleBundle extends Bundle
             [],
             false,
             ['OpenLoyaltyEarningRule' => 'OpenLoyalty\Component\EarningRule\Domain']
-
         );
     }
 }

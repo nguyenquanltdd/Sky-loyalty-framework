@@ -68,7 +68,7 @@ class TagsDataProvider implements DataProviderInterface
         if (isset($changeSet['agreement1'])) {
             $tags['tags'][] = ($changeSet['agreement1']['new'] == true) ? 'OL-LP-SIGNEDIN' : 'OL-LP-SIGNEDOUT';
             $tags['removeTags'][] = ($changeSet['agreement1']['new'] == false) ? 'OL-LP-SIGNEDIN' : 'OL-LP-SIGNEDOUT';
-        };
+        }
         if (isset($changeSet['agreement2'])) {
             $tags['tags'][] = ($changeSet['agreement2']['new'] == true) ? 'OL-NSL-SUBSCRIBE' : 'OL-NSL-UNSUBSCRIBE';
             $tags['removeTags'][] = ($changeSet['agreement2']['new'] == false) ? 'OL-NSL-SUBSCRIBE' : 'OL-NSL-UNSUBSCRIBE';

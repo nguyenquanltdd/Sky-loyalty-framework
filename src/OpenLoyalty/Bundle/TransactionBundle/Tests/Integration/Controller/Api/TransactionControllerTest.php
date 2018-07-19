@@ -76,21 +76,18 @@ class TransactionControllerTest extends BaseApiTest
             [
                 [
                     'labels' => [['key' => 'scan_id']],
-
                 ],
                 4,
             ],
             [
                 [
                     'labels' => [['key' => 'scan_id', 'value' => 'abc123789def-abc123789def-abc123789def-abc123789def']],
-
                 ],
                 1,
             ],
             [
                 [
                     'labels' => [['key' => 'scan_id'], ['value' => 'some value']],
-
                 ],
                 0,
             ],
@@ -688,11 +685,9 @@ class TransactionControllerTest extends BaseApiTest
             ]
         );
 
-
         $response = $client->getResponse();
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200'
             .$response->getContent());
-
 
         $formData = [
             'transactionDocumentNumber' => '999911238',

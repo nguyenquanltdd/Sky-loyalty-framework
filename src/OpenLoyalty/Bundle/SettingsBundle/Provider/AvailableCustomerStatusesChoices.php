@@ -3,7 +3,6 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-
 namespace OpenLoyalty\Bundle\SettingsBundle\Provider;
 
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
@@ -35,7 +34,7 @@ class AvailableCustomerStatusesChoices implements ChoiceProvider
     {
         $availableCustomerStatusesList = $this->status->getAvailableStatuses();
 
-        return ['choices' => $availableCustomerStatusesList,];
+        return ['choices' => $availableCustomerStatusesList];
     }
 
     /**

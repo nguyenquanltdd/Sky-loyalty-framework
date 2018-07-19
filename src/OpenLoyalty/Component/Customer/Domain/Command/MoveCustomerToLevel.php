@@ -51,7 +51,7 @@ class MoveCustomerToLevel extends CustomerCommand
     /**
      * @return null|LevelId
      */
-    public function getLevelId() : ? LevelId
+    public function getLevelId(): ? LevelId
     {
         return $this->levelId;
     }
@@ -59,7 +59,7 @@ class MoveCustomerToLevel extends CustomerCommand
     /**
      * @return bool
      */
-    public function isManually() : bool
+    public function isManually(): bool
     {
         return $this->manually;
     }

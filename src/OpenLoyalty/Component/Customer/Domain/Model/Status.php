@@ -213,6 +213,7 @@ class Status implements Serializable
             'state' => $this->getState(),
         ];
     }
+
     /**
      * @return string
      */

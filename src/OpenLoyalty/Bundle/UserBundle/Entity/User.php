@@ -102,6 +102,7 @@ abstract class User implements UserInterface, \Serializable
 
     /**
      * User constructor.
+     *
      * @param string $id
      */
     public function __construct($id)

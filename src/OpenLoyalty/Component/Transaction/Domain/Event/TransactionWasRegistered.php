@@ -244,8 +244,6 @@ class TransactionWasRegistered extends TransactionEvent
         );
     }
 
-    /**
-     */
     public function getRevisedDocument()
     {
         return $this->revisedDocument;

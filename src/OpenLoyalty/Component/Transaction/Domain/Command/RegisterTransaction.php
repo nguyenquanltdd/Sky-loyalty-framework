@@ -169,8 +169,6 @@ class RegisterTransaction extends TransactionCommand
         return $this->excludedCategories;
     }
 
-    /**
-     */
     public function getRevisedDocument()
     {
         return $this->revisedDocument;

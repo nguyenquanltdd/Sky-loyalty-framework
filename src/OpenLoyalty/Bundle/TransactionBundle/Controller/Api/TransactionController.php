@@ -219,7 +219,6 @@ class TransactionController extends FOSRestController
      */
     public function getItemLabelsAction()
     {
-
         /** @var TransactionDetailsRepository $repo */
         $repo = $this->get('oloy.transaction.read_model.repository.transaction_details');
         $labels = $repo->getAvailableLabels();

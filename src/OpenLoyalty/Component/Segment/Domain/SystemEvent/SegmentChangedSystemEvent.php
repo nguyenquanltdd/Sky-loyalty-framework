@@ -16,6 +16,7 @@ class SegmentChangedSystemEvent extends SegmentSystemEvent
      * @var string
      */
     protected $segmentName;
+
     /**
      * SegmentSystemEvent constructor.
      *

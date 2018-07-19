@@ -91,6 +91,7 @@ class EarningRuleCommandHandlerTest extends TestCase
         $this->assertSame($earningRulePhoto, $this->earningRule->getEarningRulePhoto());
         $this->assertSame($this->earningRuleIdRight, $this->earningRule->getEarningRuleId());
     }
+
     /**
      * @test
      */

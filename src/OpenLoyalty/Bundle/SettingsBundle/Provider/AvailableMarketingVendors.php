@@ -3,7 +3,6 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-
 namespace OpenLoyalty\Bundle\SettingsBundle\Provider;
 
 use OpenLoyalty\Bundle\SettingsBundle\Config\ConfigInterface;
@@ -48,7 +47,7 @@ class AvailableMarketingVendors implements ChoiceProvider
         }
 
         return [
-            'choices' => $choices
+            'choices' => $choices,
         ];
     }
 
@@ -60,7 +59,7 @@ class AvailableMarketingVendors implements ChoiceProvider
     public function getVendorFormClassName(string $vendorName): string
     {
         $vendor = array_filter($this->vendors, function ($vendor) use ($vendorName) {
-            /** @var ConfigInterface $vendor */
+            /* @var ConfigInterface $vendor */
             return ($vendor->getKey() == $vendorName) ? $vendor : false;
         });
 

@@ -93,6 +93,7 @@ class SellerControllerAccessTest extends BaseAccessControlTest
 
         $this->checkClients($clients, '/api/seller/'.LoadUserData::TEST_SELLER2_ID);
     }
+
     /**
      * @test
      */

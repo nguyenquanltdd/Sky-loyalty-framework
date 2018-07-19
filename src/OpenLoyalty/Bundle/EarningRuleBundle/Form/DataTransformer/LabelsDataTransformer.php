@@ -21,7 +21,7 @@ class LabelsDataTransformer implements DataTransformerInterface
      *
      * @return mixed The value in the transformed representation
      *
-     * @throws TransformationFailedException When the transformation fails.
+     * @throws TransformationFailedException when the transformation fails
      */
     public function transform($value)
     {
@@ -43,7 +43,7 @@ class LabelsDataTransformer implements DataTransformerInterface
      *
      * @return mixed The value in the original representation
      *
-     * @throws TransformationFailedException When the transformation fails.
+     * @throws TransformationFailedException when the transformation fails
      */
     public function reverseTransform($value)
     {

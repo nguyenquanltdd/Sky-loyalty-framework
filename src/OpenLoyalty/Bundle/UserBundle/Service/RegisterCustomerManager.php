@@ -84,7 +84,7 @@ class RegisterCustomerManager
      *
      * @return Customer
      */
-    public function register(CustomerId $customerId, array $customerData, ? string $plainPassword = null) : Customer
+    public function register(CustomerId $customerId, array $customerData, ? string $plainPassword = null): Customer
     {
         if (!isset($customerData['email'])) {
             throw new \InvalidArgumentException('email key does not exist in customerData');

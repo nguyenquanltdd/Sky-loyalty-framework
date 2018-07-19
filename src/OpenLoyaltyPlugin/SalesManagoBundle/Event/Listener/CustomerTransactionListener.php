@@ -28,7 +28,7 @@ class CustomerTransactionListener
      * CustomerCreateListener constructor.
      *
      * @param SalesManagoContactTransactionSender $sender
-     * @param SalesManagoValidator                    $validator
+     * @param SalesManagoValidator                $validator
      */
     public function __construct(SalesManagoContactTransactionSender $sender, SalesManagoValidator $validator)
     {

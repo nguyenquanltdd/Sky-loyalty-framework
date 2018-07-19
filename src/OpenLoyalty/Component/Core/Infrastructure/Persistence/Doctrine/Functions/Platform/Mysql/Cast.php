@@ -18,6 +18,7 @@ class Cast
      * @var array
      */
     public $parameters;
+
     /**
      * @param array $parameters
      */

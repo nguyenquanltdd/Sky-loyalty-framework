@@ -17,7 +17,7 @@ use OpenLoyalty\Component\Transaction\Domain\TransactionId;
  */
 class TransactionXmlImportConverter extends AbstractXMLImportConverter
 {
-    /** @var  UuidGeneratorInterface */
+    /** @var UuidGeneratorInterface */
     protected $uuidGenerator;
 
     /**

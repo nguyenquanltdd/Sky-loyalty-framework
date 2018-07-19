@@ -64,7 +64,7 @@ class GeneralSettingsManager extends DoctrineSettingsManager implements GeneralS
     /**
      * {@inheritdoc}
      */
-    public function getConditionsUrl() : ? string
+    public function getConditionsUrl(): ? string
     {
         return $this->getSettingByKey('programUrl')->getValue();
     }
@@ -72,7 +72,7 @@ class GeneralSettingsManager extends DoctrineSettingsManager implements GeneralS
     /**
      * {@inheritdoc}
      */
-    public function FAQUrl() : ? string
+    public function FAQUrl(): ? string
     {
         return $this->getSettingByKey('programFaqUrl')->getValue();
     }
@@ -80,7 +80,7 @@ class GeneralSettingsManager extends DoctrineSettingsManager implements GeneralS
     /**
      * {@inheritdoc}
      */
-    public function getPointsSingular() : string
+    public function getPointsSingular(): string
     {
         return $this->getSettingByKey('programPointsSingular')->getValue();
     }
@@ -104,7 +104,7 @@ class GeneralSettingsManager extends DoctrineSettingsManager implements GeneralS
     /**
      * {@inheritdoc}
      */
-    public function isAllTimeActive() : ? bool
+    public function isAllTimeActive(): ? bool
     {
         return $this->getSettingByKey('allTimeActive')->getValue();
     }
@@ -112,7 +112,7 @@ class GeneralSettingsManager extends DoctrineSettingsManager implements GeneralS
     /**
      * {@inheritdoc}
      */
-    public function isReturnAvailable() : bool
+    public function isReturnAvailable(): bool
     {
         return (bool) $this->getSettingByKey('returns')->getValue();
     }

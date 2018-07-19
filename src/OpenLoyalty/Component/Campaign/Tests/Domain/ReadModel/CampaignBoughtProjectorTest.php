@@ -11,7 +11,6 @@ use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtProjector;
 use OpenLoyalty\Component\Customer\Domain\Customer;
-use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 
@@ -64,7 +63,6 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
             'currentPointsAmount' => 0,
             'taxPriceValue' => null,
             'used' => null,
-
         ];
         $this->scenario->given(array())
             ->when(

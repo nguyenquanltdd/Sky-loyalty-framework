@@ -24,10 +24,10 @@ use OpenLoyalty\Component\Import\Infrastructure\Validator\XmlNodeValidator;
  */
 class PointsTransferXmlImportConverter extends AbstractXMLImportConverter
 {
-    /** @var  UuidGeneratorInterface */
+    /** @var UuidGeneratorInterface */
     protected $uuidGenerator;
 
-    /** @var  Repository */
+    /** @var Repository */
     protected $accountRepository;
 
     /** @var PointsTransfersManager */

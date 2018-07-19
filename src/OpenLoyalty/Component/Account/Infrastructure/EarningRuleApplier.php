@@ -47,7 +47,7 @@ interface EarningRuleApplier
      *
      * @return array
      */
-    public function evaluateEventWithContext(string $eventName, ? string $customerId) : array;
+    public function evaluateEventWithContext(string $eventName, ? string $customerId): array;
 
     /**
      * Return number of points for this custom event.

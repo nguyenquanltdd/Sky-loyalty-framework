@@ -36,7 +36,6 @@ class OpenLoyaltyCampaignBundle extends Bundle
             [],
             false,
             ['OpenLoyaltyCampaign' => 'OpenLoyalty\Component\Campaign\Domain']
-
         );
     }
 }

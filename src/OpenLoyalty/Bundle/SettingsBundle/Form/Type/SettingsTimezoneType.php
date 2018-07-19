@@ -3,7 +3,6 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-
 namespace OpenLoyalty\Bundle\SettingsBundle\Form\Type;
 
 use OpenLoyalty\Bundle\SettingsBundle\Form\DataTransformer\StringSettingDataTransformer;
@@ -13,7 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\TimezoneType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
- * Class SettingsTimezoneType
+ * Class SettingsTimezoneType.
  */
 class SettingsTimezoneType extends AbstractType
 {

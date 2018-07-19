@@ -3,7 +3,6 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-
 namespace OpenLoyalty\Bundle\ActivationCodeBundle\Provider;
 
 use OpenLoyalty\Bundle\ActivationCodeBundle\Service\SmsSender;

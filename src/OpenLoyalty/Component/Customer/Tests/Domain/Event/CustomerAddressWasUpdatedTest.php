@@ -21,6 +21,7 @@ class CustomerAddressWasUpdatedTest extends SerializableEventTestCase
         $this->assertEquals(static::USER_ID, $event->getCustomerId());
         $this->assertEquals(CustomerCommandHandlerTest::getCustomerData()['address'], $event->getAddressData());
     }
+
     /**
      * @return CustomerAddressWasUpdated
      */

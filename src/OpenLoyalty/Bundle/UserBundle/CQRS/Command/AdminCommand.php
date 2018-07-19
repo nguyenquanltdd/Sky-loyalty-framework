@@ -69,7 +69,7 @@ class AdminCommand
     /**
      * @param string $firstName
      */
-    public function setFirstName(string $firstName) : void
+    public function setFirstName(string $firstName): void
     {
         $this->firstName = $firstName;
     }
@@ -85,7 +85,7 @@ class AdminCommand
     /**
      * @param string $lastName
      */
-    public function setLastName(string $lastName) : void
+    public function setLastName(string $lastName): void
     {
         $this->lastName = $lastName;
     }
@@ -101,7 +101,7 @@ class AdminCommand
     /**
      * @param string $phone
      */
-    public function setPhone(string $phone) : void
+    public function setPhone(string $phone): void
     {
         $this->phone = $phone;
     }
@@ -117,7 +117,7 @@ class AdminCommand
     /**
      * @param string $email
      */
-    public function setEmail(string $email) : void
+    public function setEmail(string $email): void
     {
         $this->email = $email;
     }

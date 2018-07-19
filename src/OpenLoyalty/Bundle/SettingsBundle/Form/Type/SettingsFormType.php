@@ -20,8 +20,6 @@ use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\SettingsBundle\Service\TranslationsProvider;
 use OpenLoyalty\Bundle\SettingsBundle\Validator\Constraints\NotEmptyValue;
 use OpenLoyalty\Bundle\SettingsBundle\Validator\Constraints\ValidHexColor;
-use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
-use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -71,10 +69,10 @@ class SettingsFormType extends AbstractType
     /**
      * SettingsFormType constructor.
      *
-     * @param SettingsManager      $settingsManager
-     * @param TranslationsProvider $translationsProvider
-     * @param AvailableMarketingVendors $marketingVendors
-     * @param AvailableCustomerStatusesChoices $availableCustomerStatusesChoices
+     * @param SettingsManager                          $settingsManager
+     * @param TranslationsProvider                     $translationsProvider
+     * @param AvailableMarketingVendors                $marketingVendors
+     * @param AvailableCustomerStatusesChoices         $availableCustomerStatusesChoices
      * @param AvailableAccountActivationMethodsChoices $accountActivationMethodsChoices
      */
     public function __construct(
@@ -138,7 +136,7 @@ class SettingsFormType extends AbstractType
                     'multiple' => true,
                     'required' => true,
                     'constraints' => [new NotEmptyValue()],
-                    'transformTo' => 'json'
+                    'transformTo' => 'json',
                 ])
         );
         $builder->add(
@@ -183,7 +181,7 @@ class SettingsFormType extends AbstractType
         );
         $builder->add($builder->create('programConditionsUrl', SettingsTextType::class, ['required' => false]));
         $builder->add($builder->create('programConditionsUrl', SettingsTextType::class, ['required' => false]));
-        $builder->add($builder->create('programFaqUrl', SettingsTextType::class, ['required' => false,]));
+        $builder->add($builder->create('programFaqUrl', SettingsTextType::class, ['required' => false]));
         $builder->add($builder->create('programUrl', SettingsTextType::class, ['required' => false]));
         $builder->add(
             $builder
@@ -232,7 +230,7 @@ class SettingsFormType extends AbstractType
                     'allow_add' => true,
                     'allow_delete' => true,
                     'entry_type' => CustomersIdentificationPriority::class,
-                    'transformTo' => 'json'
+                    'transformTo' => 'json',
                 ])
         );
 

@@ -29,6 +29,7 @@ class LabelMultipliersJsonArrayDoctrineTypeTest extends TestCase
 
     /**
      * {@inheritdoc}
+     *
      * @throws DBALException
      */
     protected function setUp()

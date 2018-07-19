@@ -55,6 +55,7 @@ interface CampaignRepository
      * @return Campaign[]
      */
     public function getActiveCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC');
+
     public function getActiveCashbackCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null);
 
     /**

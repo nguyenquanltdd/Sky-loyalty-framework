@@ -112,7 +112,7 @@ class AddPointsTransfer extends PointsTransfer
     /**
      * @return array
      */
-    public function serialize() : array
+    public function serialize(): array
     {
         return array_merge(
             parent::serialize(),

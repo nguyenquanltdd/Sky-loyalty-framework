@@ -24,6 +24,7 @@ class MultiplyPointsByProductLabelsRuleAlgorithm extends AbstractRuleAlgorithm
 
     /**
      * {@inheritdoc}
+     *
      * @throws EarningRuleAlgorithmException
      */
     public function evaluate(RuleEvaluationContextInterface $context, EarningRule $rule)
@@ -57,7 +58,7 @@ class MultiplyPointsByProductLabelsRuleAlgorithm extends AbstractRuleAlgorithm
      *
      * @return float|null
      */
-    protected function getMultiplier(MultiplyPointsByProductLabelsEarningRule $rule, Item $item) : ? float
+    protected function getMultiplier(MultiplyPointsByProductLabelsEarningRule $rule, Item $item): ? float
     {
         $multiplier = null;
         foreach ($rule->getLabelMultipliers() as $labelMultiplier) {

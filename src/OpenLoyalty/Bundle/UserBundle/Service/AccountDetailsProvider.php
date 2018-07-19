@@ -56,7 +56,7 @@ class AccountDetailsProvider implements AccountDetailsProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function getAccountByCustomer(Customer $customer) : AccountDetails
+    public function getAccountByCustomer(Customer $customer): AccountDetails
     {
         $account = $this->validateAccount($this->accountRepository->findBy(['customerId' => $customer->getId()->__toString()]));
 

@@ -44,7 +44,6 @@ class CreateCampaignTest extends CampaignCommandHandlerTest
             ],
             'taxPriceValue' => 99.95,
             'tax' => 23,
-
         ]);
         $handler->handle($command);
         $campaign = $this->inMemoryRepository->byId($campaignId);
@@ -78,7 +77,6 @@ class CreateCampaignTest extends CampaignCommandHandlerTest
                 'visibleFrom' => new \DateTime('2016-02-01'),
                 'visibleTo' => new \DateTime('2016-02-11'),
             ],
-
         ]);
         $handler->handle($command);
         $campaign = $this->inMemoryRepository->byId($campaignId);

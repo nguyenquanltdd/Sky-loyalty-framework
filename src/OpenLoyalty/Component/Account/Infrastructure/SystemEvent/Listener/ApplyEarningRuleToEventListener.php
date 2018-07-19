@@ -37,10 +37,10 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
     /**
      * ApplyEarningRuleToEventListener constructor.
      *
-     * @param CommandBus                     $commandBus
-     * @param Repository                     $accountDetailsRepository
-     * @param UuidGeneratorInterface         $uuidGenerator
-     * @param EarningRuleApplier             $earningRuleApplier
+     * @param CommandBus             $commandBus
+     * @param Repository             $accountDetailsRepository
+     * @param UuidGeneratorInterface $uuidGenerator
+     * @param EarningRuleApplier     $earningRuleApplier
      * @param $pointsTransfersManager        $pointsTransfersManager
      * @param EarningRuleLimitValidator|null $earningRuleLimitValidator
      */

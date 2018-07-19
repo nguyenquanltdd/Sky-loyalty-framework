@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /**
  * Copyright © 2017 Divante, Inc. All rights reserved.
@@ -23,6 +24,7 @@ interface PointsTransferManagerInterface
      * @param TransactionId|null $transactionId
      * @param null|string        $comment
      * @param string             $issuer
+     *
      * @return AddPointsTransfer
      */
     public function createAddPointsTransferInstance(
@@ -33,5 +35,5 @@ interface PointsTransferManagerInterface
         TransactionId $transactionId = null,
         ? string $comment = null,
         $issuer = PointsTransfer::ISSUER_SYSTEM
-    ) : AddPointsTransfer;
+    ): AddPointsTransfer;
 }

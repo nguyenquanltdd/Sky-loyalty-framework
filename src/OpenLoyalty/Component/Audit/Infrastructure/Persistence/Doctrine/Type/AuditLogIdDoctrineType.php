@@ -14,9 +14,6 @@ use Ramsey\Uuid\Doctrine\UuidType;
  */
 final class AuditLogIdDoctrineType extends UuidType
 {
-    /**
-     *
-     */
     const NAME = 'audit_log_id';
 
     /**

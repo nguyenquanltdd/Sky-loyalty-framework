@@ -6,7 +6,6 @@
 namespace OpenLoyalty\Bundle\UserBundle\Security\Authenticator;
 
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
-use OpenLoyalty\Bundle\UserBundle\Entity\Role;
 use OpenLoyalty\Bundle\UserBundle\Service\AdminProvider;
 use OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -29,7 +28,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
     private $masterAdminProvider;
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function __construct(MasterAdminProvider $masterAdminProvider)
     {
@@ -69,6 +68,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
 
     /**
      * @param string $apiKey
+     *
      * @return null|Admin
      */
     protected function loadUserByApiMasterKey(string $apiKey): ? Admin

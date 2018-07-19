@@ -40,7 +40,6 @@ class JsonSettingEntry extends SettingsEntry implements \ArrayAccess, \IteratorA
 
         usort($array, function ($a, $b) use (&$isSortable) {
             if (isset($a['priority']) && isset($b['priority'])) {
-
                 // because array has priority field it's sortable so set to true
                 $isSortable = true;
 

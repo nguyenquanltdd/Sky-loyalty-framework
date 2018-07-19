@@ -25,9 +25,6 @@ class ProcessImportResult
         $this->object = $object;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __toString()
     {
         return (string) $this->object;

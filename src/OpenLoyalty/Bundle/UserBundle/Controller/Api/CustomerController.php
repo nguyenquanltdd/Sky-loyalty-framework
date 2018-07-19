@@ -255,7 +255,7 @@ class CustomerController extends FOSRestController
             if (!isset($result[$tmp])) {
                 continue;
             }
-            $result[$tmp] += 1;
+            ++$result[$tmp];
         }
 
         return $this->view($result);

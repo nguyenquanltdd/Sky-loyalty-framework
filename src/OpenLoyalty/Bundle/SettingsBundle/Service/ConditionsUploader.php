@@ -30,7 +30,7 @@ class ConditionsUploader
     /**
      * FileUploader constructor.
      *
-     * @param Filesystem $filesystem
+     * @param Filesystem  $filesystem
      * @param string|null $customerPanelUrl
      */
     public function __construct(Filesystem $filesystem, ? string $customerPanelUrl = null)
@@ -44,7 +44,7 @@ class ConditionsUploader
      *
      * @return string|null
      */
-    public function get(Conditions $conditions) : ? string
+    public function get(Conditions $conditions): ? string
     {
         if (null === $conditions || null === $conditions->getPath()) {
             return null;
@@ -58,7 +58,7 @@ class ConditionsUploader
      *
      * @return Conditions
      */
-    public function upload(UploadedFile $src) : Conditions
+    public function upload(UploadedFile $src): Conditions
     {
         $file = new Conditions();
 
@@ -75,7 +75,7 @@ class ConditionsUploader
     /**
      * @param Conditions|null $conditions
      */
-    public function remove(Conditions $conditions = null) : void
+    public function remove(Conditions $conditions = null): void
     {
         if (null === $conditions || null === $conditions->getPath()) {
             return;

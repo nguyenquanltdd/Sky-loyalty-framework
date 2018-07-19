@@ -3,7 +3,6 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-
 namespace OpenLoyaltyPlugin\SalesManagoBundle\Form\Type;
 
 use OpenLoyalty\Bundle\SettingsBundle\Form\DataTransformer\ChoicesToJsonSettingDataTransformer;
@@ -16,7 +15,7 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * Class ConfigFormType
+ * Class ConfigFormType.
  */
 class ConfigFormType extends AbstractType
 {

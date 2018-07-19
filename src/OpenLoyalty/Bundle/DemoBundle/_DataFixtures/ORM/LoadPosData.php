@@ -51,6 +51,7 @@ class LoadPosData extends ContainerAwareFixture implements OrderedFixtureInterfa
     {
         return 1;
     }
+
     private function getPosData()
     {
         return [
@@ -69,6 +70,7 @@ class LoadPosData extends ContainerAwareFixture implements OrderedFixtureInterfa
             ],
         ];
     }
+
     private function getPos2Data()
     {
         return [

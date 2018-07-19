@@ -104,7 +104,7 @@ class UtilityController extends FOSRestController
      */
     protected function createStream($map, $customerDetails, $baseFilename)
     {
-        /**@var StreamedResponse $response * */
+        /** @var StreamedResponse $response * */
         $response = new StreamedResponse();
         $response->setCallback(function () use ($map, $customerDetails) {
             $handle = fopen('php://output', 'w');

@@ -89,6 +89,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      * @param string $direction
      *
      * @return array
+     *
      * @throws \Doctrine\ORM\ORMException
      */
     public function findByParametersPaginated(
@@ -117,6 +118,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      * @param array $params
      *
      * @return int
+     *
      * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      * @throws \Doctrine\ORM\ORMException
@@ -305,6 +307,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      * @param array $params
      *
      * @return \Doctrine\ORM\QueryBuilder
+     *
      * @throws \Doctrine\ORM\ORMException
      */
     protected function getCampaignsByParamsQueryBuilder(array $params): QueryBuilder
@@ -316,18 +319,18 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
             foreach ($params['labels'] as $label) {
                 $searchLabel = '';
                 if (array_key_exists('key', $label)) {
-                    $searchLabel .= '"key":"' . $label['key'] . '"';
+                    $searchLabel .= '"key":"'.$label['key'].'"';
                 }
                 if (array_key_exists('value', $label)) {
                     if (!empty($searchLabel)) {
                         $searchLabel .= ',';
                     }
-                    $searchLabel .= '"value":"' . $label['value'] . '"';
+                    $searchLabel .= '"value":"'.$label['value'].'"';
                 }
 
                 if (!empty($searchLabel)) {
                     $qb->andWhere($qb->expr()->like('cast(c.labels as text)', ':label'));
-                    $qb->setParameter('label', '%' . $searchLabel . '%');
+                    $qb->setParameter('label', '%'.$searchLabel.'%');
                 }
             }
         }
@@ -349,7 +352,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
         if (array_key_exists('name', $params) && !is_null($params['name'])) {
             if ($params['name']) {
                 $qb->andWhere($qb->expr()->like('c.name', ':name'))
-                    ->setParameter('name', '%' . urldecode($params['name']) . '%');
+                    ->setParameter('name', '%'.urldecode($params['name']).'%');
             }
         }
 

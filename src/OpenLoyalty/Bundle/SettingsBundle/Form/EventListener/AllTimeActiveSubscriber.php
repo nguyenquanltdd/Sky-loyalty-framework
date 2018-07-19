@@ -3,7 +3,6 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-
 namespace OpenLoyalty\Bundle\SettingsBundle\Form\EventListener;
 
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
@@ -14,7 +13,7 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * Class AllTimeActiveSubscriber
+ * Class AllTimeActiveSubscriber.
  */
 class AllTimeActiveSubscriber implements EventSubscriberInterface
 {

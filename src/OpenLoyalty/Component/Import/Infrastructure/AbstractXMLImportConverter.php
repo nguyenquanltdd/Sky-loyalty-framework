@@ -35,7 +35,7 @@ abstract class AbstractXMLImportConverter implements XMLImportConverter
      *
      * @return bool
      */
-    protected function returnBool(? string $value) : bool
+    protected function returnBool(? string $value): bool
     {
         return filter_var($value, FILTER_VALIDATE_BOOLEAN);
     }

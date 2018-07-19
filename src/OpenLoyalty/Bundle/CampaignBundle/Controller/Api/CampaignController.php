@@ -7,7 +7,6 @@ namespace OpenLoyalty\Bundle\CampaignBundle\Controller\Api;
 
 use Broadway\CommandHandling\CommandBus;
 use FOS\RestBundle\Context\Context;
-use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -301,8 +300,8 @@ class CampaignController extends FOSRestController
      *     }
      * )
      *
-     * @param Request       $request
-     * @param ParamFetcher  $paramFetcher
+     * @param Request      $request
+     * @param ParamFetcher $paramFetcher
      *
      * @View(serializerGroups={"admin", "Default"})
      *

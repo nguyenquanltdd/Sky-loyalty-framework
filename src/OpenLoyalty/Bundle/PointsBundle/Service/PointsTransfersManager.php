@@ -96,7 +96,7 @@ class PointsTransfersManager implements PointsTransferManagerInterface
         TransactionId $transactionId = null,
         ? string $comment = null,
         $issuer = PointsTransfer::ISSUER_SYSTEM
-    ) : AddPointsTransfer {
+    ): AddPointsTransfer {
         $validtyDaysDuration = $this->settingsManager->getPointsDaysActive();
 
         return new AddPointsTransfer(

@@ -151,6 +151,7 @@ class AccountActivationMethod implements Serializable
             'method' => $this->getMethod(),
         ];
     }
+
     /**
      * @return string
      */

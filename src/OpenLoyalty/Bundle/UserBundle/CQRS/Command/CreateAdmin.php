@@ -55,7 +55,7 @@ class CreateAdmin extends AdminCommand
     /**
      * @param string $plainPassword
      */
-    public function setPlainPassword(string $plainPassword) : void
+    public function setPlainPassword(string $plainPassword): void
     {
         $this->plainPassword = $plainPassword;
     }
@@ -71,7 +71,7 @@ class CreateAdmin extends AdminCommand
     /**
      * @param bool $external
      */
-    public function setExternal(bool $external) : void
+    public function setExternal(bool $external): void
     {
         $this->external = $external;
     }
@@ -87,7 +87,7 @@ class CreateAdmin extends AdminCommand
     /**
      * @param string $apiKey
      */
-    public function setApiKey(string $apiKey) : void
+    public function setApiKey(string $apiKey): void
     {
         $this->apiKey = $apiKey;
     }
@@ -103,7 +103,7 @@ class CreateAdmin extends AdminCommand
     /**
      * @param bool $isActive
      */
-    public function setIsActive(bool $isActive) : void
+    public function setIsActive(bool $isActive): void
     {
         $this->isActive = $isActive;
     }

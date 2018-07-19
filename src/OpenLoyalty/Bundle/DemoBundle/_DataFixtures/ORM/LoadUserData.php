@@ -89,6 +89,7 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
         $user->setPlainPassword('open');
         $this->container->get('oloy.user.user_manager')->updateUser($user);
     }
+
     /**
      * {@inheritdoc}
      */

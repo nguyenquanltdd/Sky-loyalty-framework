@@ -107,8 +107,9 @@ class SettingsController extends FOSRestController
      *     input={"class" = "OpenLoyalty\Bundle\SettingsBundle\Form\Type\ConditionsFileType", "name" = "conditions"}
      * )
      *
-     * @param Request $request
+     * @param Request            $request
      * @param ConditionsUploader $conditionsUploader
+     *
      * @return View
      */
     public function addConditionsFileAction(Request $request, ConditionsUploader $conditionsUploader)
@@ -240,6 +241,7 @@ class SettingsController extends FOSRestController
      * )
      *
      * @param ConditionsUploader $conditionsUploader
+     *
      * @return View
      */
     public function removeConditionsFileAction(ConditionsUploader $conditionsUploader)
@@ -332,7 +334,9 @@ class SettingsController extends FOSRestController
      *
      * @Route(name="oloy.settings.get_conditions_file", path="/settings/conditions-file")
      * @Method("GET")
+     *
      * @param ConditionsUploader $conditionsUploader
+     *
      * @return Response
      */
     public function getConditionsFileAction(ConditionsUploader $conditionsUploader)
@@ -366,7 +370,9 @@ class SettingsController extends FOSRestController
      *
      * @Route(name="oloy.settings.get_conditions_url", path="/settings/conditions-url")
      * @Method("GET")
+     *
      * @param ConditionsUploader $conditionsUploader
+     *
      * @return Response
      */
     public function getConditionsUrlAction(ConditionsUploader $conditionsUploader)
@@ -668,7 +674,7 @@ class SettingsController extends FOSRestController
      * )
      *
      * @param ChoicesProvider $choicesProvider
-     * @param string $type
+     * @param string          $type
      *
      * @return View
      */

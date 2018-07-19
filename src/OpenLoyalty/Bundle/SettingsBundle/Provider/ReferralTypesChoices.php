@@ -3,7 +3,6 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-
 namespace OpenLoyalty\Bundle\SettingsBundle\Provider;
 
 use OpenLoyalty\Component\EarningRule\Domain\ReferralEarningRule;
@@ -22,8 +21,8 @@ class ReferralTypesChoices implements ChoiceProvider
             'choices' => [
                 ReferralEarningRule::TYPE_REFERRED => ReferralEarningRule::TYPE_REFERRED,
                 ReferralEarningRule::TYPE_REFERRER => ReferralEarningRule::TYPE_REFERRER,
-                ReferralEarningRule::TYPE_BOTH     => ReferralEarningRule::TYPE_BOTH,
-            ]
+                ReferralEarningRule::TYPE_BOTH => ReferralEarningRule::TYPE_BOTH,
+            ],
         ];
     }
 

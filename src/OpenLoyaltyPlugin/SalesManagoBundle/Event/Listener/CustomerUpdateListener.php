@@ -28,7 +28,7 @@ class CustomerUpdateListener
      * CustomerUpdateListener constructor.
      *
      * @param SalesManagoContactUpdateSender $sender
-     * @param SalesManagoValidator               $validator
+     * @param SalesManagoValidator           $validator
      */
     public function __construct(SalesManagoContactUpdateSender $sender, SalesManagoValidator $validator)
     {

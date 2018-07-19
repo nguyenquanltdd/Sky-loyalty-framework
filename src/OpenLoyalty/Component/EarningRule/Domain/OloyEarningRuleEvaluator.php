@@ -128,7 +128,6 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         $result = [];
 
         foreach ($earningRules as $earningRule) {
-
             // ignore event rules (supported by call method)
             if ($earningRule instanceof EventEarningRule || $earningRule instanceof CustomEventEarningRule || $earningRule instanceof ReferralEarningRule) {
                 continue;
@@ -242,7 +241,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     /**
      * {@inheritdoc}
      */
-    public function evaluateEventWithContext(string $eventName, ? string $customerId) : array
+    public function evaluateEventWithContext(string $eventName, ? string $customerId): array
     {
         $context = new RuleNameContext();
         $points = $this->evaluateEvent($eventName, $customerId, $context);

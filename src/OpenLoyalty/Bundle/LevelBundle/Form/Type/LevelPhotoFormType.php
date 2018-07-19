@@ -25,6 +25,7 @@ class LevelPhotoFormType extends AbstractType
             'required' => true,
         ]);
     }
+
     /**
      * {@inheritdoc}
      */
