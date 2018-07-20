@@ -5,6 +5,8 @@
  */
 namespace OpenLoyalty\Component\EarningRule\Domain;
 
+use OpenLoyalty\Component\Core\Domain\Model\Identifier;
+
 /**
  * Interface EarningRuleRepository.
  */
@@ -25,28 +27,42 @@ interface EarningRuleRepository
     public function findAll($returnQueryBuilder = false);
 
     /**
-     * @param                $eventName
-     * @param array          $segmentIds
-     * @param null           $levelId
-     * @param \DateTime|null $date
+     * @param                        $eventName
+     * @param array                  $segmentIds
+     * @param null                   $levelId
+     * @param \DateTime|null         $date
+     * @param string|null|Identifier $posId
      *
      * @return array
      *
      * @throws \Doctrine\ORM\ORMException
      */
-    public function findByCustomEventName($eventName, array $segmentIds = [], $levelId = null, \DateTime $date = null);
+    public function findByCustomEventName(
+        $eventName,
+        array $segmentIds = [],
+        $levelId = null,
+        \DateTime $date = null,
+        $posId = null
+    );
 
     /**
-     * @param                $eventName
-     * @param array          $segmentIds
-     * @param null           $levelId
-     * @param \DateTime|null $date
+     * @param                        $eventName
+     * @param array                  $segmentIds
+     * @param null                   $levelId
+     * @param \DateTime|null         $date
+     * @param string|null|Identifier $posId
      *
      * @return array
      *
      * @throws \Doctrine\ORM\ORMException
      */
-    public function findReferralByEventName($eventName, array $segmentIds = [], $levelId = null, \DateTime $date = null);
+    public function findReferralByEventName(
+        $eventName,
+        array $segmentIds = [],
+        $levelId = null,
+        \DateTime $date = null,
+        $posId = null
+    );
 
     /**
      * @param \DateTime|null $date
@@ -56,31 +72,35 @@ interface EarningRuleRepository
     public function findAllActive(\DateTime $date = null);
 
     /**
-     * @param null           $eventName
-     * @param array          $segmentIds
-     * @param null           $levelId
-     * @param \DateTime|null $date
+     * @param null                   $eventName
+     * @param array                  $segmentIds
+     * @param null                   $levelId
+     * @param \DateTime|null         $date
+     * @param string|null|Identifier $posId
      *
      * @return array
      *
      * @throws \Doctrine\ORM\ORMException
      */
-    public function findAllActiveEventRules($eventName = null, array $segmentIds = [], $levelId = null, \DateTime $date = null);
+    public function findAllActiveEventRules(
+        $eventName = null,
+        array $segmentIds = [],
+        $levelId = null,
+        \DateTime $date = null,
+        $posId = null
+    );
 
     /**
      * @param int    $page
      * @param int    $perPage
      * @param null   $sortField
      * @param string $direction
-     * @param bool   $returnQb
      *
      * @return array|\Doctrine\ORM\QueryBuilder
      */
     public function findAllPaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'DESC');
 
     /**
-     * @param bool $returnQb
-     *
      * @return \Doctrine\ORM\QueryBuilder|mixed
      *
      * @throws \Doctrine\ORM\NoResultException
@@ -112,13 +132,19 @@ interface EarningRuleRepository
     public function isCustomEventEarningRuleExist($eventName, $currentEarningRuleId = null);
 
     /**
-     * Find all active event rules filterred by level and segments.
+     * Find all active event rules filtered by level and segments.
      *
      * @param \DateTime|null $date
      * @param array          $segmentIds
-     * @param LevelId        $levelId
+     * @param LevelId|null   $levelId
+     * @param PosId|null     $posId
      *
      * @return array
      */
-    public function findAllActiveEventRulesBySegmentsAndLevels(\DateTime $date = null, array $segmentIds = [], $levelId = null);
+    public function findAllActiveEventRulesBySegmentsAndLevels(
+        \DateTime $date = null,
+        array $segmentIds = [],
+        $levelId = null,
+        $posId = null
+    );
 }

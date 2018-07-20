@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Component\EarningRule\Domain;
 
 use Assert\Assertion as Assert;
+use Assert\AssertionFailedException;
 use OpenLoyalty\Component\EarningRule\Domain\Model\EarningRulePhoto;
 
 /**
@@ -57,6 +58,11 @@ abstract class EarningRule
     protected $segments = [];
 
     /**
+     * @var PosId[]
+     */
+    protected $pos = [];
+
+    /**
      * @var bool
      */
     protected $active = false;
@@ -97,6 +103,9 @@ abstract class EarningRule
         $this->setFromArray($earningRuleData);
     }
 
+    /**
+     * @param array $earningRuleData
+     */
     public function setFromArray(array $earningRuleData = [])
     {
         if (isset($earningRuleData['name'])) {
@@ -110,6 +119,9 @@ abstract class EarningRule
         }
         if (isset($earningRuleData['segments'])) {
             $this->segments = $earningRuleData['segments'];
+        }
+        if (isset($earningRuleData['pos'])) {
+            $this->pos = $earningRuleData['pos'];
         }
         if (isset($earningRuleData['active'])) {
             $this->active = $earningRuleData['active'];
@@ -210,6 +222,22 @@ abstract class EarningRule
     }
 
     /**
+     * @return PosId[]
+     */
+    public function getPos(): array
+    {
+        return $this->pos;
+    }
+
+    /**
+     * @param PosId[] $pos
+     */
+    public function setPos(array $pos)
+    {
+        $this->pos = $pos;
+    }
+
+    /**
      * @return bool
      */
     public function isActive()
@@ -273,6 +301,11 @@ abstract class EarningRule
         $this->allTimeActive = $allTimeActive;
     }
 
+    /**
+     * @param array $earningRuleData
+     *
+     * @throws AssertionFailedException
+     */
     public static function validateRequiredData(array $earningRuleData = [])
     {
         Assert::keyIsset($earningRuleData, 'name');
@@ -322,6 +355,16 @@ abstract class EarningRule
         return array_map(function (SegmentId $segmentId) {
             return $segmentId->__toString();
         }, $this->segments);
+    }
+
+    /**
+     * @return array
+     */
+    public function getFlatPos(): array
+    {
+        return array_map(function (PosId $posId) {
+            return $posId->__toString();
+        }, $this->pos);
     }
 
     /**

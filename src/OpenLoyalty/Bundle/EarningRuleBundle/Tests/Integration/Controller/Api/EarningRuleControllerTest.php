@@ -18,12 +18,16 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class EarningRuleControllerTest extends BaseApiTest
 {
     const LEVEL_ID = 'f99748f2-bf86-11e6-a4a6-cec0c932ce01';
+    const POS_ID = '00000000-0000-474c-1111-b0dd880c07e2';
 
     /**
      * @var EarningRuleRepository
      */
     protected $repository;
 
+    /**
+     * {@inheritdoc}
+     */
     protected function setUp()
     {
         parent::setUp();
@@ -43,6 +47,7 @@ class EarningRuleControllerTest extends BaseApiTest
             '/api/earningRule',
             [
                 'earningRule' => array_merge($this->getMainData(), [
+                    'name' => 'Custom event assigned to level - test event - 100',
                     'type' => EarningRule::TYPE_EVENT,
                     'eventName' => 'test event',
                     'pointsAmount' => 100,
@@ -64,6 +69,40 @@ class EarningRuleControllerTest extends BaseApiTest
     /**
      * @test
      */
+    public function it_creates_event_rule_with_assign_to_pos()
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/earningRule',
+            [
+                'earningRule' => array_merge($this->getMainData(), [
+                    'name' => 'Custom event assigned to POS - test event - 100',
+                    'type' => EarningRule::TYPE_EVENT,
+                    'eventName' => 'test event',
+                    'pointsAmount' => 100,
+                    'levels' => [
+                        self::LEVEL_ID,
+                    ],
+                    'pos' => [
+                        self::POS_ID,
+                    ],
+                ]),
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('earningRuleId', $data);
+        $rule = $this->repository->byId(new EarningRuleId($data['earningRuleId']));
+        $this->assertInstanceOf(EventEarningRule::class, $rule);
+        $this->assertEquals([self::POS_ID], $rule->getPos());
+    }
+
+    /**
+     * @test
+     */
     public function it_creates_purchase_product_rule()
     {
         $client = $this->createAuthenticatedClient();
@@ -72,6 +111,7 @@ class EarningRuleControllerTest extends BaseApiTest
             '/api/earningRule',
             [
                 'earningRule' => array_merge($this->getMainData(), [
+                    'name' => 'Product purchase with test_sku - 100',
                     'type' => EarningRule::TYPE_PRODUCT_PURCHASE,
                     'skuIds' => ['test sku'],
                     'pointsAmount' => 100,
@@ -101,6 +141,7 @@ class EarningRuleControllerTest extends BaseApiTest
             '/api/earningRule',
             [
                 'earningRule' => array_merge($this->getMainData(), [
+                    'name' => 'General spending rule - 1.1',
                     'type' => EarningRule::TYPE_POINTS,
                     'pointValue' => 1.1,
                     'excludedSKUs' => '123;222;111',
@@ -216,7 +257,6 @@ class EarningRuleControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $data = json_decode($response->getContent(), true);
         $this->assertEquals('200', $response->getStatusCode());
 
         $getClient = $this->createAuthenticatedClient();
@@ -228,6 +268,9 @@ class EarningRuleControllerTest extends BaseApiTest
         $this->assertEquals(200, $getResponse->getStatusCode());
     }
 
+    /**
+     * @test
+     */
     public function it_removes_photo_from_earning_rule()
     {
         $rules = $this->repository->findAllActive();
@@ -277,6 +320,11 @@ class EarningRuleControllerTest extends BaseApiTest
         $this->assertEquals(404, $checkResponse->getStatusCode());
     }
 
+    /**
+     * @param string $name
+     *
+     * @return array
+     */
     protected function getMainData($name = 'test')
     {
         return [

@@ -23,12 +23,14 @@ use OpenLoyalty\Component\EarningRule\Domain\MultiplyPointsByProductLabelsEarnin
 use OpenLoyalty\Component\EarningRule\Domain\MultiplyPointsForProductEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\OloyEarningRuleEvaluator;
 use OpenLoyalty\Component\EarningRule\Domain\PointsEarningRule;
+use OpenLoyalty\Component\EarningRule\Domain\PosId;
 use OpenLoyalty\Component\EarningRule\Domain\ProductPurchaseEarningRule;
 use OpenLoyalty\Component\Transaction\Domain\Model\Item;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomersRepository;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
+use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
 
 /**
  * Class OloyEarningRuleEvaluatorTest.
@@ -160,7 +162,7 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_returns_proper_value_for_event()
+    public function it_returns_proper_value_for_event_account_created()
     {
         $eventEarningRule = new EventEarningRule(new EarningRuleId('00000000-0000-0000-0000-000000000000'));
         $eventEarningRule->setEventName(AccountSystemEvents::ACCOUNT_CREATED);
@@ -170,6 +172,22 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
         $customerId = 11;
         $points = $evaluator->evaluateEvent(AccountSystemEvents::ACCOUNT_CREATED, $customerId);
         $this->assertEquals(200, $points);
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_proper_value_for_event_first_purchase()
+    {
+        $eventEarningRule = new EventEarningRule(new EarningRuleId('00000000-0000-0000-0000-000000000000'));
+        $eventEarningRule->setEventName(TransactionSystemEvents::CUSTOMER_FIRST_TRANSACTION);
+        $eventEarningRule->setPointsAmount(56);
+        $eventEarningRule->setPos([new PosId('00000000-0000-474c-1111-b0dd880c07e2')]);
+
+        $evaluator = $this->getEarningRuleEvaluator([$eventEarningRule]);
+        $customerId = 11;
+        $points = $evaluator->evaluateEvent(TransactionSystemEvents::CUSTOMER_FIRST_TRANSACTION, $customerId);
+        $this->assertEquals(56, $points);
     }
 
     /**

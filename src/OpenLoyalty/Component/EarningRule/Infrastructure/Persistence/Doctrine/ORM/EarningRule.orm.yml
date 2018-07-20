@@ -23,6 +23,9 @@ OpenLoyalty\Component\EarningRule\Domain\EarningRule:
     segments:
       type: earning_rule_segments_json_array
       nullable: true
+    pos:
+      type: earning_rule_pos_json_array
+      nullable: true
     allTimeActive:
       type: boolean
       column: all_time_active

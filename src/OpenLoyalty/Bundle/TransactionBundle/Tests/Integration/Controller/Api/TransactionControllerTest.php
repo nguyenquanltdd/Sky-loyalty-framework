@@ -723,7 +723,7 @@ class TransactionControllerTest extends BaseApiTest
         $statusProvider = static::$kernel->getContainer()->get('oloy.customer_status_provider');
         $status = $statusProvider->getStatus($customer->getCustomerId());
 
-        $this->assertEquals(0, $status->getPoints());
+        $this->assertEquals(10, $status->getPoints());
     }
 
     /**
@@ -867,7 +867,7 @@ class TransactionControllerTest extends BaseApiTest
         $statusProvider = static::$kernel->getContainer()->get('oloy.customer_status_provider');
         $status = $statusProvider->getStatus($customer->getCustomerId());
 
-        $this->assertEquals(0, $status->getPoints());
+        $this->assertEquals(20, $status->getPoints());
     }
 
     /**
@@ -1011,7 +1011,7 @@ class TransactionControllerTest extends BaseApiTest
         $statusProvider = static::$kernel->getContainer()->get('oloy.customer_status_provider');
         $status = $statusProvider->getStatus($customer->getCustomerId());
 
-        $this->assertEquals(4.6, $status->getPoints());
+        $this->assertEquals(34.6, $status->getPoints());
     }
 
     /**

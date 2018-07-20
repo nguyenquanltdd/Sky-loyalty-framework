@@ -16,6 +16,7 @@ use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
 use OpenLoyalty\Bundle\UserBundle\Entity\Status;
 use OpenLoyalty\Component\Customer\Domain\Command\ActivateCustomer;
+use OpenLoyalty\Component\Customer\Domain\Command\AssignPosToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\MoveCustomerToLevel;
 use OpenLoyalty\Component\Customer\Domain\Command\RegisterCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\UpdateCustomerAddress;
@@ -45,6 +46,11 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
     const USER1_USERNAME = 'user-1@oloy.com';
     const USER1_PASSWORD = 'loyalty';
     const USER1_PHONE_NUMBER = '+48456456000';
+
+    const USER2_USER_ID = '22222222-0000-474c-b092-b0dd880c07e1';
+    const USER2_USERNAME = 'user-2@oloy.com';
+    const USER2_PASSWORD = 'loyalty';
+    const USER2_PHONE_NUMBER = '+48456457000';
 
     const TEST_USER_ID = '00000000-0000-474c-b092-b0dd880c07e2';
     const TEST_USERNAME = 'user-temp@oloy.com';
@@ -203,6 +209,33 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
 
         $user->setEmail($this::USER1_USERNAME);
         $manager->persist($user);
+
+        // USER2
+        $customerId = new CustomerId(static::USER2_USER_ID);
+        $command = new RegisterCustomer(
+            $customerId,
+            $this->getDefaultCustomerData('Alice', 'Smith', $this::USER2_USERNAME, $this::USER2_PHONE_NUMBER)
+        );
+
+        $bus->dispatch($command);
+        $bus->dispatch(new ActivateCustomer($customerId));
+        $bus->dispatch(new AssignPosToCustomer($customerId, new \OpenLoyalty\Component\Customer\Domain\PosId(LoadPosData::POS_ID)));
+
+        $user = new Customer($customerId);
+        $user->setPlainPassword($this::USER2_PASSWORD);
+        $user->setPhone($command->getCustomerData()['phone']);
+
+        $password = $this->container->get('security.password_encoder')
+                                    ->encodePassword($user, $user->getPlainPassword());
+
+        $user->addRole($this->getReference('role_participant'));
+        $user->setPassword($password);
+        $user->setIsActive(true);
+        $user->setStatus(Status::typeActiveNoCard());
+
+        $user->setEmail($this::USER2_USERNAME);
+        $manager->persist($user);
+        $this->addReference('user-2', $user);
 
         // USER_TEST
         $customerId = new CustomerId(self::TEST_USER_ID);

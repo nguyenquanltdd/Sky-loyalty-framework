@@ -77,9 +77,9 @@
     "all_transfers": "All points transfers",
     "transactions": "Transactions",
     "all_transactions": "All transactions",
-    "earning_rules": "Earning points rules",
-    "all_earning_rules": "All earning points rules",
-    "add_earning_rule": "Add earning points rule",
+    "earning_rules": "Earning rules",
+    "all_earning_rules": "All earning rules",
+    "add_earning_rule": "Add earning rule",
     "pos": "POS",
     "all_pos": "All POS",
     "add_pos": "Add POS",
@@ -409,10 +409,10 @@
     "reward": "Reward",
     "reward_type": "Reward",
     "reward_prompt": "",
-    "add": "Add earning points rule",
-    "heading": "Earning points rules",
-    "edit_heading": "Edit points rules",
-    "add_heading": "Add earning points rule",
+    "add": "Add earning rule",
+    "heading": "Earning rules",
+    "edit_heading": "Edit earning rules",
+    "add_heading": "Add earning rule",
     "levels": "Levels",
     "segments": "Segments",
     "segments_prompt": "",
@@ -428,7 +428,7 @@
     "points_amount_prompt": "",
     "all_time_active_prompt": "",
     "add_excluded_sku": "Add SKU",
-    "add_earning_rule": "Add earning points rule",
+    "add_earning_rule": "Add earning rule",
     "add_excluded_label": "Add excluded label",
     "add_label_multiplier": "Add label multiplier",
     "label_multipliers": "Label multipliers",
@@ -437,8 +437,8 @@
     "label_multiplier_prompt": "",
     "name_prompt": "",
     "details": "Earning rule details",
-    "edit": "Edit earning points rule",
-    "list": "Earning points rules list",
+    "edit": "Edit earning rule",
+    "list": "Earning rules list",
     "basic_info": "Basic Information",
     "limit_info": "Usage limit",
     "photo": "Earning rule photo",
@@ -514,7 +514,9 @@
       "oloy.customer.referral": "Customer referral",
       "oloy.transaction.customer_first_transaction": "First purchase",
       "oloy.customer.newsletter_subscription": "Newsletter subscription"
-    }
+    },
+    "pos": "POS",
+    "pos_prompt": ""
   },
   "login": {
     "remember_me": "Keep me logged in",
@@ -633,7 +635,7 @@
       "heading": "Dashboard",
       "register_customer": "Register Customer",
       "find_transaction": "Find transaction",
-      "earning_points_rules": "Earning Points Rules",
+      "earning_points_rules": "Earning Rules",
       "title": {
         "campaign_list": "campaign list",
         "find_customer": "find customer",
@@ -674,7 +676,8 @@
       "title": "Issuer",
       "system": "system",
       "admin": "admin",
-      "seller": "merchant"
+      "seller": "merchant",
+      "api": "API"
     },
     "state": "State",
     "type": "Type",
@@ -1035,7 +1038,6 @@
     "customer_lastname": "Customer's surname",
     "current_points_amount": "Customer active points amount",
     "date_from": "Date from",
-    "date_to": "Date to",
     "singleCoupon": "Single Coupon",
     "singleCoupon_prompt": "",
     "reward_value_description": "",
@@ -1234,19 +1236,19 @@
       "error": "An error occurred"
     },
     "get_earning_rules": {
-      "error": "Cannot get earning points rules list"
+      "error": "Cannot get earning rules list"
     },
     "get_earning_rule": {
       "error": "An error occurred",
-      "no_id": "Earning points rule ID not found"
+      "no_id": "Earning rule ID not found"
     },
     "put_earning_rule": {
-      "success": "You successfully edited earning points rule.",
+      "success": "You successfully edited earning rule.",
       "error": "An error occurred",
-      "warning": "Couldn't uploaded earning points rule's image"
+      "warning": "Couldn't uploaded earning rule's image"
     },
     "post_earning_rule": {
-      "success": "Earning points rule added",
+      "success": "Earning rule added",
       "error": "An error occurred",
       "warning": "Earning rule added without photo"
     },

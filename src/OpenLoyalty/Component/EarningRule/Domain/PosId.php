@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Component\EarningRule\Domain;
@@ -10,31 +10,34 @@ use OpenLoyalty\Component\Core\Domain\Model\Identifier;
 use Assert\Assertion as Assert;
 
 /**
- * Class SegmentId.
+ * Class PosId.
  */
-class SegmentId implements Identifier
+class PosId implements Identifier
 {
     /**
      * @var string
      */
-    protected $segmentId;
+    protected $posId;
 
     /**
-     * SegmentId constructor.
+     * PosId constructor.
      *
-     * @param $segmentId
+     * @param string $posId
      *
      * @throws AssertionFailedException
      */
-    public function __construct($segmentId)
+    public function __construct(string $posId)
     {
-        Assert::string($segmentId);
-        Assert::uuid($segmentId);
-        $this->segmentId = $segmentId;
+        Assert::string($posId);
+        Assert::uuid($posId);
+        $this->posId = $posId;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function __toString()
     {
-        return $this->segmentId;
+        return $this->posId;
     }
 }

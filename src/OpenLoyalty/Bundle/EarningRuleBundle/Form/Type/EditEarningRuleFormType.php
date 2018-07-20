@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\EarningRuleBundle\Form\Type;
 
+use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\PosDataTransformer;
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRule;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\LevelsDataTransformer;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\SegmentsDataTransformer;
@@ -36,61 +37,62 @@ class EditEarningRuleFormType extends BaseEarningRuleFormType
     {
         $type = $options['type'];
 
-        $builder
-            ->add('name', TextType::class, [
-                'required' => true,
-                'constraints' => [new NotBlank()],
-            ])
-            ->add('description', TextareaType::class, [
-                'required' => true,
-                'constraints' => [new NotBlank()],
-            ])
-            ->add('target', ChoiceType::class, [
-                'required' => false,
-                'choices' => [
-                    'level' => 'level',
-                    'segment' => 'segment',
+        $builder->add('name', TextType::class, ['required' => true, 'constraints' => [new NotBlank()]]);
+        $builder->add('description', TextareaType::class, [
+            'required' => true,
+            'constraints' => [new NotBlank()],
+        ]);
+        $builder->add('target', ChoiceType::class, [
+            'required' => false,
+            'choices' => [
+                'level' => 'level',
+                'segment' => 'segment',
+            ],
+            'mapped' => false,
+        ]);
+        $builder->add(
+            $builder->create('levels', CollectionType::class, [
+                'entry_type' => TextType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'error_bubbling' => false,
+                'constraints' => [
+                    new Callback([$this, 'validateTarget']),
                 ],
-                'mapped' => false,
-            ])
-            ->add(
-                $builder->create('levels', CollectionType::class, [
-                    'entry_type' => TextType::class,
-                    'allow_add' => true,
-                    'allow_delete' => true,
-                    'error_bubbling' => false,
-                    'constraints' => [
-                        new Callback([$this, 'validateTarget']),
-                    ],
-                ])->addModelTransformer(new LevelsDataTransformer())
-            )
-            ->add(
-                $builder->create('segments', CollectionType::class, [
-                    'entry_type' => TextType::class,
-                    'allow_add' => true,
-                    'allow_delete' => true,
-                    'error_bubbling' => false,
-                    'constraints' => [
-                        new Callback([$this, 'validateTarget']),
-                    ],
-                ])->addModelTransformer(new SegmentsDataTransformer())
-            )
-            ->add('active', CheckboxType::class, [
-                'required' => false,
-            ])
-            ->add('allTimeActive', CheckboxType::class, [
-                'required' => false,
-            ])
-            ->add('startAt', DateTimeType::class, [
-                'required' => true,
-                'widget' => 'single_text',
-                'format' => DateTimeType::HTML5_FORMAT,
-            ])
-            ->add('endAt', DateTimeType::class, [
-                'required' => true,
-                'widget' => 'single_text',
-                'format' => DateTimeType::HTML5_FORMAT,
-            ]);
+            ])->addModelTransformer(new LevelsDataTransformer())
+        );
+        $builder->add(
+            $builder->create('segments', CollectionType::class, [
+                'entry_type' => TextType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'error_bubbling' => false,
+                'constraints' => [
+                    new Callback([$this, 'validateTarget']),
+                ],
+            ])->addModelTransformer(new SegmentsDataTransformer())
+        );
+        $builder->add(
+            $builder->create('pos', CollectionType::class, [
+                'entry_type' => TextType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'error_bubbling' => false,
+            ])->addModelTransformer(new PosDataTransformer())
+        );
+        $builder->add('active', CheckboxType::class, ['required' => false]);
+        $builder->add('allTimeActive', CheckboxType::class, ['required' => false]);
+        $builder->add('startAt', DateTimeType::class, [
+            'required' => true,
+            'widget' => 'single_text',
+            'format' => DateTimeType::HTML5_FORMAT,
+        ]);
+        $builder->add('endAt', DateTimeType::class, [
+            'required' => true,
+            'widget' => 'single_text',
+            'format' => DateTimeType::HTML5_FORMAT,
+        ]);
+
         if ($type == EarningRule::TYPE_POINTS) {
             $builder
                 ->add('pointValue', NumberType::class, [

@@ -18,6 +18,8 @@ OpenLoyalty\Component\EarningRule\Domain\EarningRule:
       exclude: true
     segments:
       exclude: true
+    pos:
+      exclude: true
     earningRulePhoto:
       exclude: true
   virtual_properties:
@@ -26,6 +28,9 @@ OpenLoyalty\Component\EarningRule\Domain\EarningRule:
           type: array
       getFlatSegments:
           serialized_name: segments
+          type: array
+      getFlatPos:
+          serialized_name: pos
           type: array
       hasEarningRulePhoto:
           serialized_name: hasPhoto

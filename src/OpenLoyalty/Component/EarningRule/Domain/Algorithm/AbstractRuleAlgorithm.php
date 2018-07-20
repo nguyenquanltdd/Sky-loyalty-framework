@@ -10,14 +10,14 @@ namespace OpenLoyalty\Component\EarningRule\Domain\Algorithm;
  */
 abstract class AbstractRuleAlgorithm implements EarningRuleAlgorithmInterface
 {
+    const HIGH_PRIORITY = 1;
+    const MEDIUM_PRIORITY = 2;
+    const LOW_PRIORITY = 3;
+
     /**
      * @var int
      */
     protected $priority;
-
-    const HIGH_PRIORITY = 1;
-    const MEDIUM_PRIORITY = 2;
-    const LOW_PRIORITY = 3;
 
     /**
      * AbstractRuleAlgorithm constructor.

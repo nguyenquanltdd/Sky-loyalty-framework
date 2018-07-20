@@ -12,6 +12,7 @@ use OpenLoyalty\Component\EarningRule\Domain\CustomEventEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleId;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleRepository;
+use OpenLoyalty\Component\EarningRule\Domain\EventEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\ReferralEarningRule;
 use OpenLoyalty\Component\Core\Domain\Model\Identifier;
 use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\Functions\Cast;
@@ -113,42 +114,37 @@ class DoctrineEarningRuleRepository extends EntityRepository implements EarningR
     /**
      * {@inheritdoc}
      */
-    public function findAllActiveEventRules($eventName = null, array $segmentIds = [], $levelId = null, \DateTime $date = null)
-    {
-        $this->getEntityManager()->getConfiguration()->addCustomStringFunction('cast', Cast::class);
+    public function findAllActiveEventRules(
+        $eventName = null,
+        array $segmentIds = [],
+        $levelId = null,
+        \DateTime $date = null,
+        $posId = null
+    ) {
+        $qb = $this->getEarningRulesForLevelAndSegmentQueryBuilder($segmentIds, $levelId, $date, $posId);
 
-        if (!$date) {
-            $date = new \DateTime();
-        }
-
-        $qb = $this->getEntityManager()->createQueryBuilder()->select('e');
-        $qb->from('OpenLoyaltyEarningRule:EventEarningRule', 'e');
-        $qb->andWhere('e.active = :true')->setParameter('true', true);
-        $qb->andWhere($qb->expr()->orX(
-            'e.allTimeActive = :true',
-            'e.startAt <= :date AND e.endAt >= :date'
-        ))->setParameter('date', $date);
-
+        $qb->add('from', EventEarningRule::class.' e');
         if ($eventName) {
             $qb->andWhere('e.eventName = :eventName')->setParameter('eventName', $eventName);
         }
 
-        $levelOrSegment = $qb->expr()->orX();
-        if ($levelId) {
-            $levelId = ($levelId instanceof Identifier) ? $levelId->__toString() : $levelId;
-            $levelOrSegment->add($qb->expr()->like('cast(e.levels as text)', ':levelId'));
-            $qb->setParameter('levelId', '%'.$levelId.'%');
-        }
+        return $qb->getQuery()->getResult();
+    }
 
-        $i = 0;
-        foreach ($segmentIds as $segmentId) {
-            $segmentId = ($segmentId instanceof Identifier) ? $segmentId->__toString() : $segmentId;
-            $levelOrSegment->add($qb->expr()->like('cast(e.segments as text)', ':segmentId'.$i));
-            $qb->setParameter('segmentId'.$i, '%'.$segmentId.'%');
-            ++$i;
-        }
+    /**
+     * {@inheritdoc}
+     */
+    public function findByCustomEventName(
+        $eventName,
+        array $segmentIds = [],
+        $levelId = null,
+        \DateTime $date = null,
+        $posId = null
+    ) {
+        $qb = $this->getEarningRulesForLevelAndSegmentQueryBuilder($segmentIds, $levelId, $date, $posId);
 
-        $qb->andWhere($levelOrSegment);
+        $qb->add('from', CustomEventEarningRule::class.' e');
+        $qb->andWhere('e.eventName = :eventName')->setParameter('eventName', $eventName);
 
         return $qb->getQuery()->getResult();
     }
@@ -156,79 +152,17 @@ class DoctrineEarningRuleRepository extends EntityRepository implements EarningR
     /**
      * {@inheritdoc}
      */
-    public function findByCustomEventName($eventName, array $segmentIds = [], $levelId = null, \DateTime $date = null)
-    {
-        $this->getEntityManager()->getConfiguration()->addCustomStringFunction('cast', Cast::class);
+    public function findReferralByEventName(
+        $eventName,
+        array $segmentIds = [],
+        $levelId = null,
+        \DateTime $date = null,
+        $posId = null
+    ) {
+        $qb = $this->getEarningRulesForLevelAndSegmentQueryBuilder($segmentIds, $levelId, $date, $posId);
 
-        if (!$date) {
-            $date = new \DateTime();
-        }
-
-        $qb = $this->getEntityManager()->createQueryBuilder()->select('e');
-        $qb->select('e')->from(CustomEventEarningRule::class, 'e');
-        $qb->andWhere('e.active = :true')->setParameter('true', true);
-        $qb->andWhere($qb->expr()->orX(
-            'e.allTimeActive = :true',
-            'e.startAt <= :date AND e.endAt >= :date'
-        ))->setParameter('date', $date);
+        $qb->add('from', ReferralEarningRule::class.'e');
         $qb->andWhere('e.eventName = :eventName')->setParameter('eventName', $eventName);
-
-        $levelOrSegment = $qb->expr()->orX();
-        if ($levelId) {
-            $levelId = ($levelId instanceof Identifier) ? $levelId->__toString() : $levelId;
-            $levelOrSegment->add($qb->expr()->like('cast(e.levels as text)', ':levelId'));
-            $qb->setParameter('levelId', '%'.$levelId.'%');
-        }
-
-        $i = 0;
-        foreach ($segmentIds as $segmentId) {
-            $segmentId = ($segmentId instanceof Identifier) ? $segmentId->__toString() : $segmentId;
-            $levelOrSegment->add($qb->expr()->like('cast(e.segments as text)', ':segmentId'.$i));
-            $qb->setParameter('segmentId'.$i, '%'.$segmentId.'%');
-            ++$i;
-        }
-
-        $qb->andWhere($levelOrSegment);
-
-        return $qb->getQuery()->getResult();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function findReferralByEventName($eventName, array $segmentIds = [], $levelId = null, \DateTime $date = null)
-    {
-        $this->getEntityManager()->getConfiguration()->addCustomStringFunction('cast', Cast::class);
-
-        if (!$date) {
-            $date = new \DateTime();
-        }
-
-        $qb = $this->getEntityManager()->createQueryBuilder()->select('e');
-        $qb->select('e')->from(ReferralEarningRule::class, 'e');
-        $qb->andWhere('e.active = :true')->setParameter('true', true);
-        $qb->andWhere($qb->expr()->orX(
-            'e.allTimeActive = :true',
-            'e.startAt <= :date AND e.endAt >= :date'
-        ))->setParameter('date', $date);
-        $qb->andWhere('e.eventName = :eventName')->setParameter('eventName', $eventName);
-
-        $levelOrSegment = $qb->expr()->orX();
-        if ($levelId) {
-            $levelId = ($levelId instanceof Identifier) ? $levelId->__toString() : $levelId;
-            $levelOrSegment->add($qb->expr()->like('cast(e.levels as text)', ':levelId'));
-            $qb->setParameter('levelId', '%'.$levelId.'%');
-        }
-
-        $i = 0;
-        foreach ($segmentIds as $segmentId) {
-            $segmentId = ($segmentId instanceof Identifier) ? $segmentId->__toString() : $segmentId;
-            $levelOrSegment->add($qb->expr()->like('cast(e.segments as text)', ':segmentId'.$i));
-            $qb->setParameter('segmentId'.$i, '%'.$segmentId.'%');
-            ++$i;
-        }
-
-        $qb->andWhere($levelOrSegment);
 
         return $qb->getQuery()->getResult();
     }
@@ -254,53 +188,76 @@ class DoctrineEarningRuleRepository extends EntityRepository implements EarningR
     /**
      * {@inheritdoc}
      */
-    public function findAllActiveEventRulesBySegmentsAndLevels(\DateTime $date = null, array $segmentIds = [], $levelId = null)
-    {
-        $result = $this->getEarningRulesForLevelAndSegmentQueryBuilder($segmentIds, $levelId, $date);
+    public function findAllActiveEventRulesBySegmentsAndLevels(
+        \DateTime $date = null,
+        array $segmentIds = [],
+        $levelId = null,
+        $posId = null
+    ) {
+        $qb = $this->getEarningRulesForLevelAndSegmentQueryBuilder($segmentIds, $levelId, $date, $posId);
 
-        return $result->getQuery()->getResult();
+        return $qb->getQuery()->getResult();
     }
 
     /**
      * @param array          $segmentIds
      * @param null           $levelId
      * @param \DateTime|null $date
+     * @param null           $posId
      *
      * @return \Doctrine\ORM\QueryBuilder
      *
      * @throws \Doctrine\ORM\ORMException
      */
-    protected function getEarningRulesForLevelAndSegmentQueryBuilder(array $segmentIds = [], $levelId = null, \DateTime $date = null)
-    {
+    protected function getEarningRulesForLevelAndSegmentQueryBuilder(
+        array $segmentIds = [],
+        $levelId = null,
+        \DateTime $date = null,
+        $posId = null
+    ) {
         $this->getEntityManager()->getConfiguration()->addCustomStringFunction('cast', Cast::class);
 
         if (!$date) {
             $date = new \DateTime();
         }
 
-        $qb = $this->createQueryBuilder('c');
-        $qb->andWhere('c.active = :true')->setParameter('true', true);
+        $qb = $this->createQueryBuilder('e');
+        $qb->andWhere('e.active = :true')->setParameter('true', true);
         $qb->andWhere($qb->expr()->orX(
-            'c.allTimeActive = :true',
-            'c.startAt <= :date AND c.endAt >= :date'
+            'e.allTimeActive = :true',
+            'e.startAt <= :date AND e.endAt >= :date'
         ))->setParameter('date', $date);
 
         $levelOrSegment = $qb->expr()->orX();
         if ($levelId) {
             $levelId = ($levelId instanceof Identifier) ? $levelId->__toString() : $levelId;
-            $levelOrSegment->add($qb->expr()->like('cast(c.levels as text)', ':levelId'));
+            $levelOrSegment->add($qb->expr()->like('cast(e.levels as text)', ':levelId'));
             $qb->setParameter('levelId', '%'.$levelId.'%');
         }
 
         $i = 0;
         foreach ($segmentIds as $segmentId) {
             $segmentId = ($segmentId instanceof Identifier) ? $segmentId->__toString() : $segmentId;
-            $levelOrSegment->add($qb->expr()->like('cast(c.segments as text)', ':segmentId'.$i));
+            $levelOrSegment->add($qb->expr()->like('cast(e.segments as text)', ':segmentId'.$i));
             $qb->setParameter('segmentId'.$i, '%'.$segmentId.'%');
             ++$i;
         }
 
         $qb->andWhere($levelOrSegment);
+
+        if ($posId) {
+            // if posId is defined, find all ER that has this posId or has empty posId setting
+            $pos = $qb->expr()->orX();
+            $posId = ($posId instanceof Identifier) ? $posId->__toString() : $posId;
+            $pos->add($qb->expr()->like('cast(e.pos as text)', ':posId'));
+            $pos->add($qb->expr()->eq('cast(e.pos as text)', ':pos'));
+            $qb->setParameter('posId', '%'.$posId.'%');
+            $qb->setParameter('pos', '[]');
+            $qb->andWhere($pos);
+        } else {
+            // if posId is not defined, find all ER that hs empty posId setting
+            $qb->andWhere($qb->expr()->eq('cast(e.pos as text)', ':pos'))->setParameter('pos', '[]');
+        }
 
         return $qb;
     }

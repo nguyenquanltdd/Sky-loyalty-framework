@@ -112,17 +112,19 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
 
     /**
      * @param TransactionDetails $transaction
+     * @param $customerId
      *
      * @return array
      */
     protected function getEarningRulesAlgorithms(TransactionDetails $transaction, $customerId)
     {
-        $customerData = $this->getCustomerLevelAndSegmentsAndStatusData($customerId);
+        $customerData = $this->getCustomerDetails($customerId);
 
         $earningRules = $this->earningRuleRepository->findAllActiveEventRulesBySegmentsAndLevels(
             $transaction->getPurchaseDate(),
             $customerData['segments'],
-            $customerData['level']
+            $customerData['level'],
+            $transaction->getPosId()
         );
 
         $result = [];
@@ -162,7 +164,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
             return 0;
         }
 
-        $customerData = $this->getCustomerLevelAndSegmentsAndStatusData($customerId);
+        $customerData = $this->getCustomerDetails($customerId);
         if (null !== $customerData['status'] && !in_array($customerData['status'], $this->getCustomerEarningStatuses())) {
             return 0;
         }
@@ -218,12 +220,18 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     {
         $points = 0;
 
-        $customerData = $this->getCustomerLevelAndSegmentsAndStatusData($customerId);
+        $customerData = $this->getCustomerDetails($customerId);
         if (null !== $customerData['status'] && !in_array($customerData['status'], $this->getCustomerEarningStatuses())) {
             return 0;
         }
 
-        $earningRules = $this->earningRuleRepository->findAllActiveEventRules($eventName, $customerData['segments'], $customerData['level']);
+        $earningRules = $this->earningRuleRepository->findAllActiveEventRules(
+            $eventName,
+            $customerData['segments'],
+            $customerData['level'],
+            null,
+            $customerData['pos']
+        );
 
         /** @var EventEarningRule $earningRule */
         foreach ($earningRules as $earningRule) {
@@ -268,12 +276,18 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         $result = null;
 
         /** @var array $customerData */
-        $customerData = $this->getCustomerLevelAndSegmentsAndStatusData($customerId);
+        $customerData = $this->getCustomerDetails($customerId);
         if (null !== $customerData['status'] && !in_array($customerData['status'], $this->getCustomerEarningStatuses())) {
             return 0;
         }
 
-        $earningRules = $this->earningRuleRepository->findByCustomEventName($eventName, $customerData['segments'], $customerData['level']);
+        $earningRules = $this->earningRuleRepository->findByCustomEventName(
+            $eventName,
+            $customerData['segments'],
+            $customerData['level'],
+            null,
+            $customerData['pos']
+        );
         if (!$earningRules) {
             return 0;
         }
@@ -310,7 +324,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         $results = [];
 
         /** @var array $customerData */
-        $customerData = $this->getCustomerLevelAndSegmentsAndStatusData($customerId);
+        $customerData = $this->getCustomerDetails($customerId);
 
         $invitation = $this->invitationDetailsRepository->findOneByRecipientId(new \OpenLoyalty\Component\Customer\Domain\CustomerId($customerId));
 
@@ -318,7 +332,13 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
             return $results;
         }
 
-        $earningRules = $this->earningRuleRepository->findReferralByEventName($eventName, $customerData['segments'], $customerData['level']);
+        $earningRules = $this->earningRuleRepository->findReferralByEventName(
+            $eventName,
+            $customerData['segments'],
+            $customerData['level'],
+            null,
+            $customerData['pos']
+        );
         if (!$earningRules) {
             return $results;
         }
@@ -346,28 +366,55 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
      *
      * @return array
      */
-    protected function getCustomerLevelAndSegmentsAndStatusData($customerId)
+    protected function getCustomerDetails($customerId)
     {
         $result = [
             'level' => null,
             'status' => null,
             'segments' => [],
+            'pos' => null,
         ];
 
         if ($customerId) {
             $customerId = $customerId instanceof Identifier ? $customerId->__toString() : $customerId;
-            $levelId = $this->getCustomerLevelById($customerId);
-            $status = $this->getCustomerStatusById($customerId);
+
+            $customerDetails = $this->customerDetailsRepository->findOneByCriteria(['id' => $customerId], 1);
+            $levelId = $this->getCustomerLevelById($customerDetails);
+            $status = $this->getCustomerStatusById($customerDetails);
+            $pos = $this->getCustomerPos($customerDetails);
+
             $arrayOfSegments = $this->getCustomerSegmentsById($customerId);
 
             $result = [
                 'level' => $levelId,
                 'status' => $status,
                 'segments' => $arrayOfSegments,
+                'pos' => $pos,
             ];
         }
 
         return $result;
+    }
+
+    /**
+     * @param $customerDetails
+     *
+     * @return null|PosId
+     */
+    public function getCustomerPos($customerDetails)
+    {
+        if (!$customerDetails) {
+            return null;
+        }
+
+        $pos = array_map(
+            function ($element) {
+                return $element->getPosId();
+            },
+            $customerDetails
+        );
+
+        return isset($pos[0]) ? $pos[0] : null;
     }
 
     /**
@@ -379,78 +426,70 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
      */
     protected function getCustomerSegmentsById($customerId)
     {
-        $arrayOfSegments = [];
+        $segments = [];
 
-        if ($customerId) {
-            $arrayOfSegmentsObj = $this->segmentedCustomerElasticSearchRepository
-                ->findByParameters(
-                    ['customerId' => $customerId],
-                    true
-                );
+        $customerDetails = $this->segmentedCustomerElasticSearchRepository
+            ->findByParameters(
+                ['customerId' => $customerId],
+                true
+            );
 
-            $arrayOfSegments = array_map(
+        if ($customerDetails) {
+            $segments = array_map(
                 function ($element) {
                     return $element->getSegmentId();
                 },
-                $arrayOfSegmentsObj
+                $customerDetails
             );
         }
 
-        return $arrayOfSegments;
+        return $segments;
     }
 
     /**
      * Get customers level.
      *
-     * @param $customerId
+     * @param $customerDetails
      *
      * @return LevelId
      */
-    protected function getCustomerLevelById($customerId)
+    protected function getCustomerLevelById($customerDetails)
     {
-        $levelId = null;
-
-        if ($customerId) {
-            $arrayOfLevelsObj = $this->customerDetailsRepository->findOneByCriteria(['id' => $customerId], 1);
-
-            $arrayOfLevels = array_map(
-                function ($element) {
-                    return $element->getLevelId();
-                },
-                $arrayOfLevelsObj
-            );
-
-            $levelId = isset($arrayOfLevels[0]) ? $arrayOfLevels[0] : null;
+        if (!$customerDetails) {
+            return null;
         }
 
-        return $levelId;
+        $levels = array_map(
+            function ($element) {
+                return $element->getLevelId();
+            },
+            $customerDetails
+        );
+
+        return isset($levels[0]) ? $levels[0] : null;
     }
 
     /**
      * Get customers status.
      *
-     * @param $customerId
+     * @param $customerDetails
      *
      * @return Status
      */
-    protected function getCustomerStatusById($customerId)
+    protected function getCustomerStatusById($customerDetails)
     {
-        $status = null;
-
-        if ($customerId) {
-            $arrayOfStatusesObj = $this->customerDetailsRepository->findOneByCriteria(['id' => $customerId], 1);
-
-            $arrayOfStatuses = array_map(
-                function ($element) {
-                    return (null !== $element->getStatus()) ? $element->getStatus()->getType() : null;
-                },
-                $arrayOfStatusesObj
-            );
-
-            $status = isset($arrayOfStatuses[0]) ? $arrayOfStatuses[0] : null;
+        if (!$customerDetails) {
+            return null;
         }
 
-        return $status;
+        $statuses = array_map(
+            function ($element) {
+                return (null !== $element->getStatus()) ? $element->getStatus()->getType() : null;
+            },
+            $customerDetails
+        );
+
+        return isset($statuses[0]) ? $statuses[0] : null;
     }
 
     /**

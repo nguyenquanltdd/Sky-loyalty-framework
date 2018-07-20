@@ -149,6 +149,7 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
             'description' => $this->getDescription(),
             'levels' => $this->levels,
             'segments' => $this->segments,
+            'pos' => $this->pos,
             'active' => $this->isActive(),
             'startAt' => $this->startAt ? $this->startAt->getTimestamp() : null,
             'endAt' => $this->endAt ? $this->endAt->getTimestamp() : null,

@@ -915,10 +915,10 @@ class CustomerControllerTest extends BaseApiTest
             ['firstName', 'John1', 1],
             ['lastName', 'Doe', 11],
             ['lastName', 'Doe1', 1],
-            ['lastName', 'Smith', 1],
-            ['phone', '48', 4],
-            ['phone', '645', 1],
-            ['email', '@', 12],
+            ['lastName', 'Smith', 2],
+            ['phone', '48', 5],
+            ['phone', '645', 2],
+            ['email', '@', 13],
             ['email', 'user-1', 1],
             ['loyaltyCardNumber', '000000', 3],
             ['transactionsAmount', '3', 0],
@@ -927,9 +927,9 @@ class CustomerControllerTest extends BaseApiTest
             ['averageTransactionAmount', '3', 0],
             ['averageTransactionAmount', '15', 0],
             ['averageTransactionAmount', '7.5', 0],
-            ['transactionsCount', '4', 1],
+            ['transactionsCount', '4', 0],
             ['transactionsCount', '2', 0],
-            ['transactionsCount', '0', 9],
+            ['transactionsCount', '0', 10],
         ];
     }
 
@@ -997,9 +997,9 @@ class CustomerControllerTest extends BaseApiTest
             ['averageTransactionAmount', '3', 0],
             ['averageTransactionAmount', '15', 0],
             ['averageTransactionAmount', '7.5', 0],
-            ['transactionsCount', '4', 1],
+            ['transactionsCount', '4', 0],
             ['transactionsCount', '2', 0],
-            ['transactionsCount', '0', 9],
+            ['transactionsCount', '0', 10],
         ];
     }
 
@@ -1117,8 +1117,8 @@ class CustomerControllerTest extends BaseApiTest
         return [
             ['emailOrPhone', 'user-1', 1, ['email', 'phone']],
             ['emailOrPhone', 'user-1@oloy.com', 1, ['email', 'phone']],
-            ['emailOrPhone', '+48', 4, ['email', 'phone']],
-            ['emailOrPhone', '645', 1, ['email', 'phone']],
+            ['emailOrPhone', '+48', 5, ['email', 'phone']],
+            ['emailOrPhone', '645', 2, ['email', 'phone']],
         ];
     }
 }

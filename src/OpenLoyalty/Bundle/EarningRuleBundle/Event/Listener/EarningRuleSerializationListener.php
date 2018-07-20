@@ -11,6 +11,9 @@ use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\CustomEventEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\PointsEarningRule;
 use OpenLoyalty\Component\Core\Domain\Model\SKU;
+use OpenLoyalty\Component\Pos\Domain\Pos;
+use OpenLoyalty\Component\Pos\Domain\PosId;
+use OpenLoyalty\Component\Pos\Domain\PosRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelId;
@@ -30,9 +33,20 @@ class EarningRuleSerializationListener implements EventSubscriberInterface
      */
     private $urlGenerator;
 
+    /**
+     * @var SegmentRepository
+     */
     protected $segmentRepository;
 
+    /**
+     * @var LevelRepository
+     */
     protected $levelRepository;
+
+    /**
+     * @var PosRepository
+     */
+    protected $posRepository;
 
     /**
      * EarningRuleSerializationListener constructor.
@@ -40,17 +54,23 @@ class EarningRuleSerializationListener implements EventSubscriberInterface
      * @param UrlGeneratorInterface $urlGenerator
      * @param SegmentRepository     $segmentRepository
      * @param LevelRepository       $levelRepository
+     * @param PosRepository         $posRepository
      */
     public function __construct(
         UrlGeneratorInterface $urlGenerator,
         SegmentRepository $segmentRepository,
-        LevelRepository $levelRepository
+        LevelRepository $levelRepository,
+        PosRepository $posRepository
     ) {
         $this->urlGenerator = $urlGenerator;
         $this->segmentRepository = $segmentRepository;
         $this->levelRepository = $levelRepository;
+        $this->posRepository = $posRepository;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getSubscribedEvents()
     {
         return array(
@@ -58,6 +78,9 @@ class EarningRuleSerializationListener implements EventSubscriberInterface
         );
     }
 
+    /**
+     * @param ObjectEvent $event
+     */
     public function onPostSerialize(ObjectEvent $event)
     {
         /** @var EarningRule $rule */
@@ -81,6 +104,7 @@ class EarningRuleSerializationListener implements EventSubscriberInterface
         if ($rule instanceof BaseEarningRule) {
             $segmentNames = [];
             $levelNames = [];
+            $posNames = [];
 
             foreach ($rule->getSegments() as $segmentId) {
                 $segment = $this->segmentRepository->byId(new SegmentId($segmentId->__toString()));
@@ -94,9 +118,16 @@ class EarningRuleSerializationListener implements EventSubscriberInterface
                     $levelNames[$levelId->__toString()] = $level->getName();
                 }
             }
+            foreach ($rule->getPos() as $posId) {
+                $pos = $this->posRepository->byId(new PosId($posId->__toString()));
+                if ($pos instanceof Pos) {
+                    $posNames[$posId->__toString()] = $pos->getName();
+                }
+            }
 
             $event->getVisitor()->addData('segmentNames', $segmentNames);
             $event->getVisitor()->addData('levelNames', $levelNames);
+            $event->getVisitor()->addData('posNames', $posNames);
         }
     }
 }
