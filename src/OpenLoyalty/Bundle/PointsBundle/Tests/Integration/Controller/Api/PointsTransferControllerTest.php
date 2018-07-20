@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * Copyright © 2017 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Bundle\PointsBundle\Tests\Integration\Controller\Api;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
@@ -232,5 +235,55 @@ class PointsTransferControllerTest extends BaseApiTest
         $repo = static::$kernel->getContainer()->get('oloy.points.account.repository.points_transfer_details');
         $transfer = $repo->find(LoadAccountsWithTransfersData::POINTS2_ID);
         $this->assertEquals('canceled', $transfer->getState());
+    }
+
+    /**
+     * @test
+     */
+    public function merchant_can_add_points_to_customer_by_pos_cockpit()
+    {
+        $client = $this->createAuthenticatedClient(LoadUserData::TEST_SELLER_USERNAME, LoadUserData::TEST_SELLER_PASSWORD, 'seller');
+
+        $client->request(
+            'POST',
+            '/api/pos/points/transfer/add',
+            [
+                'transfer' => [
+                    'customer' => LoadUserData::TEST_USER_ID,
+                    'points' => 10,
+                ],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('pointsTransferId', $data);
+    }
+
+    /**
+     * @test
+     */
+    public function it_return_an_error_when_merchant_is_not_allowed_to_add_points_transfer()
+    {
+        $client = $this->createAuthenticatedClient(
+            LoadUserData::TEST_SELLER2_USERNAME,
+            LoadUserData::TEST_SELLER2_PASSWORD,
+            'seller'
+        );
+
+        $client->request(
+            'POST',
+            '/api/pos/points/transfer/add',
+            [
+                'transfer' => [
+                    'customer' => LoadUserData::TEST_USER_ID,
+                    'points' => 10,
+                ],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), 'Response should have status 403');
     }
 }

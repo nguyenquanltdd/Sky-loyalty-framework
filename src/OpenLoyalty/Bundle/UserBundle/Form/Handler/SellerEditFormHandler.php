@@ -78,6 +78,9 @@ class SellerEditFormHandler
         if (!empty($sellerData['plainPassword'])) {
             $user->setPlainPassword($sellerData['plainPassword']);
         }
+        if (array_key_exists('allowPointTransfer', $sellerData)) {
+            $user->setAllowPointTransfer($sellerData['allowPointTransfer']);
+        }
         $this->userManager->updateUser($user);
 
         return true;

@@ -40,7 +40,10 @@ class SellerDetailsProjector extends Projector
         $this->posRepository = $posRepository;
     }
 
-    protected function applySellerWasRegistered(SellerWasRegistered $event)
+    /**
+     * @param SellerWasRegistered $event
+     */
+    protected function applySellerWasRegistered(SellerWasRegistered $event): void
     {
         $data = $event->getSellerData();
         if (isset($data['posId']) && !$data['posId'] instanceof PosId) {
@@ -51,12 +54,20 @@ class SellerDetailsProjector extends Projector
         $readModel->setLastName($data['lastName']);
         $readModel->setEmail($data['email']);
         $readModel->setPhone($data['phone']);
+
+        if (isset($data['allowPointTransfer'])) {
+            $readModel->setAllowPointTransfer($data['allowPointTransfer']);
+        }
+
         if (isset($data['posId'])) {
             $readModel->setPosId($data['posId']);
         }
+
         if ($readModel->getPosId()) {
             /** @var Pos $pos */
-            $pos = $this->posRepository->byId(new \OpenLoyalty\Component\Pos\Domain\PosId($readModel->getPosId()->__toString()));
+            $pos = $this->posRepository->byId(
+                new \OpenLoyalty\Component\Pos\Domain\PosId($readModel->getPosId()->__toString())
+            );
             if ($pos) {
                 $readModel->setPosName($pos->getName());
                 $readModel->setPosCity($pos->getLocation() ? $pos->getLocation()->getCity() : null);
@@ -72,28 +83,40 @@ class SellerDetailsProjector extends Projector
         $this->repository->save($readModel);
     }
 
-    protected function applySellerWasDeleted(SellerWasDeleted $event)
+    /**
+     * @param SellerWasDeleted $event
+     */
+    protected function applySellerWasDeleted(SellerWasDeleted $event): void
     {
         $readModel = $this->getReadModel($event->getSellerId());
         $readModel->setDeleted(true);
         $this->repository->save($readModel);
     }
 
-    protected function applySellerWasActivated(SellerWasActivated $event)
+    /**
+     * @param SellerWasActivated $event
+     */
+    protected function applySellerWasActivated(SellerWasActivated $event): void
     {
         $readModel = $this->getReadModel($event->getSellerId());
         $readModel->setActive(true);
         $this->repository->save($readModel);
     }
 
-    protected function applySellerWasDeactivated(SellerWasDeactivated $event)
+    /**
+     * @param SellerWasDeactivated $event
+     */
+    protected function applySellerWasDeactivated(SellerWasDeactivated $event): void
     {
         $readModel = $this->getReadModel($event->getSellerId());
         $readModel->setActive(false);
         $this->repository->save($readModel);
     }
 
-    protected function applySellerWasUpdated(SellerWasUpdated $event)
+    /**
+     * @param SellerWasUpdated $event
+     */
+    protected function applySellerWasUpdated(SellerWasUpdated $event): void
     {
         $readModel = $this->getReadModel($event->getSellerId());
         $data = $event->getSellerData();
@@ -114,6 +137,10 @@ class SellerDetailsProjector extends Projector
             $readModel->setPhone($data['phone']);
         }
 
+        if (isset($data['allowPointTransfer'])) {
+            $readModel->setAllowPointTransfer($data['allowPointTransfer']);
+        }
+
         if (isset($data['posId'])) {
             if (!$data['posId'] instanceof PosId) {
                 $data['posId'] = new PosId($data['posId']);
@@ -121,7 +148,9 @@ class SellerDetailsProjector extends Projector
             $readModel->setPosId($data['posId']);
             if ($readModel->getPosId()) {
                 /** @var Pos $pos */
-                $pos = $this->posRepository->byId(new \OpenLoyalty\Component\Pos\Domain\PosId($readModel->getPosId()->__toString()));
+                $pos = $this->posRepository->byId(
+                    new \OpenLoyalty\Component\Pos\Domain\PosId($readModel->getPosId()->__toString())
+                );
                 if ($pos) {
                     $readModel->setPosName($pos->getName());
                     $readModel->setPosCity($pos->getLocation() ? $pos->getLocation()->getCity() : null);
@@ -132,7 +161,12 @@ class SellerDetailsProjector extends Projector
         $this->repository->save($readModel);
     }
 
-    private function getReadModel(SellerId $sellerId)
+    /**
+     * @param SellerId $sellerId
+     *
+     * @return SellerDetails
+     */
+    private function getReadModel(SellerId $sellerId): SellerDetails
     {
         $readModel = $this->repository->find($sellerId->__toString());
 

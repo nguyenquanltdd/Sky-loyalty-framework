@@ -1,10 +1,14 @@
 <?php
-
+/**
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Bundle\CoreBundle\Tests\Integration;
 
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
+use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
@@ -38,14 +42,20 @@ abstract class BaseVoterTest extends \PHPUnit_Framework_TestCase
         return new UsernamePasswordToken($customer, '', 'some_empty_string');
     }
 
-    protected function getSellerToken()
+    /**
+     * @param bool $isAllowedPointTransfer
+     *
+     * @return UsernamePasswordToken
+     */
+    protected function getSellerToken(bool $isAllowedPointTransfer = false): UsernamePasswordToken
     {
-        $seller = $this->getMockBuilder(Customer::class)->disableOriginalConstructor()->getMock();
+        $seller = $this->getMockBuilder(Seller::class)->disableOriginalConstructor()->getMock();
         $seller->method('hasRole')->with($this->isType('string'))->will($this->returnCallback(function ($role) {
             return $role == 'ROLE_SELLER';
         }));
 
         $seller->method('getId')->willReturn(self::USER_ID);
+        $seller->method('isAllowPointTransfer')->willReturn($isAllowedPointTransfer);
 
         return new UsernamePasswordToken($seller, '', 'some_empty_string');
     }

@@ -40,55 +40,98 @@ class SellerRegistrationFormType extends AbstractType
         $this->posRepository = $posRepository;
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    /**
+     * @param FormBuilderInterface $builder
+     * @param array                $options
+     */
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('firstName', TextType::class, [
-            'label' => 'First name',
-            'required' => true,
-            'constraints' => [
-                new NotBlank(),
-            ],
-        ]);
-        $builder->add('lastName', TextType::class, [
-            'label' => 'Last name',
-            'required' => true,
-            'constraints' => [
-                new NotBlank(),
-            ],
-        ]);
-        $builder->add('active', CheckboxType::class, [
-            'required' => false,
-        ]);
-        $builder->add('email', EmailType::class, [
-            'label' => 'Email',
-            'required' => true,
-            'constraints' => [
-                new NotBlank(),
-                new Email(),
-            ],
-        ]);
-        $builder->add('phone', TextType::class, [
-            'label' => 'Phone',
-            'required' => false,
-            'constraints' => [
-                new PhoneNumber(),
-                new Numeric(['type' => 'numeric', 'message' => 'Incorrect phone number format, use +00000000000']),
-            ],
-        ]);
+        $builder->add(
+            'firstName',
+            TextType::class,
+            [
+                'label' => 'First name',
+                'required' => true,
+                'constraints' => [
+                    new NotBlank(),
+                ],
+            ]
+        );
+        $builder->add(
+            'lastName',
+            TextType::class,
+            [
+                'label' => 'Last name',
+                'required' => true,
+                'constraints' => [
+                    new NotBlank(),
+                ],
+            ]
+        );
+        $builder->add(
+            'active',
+            CheckboxType::class,
+            [
+                'required' => false,
+            ]
+        );
+        $builder->add(
+            'email',
+            EmailType::class,
+            [
+                'label' => 'Email',
+                'required' => true,
+                'constraints' => [
+                    new NotBlank(),
+                    new Email(),
+                ],
+            ]
+        );
+        $builder->add(
+            'phone',
+            TextType::class,
+            [
+                'label' => 'Phone',
+                'required' => false,
+                'constraints' => [
+                    new PhoneNumber(),
+                    new Numeric(['type' => 'numeric', 'message' => 'Incorrect phone number format, use +00000000000']),
+                ],
+            ]
+        );
 
-        $poses = array_map(function (Pos $pos) {
-            return $pos->getPosId()->__toString();
-        }, $this->posRepository->findAll());
+        $poses = array_map(
+            function (Pos $pos) {
+                return $pos->getPosId()->__toString();
+            },
+            $this->posRepository->findAll()
+        );
 
-        $builder->add('posId', ChoiceType::class, [
-            'required' => true,
-            'constraints' => [new NotBlank()],
-            'choices' => array_combine($poses, $poses),
-        ]);
+        $builder->add(
+            'posId',
+            ChoiceType::class,
+            [
+                'required' => true,
+                'constraints' => [new NotBlank()],
+                'choices' => array_combine($poses, $poses),
+            ]
+        );
 
-        $builder->add('plainPassword', PasswordType::class, [
-            'required' => true,
-            'constraints' => [new NotBlank()],
-        ]);
+        $builder->add(
+            'plainPassword',
+            PasswordType::class,
+            [
+                'required' => true,
+                'constraints' => [new NotBlank()],
+            ]
+        );
+
+        $builder->add(
+            'allowPointTransfer',
+            CheckboxType::class,
+            [
+                'required' => false,
+            ]
+        );
     }
 }
