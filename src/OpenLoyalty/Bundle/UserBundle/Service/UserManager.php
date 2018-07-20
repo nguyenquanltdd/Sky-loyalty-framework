@@ -155,11 +155,12 @@ class UserManager
         return $this->em->getRepository('OpenLoyaltyUserBundle:User')->findOneBy(['confirmationToken' => $token]);
     }
 
-    public function createNewSeller(SellerId $sellerId, $email, $password)
+    public function createNewSeller(SellerId $sellerId, $email, $password, $allowPointTransfer = false)
     {
         $user = new Seller($sellerId);
         $user->setEmail($email);
         $user->setPlainPassword($password);
+        $user->setAllowPointTransfer($allowPointTransfer);
         $role = $this->em->getRepository('OpenLoyaltyUserBundle:Role')->findOneBy(['role' => 'ROLE_SELLER']);
         if ($role) {
             $user->addRole($role);

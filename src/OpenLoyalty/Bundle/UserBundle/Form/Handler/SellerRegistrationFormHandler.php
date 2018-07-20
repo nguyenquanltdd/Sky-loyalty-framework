@@ -56,6 +56,8 @@ class SellerRegistrationFormHandler
     {
         $sellerData = $form->getData();
         $password = $sellerData['plainPassword'];
+        $allowPointTransfer = (array_key_exists('allowPointTransfer', $sellerData))
+            ? $sellerData['allowPointTransfer'] : false;
         unset($sellerData['plainPassword']);
 
         $command = new RegisterSeller($sellerId, $sellerData);
@@ -78,6 +80,6 @@ class SellerRegistrationFormHandler
         $activateSellerCommand = new ActivateSeller($sellerId);
         $this->commandBus->dispatch($activateSellerCommand);
 
-        return $this->userManager->createNewSeller($sellerId, $email, $password);
+        return $this->userManager->createNewSeller($sellerId, $email, $password, $allowPointTransfer);
     }
 }

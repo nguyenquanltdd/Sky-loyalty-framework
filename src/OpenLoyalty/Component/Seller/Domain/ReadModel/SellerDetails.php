@@ -54,9 +54,20 @@ class SellerDetails implements SerializableReadModel
      */
     protected $posCity;
 
+    /**
+     * @var bool
+     */
     protected $active = false;
 
+    /**
+     * @var bool
+     */
     protected $deleted = false;
+
+    /**
+     * @var bool
+     */
+    protected $allowPointTransfer = false;
 
     /**
      * SellerDetails constructor.
@@ -80,6 +91,11 @@ class SellerDetails implements SerializableReadModel
         $seller->lastName = $data['lastName'];
         $seller->email = $data['email'];
         $seller->phone = $data['phone'];
+
+        if (isset($data['allowPointTransfer'])) {
+            $seller->allowPointTransfer = (bool) $data['allowPointTransfer'];
+        }
+
         $seller->posId = new PosId($data['posId']);
         if (isset($data['posName'])) {
             $seller->posName = $data['posName'];
@@ -113,6 +129,7 @@ class SellerDetails implements SerializableReadModel
             'deleted' => $this->deleted,
             'posName' => $this->posName,
             'posCity' => $this->posCity,
+            'allowPointTransfer' => $this->allowPointTransfer,
         ];
     }
 
@@ -276,8 +293,27 @@ class SellerDetails implements SerializableReadModel
         $this->posCity = $posCity;
     }
 
-    public function getName()
+    /**
+     * @return string
+     */
+    public function getName(): string
     {
         return $this->getFirstName().' '.$this->getLastName();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAllowPointTransfer(): bool
+    {
+        return $this->allowPointTransfer;
+    }
+
+    /**
+     * @param bool $allowPointTransfer
+     */
+    public function setAllowPointTransfer(bool $allowPointTransfer): void
+    {
+        $this->allowPointTransfer = $allowPointTransfer;
     }
 }

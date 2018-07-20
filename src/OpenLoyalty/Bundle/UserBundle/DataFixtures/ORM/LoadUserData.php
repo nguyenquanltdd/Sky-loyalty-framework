@@ -63,7 +63,12 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
     const TEST_RETURN_USER_PHONE_NUMBER = '+48123123787';
 
     const TEST_SELLER_ID = '00000000-0000-474c-b092-b0dd880c07e4';
+    const TEST_SELLER_USERNAME = 'john@doe.com';
+    const TEST_SELLER_PASSWORD = 'open';
+
     const TEST_SELLER2_ID = '00000000-0000-474c-b092-b0dd880c07e5';
+    const TEST_SELLER2_USERNAME = 'john2@doe2.com';
+    const TEST_SELLER2_PASSWORD = 'open';
 
     /**
      * @var ContainerInterface
@@ -104,6 +109,11 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
         $this->loadSeller($manager);
     }
 
+    /**
+     * @param ObjectManager $manager
+     *
+     * @throws \Exception
+     */
     protected function loadSeller(ObjectManager $manager)
     {
         $bus = $this->container->get('broadway.command_handling.command_bus');
@@ -114,7 +124,7 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
                 [
                     'firstName' => 'John',
                     'lastName' => 'Doe',
-                    'email' => 'john@doe.com',
+                    'email' => self::TEST_SELLER_USERNAME,
                     'phone' => '+48123123123',
                     'posId' => new PosId(LoadPosData::POS_ID),
                 ]
@@ -122,10 +132,11 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
         );
         $bus->dispatch(new ActivateSeller(new SellerId(self::TEST_SELLER_ID)));
         $user = new Seller(new SellerId(self::TEST_SELLER_ID));
-        $user->setEmail('john@doe.com');
+        $user->setEmail(self::TEST_SELLER_USERNAME);
         $user->setIsActive(true);
         $user->addRole($this->getReference('role_seller'));
-        $user->setPlainPassword('open');
+        $user->setPlainPassword(self::TEST_SELLER_PASSWORD);
+        $user->setAllowPointTransfer(true);
         $this->container->get('oloy.user.user_manager')->updateUser($user);
 
         $bus->dispatch(
@@ -134,7 +145,7 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
                 [
                     'firstName' => 'John2',
                     'lastName' => 'Doe2',
-                    'email' => 'john2@doe2.com',
+                    'email' => self::TEST_SELLER2_USERNAME,
                     'phone' => '+48123123124',
                     'posId' => new PosId(LoadPosData::POS2_ID),
                 ]
@@ -142,13 +153,19 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
         );
         $bus->dispatch(new ActivateSeller(new SellerId(self::TEST_SELLER2_ID)));
         $user = new Seller(new SellerId(self::TEST_SELLER2_ID));
-        $user->setEmail('john2@doe2.com');
+        $user->setEmail(self::TEST_SELLER2_USERNAME);
         $user->setIsActive(true);
         $user->addRole($this->getReference('role_seller'));
-        $user->setPlainPassword('open');
+        $user->setPlainPassword(self::TEST_SELLER2_PASSWORD);
+        $user->setAllowPointTransfer(false);
         $this->container->get('oloy.user.user_manager')->updateUser($user);
     }
 
+    /**
+     * @param ObjectManager $manager
+     *
+     * @throws \Exception
+     */
     protected function loadCustomersData(ObjectManager $manager)
     {
         $bus = $this->container->get('broadway.command_handling.command_bus');

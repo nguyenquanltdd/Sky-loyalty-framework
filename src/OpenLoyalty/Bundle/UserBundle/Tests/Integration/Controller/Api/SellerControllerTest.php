@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Controller\Api;
 
 use Broadway\ReadModel\Repository;
@@ -31,6 +34,7 @@ class SellerControllerTest extends BaseApiTest
                     'posId' => LoadPosData::POS_ID,
                     'plainPassword' => 'oloy',
                     'active' => 1,
+                    'allowPointTransfer' => true,
                 ],
             ]
         );
@@ -86,6 +90,7 @@ class SellerControllerTest extends BaseApiTest
                     'email' => 'john@doe.com',
                     'phone' => '+48123123123',
                     'posId' => LoadPosData::POS_ID,
+                    'allowPointTransfer' => true,
                 ],
             ]
         );
@@ -100,6 +105,7 @@ class SellerControllerTest extends BaseApiTest
         $seller = $repo->find(LoadUserData::TEST_SELLER_ID);
 
         $this->assertEquals('Jane', $seller->getFirstName());
+        $this->assertTrue($seller->isAllowPointTransfer());
     }
 
     /**

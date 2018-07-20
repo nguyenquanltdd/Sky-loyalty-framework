@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Component\Seller\Tests\Domain\ReadModel;
 
 use Broadway\ReadModel\InMemory\InMemoryRepository;
@@ -39,7 +42,7 @@ class SellerDetailsProjectorTest extends ProjectorScenarioTestCase
     /**
      * @test
      */
-    public function it_creates_a_read_model_on_register()
+    public function it_creates_a_read_model_on_register(): void
     {
         $sellerId = new SellerId('00000000-0000-0000-0000-000000000000');
         $data = [
@@ -50,20 +53,23 @@ class SellerDetailsProjectorTest extends ProjectorScenarioTestCase
             'posId' => (new PosId('00000000-0000-0000-0000-000000000000'))->__toString(),
             'createdAt' => new \DateTime(),
             'sellerId' => $sellerId->__toString(),
+            'allowPointTransfer' => true,
         ];
 
         $expectedReadModel = SellerDetails::deserialize($data);
-        $this->scenario->given(array())
+        $this->scenario->given([])
             ->when(new SellerWasRegistered($sellerId, $data))
-            ->then(array(
-                $expectedReadModel,
-            ));
+            ->then(
+                [
+                    $expectedReadModel,
+                ]
+            );
     }
 
     /**
      * @test
      */
-    public function it_activates_seller()
+    public function it_activates_seller(): void
     {
         $sellerId = new SellerId('00000000-0000-0000-0000-000000000000');
         $data = [
@@ -80,19 +86,23 @@ class SellerDetailsProjectorTest extends ProjectorScenarioTestCase
         $expectedReadModel = SellerDetails::deserialize($data);
         $expectedReadModel->setActive(true);
         $this->scenario
-            ->given(array(
-                new SellerWasRegistered($sellerId, $data),
-            ))
+            ->given(
+                [
+                    new SellerWasRegistered($sellerId, $data),
+                ]
+            )
             ->when(new SellerWasActivated($sellerId))
-            ->then(array(
-                $expectedReadModel,
-            ));
+            ->then(
+                [
+                    $expectedReadModel,
+                ]
+            );
     }
 
     /**
      * @test
      */
-    public function it_deactivates_seller()
+    public function it_deactivates_seller(): void
     {
         $sellerId = new SellerId('00000000-0000-0000-0000-000000000000');
         $data = [
@@ -109,20 +119,24 @@ class SellerDetailsProjectorTest extends ProjectorScenarioTestCase
         $expectedReadModel = SellerDetails::deserialize($data);
         $expectedReadModel->setActive(false);
         $this->scenario
-            ->given(array(
-                new SellerWasRegistered($sellerId, $data),
-                new SellerWasActivated($sellerId),
-            ))
+            ->given(
+                [
+                    new SellerWasRegistered($sellerId, $data),
+                    new SellerWasActivated($sellerId),
+                ]
+            )
             ->when(new SellerWasDeactivated($sellerId))
-            ->then(array(
-                $expectedReadModel,
-            ));
+            ->then(
+                [
+                    $expectedReadModel,
+                ]
+            );
     }
 
     /**
      * @test
      */
-    public function it_deletes_seller()
+    public function it_deletes_seller(): void
     {
         $sellerId = new SellerId('00000000-0000-0000-0000-000000000000');
         $data = [
@@ -139,19 +153,23 @@ class SellerDetailsProjectorTest extends ProjectorScenarioTestCase
         $expectedReadModel = SellerDetails::deserialize($data);
         $expectedReadModel->setDeleted(true);
         $this->scenario
-            ->given(array(
-                new SellerWasRegistered($sellerId, $data),
-            ))
+            ->given(
+                [
+                    new SellerWasRegistered($sellerId, $data),
+                ]
+            )
             ->when(new SellerWasDeleted($sellerId))
-            ->then(array(
-                $expectedReadModel,
-            ));
+            ->then(
+                [
+                    $expectedReadModel,
+                ]
+            );
     }
 
     /**
      * @test
      */
-    public function it_updates_seller()
+    public function it_updates_seller(): void
     {
         $sellerId = new SellerId('00000000-0000-0000-0000-000000000000');
         $data = [
@@ -162,18 +180,23 @@ class SellerDetailsProjectorTest extends ProjectorScenarioTestCase
             'posId' => (new PosId('00000000-0000-0000-0000-000000000000'))->__toString(),
             'createdAt' => new \DateTime(),
             'sellerId' => $sellerId->__toString(),
+            'allowPointTransfer' => true,
         ];
 
         /** @var SellerDetails $expectedReadModel */
         $expectedReadModel = SellerDetails::deserialize($data);
         $expectedReadModel->setLastName('Kowalski');
         $this->scenario
-            ->given(array(
-                new SellerWasRegistered($sellerId, $data),
-            ))
+            ->given(
+                [
+                    new SellerWasRegistered($sellerId, $data),
+                ]
+            )
             ->when(new SellerWasUpdated($sellerId, ['lastName' => 'Kowalski']))
-            ->then(array(
-                $expectedReadModel,
-            ));
+            ->then(
+                [
+                    $expectedReadModel,
+                ]
+            );
     }
 }

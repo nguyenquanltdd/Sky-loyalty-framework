@@ -18,6 +18,7 @@ use OpenLoyalty\Bundle\PointsBundle\Form\Type\SpendPointsFormType;
 use OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferXmlImporter;
 use OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager;
 use OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider;
+use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
 use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
 use OpenLoyalty\Component\Account\Domain\Command\CancelPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Command\SpendPoints;
@@ -102,6 +103,7 @@ class PointsTransferController extends FOSRestController
      *
      * @param Request $request
      * @Route(name="oloy.points.transfer.add", path="/points/transfer/add")
+     * @Route(name="oloy.pos.points.transfer.add", path="/pos/points/transfer/add")
      * @Method("POST")
      * @Security("is_granted('ADD_POINTS')")
      * @ApiDoc(
@@ -116,6 +118,8 @@ class PointsTransferController extends FOSRestController
      * )
      *
      * @return \FOS\RestBundle\View\View
+     *
+     * @throws \Exception
      */
     public function addPointsAction(Request $request)
     {
@@ -151,7 +155,9 @@ class PointsTransferController extends FOSRestController
                     $data['comment'],
                     ($currentUser->getId() == MasterAdminProvider::INTERNAL_ID)
                         ? PointsTransfer::ISSUER_API
-                        : PointsTransfer::ISSUER_ADMIN
+                        : (in_array('ROLE_SELLER', $currentUser->getRoles())
+                        ? PointsTransfer::ISSUER_SELLER
+                        : PointsTransfer::ISSUER_ADMIN)
                 )
             );
 
@@ -168,6 +174,7 @@ class PointsTransferController extends FOSRestController
      *
      * @param Request $request
      * @Route(name="oloy.points.transfer.spend", path="/points/transfer/spend")
+     * @Route(name="oloy.pos.points.transfer.spend", path="/pos/points/transfer/spend")
      * @Method("POST")
      * @Security("is_granted('SPEND_POINTS')")
      * @ApiDoc(
@@ -182,6 +189,8 @@ class PointsTransferController extends FOSRestController
      * )
      *
      * @return \FOS\RestBundle\View\View
+     *
+     * @throws \Exception
      */
     public function spendPointsAction(Request $request)
     {
