@@ -13,6 +13,28 @@ based on the `Symfony Framework`_.
     Framework. If you're not familiar with Symfony, please start with
     reading the `Quick Tour`_ from the Symfony documentation.
 
+Developer Documentation
+-----------------------
+
+:doc:`The Developer's Guide </developer/index>` contains information for developers who want to know more about
+Open Loyalty architecture and used concepts. This guide helps to understand how Open Loyalty works.
+
+.. toctree::
+   :hidden:
+
+   developer/index
+
+The Cookbook
+------------
+
+:doc:`The Open Loyalty's Cookbook </cookbook/index>` is a collection of solution articles helping you with some
+specific, narrow problems.
+
+.. toctree::
+   :hidden:
+
+   cookbook/index
+
 The REST API Reference
 ----------------------
 
