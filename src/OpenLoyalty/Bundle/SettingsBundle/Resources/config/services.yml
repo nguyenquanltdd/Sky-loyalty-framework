@@ -59,3 +59,17 @@ services:
         class:     Gaufrette\Filesystem
         factory:   ['@knp_gaufrette.filesystem_map', get]
         arguments: ['uploads']
+
+    OpenLoyalty\Component\Core\Domain\Command\LogoCommandHandler:
+      lazy: true
+      tags:
+        - { name: broadway.command_handler }
+
+    OpenLoyalty\Bundle\SettingsBundle\Service\ImageResizer:
+      arguments:
+        $directory: '%kernel.project_dir%/app/uploads'
+        $config: '%oloy.logo.resize.mapping%'
+
+    OpenLoyalty\Bundle\SettingsBundle\Event\Listener\LogoResizedListener:
+      tags:
+        - { name: broadway.event_listener, method: onChange, event: !php/const:OpenLoyalty\Component\Core\Domain\SystemEvent\LogoSystemEvents::RESIZED_LOGO_EVENT }

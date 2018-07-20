@@ -35,6 +35,7 @@ class FileSettingEntry extends SettingsEntry
             'path' => $value->getPath(),
             'originalName' => $value->getOriginalName(),
             'mime' => $value->getMime(),
+            'sizes' => $value->getSizes(),
         ];
     }
 
@@ -47,6 +48,7 @@ class FileSettingEntry extends SettingsEntry
             && array_key_exists('path', $this->value)
             && array_key_exists('originalName', $this->value)
             && array_key_exists('mime', $this->value)
+            && array_key_exists('sizes', $this->value)
         ) {
             $className = $this->value['__class'];
 

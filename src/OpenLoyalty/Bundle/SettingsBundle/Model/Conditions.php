@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\SettingsBundle\Model;
 
+use OpenLoyalty\Component\Core\Infrastructure\FileInterface as BaseFileInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -105,7 +106,30 @@ class Conditions implements FileInterface
     /**
      * {@inheritdoc}
      */
-    public static function deserialize(array $data = []): FileInterface
+    public function getResizedPath(string $path): string
+    {
+        return '';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSizes(): array
+    {
+        return [];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setSizes(array $sizes): void
+    {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function deserialize(array $data = []): BaseFileInterface
     {
         $obj = new self();
         foreach ($data as $k => $v) {

@@ -13,6 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Logo implements FileInterface
 {
+    const SUB_PATH = 'logo';
+
     /**
      * @var string
      */
@@ -27,6 +29,11 @@ class Logo implements FileInterface
      * @var string
      */
     protected $mime;
+
+    /**
+     * @var array
+     */
+    protected $sizes = [];
 
     /**
      * @var UploadedFile
@@ -103,9 +110,35 @@ class Logo implements FileInterface
     }
 
     /**
+     * @param array $sizes
+     */
+    public function setSizes(array $sizes): void
+    {
+        $this->sizes = $sizes;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSizes(): array
+    {
+        return $this->sizes;
+    }
+
+    /**
+     * @param string $size
+     *
+     * @return string
+     */
+    public function getResizedPath(string $size): string
+    {
+        return str_replace(self::SUB_PATH, self::SUB_PATH.DIRECTORY_SEPARATOR.$size, $this->getPath());
+    }
+
+    /**
      * {@inheritdoc}
      */
-    public static function deserialize(array $data = []): FileInterface
+    public static function deserialize(array $data = []): \OpenLoyalty\Component\Core\Infrastructure\FileInterface
     {
         $obj = new self();
         foreach ($data as $k => $v) {
@@ -121,6 +154,9 @@ class Logo implements FileInterface
                     break;
                 case 'mime':
                     $obj->setMime($v);
+                    break;
+                case 'sizes':
+                    $obj->setSizes($v);
                     break;
             }
         }

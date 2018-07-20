@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "74f2cf398676ffc3c1e51c52c921a33c",
-    "content-hash": "6f167327d695735a60a7d7c3e38caf59",
+    "hash": "a9fc17b5cca63b6e63b6e5691d57aa54",
+    "content-hash": "53669e0ebf875348de9bc5e4595a3448",
     "packages": [
         {
             "name": "beberlei/DoctrineExtensions",
@@ -1769,6 +1769,61 @@
             ],
             "description": "Locale functions required by libphonenumber-for-php",
             "time": "2017-11-01 21:34:27"
+        },
+        {
+            "name": "gumlet/php-image-resize",
+            "version": "1.9.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/gumlet/php-image-resize.git",
+                "reference": "2a38f3a49e2ee907f16064d8def6828c7902c0b6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/gumlet/php-image-resize/zipball/2a38f3a49e2ee907f16064d8def6828c7902c0b6",
+                "reference": "2a38f3a49e2ee907f16064d8def6828c7902c0b6",
+                "shasum": ""
+            },
+            "require": {
+                "ext-fileinfo": "*",
+                "ext-gd": "*",
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "apigen/apigen": "^4.1",
+                "ext-exif": "*",
+                "ext-gd": "*",
+                "php-coveralls/php-coveralls": "^2.1",
+                "phpunit/phpunit": "^4.8"
+            },
+            "suggest": {
+                "ext-exif": "Auto-rotate jpeg files"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Gumlet\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aditya Patadia",
+                    "homepage": "http://aditya.patadia.org/"
+                }
+            ],
+            "description": "PHP class to re-size and scale images",
+            "homepage": "https://github.com/gumlet/php-image-resize",
+            "keywords": [
+                "image",
+                "php",
+                "resize",
+                "scale"
+            ],
+            "time": "2018-06-25 06:41:48"
         },
         {
             "name": "guzzlehttp/guzzle",

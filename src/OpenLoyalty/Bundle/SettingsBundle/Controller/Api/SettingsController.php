@@ -169,6 +169,8 @@ class SettingsController extends FOSRestController
             $settings->addEntry(new FileSettingEntry($entryName, $photo));
             $settingsManager->save($settings);
 
+            $uploader->onSuccessfulUpload($photo, $entryName);
+
             return $this->view([], Response::HTTP_OK);
         }
 
@@ -282,51 +284,61 @@ class SettingsController extends FOSRestController
      * Get logo.
      *
      * @Route(name="oloy.settings.get_logo", path="/settings/logo")
+     * @Route(name="oloy.settings.get_logo_size", path="/settings/logo/{size}", defaults={"size"=null}, requirements={"size"="\d{1,}x\d{1,}"})
      * @Method("GET")
      * @ApiDoc(
      *     name="Get logo",
-     *     section="Settings"
+     *     section="Settings",
+     *     parameters={{"name"="active", "dataType"="boolean", "required"=true}}
      * )
+     *
+     * @param null|string $size
      *
      * @return Response
      */
-    public function getLogoAction()
+    public function getLogoAction(?string $size = null)
     {
-        return $this->getPhoto(LogoUploader::LOGO);
+        return $this->getPhoto(LogoUploader::LOGO, $size);
     }
 
     /**
      * Get small logo.
      *
      * @Route(name="oloy.settings.get_small_logo", path="/settings/small-logo")
+     * @Route(name="oloy.settings.get_small_logo_size", path="/settings/small-logo/{size}", defaults={"size"=null}, requirements={"size"="\d{1,}x\d{1,}"})
      * @Method("GET")
      * @ApiDoc(
      *     name="Get small logo",
      *     section="Settings"
      * )
      *
+     * @param string $size
+     *
      * @return Response
      */
-    public function getSmallLogoAction()
+    public function getSmallLogoAction(?string $size = null)
     {
-        return $this->getPhoto(LogoUploader::SMALL_LOGO);
+        return $this->getPhoto(LogoUploader::SMALL_LOGO, $size);
     }
 
     /**
      * Get hero image.
      *
-     * @Route(name="oloy.settings.get_hero_image", path="/settings/hero-image")
+     * @Route(name="oloy.settings.get_hero_image_size", path="/settings/hero-image")
+     * @Route(name="oloy.settings.get_hero_image_size", path="/settings/hero-image/{size}", defaults={"size"=null}, requirements={"size"="\d{1,}x\d{1,}"})
      * @Method("GET")
      * @ApiDoc(
      *     name="Get hero image",
      *     section="Settings"
      * )
      *
+     * @param null|string $size
+     *
      * @return Response
      */
-    public function getHeroImageAction()
+    public function getHeroImageAction(?string $size = null)
     {
-        return $this->getPhoto(LogoUploader::HERO_IMAGE);
+        return $this->getPhoto(LogoUploader::HERO_IMAGE, $size);
     }
 
     /**
@@ -381,11 +393,12 @@ class SettingsController extends FOSRestController
     }
 
     /**
-     * @param string $entryName
+     * @param string      $entryName
+     * @param null|string $size
      *
      * @return Response
      */
-    private function getPhoto(string $entryName)
+    private function getPhoto(string $entryName, ? string $size = null)
     {
         $settingsManager = $this->get('ol.settings.manager');
         $settings = $settingsManager->getSettings();
@@ -399,7 +412,7 @@ class SettingsController extends FOSRestController
             throw $this->createNotFoundException();
         }
 
-        $content = $this->get('oloy.settings.logo_uploader')->get($logo);
+        $content = $this->get('oloy.settings.logo_uploader')->get($logo, $size);
         if (!$content) {
             throw $this->createNotFoundException();
         }

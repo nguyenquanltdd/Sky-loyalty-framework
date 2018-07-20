@@ -5,8 +5,12 @@
  */
 namespace OpenLoyalty\Bundle\SettingsBundle\Service;
 
+use Broadway\CommandHandling\SimpleCommandBus;
 use Gaufrette\Filesystem;
+use OpenLoyalty\Bundle\SettingsBundle\Model\FileInterface;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Logo;
+use OpenLoyalty\Component\Core\Domain\Command\ResizeLogo;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
@@ -19,29 +23,45 @@ class LogoUploader
      */
     protected $filesystem;
 
+    /**
+     * @var SimpleCommandBus
+     */
+    protected $commandBus;
+
     const LOGO = 'logo';
     const SMALL_LOGO = 'small-logo';
     const HERO_IMAGE = 'hero-image';
 
     /**
-     * FileUploader constructor.
+     * LogoUploader constructor.
      *
-     * @param Filesystem $filesystem
+     * @param Filesystem       $filesystem
+     * @param SimpleCommandBus $commandBus
      */
-    public function __construct(Filesystem $filesystem)
+    public function __construct(Filesystem $filesystem, SimpleCommandBus $commandBus)
     {
         $this->filesystem = $filesystem;
+        $this->commandBus = $commandBus;
     }
 
     /**
-     * @param Logo $photo
+     * @param Logo        $photo
+     * @param null|string $size
      *
      * @return string|null
      */
-    public function get(Logo $photo)
+    public function get(Logo $photo, ? string $size = null)
     {
         if (null === $photo || null === $photo->getPath()) {
             return;
+        }
+
+        if (null !== $size) {
+            if (!in_array($size, $photo->getSizes())) {
+                return;
+            }
+
+            return $this->filesystem->get($photo->getResizedPath($size))->getContent();
         }
 
         return $this->filesystem->get($photo->getPath())->getContent();
@@ -79,5 +99,18 @@ class LogoUploader
         if ($this->filesystem->has($path)) {
             $this->filesystem->delete($path);
         }
+    }
+
+    /**
+     * @param FileInterface $file
+     * @param string        $imageType
+     *
+     * @throws \Exception
+     */
+    public function onSuccessfulUpload(FileInterface $file, string $imageType)
+    {
+        // resize logo
+        $resizeLogoCommand = new ResizeLogo($file, $imageType);
+        $this->commandBus->dispatch($resizeLogoCommand);
     }
 }

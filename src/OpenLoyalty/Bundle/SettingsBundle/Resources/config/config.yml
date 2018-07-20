@@ -1,0 +1,6 @@
+open_loyalty_settings:
+  mapping:
+    small-logo:
+      sizes:
+        - { width: 192, height: 192 }
+        - { width: 512, height: 512 }

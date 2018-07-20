@@ -16,6 +16,7 @@ use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
 use OpenLoyalty\Component\EarningRule\Domain\ReferralEarningRule;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class SettingsControllerTest.
@@ -272,6 +273,60 @@ class SettingsControllerTest extends BaseApiTest
         );
         $getResponse = $getClient->getResponse();
         $this->assertEquals(200, $getResponse->getStatusCode());
+    }
+
+    /**
+     * @test
+     * @dataProvider logoSizeProvider
+     *
+     * @param string $type
+     * @param array  $sizes
+     */
+    public function it_returns_resized_logo(string $type, array $sizes)
+    {
+        $client = $this->createClient();
+
+        foreach ($sizes as $size) {
+            $client->request(
+                'GET',
+                sprintf('/api/settings/%s/%s', $type, $size)
+            );
+
+            $response = $client->getResponse();
+            $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_404_on_not_found_logo()
+    {
+        $client = $this->createClient();
+
+        $client->request(
+            'GET',
+            '/api/settings/small-logo/1922x112345'
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_correct_logo_if_size_parameter_is_null()
+    {
+        $client = $this->createClient();
+
+        $client->request(
+            'GET',
+            '/api/settings/small-logo'
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
     }
 
     /**
@@ -699,5 +754,15 @@ class SettingsControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $this->assertEquals(404, $response->getStatusCode());
+    }
+
+    /**
+     * @dataPovider
+     */
+    public function logoSizeProvider(): array
+    {
+        return [
+            ['small-logo', ['192x192', '512x512']],
+        ];
     }
 }
