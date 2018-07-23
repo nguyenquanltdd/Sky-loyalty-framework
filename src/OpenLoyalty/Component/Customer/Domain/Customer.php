@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Component\Customer\Domain;
 
 use Broadway\EventSourcing\EventSourcedAggregateRoot;
+use OpenLoyalty\Component\Customer\Domain\Event\CampaignStatusWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerDetailsWereUpdated;
@@ -15,6 +16,7 @@ use OpenLoyalty\Component\Customer\Domain\Event\PosWasAssignedToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasMovedToLevel;
 use OpenLoyalty\Component\Customer\Domain\Event\SellerWasAssignedToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Model\Address;
+use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\Model\Gender;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerAddressWasUpdated;
@@ -173,10 +175,10 @@ class Customer extends EventSourcedAggregateRoot
         );
     }
 
-    public function buyCampaign(CampaignId $campaignId, $campaignName, $costInPoints, Coupon $coupon, $reward)
+    public function buyCampaign(CampaignId $campaignId, $campaignName, $costInPoints, Coupon $coupon, $reward, string $status, ?\DateTime $activeSince, ?\DateTime $activeTo)
     {
         $this->apply(
-            new CampaignWasBoughtByCustomer($this->getId(), $campaignId, $campaignName, $costInPoints, $coupon, $reward)
+            new CampaignWasBoughtByCustomer($this->getId(), $campaignId, $campaignName, $costInPoints, $coupon, $reward, $status, $activeSince, $activeTo)
         );
     }
 
@@ -184,6 +186,27 @@ class Customer extends EventSourcedAggregateRoot
     {
         $this->apply(
             new CampaignUsageWasChanged($this->getId(), $campaignId, $coupon, $used)
+        );
+    }
+
+    public function changeCampaignStatus(CampaignId $campaignId, Coupon $coupon, $status)
+    {
+        $this->apply(
+            new CampaignStatusWasChanged($this->getId(), $campaignId, $coupon, $status)
+        );
+    }
+
+    public function expireCampaignBought(CampaignId $campaignId, Coupon $coupon)
+    {
+        $this->apply(
+            new CampaignStatusWasChanged($this->getId(), $campaignId, $coupon, CampaignPurchase::STATUS_EXPIRED)
+        );
+    }
+
+    public function activateCampaignBought(CampaignId $campaignId, Coupon $coupon)
+    {
+        $this->apply(
+            new CampaignStatusWasChanged($this->getId(), $campaignId, $coupon, CampaignPurchase::STATUS_ACTIVE)
         );
     }
 

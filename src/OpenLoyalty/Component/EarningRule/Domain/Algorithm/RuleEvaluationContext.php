@@ -12,7 +12,9 @@ use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
  */
 class RuleEvaluationContext extends RuleNameContext implements RuleEvaluationContextInterface
 {
-    /** @var array */
+    /**
+     * @var array
+     */
     private $products;
 
     /**
@@ -21,14 +23,21 @@ class RuleEvaluationContext extends RuleNameContext implements RuleEvaluationCon
     private $transaction;
 
     /**
+     * @var string
+     */
+    private $customerId;
+
+    /**
      * RuleEvaluationContext constructor.
      *
      * @param TransactionDetails $transaction
+     * @param string             $customerId
      */
-    public function __construct(TransactionDetails $transaction)
+    public function __construct(TransactionDetails $transaction, string $customerId = null)
     {
         $this->products = [];
         $this->transaction = $transaction;
+        $this->customerId = $customerId;
     }
 
     /**
@@ -78,5 +87,13 @@ class RuleEvaluationContext extends RuleNameContext implements RuleEvaluationCon
     public function getProducts()
     {
         return $this->products;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCustomerId(): ?string
+    {
+        return $this->customerId;
     }
 }

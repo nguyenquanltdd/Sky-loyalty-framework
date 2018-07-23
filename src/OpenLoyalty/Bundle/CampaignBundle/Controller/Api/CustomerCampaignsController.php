@@ -13,8 +13,11 @@ use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignLimitException;
+use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignUsageChange\CampaignUsageChangeException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotAllowedException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotEnoughPointsException;
+use OpenLoyalty\Bundle\CampaignBundle\ResponseModel\CouponUsageResponse;
+use OpenLoyalty\Bundle\CampaignBundle\Service\MultipleCampaignCouponUsageProvider;
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
@@ -32,6 +35,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Class CustomerCampaignsController.
@@ -40,6 +44,21 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CustomerCampaignsController extends FOSRestController
 {
+    /**
+     * @var CommandBus
+     */
+    private $commandBus;
+
+    /**
+     * CustomerCampaignsController constructor.
+     *
+     * @param CommandBus $commandBus
+     */
+    public function __construct(CommandBus $commandBus)
+    {
+        $this->commandBus = $commandBus;
+    }
+
     /**
      * Get all campaigns available for logged in customer.
      *
@@ -319,6 +338,67 @@ class CustomerCampaignsController extends FOSRestController
         );
 
         return $this->view(['used' => $used]);
+    }
+
+    /**
+     * Mark multiple coupons as used/unused by customer.
+     *
+     * @Route(name="oloy.campaign.customer.coupon_multiple_usage", path="/customer/campaign/coupons/mark_as_used")
+     * @Method("POST")
+     * @Security("is_granted('MARK_SELF_MULTIPLE_COUPONS_AS_USED')")
+     *
+     * @ApiDoc(
+     *     name="mark multiple coupons as used",
+     *     section="Customer Campaign",
+     *     parameters={
+     *          {"name"="coupons", "dataType"="array", "required"=true, "description"="List of coupons to mark as used"},
+     *          {"name"="coupons[][used]", "dataType"="boolean", "required"=true, "description"="If coupon is used or not"},
+     *          {"name"="coupons[][campaignId]", "dataType"="string", "required"=true, "description"="CampaignId value"},
+     *          {"name"="coupons[][code]", "dataType"="string", "required"=true, "description"="Coupon code"},
+     *     },
+     *     statusCodes={
+     *       200="Returned when successful",
+     *       400="Returned when data is invalid",
+     *       404="Returned when customer or campaign not found"
+     *     }
+     * )
+     *
+     * @param Request                             $request
+     * @param MultipleCampaignCouponUsageProvider $multipleCampaignCouponUsageProvider
+     *
+     * @return \FOS\RestBundle\View\View
+     * @View(serializerGroups={"admin", "Default"})
+     */
+    public function campaignCouponListUsage(Request $request, MultipleCampaignCouponUsageProvider $multipleCampaignCouponUsageProvider)
+    {
+        $coupons = $request->request->get('coupons', []);
+
+        if (empty($coupons)) {
+            throw new BadRequestHttpException($this->translator->trans('campaign.invalid_data'));
+        }
+
+        /** @var CustomerDetails $customer */
+        $customer = $this->getLoggedCustomer();
+        try {
+            $commands = $multipleCampaignCouponUsageProvider->validateRequestForCustomer($coupons, $customer);
+        } catch (CampaignUsageChangeException $e) {
+            throw new BadRequestHttpException($e->getMessage());
+        }
+        $result = [];
+
+        /** @var ChangeCampaignUsage $command */
+        foreach ($commands as $command) {
+            $this->commandBus->dispatch($command);
+
+            $result[] = new CouponUsageResponse(
+                $command->getCoupon()->getCode(),
+                $command->isUsed(),
+                $command->getCampaignId()->__toString(),
+                $command->getCustomerId()->__toString()
+            );
+        }
+
+        return $this->view(['coupons' => $result]);
     }
 
     /**

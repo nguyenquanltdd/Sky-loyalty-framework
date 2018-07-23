@@ -14,6 +14,7 @@ use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
+use OpenLoyalty\Component\Customer\Domain\Event\CampaignStatusWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 
@@ -84,24 +85,30 @@ class CampaignBoughtProjector extends Projector
             $customer->getLastName(),
             $campaign->getCostInPoints(),
             (int) $account->getAvailableAmount(),
-            $campaign->getTaxPriceValue()
+            $campaign->getTaxPriceValue(),
+            $event->getStatus(),
+            $event->getActiveSince(),
+            $event->getActiveTo()
         );
     }
 
     /**
-     * @param CampaignId $campaignId
-     * @param CustomerId $customerId
-     * @param \DateTime  $boughtAt
-     * @param Coupon     $coupon
-     * @param string     $couponType
-     * @param string     $campaignName
-     * @param string     $customerEmail
-     * @param string     $customerPhone
-     * @param string     $customerName
-     * @param string     $customerLastname
-     * @param int        $costInPoints
-     * @param int        $currentPointsAmount
-     * @param float|null $taxPriceValue
+     * @param CampaignId     $campaignId
+     * @param CustomerId     $customerId
+     * @param \DateTime      $boughtAt
+     * @param Coupon         $coupon
+     * @param string         $couponType
+     * @param string         $campaignName
+     * @param string         $customerEmail
+     * @param string         $customerPhone
+     * @param string         $customerName
+     * @param string         $customerLastname
+     * @param int            $costInPoints
+     * @param int            $currentPointsAmount
+     * @param float|null     $taxPriceValue
+     * @param string         $status
+     * @param \DateTime|null $activeSince
+     * @param \DateTime|null $activeTo
      */
     private function storeCampaignUsages(
         CampaignId $campaignId,
@@ -116,7 +123,10 @@ class CampaignBoughtProjector extends Projector
         string $customerLastname,
         int $costInPoints,
         int $currentPointsAmount,
-        ? float $taxPriceValue
+        ? float $taxPriceValue,
+        string $status,
+        ?\DateTime $activeSince,
+        ?\DateTime $activeTo
     ) {
         $readModel = new CampaignBought(
             $campaignId,
@@ -127,12 +137,15 @@ class CampaignBoughtProjector extends Projector
             $campaignName,
             $customerEmail,
             $customerPhone,
+            $status,
             null,
             $customerName,
             $customerLastname,
             $costInPoints,
             $currentPointsAmount,
-            $taxPriceValue
+            $taxPriceValue,
+            $activeSince,
+            $activeTo
         );
 
         $this->repository->save($readModel);
@@ -153,6 +166,25 @@ class CampaignBoughtProjector extends Projector
 
         if ($readModel instanceof CampaignBought) {
             $readModel->setUsed($event->isUsed());
+            $this->repository->save($readModel);
+        }
+    }
+
+    /**
+     * @param CampaignStatusWasChanged $event
+     */
+    protected function applyCampaignStatusWasChanged(CampaignStatusWasChanged $event): void
+    {
+        /* @var CampaignBought $readModel */
+        $campaignBoughtId = CampaignBought::createId(
+            new CampaignId($event->getCampaignId()->__toString()),
+            new CustomerId($event->getCustomerId()->__toString()),
+            new Coupon($event->getCoupon()->getCode())
+        );
+        $readModel = $this->repository->find($campaignBoughtId);
+
+        if ($readModel instanceof CampaignBought) {
+            $readModel->setStatus($event->getStatus());
             $this->repository->save($readModel);
         }
     }

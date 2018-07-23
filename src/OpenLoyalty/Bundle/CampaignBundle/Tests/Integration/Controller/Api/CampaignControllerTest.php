@@ -2,8 +2,8 @@
 
 namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Integration\Controller\Api;
 
-use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\CampaignBundle\DataFixtures\ORM\LoadCampaignData;
+use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Component\Account\Domain\CustomerId;
@@ -12,7 +12,12 @@ use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
+use OpenLoyalty\Component\Customer\Domain\CampaignId as CustomerCampaignId;
+use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
+use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
+use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -23,14 +28,20 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @var CampaignRepository
      */
-    protected $repository;
+    protected $campaignRepository;
+
+    /**
+     * @var CustomerDetailsRepository
+     */
+    private $customerDetailsRepository;
 
     protected function setUp()
     {
         parent::setUp();
 
         static::bootKernel();
-        $this->repository = static::$kernel->getContainer()->get('oloy.campaign.repository');
+        $this->campaignRepository = static::$kernel->getContainer()->get('oloy.campaign.repository');
+        $this->customerDetailsRepository = static::$kernel->getContainer()->get('oloy.user.read_model.repository.customer_details');
     }
 
     /**
@@ -74,7 +85,7 @@ class CampaignControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('campaignId', $data);
-        $campaign = $this->repository->byId(new CampaignId($data['campaignId']));
+        $campaign = $this->campaignRepository->byId(new CampaignId($data['campaignId']));
         $this->assertInstanceOf(Campaign::class, $campaign);
         $this->assertEquals(99.95, $campaign->getTaxPriceValue());
         $this->assertEquals(23, $campaign->getTax());
@@ -125,7 +136,7 @@ class CampaignControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $campaign = $this->repository->byId(new CampaignId($data['campaignId']));
+        $campaign = $this->campaignRepository->byId(new CampaignId($data['campaignId']));
         $this->objectHasAttribute('singleCoupon', $campaign);
         $this->assertEquals(true, $campaign->isSingleCoupon());
     }
@@ -172,7 +183,7 @@ class CampaignControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
         $this->assertArrayHasKey('campaignId', $data);
-        $campaign = $this->repository->byId(new CampaignId($data['campaignId']));
+        $campaign = $this->campaignRepository->byId(new CampaignId($data['campaignId']));
         $this->assertInstanceOf(Campaign::class, $campaign);
         $this->assertEquals('test', $campaign->getName());
         $this->assertEquals(300.95, $campaign->getTaxPriceValue());
@@ -271,9 +282,9 @@ class CampaignControllerTest extends BaseApiTest
     {
         return [
             [['labels' => [['key' => 'key0'], ['value' => 'value0']]], 1],
-            [['labels' => [['key' => 'type']]], 3],
+            [['labels' => [['key' => 'type']]], 4],
             [['labels' => [['key' => 'test']]], 0],
-            [['active' => 1], 8],
+            [['active' => 1], 9],
             [['active' => 0], 7],
             [['campaignType' => 'discount_code'], 6],
         ];
@@ -449,6 +460,22 @@ class CampaignControllerTest extends BaseApiTest
     }
 
     /**
+     * @test
+     */
+    public function it_returns_active_campaigns_list()
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/campaign/active'
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('campaigns', $data);
+    }
+
+    /**
      * @return array
      */
     public function sortParamsProvider()
@@ -504,12 +531,114 @@ class CampaignControllerTest extends BaseApiTest
      */
     protected function getCustomerDetails($email)
     {
-        $customerDetailsRepository = static::$kernel->getContainer()->get('oloy.user.read_model.repository.customer_details');
-
-        $customerDetails = $customerDetailsRepository->findBy(['email' => $email]);
+        $customerDetails = $this->customerDetailsRepository->findBy(['email' => $email]);
         /** @var CustomerDetails $customerDetails */
         $customerDetails = reset($customerDetails);
 
         return $customerDetails;
+    }
+
+    /**
+     * @test
+     */
+    public function it_change_coupon_to_used()
+    {
+        $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
+        $couponCode = Uuid::uuid4()->toString();
+        $customerDetails->addCampaignPurchase(
+            new CampaignPurchase(
+                new \DateTime(),
+                0,
+                new CustomerCampaignId(LoadCampaignData::CAMPAIGN_ID),
+                new Coupon($couponCode),
+                Campaign::REWARD_TYPE_DISCOUNT_CODE
+            )
+        );
+
+        $this->customerDetailsRepository->save($customerDetails);
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            sprintf('/api/admin/customer/%s/campaign/%s/coupon/%s',
+                LoadUserData::USER2_USER_ID,
+                LoadCampaignData::CAMPAIGN_ID,
+                $couponCode),
+            [
+                'used' => true,
+            ]
+        );
+
+        $response = $client->getResponse();
+
+        $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
+        $campaigns = $customerDetails->getCampaignPurchases();
+        $campaignPurchase = null;
+
+        /** @var CampaignPurchase $campaign */
+        foreach ($campaigns as $campaign) {
+            if ($campaign->getCoupon()->getCode() === $couponCode) {
+                $campaignPurchase = $campaign;
+            }
+        }
+
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertNotNull($campaignPurchase);
+        $this->assertInstanceOf(CampaignPurchase::class, $campaignPurchase);
+        $this->assertTrue($campaignPurchase->isUsed());
+    }
+
+    /**
+     * @test
+     */
+    public function it_change_multiple_coupons_to_used()
+    {
+        $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
+        $couponCode = Uuid::uuid4()->toString();
+        $customerDetails->addCampaignPurchase(
+            new CampaignPurchase(
+                new \DateTime(),
+                0,
+                new CustomerCampaignId(LoadCampaignData::CAMPAIGN_ID),
+                new Coupon($couponCode),
+                Campaign::REWARD_TYPE_DISCOUNT_CODE
+            )
+        );
+
+        $this->customerDetailsRepository->save($customerDetails);
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/admin/campaign/coupons/mark_as_used',
+            [
+                'coupons' => [
+                        [
+                            'customerId' => LoadUserData::USER2_USER_ID,
+                            'campaignId' => LoadCampaignData::CAMPAIGN_ID,
+                            'code' => $couponCode,
+                            'used' => true,
+                        ],
+                    ],
+            ]
+        );
+
+        $response = $client->getResponse();
+
+        $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
+        $campaigns = $customerDetails->getCampaignPurchases();
+        $campaignPurchase = null;
+
+        /** @var CampaignPurchase $campaign */
+        foreach ($campaigns as $campaign) {
+            if ($campaign->getCoupon()->getCode() === $couponCode) {
+                $campaignPurchase = $campaign;
+            }
+        }
+
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertNotNull($campaignPurchase);
+        $this->assertInstanceOf(CampaignPurchase::class, $campaignPurchase);
+        $this->assertTrue($campaignPurchase->isUsed());
     }
 }

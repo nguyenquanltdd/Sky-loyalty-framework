@@ -10,6 +10,7 @@ OpenLoyalty\Component\EarningRule\Domain\EarningRule:
       multiply_for_product: OpenLoyalty\Component\EarningRule\Domain\MultiplyPointsForProductEarningRule
       multiply_by_product_labels: OpenLoyalty\Component\EarningRule\Domain\MultiplyPointsByProductLabelsEarningRule
       referral: OpenLoyalty\Component\EarningRule\Domain\ReferralEarningRule
+      instant_reward: OpenLoyalty\Component\EarningRule\Domain\InstantRewardRule
   properties:
     earningRuleId:
       expose: true

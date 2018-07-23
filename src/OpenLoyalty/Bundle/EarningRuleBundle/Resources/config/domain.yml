@@ -33,6 +33,17 @@ services:
     class: OpenLoyalty\Component\EarningRule\Domain\Algorithm\MultiplyPointsByProductLabelsRuleAlgorithm
     tags:
       - { name: oloy.earning_rule.algorithm, alias: MultiplyPointsByProductLabelsEarningRule }
+  OpenLoyalty\Component\EarningRule\Domain\Algorithm\InstantRewardRuleAlgorithm:
+    class: OpenLoyalty\Component\EarningRule\Domain\Algorithm\InstantRewardRuleAlgorithm
+    arguments:
+      - '@OpenLoyalty\Component\EarningRule\Domain\Strategy\InstantRewardEarningRuleStrategy'
+      - "@broadway.command_handling.command_bus"
+    tags:
+      - { name: oloy.earning_rule.algorithm, alias: InstantRewardRule }
+  OpenLoyalty\Component\EarningRule\Domain\Strategy\InstantRewardEarningRuleStrategy:
+    class: OpenLoyalty\Component\EarningRule\Domain\Strategy\InstantRewardEarningRuleStrategy
+    arguments:
+      - '@OpenLoyalty\Bundle\CampaignBundle\Service\EarningRuleCampaignProvider'
   oloy.earning_rule.applier:
     class: OpenLoyalty\Component\EarningRule\Domain\OloyEarningRuleEvaluator
     arguments:

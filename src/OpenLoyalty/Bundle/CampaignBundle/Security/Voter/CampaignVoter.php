@@ -20,6 +20,7 @@ class CampaignVoter extends Voter
     const EDIT = 'EDIT';
     const LIST_ALL_CAMPAIGNS = 'LIST_ALL_CAMPAIGNS';
     const LIST_ALL_VISIBLE_CAMPAIGNS = 'LIST_ALL_VISIBLE_CAMPAIGNS';
+    const LIST_ALL_ACTIVE_CAMPAIGNS = 'LIST_ALL_ACTIVE_CAMPAIGNS';
     const LIST_ALL_BOUGHT_CAMPAIGNS = 'LIST_ALL_BOUGHT_CAMPAIGNS';
     const VIEW = 'VIEW';
     const LIST_CAMPAIGNS_AVAILABLE_FOR_ME = 'LIST_CAMPAIGNS_AVAILABLE_FOR_ME';
@@ -27,6 +28,8 @@ class CampaignVoter extends Voter
     const BUY = 'BUY';
     const BUY_FOR_CUSTOMER = 'BUY_FOR_CUSTOMER';
     const MARK_COUPON_AS_USED = 'MARK_COUPON_AS_USED';
+    const MARK_MULTIPLE_COUPONS_AS_USED = 'MARK_MULTIPLE_COUPONS_AS_USED';
+    const MARK_SELF_MULTIPLE_COUPONS_AS_USED = 'MARK_SELF_MULTIPLE_COUPONS_AS_USED';
     const CASHBACK = 'CASHBACK';
 
     /**
@@ -52,10 +55,13 @@ class CampaignVoter extends Voter
                 self::CREATE_CAMPAIGN,
                 self::LIST_ALL_CAMPAIGNS,
                 self::LIST_ALL_BOUGHT_CAMPAIGNS,
+                self::LIST_ALL_ACTIVE_CAMPAIGNS,
                 self::LIST_ALL_VISIBLE_CAMPAIGNS,
                 self::LIST_CAMPAIGNS_BOUGHT_BY_ME,
                 self::LIST_CAMPAIGNS_AVAILABLE_FOR_ME,
                 self::BUY_FOR_CUSTOMER,
+                self::MARK_MULTIPLE_COUPONS_AS_USED,
+                self::MARK_SELF_MULTIPLE_COUPONS_AS_USED,
                 self::CASHBACK,
         ]);
     }
@@ -76,6 +82,8 @@ class CampaignVoter extends Voter
                 return $user->hasRole('ROLE_ADMIN');
             case self::LIST_ALL_BOUGHT_CAMPAIGNS:
                 return $user->hasRole('ROLE_ADMIN');
+            case self::LIST_ALL_ACTIVE_CAMPAIGNS:
+                return $user->hasRole('ROLE_ADMIN');
             case self::LIST_ALL_VISIBLE_CAMPAIGNS:
                 return $user->hasRole('ROLE_ADMIN') || $user->hasRole('ROLE_SELLER');
             case self::BUY_FOR_CUSTOMER:
@@ -92,6 +100,10 @@ class CampaignVoter extends Voter
                 return $user->hasRole('ROLE_PARTICIPANT');
             case self::MARK_COUPON_AS_USED:
                 return $user->hasRole('ROLE_ADMIN') || $user->hasRole('ROLE_PARTICIPANT');
+            case self::MARK_MULTIPLE_COUPONS_AS_USED:
+                return $user->hasRole('ROLE_ADMIN');
+            case self::MARK_SELF_MULTIPLE_COUPONS_AS_USED:
+                return $user->hasRole('ROLE_PARTICIPANT');
             case self::CASHBACK:
                 return $user->hasRole('ROLE_ADMIN');
             default:

@@ -63,6 +63,9 @@ class Campaign extends BaseCampaign
             'tax' => $this->tax,
             'taxPriceValue' => $this->taxPriceValue,
             'labels' => $labels,
+            'daysInactive' => $this->daysInactive,
+            'daysValid' => $this->daysValid,
+            'transactionPercentageValue' => $this->transactionPercentageValue,
         ];
     }
 
@@ -76,7 +79,7 @@ class Campaign extends BaseCampaign
             return;
         }
 
-        if ($this->reward == self::REWARD_TYPE_CASHBACK) {
+        if ($this->reward === self::REWARD_TYPE_CASHBACK || $this->reward === self::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE) {
             return;
         }
 
@@ -107,7 +110,7 @@ class Campaign extends BaseCampaign
      */
     public function validateCoupons(ExecutionContextInterface $context)
     {
-        if ($this->reward == self::REWARD_TYPE_CASHBACK) {
+        if ($this->reward === self::REWARD_TYPE_CASHBACK || $this->reward === self::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE) {
             return;
         }
 

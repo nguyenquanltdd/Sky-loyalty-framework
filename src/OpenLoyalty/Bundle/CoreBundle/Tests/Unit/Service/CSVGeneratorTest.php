@@ -13,6 +13,7 @@ use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBought;
+use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\Serializer\Encoder\CsvEncoder;
@@ -48,6 +49,7 @@ class CSVGeneratorTest extends TestCase
             'Some Campaign',
             'some@email.com',
             '+4894949494',
+            CampaignPurchase::STATUS_ACTIVE,
             false,
             'Joe',
             'Doe',
@@ -64,6 +66,7 @@ class CSVGeneratorTest extends TestCase
             'Some Campaign 2',
             'fake@email.com',
             '+449393939',
+            CampaignPurchase::STATUS_ACTIVE,
             false,
             'Alice',
             'Wonderland',

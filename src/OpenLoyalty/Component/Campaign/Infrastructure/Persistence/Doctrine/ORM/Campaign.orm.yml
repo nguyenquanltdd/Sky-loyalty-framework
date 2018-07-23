@@ -83,6 +83,18 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
       type: labels_json_array
       column: labels
       nullable: true
+    daysInactive:
+      type: integer
+      nullable: true
+      column: days_inactive
+    daysValid:
+      type: integer
+      nullable: true
+      column: daysValid
+    transactionPercentageValue:
+      type: integer
+      nullable: true
+      column: transaction_percentage_value
   embedded:
     campaignActivity:
       class: OpenLoyalty\Component\Campaign\Domain\Model\CampaignActivity

@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Bundle\EarningRuleBundle\Model;
 
 use OpenLoyalty\Component\Core\Domain\Model\LabelMultiplier;
+use OpenLoyalty\Component\EarningRule\Domain\CampaignId;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRule as BaseEarningRule;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Core\Domain\Model\SKU;
@@ -94,6 +95,11 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
      */
     protected $limit;
 
+    /**
+     * @var CampaignId
+     */
+    protected $rewardCampaignId;
+
     public function __construct()
     {
     }
@@ -166,6 +172,7 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
             'labels' => $labels,
             'labelMultipliers' => $labelMultipliers,
             'rewardType' => $this->rewardType,
+            'rewardCampaignId' => (string) $this->rewardCampaignId,
         ];
         if ($this->limit && $this->type == self::TYPE_CUSTOM_EVENT) {
             $data['limit'] = [
@@ -463,5 +470,21 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
             $context->buildViolation($message)->atPath('levels')->addViolation();
             $context->buildViolation($message)->atPath('segments')->addViolation();
         }
+    }
+
+    /**
+     * @return null|CampaignId
+     */
+    public function getRewardCampaignId(): ?CampaignId
+    {
+        return $this->rewardCampaignId;
+    }
+
+    /**
+     * @param CampaignId $rewardCampaignId
+     */
+    public function setRewardCampaignId(CampaignId $rewardCampaignId = null): void
+    {
+        $this->rewardCampaignId = $rewardCampaignId;
     }
 }

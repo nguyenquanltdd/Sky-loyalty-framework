@@ -14,6 +14,10 @@ use OpenLoyalty\Component\Customer\Domain\CampaignId;
  */
 class CampaignPurchase implements Serializable
 {
+    public const STATUS_INACTIVE = 'inactive';
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_EXPIRED = 'expired';
+
     /**
      * @var \DateTime
      */
@@ -50,6 +54,21 @@ class CampaignPurchase implements Serializable
     protected $coupon;
 
     /**
+     * @var string
+     */
+    protected $status;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $activeSince;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $activeTo;
+
+    /**
      * CampaignPurchase constructor.
      *
      * @param \DateTime  $purchaseAt
@@ -57,14 +76,28 @@ class CampaignPurchase implements Serializable
      * @param CampaignId $campaignId
      * @param Coupon     $coupon
      * @param $reward
+     * @param string         $status
+     * @param \DateTime|null $activeSince
+     * @param \DateTime|null $activeTo
      */
-    public function __construct(\DateTime $purchaseAt, $costInPoints, CampaignId $campaignId, Coupon $coupon, $reward)
-    {
+    public function __construct(
+        \DateTime $purchaseAt,
+        $costInPoints,
+        CampaignId $campaignId,
+        Coupon $coupon,
+        $reward,
+        string $status = self::STATUS_ACTIVE,
+        ?\DateTime $activeSince = null,
+        ?\DateTime $activeTo = null
+    ) {
         $this->purchaseAt = $purchaseAt;
         $this->costInPoints = $costInPoints;
         $this->campaignId = $campaignId;
         $this->coupon = $coupon;
         $this->reward = $reward;
+        $this->status = $status;
+        $this->activeSince = $activeSince;
+        $this->activeTo = $activeTo;
     }
 
     /**
@@ -98,10 +131,29 @@ class CampaignPurchase implements Serializable
      */
     public static function deserialize(array $data)
     {
+        if (isset($data['activeSince'])) {
+            $activeSince = new \DateTime();
+            $activeSince->setTimestamp($data['activeSince']);
+        }
+
+        if (isset($data['activeTo'])) {
+            $activeTo = new \DateTime();
+            $activeTo->setTimestamp($data['activeTo']);
+        }
+
         $date = new \DateTime();
         $date->setTimestamp($data['purchaseAt']);
 
-        $purchase = new self($date, $data['costInPoints'], new CampaignId($data['campaignId']), new Coupon($data['coupon']), $data['reward']);
+        $purchase = new self(
+            $date,
+            $data['costInPoints'],
+            new CampaignId($data['campaignId']),
+            new Coupon($data['coupon']),
+            $data['reward'],
+            $data['status'] ?? self::STATUS_ACTIVE,
+            $activeSince ?? null,
+            $activeTo ?? null
+        );
         $purchase->setUsed($data['used']);
 
         return $purchase;
@@ -120,6 +172,9 @@ class CampaignPurchase implements Serializable
             'used' => $this->used,
             'reward' => $this->reward,
             'isNotCashback' => $this->reward == Campaign::REWARD_TYPE_CASHBACK ? 0 : 1,
+            'status' => $this->status,
+            'activeSince' => $this->activeSince ? $this->activeSince->getTimestamp() : null,
+            'activeTo' => $this->activeTo ? $this->activeTo->getTimestamp() : null,
         ];
     }
 
@@ -177,5 +232,37 @@ class CampaignPurchase implements Serializable
     public function setReward($reward)
     {
         $this->reward = $reward;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param string $status
+     */
+    public function setStatus(string $status): void
+    {
+        $this->status = $status;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getActiveSince(): ?\DateTime
+    {
+        return $this->activeSince;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getActiveTo(): ?\DateTime
+    {
+        return $this->activeTo;
     }
 }

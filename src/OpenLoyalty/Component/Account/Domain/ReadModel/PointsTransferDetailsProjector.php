@@ -7,7 +7,6 @@ namespace OpenLoyalty\Component\Account\Domain\ReadModel;
 
 use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\Repository;
-use OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManagerInterface;
 use OpenLoyalty\Component\Account\Domain\Account;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenCanceled;
@@ -55,11 +54,6 @@ class PointsTransferDetailsProjector extends Projector
     private $posRepository;
 
     /**
-     * @var GeneralSettingsManagerInterface
-     */
-    private $settingsManager;
-
-    /**
      * PointsTransferDetailsProjector constructor.
      *
      * @param Repository                   $repository
@@ -73,15 +67,13 @@ class PointsTransferDetailsProjector extends Projector
         Repository $accountRepository,
         Repository $customerRepository,
         TransactionDetailsRepository $transactionDetailsRepository,
-        PosRepository $posRepository,
-        GeneralSettingsManagerInterface $settingsManager
+        PosRepository $posRepository
     ) {
         $this->repository = $repository;
         $this->accountRepository = $accountRepository;
         $this->customerRepository = $customerRepository;
         $this->transactionDetailsRepository = $transactionDetailsRepository;
         $this->posRepository = $posRepository;
-        $this->settingsManager = $settingsManager;
     }
 
     protected function applyPointsWereAdded(PointsWereAdded $event)

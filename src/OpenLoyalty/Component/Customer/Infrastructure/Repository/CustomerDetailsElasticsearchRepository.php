@@ -10,6 +10,7 @@ use Elasticsearch\Common\Exceptions\Missing404Exception;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Exception\ToManyResultsException;
+use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Core\Infrastructure\Repository\OloyElasticsearchRepository;
@@ -178,28 +179,6 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
             $sort = null;
         }
 
-        $innerHits = [
-            'size' => $perPage,
-            'from' => ($page - 1) * $perPage,
-            'query' => [
-                'query' => [
-                    'bool' => [
-                        'must_not' => [
-                            [
-                                'term' => [
-                                    'campaignPurchases.reward' => Campaign::REWARD_TYPE_CASHBACK,
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        if ($sort) {
-            $innerHits['sort'] = $sort;
-        }
-
         if ($showCashback) {
             $innerHits = [
                 'size' => $perPage,
@@ -226,6 +205,10 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
                     ],
                 ],
             ];
+        }
+
+        if ($sort) {
+            $innerHits['sort'] = $sort;
         }
 
         $query = array(
@@ -307,6 +290,110 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         }
 
         return $result->getCampaignPurchases();
+    }
+
+    /**
+     * @return CustomerDetails[]
+     */
+    public function findCustomersWithPurchasesToActivate(): array
+    {
+        $query = array(
+            'index' => $this->index,
+            'body' => [
+                'query' => [
+                    'bool' => [
+                        'must' => [
+                            [
+                                'nested' => [
+                                    'path' => 'campaignPurchases',
+                                    'query' => [
+                                        'term' => [
+                                            'campaignPurchases.status' => CampaignPurchase::STATUS_INACTIVE,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'must_not' => [
+                            [
+                                'nested' => [
+                                    'path' => 'campaignPurchases',
+                                    'query' => [
+                                        'term' => [
+                                            'campaignPurchases.used' => true,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'filter' => [
+                            'nested' => [
+                                'path' => 'campaignPurchases',
+                                'query' => [
+                                    'exists' => [
+                                        'field' => 'campaignPurchases.activeSince',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        return $this->searchAndDeserializeHits($query);
+    }
+
+    /**
+     * @return CustomerDetails[]
+     */
+    public function findCustomersWithPurchasesToExpire(): array
+    {
+        $query = array(
+            'index' => $this->index,
+            'body' => [
+                'query' => [
+                    'bool' => [
+                        'must' => [
+                            [
+                                'nested' => [
+                                    'path' => 'campaignPurchases',
+                                    'query' => [
+                                        'term' => [
+                                            'campaignPurchases.status' => CampaignPurchase::STATUS_ACTIVE,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'must_not' => [
+                            [
+                                'nested' => [
+                                    'path' => 'campaignPurchases',
+                                    'query' => [
+                                        'term' => [
+                                            'campaignPurchases.used' => true,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'filter' => [
+                            'nested' => [
+                                'path' => 'campaignPurchases',
+                                'query' => [
+                                    'exists' => [
+                                        'field' => 'campaignPurchases.activeTo',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        return $this->searchAndDeserializeHits($query);
     }
 
     /**

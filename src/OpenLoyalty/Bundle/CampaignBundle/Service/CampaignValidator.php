@@ -140,7 +140,7 @@ class CampaignValidator
 
     public function isCampaignVisible(Campaign $campaign)
     {
-        if ($campaign->isCashback()) {
+        if ($campaign->isCashback() || $campaign->isPercentageDiscountCode()) {
             return false;
         }
 

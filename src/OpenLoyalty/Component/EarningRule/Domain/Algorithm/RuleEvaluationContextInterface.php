@@ -47,4 +47,9 @@ interface RuleEvaluationContextInterface
      * @return array
      */
     public function getProducts();
+
+    /**
+     * @return string|null
+     */
+    public function getCustomerId();
 }

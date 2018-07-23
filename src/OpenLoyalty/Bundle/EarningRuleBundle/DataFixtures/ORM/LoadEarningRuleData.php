@@ -10,6 +10,7 @@ use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
+use OpenLoyalty\Bundle\CampaignBundle\DataFixtures\ORM\LoadCampaignData;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
 use OpenLoyalty\Component\EarningRule\Domain\Command\CreateEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRule;
@@ -38,6 +39,7 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
     const EVENT_RULE_ID_WITH_POS = '00000000-0000-474c-b092-b0dd880c07e8';
     const EVENT_RULE_ID_FIRST_PURCHASE = '00000000-0000-474c-b092-b0dd990c07e3';
     const EVENT_RULE_ID_FIRST_PURCHASE_WITH_POST = '00000000-0000-474c-b092-b0dd770c07e3';
+    const INSTANT_REWARD_RULE_UUID = '4e7f7412-89bf-11e8-9a94-a6cf71072f73';
 
     /**
      * @var array
@@ -181,6 +183,16 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
                 new CreateEarningRule(new EarningRuleId($earningRuleId), $earningRule['type'], $ruleData)
             );
         }
+
+        $ruleData = array_merge($this->getMainData(), [
+            'rewardCampaignId' => LoadCampaignData::PERCENTAGE_COUPON_CAMPAIGN_ID,
+        ]);
+        $ruleData['name'] = 'Instant reward test rule';
+
+        $this->container->get('broadway.command_handling.command_bus')
+            ->dispatch(
+                new CreateEarningRule(new EarningRuleId(self::INSTANT_REWARD_RULE_UUID), EarningRule::TYPE_INSTANT_REWARD, $ruleData)
+            );
     }
 
     /**

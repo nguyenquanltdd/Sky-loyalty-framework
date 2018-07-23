@@ -16,6 +16,9 @@ class CampaignIdDoctrineType extends UuidType
 {
     const NAME = 'campaign_id';
 
+    /**
+     * {@inheritdoc}
+     */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         if (empty($value)) {
@@ -29,6 +32,9 @@ class CampaignIdDoctrineType extends UuidType
         return new CampaignId($value);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
         if (null == $value) {
@@ -42,6 +48,9 @@ class CampaignIdDoctrineType extends UuidType
         return;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return self::NAME;

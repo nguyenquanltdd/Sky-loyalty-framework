@@ -21,6 +21,7 @@ abstract class EarningRule
     const TYPE_MULTIPLY_FOR_PRODUCT = 'multiply_for_product';
     const TYPE_MULTIPLY_BY_PRODUCT_LABELS = 'multiply_by_product_labels';
     const TYPE_REFERRAL = 'referral';
+    const TYPE_INSTANT_REWARD = 'instant_reward';
 
     const TYPE_MAP = [
         self::TYPE_EVENT => EventEarningRule::class,
@@ -30,6 +31,7 @@ abstract class EarningRule
         self::TYPE_MULTIPLY_FOR_PRODUCT => MultiplyPointsForProductEarningRule::class,
         self::TYPE_MULTIPLY_BY_PRODUCT_LABELS => MultiplyPointsByProductLabelsEarningRule::class,
         self::TYPE_REFERRAL => ReferralEarningRule::class,
+        self::TYPE_INSTANT_REWARD => InstantRewardRule::class,
     ];
 
     /**

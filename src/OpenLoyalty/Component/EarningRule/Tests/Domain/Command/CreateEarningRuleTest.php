@@ -6,6 +6,7 @@ use OpenLoyalty\Component\EarningRule\Domain\Command\CreateEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleId;
 use OpenLoyalty\Component\EarningRule\Domain\EventEarningRule;
+use OpenLoyalty\Component\EarningRule\Domain\InstantRewardRule;
 use OpenLoyalty\Component\EarningRule\Domain\PointsEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\ProductPurchaseEarningRule;
 
@@ -96,5 +97,28 @@ class CreateEarningRuleTest extends EarningRuleCommandHandlerAbstract
         $rule = $this->inMemoryRepository->byId($ruleId);
         $this->assertNotNull($rule);
         $this->assertInstanceOf(ProductPurchaseEarningRule::class, $rule);
+    }
+
+    /**
+     * @test
+     */
+    public function it_creates_new_instant_reward_earning_rule()
+    {
+        $handler = $this->createCommandHandler();
+        $ruleId = new EarningRuleId('00000000-0000-0000-0000-000000000000');
+
+        $command = new CreateEarningRule($ruleId, EarningRule::TYPE_INSTANT_REWARD, [
+            'name' => 'test',
+            'description' => 'desc',
+            'startAt' => (new \DateTime())->getTimestamp(),
+            'endAt' => (new \DateTime('+1 month'))->getTimestamp(),
+            'skuIds' => ['123'],
+            'pointsAmount' => 100,
+            'rewardCampaignId' => '00000000-0000-0000-0000-000000000000',
+        ]);
+        $handler->handle($command);
+        $rule = $this->inMemoryRepository->byId($ruleId);
+        $this->assertNotNull($rule);
+        $this->assertInstanceOf(InstantRewardRule::class, $rule);
     }
 }

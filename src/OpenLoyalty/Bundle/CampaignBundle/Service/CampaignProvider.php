@@ -123,6 +123,16 @@ class CampaignProvider
 
         // todo: check campaign limits?
 
+        return $this->validForCustomers($campaign);
+    }
+
+    /**
+     * @param Campaign $campaign
+     *
+     * @return array
+     */
+    public function validForCustomers(Campaign $campaign): array
+    {
         $customers = [];
 
         foreach ($campaign->getSegments() as $segmentId) {

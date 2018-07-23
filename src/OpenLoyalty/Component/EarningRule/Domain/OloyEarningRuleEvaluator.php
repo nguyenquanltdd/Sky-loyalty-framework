@@ -131,7 +131,10 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
 
         foreach ($earningRules as $earningRule) {
             // ignore event rules (supported by call method)
-            if ($earningRule instanceof EventEarningRule || $earningRule instanceof CustomEventEarningRule || $earningRule instanceof ReferralEarningRule) {
+            if ($earningRule instanceof EventEarningRule
+                || $earningRule instanceof CustomEventEarningRule
+                || $earningRule instanceof ReferralEarningRule
+            ) {
                 continue;
             }
 
@@ -172,7 +175,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         $earningRulesItems = $this->getEarningRulesAlgorithms($transaction, $customerId);
 
         if (null === $context) {
-            $context = new RuleEvaluationContext($transaction);
+            $context = new RuleEvaluationContext($transaction, $customerId);
         }
 
         foreach ($earningRulesItems as $earningRuleItem) {
@@ -204,7 +207,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
             ];
         }
 
-        $context = new RuleEvaluationContext($transaction);
+        $context = new RuleEvaluationContext($transaction, $customerId);
         $points = $this->evaluateTransaction($transaction, $customerId, $context);
 
         return [

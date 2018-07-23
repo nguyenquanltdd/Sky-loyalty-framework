@@ -14,3 +14,7 @@ OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase:
       expose: true
     campaign:
       expose: true
+    activeSince:
+      expose: true
+    activeTo:
+      expose: true

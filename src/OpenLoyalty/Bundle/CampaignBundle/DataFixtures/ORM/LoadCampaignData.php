@@ -28,6 +28,7 @@ class LoadCampaignData extends ContainerAwareFixture
     const CAMPAIGN_ID = '000096cf-32a3-43bd-9034-4df343e5fd93';
     const CAMPAIGN2_ID = '000096cf-32a3-43bd-9034-4df343e5fd92';
     const CAMPAIGN3_ID = '000096cf-32a3-43bd-9034-4df343e5fd91';
+    const PERCENTAGE_COUPON_CAMPAIGN_ID = '000096cf-32a3-43bd-9034-4df343e5fd94';
 
     public function load(ObjectManager $manager)
     {
@@ -106,6 +107,28 @@ class LoadCampaignData extends ContainerAwareFixture
                         ->dispatch(
                             new CreateCampaign(new CampaignId(self::CAMPAIGN3_ID), $campaign->toArray())
                         );
+
+        $campaign = new Campaign();
+        $campaign->setReward(Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE);
+        $campaign->setName('Percentage discount code');
+        $campaign->setActive(true);
+        $campaign->setLabels([new Label('type', 'cashback')]);
+        $campaign->setLevels([new LevelId(LoadLevelData::LEVEL2_ID)]);
+        $campaign->setSegments([new SegmentId(LoadSegmentData::SEGMENT2_ID)]);
+        $campaignActivity = new CampaignActivity();
+        $campaignActivity->setAllTimeActive(true);
+        $campaign->setCampaignActivity($campaignActivity);
+        $campaignVisibility = new CampaignVisibility();
+        $campaignVisibility->setAllTimeVisible(true);
+        $campaign->setCampaignVisibility($campaignVisibility);
+        $campaign->setDaysInactive(28);
+        $campaign->setDaysValid(100);
+        $campaign->setTransactionPercentageValue(10);
+
+        $this->container->get('broadway.command_handling.command_bus')
+            ->dispatch(
+                new CreateCampaign(new CampaignId(self::PERCENTAGE_COUPON_CAMPAIGN_ID), $campaign->toArray())
+            );
 
         $this->loadRandomActiveCampaigns();
     }

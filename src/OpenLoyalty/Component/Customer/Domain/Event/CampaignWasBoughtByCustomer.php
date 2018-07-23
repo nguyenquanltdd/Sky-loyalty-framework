@@ -7,6 +7,7 @@ namespace OpenLoyalty\Component\Customer\Domain\Event;
 
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
+use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 
 /**
@@ -45,6 +46,21 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
     protected $reward;
 
     /**
+     * @var string
+     */
+    protected $status;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $activeSince;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $activeTo;
+
+    /**
      * CampaignWasBoughtByCustomer constructor.
      *
      * @param CustomerId $customerId
@@ -53,9 +69,21 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
      * @param $costInPoints
      * @param Coupon $coupon
      * @param $reward
+     * @param string         $status
+     * @param \DateTime|null $activeSince
+     * @param \DateTime|null $activeTo
      */
-    public function __construct(CustomerId $customerId, CampaignId $campaignId, $campaignName, $costInPoints, Coupon $coupon, $reward)
-    {
+    public function __construct(
+        CustomerId $customerId,
+        CampaignId $campaignId,
+        $campaignName,
+        $costInPoints,
+        Coupon $coupon,
+        $reward,
+        string $status = CampaignPurchase::STATUS_ACTIVE,
+        ?\DateTime $activeSince = null,
+        ?\DateTime $activeTo = null
+    ) {
         parent::__construct($customerId);
         $this->campaignId = $campaignId;
         $this->createdAt = new \DateTime();
@@ -64,6 +92,9 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
         $this->coupon = $coupon;
         $this->campaignName = $campaignName;
         $this->reward = $reward;
+        $this->status = $status;
+        $this->activeSince = $activeSince;
+        $this->activeTo = $activeTo;
     }
 
     /**
@@ -88,6 +119,9 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
                 'coupon' => $this->coupon->getCode(),
                 'campaignName' => $this->campaignName,
                 'reward' => $this->reward,
+                'status' => $this->status,
+                'activeSince' => $this->activeSince ? $this->activeSince->getTimestamp() : null,
+                'activeTo' => $this->activeTo ? $this->activeTo->getTimestamp() : null,
             ]
         );
     }
@@ -99,7 +133,28 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
      */
     public static function deserialize(array $data)
     {
-        $bought = new self(new CustomerId($data['customerId']), new CampaignId($data['campaignId']), $data['campaignName'], $data['costInPoints'], new Coupon($data['coupon']), $data['reward']);
+        if (isset($data['activeSince'])) {
+            $activeSince = new \DateTime();
+            $activeSince->setTimestamp($data['activeSince']);
+        }
+
+        if (isset($data['activeTo'])) {
+            $activeTo = new \DateTime();
+            $activeTo->setTimestamp($data['activeTo']);
+        }
+
+        $bought = new self(
+            new CustomerId($data['customerId']),
+            new CampaignId($data['campaignId']),
+            $data['campaignName'],
+            $data['costInPoints'],
+            new Coupon($data['coupon']),
+            $data['reward'],
+            $data['status'] ?? CampaignPurchase::STATUS_ACTIVE,
+            $activeSince ?? null,
+            $activeTo ?? null
+        );
+
         $date = new \DateTime();
         $date->setTimestamp($data['createdAt']);
         $bought->createdAt = $date;
@@ -145,5 +200,29 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
     public function getReward()
     {
         return $this->reward;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getActiveSince(): ?\DateTime
+    {
+        return $this->activeSince;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getActiveTo(): ?\DateTime
+    {
+        return $this->activeTo;
     }
 }

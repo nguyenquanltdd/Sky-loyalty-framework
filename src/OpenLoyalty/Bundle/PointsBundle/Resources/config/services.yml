@@ -24,9 +24,6 @@ services:
         $pointsTransferDetailsRepository: '@oloy.points.account.repository.points_transfer_details'
         $settingsManager: '@OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManager'
 
-  oloy.account.points_transfers_manager:
-      alias: OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager
-
   oloy.account.points_transfers.serialization_listener:
       class: OpenLoyalty\Bundle\PointsBundle\Event\Listener\PointsTransferSerializationListener
       arguments:

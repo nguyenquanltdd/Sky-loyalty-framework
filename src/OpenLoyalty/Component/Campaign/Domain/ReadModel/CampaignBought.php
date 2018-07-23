@@ -9,6 +9,7 @@ use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
+use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 
 /**
  * Class CampaignUsage.
@@ -86,22 +87,40 @@ class CampaignBought implements SerializableReadModel
     private $used;
 
     /**
+     * @var string
+     */
+    private $status;
+
+    /**
+     * @var \DateTime|null
+     */
+    private $activeSince;
+
+    /**
+     * @var \DateTime|null
+     */
+    private $activeTo;
+
+    /**
      * CampaignBought constructor.
      *
-     * @param CampaignId  $campaignId
-     * @param CustomerId  $customerId
-     * @param \DateTime   $purchasedAt
-     * @param Coupon      $coupon
-     * @param string      $campaignType
-     * @param string      $campaignName
-     * @param string|null $customerEmail
-     * @param string|null $customerPhone
-     * @param bool        $used
-     * @param string      $customerName
-     * @param string      $customerLastname
-     * @param int         $costInPoints
-     * @param int         $currentPointsAmount
-     * @param float|null  $taxPriceValue
+     * @param CampaignId     $campaignId
+     * @param CustomerId     $customerId
+     * @param \DateTime      $purchasedAt
+     * @param Coupon         $coupon
+     * @param string         $campaignType
+     * @param string         $campaignName
+     * @param string|null    $customerEmail
+     * @param string|null    $customerPhone
+     * @param string         $status
+     * @param bool           $used
+     * @param string         $customerName
+     * @param string         $customerLastname
+     * @param int            $costInPoints
+     * @param int            $currentPointsAmount
+     * @param float|null     $taxPriceValue
+     * @param \DateTime|null $activeSince
+     * @param \DateTime|null $activeTo
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -114,12 +133,15 @@ class CampaignBought implements SerializableReadModel
         string $campaignName,
         $customerEmail,
         $customerPhone,
-        ? bool $used = false,
-        ? string $customerName = null,
-        ? string $customerLastname = null,
-        ? int $costInPoints = null,
-        ? int $currentPointsAmount = null,
-        ? float $taxPriceValue = null
+        ?string $status = CampaignPurchase::STATUS_ACTIVE,
+        ?bool $used = false,
+        ?string $customerName = null,
+        ?string $customerLastname = null,
+        ?int $costInPoints = null,
+        ?int $currentPointsAmount = null,
+        ?float $taxPriceValue = null,
+        ?\DateTime $activeSince = null,
+        ?\DateTime $activeTo = null
     ) {
         $this->campaignId = $campaignId;
         $this->customerId = $customerId;
@@ -130,11 +152,14 @@ class CampaignBought implements SerializableReadModel
         $this->customerEmail = $customerEmail;
         $this->customerPhone = $customerPhone;
         $this->used = $used;
+        $this->status = $status;
         $this->customerName = $customerName;
         $this->customerLastname = $customerLastname;
         $this->costInPoints = $costInPoints;
         $this->currentPointsAmount = $currentPointsAmount;
         $this->taxPriceValue = $taxPriceValue;
+        $this->activeSince = $activeSince;
+        $this->activeTo = $activeTo;
     }
 
     /**
@@ -152,6 +177,16 @@ class CampaignBought implements SerializableReadModel
      */
     public static function deserialize(array $data)
     {
+        if (isset($data['activeSince'])) {
+            $activeSince = new \DateTime();
+            $activeSince->setTimestamp($data['activeSince']);
+        }
+
+        if (isset($data['activeTo'])) {
+            $activeTo = new \DateTime();
+            $activeTo->setTimestamp($data['activeTo']);
+        }
+
         return new self(
             new CampaignId($data['campaignId']),
             new CustomerId($data['customerId']),
@@ -161,12 +196,15 @@ class CampaignBought implements SerializableReadModel
             $data['campaignName'],
             $data['customerEmail'],
             $data['customerPhone'],
+            $data['status'] ?? CampaignPurchase::STATUS_ACTIVE,
             $data['used'],
             $data['customerName'] ?? null,
             $data['customerLastname'] ?? null,
             $data['costInPoints'] ?? null,
             $data['currentPointsAmount'] ?? null,
-            $data['taxPriceValue'] ?? null
+            $data['taxPriceValue'] ?? null,
+            $activeSince ?? null,
+            $activeTo ?? null
         );
     }
 
@@ -185,11 +223,14 @@ class CampaignBought implements SerializableReadModel
             'customerEmail' => $this->customerEmail,
             'customerPhone' => $this->customerPhone,
             'used' => $this->used,
+            'status' => $this->status,
             'customerName' => $this->customerName,
             'customerLastname' => $this->customerLastname,
             'costInPoints' => $this->costInPoints,
             'currentPointsAmount' => $this->currentPointsAmount,
             'taxPriceValue' => $this->taxPriceValue,
+            'activeSince' => $this->activeSince ? $this->activeSince->getTimestamp() : null,
+            'activeTo' => $this->activeTo ? $this->activeTo->getTimestamp() : null,
         ];
     }
 
@@ -211,5 +252,13 @@ class CampaignBought implements SerializableReadModel
     public function setUsed($used)
     {
         $this->used = $used;
+    }
+
+    /**
+     * @param string $status
+     */
+    public function setStatus(string $status): void
+    {
+        $this->status = $status;
     }
 }

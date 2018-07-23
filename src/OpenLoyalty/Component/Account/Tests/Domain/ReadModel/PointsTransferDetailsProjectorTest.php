@@ -6,7 +6,6 @@ use Broadway\ReadModel\InMemory\InMemoryRepository;
 use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\Repository;
 use Broadway\ReadModel\Testing\ProjectorScenarioTestCase;
-use OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManager;
 use OpenLoyalty\Component\Account\Domain\Account;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenCanceled;
@@ -61,13 +60,7 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $transactionRepo->method('find')->willReturn(null);
         $posRepo = $this->getMockBuilder(PosRepository::class)->getMock();
 
-        $generalSettings = $this->getMockBuilder(GeneralSettingsManager::class)->disableOriginalConstructor()->getMock();
-        $generalSettings
-            ->expects($this->any())
-            ->method('getPointsDaysActive')
-            ->willReturn($this->returnValue(GeneralSettingsManager::DEFAULT_POINTS_DURATION_VALIDITY_DAYS));
-
-        return new PointsTransferDetailsProjector($repository, $accountRepository, $customerRepository, $transactionRepo, $posRepo, $generalSettings);
+        return new PointsTransferDetailsProjector($repository, $accountRepository, $customerRepository, $transactionRepo, $posRepo);
     }
 
     /**
