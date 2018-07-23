@@ -64,7 +64,7 @@ abstract class PointsTransfer implements Serializable
      *
      * @param PointsTransferId $id
      * @param int              $value
-     * @param int              $validityDuration
+     * @param int|null         $validityDuration
      * @param \DateTime        $createdAt
      * @param bool             $canceled
      * @param string|null      $comment
@@ -75,7 +75,7 @@ abstract class PointsTransfer implements Serializable
     public function __construct(
         PointsTransferId $id,
         $value,
-        int $validityDuration,
+        ?int $validityDuration,
         \DateTime $createdAt = null,
         $canceled = false,
         $comment = null,

@@ -34,7 +34,7 @@ class AddPointsTransfer extends PointsTransfer
      *
      * @param PointsTransferId $id
      * @param int              $value
-     * @param int              $validityDuration
+     * @param int|null         $validityDuration
      * @param \DateTime        $createdAt
      * @param bool             $canceled
      * @param TransactionId    $transactionId
@@ -46,7 +46,7 @@ class AddPointsTransfer extends PointsTransfer
     public function __construct(
         PointsTransferId $id,
         $value,
-        int $validityDuration,
+        ?int $validityDuration = null,
         \DateTime $createdAt = null,
         $canceled = false,
         TransactionId $transactionId = null,
