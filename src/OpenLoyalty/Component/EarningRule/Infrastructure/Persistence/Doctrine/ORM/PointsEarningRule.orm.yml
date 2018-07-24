@@ -21,6 +21,14 @@ OpenLoyalty\Component\EarningRule\Domain\PointsEarningRule:
     excludedSKUs:
       type: skus_json_array
       column: excluded_skus
+    labelsInclusionType:
+      type: string
+      column: labels_inclusion_type
+      options:
+        default: 'exclude_labels'
     excludedLabels:
       type: labels_json_array
       column: excluded_labels
+    includedLabels:
+      type: labels_json_array
+      column: included_labels

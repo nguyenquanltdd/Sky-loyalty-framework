@@ -448,7 +448,14 @@ Definition
 | earningRule[minOrderValue]                     | request        |  Points will not be calculated for whole purchase if its value will be     |
 |                                                |                |  below value                                                               |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| earningRule[inclusionType]                     | request        |  Accepted values: [include_labels, exclude_labels]. If include_labels is   |
+|                                                |                |  set - includedLabels will be used.                                        |
+|                                                |                |  if exclude_labels is set - excludedLabels will be used.                   |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | earningRule[excludedLabels]                    | request        |  Points will not be calculated for the purchase of products with defined   |
+|                                                |                |  labels                                                                    |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| earningRule[includedLabels]                    | request        |  Points will be calculated only for the purchase of products with defined  |
 |                                                |                |  labels                                                                    |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | earningRule[multiplier]                        | request        |  Points gained for purchase product will be multiplied by this factor      |
@@ -489,6 +496,7 @@ Example
         -d "earningRule[excludeDeliveryCost]=true" \
         -d "earningRule[excludedSKUs]=123" \
         -d "earningRule[minOrderValue]=2" \
+        -d "earningRule[inclusionType]=exclude_labels" \
         -d "earningRule[excludedLabels]=1:1" \
         -d "earningRule[multiplier]=2" \
         -d "earningRule[skuIds][0]=SKU123"
@@ -579,9 +587,16 @@ Definition
 | earningRule[excludedSKUs]                      | request        |  Excluding products with the given SKU                                     |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | earningRule[minOrderValue]                     | request        |  Points will not be calculated for whole purchase if its value will be     |
-|                                                |                |  below value                                                              |
+|                                                |                |  below value                                                               |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| earningRule[inclusionType]                     | request        |  Accepted values: [include_labels, exclude_labels]. If include_labels is   |
+|                                                |                |  set - includedLabels will be used.                                        |
+|                                                |                |  if exclude_labels is set - excludedLabels will be used.                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | earningRule[excludedLabels]                    | request        |  Points will not be calculated for the purchase of products with defined   |
+|                                                |                |  labels                                                                    |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| earningRule[includedLabels]                    | request        |  Points will be calculated only for the purchase of products with defined  |
 |                                                |                |  labels                                                                    |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | earningRule[multiplier]                        | request        |  Points gained for purchase product will be multiplied by this factor      |
@@ -623,6 +638,7 @@ To fully update a earningRule with ``earningRule = 00000000-0000-474c-b092-b0dd8
         -d "earningRule[excludeDeliveryCost]=true" \
         -d "earningRule[excludedSKUs]=123" \
         -d "earningRule[minOrderValue]=2" \
+        -d "earningRule[inclusionType]=exlude_labels" \
         -d "earningRule[excludedLabels]=1:1" \
         -d "earningRule[multiplier]=2" \
         -d "earningRule[skuIds][0]=SKU123"

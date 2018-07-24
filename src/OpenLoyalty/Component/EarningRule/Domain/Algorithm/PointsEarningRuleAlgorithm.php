@@ -39,18 +39,16 @@ class PointsEarningRuleAlgorithm extends AbstractRuleAlgorithm
             return;
         }
 
-        if ($rule->isExcludeDeliveryCost()) {
-            $filteredItems = $context->getTransaction()->getFilteredItems(
-                $rule->getExcludedSKUs(),
-                $rule->getExcludedLabels(),
-                true
-            );
-        } else {
-            $filteredItems = $context->getTransaction()->getFilteredItems(
-                $rule->getExcludedSKUs(),
-                $rule->getExcludedLabels()
-            );
-        }
+        $inclusionType = $rule->getLabelsInclusionType();
+        $excludeLabels = PointsEarningRule::LABELS_INCLUSION_TYPE_EXCLUDE === $inclusionType ? $rule->getExcludedLabels() : [];
+        $includeLabels = PointsEarningRule::LABELS_INCLUSION_TYPE_INCLUDE === $inclusionType ? $rule->getIncludedLabels() : [];
+
+        $filteredItems = $context->getTransaction()->getFilteredItems(
+            $rule->getExcludedSKUs(),
+            $excludeLabels,
+            $includeLabels,
+            $rule->isExcludeDeliveryCost()
+        );
 
         foreach ($filteredItems as $item) {
             $context->addProductPoints(

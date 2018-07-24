@@ -14,6 +14,9 @@ use Assert\Assertion as Assert;
  */
 class PointsEarningRule extends EarningRule
 {
+    const LABELS_INCLUSION_TYPE_INCLUDE = 'include_labels';
+    const LABELS_INCLUSION_TYPE_EXCLUDE = 'exclude_labels';
+
     /**
      * @var float
      */
@@ -28,6 +31,16 @@ class PointsEarningRule extends EarningRule
      * @var Label[]
      */
     protected $excludedLabels = [];
+
+    /**
+     * @var Label[]
+     */
+    protected $includedLabels = [];
+
+    /**
+     * @var string
+     */
+    protected $labelsInclusionType = self::LABELS_INCLUSION_TYPE_EXCLUDE;
 
     /**
      * @var bool
@@ -62,6 +75,22 @@ class PointsEarningRule extends EarningRule
                 $labels[] = Label::deserialize($label);
             }
             $this->excludedLabels = $labels;
+        }
+        if (isset($earningRuleData['includedLabels'])) {
+            $labels = [];
+            foreach ($earningRuleData['includedLabels'] as $label) {
+                if ($label == null) {
+                    continue;
+                }
+                $labels[] = Label::deserialize($label);
+            }
+            $this->includedLabels = $labels;
+        }
+        if (isset($earningRuleData['labelsInclusionType'])) {
+            $inclusion = $earningRuleData['labelsInclusionType'];
+            $this->labelsInclusionType = $inclusion === self::LABELS_INCLUSION_TYPE_INCLUDE ?
+                self::LABELS_INCLUSION_TYPE_INCLUDE :
+                self::LABELS_INCLUSION_TYPE_EXCLUDE;
         }
         if (isset($earningRuleData['excludeDeliveryCost'])) {
             $this->excludeDeliveryCost = $earningRuleData['excludeDeliveryCost'];
@@ -106,6 +135,22 @@ class PointsEarningRule extends EarningRule
     /**
      * @return Label[]
      */
+    public function getIncludedLabels(): array
+    {
+        return $this->includedLabels;
+    }
+
+    /**
+     * @param Label[] $includedLabels
+     */
+    public function setIncludedLabels(array $includedLabels)
+    {
+        $this->includedLabels = $includedLabels;
+    }
+
+    /**
+     * @return Label[]
+     */
     public function getExcludedLabels()
     {
         return $this->excludedLabels;
@@ -133,6 +178,22 @@ class PointsEarningRule extends EarningRule
     public function setExcludeDeliveryCost($excludeDeliveryCost)
     {
         $this->excludeDeliveryCost = $excludeDeliveryCost;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLabelsInclusionType(): string
+    {
+        return $this->labelsInclusionType;
+    }
+
+    /**
+     * @param string $labelsInclusionType
+     */
+    public function setLabelsInclusionType(string $labelsInclusionType)
+    {
+        $this->labelsInclusionType = $labelsInclusionType;
     }
 
     /**

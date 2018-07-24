@@ -77,6 +77,7 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
     {
         $pointsEarningRule = new PointsEarningRule(new EarningRuleId('00000000-0000-0000-0000-000000000000'));
         $pointsEarningRule->setPointValue(4);
+        $pointsEarningRule->setLabelsInclusionType(PointsEarningRule::LABELS_INCLUSION_TYPE_EXCLUDE);
         $pointsEarningRule->setExcludedLabels([new Label('color', 'red')]);
         $pointsEarningRule->setExcludeDeliveryCost(false);
 
@@ -89,10 +90,29 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function it_returns_proper_value_for_given_transaction_and_points_earning_rule_and_included_label()
+    {
+        $pointsEarningRule = new PointsEarningRule(new EarningRuleId('00000000-0000-0000-0000-000000000000'));
+        $pointsEarningRule->setPointValue(4);
+        $pointsEarningRule->setLabelsInclusionType(PointsEarningRule::LABELS_INCLUSION_TYPE_INCLUDE);
+        $pointsEarningRule->setExcludedLabels([new Label('color', 'red')]); // should be skipped due to inclusion type
+        $pointsEarningRule->setIncludedLabels([new Label('color', 'red')]);
+        $pointsEarningRule->setExcludeDeliveryCost(false);
+
+        $evaluator = $this->getEarningRuleEvaluator([$pointsEarningRule]);
+
+        $points = $evaluator->evaluateTransaction(new TransactionId('00000000-0000-0000-0000-000000000000'), new CustomerId(static::USER_ID));
+        $this->assertEquals(48, $points);
+    }
+
+    /**
+     * @test
+     */
     public function it_returns_proper_value_for_given_transaction_and_points_earning_rule_without_delivery_costs()
     {
         $pointsEarningRule = new PointsEarningRule(new EarningRuleId('00000000-0000-0000-0000-000000000000'));
         $pointsEarningRule->setPointValue(4);
+        $pointsEarningRule->setLabelsInclusionType(PointsEarningRule::LABELS_INCLUSION_TYPE_EXCLUDE);
         $pointsEarningRule->setExcludedLabels([new Label('color', 'red')]);
         $pointsEarningRule->setExcludeDeliveryCost(true);
 
@@ -198,6 +218,7 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
         $pointsEarningRule = new PointsEarningRule(new EarningRuleId('00000000-0000-0000-0000-000000000000'));
         $pointsEarningRule->setPointValue(4);
         $pointsEarningRule->setExcludeDeliveryCost(false);
+        $pointsEarningRule->setLabelsInclusionType(PointsEarningRule::LABELS_INCLUSION_TYPE_EXCLUDE);
         $pointsEarningRule->setExcludedLabels([new Label('color', 'red')]);
 
         $evaluator = $this->getEarningRuleEvaluator([$pointsEarningRule]);

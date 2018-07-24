@@ -58,6 +58,17 @@ class TransactionDetailsTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, $transactionDetails->getGrossValueWithoutDeliveryCosts([], [new Label('1', '1')]));
     }
 
+    /**
+     * @test
+     */
+    public function it_correctly_calculates_values_and_take_additional_included_labels_into_account()
+    {
+        $transactionDetails = $this->getTransactionDetails();
+        $transactionDetails->setExcludedDeliverySKUs(['345']);
+        $this->assertEquals(100, $transactionDetails->getGrossValue([], [], [new Label('2', '2')]));
+        $this->assertEquals(0, $transactionDetails->getGrossValueWithoutDeliveryCosts([], [], [new Label('2', '2')]));
+    }
+
     protected function getTransactionDetails()
     {
         $transactionId = new TransactionId('00000000-0000-0000-0000-000000000000');

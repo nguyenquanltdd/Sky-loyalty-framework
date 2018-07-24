@@ -145,6 +145,7 @@ class EarningRuleControllerTest extends BaseApiTest
                     'type' => EarningRule::TYPE_POINTS,
                     'pointValue' => 1.1,
                     'excludedSKUs' => '123;222;111',
+                    'labelsInclusionType' => 'exclude_labels',
                     'excludedLabels' => 'asas:aaa;ccc:eee',
                     'excludeDeliveryCost' => true,
                     'minOrderValue' => 111.11,
@@ -162,7 +163,47 @@ class EarningRuleControllerTest extends BaseApiTest
         /** @var PointsEarningRule $rule */
         $rule = $this->repository->byId(new EarningRuleId($data['earningRuleId']));
         $this->assertInstanceOf(PointsEarningRule::class, $rule);
+        $this->assertEquals('exclude_labels', $rule->getLabelsInclusionType());
         $this->assertCount(2, $rule->getExcludedLabels());
+        $this->assertCount(3, $rule->getExcludedSKUs());
+        $this->assertEquals(111.11, $rule->getMinOrderValue());
+    }
+
+    /**
+     * @test
+     */
+    public function it_creates_points_rule_with_included_labels()
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/earningRule',
+            [
+                'earningRule' => array_merge($this->getMainData(), [
+                    'name' => 'General spending rule - 1.1',
+                    'type' => EarningRule::TYPE_POINTS,
+                    'pointValue' => 1.1,
+                    'excludedSKUs' => '123;222;111',
+                    'labelsInclusionType' => 'include_labels',
+                    'includedLabels' => 'asas:aaa;ccc:eee',
+                    'excludeDeliveryCost' => true,
+                    'minOrderValue' => 111.11,
+                    'levels' => [
+                        self::LEVEL_ID,
+                    ],
+                ]),
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('earningRuleId', $data);
+        /** @var PointsEarningRule $rule */
+        $rule = $this->repository->byId(new EarningRuleId($data['earningRuleId']));
+        $this->assertInstanceOf(PointsEarningRule::class, $rule);
+        $this->assertEquals('include_labels', $rule->getLabelsInclusionType());
+        $this->assertCount(2, $rule->getIncludedLabels());
         $this->assertCount(3, $rule->getExcludedSKUs());
         $this->assertEquals(111.11, $rule->getMinOrderValue());
     }

@@ -9,6 +9,7 @@ use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\PosDataTransformer
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRule;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\LevelsDataTransformer;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\SegmentsDataTransformer;
+use OpenLoyalty\Component\EarningRule\Domain\PointsEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\InstantRewardRule;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -135,7 +136,14 @@ class CreateEarningRuleFormType extends BaseEarningRuleFormType
                     'constraints' => [new NotBlank()],
                 ])
                 ->add('excludedSKUs', ExcludedSKUsFormType::class)
+                ->add('labelsInclusionType', ChoiceType::class, [
+                    'choices' => [
+                        PointsEarningRule::LABELS_INCLUSION_TYPE_EXCLUDE,
+                        PointsEarningRule::LABELS_INCLUSION_TYPE_INCLUDE,
+                    ],
+                ])
                 ->add('excludedLabels', ExcludedLabelsFormType::class)
+                ->add('includedLabels', IncludedLabelsFormType::class)
                 ->add('excludeDeliveryCost', CheckboxType::class, [
                     'required' => false,
                 ])

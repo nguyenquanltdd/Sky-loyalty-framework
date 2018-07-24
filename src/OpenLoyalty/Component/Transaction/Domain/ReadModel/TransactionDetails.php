@@ -442,11 +442,12 @@ class TransactionDetails implements SerializableReadModel
     /**
      * @param array $excludeSKUs
      * @param array $excludeLabels
+     * @param array $includeLabels
      * @param bool  $excludeDelivery
      *
      * @return Item[]
      */
-    public function getFilteredItems(array $excludeSKUs = [], array $excludeLabels = [], $excludeDelivery = false)
+    public function getFilteredItems(array $excludeSKUs = [], array $excludeLabels = [], array $includeLabels, $excludeDelivery = false)
     {
         //TODO: Refactor: should be one type of parameter
         /** @var string[] $excludeSKUs */
@@ -465,6 +466,13 @@ class TransactionDetails implements SerializableReadModel
             },
             $excludeLabels
         );
+        /** @var Label[] $includeLabels */
+        $includeLabels = array_map(
+            function ($label) {
+                return $label instanceof Label ? $label : new Label($label['key'], $label['value']);
+            },
+            $includeLabels
+        );
 
         if ($excludeDelivery && !empty($this->excludedDeliverySKUs)) {
             $excludeSKUs = array_merge($excludeSKUs, $this->excludedDeliverySKUs);
@@ -472,19 +480,38 @@ class TransactionDetails implements SerializableReadModel
 
         return array_filter(
             $this->items,
-            function (Item $item) use ($excludeSKUs, $excludeLabels) {
+            function (Item $item) use ($excludeSKUs, $excludeLabels, $includeLabels) {
                 // filter items by SKU
                 if (in_array($item->getSku()->getCode(), $excludeSKUs)) {
                     return false;
                 }
-                // filter items by Label
-                foreach ($excludeLabels as $excludeLabel) {
-                    foreach ($item->getLabels() as $label) {
-                        if ($label->getKey() == $excludeLabel->getKey()
-                            && $label->getValue() == $excludeLabel->getValue()
-                        ) {
-                            return false;
+
+                if (count($excludeLabels) > 0) {
+                    // filter items by Label
+                    foreach ($excludeLabels as $excludeLabel) {
+                        foreach ($item->getLabels() as $label) {
+                            if ($label->getKey() == $excludeLabel->getKey()
+                                && $label->getValue() == $excludeLabel->getValue()
+                            ) {
+                                return false;
+                            }
                         }
+                    }
+                } elseif (count($includeLabels) > 0) {
+                    // filter items by Label
+                    $productHasLabel = false;
+                    foreach ($includeLabels as $includeLabel) {
+                        foreach ($item->getLabels() as $label) {
+                            if ($label->getKey() === $includeLabel->getKey()
+                                && $label->getValue() === $includeLabel->getValue()
+                            ) {
+                                $productHasLabel = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!$productHasLabel) {
+                        return false;
                     }
                 }
 
@@ -496,6 +523,7 @@ class TransactionDetails implements SerializableReadModel
     /**
      * @param array $excludeAdditionalSKUs
      * @param array $excludeLabels
+     * @param array $includedLabels
      * @param bool  $excludeDelivery
      *
      * @return float
@@ -503,9 +531,10 @@ class TransactionDetails implements SerializableReadModel
     public function getGrossValue(
         array $excludeAdditionalSKUs = [],
         array $excludeLabels = [],
+        array $includedLabels = [],
         $excludeDelivery = false
     ) {
-        $filteredItems = $this->getFilteredItems($excludeAdditionalSKUs, $excludeLabels, $excludeDelivery);
+        $filteredItems = $this->getFilteredItems($excludeAdditionalSKUs, $excludeLabels, $includedLabels, $excludeDelivery);
 
         return array_reduce(
             $filteredItems,
@@ -522,9 +551,9 @@ class TransactionDetails implements SerializableReadModel
      *
      * @return float
      */
-    public function getGrossValueWithoutDeliveryCosts(array $excludeAdditionalSKUs = [], array $excludeLabels = [])
+    public function getGrossValueWithoutDeliveryCosts(array $excludeAdditionalSKUs = [], array $excludeLabels = [], array $includedLabels = [])
     {
-        return $this->getGrossValue($excludeAdditionalSKUs, $excludeLabels, true);
+        return $this->getGrossValue($excludeAdditionalSKUs, $excludeLabels, $includedLabels, true);
     }
 
     /**

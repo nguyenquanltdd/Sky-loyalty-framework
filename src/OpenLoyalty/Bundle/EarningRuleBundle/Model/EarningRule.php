@@ -10,6 +10,7 @@ use OpenLoyalty\Component\EarningRule\Domain\CampaignId;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRule as BaseEarningRule;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Core\Domain\Model\SKU;
+use OpenLoyalty\Component\EarningRule\Domain\PointsEarningRule;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\GroupSequenceProviderInterface;
@@ -62,6 +63,16 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
      * @var Label[]
      */
     protected $excludedLabels = [];
+
+    /**
+     * @var Label[]
+     */
+    protected $includedLabels = [];
+
+    /**
+     * @var string
+     */
+    protected $labelsInclusionType;
 
     /**
      * @var bool
@@ -128,6 +139,17 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
             $this->excludedLabels
         );
 
+        $inLabels = array_map(
+            function ($label) {
+                if (!$label instanceof Label) {
+                    return;
+                }
+
+                return $label->serialize();
+            },
+            $this->includedLabels
+        );
+
         $labels = array_map(
             function ($label) {
                 if (!$label instanceof Label) {
@@ -165,6 +187,8 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
             'pointsAmount' => $this->getPointsAmount(),
             'excludedSKUs' => $exSkus,
             'excludedLabels' => $exLabels,
+            'includedLabels' => $inLabels,
+            'labelsInclusionType' => $this->getLabelsInclusionType(),
             'excludeDeliveryCost' => $this->isExcludeDeliveryCost(),
             'minOrderValue' => $this->getMinOrderValue(),
             'skuIds' => $this->getSkuIds(),
@@ -263,6 +287,38 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
     public function setExcludedLabels($excludedLabels)
     {
         $this->excludedLabels = $excludedLabels;
+    }
+
+    /**
+     * @return Label[]
+     */
+    public function getIncludedLabels(): array
+    {
+        return $this->includedLabels;
+    }
+
+    /**
+     * @param Label[] $includedLabels
+     */
+    public function setIncludedLabels(array $includedLabels = [])
+    {
+        $this->includedLabels = $includedLabels;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getLabelsInclusionType(): ?string
+    {
+        return $this->labelsInclusionType;
+    }
+
+    /**
+     * @param string|null $labelsInclusionType
+     */
+    public function setLabelsInclusionType(string $labelsInclusionType = null)
+    {
+        $this->labelsInclusionType = $labelsInclusionType;
     }
 
     /**
@@ -463,12 +519,40 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
      * @param ExecutionContextInterface $context
      * @Assert\Callback()
      */
-    public function validateSegmentsAndLevels(ExecutionContextInterface $context)
+    public function validateSegmentsAndLevels(ExecutionContextInterface $context): void
     {
         if (count($this->levels) == 0 && count($this->segments) == 0) {
             $message = 'This collection should contain 1 element or more.';
             $context->buildViolation($message)->atPath('levels')->addViolation();
             $context->buildViolation($message)->atPath('segments')->addViolation();
+        }
+    }
+
+    /**
+     * @param ExecutionContextInterface $context
+     * @Assert\Callback(groups={"default"})
+     */
+    public function validateLabelsInclusionType(ExecutionContextInterface $context): void
+    {
+        if ($this->type !== EarningRule::TYPE_POINTS) {
+            return;
+        }
+
+        if (!$this->labelsInclusionType) {
+            $context->buildViolation((new Assert\NotBlank())->message)->atPath('labelsInclusionType')
+                ->addViolation();
+
+            return;
+        }
+
+        if (!in_array($this->labelsInclusionType, [
+            PointsEarningRule::LABELS_INCLUSION_TYPE_INCLUDE,
+            PointsEarningRule::LABELS_INCLUSION_TYPE_EXCLUDE,
+        ])) {
+            $context->buildViolation('earning_rule.points_rule.labels_inclusion_type.choice_not_valid')->atPath('labelsInclusionType')
+                ->addViolation();
+
+            return;
         }
     }
 
