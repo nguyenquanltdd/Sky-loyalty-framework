@@ -159,9 +159,7 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
 
         /** @var SplFileInfo $file */
         foreach ($finder as $file) {
-            if (!$fileSystem->has($file->getFilename())) {
-                $fileSystem->write($file->getFilename(), $file->getContents());
-            }
+            $fileSystem->write($file->getFilename(), $file->getContents(), true);
         }
     }
 

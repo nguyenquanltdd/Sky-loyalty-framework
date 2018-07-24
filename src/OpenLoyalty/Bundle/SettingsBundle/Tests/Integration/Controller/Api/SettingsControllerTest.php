@@ -404,7 +404,7 @@ class SettingsControllerTest extends BaseApiTest
 
         $this->assertArrayHasKey('translations', $data);
         $this->assertArrayHasKey('total', $data);
-        $this->assertEquals($data['total'], 1);
+        $this->assertEquals($data['total'], 2);
 
         $translation = reset($data['translations']);
         $this->assertArrayHasKey('name', $translation);
