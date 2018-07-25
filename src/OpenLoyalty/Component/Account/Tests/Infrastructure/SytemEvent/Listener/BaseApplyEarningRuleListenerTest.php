@@ -56,6 +56,7 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
             $value,
             $duration,
             null,
+            null,
             false,
             null,
             $comment

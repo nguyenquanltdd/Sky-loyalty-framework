@@ -13,6 +13,9 @@ use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetailsRepository;
  */
 class SellerDetailsElasticsearchRepository extends OloyElasticsearchRepository implements SellerDetailsRepository
 {
+    /**
+     * {@inheritdoc}
+     */
     public function findByParametersPaginated(
         array $params,
         $exact = true,
@@ -20,7 +23,7 @@ class SellerDetailsElasticsearchRepository extends OloyElasticsearchRepository i
         $perPage = 10,
         $sortField = null,
         $direction = 'DESC'
-    ) {
+    ): array {
         if ($page < 1) {
             $page = 1;
         }
@@ -70,7 +73,10 @@ class SellerDetailsElasticsearchRepository extends OloyElasticsearchRepository i
         return $this->paginatedQuery($query, ($page - 1) * $perPage, $perPage, $sort);
     }
 
-    public function countTotal(array $params = [], $exact = true)
+    /**
+     * {@inheritdoc}
+     */
+    public function countTotal(array $params = [], $exact = true): int
     {
         $filter = [];
         $filter[] = ['term' => ['deleted' => false]];

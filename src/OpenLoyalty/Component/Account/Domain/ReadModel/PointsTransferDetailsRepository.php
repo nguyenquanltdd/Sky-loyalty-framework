@@ -12,19 +12,61 @@ interface PointsTransferDetailsRepository extends Repository
     /**
      * @param int $timestamp
      *
-     * @return array
+     * @return PointsTransferDetails[]
      */
     public function findAllActiveAddingTransfersExpiredAfter(int $timestamp): array;
 
-    public function findAllActiveAddingTransfersCreatedAfter($timestamp);
+    /**
+     * @param \DateTime $dateTime
+     *
+     * @return PointsTransferDetails[]
+     */
+    public function findAllPendingAddingTransfersToUnlock(\DateTime $dateTime): array;
 
-    public function findAllPaginated($page = 1, $perPage = 10, $sortField = 'earningRuleId', $direction = 'DESC');
+    /**
+     * @param $timestamp
+     *
+     * @return PointsTransferDetails[]
+     */
+    public function findAllActiveAddingTransfersCreatedAfter($timestamp): array;
 
-    public function findByParametersPaginated(array $params, $exact = true, $page = 1, $perPage = 10, $sortField = null, $direction = 'DESC');
+    /**
+     * @param int    $page
+     * @param int    $perPage
+     * @param string $sortField
+     * @param string $direction
+     *
+     * @return PointsTransferDetails[]
+     */
+    public function findAllPaginated($page = 1, $perPage = 10, $sortField = 'earningRuleId', $direction = 'DESC'): array;
 
-    public function countTotal(array $params = [], $exact = true);
+    /**
+     * @param array  $params
+     * @param bool   $exact
+     * @param int    $page
+     * @param int    $perPage
+     * @param null   $sortField
+     * @param string $direction
+     *
+     * @return PointsTransferDetails[]
+     */
+    public function findByParametersPaginated(array $params, $exact = true, $page = 1, $perPage = 10, $sortField = null, $direction = 'DESC'): array;
 
-    public function countTotalSpendingTransfers();
+    /**
+     * @param array $params
+     * @param bool  $exact
+     *
+     * @return int
+     */
+    public function countTotal(array $params = [], $exact = true): int;
 
-    public function getTotalValueOfSpendingTransfers();
+    /**
+     * @return int
+     */
+    public function countTotalSpendingTransfers(): int;
+
+    /**
+     * @return float
+     */
+    public function getTotalValueOfSpendingTransfers(): float;
 }

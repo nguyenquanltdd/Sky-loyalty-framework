@@ -507,7 +507,9 @@
       "loyalty": {
         "active_points": "Aktywne punkty",
         "used_points": "Wykorzystane punkty",
-        "expired_points": "Nieaktywne punkty"
+        "expired_points": "Nieaktywne punkty",
+        "locked_points": "Zablokowane punkty",
+        "total_points": "Suma zgromadzonych punktów"
       },
       "table": {
         "date_and_time": "Data",
@@ -716,7 +718,9 @@
       "active_points": "Aktywne punkty",
       "expired_points": "Wygasłe punkty",
       "title": "Balans punktów",
-      "used_points": "Wykorzystane punkty"
+      "used_points": "Wykorzystane punkty",
+      "locked_points": "Zablokowane punkty",
+      "total_points": "Suma zgromadzonych punktów"
     },
     "loyalty_card_number_prompt": "",
     "male": "Mężczyzna",
@@ -1777,7 +1781,11 @@
     "marketing_vendor": "Wybierz integrację",
     "marketing_vendor_prompt": "",
     "points_days_active": "Punkty wygasną po upływie",
+    "points_days_locked": "Punkty będą zablokowane przez",
+    "all_time_not_locked": "Punkty nie są blokowane",
+    "all_time_not_locked_prompt": "",
     "points_days_active_prompt": "[dni]",
+    "points_days_locked_prompt": " [dni]",
     "points_plural": "Liczba mnoga punktów",
     "points_singular": "Liczba pojedyncza punktów",
     "posints_days_active_prompt": " [dni]",
@@ -1924,6 +1932,7 @@
     "pos_identifier": "POS",
     "revised_transaction": "Zwrócona transakcja",
     "revised_transaction_id": "Numer zwróconej transakcji",
+    "locked_until": "Punkty będą zablokowane do",
     "select_customer": "Wybierz klienta",
     "spend_points": "Wydaj punkty",
     "state": "Status",

@@ -68,7 +68,12 @@ interface GeneralSettingsManagerInterface
     /**
      * @return int
      */
-    public function getPointsDaysActive(): int;
+    public function getPointsDaysActive(): ?int;
+
+    /**
+     * @return int
+     */
+    public function getPointsDaysLocked(): ?int;
 
     /**
      * @return bool

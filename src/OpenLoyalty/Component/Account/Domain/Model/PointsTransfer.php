@@ -35,16 +35,6 @@ abstract class PointsTransfer implements Serializable
     protected $createdAt;
 
     /**
-     * @var \DateTime
-     */
-    protected $expiresAt;
-
-    /**
-     * @var int
-     */
-    protected $validityInDays;
-
-    /**
      * @var float
      */
     protected $value;
@@ -64,7 +54,6 @@ abstract class PointsTransfer implements Serializable
      *
      * @param PointsTransferId $id
      * @param int              $value
-     * @param int|null         $validityDuration
      * @param \DateTime        $createdAt
      * @param bool             $canceled
      * @param string|null      $comment
@@ -75,7 +64,6 @@ abstract class PointsTransfer implements Serializable
     public function __construct(
         PointsTransferId $id,
         $value,
-        ?int $validityDuration,
         \DateTime $createdAt = null,
         $canceled = false,
         $comment = null,
@@ -86,7 +74,6 @@ abstract class PointsTransfer implements Serializable
         Assert::numeric($value);
         Assert::min($value, 1);
 
-        $this->validityInDays = (int) $validityDuration;
         $this->value = $value;
 
         if ($createdAt) {
@@ -96,7 +83,6 @@ abstract class PointsTransfer implements Serializable
             $this->createdAt->setTimestamp(time());
         }
 
-        $this->expiresAt = $this->getExpiresAtDate($this->validityInDays);
         $this->comment = $comment;
         $this->canceled = $canceled;
         $this->issuer = $issuer;
@@ -119,14 +105,6 @@ abstract class PointsTransfer implements Serializable
     }
 
     /**
-     * @return \DateTime
-     */
-    public function getExpiresAt(): ? \DateTime
-    {
-        return $this->expiresAt;
-    }
-
-    /**
      * @return float
      */
     public function getValue(): float
@@ -143,8 +121,6 @@ abstract class PointsTransfer implements Serializable
             'id' => $this->id->__toString(),
             'value' => $this->value,
             'createdAt' => $this->createdAt->getTimestamp(),
-            'expiresAt' => $this->expiresAt->getTimestamp(),
-            'validityInDays' => $this->validityInDays,
             'canceled' => $this->canceled,
             'comment' => $this->comment,
             'issuer' => $this->issuer,
@@ -173,25 +149,5 @@ abstract class PointsTransfer implements Serializable
     public function getIssuer(): string
     {
         return $this->issuer;
-    }
-
-    /**
-     * @return int
-     */
-    public function getValidityInDays(): int
-    {
-        return $this->validityInDays;
-    }
-
-    /**
-     * @param int $days
-     *
-     * @return \DateTime
-     */
-    private function getExpiresAtDate(int $days): \DateTime
-    {
-        $startDate = clone $this->getCreatedAt();
-
-        return $startDate->modify(sprintf('+%u days', abs($days)));
     }
 }

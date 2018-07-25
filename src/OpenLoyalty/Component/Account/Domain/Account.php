@@ -9,10 +9,15 @@ use Broadway\EventSourcing\EventSourcedAggregateRoot;
 use OpenLoyalty\Component\Account\Domain\Event\AccountWasCreated;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenCanceled;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenExpired;
+use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenUnlocked;
 use OpenLoyalty\Component\Account\Domain\Event\PointsWereAdded;
 use OpenLoyalty\Component\Account\Domain\Event\PointsWereSpent;
-use OpenLoyalty\Component\Account\Domain\Exception\CannotBeCanceledException;
+use OpenLoyalty\Component\Account\Domain\Exception\PointsTransferCannotBeCanceledException;
 use OpenLoyalty\Component\Account\Domain\Exception\NotEnoughPointsException;
+use OpenLoyalty\Component\Account\Domain\Exception\PointsTransferAlreadyExistException;
+use OpenLoyalty\Component\Account\Domain\Exception\PointsTransferCannotBeExpiredException;
+use OpenLoyalty\Component\Account\Domain\Exception\PointsTransferCannotBeUnlockedException;
+use OpenLoyalty\Component\Account\Domain\Exception\PointsTransferNotExistException;
 use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Model\PointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Model\SpendPointsTransfer;
@@ -37,15 +42,26 @@ class Account extends EventSourcedAggregateRoot
      */
     protected $pointsTransfers = [];
 
+    /**
+     * @param PointsTransferId $pointsTransferId
+     *
+     * @return PointsTransfer|null
+     */
     public function getTransferById(PointsTransferId $pointsTransferId)
     {
         if (!isset($this->pointsTransfers[$pointsTransferId->__toString()])) {
-            return;
+            return null;
         }
 
         return $this->pointsTransfers[$pointsTransferId->__toString()];
     }
 
+    /**
+     * @param AccountId  $accountId
+     * @param CustomerId $customerId
+     *
+     * @return Account
+     */
     public static function createAccount(AccountId $accountId, CustomerId $customerId)
     {
         $account = new self();
@@ -54,6 +70,9 @@ class Account extends EventSourcedAggregateRoot
         return $account;
     }
 
+    /**
+     * @param AddPointsTransfer $pointsTransfer
+     */
     public function addPoints(AddPointsTransfer $pointsTransfer)
     {
         $this->apply(
@@ -61,6 +80,9 @@ class Account extends EventSourcedAggregateRoot
         );
     }
 
+    /**
+     * @param SpendPointsTransfer $pointsTransfer
+     */
     public function spendPoints(SpendPointsTransfer $pointsTransfer)
     {
         if (!$pointsTransfer->getTransactionId() && $this->getAvailableAmount() < $pointsTransfer->getValue()) {
@@ -71,6 +93,9 @@ class Account extends EventSourcedAggregateRoot
         );
     }
 
+    /**
+     * @param PointsTransferId $pointsTransferId
+     */
     public function cancelPointsTransfer(PointsTransferId $pointsTransferId)
     {
         $this->apply(
@@ -78,10 +103,23 @@ class Account extends EventSourcedAggregateRoot
         );
     }
 
+    /**
+     * @param PointsTransferId $pointsTransferId
+     */
     public function expirePointsTransfer(PointsTransferId $pointsTransferId)
     {
         $this->apply(
             new PointsTransferHasBeenExpired($this->id, $pointsTransferId)
+        );
+    }
+
+    /**
+     * @param PointsTransferId $pointsTransferId
+     */
+    public function unlockPointsTransfer(PointsTransferId $pointsTransferId)
+    {
+        $this->apply(
+            new PointsTransferHasBeenUnlocked($this->id, $pointsTransferId)
         );
     }
 
@@ -117,9 +155,12 @@ class Account extends EventSourcedAggregateRoot
         $this->pointsTransfers = $pointsTransfers;
     }
 
+    /**
+     * @return float
+     */
     public function getAvailableAmount()
     {
-        $sum = 0;
+        $sum = 0.0;
 
         foreach ($this->getAllActiveAddPointsTransfers() as $pointsTransfer) {
             $sum += $pointsTransfer->getAvailableAmount();
@@ -128,14 +169,21 @@ class Account extends EventSourcedAggregateRoot
         return $sum;
     }
 
+    /**
+     * @param PointsTransfer $pointsTransfer
+     */
     private function addPointsTransfer(PointsTransfer $pointsTransfer)
     {
         if (isset($this->pointsTransfers[$pointsTransfer->getId()->__toString()])) {
-            throw new \InvalidArgumentException($pointsTransfer->getId()->__toString().' already exists');
+            throw new PointsTransferAlreadyExistException($pointsTransfer->getId()->__toString());
         }
         $this->pointsTransfers[$pointsTransfer->getId()->__toString()] = $pointsTransfer;
     }
 
+    /**
+     * @param AccountId  $accountId
+     * @param CustomerId $customerId
+     */
     private function create(AccountId $accountId, CustomerId $customerId)
     {
         $this->apply(
@@ -143,17 +191,26 @@ class Account extends EventSourcedAggregateRoot
         );
     }
 
+    /**
+     * @param AccountWasCreated $event
+     */
     protected function applyAccountWasCreated(AccountWasCreated $event)
     {
         $this->id = $event->getAccountId();
         $this->customerId = $event->getCustomerId();
     }
 
+    /**
+     * @param PointsWereAdded $event
+     */
     protected function applyPointsWereAdded(PointsWereAdded $event)
     {
         $this->addPointsTransfer($event->getPointsTransfer());
     }
 
+    /**
+     * @param PointsWereSpent $event
+     */
     protected function applyPointsWereSpent(PointsWereSpent $event)
     {
         $this->addPointsTransfer($event->getPointsTransfer());
@@ -174,30 +231,55 @@ class Account extends EventSourcedAggregateRoot
         }
     }
 
+    /**
+     * @param PointsTransferHasBeenCanceled $event
+     *
+     * @throws PointsTransferCannotBeCanceledException
+     */
     protected function applyPointsTransferHasBeenCanceled(PointsTransferHasBeenCanceled $event)
     {
         $id = $event->getPointsTransferId();
         if (!isset($this->pointsTransfers[$id->__toString()])) {
-            throw new \InvalidArgumentException($id->__toString().' does not exists');
+            throw new PointsTransferNotExistException($id->__toString());
         }
         $transfer = $this->pointsTransfers[$id->__toString()];
         if (!$transfer instanceof AddPointsTransfer) {
-            throw new CannotBeCanceledException();
+            throw new PointsTransferCannotBeCanceledException($id->__toString());
         }
         $this->pointsTransfers[$id->__toString()] = $transfer->cancel();
     }
 
+    /**
+     * @param PointsTransferHasBeenExpired $event
+     */
     protected function applyPointsTransferHasBeenExpired(PointsTransferHasBeenExpired $event)
     {
         $id = $event->getPointsTransferId();
         if (!isset($this->pointsTransfers[$id->__toString()])) {
-            throw new \InvalidArgumentException($id->__toString().' does not exists');
+            throw new PointsTransferNotExistException($id->__toString());
         }
         $transfer = $this->pointsTransfers[$id->__toString()];
         if (!$transfer instanceof AddPointsTransfer) {
-            throw new \InvalidArgumentException($id->__toString().' cannot be expired');
+            throw new PointsTransferCannotBeExpiredException($id->__toString());
         }
         $this->pointsTransfers[$id->__toString()] = $transfer->expire();
+    }
+
+    /**
+     * @param PointsTransferHasBeenUnlocked $event
+     */
+    protected function applyPointsTransferHasBeenUnlocked(PointsTransferHasBeenUnlocked $event)
+    {
+        $id = $event->getPointsTransferId();
+        if (!isset($this->pointsTransfers[$id->__toString()])) {
+            throw new PointsTransferNotExistException($id->__toString());
+        }
+        $transfer = $this->pointsTransfers[$id->__toString()];
+        if (!$transfer instanceof AddPointsTransfer) {
+            throw new PointsTransferCannotBeUnlockedException($id->__toString());
+        }
+
+        $transfer->unlock();
     }
 
     /**
@@ -210,7 +292,7 @@ class Account extends EventSourcedAggregateRoot
             if (!$pointsTransfer instanceof AddPointsTransfer) {
                 continue;
             }
-            if ($pointsTransfer->isExpired() || $pointsTransfer->getAvailableAmount() == 0 || $pointsTransfer->isCanceled()) {
+            if ($pointsTransfer->isLocked() || $pointsTransfer->isExpired() || $pointsTransfer->getAvailableAmount() == 0 || $pointsTransfer->isCanceled()) {
                 continue;
             }
 
@@ -242,6 +324,26 @@ class Account extends EventSourcedAggregateRoot
                 continue;
             }
             if ($pointsTransfer->getCreatedAt() >= $date) {
+                continue;
+            }
+
+            $transfers[] = $pointsTransfer;
+        }
+
+        return $transfers;
+    }
+
+    /**
+     * @return Model\AddPointsTransfer[]
+     */
+    protected function getAllNotLockedPointsTransfers()
+    {
+        $transfers = [];
+        foreach ($this->pointsTransfers as $pointsTransfer) {
+            if (!$pointsTransfer instanceof AddPointsTransfer) {
+                continue;
+            }
+            if (!$pointsTransfer->isLocked()) {
                 continue;
             }
 

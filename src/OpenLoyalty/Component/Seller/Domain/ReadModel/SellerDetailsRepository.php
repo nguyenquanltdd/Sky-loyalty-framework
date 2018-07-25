@@ -9,9 +9,31 @@ use Broadway\ReadModel\Repository;
 
 interface SellerDetailsRepository extends Repository
 {
-    public function findByParameters(array $params, $exact = true);
+    /**
+     * @param array $params
+     * @param bool  $exact
+     *
+     * @return SellerDetails[]
+     */
+    public function findByParameters(array $params, $exact = true): array;
 
-    public function findByParametersPaginated(array $params, $exact = true, $page = 1, $perPage = 10, $sortField = null, $direction = 'DESC');
+    /**
+     * @param array  $params
+     * @param bool   $exact
+     * @param int    $page
+     * @param int    $perPage
+     * @param null   $sortField
+     * @param string $direction
+     *
+     * @return SellerDetails[]
+     */
+    public function findByParametersPaginated(array $params, $exact = true, $page = 1, $perPage = 10, $sortField = null, $direction = 'DESC'): array;
 
-    public function countTotal(array $params = [], $exact = true);
+    /**
+     * @param array $params
+     * @param bool  $exact
+     *
+     * @return int
+     */
+    public function countTotal(array $params = [], $exact = true): int;
 }

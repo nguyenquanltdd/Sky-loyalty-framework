@@ -317,6 +317,7 @@ Exemplary Response
         ],
         "returns": true,
         "pointsDaysActive": 30,
+        "pointsDaysLocked": 3,
         "currency": "eur",
         "timezone": "Europe/Warsaw",
         "programName": "Loyalty Program",
@@ -396,6 +397,10 @@ Definition
 | settings[pointsDaysActive]                            | request        | Required when allTimeActive=false. Points will expire after [days]         |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | settings[allTimeActive]                               | request        | *(optional)* Is always active: true/false                                  |
++-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| settings[pointsDaysLocked]                            | request        | Points will be locked for N days. Required when allTimeNotLocked=false.    |
++-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| settings[allTimeNotLocked]                            | request        | *(optional)* Is always not locked: true/false                              |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | settings[customersIdentificationPriority][]           | request        | TO DO                                                                      |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+

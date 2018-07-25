@@ -139,6 +139,7 @@ class SettingsControllerTest extends BaseApiTest
             'programPointsPlural' => 'Points',
             'tierAssignType' => TierAssignTypeProvider::TYPE_TRANSACTIONS,
             'allTimeActive' => true,
+            'allTimeNotLocked' => true,
             'excludedLevelCategories' => [],
             'customersIdentificationPriority' => [],
             'returns' => false,

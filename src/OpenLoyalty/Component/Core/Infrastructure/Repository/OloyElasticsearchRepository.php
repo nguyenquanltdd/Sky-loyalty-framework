@@ -193,7 +193,7 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
         $perPage = 10,
         $sortField = null,
         $direction = 'DESC'
-    ) {
+    ): array {
         if ($page < 1) {
             $page = 1;
         }
@@ -341,7 +341,7 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
      *
      * @return array
      */
-    public function findByParameters(array $params, $exact = true)
+    public function findByParameters(array $params, $exact = true): array
     {
         $filter = [];
         foreach ($params as $key => $value) {
@@ -425,7 +425,7 @@ class OloyElasticsearchRepository extends ElasticSearchRepository implements Rep
      *
      * @return int
      */
-    public function countTotal(array $params = [], $exact = true)
+    public function countTotal(array $params = [], $exact = true): int
     {
         $filter = [];
         foreach ($params as $key => $value) {

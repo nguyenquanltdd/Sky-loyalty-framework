@@ -9,6 +9,7 @@ use Broadway\CommandHandling\CommandBus;
 use OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManager;
 use OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManagerInterface;
 use OpenLoyalty\Component\Account\Domain\Command\ExpirePointsTransfer;
+use OpenLoyalty\Component\Account\Domain\Command\UnlockPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Model\PointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
@@ -78,6 +79,37 @@ class PointsTransfersManager implements PointsTransferManagerInterface
     }
 
     /**
+     * @param callable $transferUnlockedCallback
+     *
+     * @return array
+     */
+    public function unlockTransfers(callable $transferUnlockedCallback = null): array
+    {
+        $transfers = $this->pointsTransferDetailsRepository->findAllPendingAddingTransfersToUnlock(new \DateTime());
+
+        /** @var PointsTransferDetails $transfer */
+        foreach ($transfers as $transfer) {
+            $this->commandBus->dispatch(new UnlockPointsTransfer(
+                $transfer->getAccountId(),
+                $transfer->getPointsTransferId()
+            ));
+            if (null !== $transferUnlockedCallback) {
+                $transferUnlockedCallback($transfer);
+            }
+        }
+
+        return $transfers;
+    }
+
+    /**
+     * @return int
+     */
+    public function countTransfersToUnlock(): int
+    {
+        return count($this->pointsTransferDetailsRepository->findAllPendingAddingTransfersToUnlock(new \DateTime()));
+    }
+
+    /**
      * @param PointsTransferId   $id
      * @param int                $value
      * @param \DateTime|null     $createdAt
@@ -98,11 +130,13 @@ class PointsTransfersManager implements PointsTransferManagerInterface
         $issuer = PointsTransfer::ISSUER_SYSTEM
     ): AddPointsTransfer {
         $validtyDaysDuration = $this->settingsManager->getPointsDaysActive();
+        $lockDaysDuration = $this->settingsManager->getPointsDaysLocked();
 
         return new AddPointsTransfer(
             $id,
             $value,
             $validtyDaysDuration,
+            $lockDaysDuration,
             $createdAt,
             $canceled,
             $transactionId,

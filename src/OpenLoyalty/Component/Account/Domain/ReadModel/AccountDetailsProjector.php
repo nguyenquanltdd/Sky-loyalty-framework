@@ -12,9 +12,13 @@ use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Event\AccountWasCreated;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenCanceled;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenExpired;
+use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenUnlocked;
 use OpenLoyalty\Component\Account\Domain\Event\PointsWereAdded;
 use OpenLoyalty\Component\Account\Domain\Event\PointsWereSpent;
-use OpenLoyalty\Component\Account\Domain\Exception\CannotBeCanceledException;
+use OpenLoyalty\Component\Account\Domain\Exception\PointsTransferCannotBeCanceledException;
+use OpenLoyalty\Component\Account\Domain\Exception\PointsTransferCannotBeExpiredException;
+use OpenLoyalty\Component\Account\Domain\Exception\PointsTransferCannotBeUnlockedException;
+use OpenLoyalty\Component\Account\Domain\Exception\PointsTransferNotExistException;
 use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\CustomerId;
 
@@ -85,10 +89,10 @@ class AccountDetailsProjector extends Projector
         $id = $event->getPointsTransferId();
         $transfer = $readModel->getTransfer($id);
         if (!$transfer) {
-            throw new \InvalidArgumentException($id->__toString().' does not exists');
+            throw new PointsTransferNotExistException($id->__toString());
         }
         if (!$transfer instanceof AddPointsTransfer) {
-            throw new CannotBeCanceledException();
+            throw new PointsTransferCannotBeCanceledException($id->__toString());
         }
         $readModel->setTransfer($transfer->cancel());
         $this->repository->save($readModel);
@@ -101,12 +105,28 @@ class AccountDetailsProjector extends Projector
         $id = $event->getPointsTransferId();
         $transfer = $readModel->getTransfer($id);
         if (!$transfer) {
-            throw new \InvalidArgumentException($id->__toString().' does not exists');
+            throw new PointsTransferNotExistException($id->__toString());
         }
         if (!$transfer instanceof AddPointsTransfer) {
-            throw new \InvalidArgumentException($id->__toString().' cannot be expired');
+            throw new PointsTransferCannotBeExpiredException($id->__toString());
         }
         $readModel->setTransfer($transfer->expire());
+        $this->repository->save($readModel);
+    }
+
+    protected function applyPointsTransferHasBeenUnlocked(PointsTransferHasBeenUnlocked $event)
+    {
+        /** @var AccountDetails $readModel */
+        $readModel = $this->getReadModel($event->getAccountId());
+        $id = $event->getPointsTransferId();
+        $transfer = $readModel->getTransfer($id);
+        if (!$transfer) {
+            throw new PointsTransferNotExistException($id->__toString());
+        }
+        if (!$transfer instanceof AddPointsTransfer) {
+            throw new PointsTransferCannotBeUnlockedException($id->__toString());
+        }
+        $readModel->setTransfer($transfer->unlock());
         $this->repository->save($readModel);
     }
 

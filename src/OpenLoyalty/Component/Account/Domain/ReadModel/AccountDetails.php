@@ -129,7 +129,7 @@ class AccountDetails implements SerializableReadModel
             if (!$pointsTransfer instanceof AddPointsTransfer) {
                 continue;
             }
-            if ($pointsTransfer->isExpired() || $pointsTransfer->getAvailableAmount() == 0 || $pointsTransfer->isCanceled()) {
+            if ($pointsTransfer->isLocked() || $pointsTransfer->isExpired() || $pointsTransfer->getAvailableAmount() == 0 || $pointsTransfer->isCanceled()) {
                 continue;
             }
 
@@ -154,6 +154,28 @@ class AccountDetails implements SerializableReadModel
                 continue;
             }
             if (!$pointsTransfer->isExpired()) {
+                continue;
+            }
+
+            $transfers[$pointsTransfer->getCreatedAt()->getTimestamp()] = $pointsTransfer;
+        }
+
+        ksort($transfers);
+
+        return $transfers;
+    }
+
+    /**
+     * @return AddPointsTransfer[]
+     */
+    public function getAllLockedAddPointsTransfers(): array
+    {
+        $transfers = [];
+        foreach ($this->transfers as $pointsTransfer) {
+            if (!$pointsTransfer instanceof AddPointsTransfer) {
+                continue;
+            }
+            if (!$pointsTransfer->isLocked()) {
                 continue;
             }
 
@@ -209,9 +231,26 @@ class AccountDetails implements SerializableReadModel
         return $sum;
     }
 
-    public function getUsedAmount()
+    /**
+     * @return float
+     */
+    public function getEarnedAmount(): float
     {
-        $sum = 0;
+        $sum = 0.0;
+
+        foreach ($this->getAllAddPointsTransfers() as $pointsTransfer) {
+            $sum += $pointsTransfer->getValue();
+        }
+
+        return $sum;
+    }
+
+    /**
+     * @return float
+     */
+    public function getUsedAmount(): float
+    {
+        $sum = 0.0;
 
         foreach ($this->getAllAddPointsTransfers() as $pointsTransfer) {
             $sum += $pointsTransfer->getUsedAmount();
@@ -220,11 +259,28 @@ class AccountDetails implements SerializableReadModel
         return $sum;
     }
 
-    public function getExpiredAmount()
+    /**
+     * @return float
+     */
+    public function getExpiredAmount(): float
     {
-        $sum = 0;
+        $sum = 0.0;
 
         foreach ($this->getAllExpiredAddPointsTransfers() as $pointsTransfer) {
+            $sum += $pointsTransfer->getAvailableAmount();
+        }
+
+        return $sum;
+    }
+
+    /**
+     * @return float
+     */
+    public function getLockedAmount(): float
+    {
+        $sum = 0.0;
+
+        foreach ($this->getAllLockedAddPointsTransfers() as $pointsTransfer) {
             $sum += $pointsTransfer->getAvailableAmount();
         }
 

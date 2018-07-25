@@ -31,6 +31,7 @@ class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleListenerTe
             10,
             0,
             null,
+            null,
             false,
             null,
             'Test comment'
@@ -57,6 +58,7 @@ class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleListenerTe
             new PointsTransferId($this->uuid),
             10,
             0,
+            null,
             null,
             false,
             null,
@@ -85,6 +87,7 @@ class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleListenerTe
             10,
             0,
             null,
+            null,
             false,
             null,
             'Test comment'
@@ -111,6 +114,7 @@ class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleListenerTe
             new PointsTransferId($this->uuid),
             100,
             0,
+            null,
             null,
             false,
             null,

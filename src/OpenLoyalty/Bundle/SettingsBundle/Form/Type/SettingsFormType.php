@@ -10,6 +10,7 @@ use OpenLoyalty\Bundle\ActivationCodeBundle\Service\SmsSender;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\ActivationMethodSubscriber;
 use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\AllTimeActiveSubscriber;
+use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\AllTimeNotLockedSubscriber;
 use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\ExcludeDeliveryCostSubscriber;
 use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\MarketingVendorSubscriber;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
@@ -202,6 +203,14 @@ class SettingsFormType extends AbstractType
                     'empty_data' => '',
                 ])
         );
+        $builder->add($builder->create('allTimeNotLocked', SettingsCheckboxType::class, ['required' => false]));
+        $builder->add(
+            $builder
+                ->create('pointsDaysLocked', SettingsIntegerType::class, [
+                    'required' => false,
+                    'empty_data' => '',
+                ])
+        );
         $builder->add($builder->create('allTimeActive', SettingsCheckboxType::class, ['required' => false]));
         $builder->add($builder->create('webhooks', SettingsCheckboxType::class, ['required' => false]));
         $builder->add(
@@ -281,6 +290,7 @@ class SettingsFormType extends AbstractType
         );
 
         $builder->addEventSubscriber(new AllTimeActiveSubscriber());
+        $builder->addEventSubscriber(new AllTimeNotLockedSubscriber());
         $builder->addEventSubscriber(new ExcludeDeliveryCostSubscriber());
         $builder->addEventSubscriber(new ActivationMethodSubscriber($this->smsGateway));
         $builder->addEventSubscriber(new MarketingVendorSubscriber($this->marketingVendors));

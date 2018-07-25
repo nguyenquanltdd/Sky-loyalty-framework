@@ -22,7 +22,7 @@ use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
 use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
 use OpenLoyalty\Component\Account\Domain\Command\CancelPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Command\SpendPoints;
-use OpenLoyalty\Component\Account\Domain\Exception\CannotBeCanceledException;
+use OpenLoyalty\Component\Account\Domain\Exception\PointsTransferCannotBeCanceledException;
 use OpenLoyalty\Component\Account\Domain\Exception\NotEnoughPointsException;
 use OpenLoyalty\Component\Account\Domain\Model\PointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Model\SpendPointsTransfer;
@@ -230,7 +230,9 @@ class PointsTransferController extends FOSRestController
             try {
                 $commandBus->dispatch($command);
             } catch (NotEnoughPointsException $e) {
-                $form->get('points')->addError(new FormError('not enough points'));
+                $form->get('points')->addError(new FormError(
+                    $this->get('translator')->trans($e->getMessageKey(), $e->getMessageParams())
+                ));
 
                 return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
             }
@@ -272,7 +274,7 @@ class PointsTransferController extends FOSRestController
                     $transfer->getPointsTransferId()
                 )
             );
-        } catch (CannotBeCanceledException $e) {
+        } catch (PointsTransferCannotBeCanceledException $e) {
             return $this->view([
                 'error' => 'this transfer cannot be canceled',
             ], Response::HTTP_BAD_REQUEST);

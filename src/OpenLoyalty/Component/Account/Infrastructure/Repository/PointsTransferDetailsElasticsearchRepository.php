@@ -49,7 +49,44 @@ class PointsTransferDetailsElasticsearchRepository extends OloyElasticsearchRepo
         return $this->query($query);
     }
 
-    public function findAllActiveAddingTransfersCreatedAfter($timestamp)
+    /**
+     * {@inheritdoc}
+     */
+    public function findAllPendingAddingTransfersToUnlock(\DateTime $dateTime): array
+    {
+        $filter = [];
+        $filter[] = [
+            'term' => [
+                'state' => PointsTransferDetails::STATE_PENDING,
+            ],
+        ];
+        $filter[] = [
+            'term' => [
+                'type' => PointsTransferDetails::TYPE_ADDING,
+            ],
+        ];
+
+        $filter[] = [
+            'range' => [
+                'lockedUntil' => [
+                    'lt' => $dateTime->getTimestamp(),
+                ],
+            ],
+        ];
+
+        $query = [
+            'bool' => [
+                'must' => $filter,
+            ],
+        ];
+
+        return $this->query($query);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findAllActiveAddingTransfersCreatedAfter($timestamp): array
     {
         $filter = [];
         $filter[] = ['term' => [
@@ -74,7 +111,10 @@ class PointsTransferDetailsElasticsearchRepository extends OloyElasticsearchRepo
         return $this->query($query);
     }
 
-    public function findAllPaginated($page = 1, $perPage = 10, $sortField = 'pointsTransferId', $direction = 'DESC')
+    /**
+     * {@inheritdoc}
+     */
+    public function findAllPaginated($page = 1, $perPage = 10, $sortField = 'pointsTransferId', $direction = 'DESC'): array
     {
         $query = array(
             'filtered' => array(
@@ -87,12 +127,18 @@ class PointsTransferDetailsElasticsearchRepository extends OloyElasticsearchRepo
         return $this->query($query);
     }
 
-    public function countTotalSpendingTransfers()
+    /**
+     * {@inheritdoc}
+     */
+    public function countTotalSpendingTransfers(): int
     {
         return $this->countTotal(['type' => 'spending']);
     }
 
-    public function getTotalValueOfSpendingTransfers()
+    /**
+     * {@inheritdoc}
+     */
+    public function getTotalValueOfSpendingTransfers(): float
     {
         $query = array(
             'index' => $this->index,

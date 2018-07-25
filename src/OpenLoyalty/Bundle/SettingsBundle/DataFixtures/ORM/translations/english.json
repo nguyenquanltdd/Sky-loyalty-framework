@@ -508,7 +508,9 @@
       "loyalty": {
         "active_points": "Active points",
         "used_points": "Used points",
-        "expired_points": "Expired points"
+        "expired_points": "Expired points",
+        "locked_points": "Locked points",
+        "total_points": "Total earned points"
       },
       "table": {
         "date_and_time": "Date and time",
@@ -716,7 +718,9 @@
       "active_points": "Active points",
       "expired_points": "Expired points",
       "title": "Loyalty",
-      "used_points": "Used points"
+      "used_points": "Used points",
+      "locked_points": "Locked points",
+      "total_points": "Total earned points"
     },
     "loyalty_card_number_prompt": "",
     "male": "Male",
@@ -1116,6 +1120,8 @@
     "active_points": "Active points",
     "current_discount": "Current discount",
     "expired_points": "Expired points",
+    "locked_points": "Locked points",
+    "total_points": "Total earned points",
     "my_profile": "My profile",
     "my_profile_edit": "Edit profile",
     "next_level_discount": "Next level discount",
@@ -1767,7 +1773,11 @@
     "marketing_vendor": "Choose integration",
     "marketing_vendor_prompt": "",
     "points_days_active": "Points will expire after",
+    "points_days_locked": "Points will be locked for",
+    "all_time_not_locked_prompt": "",
+    "all_time_not_locked": "Points are never locked",
     "points_days_active_prompt": " [days]",
+    "points_days_locked_prompt": " [days]",
     "points_plural": "Points plural",
     "points_singular": "Points singular",
     "priority": "Priority",
@@ -1913,6 +1923,7 @@
     "pos_identifier": "POS",
     "revised_transaction": "Revised transaction",
     "revised_transaction_id": "Revised transaction id",
+    "locked_until": "Points will be locked until",
     "select_customer": "Select customer",
     "spend_points": "Spend points",
     "state": "State",

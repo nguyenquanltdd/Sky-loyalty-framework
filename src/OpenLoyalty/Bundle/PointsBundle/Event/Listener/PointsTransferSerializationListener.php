@@ -7,7 +7,6 @@ namespace OpenLoyalty\Bundle\PointsBundle\Event\Listener;
 
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
-use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;
 use OpenLoyalty\Component\Pos\Domain\Pos;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
@@ -19,11 +18,6 @@ use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsReposit
  */
 class PointsTransferSerializationListener implements EventSubscriberInterface
 {
-    /**
-     * @var SettingsManager
-     */
-    protected $settingsManager;
-
     /**
      * @var PosRepository
      */
@@ -37,20 +31,20 @@ class PointsTransferSerializationListener implements EventSubscriberInterface
     /**
      * PointsTransferSerializationListener constructor.
      *
-     * @param SettingsManager              $settingsManager
      * @param PosRepository                $posRepository
      * @param TransactionDetailsRepository $transactionDetailsRepository
      */
     public function __construct(
-        SettingsManager $settingsManager,
         PosRepository $posRepository,
         TransactionDetailsRepository $transactionDetailsRepository
     ) {
-        $this->settingsManager = $settingsManager;
         $this->posRepository = $posRepository;
         $this->transactionDetailsRepository = $transactionDetailsRepository;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getSubscribedEvents()
     {
         return array(
@@ -58,6 +52,9 @@ class PointsTransferSerializationListener implements EventSubscriberInterface
         );
     }
 
+    /**
+     * @param ObjectEvent $event
+     */
     public function onPostSerialize(ObjectEvent $event)
     {
         /** @var PointsTransferDetails $transfer */
@@ -70,21 +67,6 @@ class PointsTransferSerializationListener implements EventSubscriberInterface
                     $event->getVisitor()->addData('posName', $pos->getName());
                 }
             }
-            $allTime = $this->settingsManager->getSettingByKey('allTimeActive');
-
-            if (!is_null($allTime) && $allTime->getValue()) {
-                return;
-            }
-            $days = $this->settingsManager->getSettingByKey('pointsDaysActive');
-            if (!$days || !$days->getValue()) {
-                $days = 60;
-            } else {
-                $days = $days->getValue();
-            }
-            $created = clone $transfer->getCreatedAt();
-            $created->modify('+'.$days.' days');
-
-            $event->getVisitor()->addData('expireAt', $created->format(\DateTime::ISO8601));
 
             if ($transfer->getTransactionId()) {
                 $transaction = $this->transactionDetailsRepository->find($transfer->getTransactionId()->__toString());

@@ -25,9 +25,24 @@ class AddPointsTransfer extends PointsTransfer
     protected $expired = false;
 
     /**
+     * @var \DateTime
+     */
+    protected $expiresAt;
+
+    /**
      * @var TransactionId
      */
     protected $transactionId;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $lockedUntil;
+
+    /**
+     * @var bool
+     */
+    protected $locked = false;
 
     /**
      * PointsTransfer constructor.
@@ -35,6 +50,7 @@ class AddPointsTransfer extends PointsTransfer
      * @param PointsTransferId $id
      * @param int              $value
      * @param int|null         $validityDuration
+     * @param int|null         $lockDaysDuration
      * @param \DateTime        $createdAt
      * @param bool             $canceled
      * @param TransactionId    $transactionId
@@ -46,16 +62,24 @@ class AddPointsTransfer extends PointsTransfer
     public function __construct(
         PointsTransferId $id,
         $value,
-        ?int $validityDuration = null,
+        int $validityDuration = null,
+        int $lockDaysDuration = null,
         \DateTime $createdAt = null,
         $canceled = false,
         TransactionId $transactionId = null,
         $comment = null,
         $issuer = self::ISSUER_SYSTEM
     ) {
-        parent::__construct($id, $value, $validityDuration, $createdAt, $canceled, $comment, $issuer);
+        parent::__construct($id, $value, $createdAt, $canceled, $comment, $issuer);
         $this->availableAmount = $value;
         $this->transactionId = $transactionId;
+        $this->lockedUntil = null !== $lockDaysDuration ? (clone $this->createdAt)->modify(sprintf('+%d days', $lockDaysDuration)) : null;
+        if (null !== $this->lockedUntil) {
+            $this->locked = true;
+        }
+        if (null !== $validityDuration) {
+            $this->expiresAt = $this->getExpiresAtDate($validityDuration);
+        }
     }
 
     /**
@@ -76,14 +100,25 @@ class AddPointsTransfer extends PointsTransfer
         $transfer = new self(
             new PointsTransferId($data['id']),
             $data['value'],
-            $data['validityInDays'] ?? null,
+            null,
+            null,
             $createdAt,
             isset($data['canceled']) ? $data['canceled'] : false
         );
 
-        if (isset($data['validityInDays'])) {
-            $transfer->validityInDays = $data['validityInDays'];
+        if (isset($data['expiresAt'])) {
+            $expiresAt = new \DateTime();
+            $expiresAt->setTimestamp($data['expiresAt']);
+            $transfer->expiresAt = $expiresAt;
         }
+
+        if (isset($data['lockedUntil'])) {
+            $lockedUntil = new \DateTime();
+            $lockedUntil->setTimestamp($data['lockedUntil']);
+            $transfer->lockUntil($lockedUntil);
+        }
+
+        $transfer->locked = isset($data['locked']) ? $data['locked'] : false;
 
         if (isset($data['availableAmount'])) {
             Assert::numeric($data['availableAmount']);
@@ -110,6 +145,14 @@ class AddPointsTransfer extends PointsTransfer
     }
 
     /**
+     * @return \DateTime
+     */
+    public function getExpiresAt(): ? \DateTime
+    {
+        return $this->expiresAt;
+    }
+
+    /**
      * @return array
      */
     public function serialize(): array
@@ -120,6 +163,9 @@ class AddPointsTransfer extends PointsTransfer
                 'availableAmount' => $this->availableAmount,
                 'expired' => $this->expired,
                 'transactionId' => $this->transactionId ? $this->transactionId->__toString() : null,
+                'lockedUntil' => null !== $this->lockedUntil ? $this->lockedUntil->getTimestamp() : null,
+                'locked' => $this->locked,
+                'expiresAt' => $this->expiresAt->getTimestamp(),
             ]
         );
     }
@@ -180,9 +226,25 @@ class AddPointsTransfer extends PointsTransfer
     /**
      * @return bool
      */
-    public function isExpired()
+    public function isExpired(): bool
     {
         return $this->expired;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isLocked(): bool
+    {
+        return $this->locked;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getLockedUntil(): ?\DateTime
+    {
+        return $this->lockedUntil;
     }
 
     /**
@@ -191,5 +253,35 @@ class AddPointsTransfer extends PointsTransfer
     public function getTransactionId()
     {
         return $this->transactionId;
+    }
+
+    /**
+     * @param \DateTime|null $date
+     */
+    public function lockUntil(\DateTime $date = null)
+    {
+        $this->lockedUntil = $date;
+    }
+
+    /**
+     * Unlock points.
+     */
+    public function unlock()
+    {
+        $this->locked = false;
+
+        return $this;
+    }
+
+    /**
+     * @param int $days
+     *
+     * @return \DateTime
+     */
+    private function getExpiresAtDate(int $days): \DateTime
+    {
+        $startDate = null !== $this->lockedUntil ? clone $this->lockedUntil : clone $this->getCreatedAt();
+
+        return $startDate->modify(sprintf('+%u days', abs($days)));
     }
 }

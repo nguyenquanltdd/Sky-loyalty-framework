@@ -129,8 +129,10 @@ class CustomerStatusProvider
 
         if ($accountDetails) {
             $status->setPoints($accountDetails->getAvailableAmount());
+            $status->setTotalEarnedPoints($accountDetails->getEarnedAmount());
             $status->setUsedPoints($accountDetails->getUsedAmount());
             $status->setExpiredPoints($accountDetails->getExpiredAmount());
+            $status->setLockedPoints($accountDetails->getLockedAmount());
 
             $status->setTransactionsAmount($customer->getTransactionsAmount());
             $status->setTransactionsAmountWithoutDeliveryCosts($customer->getTransactionsAmountWithoutDeliveryCosts());

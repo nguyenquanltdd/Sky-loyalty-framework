@@ -27,6 +27,7 @@ class ApplyEarningRuleToTransactionListenerTest extends BaseApplyEarningRuleList
             10,
             0,
             null,
+            null,
             false,
             new \OpenLoyalty\Component\Account\Domain\TransactionId($this->uuid)
         ));

@@ -30,19 +30,29 @@ class CustomerStatus
     protected $customerId;
 
     /**
-     * @var int
+     * @var float
      */
     protected $points = 0;
 
     /**
-     * @var int
+     * @var float
+     */
+    protected $totalEarnedPoints = 0;
+
+    /**
+     * @var float
      */
     protected $usedPoints = 0;
 
     /**
-     * @var int
+     * @var float
      */
     protected $expiredPoints = 0;
+
+    /**
+     * @var float
+     */
+    protected $lockedPoints = 0;
 
     /**
      * @var string
@@ -133,19 +143,27 @@ class CustomerStatus
     }
 
     /**
-     * @return int
+     * @return float
      */
-    public function getPoints()
+    public function getPoints(): float
     {
         return $this->points;
     }
 
     /**
-     * @param int $points
+     * @param float $points
      */
-    public function setPoints($points)
+    public function setPoints(float $points)
     {
         $this->points = $points;
+    }
+
+    /**
+     * @param float $totalEarnedPoints
+     */
+    public function setTotalEarnedPoints(float $totalEarnedPoints)
+    {
+        $this->totalEarnedPoints = $totalEarnedPoints;
     }
 
     /**
@@ -248,7 +266,7 @@ class CustomerStatus
     /**
      * @return float
      */
-    public function getPointsToNextLevel()
+    public function getPointsToNextLevel(): float
     {
         return $this->pointsToNextLevel;
     }
@@ -256,41 +274,49 @@ class CustomerStatus
     /**
      * @param float $pointsToNextLevel
      */
-    public function setPointsToNextLevel($pointsToNextLevel)
+    public function setPointsToNextLevel(float $pointsToNextLevel)
     {
         $this->pointsToNextLevel = $pointsToNextLevel;
     }
 
     /**
-     * @return int
+     * @return float
      */
-    public function getUsedPoints()
+    public function getUsedPoints(): float
     {
         return $this->usedPoints;
     }
 
     /**
-     * @param int $usedPoints
+     * @param float $usedPoints
      */
-    public function setUsedPoints($usedPoints)
+    public function setUsedPoints(float $usedPoints)
     {
         $this->usedPoints = $usedPoints;
     }
 
     /**
-     * @return int
+     * @return float
      */
-    public function getExpiredPoints()
+    public function getExpiredPoints(): float
     {
         return $this->expiredPoints;
     }
 
     /**
-     * @param int $expiredPoints
+     * @param float $expiredPoints
      */
-    public function setExpiredPoints($expiredPoints)
+    public function setExpiredPoints(float $expiredPoints)
     {
         $this->expiredPoints = $expiredPoints;
+    }
+
+    /**
+     * @param float $lockedPoints
+     */
+    public function setLockedPoints(float $lockedPoints)
+    {
+        $this->lockedPoints = $lockedPoints;
     }
 
     /**

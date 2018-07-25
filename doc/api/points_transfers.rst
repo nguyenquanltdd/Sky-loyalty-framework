@@ -31,7 +31,8 @@ Definition
 +-------------------------------------+----------------+---------------------------------------------------+
 | customerId                          | query          | *(optional)* Customer ID                          |
 +-------------------------------------+----------------+---------------------------------------------------+
-| state                               | query          | *(optional)* Possible values: active, expired     |
+| state                               | query          | *(optional)* Possible values: active, expired,    |
+|                                     |                | pending                                           |
 +-------------------------------------+----------------+---------------------------------------------------+
 | type                                | query          | *(optional)* Possible values: adding, spending    |
 +-------------------------------------+----------------+---------------------------------------------------+
@@ -121,6 +122,22 @@ Exemplary Response
           "issuer": "admin",
           "expireAt": "2018-03-25T08:24:46+0200"
         }
+        {
+          "pointsTransferId": "bd96e322-ae75-4d38-a99b-65a68dada55a",
+          "accountId": "e0491d59-1c76-4c24-b2c3-db48a9e07e10",
+          "customerId": "b9af6a8c-9cc5-4924-989c-e4af614ab2a3",
+          "customerFirstName": "alina",
+          "customerLastName": "test",
+          "customerEmail": "qwe@test.pl",
+          "customerPhone": "1212121212",
+          "createdAt": "2018-02-20T08:24:46+0100",
+          "value": 55,
+          "state": "pending",
+          "type": "adding",
+          "issuer": "admin",
+          "expireAt": "2018-03-25T08:24:46+0200",
+          "lockedUntil": "2018-03-22T08:24:46+0200"
+        }
       ],
       "total": 3
     }
@@ -153,7 +170,8 @@ Definition
 +-------------------------------------+----------------+---------------------------------------------------+
 | customerId                          | query          | *(optional)* Customer ID                          |
 +-------------------------------------+----------------+---------------------------------------------------+
-| state                               | query          | *(optional)* Possible values: active, expired     |
+| state                               | query          | *(optional)* Possible values: active, expired,    |
+|                                     |                | pending                                           |
 +-------------------------------------+----------------+---------------------------------------------------+
 | type                                | query          | *(optional)* Possible values: adding, spending    |
 +-------------------------------------+----------------+---------------------------------------------------+

@@ -52,6 +52,7 @@ class SettingsFormTypeTest extends TypeTestCase
     protected $booleanEntries = [
         'returns' => true,
         'allTimeActive' => true,
+        'allTimeNotLocked' => true,
         'excludeDeliveryCostsFromTierAssignment' => true,
         'webhooks' => false,
     ];
@@ -220,6 +221,10 @@ class SettingsFormTypeTest extends TypeTestCase
 
         $entry = new StringSettingEntry('marketingVendorsValue');
         $entry->setValue('');
+        $object->addEntry($entry);
+
+        $entry = new IntegerSettingEntry('pointsDaysLocked');
+        $entry->setValue(null);
         $object->addEntry($entry);
 
         $formData = array_merge($this->stringEntries, $this->booleanEntries, $this->integerEntries, [

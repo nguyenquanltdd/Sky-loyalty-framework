@@ -22,6 +22,7 @@ class PointsTransferDetails implements SerializableReadModel
     const STATE_CANCELED = 'canceled';
     const STATE_ACTIVE = 'active';
     const STATE_EXPIRED = 'expired';
+    const STATE_PENDING = 'pending';
 
     /**
      * @var PointsTransferId
@@ -74,6 +75,11 @@ class PointsTransferDetails implements SerializableReadModel
     protected $expiresAt;
 
     /**
+     * @var \DateTime|null
+     */
+    protected $lockedUntil;
+
+    /**
      * @var float
      */
     protected $value = 0;
@@ -110,15 +116,12 @@ class PointsTransferDetails implements SerializableReadModel
 
     protected $issuer = PointsTransfer::ISSUER_SYSTEM;
 
-    protected $validityInDays;
-
     /**
      * PointsTransfer constructor.
      *
      * @param PointsTransferId $pointsTransferId
      * @param CustomerId       $customerId
      * @param AccountId        $accountId
-     * @param int              $validityInDays
      */
     public function __construct(
         PointsTransferId $pointsTransferId,
@@ -163,7 +166,6 @@ class PointsTransferDetails implements SerializableReadModel
         $newTransfer->state = $data['state'];
         $newTransfer->type = $data['type'];
 
-        $newTransfer->validityInDays = $data['validityInDays'];
         if (isset($data['posIdentifier'])) {
             $newTransfer->posIdentifier = $data['posIdentifier'];
         }
@@ -174,6 +176,14 @@ class PointsTransferDetails implements SerializableReadModel
         $expiresAt = new \DateTime();
         $expiresAt->setTimestamp($data['expiresAt']);
         $newTransfer->expiresAt = $expiresAt;
+
+        if (isset($data['lockedUntil'])) {
+            $lockedUntil = new \DateTime();
+            $lockedUntil->setTimestamp($data['lockedUntil']);
+            $newTransfer->lockedUntil = $lockedUntil;
+        } else {
+            $newTransfer->lockedUntil = null;
+        }
 
         if (isset($data['transactionId'])) {
             $newTransfer->transactionId = new TransactionId($data['transactionId']);
@@ -209,7 +219,7 @@ class PointsTransferDetails implements SerializableReadModel
             'type' => $this->type,
             'createdAt' => $this->createdAt->getTimestamp(),
             'expiresAt' => $this->expiresAt->getTimestamp(),
-            'validityInDays' => $this->validityInDays,
+            'lockedUntil' => null !== $this->lockedUntil ? $this->lockedUntil->getTimestamp() : null,
             'state' => $this->state,
             'transactionId' => $this->transactionId ? $this->transactionId->__toString() : null,
             'revisedTransactionId' => $this->revisedTransactionId ? $this->revisedTransactionId->__toString() : null,
@@ -286,6 +296,14 @@ class PointsTransferDetails implements SerializableReadModel
     }
 
     /**
+     * @return \DateTime|null
+     */
+    public function getLockedUntil(): ?\DateTime
+    {
+        return $this->lockedUntil;
+    }
+
+    /**
      * @return float
      */
     public function getValue()
@@ -358,11 +376,11 @@ class PointsTransferDetails implements SerializableReadModel
     }
 
     /**
-     * @param int $days
+     * @param \DateTime|null $lockedUntil
      */
-    public function setValidityInDays(int $days)
+    public function setLockedUntil(?\DateTime $lockedUntil): void
     {
-        $this->validityInDays = $days;
+        $this->lockedUntil = $lockedUntil;
     }
 
     /**

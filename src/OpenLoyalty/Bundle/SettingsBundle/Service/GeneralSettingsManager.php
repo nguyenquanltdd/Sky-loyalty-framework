@@ -16,9 +16,28 @@ class GeneralSettingsManager extends DoctrineSettingsManager implements GeneralS
     /**
      * @return int
      */
-    public function getPointsDaysActive(): int
+    public function getPointsDaysActive(): ?int
     {
+        $allTimeActive = $this->getSettingByKey('allTimeActive');
+        if ($allTimeActive && $allTimeActive->getValue()) {
+            return null;
+        }
+
         return $this->getSettingByKey('pointsDaysActive')->getValue() ?? self::DEFAULT_POINTS_DURATION_VALIDITY_DAYS;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPointsDaysLocked(): ?int
+    {
+        $allTimeNotLocked = $this->getSettingByKey('allTimeNotLocked');
+        if ($allTimeNotLocked && $allTimeNotLocked->getValue()) {
+            return null;
+        }
+        $pointsDaysLocked = $this->getSettingByKey('pointsDaysLocked');
+
+        return $pointsDaysLocked ? $pointsDaysLocked->getValue() : null;
     }
 
     /**

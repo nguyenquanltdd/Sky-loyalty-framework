@@ -63,3 +63,9 @@ knp_gaufrette:
     uploads:
       adapter: "public_uploads"
       alias: public_uploads
+
+services:
+  OpenLoyalty\Bundle\CoreBundle\EventSubscriber\TranslatableExceptionSubscriber:
+    arguments: ['@translator']
+    tags:
+      - { name: kernel.event_subscriber }

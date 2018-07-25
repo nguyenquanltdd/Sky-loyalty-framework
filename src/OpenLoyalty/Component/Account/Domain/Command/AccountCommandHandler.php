@@ -40,6 +40,9 @@ class AccountCommandHandler extends SimpleCommandHandler
         $this->eventDispatcher = $eventDispatcher;
     }
 
+    /**
+     * @param CreateAccount $command
+     */
     public function handleCreateAccount(CreateAccount $command)
     {
         /** @var Account $account */
@@ -53,13 +56,17 @@ class AccountCommandHandler extends SimpleCommandHandler
         }
     }
 
+    /**
+     * @param AddPoints $command
+     */
     public function handleAddPoints(AddPoints $command)
     {
         /** @var Account $account */
         $account = $this->repository->load($command->getAccountId());
-        $account->addPoints($command->getPointsTransfer());
+        $pointsTransfer = $command->getPointsTransfer();
+        $account->addPoints($pointsTransfer);
         $this->repository->save($account);
-        if ($this->eventDispatcher) {
+        if ($this->eventDispatcher && !$pointsTransfer->isLocked()) {
             $this->eventDispatcher->dispatch(
                 AccountSystemEvents::AVAILABLE_POINTS_AMOUNT_CHANGED,
                 [
@@ -67,7 +74,7 @@ class AccountCommandHandler extends SimpleCommandHandler
                         $account->getId(),
                         $account->getCustomerId(),
                         $account->getAvailableAmount(),
-                        $command->getPointsTransfer()->getValue(),
+                        $pointsTransfer->getValue(),
                         AvailablePointsAmountChangedSystemEvent::OPERATION_TYPE_ADD
                     ),
                 ]
@@ -75,6 +82,9 @@ class AccountCommandHandler extends SimpleCommandHandler
         }
     }
 
+    /**
+     * @param SpendPoints $command
+     */
     public function handleSpendPoints(SpendPoints $command)
     {
         /** @var Account $account */
@@ -96,6 +106,9 @@ class AccountCommandHandler extends SimpleCommandHandler
         }
     }
 
+    /**
+     * @param CancelPointsTransfer $command
+     */
     public function handleCancelPointsTransfer(CancelPointsTransfer $command)
     {
         /** @var Account $account */
@@ -116,11 +129,37 @@ class AccountCommandHandler extends SimpleCommandHandler
         }
     }
 
+    /**
+     * @param ExpirePointsTransfer $command
+     */
     public function handleExpirePointsTransfer(ExpirePointsTransfer $command)
     {
         /** @var Account $account */
         $account = $this->repository->load($command->getAccountId());
         $account->expirePointsTransfer($command->getPointsTransferId());
+        $this->repository->save($account);
+        if ($this->eventDispatcher) {
+            $this->eventDispatcher->dispatch(
+                AccountSystemEvents::AVAILABLE_POINTS_AMOUNT_CHANGED,
+                [
+                    new AvailablePointsAmountChangedSystemEvent(
+                        $account->getId(),
+                        $account->getCustomerId(),
+                        $account->getAvailableAmount()
+                    ),
+                ]
+            );
+        }
+    }
+
+    /**
+     * @param UnlockPointsTransfer $command
+     */
+    public function handleUnlockPointsTransfer(UnlockPointsTransfer $command)
+    {
+        /** @var Account $account */
+        $account = $this->repository->load($command->getAccountId());
+        $account->unlockPointsTransfer($command->getPointsTransferId());
         $this->repository->save($account);
         if ($this->eventDispatcher) {
             $this->eventDispatcher->dispatch(

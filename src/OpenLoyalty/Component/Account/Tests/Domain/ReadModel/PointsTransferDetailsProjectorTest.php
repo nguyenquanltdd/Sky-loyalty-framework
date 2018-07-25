@@ -10,6 +10,7 @@ use OpenLoyalty\Component\Account\Domain\Account;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenCanceled;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenExpired;
+use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenUnlocked;
 use OpenLoyalty\Component\Account\Domain\Event\PointsWereAdded;
 use OpenLoyalty\Component\Account\Domain\Event\PointsWereSpent;
 use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
@@ -71,17 +72,70 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $pointsId = new PointsTransferId('00000000-0000-0000-0000-000000000000');
         $expectedReadModel = $this->createReadModel($pointsId);
         $expectedReadModel->setValue(100.0);
+        $expectedReadModel->setState('pending');
+        $expectedReadModel->setType('adding');
+
+        $date = new \DateTime();
+        $expectedReadModel->setCreatedAt($date);
+        $lockedUntil = clone $date;
+        $lockedUntil->modify('+2 days');
+        $expiresAtDate = clone $lockedUntil;
+        $expectedReadModel->setLockedUntil($lockedUntil);
+        $expiresAtDate->modify(sprintf('+%u days', 10));
+        $expectedReadModel->setExpiresAt($expiresAtDate);
+        $this->scenario->given(array())
+            ->when(new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, 10, 2, $date)))
+            ->then(array(
+                $expectedReadModel,
+            ));
+    }
+
+    /**
+     * @test
+     */
+    public function it_creates_a_read_model_on_add_points_transfer_without_lock()
+    {
+        $pointsId = new PointsTransferId('00000000-0000-0000-0000-000000000000');
+        $expectedReadModel = $this->createReadModel($pointsId);
+        $expectedReadModel->setValue(100.0);
         $expectedReadModel->setState('active');
         $expectedReadModel->setType('adding');
-        $expectedReadModel->setValidityInDays(10);
 
         $date = new \DateTime();
         $expectedReadModel->setCreatedAt($date);
         $expiresAtDate = clone $date;
+        $lockedUntil = null;
+        $expectedReadModel->setLockedUntil($lockedUntil);
         $expiresAtDate->modify(sprintf('+%u days', 10));
         $expectedReadModel->setExpiresAt($expiresAtDate);
         $this->scenario->given(array())
-            ->when(new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, 10, $date)))
+            ->when(new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, 10, null, $date)))
+            ->then(array(
+                $expectedReadModel,
+            ));
+    }
+
+    /**
+     * @test
+     */
+    public function it_creates_a_read_model_on_add_points_transfer_with_lock()
+    {
+        $pointsId = new PointsTransferId('00000000-0000-0000-0000-000000000000');
+        $expectedReadModel = $this->createReadModel($pointsId);
+        $expectedReadModel->setValue(100.0);
+        $expectedReadModel->setState('pending');
+        $expectedReadModel->setType('adding');
+
+        $date = new \DateTime();
+        $expectedReadModel->setCreatedAt($date);
+        $lockedUntil = clone $date;
+        $lockedUntil->modify(sprintf('+%u days', 10));
+        $expiresAtDate = clone $lockedUntil;
+        $expectedReadModel->setLockedUntil($lockedUntil);
+        $expiresAtDate->modify(sprintf('+%u days', 10));
+        $expectedReadModel->setExpiresAt($expiresAtDate);
+        $this->scenario->given(array())
+            ->when(new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, 10, 10, $date)))
             ->then(array(
                 $expectedReadModel,
             ));
@@ -101,7 +155,6 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $date = new \DateTime();
         $expectedReadModel->setCreatedAt($date);
         $expiresAtDate = clone $date;
-        $expectedReadModel->setValidityInDays(0);
         $expiresAtDate->modify(sprintf('+%u days', 0));
         $expectedReadModel->setExpiresAt($expiresAtDate);
         $this->scenario->given(array())
@@ -123,13 +176,12 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $expectedReadModel->setType('adding');
         $date = new \DateTime();
         $expectedReadModel->setCreatedAt($date);
-        $expectedReadModel->setValidityInDays(10);
         $expiresAtDate = clone $date;
         $expiresAtDate->modify(sprintf('+%u days', 10));
         $expectedReadModel->setExpiresAt($expiresAtDate);
         $this->scenario
             ->given(array(
-                new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, 10, $date)),
+                new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, 10, null, $date)),
             ))
             ->when(new PointsTransferHasBeenCanceled($this->accountId, $pointsId))
             ->then(array(
@@ -147,7 +199,6 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $expectedReadModel->setValue(100.0);
         $expectedReadModel->setState('expired');
         $expectedReadModel->setType('adding');
-        $expectedReadModel->setValidityInDays(10);
         $date = new \DateTime();
         $expectedReadModel->setCreatedAt($date);
         $expiresAtDate = clone $date;
@@ -155,7 +206,7 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $expectedReadModel->setExpiresAt($expiresAtDate);
         $this->scenario
             ->given(array(
-                new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, 10, $date)),
+                new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, 10, null, $date)),
             ))
             ->when(new PointsTransferHasBeenExpired($this->accountId, $pointsId))
             ->then(array(
@@ -165,7 +216,36 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
 
     /**
      * @test
-     * @expectedException \OpenLoyalty\Component\Account\Domain\Exception\CannotBeExpiredException
+     */
+    public function it_unlock_previously_added_transfer()
+    {
+        $pointsId = new PointsTransferId('00000000-0000-0000-0000-000000000000');
+        $expectedReadModel = $this->createReadModel($pointsId);
+        $expectedReadModel->setValue(100.0);
+        $expectedReadModel->setState('active');
+        $expectedReadModel->setType('adding');
+        $date = new \DateTime();
+        $expectedReadModel->setCreatedAt($date);
+        $lockedUntil = clone $date;
+        $lockedUntil->modify(sprintf('+%u days', 10));
+        $expiresAtDate = clone $lockedUntil;
+        $expectedReadModel->setLockedUntil($lockedUntil);
+        $expiresAtDate->modify(sprintf('+%u days', 10));
+        $expectedReadModel->setExpiresAt($expiresAtDate);
+
+        $this->scenario
+            ->given(array(
+                new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, 10, 10, $date)),
+            ))
+            ->when(new PointsTransferHasBeenUnlocked($this->accountId, $pointsId))
+            ->then(array(
+                $expectedReadModel,
+            ));
+    }
+
+    /**
+     * @test
+     * @expectedException \OpenLoyalty\Component\Account\Domain\Exception\PointsTransferCannotBeExpiredException
      */
     public function it_expires_only_adding_transfer()
     {

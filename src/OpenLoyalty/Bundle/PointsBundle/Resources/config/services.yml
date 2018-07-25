@@ -27,7 +27,6 @@ services:
   oloy.account.points_transfers.serialization_listener:
       class: OpenLoyalty\Bundle\PointsBundle\Event\Listener\PointsTransferSerializationListener
       arguments:
-        - '@ol.settings.manager'
         - '@oloy.pos.repository'
         - '@oloy.transaction.read_model.repository.transaction_details'
       tags:

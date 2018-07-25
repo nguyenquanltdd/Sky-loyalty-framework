@@ -73,7 +73,10 @@ class TransactionDetailsElasticsearchRepository extends OloyElasticsearchReposit
         ],
     ];
 
-    public function findInPeriod(\DateTime $from, \DateTime $to, $onlyWithCustomers = true)
+    /**
+     * {@inheritdoc}
+     */
+    public function findInPeriod(\DateTime $from, \DateTime $to, $onlyWithCustomers = true): array
     {
         $filter = [];
         $filter[] = ['range' => [
@@ -99,7 +102,10 @@ class TransactionDetailsElasticsearchRepository extends OloyElasticsearchReposit
         return $this->query($query);
     }
 
-    public function findAllWithCustomer()
+    /**
+     * {@inheritdoc}
+     */
+    public function findAllWithCustomer(): array
     {
         $query = array(
             'bool' => array(
@@ -112,7 +118,10 @@ class TransactionDetailsElasticsearchRepository extends OloyElasticsearchReposit
         return $this->query($query);
     }
 
-    public function findBySKUs(array $skuIds, $withCustomer = true)
+    /**
+     * {@inheritdoc}
+     */
+    public function findBySKUs(array $skuIds, $withCustomer = true): array
     {
         if (count($skuIds) == 0) {
             return [];
@@ -141,7 +150,10 @@ class TransactionDetailsElasticsearchRepository extends OloyElasticsearchReposit
         return $this->query($query);
     }
 
-    public function findByMakers(array $makers, $withCustomer = true)
+    /**
+     * {@inheritdoc}
+     */
+    public function findByMakers(array $makers, $withCustomer = true): array
     {
         if (count($makers) == 0) {
             return [];
@@ -170,7 +182,10 @@ class TransactionDetailsElasticsearchRepository extends OloyElasticsearchReposit
         return $this->query($query);
     }
 
-    public function findByLabels(array $labels, $withCustomer = true)
+    /**
+     * {@inheritdoc}
+     */
+    public function findByLabels(array $labels, $withCustomer = true): array
     {
         if (count($labels) == 0) {
             return [];
@@ -208,14 +223,7 @@ class TransactionDetailsElasticsearchRepository extends OloyElasticsearchReposit
     }
 
     /**
-     * @param array  $params
-     * @param bool   $exact
-     * @param int    $page
-     * @param int    $perPage
-     * @param null   $sortField
-     * @param string $direction
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function findByParametersPaginated(
         array $params,
@@ -224,20 +232,26 @@ class TransactionDetailsElasticsearchRepository extends OloyElasticsearchReposit
         $perPage = 10,
         $sortField = null,
         $direction = 'DESC'
-    ) {
+    ): array {
         $params = $this->prepareLabels($params);
 
         return parent::findByParametersPaginated($params, $exact, $page, $perPage, $sortField, $direction);
     }
 
-    public function countTotal(array $params = [], $exact = true)
+    /**
+     * {@inheritdoc}
+     */
+    public function countTotal(array $params = [], $exact = true): int
     {
         $params = $this->prepareLabels($params);
 
         return parent::countTotal($params, $exact);
     }
 
-    public function getAvailableLabels()
+    /**
+     * {@inheritdoc}
+     */
+    public function getAvailableLabels(): array
     {
         $query = array(
             'index' => $this->index,
@@ -281,7 +295,12 @@ class TransactionDetailsElasticsearchRepository extends OloyElasticsearchReposit
         return $labels;
     }
 
-    protected function getLabelValuesForBucket(array $values)
+    /**
+     * @param array $values
+     *
+     * @return array
+     */
+    protected function getLabelValuesForBucket(array $values): array
     {
         $val = [];
         foreach ($values['buckets'] as $bucket) {

@@ -59,6 +59,9 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
         $pointsDaysActive = new IntegerSettingEntry('pointsDaysActive', 30);
         $settings->addEntry($pointsDaysActive);
 
+        $allTimeNotLocked = new BooleanSettingEntry('allTimeNotLocked', true);
+        $settings->addEntry($allTimeNotLocked);
+
         $returns = new BooleanSettingEntry('returns', true);
         $settings->addEntry($returns);
 
