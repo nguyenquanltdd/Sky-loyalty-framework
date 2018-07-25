@@ -6,8 +6,8 @@
 namespace OpenLoyalty\Component\Customer\Domain\Exception;
 
 /**
- * Class ToManyResultsException.
+ * Class TooManyResultsException.
  */
-class ToManyResultsException extends \Exception
+class TooManyResultsException extends \Exception
 {
 }

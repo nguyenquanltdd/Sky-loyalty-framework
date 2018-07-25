@@ -17,7 +17,7 @@ services:
       - '@broadway.event_store'
       - '@broadway.event_handling.event_bus'
       - ['@broadway.metadata_enriching_event_stream_decorator']
-  oloy.points.account.repository.points_transfer_details:
+  OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsRepository:
     class: 'Broadway\ReadModel\ReadModel'
     factory: ['@oloy.user.read_model.repository_factory', create]
     arguments:

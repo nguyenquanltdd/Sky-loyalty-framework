@@ -6,13 +6,14 @@
 namespace OpenLoyalty\Component\Account\Domain\ReadModel;
 
 use Broadway\ReadModel\Repository;
+use OpenLoyalty\Bundle\PaginationBundle\Model\Pagination;
 
 interface PointsTransferDetailsRepository extends Repository
 {
     /**
      * @param int $timestamp
      *
-     * @return PointsTransferDetails[]
+     * @return array
      */
     public function findAllActiveAddingTransfersExpiredAfter(int $timestamp): array;
 
@@ -36,9 +37,9 @@ interface PointsTransferDetailsRepository extends Repository
      * @param string $sortField
      * @param string $direction
      *
-     * @return PointsTransferDetails[]
+     * @return mixed
      */
-    public function findAllPaginated($page = 1, $perPage = 10, $sortField = 'earningRuleId', $direction = 'DESC'): array;
+    public function findAllPaginated($page = 1, $perPage = 10, $sortField = 'earningRuleId', $direction = 'DESC');
 
     /**
      * @param array  $params
@@ -48,9 +49,24 @@ interface PointsTransferDetailsRepository extends Repository
      * @param null   $sortField
      * @param string $direction
      *
-     * @return PointsTransferDetails[]
+     * @return mixed
      */
-    public function findByParametersPaginated(array $params, $exact = true, $page = 1, $perPage = 10, $sortField = null, $direction = 'DESC'): array;
+    public function findByParametersPaginated(
+        array $params,
+        $exact = true,
+        $page = 1,
+        $perPage = 10,
+        $sortField = null,
+        $direction = 'DESC'
+    );
+
+    /**
+     * @param array      $parameters
+     * @param Pagination $pagination
+     *
+     * @return array
+     */
+    public function findByParametersPaginatedAndFiltered(array $parameters, Pagination $pagination): array;
 
     /**
      * @param array $params
@@ -66,7 +82,7 @@ interface PointsTransferDetailsRepository extends Repository
     public function countTotalSpendingTransfers(): int;
 
     /**
-     * @return float
+     * @return mixed
      */
-    public function getTotalValueOfSpendingTransfers(): float;
+    public function getTotalValueOfSpendingTransfers();
 }

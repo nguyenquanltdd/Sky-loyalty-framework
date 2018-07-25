@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints\Type as Numeric;
  */
 class CustomerSearchFormType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('loyaltyCardNumber', TextType::class, [
             'required' => false,
@@ -47,7 +47,7 @@ class CustomerSearchFormType extends AbstractType
         ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => SearchCustomer::class,

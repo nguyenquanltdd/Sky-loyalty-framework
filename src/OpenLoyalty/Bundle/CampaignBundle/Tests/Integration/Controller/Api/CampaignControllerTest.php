@@ -594,10 +594,12 @@ class CampaignControllerTest extends BaseApiTest
         $client = $this->createAuthenticatedClient();
         $client->request(
             'POST',
-            sprintf('/api/admin/customer/%s/campaign/%s/coupon/%s',
+            sprintf(
+                '/api/admin/customer/%s/campaign/%s/coupon/%s',
                 LoadUserData::USER2_USER_ID,
                 LoadCampaignData::CAMPAIGN_ID,
-                $couponCode),
+                $couponCode
+            ),
             [
                 'used' => true,
             ]

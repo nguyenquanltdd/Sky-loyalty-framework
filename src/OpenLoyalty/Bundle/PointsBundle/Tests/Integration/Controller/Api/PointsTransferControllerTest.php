@@ -26,7 +26,7 @@ class PointsTransferControllerTest extends BaseApiTest
      */
     public function it_imports_points_transfer()
     {
-        $xmlContent = file_get_contents(__DIR__.'/import.xml');
+        $xmlContent = file_get_contents(__DIR__.'/../../../Resources/fixtures/import.xml');
 
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -39,11 +39,12 @@ class PointsTransferControllerTest extends BaseApiTest
                 ],
             ]
         );
+
         $response = $client->getResponse();
+
         $data = json_decode($response->getContent(), true);
 
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
-
         $this->assertArrayHasKey('items', $data);
         $this->assertCount(2, $data['items']);
         $this->assertArrayHasKey('status', $data['items'][0]);
@@ -53,7 +54,7 @@ class PointsTransferControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_fetches_transfer()
+    public function it_fetches_transfer(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -62,15 +63,44 @@ class PointsTransferControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
+
         $data = json_decode($response->getContent(), true);
+
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $this->assertTrue(count($data['transfers']) >= 4);
+        $this->assertGreaterThanOrEqual(4, count($data['transfers']));
     }
 
     /**
      * @test
      */
-    public function it_adds_points()
+    public function it_fetches_transfers_by_parameters(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/points/transfer',
+            [
+                'willExpireTill' => (new \DateTime('+14 days'))->format('Y-m-d'),
+                'state' => [
+                    'active',
+                    'expired',
+                ],
+            ]
+        );
+
+        $response = $client->getResponse();
+
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertSame(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertEquals(6, $data['total']);
+        $this->assertCount(6, $data['transfers']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_adds_points(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -86,7 +116,9 @@ class PointsTransferControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
+
         $data = json_decode($response->getContent(), true);
+
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('pointsTransferId', $data);
     }

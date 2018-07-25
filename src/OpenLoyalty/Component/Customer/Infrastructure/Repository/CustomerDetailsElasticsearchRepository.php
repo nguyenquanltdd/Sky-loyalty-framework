@@ -9,8 +9,8 @@ use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
-use OpenLoyalty\Component\Customer\Domain\Exception\ToManyResultsException;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
+use OpenLoyalty\Component\Customer\Domain\Exception\TooManyResultsException;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Core\Infrastructure\Repository\OloyElasticsearchRepository;
@@ -494,11 +494,11 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         }
 
         if (count($filter) > 0) {
-            $query = array(
-                'bool' => array(
+            $query = [
+                'bool' => [
                     'must' => $filter,
-                ),
-            );
+                ],
+            ];
 
             if (isset($criteria['id'])) {
                 $query['bool']['must'][]['ids'] = ['values' => [$criteria['id']]];
@@ -512,7 +512,7 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         $result = $this->query($query);
 
         if (count($result) > $limit) {
-            throw new ToManyResultsException();
+            throw new TooManyResultsException();
         }
 
         return $result;

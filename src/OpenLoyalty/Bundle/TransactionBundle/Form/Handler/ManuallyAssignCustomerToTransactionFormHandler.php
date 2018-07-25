@@ -8,7 +8,7 @@ namespace OpenLoyalty\Bundle\TransactionBundle\Form\Handler;
 use Broadway\CommandHandling\CommandBus;
 use Broadway\EventDispatcher\EventDispatcher;
 use OpenLoyalty\Bundle\TransactionBundle\Model\AssignCustomer;
-use OpenLoyalty\Component\Customer\Domain\Exception\ToManyResultsException;
+use OpenLoyalty\Component\Customer\Domain\Exception\TooManyResultsException;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Transaction\Domain\Command\AssignCustomerToTransaction;
@@ -129,7 +129,7 @@ class ManuallyAssignCustomerToTransactionFormHandler
 
         try {
             $customers = $this->customerDetailsRepository->findOneByCriteria($criteria, 1);
-        } catch (ToManyResultsException $e) {
+        } catch (TooManyResultsException $e) {
             $form->get($field)->addError(new FormError('To many customers with such data. Please provide more details.'));
 
             return false;

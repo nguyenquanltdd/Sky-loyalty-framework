@@ -6,9 +6,11 @@
 namespace OpenLoyalty\Component\Account\Infrastructure\Repository;
 
 use Elasticsearch\Common\Exceptions\Missing404Exception;
+use OpenLoyalty\Bundle\PaginationBundle\Model\Pagination;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsRepository;
 use OpenLoyalty\Component\Core\Infrastructure\Repository\OloyElasticsearchRepository;
+use Webmozart\Assert\Assert;
 
 /**
  * Class PointsTransferDetailsRepository.
@@ -102,11 +104,11 @@ class PointsTransferDetailsElasticsearchRepository extends OloyElasticsearchRepo
             ],
         ]];
 
-        $query = array(
-            'bool' => array(
+        $query = [
+            'bool' => [
                 'must' => $filter,
-            ),
-        );
+            ],
+        ];
 
         return $this->query($query);
     }
@@ -114,17 +116,40 @@ class PointsTransferDetailsElasticsearchRepository extends OloyElasticsearchRepo
     /**
      * {@inheritdoc}
      */
-    public function findAllPaginated($page = 1, $perPage = 10, $sortField = 'pointsTransferId', $direction = 'DESC'): array
+    public function findAllPaginated($page = 1, $perPage = 10, $sortField = 'pointsTransferId', $direction = 'DESC')
     {
-        $query = array(
-            'filtered' => array(
-                'query' => array(
-                    'match_all' => array(),
-                ),
-            ),
-        );
+        $query = [
+            'filtered' => [
+                'query' => [
+                    'match_all' => [],
+                ],
+            ],
+        ];
 
         return $this->query($query);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findByParametersPaginatedAndFiltered(array $parameters, Pagination $pagination): array
+    {
+        return $this->findByParametersPaginated(
+            $this->prepareParameters($parameters),
+            true,
+            $pagination->getPage(),
+            $pagination->getPerPage(),
+            $pagination->getSort(),
+            $pagination->getSortDirection()
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function countTotal(array $params = [], $exact = true): int
+    {
+        return parent::countTotal($this->prepareParameters($params), $exact);
     }
 
     /**
@@ -138,11 +163,11 @@ class PointsTransferDetailsElasticsearchRepository extends OloyElasticsearchRepo
     /**
      * {@inheritdoc}
      */
-    public function getTotalValueOfSpendingTransfers(): float
+    public function getTotalValueOfSpendingTransfers(): int
     {
-        $query = array(
+        $query = [
             'index' => $this->index,
-            'body' => array(
+            'body' => [
                 'query' => [
                     'bool' => [
                         'must' => [
@@ -160,28 +185,60 @@ class PointsTransferDetailsElasticsearchRepository extends OloyElasticsearchRepo
                         'sum' => ['field' => 'value'],
                     ],
                 ],
-            ),
+            ],
             'size' => 0,
-        );
+        ];
 
         try {
             $result = $this->client->search($query);
-        } catch (Missing404Exception $e) {
-            return 0;
-        }
 
-        if (!array_key_exists('aggregations', $result)) {
-            return 0;
-        }
-
-        if (!array_key_exists('summary', $result['aggregations'])) {
-            return 0;
-        }
-
-        if (!array_key_exists('value', $result['aggregations']['summary'])) {
+            Assert::keyExists($result, 'aggregations');
+            Assert::keyExists($result, 'summary');
+            Assert::keyExists($result, 'value');
+        } catch (Missing404Exception | \InvalidArgumentException $exception) {
             return 0;
         }
 
         return $result['aggregations']['summary']['value'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    private function prepareParameters(array $parameters): array
+    {
+        if (array_key_exists('state', $parameters) && is_array($parameters['state']) && !empty($parameters['state'])) {
+            $states = $parameters['state'];
+
+            unset($parameters['state']);
+
+            $stateFilter = [
+                'state' => [
+                    'type' => 'match',
+                    'value' => sprintf('[%s]', implode(',', $states)),
+                ],
+            ];
+        }
+
+        if (array_key_exists('willExpireTill', $parameters) && null !== $parameters['willExpireTill']) {
+            $expiresAt = $parameters['willExpireTill'];
+
+            unset($parameters['willExpireTill']);
+
+            $expiresAtFilter = [
+                'expiresAt' => [
+                    'type' => 'range',
+                    'value' => [
+                        'lte' => (new \DateTime($expiresAt))->getTimestamp(),
+                    ],
+                ],
+                'state' => [
+                    'type' => 'match',
+                    'value' => '[active]',
+                ],
+            ];
+        }
+
+        return array_merge($parameters, $stateFilter ?? [], $expiresAtFilter ?? []);
     }
 }

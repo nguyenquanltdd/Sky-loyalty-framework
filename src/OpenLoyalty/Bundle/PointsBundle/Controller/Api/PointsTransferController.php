@@ -10,20 +10,23 @@ use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
+use FOS\RestBundle\View\View;
+use FOS\RestBundle\View\ViewHandlerInterface;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\ImportBundle\Form\Type\ImportFileFormType;
 use OpenLoyalty\Bundle\ImportBundle\Service\ImportFileManager;
+use OpenLoyalty\Bundle\PaginationBundle\Service\Paginator;
 use OpenLoyalty\Bundle\PointsBundle\Form\Type\AddPointsFormType;
 use OpenLoyalty\Bundle\PointsBundle\Form\Type\SpendPointsFormType;
 use OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferXmlImporter;
 use OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager;
 use OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider;
-use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
+use OpenLoyalty\Bundle\UserBundle\Service\ParamManager;
 use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
 use OpenLoyalty\Component\Account\Domain\Command\CancelPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Command\SpendPoints;
-use OpenLoyalty\Component\Account\Domain\Exception\PointsTransferCannotBeCanceledException;
 use OpenLoyalty\Component\Account\Domain\Exception\NotEnoughPointsException;
+use OpenLoyalty\Component\Account\Domain\Exception\PointsTransferCannotBeCanceledException;
 use OpenLoyalty\Component\Account\Domain\Model\PointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Model\SpendPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
@@ -51,51 +54,62 @@ class PointsTransferController extends FOSRestController
      * @Method("GET")
      * @Security("is_granted('LIST_POINTS_TRANSFERS')")
      *
-     * @ApiDoc(
-     *     name="get points transfers list",
-     *     section="Points transfers",
-     *     parameters={
-     *      {"name"="page", "dataType"="integer", "required"=false, "description"="Page number"},
-     *      {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
-     *      {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
-     *      {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
-     *     }
-     * )
-     *
-     * @param Request      $request
-     * @param ParamFetcher $paramFetcher
-     *
-     * @return \FOS\RestBundle\View\View
      * @QueryParam(name="customerFirstName", requirements="[a-zA-Z]+", nullable=true, description="firstName"))
      * @QueryParam(name="customerLastName", requirements="[a-zA-Z]+", nullable=true, description="lastName"))
      * @QueryParam(name="customerPhone", requirements="[a-zA-Z0-9\-]+", nullable=true, description="phone"))
      * @QueryParam(name="customerEmail", nullable=true, description="email"))
      * @QueryParam(name="customerId", nullable=true, description="customerId"))
-     * @QueryParam(name="state", nullable=true, requirements="[a-zA-Z0-9\-]+", description="state"))
+     * @QueryParam(name="state", map=true, requirements="(adding|spending|canceled|active|expired|pending)", nullable=true, description="state"))
      * @QueryParam(name="type", nullable=true, requirements="[a-zA-Z0-9\-]+", description="type"))
+     * @QueryParam(name="willExpireTill", nullable=true, description="willExpireTill"))
+     *
+     * @ApiDoc(
+     *     name="get points transfers list",
+     *     section="Points transfers",
+     *     parameters={
+     *          {"name"="state[]", "dataType"="array", "required"=false, "description"="List of statuses to be filtered"},
+     *          {"name"="page", "dataType"="integer", "required"=false, "description"="Page number"},
+     *          {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
+     *          {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
+     *          {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
+     *     }
+     * )
+     *
+     * @param Request                         $request
+     * @param ParamFetcher                    $paramFetcher
+     * @param ParamManager                    $paramManager
+     * @param Paginator                       $paginator
+     * @param PointsTransferDetailsRepository $pointsTransferDetailsRepository
+     * @param ViewHandlerInterface            $viewHandler
+     *
+     * @return Response
      */
-    public function listAction(Request $request, ParamFetcher $paramFetcher)
-    {
-        $params = $this->get('oloy.user.param_manager')->stripNulls($paramFetcher->all(), true, false);
-        $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
+    public function listAction(
+        Request $request,
+        ParamFetcher $paramFetcher,
+        ParamManager $paramManager,
+        Paginator $paginator,
+        PointsTransferDetailsRepository $pointsTransferDetailsRepository,
+        ViewHandlerInterface $viewHandler
+    ): Response {
+        $listPointsTransferRequest = $paramManager->stripNulls($paramFetcher->all());
 
-        /** @var PointsTransferDetailsRepository $repo */
-        $repo = $this->get('oloy.points.account.repository.points_transfer_details');
+        $pagination = $paginator->handleFromRequest($request);
 
-        $transfers = $repo->findByParametersPaginated(
-            $params,
-            false,
-            $pagination->getPage(),
-            $pagination->getPerPage(),
-            $pagination->getSort(),
-            $pagination->getSortDirection()
+        $transfersList = $pointsTransferDetailsRepository->findByParametersPaginatedAndFiltered(
+            $listPointsTransferRequest,
+            $pagination
         );
-        $total = $repo->countTotal($params, false);
 
-        return $this->view([
-            'transfers' => $transfers,
-            'total' => $total,
-        ], 200);
+        $transfersTotal = $pointsTransferDetailsRepository->countTotal($listPointsTransferRequest);
+
+        return $viewHandler->handle(View::create(
+            [
+                'transfers' => $transfersList,
+                'total' => $transfersTotal,
+            ],
+            Response::HTTP_OK
+        ));
     }
 
     /**
