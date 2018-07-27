@@ -33,6 +33,11 @@ class AccountDetails implements SerializableReadModel
     protected $transfers = [];
 
     /**
+     * @var \DateTime|null
+     */
+    protected $pointsResetAt;
+
+    /**
      * AccountDetails constructor.
      *
      * @param AccountId  $id
@@ -45,6 +50,22 @@ class AccountDetails implements SerializableReadModel
     }
 
     /**
+     * @param \DateTime|null $pointsResetAt
+     */
+    public function setPointsResetAt(?\DateTime $pointsResetAt): void
+    {
+        $this->pointsResetAt = $pointsResetAt;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getPointsResetAt(): ?\DateTime
+    {
+        return $this->pointsResetAt;
+    }
+
+    /**
      * @param array $data
      *
      * @return mixed The object instance
@@ -54,6 +75,12 @@ class AccountDetails implements SerializableReadModel
         $account = new self(new AccountId($data['accountId']), new CustomerId($data['customerId']));
         foreach ($data['transfers'] as $transfer) {
             $account->addPointsTransfer($transfer['type']::deserialize($transfer['data']));
+        }
+
+        if (isset($data['pointsResetAt'])) {
+            $resetAt = new \DateTime();
+            $resetAt->setTimestamp($data['pointsResetAt']);
+            $account->setPointsResetAt($resetAt);
         }
 
         return $account;
@@ -74,6 +101,7 @@ class AccountDetails implements SerializableReadModel
 
         return [
             'accountId' => $this->accountId->__toString(),
+            'pointsResetAt' => $this->pointsResetAt ? $this->pointsResetAt->getTimestamp() : null,
             'customerId' => $this->customerId->__toString(),
             'transfers' => $transfers,
         ];
@@ -146,6 +174,30 @@ class AccountDetails implements SerializableReadModel
     /**
      * @return AddPointsTransfer[]
      */
+    public function getAllActiveAndLockedAddPointsTransfers(): array
+    {
+        $transfers = [];
+        foreach ($this->transfers as $pointsTransfer) {
+            if (!$pointsTransfer instanceof AddPointsTransfer) {
+                continue;
+            }
+            if ($pointsTransfer->isExpired() || $pointsTransfer->getAvailableAmount() == 0 || $pointsTransfer->isCanceled()) {
+                continue;
+            }
+
+            $transfers[] = $pointsTransfer;
+        }
+
+        usort($transfers, function (PointsTransfer $a, PointsTransfer $b) {
+            return $a->getCreatedAt() > $b->getCreatedAt();
+        });
+
+        return $transfers;
+    }
+
+    /**
+     * @return AddPointsTransfer[]
+     */
     public function getAllExpiredAddPointsTransfers()
     {
         $transfers = [];
@@ -157,7 +209,7 @@ class AccountDetails implements SerializableReadModel
                 continue;
             }
 
-            $transfers[$pointsTransfer->getCreatedAt()->getTimestamp()] = $pointsTransfer;
+            $transfers[$pointsTransfer->getCreatedAt()->getTimestamp().'_'.$pointsTransfer->getId()->__toString()] = $pointsTransfer;
         }
 
         ksort($transfers);
@@ -179,7 +231,7 @@ class AccountDetails implements SerializableReadModel
                 continue;
             }
 
-            $transfers[$pointsTransfer->getCreatedAt()->getTimestamp()] = $pointsTransfer;
+            $transfers[$pointsTransfer->getCreatedAt()->getTimestamp().'_'.$pointsTransfer->getId()->__toString()] = $pointsTransfer;
         }
 
         ksort($transfers);
@@ -198,7 +250,7 @@ class AccountDetails implements SerializableReadModel
                 continue;
             }
 
-            $transfers[$pointsTransfer->getCreatedAt()->getTimestamp()] = $pointsTransfer;
+            $transfers[$pointsTransfer->getCreatedAt()->getTimestamp().'_'.$pointsTransfer->getId()->__toString()] = $pointsTransfer;
         }
 
         ksort($transfers);
@@ -239,6 +291,31 @@ class AccountDetails implements SerializableReadModel
         $sum = 0.0;
 
         foreach ($this->getAllAddPointsTransfers() as $pointsTransfer) {
+            if ($pointsTransfer->isCanceled()) {
+                continue;
+            }
+            $sum += $pointsTransfer->getValue();
+        }
+
+        return $sum;
+    }
+
+    /**
+     * @param \DateTimeInterface $startDate
+     *
+     * @return float
+     */
+    public function getEarnedAmountSince(\DateTimeInterface $startDate): float
+    {
+        $sum = 0.0;
+
+        foreach ($this->getAllAddPointsTransfers() as $pointsTransfer) {
+            if ($pointsTransfer->isCanceled()) {
+                continue;
+            }
+            if ($pointsTransfer->getCreatedAt() <= $startDate) {
+                continue;
+            }
             $sum += $pointsTransfer->getValue();
         }
 

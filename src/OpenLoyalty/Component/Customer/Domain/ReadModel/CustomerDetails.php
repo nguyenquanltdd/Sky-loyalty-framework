@@ -76,6 +76,11 @@ class CustomerDetails implements SerializableReadModel
     protected $birthDate;
 
     /**
+     * @var \DateTime
+     */
+    protected $lastLevelRecalculation;
+
+    /**
      * @var Address
      */
     protected $address;
@@ -255,6 +260,16 @@ class CustomerDetails implements SerializableReadModel
             $customer->setBirthDate($birthDate);
         }
 
+        if (!empty($data['lastLevelRecalculation'])) {
+            if ($data['lastLevelRecalculation'] instanceof \DateTime) {
+                $lastLevelRecalculation = $data['lastLevelRecalculation'];
+            } else {
+                $lastLevelRecalculation = new \DateTime();
+                $lastLevelRecalculation->setTimestamp($data['lastLevelRecalculation']);
+            }
+            $customer->setLastLevelRecalculation($lastLevelRecalculation);
+        }
+
         if (isset($data['createdAt'])) {
             if ($data['createdAt'] instanceof \DateTime) {
                 $createdAt = $data['createdAt'];
@@ -390,6 +405,7 @@ class CustomerDetails implements SerializableReadModel
             'email' => $this->getEmail(),
             'phone' => $this->getPhone(),
             'birthDate' => $this->getBirthDate() ? $this->getBirthDate()->getTimestamp() : null,
+            'lastLevelRecalculation' => $this->getLastLevelRecalculation() ? $this->getLastLevelRecalculation()->getTimestamp() : null,
             'createdAt' => $this->getCreatedAt() ? $this->getCreatedAt()->getTimestamp() : null,
             'address' => $this->getAddress() ? $this->getAddress()->serialize() : null,
             'company' => $this->getCompany() ? $this->getCompany()->serialize() : null,
@@ -930,6 +946,22 @@ class CustomerDetails implements SerializableReadModel
     public function setLevel(?LevelDetails $level)
     {
         $this->level = $level;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getLastLevelRecalculation(): ?\DateTime
+    {
+        return $this->lastLevelRecalculation;
+    }
+
+    /**
+     * @param \DateTime|null $lastLevelRecalculation
+     */
+    public function setLastLevelRecalculation(\DateTime $lastLevelRecalculation = null): void
+    {
+        $this->lastLevelRecalculation = $lastLevelRecalculation;
     }
 
     public static function resolveOptions($data)

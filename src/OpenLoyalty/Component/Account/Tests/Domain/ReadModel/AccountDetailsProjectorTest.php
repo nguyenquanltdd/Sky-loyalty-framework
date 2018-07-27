@@ -10,6 +10,7 @@ use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenUnlocked;
 use OpenLoyalty\Component\Account\Domain\Event\PointsWereAdded;
 use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
+use OpenLoyalty\Component\Account\Domain\Event\PointsHasBeenReset;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetailsProjector;
 use OpenLoyalty\Component\Account\Domain\CustomerId;
@@ -31,12 +32,18 @@ class AccountDetailsProjectorTest extends ProjectorScenarioTestCase
     protected $customerId;
 
     /**
+     * @var PointsTransferId
+     */
+    protected $pointsTransferId;
+
+    /**
      * {@inheritdoc}
      */
     protected function createProjector(InMemoryRepository $repository): Projector
     {
         $this->accountId = new AccountId('00000000-0000-0000-0000-000000000000');
         $this->customerId = new CustomerId('00000000-1111-0000-0000-000000000000');
+        $this->pointsTransferId = new PointsTransferId('00000000-1111-0000-0000-000000000000');
 
         return new AccountDetailsProjector($repository);
     }
@@ -73,6 +80,29 @@ class AccountDetailsProjectorTest extends ProjectorScenarioTestCase
             ->then(array(
                 $expectedReadModel,
             ));
+    }
+
+    /**
+     * @test
+     */
+    public function it_expires_all_active_and_locked_points_on_reset()
+    {
+        $date = new \DateTime();
+        $expectedReadModel = $this->createReadModel();
+        $pointsTransfer = new AddPointsTransfer($this->pointsTransferId, 100, 40);
+        $pointsTransfer->expire();
+        $expectedReadModel->setPointsResetAt($date);
+        $expectedReadModel->addPointsTransfer($pointsTransfer);
+
+        $this->scenario
+            ->given([
+                new AccountWasCreated($this->accountId, $this->customerId),
+                new PointsWereAdded($this->accountId, new AddPointsTransfer($this->pointsTransferId, 100, 40)),
+            ])
+            ->when(new PointsHasBeenReset($this->accountId, $date))
+            ->then([
+                $expectedReadModel,
+            ]);
     }
 
     private function createReadModel()

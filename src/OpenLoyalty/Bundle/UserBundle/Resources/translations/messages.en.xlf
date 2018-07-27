@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+        <body>
+            <trans-unit id="customer_level_downgrade_mode_not_supported">
+                <source>customer.level.downgrade_mode.not_supported</source>
+                <target>Selected level downgrade mode is not supported.</target>
+            </trans-unit>
+            <trans-unit id="customer_level_downgrade_mode_not_available_when_tier_assignment_type_is_not_points">
+                <source>customer.level.downgrade_mode.not_available_when_tier_assignment_type_is_not_points</source>
+                <target>Recalculation customer level is not possible when tier assignment type is not points.</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

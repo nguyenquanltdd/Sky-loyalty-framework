@@ -21,4 +21,5 @@ class CustomerSystemEvents
     const CUSTOMER_LEVEL_CHANGED_AUTOMATICALLY = 'oloy.customer.level_changed_automatically';
     const CUSTOMER_LEVEL_CHANGED = 'oloy.customer.level_changed';
     const CUSTOMER_MANUALLY_LEVEL_REMOVED = 'oloy.customer.manually_level_removed';
+    const CUSTOMER_RECALCULATE_LEVEL_REQUESTED = 'oloy.customer.recalculate_level_requested';
 }

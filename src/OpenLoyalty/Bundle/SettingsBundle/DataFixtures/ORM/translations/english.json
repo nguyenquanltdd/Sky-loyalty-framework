@@ -519,7 +519,10 @@
         "used_points": "Used points",
         "expired_points": "Expired points",
         "locked_points": "Locked points",
-        "total_points": "Total earned points"
+        "total_points": "Total earned points",
+        "total_points_since_last_level_recalculation": "Total points earned since last level recalculation",
+        "level_will_expire_in_days": "Level will expire in",
+        "level_will_expire_in_days_prompt": " days"
       },
       "table": {
         "date_and_time": "Date and time",
@@ -729,7 +732,10 @@
       "title": "Loyalty",
       "used_points": "Used points",
       "locked_points": "Locked points",
-      "total_points": "Total earned points"
+      "total_points": "Total earned points",
+      "total_points_since_last_level_recalculation": "Total points earned since last level recalculation",
+      "level_will_expire_in_days": "Level will expire in",
+      "level_will_expire_in_days_prompt": " days"
     },
     "loyalty_card_number_prompt": "",
     "male": "Male",
@@ -1131,6 +1137,9 @@
     "expired_points": "Expired points",
     "locked_points": "Locked points",
     "total_points": "Total earned points",
+    "total_points_since_last_level_recalculation": "Total points earned since last level recalculation",
+    "level_will_expire_in_days_prompt": " days",
+    "level_will_expire_in_days": "Level will expire in",
     "my_profile": "My profile",
     "my_profile_edit": "Edit profile",
     "next_level_discount": "Next level discount",
@@ -1746,6 +1755,21 @@
     }
   },
   "settings": {
+    "level_downgrade": {
+      "title": "Level downgrade settings",
+      "mode": "Mode",
+      "mode_prompt": "",
+      "days": "Downgrade every",
+      "days_prompt": "days",
+      "base": "Downgrade based on",
+      "base_prompt": "",
+      "active_points": "active points",
+      "earned_points": "earned points within last X days",
+      "after_x_days": "every x number of days",
+      "none": "none",
+      "automatic": "automatic",
+      "reset_points": "reset points"
+    },
     "accent_color": "Accent color",
     "accent_color_prompt": "Hex color (#000000)",
     "account_activation_method": "Account activation method",

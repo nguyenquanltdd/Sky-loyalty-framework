@@ -174,4 +174,15 @@ class AccountCommandHandler extends SimpleCommandHandler
             );
         }
     }
+
+    /**
+     * @param ResetPoints $command
+     */
+    public function handleResetPoints(ResetPoints $command)
+    {
+        /** @var Account $account */
+        $account = $this->repository->load($command->getAccountId());
+        $account->resetPoints($command->getDate());
+        $this->repository->save($account);
+    }
 }

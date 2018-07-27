@@ -38,6 +38,14 @@ interface CustomerDetailsRepository extends Repository
     public function findByParameters(array $params, $exact = true);
 
     /**
+     * @param \DateTime $currentDate
+     * @param int       $recalculationIntervalInDays
+     *
+     * @return CustomerDetails[]
+     */
+    public function findAllForLevelRecalculation(\DateTime $currentDate, int $recalculationIntervalInDays): array;
+
+    /**
      * @param array  $params
      * @param bool   $exact
      * @param int    $page

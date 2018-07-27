@@ -126,6 +126,13 @@ services:
       - '@oloy.user.read_model.repository.customers_belonging_to_one_level'
       - '@oloy.level.repository'
 
+
+  OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider:
+    alias: OpenLoyalty\Bundle\UserBundle\Service\SettingsBasedLevelDowngradeModeProvider
+
+  OpenLoyalty\Bundle\UserBundle\Service\SettingsBasedLevelDowngradeModeProvider:
+    autowire: true
+
   oloy.user.customer.listener.calculate_customer_level:
     class: 'OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener\CalculateCustomerLevelListener'
     lazy: true
@@ -134,6 +141,7 @@ services:
       - { name: broadway.event_listener, event: oloy.account.created, method: handle }
       - { name: broadway.event_listener, event: oloy.account.available_points_amount_changed, method: handle }
       - { name: broadway.event_listener, event: oloy.customer.manually_level_removed, method: handle }
+      - { name: broadway.event_listener, event: oloy.customer.recalculate_level_requested, method: handle }
     arguments:
       - '@oloy.user.level_id_provider'
       - '@oloy.user.read_model.repository.customer_details'
@@ -143,6 +151,9 @@ services:
       - '@oloy.level.repository'
       - '@broadway.event_dispatcher'
       - '@oloy.customer_status_provider'
+      - '@OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider'
+      - '@oloy.points.account.repository.account_details'
+
   oloy.user.customer.listener.create_account:
     class: 'OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener\CreateAccountListener'
     tags:

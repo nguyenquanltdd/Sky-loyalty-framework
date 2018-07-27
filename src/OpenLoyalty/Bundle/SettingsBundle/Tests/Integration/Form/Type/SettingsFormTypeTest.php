@@ -21,6 +21,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Provider\AvailableMarketingVendors;
 use OpenLoyalty\Bundle\SettingsBundle\Service\TranslationsProvider;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\UserBundle\Entity\Status;
+use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\PreloadedExtension;
 use Symfony\Component\Form\Test\TypeTestCase;
@@ -43,6 +44,8 @@ class SettingsFormTypeTest extends TypeTestCase
         'programPointsPlural' => 'ps',
         'helpEmailAddress' => 'email',
         'tierAssignType' => 'points',
+        'levelDowngradeMode' => LevelDowngradeModeProvider::MODE_AUTO,
+        'levelDowngradeBase' => '',
         'accountActivationMethod' => 'email',
         'uriWebhooks' => '',
         'webhookHeaderName' => '',
@@ -57,10 +60,12 @@ class SettingsFormTypeTest extends TypeTestCase
         'allTimeNotLocked' => true,
         'excludeDeliveryCostsFromTierAssignment' => true,
         'webhooks' => false,
+        'levelResetPointsOnDowngrade' => false,
     ];
 
     protected $integerEntries = [
         'pointsDaysActive' => 10,
+        'levelDowngradeDays' => 0,
     ];
 
     private $settingsManager;

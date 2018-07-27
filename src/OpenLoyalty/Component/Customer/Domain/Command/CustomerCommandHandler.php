@@ -14,6 +14,7 @@ use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerActivatedSystemEve
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerAgreementsUpdatedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerDeactivatedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerLevelChangedSystemEvent;
+use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRecalculateLevelRequestedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRegisteredSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRemovedManuallyLevelSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
@@ -367,5 +368,22 @@ class CustomerCommandHandler extends SimpleCommandHandler
             CustomerSystemEvents::CUSTOMER_UPDATED,
             [new CustomerUpdatedSystemEvent($customerId)]
         );
+    }
+
+    /**
+     * @param RecalculateCustomerLevel $command
+     */
+    public function handleRecalculateCustomerLevel(RecalculateCustomerLevel $command)
+    {
+        $customerId = $command->getCustomerId();
+        $date = $command->getDate();
+        /** @var Customer $customer */
+        $customer = $this->repository->load($customerId->__toString());
+        $this->eventDispatcher->dispatch(
+            CustomerSystemEvents::CUSTOMER_RECALCULATE_LEVEL_REQUESTED,
+            [new CustomerRecalculateLevelRequestedSystemEvent($customerId)]
+        );
+        $customer->recalculateLevel($date);
+        $this->repository->save($customer);
     }
 }

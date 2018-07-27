@@ -12,6 +12,7 @@ use OpenLoyalty\Component\Customer\Domain\Event\CampaignStatusWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerDetailsWereUpdated;
+use OpenLoyalty\Component\Customer\Domain\Event\CustomerLevelWasRecalculated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasActivated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasDeactivated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasMovedToLevel;
@@ -74,7 +75,7 @@ class CustomerDetailsProjector extends Projector
     /**
      * @param CustomerWasMovedToLevel $event
      */
-    public function applyCustomerWasMovedToLevel(CustomerWasMovedToLevel $event)
+    public function applyCustomerWasMovedToLevel(CustomerWasMovedToLevel $event): void
     {
         $customerId = $event->getCustomerId();
         $levelId = $event->getLevelId();
@@ -112,7 +113,7 @@ class CustomerDetailsProjector extends Projector
     /**
      * @param CustomerWasRegistered $event
      */
-    protected function applyCustomerWasRegistered(CustomerWasRegistered $event)
+    protected function applyCustomerWasRegistered(CustomerWasRegistered $event): void
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
@@ -157,7 +158,7 @@ class CustomerDetailsProjector extends Projector
     /**
      * @param CustomerDetailsWereUpdated $event
      */
-    protected function applyCustomerDetailsWereUpdated(CustomerDetailsWereUpdated $event)
+    protected function applyCustomerDetailsWereUpdated(CustomerDetailsWereUpdated $event): void
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
@@ -209,7 +210,7 @@ class CustomerDetailsProjector extends Projector
     /**
      * @param CustomerAddressWasUpdated $event
      */
-    protected function applyCustomerAddressWasUpdated(CustomerAddressWasUpdated $event)
+    protected function applyCustomerAddressWasUpdated(CustomerAddressWasUpdated $event): void
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
@@ -222,7 +223,7 @@ class CustomerDetailsProjector extends Projector
     /**
      * @param CustomerCompanyDetailsWereUpdated $event
      */
-    protected function applyCustomerCompanyDetailsWereUpdated(CustomerCompanyDetailsWereUpdated $event)
+    protected function applyCustomerCompanyDetailsWereUpdated(CustomerCompanyDetailsWereUpdated $event): void
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
@@ -240,7 +241,7 @@ class CustomerDetailsProjector extends Projector
     /**
      * @param CustomerLoyaltyCardNumberWasUpdated $event
      */
-    protected function applyCustomerLoyaltyCardNumberWasUpdated(CustomerLoyaltyCardNumberWasUpdated $event)
+    protected function applyCustomerLoyaltyCardNumberWasUpdated(CustomerLoyaltyCardNumberWasUpdated $event): void
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
@@ -253,7 +254,7 @@ class CustomerDetailsProjector extends Projector
     /**
      * @param PosWasAssignedToCustomer $event
      */
-    protected function applyPosWasAssignedToCustomer(PosWasAssignedToCustomer $event)
+    protected function applyPosWasAssignedToCustomer(PosWasAssignedToCustomer $event): void
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
@@ -266,7 +267,7 @@ class CustomerDetailsProjector extends Projector
     /**
      * @param SellerWasAssignedToCustomer $event
      */
-    protected function applySellerWasAssignedToCustomer(SellerWasAssignedToCustomer $event)
+    protected function applySellerWasAssignedToCustomer(SellerWasAssignedToCustomer $event): void
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
@@ -279,7 +280,7 @@ class CustomerDetailsProjector extends Projector
     /**
      * @param CampaignWasBoughtByCustomer $event
      */
-    protected function applyCampaignWasBoughtByCustomer(CampaignWasBoughtByCustomer $event)
+    protected function applyCampaignWasBoughtByCustomer(CampaignWasBoughtByCustomer $event): void
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
@@ -302,7 +303,7 @@ class CustomerDetailsProjector extends Projector
     /**
      * @param CampaignUsageWasChanged $event
      */
-    protected function applyCampaignUsageWasChanged(CampaignUsageWasChanged $event)
+    protected function applyCampaignUsageWasChanged(CampaignUsageWasChanged $event): void
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
@@ -322,7 +323,7 @@ class CustomerDetailsProjector extends Projector
     /**
      * @param CampaignStatusWasChanged $event
      */
-    protected function applyCampaignStatusWasChanged(CampaignStatusWasChanged $event)
+    protected function applyCampaignStatusWasChanged(CampaignStatusWasChanged $event): void
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
@@ -342,7 +343,7 @@ class CustomerDetailsProjector extends Projector
     /**
      * @param CustomerWasDeactivated $event
      */
-    protected function applyCustomerWasDeactivated(CustomerWasDeactivated $event)
+    protected function applyCustomerWasDeactivated(CustomerWasDeactivated $event): void
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
@@ -354,7 +355,7 @@ class CustomerDetailsProjector extends Projector
     /**
      * @param CustomerWasActivated $event
      */
-    protected function applyCustomerWasActivated(CustomerWasActivated $event)
+    protected function applyCustomerWasActivated(CustomerWasActivated $event): void
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
@@ -364,9 +365,20 @@ class CustomerDetailsProjector extends Projector
     }
 
     /**
+     * @param CustomerLevelWasRecalculated $event
+     */
+    protected function applyCustomerLevelWasRecalculated(CustomerLevelWasRecalculated $event): void
+    {
+        /** @var CustomerDetails $readModel */
+        $readModel = $this->getReadModel($event->getCustomerId());
+        $readModel->setLastLevelRecalculation($event->getDate());
+        $this->repository->save($readModel);
+    }
+
+    /**
      * @param CustomerWasAssignedToTransaction $event
      */
-    public function applyCustomerWasAssignedToTransaction(CustomerWasAssignedToTransaction $event)
+    public function applyCustomerWasAssignedToTransaction(CustomerWasAssignedToTransaction $event): void
     {
         $readModel = $this->getReadModel(new CustomerId($event->getCustomerId()->__toString()));
         $transaction = $this->transactionDetailsRepository->find($event->getTransactionId()->__toString());
@@ -430,7 +442,7 @@ class CustomerDetailsProjector extends Projector
      *
      * @return null|CustomerDetails
      */
-    private function getReadModel(CustomerId $userId)
+    private function getReadModel(CustomerId $userId): CustomerDetails
     {
         $readModel = $this->repository->find($userId->__toString());
 

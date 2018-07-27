@@ -535,7 +535,10 @@
         "used_points": "Wykorzystane punkty",
         "expired_points": "Nieaktywne punkty",
         "locked_points": "Zablokowane punkty",
-        "total_points": "Suma zgromadzonych punktów"
+        "total_points": "Suma zgromadzonych punktów",
+        "total_points_since_last_level_recalculation": "Suma zgromadzonych punktów od ostatniego przeliczenia poziomu",
+        "level_will_expire_in_days": "Poziom wygaśnie za",
+        "level_will_expire_in_days_prompt": " dni"
       },
       "table": {
         "date_and_time": "Data i godzina",
@@ -746,7 +749,10 @@
       "title": "Balans punktów",
       "used_points": "Wykorzystane punkty",
       "locked_points": "Zablokowane punkty",
-      "total_points": "Suma zgromadzonych punktów"
+      "total_points": "Suma zgromadzonych punktów",
+      "total_points_since_last_level_recalculation": "Suma zgromadzonych punktów od ostatniego przeliczenia poziomu",
+      "level_will_expire_in_days": "Poziom wygaśnie za",
+      "level_will_expire_in_days_prompt": " dni"
     },
     "loyalty_card_number_prompt": "",
     "male": "Mężczyzna",
@@ -1772,6 +1778,21 @@
     }
   },
   "settings": {
+    "level_downgrade": {
+      "title": "Ustawienia związane ze zmianą poziomu na niższy",
+      "mode": "Tryb",
+      "mode_prompt": "",
+      "days": "Sprawdź co",
+      "days_prompt": "dni",
+      "base": "W oparciu o",
+      "base_prompt": "",
+      "active_points": "atkywne punkty",
+      "earned_points": "punkty zgromadzone przez ostatnie X dni",
+      "after_x_days": "co X dni",
+      "none": "brak spadku",
+      "automatic": "automatycznie",
+      "reset_points": "resetuj punkty"
+    },
     "accent_color": "Zdefiniuj kolor",
     "conditions_file": "Warunki i Zasady Użytkowania",
     "accent_color_prompt": "Kolor w HEX (#000000)",

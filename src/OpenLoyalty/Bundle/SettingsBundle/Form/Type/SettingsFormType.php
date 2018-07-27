@@ -11,6 +11,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\ActivationMethodSubscriber;
 use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\AllTimeActiveSubscriber;
 use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\AllTimeNotLockedSubscriber;
+use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\DowngradeModeSubscriber;
 use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\ExcludeDeliveryCostSubscriber;
 use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\MarketingVendorSubscriber;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
@@ -21,6 +22,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\SettingsBundle\Service\TranslationsProvider;
 use OpenLoyalty\Bundle\SettingsBundle\Validator\Constraints\NotEmptyValue;
 use OpenLoyalty\Bundle\SettingsBundle\Validator\Constraints\ValidHexColor;
+use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -301,11 +303,40 @@ class SettingsFormType extends AbstractType
                 ])
         );
 
+        $builder->add(
+            $builder->create('levelDowngradeMode', SettingsChoicesType::class, [
+                'choices' => [
+                    LevelDowngradeModeProvider::MODE_NONE,
+                    LevelDowngradeModeProvider::MODE_AUTO,
+                    LevelDowngradeModeProvider::MODE_X_DAYS,
+                ],
+                'constraints' => [new NotBlank()],
+            ])
+        );
+        $builder->add(
+            $builder->create('levelDowngradeDays', SettingsIntegerType::class)
+        );
+
+        $builder->add(
+            $builder->create('levelDowngradeBase', SettingsChoicesType::class, [
+                'choices' => [
+                    LevelDowngradeModeProvider::BASE_ACTIVE_POINTS,
+                    LevelDowngradeModeProvider::BASE_EARNED_POINTS,
+                ],
+            ])
+        );
+        $builder->add(
+            $builder->create('levelResetPointsOnDowngrade', SettingsCheckboxType::class, [
+                'required' => false,
+            ])
+        );
+
         $builder->addEventSubscriber(new AllTimeActiveSubscriber());
         $builder->addEventSubscriber(new AllTimeNotLockedSubscriber());
         $builder->addEventSubscriber(new ExcludeDeliveryCostSubscriber());
         $builder->addEventSubscriber(new ActivationMethodSubscriber($this->smsGateway));
         $builder->addEventSubscriber(new MarketingVendorSubscriber($this->marketingVendors));
+        $builder->addEventSubscriber(new DowngradeModeSubscriber());
 
         $this->addSmsConfig($builder);
     }

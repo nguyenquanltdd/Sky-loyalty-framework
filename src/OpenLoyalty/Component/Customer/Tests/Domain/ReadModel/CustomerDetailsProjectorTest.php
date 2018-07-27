@@ -4,6 +4,7 @@ namespace OpenLoyalty\Component\Customer\Tests\Domain\ReadModel;
 
 use Broadway\ReadModel\InMemory\InMemoryRepository;
 use Broadway\ReadModel\Testing\ProjectorScenarioTestCase;
+use OpenLoyalty\Component\Customer\Domain\Event\CustomerLevelWasRecalculated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasMovedToLevel;
 use OpenLoyalty\Component\Customer\Domain\LevelId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
@@ -121,6 +122,28 @@ class CustomerDetailsProjectorTest extends ProjectorScenarioTestCase
             ->when(new CustomerWasMovedToLevel($customerId, null))
             ->then([
                 $this->createBaseReadModel($customerId, $data),
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_updates_last_level_recalculation_date()
+    {
+        $customerId = new CustomerId('00000000-0000-0000-0000-000000000000');
+
+        $data = CustomerCommandHandlerTest::getCustomerData();
+        $date = new \DateTime();
+        /** @var CustomerDetails $baseReadModel */
+        $baseReadModel = $this->createBaseReadModel($customerId, $data);
+        $baseReadModel->setLastLevelRecalculation($date);
+        $this->scenario
+            ->given([
+                new CustomerWasRegistered($customerId, CustomerCommandHandlerTest::getCustomerData()),
+            ])
+            ->when(new CustomerLevelWasRecalculated($customerId, $date))
+            ->then([
+                $baseReadModel,
             ]);
     }
 

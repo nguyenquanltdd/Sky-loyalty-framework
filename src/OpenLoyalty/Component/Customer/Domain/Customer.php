@@ -10,6 +10,7 @@ use OpenLoyalty\Component\Customer\Domain\Event\CampaignStatusWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerDetailsWereUpdated;
+use OpenLoyalty\Component\Customer\Domain\Event\CustomerLevelWasRecalculated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasActivated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasDeactivated;
 use OpenLoyalty\Component\Customer\Domain\Event\PosWasAssignedToCustomer;
@@ -92,10 +93,19 @@ class Customer extends EventSourcedAggregateRoot
      */
     protected $firstPurchaseAt;
 
+    /**
+     * @var bool
+     */
     protected $agreement1 = false;
 
+    /**
+     * @var bool
+     */
     protected $agreement2 = false;
 
+    /**
+     * @var bool
+     */
     protected $agreement3 = false;
 
     /**
@@ -111,7 +121,13 @@ class Customer extends EventSourcedAggregateRoot
         return $this->id;
     }
 
-    public static function registerCustomer(CustomerId $customerId, array $customerData)
+    /**
+     * @param CustomerId $customerId
+     * @param array      $customerData
+     *
+     * @return Customer
+     */
+    public static function registerCustomer(CustomerId $customerId, array $customerData): Customer
     {
         $customer = new self();
         $customer->register($customerId, $customerData);
@@ -119,112 +135,180 @@ class Customer extends EventSourcedAggregateRoot
         return $customer;
     }
 
-    public function updateAddress(array $addressData)
+    /**
+     * @param array $addressData
+     */
+    public function updateAddress(array $addressData): void
     {
         $this->apply(
             new CustomerAddressWasUpdated($this->id, $addressData)
         );
     }
 
-    public function updateCompanyDetails(array $companyData)
+    /**
+     * @param array $companyData
+     */
+    public function updateCompanyDetails(array $companyData): void
     {
         $this->apply(
             new CustomerCompanyDetailsWereUpdated($this->id, $companyData)
         );
     }
 
-    public function updateLoyaltyCardNumber($cardNumber)
+    /**
+     * @param $cardNumber
+     */
+    public function updateLoyaltyCardNumber($cardNumber): void
     {
         $this->apply(
             new CustomerLoyaltyCardNumberWasUpdated($this->id, $cardNumber)
         );
     }
 
-    public function addToLevel(LevelId $levelId = null, $manually = false, $removeLevelManually = false)
+    /**
+     * @param LevelId|null $levelId
+     * @param bool         $manually
+     * @param bool         $removeLevelManually
+     */
+    public function addToLevel(LevelId $levelId = null, $manually = false, $removeLevelManually = false): void
     {
         $this->apply(
             new CustomerWasMovedToLevel($this->getId(), $levelId, $manually, $removeLevelManually)
         );
     }
 
-    private function register(CustomerId $userId, array $customerData)
+    /**
+     * @param CustomerId $userId
+     * @param array      $customerData
+     */
+    private function register(CustomerId $userId, array $customerData): void
     {
         $this->apply(
             new CustomerWasRegistered($userId, $customerData)
         );
     }
 
-    public function updateCustomerDetails(array $customerData)
+    /**
+     * @param array $customerData
+     */
+    public function updateCustomerDetails(array $customerData): void
     {
         $this->apply(
             new CustomerDetailsWereUpdated($this->getId(), $customerData)
         );
     }
 
-    public function assignPosToCustomer(PosId $posId)
+    /**
+     * @param PosId $posId
+     */
+    public function assignPosToCustomer(PosId $posId): void
     {
         $this->apply(
             new PosWasAssignedToCustomer($this->getId(), $posId)
         );
     }
 
-    public function assignSellerToCustomer(SellerId $sellerId)
+    /**
+     * @param SellerId $sellerId
+     */
+    public function assignSellerToCustomer(SellerId $sellerId): void
     {
         $this->apply(
             new SellerWasAssignedToCustomer($this->getId(), $sellerId)
         );
     }
 
-    public function buyCampaign(CampaignId $campaignId, $campaignName, $costInPoints, Coupon $coupon, $reward, string $status, ?\DateTime $activeSince, ?\DateTime $activeTo)
+    /**
+     * @param CampaignId $campaignId
+     * @param $campaignName
+     * @param $costInPoints
+     * @param Coupon $coupon
+     * @param $reward
+     * @param string         $status
+     * @param \DateTime|null $activeSince
+     * @param \DateTime|null $activeTo
+     */
+    public function buyCampaign(CampaignId $campaignId, $campaignName, $costInPoints, Coupon $coupon, $reward, string $status, ?\DateTime $activeSince, ?\DateTime $activeTo): void
     {
         $this->apply(
             new CampaignWasBoughtByCustomer($this->getId(), $campaignId, $campaignName, $costInPoints, $coupon, $reward, $status, $activeSince, $activeTo)
         );
     }
 
-    public function changeCampaignUsage(CampaignId $campaignId, Coupon $coupon, $used)
+    /**
+     * @param CampaignId $campaignId
+     * @param Coupon     $coupon
+     * @param $used
+     */
+    public function changeCampaignUsage(CampaignId $campaignId, Coupon $coupon, $used): void
     {
         $this->apply(
             new CampaignUsageWasChanged($this->getId(), $campaignId, $coupon, $used)
         );
     }
 
-    public function changeCampaignStatus(CampaignId $campaignId, Coupon $coupon, $status)
+    /**
+     * @param CampaignId $campaignId
+     * @param Coupon     $coupon
+     * @param $status
+     */
+    public function changeCampaignStatus(CampaignId $campaignId, Coupon $coupon, $status): void
     {
         $this->apply(
             new CampaignStatusWasChanged($this->getId(), $campaignId, $coupon, $status)
         );
     }
 
-    public function expireCampaignBought(CampaignId $campaignId, Coupon $coupon)
+    /**
+     * @param CampaignId $campaignId
+     * @param Coupon     $coupon
+     */
+    public function expireCampaignBought(CampaignId $campaignId, Coupon $coupon): void
     {
         $this->apply(
             new CampaignStatusWasChanged($this->getId(), $campaignId, $coupon, CampaignPurchase::STATUS_EXPIRED)
         );
     }
 
-    public function activateCampaignBought(CampaignId $campaignId, Coupon $coupon)
+    /**
+     * @param CampaignId $campaignId
+     * @param Coupon     $coupon
+     */
+    public function activateCampaignBought(CampaignId $campaignId, Coupon $coupon): void
     {
         $this->apply(
             new CampaignStatusWasChanged($this->getId(), $campaignId, $coupon, CampaignPurchase::STATUS_ACTIVE)
         );
     }
 
-    public function deactivate()
+    public function deactivate(): void
     {
         $this->apply(
             new CustomerWasDeactivated($this->getId())
         );
     }
 
-    public function activate()
+    public function activate(): void
     {
         $this->apply(
             new CustomerWasActivated($this->getId())
         );
     }
 
-    protected function applyCustomerWasRegistered(CustomerWasRegistered $event)
+    /**
+     * @param \DateTime $date
+     */
+    public function recalculateLevel(\DateTime $date): void
+    {
+        $this->apply(
+            new CustomerLevelWasRecalculated($this->getId(), $date)
+        );
+    }
+
+    /**
+     * @param CustomerWasRegistered $event
+     */
+    protected function applyCustomerWasRegistered(CustomerWasRegistered $event): void
     {
         $data = $event->getCustomerData();
         $data = $this->resolveOptions($data);
@@ -262,7 +346,10 @@ class Customer extends EventSourcedAggregateRoot
         $this->setCreatedAt($data['createdAt']);
     }
 
-    protected function applyCustomerDetailsWereUpdated(CustomerDetailsWereUpdated $event)
+    /**
+     * @param CustomerDetailsWereUpdated $event
+     */
+    protected function applyCustomerDetailsWereUpdated(CustomerDetailsWereUpdated $event): void
     {
         $data = $event->getCustomerData();
 
@@ -301,12 +388,18 @@ class Customer extends EventSourcedAggregateRoot
         }
     }
 
-    protected function applyCustomerAddressWasUpdated(CustomerAddressWasUpdated $event)
+    /**
+     * @param CustomerAddressWasUpdated $event
+     */
+    protected function applyCustomerAddressWasUpdated(CustomerAddressWasUpdated $event): void
     {
         $this->setAddress(Address::fromData($event->getAddressData()));
     }
 
-    protected function applyCustomerCompanyDetailsWereUpdated(CustomerCompanyDetailsWereUpdated $event)
+    /**
+     * @param CustomerCompanyDetailsWereUpdated $event
+     */
+    protected function applyCustomerCompanyDetailsWereUpdated(CustomerCompanyDetailsWereUpdated $event): void
     {
         $companyData = $event->getCompanyData();
         if (!$companyData || count($companyData) == 0) {
@@ -316,15 +409,18 @@ class Customer extends EventSourcedAggregateRoot
         }
     }
 
-    protected function applyCustomerLoyaltyCardNumberWasUpdated(CustomerLoyaltyCardNumberWasUpdated $event)
+    /**
+     * @param CustomerLoyaltyCardNumberWasUpdated $event
+     */
+    protected function applyCustomerLoyaltyCardNumberWasUpdated(CustomerLoyaltyCardNumberWasUpdated $event): void
     {
         $this->setLoyaltyCardNumber($event->getCardNumber());
     }
 
     /**
-     * @return CustomerId
+     * @return null|CustomerId
      */
-    public function getId()
+    public function getId(): ?CustomerId
     {
         return $this->id;
     }
@@ -332,7 +428,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @return string
      */
-    public function getFirstName()
+    public function getFirstName(): string
     {
         return $this->firstName;
     }
@@ -340,7 +436,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @param string $firstName
      */
-    public function setFirstName($firstName)
+    public function setFirstName($firstName): void
     {
         Assert::notEmpty($firstName);
         $this->firstName = $firstName;
@@ -349,7 +445,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @return string
      */
-    public function getLastName()
+    public function getLastName(): string
     {
         return $this->lastName;
     }
@@ -357,16 +453,16 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @param string $lastName
      */
-    public function setLastName($lastName)
+    public function setLastName($lastName): void
     {
         Assert::notEmpty($lastName);
         $this->lastName = $lastName;
     }
 
     /**
-     * @return string
+     * @return Gender
      */
-    public function getGender()
+    public function getGender(): Gender
     {
         return $this->gender;
     }
@@ -374,7 +470,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @param Gender $gender
      */
-    public function setGender(Gender $gender)
+    public function setGender(Gender $gender): void
     {
         Assert::notEmpty($gender);
         $this->gender = $gender;
@@ -383,7 +479,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @return string
      */
-    public function getEmail()
+    public function getEmail(): string
     {
         return $this->email;
     }
@@ -391,7 +487,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @param string $email
      */
-    public function setEmail($email)
+    public function setEmail(string $email): void
     {
         $this->email = $email;
     }
@@ -399,7 +495,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @return string
      */
-    public function getPhone()
+    public function getPhone(): string
     {
         return $this->phone;
     }
@@ -407,7 +503,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @param string $phone
      */
-    public function setPhone($phone)
+    public function setPhone(string $phone): void
     {
         Assert::notEmpty($phone);
         $this->phone = $phone;
@@ -416,7 +512,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @return \DateTime
      */
-    public function getBirthDate()
+    public function getBirthDate(): \DateTime
     {
         return $this->birthDate;
     }
@@ -424,7 +520,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @param \DateTime $birthDate
      */
-    public function setBirthDate(\DateTime $birthDate)
+    public function setBirthDate(\DateTime $birthDate): void
     {
         Assert::notEmpty($birthDate);
         $this->birthDate = $birthDate;
@@ -433,7 +529,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @return Address
      */
-    public function getAddress()
+    public function getAddress(): Address
     {
         return $this->address;
     }
@@ -441,7 +537,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @param Address $address
      */
-    public function setAddress($address)
+    public function setAddress(Address $address): void
     {
         Assert::notEmpty($address);
         $this->address = $address;
@@ -450,7 +546,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @return string
      */
-    public function getLoyaltyCardNumber()
+    public function getLoyaltyCardNumber(): ?string
     {
         return $this->loyaltyCardNumber;
     }
@@ -458,7 +554,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @param string $loyaltyCardNumber
      */
-    public function setLoyaltyCardNumber($loyaltyCardNumber)
+    public function setLoyaltyCardNumber(string $loyaltyCardNumber): void
     {
         Assert::notEmpty($loyaltyCardNumber);
         $this->loyaltyCardNumber = $loyaltyCardNumber;
@@ -467,7 +563,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @return \DateTime
      */
-    public function getCreatedAt()
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
@@ -475,7 +571,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @param \DateTime $createdAt
      */
-    public function setCreatedAt(\DateTime $createdAt)
+    public function setCreatedAt(\DateTime $createdAt): void
     {
         Assert::notEmpty($createdAt);
         $this->createdAt = $createdAt;
@@ -484,7 +580,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @return \DateTime
      */
-    public function getFirstPurchaseAt()
+    public function getFirstPurchaseAt(): \DateTime
     {
         return $this->firstPurchaseAt;
     }
@@ -492,7 +588,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @param \DateTime $firstPurchaseAt
      */
-    public function setFirstPurchaseAt($firstPurchaseAt)
+    public function setFirstPurchaseAt(\DateTime $firstPurchaseAt): void
     {
         $this->firstPurchaseAt = $firstPurchaseAt;
     }
@@ -500,7 +596,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @return bool
      */
-    public function isCompany()
+    public function isCompany(): bool
     {
         return $this->company != null ? true : false;
     }
@@ -508,7 +604,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @param Company $company
      */
-    public function setCompany(Company $company = null)
+    public function setCompany(Company $company = null): void
     {
         $this->company = $company;
     }
@@ -516,7 +612,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @return bool
      */
-    public function isAgreement1()
+    public function isAgreement1(): bool
     {
         return $this->agreement1;
     }
@@ -524,7 +620,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @param bool $agreement1
      */
-    public function setAgreement1($agreement1)
+    public function setAgreement1(bool $agreement1): void
     {
         $this->agreement1 = $agreement1;
     }
@@ -532,7 +628,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @return bool
      */
-    public function isAgreement2()
+    public function isAgreement2(): bool
     {
         return $this->agreement2;
     }
@@ -540,7 +636,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @param bool $agreement2
      */
-    public function setAgreement2($agreement2)
+    public function setAgreement2(bool $agreement2): void
     {
         $this->agreement2 = $agreement2;
     }
@@ -548,7 +644,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @return Status
      */
-    public function getStatus()
+    public function getStatus(): Status
     {
         return $this->status;
     }
@@ -556,7 +652,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @param Status $status
      */
-    public function setStatus(Status $status)
+    public function setStatus(Status $status): void
     {
         $this->status = $status;
     }
@@ -564,7 +660,7 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @return bool
      */
-    public function isAgreement3()
+    public function isAgreement3(): bool
     {
         return $this->agreement3;
     }
@@ -572,12 +668,17 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @param bool $agreement3
      */
-    public function setAgreement3($agreement3)
+    public function setAgreement3(bool $agreement3): void
     {
         $this->agreement3 = $agreement3;
     }
 
-    public static function resolveOptions($data)
+    /**
+     * @param $data
+     *
+     * @return array
+     */
+    public static function resolveOptions($data): array
     {
         $defaults = [
             'firstName' => null,

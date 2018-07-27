@@ -7,6 +7,7 @@ namespace OpenLoyalty\Component\Account\Domain;
 
 use Broadway\EventSourcing\EventSourcedAggregateRoot;
 use OpenLoyalty\Component\Account\Domain\Event\AccountWasCreated;
+use OpenLoyalty\Component\Account\Domain\Event\PointsHasBeenReset;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenCanceled;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenExpired;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenUnlocked;
@@ -110,6 +111,16 @@ class Account extends EventSourcedAggregateRoot
     {
         $this->apply(
             new PointsTransferHasBeenExpired($this->id, $pointsTransferId)
+        );
+    }
+
+    /**
+     * @param \DateTime $date
+     */
+    public function resetPoints(\DateTime $date): void
+    {
+        $this->apply(
+            new PointsHasBeenReset($this->id, $date)
         );
     }
 
@@ -266,6 +277,18 @@ class Account extends EventSourcedAggregateRoot
     }
 
     /**
+     * @param PointsHasBeenReset $event
+     */
+    public function applyPointsHasBeenReset(PointsHasBeenReset $event): void
+    {
+        $transfers = $this->getAllActiveAndLockedAddPointsTransfers();
+
+        foreach ($transfers as $transfer) {
+            $transfer->expire();
+        }
+    }
+
+    /**
      * @param PointsTransferHasBeenUnlocked $event
      */
     protected function applyPointsTransferHasBeenUnlocked(PointsTransferHasBeenUnlocked $event)
@@ -293,6 +316,30 @@ class Account extends EventSourcedAggregateRoot
                 continue;
             }
             if ($pointsTransfer->isLocked() || $pointsTransfer->isExpired() || $pointsTransfer->getAvailableAmount() == 0 || $pointsTransfer->isCanceled()) {
+                continue;
+            }
+
+            $transfers[] = $pointsTransfer;
+        }
+
+        usort($transfers, function (PointsTransfer $a, PointsTransfer $b) {
+            return $a->getCreatedAt() > $b->getCreatedAt();
+        });
+
+        return $transfers;
+    }
+
+    /**
+     * @return AddPointsTransfer[]
+     */
+    protected function getAllActiveAndLockedAddPointsTransfers(): array
+    {
+        $transfers = [];
+        foreach ($this->pointsTransfers as $pointsTransfer) {
+            if (!$pointsTransfer instanceof AddPointsTransfer) {
+                continue;
+            }
+            if ($pointsTransfer->isExpired() || $pointsTransfer->getAvailableAmount() == 0 || $pointsTransfer->isCanceled()) {
                 continue;
             }
 

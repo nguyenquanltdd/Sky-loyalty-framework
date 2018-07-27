@@ -12,6 +12,7 @@ use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
+use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
 use OpenLoyalty\Component\Customer\Infrastructure\ExcludeDeliveryCostsProvider;
@@ -54,6 +55,11 @@ class CustomerStatusProvider
     protected $settingsManager;
 
     /**
+     * @var LevelDowngradeModeProvider
+     */
+    protected $levelDowngradeModeProvider;
+
+    /**
      * CustomerStatusProvider constructor.
      *
      * @param Repository                   $accountDetailsRepository
@@ -62,6 +68,7 @@ class CustomerStatusProvider
      * @param TierAssignTypeProvider       $tierAssignTypeProvider
      * @param ExcludeDeliveryCostsProvider $excludeDeliveryCostProvider
      * @param SettingsManager              $settingsManager
+     * @param LevelDowngradeModeProvider   $downgradeModeProvider
      */
     public function __construct(
         Repository $accountDetailsRepository,
@@ -69,7 +76,8 @@ class CustomerStatusProvider
         CustomerDetailsRepository $customerDetailsRepository,
         TierAssignTypeProvider $tierAssignTypeProvider,
         ExcludeDeliveryCostsProvider $excludeDeliveryCostProvider,
-        SettingsManager $settingsManager
+        SettingsManager $settingsManager,
+        LevelDowngradeModeProvider $downgradeModeProvider
     ) {
         $this->accountDetailsRepository = $accountDetailsRepository;
         $this->levelRepository = $levelRepository;
@@ -77,6 +85,7 @@ class CustomerStatusProvider
         $this->tierAssignTypeProvider = $tierAssignTypeProvider;
         $this->excludeDeliveryCostProvider = $excludeDeliveryCostProvider;
         $this->settingsManager = $settingsManager;
+        $this->levelDowngradeModeProvider = $downgradeModeProvider;
     }
 
     /**
@@ -138,6 +147,10 @@ class CustomerStatusProvider
             $status->setTransactionsAmountWithoutDeliveryCosts($customer->getTransactionsAmountWithoutDeliveryCosts());
             $status->setAverageTransactionsAmount(number_format($customer->getAverageTransactionAmount(), 2, '.', ''));
             $status->setTransactionsCount($customer->getTransactionsCount());
+            if ($this->displayDowngradeModeXDaysStats()) {
+                $startDate = $customer->getLastLevelRecalculation() ?: $customer->getCreatedAt();
+                $status->setPointsSinceLastLevelRecalculation($accountDetails->getEarnedAmountSince($startDate));
+            }
         }
 
         if ($level) {
@@ -152,6 +165,19 @@ class CustomerStatusProvider
 
         if ($nextLevel && $accountDetails) {
             $this->applyNextLevelRequirements($customer, $status, $nextLevel, $accountDetails->getAvailableAmount());
+        }
+
+        if ($this->displayDowngradeModeXDaysStats()) {
+            $date = $customer->getLastLevelRecalculation() ?: $customer->getCreatedAt();
+            $nextDate = (clone $date)->modify(sprintf('+%u days', $this->levelDowngradeModeProvider->getDays()));
+            if ($nextDate < (new \DateTime())) {
+                $days = 0;
+            } else {
+                $diff = abs($nextDate->getTimestamp() - $date->getTimestamp());
+                $days = floor($diff / 86400);
+            }
+
+            $status->setLevelWillExpireInDays($days);
         }
 
         return $status;
@@ -217,5 +243,15 @@ class CustomerStatusProvider
         }
 
         return 'PLN';
+    }
+
+    /**
+     * @return bool
+     *
+     * @throws \OpenLoyalty\Component\Customer\Infrastructure\Exception\LevelDowngradeModeNotSupportedException
+     */
+    private function displayDowngradeModeXDaysStats(): bool
+    {
+        return $this->tierAssignTypeProvider->getType() == TierAssignTypeProvider::TYPE_POINTS && $this->levelDowngradeModeProvider->getMode() === LevelDowngradeModeProvider::MODE_X_DAYS;
     }
 }

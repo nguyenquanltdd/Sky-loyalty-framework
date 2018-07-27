@@ -4,9 +4,11 @@ namespace OpenLoyalty\Component\Customer\Tests\Infrastructure\SystemEvent\Listen
 
 use Broadway\CommandHandling\CommandBus;
 use Broadway\EventDispatcher\EventDispatcher;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Bundle\UserBundle\Model\CustomerStatus;
 use OpenLoyalty\Bundle\UserBundle\Status\CustomerStatusProvider;
 use OpenLoyalty\Component\Account\Domain\AccountId;
+use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Account\Domain\CustomerId as AccountCustomerId;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountCreatedSystemEvent;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AvailablePointsAmountChangedSystemEvent;
@@ -17,7 +19,9 @@ use OpenLoyalty\Component\Customer\Domain\LevelId as CustomerLevelId;
 use OpenLoyalty\Component\Customer\Domain\LevelIdProvider;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
+use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRecalculateLevelRequestedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRemovedManuallyLevelSystemEvent;
+use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 use OpenLoyalty\Component\Customer\Infrastructure\ExcludeDeliveryCostsProvider;
 use OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener\CalculateCustomerLevelListener;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
@@ -69,7 +73,9 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->getExcludeDeliveryCostsProvider(false),
             $this->getLevelRepository(),
             $this->getDispatcher(),
-            $this->getCustomerStatusProvider(100)
+            $this->getCustomerStatusProvider(100),
+            $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_NONE),
+            $this->getAccountDetailsRepository(100)
         );
 
         $listener->handle(new CustomerRemovedManuallyLevelSystemEvent(
@@ -108,7 +114,9 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->getExcludeDeliveryCostsProvider(false),
             $this->getLevelRepository(),
             $this->getDispatcher(),
-            $this->getCustomerStatusProvider()
+            $this->getCustomerStatusProvider(),
+            $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_NONE),
+            $this->getAccountDetailsRepository(100)
         );
 
         $listener->handle(new CustomerAssignedToTransactionSystemEvent(
@@ -142,7 +150,9 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->getExcludeDeliveryCostsProvider(false),
             $this->getLevelRepository($level),
             $this->getDispatcher(),
-            $this->getCustomerStatusProvider()
+            $this->getCustomerStatusProvider(),
+            $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_NONE),
+            $this->getAccountDetailsRepository(100)
         );
 
         $listener->handle(new CustomerAssignedToTransactionSystemEvent(
@@ -200,7 +210,9 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->getExcludeDeliveryCostsProvider(false),
             $levelsRepo,
             $this->getDispatcher(),
-            $this->getCustomerStatusProvider()
+            $this->getCustomerStatusProvider(),
+            $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_NONE),
+            $this->getAccountDetailsRepository(100)
         );
 
         $listener->handle(new CustomerAssignedToTransactionSystemEvent(
@@ -242,7 +254,9 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->getExcludeDeliveryCostsProvider(false),
             $this->getLevelRepository(),
             $this->getDispatcher(),
-            $this->getCustomerStatusProvider()
+            $this->getCustomerStatusProvider(),
+            $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_NONE),
+            $this->getAccountDetailsRepository(100)
         );
 
         $listener->handle(new AccountCreatedSystemEvent(
@@ -282,7 +296,390 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->getExcludeDeliveryCostsProvider(true),
             $this->getLevelRepository(),
             $this->getDispatcher(),
-            $this->getCustomerStatusProvider()
+            $this->getCustomerStatusProvider(),
+            $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_NONE),
+            $this->getAccountDetailsRepository(100)
+        );
+        $listener->handle(new AvailablePointsAmountChangedSystemEvent(
+            new AccountId('00000000-0000-0000-0000-000000000000'),
+            new AccountCustomerId($customerId),
+            20,
+            20
+        ));
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_downgrade_when_no_downgrade_mode()
+    {
+        $customerId = '00000000-0000-0000-0000-000000000000';
+        $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
+        $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
+        $level = new Level($levelId, 'test', 10);
+        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 'test2', 15);
+        $customerReward = new Reward('as2', 20, 'as');
+        $reward = new Reward('as', 10, 'as');
+        $level->setReward($reward);
+        $customerLevel->setReward($customerReward);
+
+        $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
+        $commandBus->expects($this->never())->method('dispatch');
+
+        $listener = new CalculateCustomerLevelListener(
+            $this->getLevelIdProvider($level),
+            $this->getCustomerDetailsRepository($customerLevelId),
+            $commandBus,
+            $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
+            $this->getExcludeDeliveryCostsProvider(true),
+            $this->getLevelRepositoryWithArray([
+                $level->getLevelId()->__toString() => $level,
+                $customerLevel->getLevelId()->__toString() => $customerLevel,
+            ]),
+            $this->getDispatcher(),
+            $this->getCustomerStatusProvider(),
+            $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_NONE),
+            $this->getAccountDetailsRepository(100)
+        );
+        $listener->handle(new AvailablePointsAmountChangedSystemEvent(
+            new AccountId('00000000-0000-0000-0000-000000000000'),
+            new AccountCustomerId($customerId),
+            11,
+            20
+        ));
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_downgrade_when_no_downgrade_mode_on_recalculate_event()
+    {
+        $customerId = '00000000-0000-0000-0000-000000000000';
+        $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
+        $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
+        $level = new Level($levelId, 'test', 10);
+        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 'test2', 15);
+        $customerReward = new Reward('as2', 20, 'as');
+        $reward = new Reward('as', 10, 'as');
+        $level->setReward($reward);
+        $customerLevel->setReward($customerReward);
+
+        $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
+        $commandBus->expects($this->never())->method('dispatch');
+
+        $listener = new CalculateCustomerLevelListener(
+            $this->getLevelIdProvider($level),
+            $this->getCustomerDetailsRepository($customerLevelId),
+            $commandBus,
+            $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
+            $this->getExcludeDeliveryCostsProvider(true),
+            $this->getLevelRepositoryWithArray([
+                $level->getLevelId()->__toString() => $level,
+                $customerLevel->getLevelId()->__toString() => $customerLevel,
+            ]),
+            $this->getDispatcher(),
+            $this->getCustomerStatusProvider(),
+            $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_NONE),
+            $this->getAccountDetailsRepository(11)
+        );
+        $listener->handle(new CustomerRecalculateLevelRequestedSystemEvent(
+            new CustomerId($customerId)
+        ));
+    }
+
+    /**
+     * @test
+     */
+    public function it_downgrade_when_after_x_days_downgrade_mode_on_recalculate_event()
+    {
+        $customerId = '00000000-0000-0000-0000-000000000000';
+        $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
+        $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
+        $level = new Level($levelId, 'test', 10);
+        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 'test2', 15);
+        $customerReward = new Reward('as2', 20, 'as');
+        $reward = new Reward('as', 10, 'as');
+        $level->setReward($reward);
+        $customerLevel->setReward($customerReward);
+
+        $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
+        $commandBus->expects($this->once())->method('dispatch')->with(
+            $this->equalTo(
+                new MoveCustomerToLevel(
+                    new CustomerId($customerId),
+                    new LevelId($levelId->__toString()),
+                    'test',
+                    false,
+                    false
+                )
+            )
+        );
+
+        $listener = new CalculateCustomerLevelListener(
+            $this->getLevelIdProvider($level),
+            $this->getCustomerDetailsRepository($customerLevelId),
+            $commandBus,
+            $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
+            $this->getExcludeDeliveryCostsProvider(true),
+            $this->getLevelRepositoryWithArray([
+                $level->getLevelId()->__toString() => $level,
+                $customerLevel->getLevelId()->__toString() => $customerLevel,
+            ]),
+            $this->getDispatcher(),
+            $this->getCustomerStatusProvider(),
+            $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_X_DAYS),
+            $this->getAccountDetailsRepository(11)
+        );
+        $listener->handle(new CustomerRecalculateLevelRequestedSystemEvent(
+            new CustomerId($customerId)
+        ));
+    }
+
+    /**
+     * @test
+     */
+    public function it_downgrade_when_after_x_days_downgrade_mode_on_recalculate_event_using_earned_points()
+    {
+        $customerId = '00000000-0000-0000-0000-000000000000';
+        $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
+        $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
+        $level = new Level($levelId, 'test', 10);
+        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 'test2', 15);
+        $customerReward = new Reward('as2', 20, 'as');
+        $reward = new Reward('as', 10, 'as');
+        $level->setReward($reward);
+        $customerLevel->setReward($customerReward);
+
+        $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
+        $commandBus->expects($this->once())->method('dispatch')->with(
+            $this->equalTo(
+                new MoveCustomerToLevel(
+                    new CustomerId($customerId),
+                    new LevelId($levelId->__toString()),
+                    'test',
+                    false,
+                    false
+                )
+            )
+        );
+
+        $listener = new CalculateCustomerLevelListener(
+            $this->getLevelIdProvider([$level, $customerLevel]),
+            $this->getCustomerDetailsRepository($customerLevelId),
+            $commandBus,
+            $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
+            $this->getExcludeDeliveryCostsProvider(true),
+            $this->getLevelRepositoryWithArray([
+                $level->getLevelId()->__toString() => $level,
+                $customerLevel->getLevelId()->__toString() => $customerLevel,
+            ]),
+            $this->getDispatcher(),
+            $this->getCustomerStatusProvider(),
+            $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_X_DAYS, LevelDowngradeModeProvider::BASE_EARNED_POINTS),
+            $this->getAccountDetailsRepository(1000, 11)
+        );
+        $listener->handle(new CustomerRecalculateLevelRequestedSystemEvent(
+            new CustomerId($customerId)
+        ));
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_downgrade_when_automatic_downgrade_mode_and_manually_assigned()
+    {
+        $customerId = '00000000-0000-0000-0000-000000000000';
+        $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
+        $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
+        $level = new Level($levelId, 'test', 10);
+        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 'test2', 15);
+        $customerReward = new Reward('as2', 20, 'as');
+        $reward = new Reward('as', 10, 'as');
+        $level->setReward($reward);
+        $customerLevel->setReward($customerReward);
+
+        $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
+        $commandBus->expects($this->never())->method('dispatch');
+
+        $listener = new CalculateCustomerLevelListener(
+            $this->getLevelIdProvider($level),
+            $this->getCustomerDetailsRepository($customerLevelId, $customerLevelId),
+            $commandBus,
+            $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
+            $this->getExcludeDeliveryCostsProvider(true),
+            $this->getLevelRepositoryWithArray([
+                $level->getLevelId()->__toString() => $level,
+                $customerLevel->getLevelId()->__toString() => $customerLevel,
+            ]),
+            $this->getDispatcher(),
+            $this->getCustomerStatusProvider(),
+            $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_AUTO),
+            $this->getAccountDetailsRepository(100)
+        );
+        $listener->handle(new AvailablePointsAmountChangedSystemEvent(
+            new AccountId('00000000-0000-0000-0000-000000000000'),
+            new AccountCustomerId($customerId),
+            11,
+            20
+        ));
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_downgrade_when_x_days_downgrade_mode()
+    {
+        $customerId = '00000000-0000-0000-0000-000000000000';
+        $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
+        $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
+        $level = new Level($levelId, 'test', 10);
+        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 'test2', 15);
+        $customerReward = new Reward('as2', 20, 'as');
+        $reward = new Reward('as', 10, 'as');
+        $level->setReward($reward);
+        $customerLevel->setReward($customerReward);
+
+        $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
+        $commandBus->expects($this->never())->method('dispatch');
+
+        $listener = new CalculateCustomerLevelListener(
+            $this->getLevelIdProvider($level),
+            $this->getCustomerDetailsRepository($customerLevelId, $customerLevelId),
+            $commandBus,
+            $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
+            $this->getExcludeDeliveryCostsProvider(true),
+            $this->getLevelRepositoryWithArray([
+                $level->getLevelId()->__toString() => $level,
+                $customerLevel->getLevelId()->__toString() => $customerLevel,
+            ]),
+            $this->getDispatcher(),
+            $this->getCustomerStatusProvider(),
+            $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_X_DAYS),
+            $this->getAccountDetailsRepository(100)
+        );
+        $listener->handle(new AvailablePointsAmountChangedSystemEvent(
+            new AccountId('00000000-0000-0000-0000-000000000000'),
+            new AccountCustomerId($customerId),
+            11,
+            20
+        ));
+    }
+
+    /**
+     * @test
+     */
+    public function it_downgrades_when_automatic_downgrade_mode()
+    {
+        $customerId = '00000000-0000-0000-0000-000000000000';
+        $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
+        $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
+        $level = new Level($levelId, 'test', 10);
+        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 'test2', 15);
+        $customerReward = new Reward('as2', 20, 'as');
+        $reward = new Reward('as', 10, 'as');
+        $level->setReward($reward);
+        $customerLevel->setReward($customerReward);
+
+        $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
+        $commandBus->expects($this->once())->method('dispatch')->with(
+            $this->equalTo(
+                new MoveCustomerToLevel(
+                    new CustomerId($customerId),
+                    new LevelId($levelId->__toString()),
+                    'test',
+                    false,
+                    false
+                )
+            )
+        );
+
+        $listener = new CalculateCustomerLevelListener(
+            $this->getLevelIdProvider($level),
+            $this->getCustomerDetailsRepository($customerLevelId),
+            $commandBus,
+            $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
+            $this->getExcludeDeliveryCostsProvider(true),
+            $this->getLevelRepositoryWithArray([
+                $level->getLevelId()->__toString() => $level,
+                $customerLevel->getLevelId()->__toString() => $customerLevel,
+            ]),
+            $this->getDispatcher(),
+            $this->getCustomerStatusProvider(),
+            $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_AUTO),
+            $this->getAccountDetailsRepository(100)
+        );
+        $listener->handle(new AvailablePointsAmountChangedSystemEvent(
+            new AccountId('00000000-0000-0000-0000-000000000000'),
+            new AccountCustomerId($customerId),
+            11,
+            20
+        ));
+    }
+
+    /**
+     * @test
+     */
+    public function it_do_not_move_customer_by_points_if_level_is_the_same()
+    {
+        $customerId = '00000000-0000-0000-0000-000000000000';
+        $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
+        $level = new Level($levelId, 'test', 10);
+        $reward = new Reward('as', 10, 'as');
+        $level->setReward($reward);
+
+        $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
+        $commandBus->expects($this->never())->method('dispatch');
+
+        // none
+        $listener = new CalculateCustomerLevelListener(
+            $this->getLevelIdProvider($level),
+            $this->getCustomerDetailsRepository(new CustomerLevelId('00000000-0000-0000-0000-000000000003')),
+            $commandBus,
+            $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
+            $this->getExcludeDeliveryCostsProvider(true),
+            $this->getLevelRepository($level),
+            $this->getDispatcher(),
+            $this->getCustomerStatusProvider(),
+            $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_NONE),
+            $this->getAccountDetailsRepository(100)
+        );
+        $listener->handle(new AvailablePointsAmountChangedSystemEvent(
+            new AccountId('00000000-0000-0000-0000-000000000000'),
+            new AccountCustomerId($customerId),
+            20,
+            20
+        ));
+        // auto
+        $listener = new CalculateCustomerLevelListener(
+            $this->getLevelIdProvider($level),
+            $this->getCustomerDetailsRepository(new CustomerLevelId('00000000-0000-0000-0000-000000000003')),
+            $commandBus,
+            $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
+            $this->getExcludeDeliveryCostsProvider(true),
+            $this->getLevelRepository($level),
+            $this->getDispatcher(),
+            $this->getCustomerStatusProvider(),
+            $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_AUTO),
+            $this->getAccountDetailsRepository(100)
+        );
+        $listener->handle(new AvailablePointsAmountChangedSystemEvent(
+            new AccountId('00000000-0000-0000-0000-000000000000'),
+            new AccountCustomerId($customerId),
+            20,
+            20
+        ));
+        // x days
+        $listener = new CalculateCustomerLevelListener(
+            $this->getLevelIdProvider($level),
+            $this->getCustomerDetailsRepository(new CustomerLevelId('00000000-0000-0000-0000-000000000003')),
+            $commandBus,
+            $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
+            $this->getExcludeDeliveryCostsProvider(true),
+            $this->getLevelRepository($level),
+            $this->getDispatcher(),
+            $this->getCustomerStatusProvider(),
+            $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_X_DAYS),
+            $this->getAccountDetailsRepository(100)
         );
 
         $listener->handle(new AvailablePointsAmountChangedSystemEvent(
@@ -308,6 +705,21 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $mode
+     * @param string $base
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|LevelDowngradeModeProvider
+     */
+    protected function getLevelDowngradeModeProvider($mode, $base = LevelDowngradeModeProvider::BASE_ACTIVE_POINTS): LevelDowngradeModeProvider
+    {
+        $mock = $this->getMockBuilder(LevelDowngradeModeProvider::class)->getMock();
+        $mock->method('getMode')->willReturn($mode);
+        $mock->method('getBase')->willReturn($base);
+
+        return $mock;
+    }
+
+    /**
      * @param CustomerLevelId|null $currentLevelId
      * @param CustomerLevelId|null $assignedLevelId
      *
@@ -328,6 +740,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                 $customer->disableOriginalConstructor();
                 $customer = $customer->getMock();
                 $customer->method('getCustomerId')->willReturn(new CustomerId($id));
+                $customer->method('getCreatedAt')->willReturn(new \DateTime());
                 $customer->method('getLevelId')->willReturn($currentLevelId);
                 $customer->method('getManuallyAssignedLevelId')->willReturn($assignedLevelId);
 
@@ -461,6 +874,31 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                 return;
             }))
         ;
+
+        return $mock;
+    }
+
+    /**
+     * @param $points
+     * @param int $earnedPoints
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|Repository
+     */
+    public function getAccountDetailsRepository($points, $earnedPoints = 0): Repository
+    {
+        $mock = $this->getMockBuilder(Repository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $details = $this->getMockBuilder(AccountDetails::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $details->method('getAvailableAmount')->willReturn($points);
+        $details->method('getEarnedAmountSince')->with($this->isInstanceOf(\DateTime::class))->willReturn($earnedPoints);
+
+        $mock
+            ->method('findBy')
+            ->with($this->isType('array'))
+            ->willReturn([$details]);
 
         return $mock;
     }

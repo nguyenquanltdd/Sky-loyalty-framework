@@ -176,6 +176,7 @@ services:
       - '@oloy.user.tier_assign_type_provider'
       - '@oloy.user.exclude_delivery_costs_provider'
       - '@ol.settings.manager'
+      - '@OpenLoyalty\Bundle\UserBundle\Service\SettingsBasedLevelDowngradeModeProvider'
   oloy.user.param_converter.customer:
     class: OpenLoyalty\Bundle\UserBundle\ParamConverter\CustomerDetailsParamConverter
     arguments: ['@oloy.user.read_model.repository.customer_details']
@@ -227,6 +228,8 @@ services:
       tags:
         - { name: kernel.event_listener, event: user.invitation.user_registered_with_invitation_token, method: handle }
 
+  OpenLoyalty\Bundle\UserBundle\Service\AccountDetailsProviderInterface:
+    alias: OpenLoyalty\Bundle\UserBundle\Service\AccountDetailsProvider
   OpenLoyalty\Bundle\UserBundle\Service\AccountDetailsProvider:
       public: true
       arguments:

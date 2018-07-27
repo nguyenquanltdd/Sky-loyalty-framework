@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="pl" datatype="plaintext" original="file.ext">
+        <body>
+            <trans-unit id="customer_level_downgrade_mode_not_supported">
+                <source>customer.level.downgrade_mode.not_supported</source>
+                <target>Wybrany sposób zmiany poziomy na niższy jest niedostępny.</target>
+            </trans-unit>
+            <trans-unit id="customer_level_downgrade_mode_not_available_when_tier_assignment_type_is_not_points">
+                <source>customer.level.downgrade_mode.not_available_when_tier_assignment_type_is_not_points</source>
+                <target>Przeliczenie poziomu niedostępne jeśli poziomy są przydzielane na podstawie trasnakcji.</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

@@ -117,6 +117,16 @@ class CustomerStatus
     protected $currency;
 
     /**
+     * @var int|null
+     */
+    protected $levelWillExpireInDays;
+
+    /**
+     * @var float|null
+     */
+    protected $pointsSinceLastLevelRecalculation;
+
+    /**
      * CustomerStatus constructor.
      *
      * @param CustomerId $customerId
@@ -429,5 +439,37 @@ class CustomerStatus
     public function setLastName($lastName)
     {
         $this->lastName = $lastName;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getLevelWillExpireInDays(): ?int
+    {
+        return $this->levelWillExpireInDays;
+    }
+
+    /**
+     * @param int|null $levelWillExpireInDays
+     */
+    public function setLevelWillExpireInDays(?int $levelWillExpireInDays): void
+    {
+        $this->levelWillExpireInDays = $levelWillExpireInDays;
+    }
+
+    /**
+     * @return float|null
+     */
+    public function getPointsSinceLastLevelRecalculation(): ?float
+    {
+        return $this->pointsSinceLastLevelRecalculation;
+    }
+
+    /**
+     * @param float|null $pointsSinceLastLevelRecalculation
+     */
+    public function setPointsSinceLastLevelRecalculation(?float $pointsSinceLastLevelRecalculation): void
+    {
+        $this->pointsSinceLastLevelRecalculation = $pointsSinceLastLevelRecalculation;
     }
 }

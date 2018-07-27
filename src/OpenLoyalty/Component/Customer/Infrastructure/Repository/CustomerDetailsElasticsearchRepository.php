@@ -128,6 +128,57 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
     /**
      * {@inheritdoc}
      */
+    public function findAllForLevelRecalculation(\DateTime $currentDate, int $recalculationIntervalInDays): array
+    {
+        $filter = [];
+        $date = clone $currentDate;
+        $date->modify(sprintf('-%u days', $recalculationIntervalInDays));
+
+        $filter[] = [
+            'bool' => [
+                'must' => [
+                    ['missing' => [
+                        'field' => 'lastLevelRecalculation',
+                    ]],
+                    ['range' => [
+                        'createdAt' => [
+                            'lte' => $date->getTimestamp(),
+                        ],
+                    ]],
+                ],
+            ],
+        ];
+        $filter[] = [
+            'bool' => [
+                'must' => [
+                    ['exists' => [
+                        'field' => 'lastLevelRecalculation',
+                    ]],
+                    ['range' => [
+                        'lastLevelRecalculation' => [
+                            'lte' => $date->getTimestamp(),
+                        ],
+                    ]],
+                ],
+            ],
+        ];
+
+        $query = array(
+            'bool' => array(
+                'must' => [
+                    ['bool' => [
+                        'should' => $filter,
+                    ]],
+                ],
+            ),
+        );
+
+        return $this->query($query);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function findByCreationAnniversary(\DateTime $from, \DateTime $to, $onlyActive = true)
     {
         $filter = [];

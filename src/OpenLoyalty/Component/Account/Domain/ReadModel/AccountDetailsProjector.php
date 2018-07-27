@@ -10,6 +10,7 @@ use Broadway\ReadModel\Repository;
 use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Event\AccountWasCreated;
+use OpenLoyalty\Component\Account\Domain\Event\PointsHasBeenReset;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenCanceled;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenExpired;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenUnlocked;
@@ -127,6 +128,21 @@ class AccountDetailsProjector extends Projector
             throw new PointsTransferCannotBeUnlockedException($id->__toString());
         }
         $readModel->setTransfer($transfer->unlock());
+        $this->repository->save($readModel);
+    }
+
+    /**
+     * @param PointsHasBeenReset $event
+     */
+    protected function applyPointsHasBeenReset(PointsHasBeenReset $event): void
+    {
+        /** @var AccountDetails $readModel */
+        $readModel = $this->getReadModel($event->getAccountId());
+        $readModel->setPointsResetAt($event->getDate());
+        $transfers = $readModel->getAllActiveAndLockedAddPointsTransfers();
+        foreach ($transfers as $transfer) {
+            $readModel->setTransfer($transfer->expire());
+        }
         $this->repository->save($readModel);
     }
 

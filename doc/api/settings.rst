@@ -318,6 +318,7 @@ Exemplary Response
         "returns": true,
         "pointsDaysActive": 30,
         "pointsDaysLocked": 3,
+        "levelDowngradeMode": "none",
         "currency": "eur",
         "timezone": "Europe/Warsaw",
         "programName": "Loyalty Program",
@@ -402,6 +403,12 @@ Definition
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | settings[allTimeNotLocked]                            | request        | *(optional)* Is always not locked: true/false                              |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| settings[levelDowngradeMode]                          | request        | Downgrade level based on specified mode: none, automatic, after_x_days     |
++-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| settings[levelDowngradeDays]                          | request        | Required when mode is "after_x_days"                                       |
++-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| settings[levelDowngradeBase]                          | request        | active|earned - required when mode is "after_x_days"                       |
++-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | settings[customersIdentificationPriority][]           | request        | TO DO                                                                      |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | settings[customersIdentificationPriority][][priority] | request        | TO DO                                                                      |
@@ -410,7 +417,7 @@ Definition
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | settings[tierAssignType]                              | request        | Levels will be calculated with: transactions/points                        |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| settings[excludeDeliveryCostsFromTierAssignment]         | request        | *(optional)* Delivery costs will not be generating points: true/false      |
+| settings[excludeDeliveryCostsFromTierAssignment]      | request        | *(optional)* Delivery costs will not be generating points: true/false      |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | settings[excludedDeliverySKUs][]                      | request        | Required when DeliveryCostsFromTierAssignment=true                         |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+

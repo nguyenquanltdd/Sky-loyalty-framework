@@ -7,23 +7,29 @@ namespace OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener;
 
 use Broadway\CommandHandling\CommandBus;
 use Broadway\EventDispatcher\EventDispatcher;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Bundle\UserBundle\Status\CustomerStatusProvider;
+use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountCreatedSystemEvent;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AvailablePointsAmountChangedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\Command\MoveCustomerToLevel;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
+use OpenLoyalty\Component\Account\Domain\CustomerId as AccountCustomerId;
 use OpenLoyalty\Component\Customer\Domain\LevelId as CustomerLevelId;
 use OpenLoyalty\Component\Customer\Domain\LevelIdProvider;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerLevelChangedSystemEvent;
+use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRecalculateLevelRequestedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRemovedManuallyLevelSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
 use OpenLoyalty\Component\Customer\Domain\TransactionId;
+use OpenLoyalty\Component\Level\Domain\LevelId;
+use OpenLoyalty\Component\Customer\Infrastructure\Exception\LevelDowngradeModeNotSupportedException;
+use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 use OpenLoyalty\Component\Customer\Infrastructure\ExcludeDeliveryCostsProvider;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
 use OpenLoyalty\Component\Level\Domain\Level;
-use OpenLoyalty\Component\Level\Domain\LevelId;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\CustomerAssignedToTransactionSystemEvent;
 
@@ -73,6 +79,16 @@ class CalculateCustomerLevelListener
     protected $customerStatusProvider;
 
     /**
+     * @var LevelDowngradeModeProvider
+     */
+    protected $levelDowngradeModeProvider;
+
+    /**
+     * @var Repository
+     */
+    private $accountDetailsRepository;
+
+    /**
      * CalculateCustomerLevelListener constructor.
      *
      * @param LevelIdProvider              $levelIdProvider
@@ -83,6 +99,8 @@ class CalculateCustomerLevelListener
      * @param LevelRepository              $levelRepository
      * @param EventDispatcher              $eventDispatcher
      * @param CustomerStatusProvider       $customerStatusProvider
+     * @param LevelDowngradeModeProvider   $levelDowngradeModeProvider
+     * @param Repository                   $accountDetailsRepository
      */
     public function __construct(
         LevelIdProvider $levelIdProvider,
@@ -92,7 +110,9 @@ class CalculateCustomerLevelListener
         ExcludeDeliveryCostsProvider $excludeDeliveryCostsProvider,
         LevelRepository $levelRepository,
         EventDispatcher $eventDispatcher,
-        CustomerStatusProvider $customerStatusProvider
+        CustomerStatusProvider $customerStatusProvider,
+        LevelDowngradeModeProvider $levelDowngradeModeProvider,
+        Repository $accountDetailsRepository
     ) {
         $this->levelIdProvider = $levelIdProvider;
         $this->customerDetailsRepository = $customerDetailsRepository;
@@ -102,6 +122,8 @@ class CalculateCustomerLevelListener
         $this->levelRepository = $levelRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->customerStatusProvider = $customerStatusProvider;
+        $this->levelDowngradeModeProvider = $levelDowngradeModeProvider;
+        $this->accountDetailsRepository = $accountDetailsRepository;
     }
 
     /**
@@ -109,15 +131,61 @@ class CalculateCustomerLevelListener
      */
     public function handle($event)
     {
-        if ($event instanceof AccountCreatedSystemEvent) {
+        if ($event instanceof CustomerRecalculateLevelRequestedSystemEvent) {
+            $this->handleRecalculateLevel($event);
+        } elseif ($event instanceof AccountCreatedSystemEvent) {
             $this->handleAccountCreated($event);
         } elseif ($event instanceof CustomerRemovedManuallyLevelSystemEvent) {
             $this->handleRemovedManuallyLevel($event);
         } elseif ($this->tierAssignTypeProvider->getType() == TierAssignTypeProvider::TYPE_POINTS && $event instanceof AvailablePointsAmountChangedSystemEvent) {
-            $this->handlePoints($event);
+            $this->handlePoints($event->getCustomerId(), $event->getCurrentAmount());
         } elseif ($this->tierAssignTypeProvider->getType() == TierAssignTypeProvider::TYPE_TRANSACTIONS && $event instanceof CustomerAssignedToTransactionSystemEvent) {
             $this->handleTransaction($event);
         }
+    }
+
+    /**
+     * @param CustomerRecalculateLevelRequestedSystemEvent $event
+     */
+    protected function handleRecalculateLevel(CustomerRecalculateLevelRequestedSystemEvent $event): void
+    {
+        $customerIdString = $event->getCustomerId()->__toString();
+        /** @var CustomerDetails $customer */
+        $customer = $this->customerDetailsRepository->find($customerIdString);
+        $account = $this->getAccountDetails($customerIdString);
+        if (!$account) {
+            return;
+        }
+        if ($this->levelDowngradeModeProvider->getBase() === LevelDowngradeModeProvider::BASE_ACTIVE_POINTS) {
+            $currentAmount = $account->getAvailableAmount();
+        } elseif ($this->levelDowngradeModeProvider->getBase() == LevelDowngradeModeProvider::BASE_EARNED_POINTS) {
+            $currentAmount = $account->getEarnedAmountSince($customer->getLastLevelRecalculation() ?: $customer->getCreatedAt());
+        }
+
+        if (isset($currentAmount)) {
+            $this->handlePoints(new AccountCustomerId($customerIdString), $currentAmount, true);
+        }
+    }
+
+    /**
+     * @param string $customerId
+     *
+     * @return AccountDetails|null
+     */
+    protected function getAccountDetails(string $customerId): ?AccountDetails
+    {
+        $accounts = $this->accountDetailsRepository->findBy(['customerId' => $customerId]);
+        if (count($accounts) == 0) {
+            return null;
+        }
+        /** @var AccountDetails $account */
+        $account = reset($accounts);
+
+        if (!$account instanceof AccountDetails) {
+            return null;
+        }
+
+        return $account;
     }
 
     /**
@@ -253,13 +321,12 @@ class CalculateCustomerLevelListener
     }
 
     /**
-     * @param AvailablePointsAmountChangedSystemEvent $event
+     * @param AccountCustomerId $customerId
+     * @param float             $currentAmount
+     * @param bool              $isRecalculation
      */
-    protected function handlePoints(AvailablePointsAmountChangedSystemEvent $event): void
+    protected function handlePoints(AccountCustomerId $customerId, float $currentAmount, bool $isRecalculation = false): void
     {
-        $customerId = $event->getCustomerId();
-        $currentAmount = $event->getCurrentAmount();
-
         /** @var CustomerDetails $customer */
         $customer = $this->customerDetailsRepository->find($customerId->__toString());
 
@@ -277,7 +344,11 @@ class CalculateCustomerLevelListener
         $level = $this->levelRepository->byId(new LevelId($levelId));
 
         if ($currentLevel && $currentLevel->getReward()->getValue() >= $level->getReward()->getValue()) {
-            return;
+            $downgradedLevelId = $this->handlePointsDowngrade($level, $customer, $currentLevel, $isRecalculation);
+
+            if (null !== $downgradedLevelId) {
+                $levelId = $downgradedLevelId;
+            }
         }
 
         if (!$customer->getLevelId() || (string) $customer->getLevelId() !== $levelId) {
@@ -297,6 +368,59 @@ class CalculateCustomerLevelListener
                 ),
             ]);
         }
+    }
+
+    /**
+     * @param Level           $calculatedLevel
+     * @param CustomerDetails $customer
+     * @param Level           $currentLevel
+     * @param bool            $isRecalculation
+     *
+     * @return null|string
+     */
+    protected function handlePointsDowngrade(Level $calculatedLevel, CustomerDetails $customer, Level $currentLevel, bool $isRecalculation = false): ?string
+    {
+        try {
+            $mode = $this->levelDowngradeModeProvider->getMode();
+        } catch (LevelDowngradeModeNotSupportedException $e) {
+            $mode = LevelDowngradeModeProvider::MODE_NONE;
+        }
+
+        if (LevelDowngradeModeProvider::MODE_NONE === $mode) {
+            return $currentLevel->getLevelId()->__toString();
+        }
+
+        if (LevelDowngradeModeProvider::MODE_AUTO === $mode) {
+            if ($customer->getManuallyAssignedLevelId()) {
+                $manualId = $customer->getManuallyAssignedLevelId()->__toString();
+                /** @var Level $manual */
+                $manual = $this->levelRepository->byId(new \OpenLoyalty\Component\Level\Domain\LevelId($manualId));
+                if ($manual->getReward()->getValue() > $calculatedLevel->getReward()->getValue()) {
+                    return $manualId;
+                }
+            }
+
+            return $calculatedLevel->getLevelId()->__toString();
+        }
+
+        if (LevelDowngradeModeProvider::MODE_X_DAYS === $mode) {
+            if (!$isRecalculation) {
+                return $currentLevel->getLevelId()->__toString();
+            } else {
+                if ($customer->getManuallyAssignedLevelId()) {
+                    $manualId = $customer->getManuallyAssignedLevelId()->__toString();
+                    /** @var Level $manual */
+                    $manual = $this->levelRepository->byId(new \OpenLoyalty\Component\Level\Domain\LevelId($manualId));
+                    if ($manual->getReward()->getValue() > $calculatedLevel->getReward()->getValue()) {
+                        return $manualId;
+                    }
+                }
+
+                return $calculatedLevel->getLevelId()->__toString();
+            }
+        }
+
+        return null;
     }
 
     /**

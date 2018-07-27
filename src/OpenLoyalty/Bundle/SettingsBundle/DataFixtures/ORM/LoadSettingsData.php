@@ -18,6 +18,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
 use OpenLoyalty\Bundle\SettingsBundle\Provider\AvailableMarketingVendors;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
+use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
 use Symfony\Bridge\Doctrine\Tests\Fixtures\ContainerAwareFixture;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -72,6 +73,10 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
         $entry3 = new JsonSettingEntry('excludedLevelCategories');
         $entry3->setValue(['category_excluded_from_level']);
         $settings->addEntry($entry3);
+
+        $downgradeMode = new StringSettingEntry('levelDowngradeMode');
+        $downgradeMode->setValue(LevelDowngradeModeProvider::MODE_NONE);
+        $settings->addEntry($downgradeMode);
 
         // copy logo
         $rootDirectory = $this->getContainer()->getParameter('kernel.root_dir');
