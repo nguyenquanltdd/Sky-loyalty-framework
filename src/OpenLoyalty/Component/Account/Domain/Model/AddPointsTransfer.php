@@ -78,7 +78,7 @@ class AddPointsTransfer extends PointsTransfer
             $data['value'],
             $data['validityInDays'] ?? null,
             $createdAt,
-            $data['canceled']
+            isset($data['canceled']) ? $data['canceled'] : false
         );
 
         if (isset($data['validityInDays'])) {
