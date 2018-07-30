@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Bundle\UserBundle\Form\Type;
 
 use Misd\PhoneNumberBundle\Validator\Constraints\PhoneNumber;
+use OpenLoyalty\Bundle\UserBundle\Validator\Constraint\CustomerLabel;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
@@ -145,6 +146,9 @@ class CustomerRegistrationFormType extends AbstractType
 
         $builder->add('labels', LabelsFormType::class, [
             'required' => false,
+            'constraints' => [
+                new CustomerLabel(),
+            ],
         ]);
 
         $builder->add('agreement1', CheckboxType::class, [
