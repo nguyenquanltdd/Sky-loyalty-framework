@@ -119,6 +119,10 @@
     "customer_name": "Customer's first name",
     "customer_phone": "Phone",
     "customers": "Customers",
+    "days_inactive": "Days inactive",
+    "days_inactive_prompt": "Days until code will be active",
+    "days_valid": "Days valid",
+    "days_valid_prompt": "Days until code will expire",
     "date_from": "Date from",
     "date_to": "Date to",
     "delivered": "Delivered/used",
@@ -149,6 +153,7 @@
     "name": "Name",
     "name_prompt": "",
     "no_data": "No data to display",
+    "percentage_discount_code": "Percentage discount code",
     "photo": "Campaign photo",
     "point_value": "Point value",
     "point_value_prompt": "Each point will be exchanged for provided value (in current currency)",
@@ -175,6 +180,8 @@
     "tax_price_value": "Tax value",
     "tax_price_value_prompt": "Value of tax for reward",
     "tax_prompt": "Percentage Value of tax for reward",
+    "transaction_percentage_value": "Transaction percentage value",
+    "transaction_percentage_value_prompt": "Percentage value of transaction in coupons",
     "type": "Campaign type",
     "type_info": "Campaign type",
     "type_prompt": "",
@@ -1273,6 +1280,8 @@
       "referrer": "referrer"
     },
     "reward": "Reward",
+    "reward_campaign": "Reward campaign",
+    "reward_campaign_prompt": "",
     "reward_prompt": "",
     "reward_type": "Reward",
     "segments": "Segments",
@@ -1291,6 +1300,7 @@
     "types": {
       "custom_event": "Custom event rule",
       "event": "Event rule",
+      "instant_reward": "Instant reward",
       "multiply_by_product_labels": "Multiply earned points by product labels",
       "multiply_for_product": "Multiply earned points",
       "points": "General spending rule",
@@ -1299,6 +1309,7 @@
     },
     "value": "Value",
     "visibility_and_activity": "Activity of rule"
+
   },
   "front_error": {
     "at_least_one": "Fill at least one field",

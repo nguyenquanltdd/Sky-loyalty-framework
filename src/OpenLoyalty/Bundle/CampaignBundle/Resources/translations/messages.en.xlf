@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+        <body>
+            <trans-unit id="campaign.invalid_data">
+                <source>campaign.invalid_data</source>
+                <target>Invalid data provided</target>
+            </trans-unit>
+            <trans-unit id="campaign.missing_data_in_rows">
+                <source>campaign.missing_data_in_rows</source>
+                <target>Missing data in rows</target>
+            </trans-unit>
+            <trans-unit id="campaign.invalid_value_field_in_row">
+                <source>campaign.invalid_value_field_in_row</source>
+                <target>Invalid value for %name% in row %row%</target>
+            </trans-unit>
+            <trans-unit id="campaign.invalid_value_in_row">
+                <source>campaign.invalid_value_in_row</source>
+                <target>%content% in row %row%</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

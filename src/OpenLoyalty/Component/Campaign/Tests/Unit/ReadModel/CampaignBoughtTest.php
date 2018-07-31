@@ -11,6 +11,7 @@ use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBought;
+use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 
 /**
  * Class CampaignBoughtTest.
@@ -59,6 +60,7 @@ class CampaignBoughtTest extends \PHPUnit_Framework_TestCase
             self::CAMPAIGN_NAME,
             self::CUSTOMER_EMAIL,
             self::CUSTOMER_PHONE,
+            CampaignPurchase::STATUS_ACTIVE,
             null,
             self::CUSTOMER_NAME,
             self::CUSTOMER_SURNAME,

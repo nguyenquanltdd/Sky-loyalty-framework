@@ -9,6 +9,7 @@ use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\PosDataTransformer
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRule;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\LevelsDataTransformer;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\SegmentsDataTransformer;
+use OpenLoyalty\Component\EarningRule\Domain\InstantRewardRule;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -46,12 +47,20 @@ class CreateEarningRuleFormType extends BaseEarningRuleFormType
                 'Multiply earned points' => EarningRule::TYPE_MULTIPLY_FOR_PRODUCT,
                 'Multiply earned points by labels' => EarningRule::TYPE_MULTIPLY_BY_PRODUCT_LABELS,
                 'Referral' => EarningRule::TYPE_REFERRAL,
+                'Instant Reward' => InstantRewardRule::TYPE_INSTANT_REWARD,
             ],
         ]);
 
-        $builder->add('name', TextType::class, ['required' => true, 'constraints' => [new NotBlank()]]);
-        $builder->add('description', TextareaType::class, ['required' => true, 'constraints' => [new NotBlank()]]);
-        $builder->add('target', ChoiceType::class, [
+        $builder
+            ->add('name', TextType::class, [
+                'required' => true,
+                'constraints' => [new NotBlank()],
+            ])
+            ->add('description', TextareaType::class, [
+                'required' => true,
+                'constraints' => [new NotBlank()],
+            ])
+            ->add('target', ChoiceType::class, [
                 'required' => false,
                 'choices' => [
                     'level' => 'level',
@@ -204,6 +213,12 @@ class CreateEarningRuleFormType extends BaseEarningRuleFormType
                     'entry_type' => LabelMultipliersFormType::class,
                     'error_bubbling' => false,
                     'constraints' => [new Count(['min' => 1])],
+                ]);
+        } elseif ($type === EarningRule::TYPE_INSTANT_REWARD) {
+            $form
+                ->add('rewardCampaignId', CampaignIdFormType::class, [
+                    'required' => true,
+                    'constraints' => [new NotBlank()],
                 ]);
         }
         if (!isset($data['target'])) {

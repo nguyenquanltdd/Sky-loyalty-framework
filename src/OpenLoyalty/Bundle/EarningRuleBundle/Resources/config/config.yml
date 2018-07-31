@@ -10,6 +10,7 @@ doctrine:
             earning_rule_levels_json_array: OpenLoyalty\Component\EarningRule\Infrastructure\Persistence\Doctrine\Type\EarningRuleLevelsJsonArrayDoctrineType
             earning_rule_segments_json_array: OpenLoyalty\Component\EarningRule\Infrastructure\Persistence\Doctrine\Type\EarningRuleSegmentsJsonArrayDoctrineType
             earning_rule_pos_json_array: OpenLoyalty\Component\EarningRule\Infrastructure\Persistence\Doctrine\Type\EarningRulePosJsonArrayDoctrineType
+            reward_campaign_id: OpenLoyalty\Component\EarningRule\Infrastructure\Persistence\Doctrine\Type\CampaignIdDoctrineType
 
 jms_serializer:
     metadata:

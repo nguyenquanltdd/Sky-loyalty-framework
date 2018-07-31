@@ -8,6 +8,12 @@ services:
       - '@oloy.campaign.repository'
     tags:
       - { name: broadway.command_handler }
+  OpenLoyalty\Component\Campaign\Domain\Command\InstantRewardHandler:
+    arguments:
+      $campaignRepository: '@oloy.campaign.repository'
+      $commandBus: '@broadway.command_handling.command_bus'
+    tags:
+      - { name: broadway.command_handler }
   oloy.campaign.repository:
     class: OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Repository\DoctrineCampaignRepository
     factory: ['@doctrine.orm.entity_manager', getRepository]
@@ -56,3 +62,9 @@ services:
       - '@oloy.campaign.repository'
     tags:
       - { name: broadway.domain.event_listener }
+  OpenLoyalty\Component\Campaign\Domain\Coupon\CouponCodeProvider:
+    class: OpenLoyalty\Component\Campaign\Domain\Coupon\CouponCodeProvider
+    arguments:
+      - '@oloy.campaign.campaign_provider'
+  OpenLoyalty\Component\Campaign\Domain\Provider\CouponActivationDateProvider: ~
+  OpenLoyalty\Component\Campaign\Domain\Provider\CouponExpirationDateProvider: ~

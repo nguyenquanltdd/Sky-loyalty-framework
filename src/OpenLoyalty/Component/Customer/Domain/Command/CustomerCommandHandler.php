@@ -262,7 +262,10 @@ class CustomerCommandHandler extends SimpleCommandHandler
             $command->getCampaignName(),
             $command->getCostInPoints(),
             $command->getCoupon(),
-            $command->getReward()
+            $command->getReward(),
+            $command->getStatus(),
+            $command->getActiveSince(),
+            $command->getActiveTo()
         );
         $this->repository->save($customer);
     }
@@ -276,6 +279,30 @@ class CustomerCommandHandler extends SimpleCommandHandler
         /** @var Customer $customer */
         $customer = $this->repository->load($customerId->__toString());
         $customer->changeCampaignUsage($command->getCampaignId(), $command->getCoupon(), $command->isUsed());
+        $this->repository->save($customer);
+    }
+
+    /**
+     * @param ActivateBoughtCampaign $command
+     */
+    public function handleActivateBoughtCampaign(ActivateBoughtCampaign $command)
+    {
+        $customerId = $command->getCustomerId();
+        /** @var Customer $customer */
+        $customer = $this->repository->load($customerId->__toString());
+        $customer->activateCampaignBought($command->getCampaignId(), $command->getCoupon());
+        $this->repository->save($customer);
+    }
+
+    /**
+     * @param ExpireBoughtCampaign $command
+     */
+    public function handleExpireBoughtCampaign(ExpireBoughtCampaign $command)
+    {
+        $customerId = $command->getCustomerId();
+        /** @var Customer $customer */
+        $customer = $this->repository->load($customerId->__toString());
+        $customer->expireCampaignBought($command->getCampaignId(), $command->getCoupon());
         $this->repository->save($customer);
     }
 

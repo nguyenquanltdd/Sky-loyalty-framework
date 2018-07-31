@@ -20,6 +20,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\GreaterThan;
 use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
@@ -46,6 +47,7 @@ class CampaignFormType extends AbstractType
             Campaign::REWARD_TYPE_GIFT_CODE,
             Campaign::REWARD_TYPE_VALUE_CODE,
             Campaign::REWARD_TYPE_CASHBACK,
+            Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE,
         ];
 
         $builder->add($builder->create('coupons', CollectionType::class, [
@@ -142,12 +144,14 @@ class CampaignFormType extends AbstractType
     {
         $data = $event->getData();
         $form = $event->getForm();
-        if (isset($data['reward']) && $data['reward'] == Campaign::REWARD_TYPE_CASHBACK) {
+        if (isset($data['reward']) && $data['reward'] === Campaign::REWARD_TYPE_CASHBACK) {
             $form->add('pointValue', NumberType::class, [
                 'scale' => 2,
                 'required' => false,
                 'constraints' => [new NotBlank()],
             ]);
+        } elseif (isset($data['reward']) && $data['reward'] === Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE) {
+            $this->addPercentageDiscountCodeSpecificFields($form);
         } else {
             $form->add('costInPoints', NumberType::class, [
                 'scale' => 2,
@@ -166,7 +170,6 @@ class CampaignFormType extends AbstractType
             $form->add('limitPerUser', IntegerType::class, [
                 'required' => false,
             ]);
-
             $form->add('campaignVisibility', CampaignVisibilityFormType::class, [
                 'constraints' => [new Valid()],
             ]);
@@ -182,6 +185,29 @@ class CampaignFormType extends AbstractType
             $data['levels'] = [];
         }
         $event->setData($data);
+    }
+
+    /**
+     * @param FormInterface $form
+     */
+    private function addPercentageDiscountCodeSpecificFields(FormInterface $form): void
+    {
+        $form->add('transactionPercentageValue', IntegerType::class, [
+            'required' => true,
+            'constraints' => [
+                    new NotBlank(),
+                    new GreaterThanOrEqual(Campaign::MIN_TRANSACTION_PERCENTAGE_VALUE),
+                    new LessThan(Campaign::MAX_TRANSACTION_PERCENTAGE_VALUE),
+                ],
+        ]);
+        $form->add('daysInactive', IntegerType::class, [
+            'required' => true,
+            'constraints' => [new NotBlank()],
+        ]);
+        $form->add('daysValid', IntegerType::class, [
+            'required' => true,
+            'constraints' => [new NotBlank()],
+        ]);
     }
 
     /**

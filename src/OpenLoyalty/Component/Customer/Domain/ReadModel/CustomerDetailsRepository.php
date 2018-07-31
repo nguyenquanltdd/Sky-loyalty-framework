@@ -70,6 +70,16 @@ interface CustomerDetailsRepository extends Repository
     public function findPurchasesByCustomerIdPaginated(CustomerId $customerId, $page = 1, $perPage = 10, $sortField = null, $direction = 'DESC', $showCashback = false);
 
     /**
+     * @return CustomerDetails[]
+     */
+    public function findCustomersWithPurchasesToActivate(): array;
+
+    /**
+     * @return CustomerDetails[]
+     */
+    public function findCustomersWithPurchasesToExpire(): array;
+
+    /**
      * @param CustomerId $customerId
      * @param bool       $showCashback
      *

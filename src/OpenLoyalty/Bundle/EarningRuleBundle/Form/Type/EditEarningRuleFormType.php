@@ -146,23 +146,23 @@ class EditEarningRuleFormType extends BaseEarningRuleFormType
                 ]);
         } elseif ($type == EarningRule::TYPE_PRODUCT_PURCHASE) {
             $builder->add(
-                    'skuIds',
-                    CollectionType::class,
-                    [
-                        'allow_add' => true,
-                        'allow_delete' => true,
-                        'entry_type' => TextType::class,
-                        'constraints' => [new NotBlank(), new Count(['min' => 1])],
-                    ]
-                )->add(
-                    'pointsAmount',
-                    NumberType::class,
-                    [
-                        'scale' => 2,
-                        'required' => true,
-                        'constraints' => [new NotBlank()],
-                    ]
-                );
+                'skuIds',
+                CollectionType::class,
+                [
+                    'allow_add' => true,
+                    'allow_delete' => true,
+                    'entry_type' => TextType::class,
+                    'constraints' => [new NotBlank(), new Count(['min' => 1])],
+                ]
+            )->add(
+                'pointsAmount',
+                NumberType::class,
+                [
+                    'scale' => 2,
+                    'required' => true,
+                    'constraints' => [new NotBlank()],
+                ]
+            );
         } elseif ($type == EarningRule::TYPE_MULTIPLY_FOR_PRODUCT) {
             $builder
                 ->add('skuIds', CollectionType::class, [
@@ -184,6 +184,12 @@ class EditEarningRuleFormType extends BaseEarningRuleFormType
                     'entry_type' => LabelMultipliersFormType::class,
                     'error_bubbling' => false,
                     'constraints' => [new Count(['min' => 1])],
+                ]);
+        } elseif ($type === EarningRule::TYPE_INSTANT_REWARD) {
+            $builder
+                ->add('rewardCampaignId', CampaignIdFormType::class, [
+                    'required' => true,
+                    'constraints' => [new NotBlank()],
                 ]);
         } else {
             throw new InvalidArgumentException('Wrong "type" provided');

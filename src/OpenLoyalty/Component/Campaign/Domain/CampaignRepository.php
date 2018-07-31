@@ -91,4 +91,9 @@ interface CampaignRepository
      * @param Campaign $campaign
      */
     public function remove(Campaign $campaign);
+
+    /**
+     * @return array
+     */
+    public function getActiveCampaigns(): array;
 }

@@ -13,6 +13,7 @@ use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtProjector;
 use OpenLoyalty\Component\Customer\Domain\Customer;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
+use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 
 class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
 {
@@ -63,6 +64,9 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
             'currentPointsAmount' => 0,
             'taxPriceValue' => null,
             'used' => null,
+            'status' => CampaignPurchase::STATUS_ACTIVE,
+            'activeSince' => null,
+            'activeTo' => null,
         ];
         $this->scenario->given(array())
             ->when(
@@ -106,6 +110,9 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
             'currentPointsAmount' => 0,
             'taxPriceValue' => null,
             'used' => true,
+            'status' => CampaignPurchase::STATUS_ACTIVE,
+            'activeSince' => null,
+            'activeTo' => null,
         ];
         $this->scenario->given(
                 array(

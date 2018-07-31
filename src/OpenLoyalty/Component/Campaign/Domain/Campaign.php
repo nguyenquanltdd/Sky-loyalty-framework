@@ -23,6 +23,10 @@ class Campaign
     const REWARD_TYPE_GIFT_CODE = 'gift_code';
     const REWARD_TYPE_EVENT_CODE = 'event_code';
     const REWARD_TYPE_CASHBACK = 'cashback';
+    const REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE = 'percentage_discount_code';
+
+    const MIN_TRANSACTION_PERCENTAGE_VALUE = 0;
+    const MAX_TRANSACTION_PERCENTAGE_VALUE = 100;
 
     /**
      * @var CampaignId
@@ -145,6 +149,21 @@ class Campaign
     protected $labels = [];
 
     /**
+     * @var int
+     */
+    protected $daysInactive;
+
+    /**
+     * @var int
+     */
+    protected $daysValid;
+
+    /**
+     * @var int
+     */
+    protected $transactionPercentageValue;
+
+    /**
      * Campaign constructor.
      *
      * @param CampaignId $campaignId
@@ -188,6 +207,18 @@ class Campaign
             }
             $this->unlimited = true;
             $this->singleCoupon = true;
+        } elseif ($this->reward === self::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE) {
+            if (array_key_exists('daysInactive', $data)) {
+                $this->setDaysInactive($data['daysInactive']);
+            }
+
+            if (array_key_exists('daysValid', $data)) {
+                $this->setDaysValid($data['daysValid']);
+            }
+
+            if (array_key_exists('transactionPercentageValue', $data)) {
+                $this->setTransactionPercentageValue($data['transactionPercentageValue']);
+            }
         } else {
             if (isset($data['costInPoints'])) {
                 $this->costInPoints = $data['costInPoints'];
@@ -560,6 +591,7 @@ class Campaign
             self::REWARD_TYPE_GIFT_CODE,
             self::REWARD_TYPE_VALUE_CODE,
             self::REWARD_TYPE_CASHBACK,
+            self::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE,
         ]);
         Assert::keyIsset($data, 'name');
         Assert::keyIsset($data, 'levels');
@@ -569,7 +601,8 @@ class Campaign
         Assert::isArray($data['segments']);
         Assert::allIsInstanceOf($data['segments'], SegmentId::class);
         Assert::true(count($data['segments']) > 0 || count($data['levels']) > 0, 'There must be at least one level or one segment');
-        if ($data['reward'] != self::REWARD_TYPE_CASHBACK) {
+
+        if (!in_array($data['reward'], [self::REWARD_TYPE_CASHBACK, self::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE], true)) {
             if (!isset($data['unlimited']) || !$data['unlimited']) {
                 Assert::keyIsset($data, 'limit');
                 Assert::greaterOrEqualThan($data['limit'], 1);
@@ -586,6 +619,16 @@ class Campaign
         if ($data['reward'] == self::REWARD_TYPE_CASHBACK) {
             Assert::notBlank($data['pointValue']);
             Assert::greaterOrEqualThan($data['pointValue'], 0);
+        }
+
+        if ($data['reward'] === self::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE) {
+            Assert::notBlank($data['transactionPercentageValue']);
+            Assert::greaterOrEqualThan($data['transactionPercentageValue'], self::MIN_TRANSACTION_PERCENTAGE_VALUE);
+            Assert::lessThan($data['transactionPercentageValue'], self::MAX_TRANSACTION_PERCENTAGE_VALUE);
+
+            Assert::notBlank($data['daysInactive']);
+
+            Assert::notBlank($data['daysValid']);
         }
 
         Assert::keyIsset($data, 'campaignActivity');
@@ -651,6 +694,14 @@ class Campaign
     public function isCashback()
     {
         return $this->reward == self::REWARD_TYPE_CASHBACK;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPercentageDiscountCode(): bool
+    {
+        return $this->reward == self::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE;
     }
 
     /**
@@ -747,5 +798,53 @@ class Campaign
         }
 
         return round($pointsAmount * $this->getPointValue(), 2);
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getDaysInactive(): ?int
+    {
+        return $this->daysInactive;
+    }
+
+    /**
+     * @param int $daysInactive
+     */
+    public function setDaysInactive(int $daysInactive): void
+    {
+        $this->daysInactive = $daysInactive;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getDaysValid(): ?int
+    {
+        return $this->daysValid;
+    }
+
+    /**
+     * @param int $daysValid
+     */
+    public function setDaysValid(int $daysValid): void
+    {
+        $this->daysValid = $daysValid;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getTransactionPercentageValue(): ?int
+    {
+        return $this->transactionPercentageValue;
+    }
+
+    /**
+     * @param int $transactionPercentageValue
+     */
+    public function setTransactionPercentageValue(int $transactionPercentageValue): void
+    {
+        $this->transactionPercentageValue = $transactionPercentageValue;
     }
 }

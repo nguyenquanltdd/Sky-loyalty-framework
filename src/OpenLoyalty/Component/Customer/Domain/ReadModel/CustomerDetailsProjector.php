@@ -8,6 +8,7 @@ namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
+use OpenLoyalty\Component\Customer\Domain\Event\CampaignStatusWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerDetailsWereUpdated;
@@ -282,7 +283,18 @@ class CustomerDetailsProjector extends Projector
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
-        $readModel->addCampaignPurchase(new CampaignPurchase($event->getCreatedAt(), $event->getCostInPoints(), $event->getCampaignId(), $event->getCoupon(), $event->getReward()));
+        $readModel->addCampaignPurchase(
+            new CampaignPurchase(
+                $event->getCreatedAt(),
+                $event->getCostInPoints(),
+                $event->getCampaignId(),
+                $event->getCoupon(),
+                $event->getReward(),
+                $event->getStatus(),
+                $event->getActiveSince(),
+                $event->getActiveTo()
+            )
+        );
 
         $this->repository->save($readModel);
     }
@@ -300,6 +312,26 @@ class CustomerDetailsProjector extends Projector
         foreach ($readModel->getCampaignPurchases() as $purchase) {
             if ($purchase->getCampaignId()->__toString() == $campaignId && $purchase->getCoupon()->getCode() == $coupon) {
                 $purchase->setUsed($event->isUsed());
+                $this->repository->save($readModel);
+
+                return;
+            }
+        }
+    }
+
+    /**
+     * @param CampaignStatusWasChanged $event
+     */
+    protected function applyCampaignStatusWasChanged(CampaignStatusWasChanged $event)
+    {
+        /** @var CustomerDetails $readModel */
+        $readModel = $this->getReadModel($event->getCustomerId());
+        $campaignId = $event->getCampaignId()->__toString();
+        $coupon = $event->getCoupon()->getCode();
+
+        foreach ($readModel->getCampaignPurchases() as $purchase) {
+            if ($purchase->getCampaignId()->__toString() === $campaignId && $purchase->getCoupon()->getCode() == $coupon) {
+                $purchase->setStatus($event->getStatus());
                 $this->repository->save($readModel);
 
                 return;

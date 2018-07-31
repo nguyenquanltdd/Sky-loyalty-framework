@@ -14,15 +14,19 @@ use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignLimitException;
+use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignUsageChange\CampaignUsageChangeException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotAllowedException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotEnoughPointsException;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignPhotoFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\EditCampaignFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Model\Campaign;
+use OpenLoyalty\Bundle\CampaignBundle\ResponseModel\CouponUsageResponse;
+use OpenLoyalty\Bundle\CampaignBundle\Service\MultipleCampaignCouponUsageProvider;
 use OpenLoyalty\Bundle\CoreBundle\Service\CSVGenerator;
 use OpenLoyalty\Component\Campaign\Domain\Campaign as DomainCampaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
+use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\Command\ChangeCampaignState;
 use OpenLoyalty\Component\Campaign\Domain\Command\CreateCampaign;
 use OpenLoyalty\Component\Campaign\Domain\Command\RemoveCampaignPhoto;
@@ -30,6 +34,8 @@ use OpenLoyalty\Component\Campaign\Domain\Command\SetCampaignPhoto;
 use OpenLoyalty\Component\Campaign\Domain\Command\UpdateCampaign;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\LevelId;
+use OpenLoyalty\Component\Campaign\Domain\ReadModel\ActiveCampaigns;
+use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignShortInfo;
 use OpenLoyalty\Component\Campaign\Domain\SegmentId;
 use OpenLoyalty\Component\Customer\Domain\CampaignId as CustomerCampaignId;
 use OpenLoyalty\Component\Customer\Domain\Command\BuyCampaign;
@@ -47,12 +53,36 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class CampaignController.
  */
 class CampaignController extends FOSRestController
 {
+    /**
+     * @var CommandBus
+     */
+    private $commandBus;
+
+    /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
+     * CampaignController constructor.
+     *
+     * @param CommandBus          $commandBus
+     * @param TranslatorInterface $translator
+     */
+    public function __construct(CommandBus $commandBus, TranslatorInterface $translator)
+    {
+        $this->commandBus = $commandBus;
+        $this->translator = $translator;
+    }
+
     /**
      * Create new campaign.
      *
@@ -518,6 +548,47 @@ class CampaignController extends FOSRestController
     }
 
     /**
+     * Get active campaigns.
+     *
+     * @Route(name="oloy.campaign.active.get", path="/campaign/active")
+     * @Method("GET")
+     * @Security("is_granted('LIST_ALL_ACTIVE_CAMPAIGNS')")
+     * @ApiDoc(
+     *     name="Get active campaigns",
+     *     section="Campaign"
+     * )
+     *
+     * @param CampaignRepository $campaignRepository
+     *
+     * @return \FOS\RestBundle\View\View
+     */
+    public function getActiveCampaignsAction(CampaignRepository $campaignRepository)
+    {
+        $domainCampaigns = $campaignRepository->getActiveCampaigns();
+
+        $activeCampaigns = new ActiveCampaigns();
+
+        /** @var Campaign $campaign */
+        foreach ($domainCampaigns as $campaign) {
+            $campaignShortInfo = new CampaignShortInfo($campaign);
+            $activeCampaigns->addCampaign($campaignShortInfo);
+        }
+
+        $view = $this->view(
+            [
+                'campaigns' => $activeCampaigns->getCampaigns(),
+            ],
+            Response::HTTP_OK
+        );
+
+        $context = new Context();
+        $context->setGroups(['Default', 'list']);
+        $view->setContext($context);
+
+        return $view;
+    }
+
+    /**
      * Get single campaign details.
      *
      * @Route(name="oloy.campaign.get", path="/campaign/{campaign}")
@@ -863,5 +934,67 @@ class CampaignController extends FOSRestController
         );
 
         return $this->view(['used' => $used]);
+    }
+
+    /**
+     * Mark multiple coupons as used/unused by customer.
+     *
+     * @Route(name="oloy.campaign.admin.customer.coupon_multiple_usage", path="/admin/campaign/coupons/mark_as_used")
+     * @Method("POST")
+     * @Security("is_granted('MARK_MULTIPLE_COUPONS_AS_USED')")
+     *
+     * @ApiDoc(
+     *     name="mark multiple coupons as used",
+     *     section="Customer Campaign",
+     *     parameters={
+     *          {"name"="coupons[]", "dataType"="array", "required"=true, "description"="List of coupons to mark as used"},
+     *          {"name"="coupons[][used]", "dataType"="boolean", "required"=true, "description"="If coupon is used or not"},
+     *          {"name"="coupons[][campaignId]", "dataType"="string", "required"=true, "description"="CampaignId value"},
+     *          {"name"="coupons[][customerId]", "dataType"="string", "required"=true, "description"="CustomerId value"},
+     *          {"name"="coupons[][code]", "dataType"="string", "required"=true, "description"="Coupon code"},
+     *     },
+     *     statusCodes={
+     *       200="Returned when successful",
+     *       400="Returned when data is invalid",
+     *       404="Returned when customer or campaign not found"
+     *     }
+     * )
+     *
+     * @param Request                             $request
+     * @param MultipleCampaignCouponUsageProvider $multipleCampaignCouponUsageProvider
+     *
+     * @return \FOS\RestBundle\View\View
+     * @View(serializerGroups={"admin", "Default"})
+     *
+     * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
+     */
+    public function campaignCouponListUsage(Request $request, MultipleCampaignCouponUsageProvider $multipleCampaignCouponUsageProvider)
+    {
+        $coupons = $request->request->get('coupons', []);
+
+        if (empty($coupons)) {
+            throw new BadRequestHttpException($this->translator->trans('campaign.invalid_data'));
+        }
+
+        try {
+            $commands = $multipleCampaignCouponUsageProvider->validateRequest($coupons);
+        } catch (CampaignUsageChangeException $e) {
+            throw new BadRequestHttpException($e->getMessage());
+        }
+        $result = [];
+
+        /** @var ChangeCampaignUsage $command */
+        foreach ($commands as $command) {
+            $this->commandBus->dispatch($command);
+
+            $result[] = new CouponUsageResponse(
+                    $command->getCoupon()->getCode(),
+                    $command->isUsed(),
+                    $command->getCampaignId()->__toString(),
+                    $command->getCustomerId()->__toString()
+                );
+        }
+
+        return $this->view(['coupons' => $result]);
     }
 }

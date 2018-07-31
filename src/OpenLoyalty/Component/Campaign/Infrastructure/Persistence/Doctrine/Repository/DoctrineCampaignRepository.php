@@ -358,4 +358,16 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
 
         return $qb;
     }
+
+    /**
+     * @return array
+     */
+    public function getActiveCampaigns(): array
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->andWhere('c.active = :active')
+            ->setParameter('active', true);
+
+        return $qb->getQuery()->getResult();
+    }
 }
