@@ -6,9 +6,9 @@
 namespace OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Webhooks;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
-use OpenLoyalty\Bundle\UtilityBundle\Provider\DefaultWebookConfigProvider;
-use OpenLoyalty\Component\Webhook\Infrastructure\Client\GuzzleWebhookClient;
-use OpenLoyalty\Component\Webhook\Infrastructure\Client\WebhookClient;
+use OpenLoyalty\Bundle\UtilityBundle\Provider\DefaultWebhookConfigProvider;
+use OpenLoyalty\Component\Webhook\Infrastructure\Client\DefaultWebhookClient;
+use OpenLoyalty\Component\Webhook\Infrastructure\Client\WebhookClientInterface;
 use OpenLoyalty\Component\Webhook\Infrastructure\WebhookConfigProvider;
 use Symfony\Bundle\FrameworkBundle\Client;
 use OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener\WebhookListener as CustomerWebhookListener;
@@ -30,14 +30,14 @@ class WebhooksTest extends BaseApiTest
         $client = $this->createAuthenticatedClient();
         $configProviderMock = $this->getMockBuilder(WebhookConfigProvider::class)->getMock();
         $configProviderMock->method('isEnabled')->willReturn(true);
-        $client->getContainer()->set(DefaultWebookConfigProvider::class, $configProviderMock);
+        $client->getContainer()->set(DefaultWebhookConfigProvider::class, $configProviderMock);
 
-        $webhookClientMock = $this->getMockBuilder(WebhookClient::class)->getMock();
+        $webhookClientMock = $this->getMockBuilder(WebhookClientInterface::class)->getMock();
         $webhookClientMock->expects($this->any())->method('postAction')
             ->willReturnCallback(function ($uri, $data) use (&$types) {
                 $types[$data['type']] = true;
             });
-        $client->getContainer()->set(GuzzleWebhookClient::class, $webhookClientMock);
+        $client->getContainer()->set(DefaultWebhookClient::class, $webhookClientMock);
 
         return $client;
     }

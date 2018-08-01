@@ -86,7 +86,7 @@ class CustomerImportProcessor implements ImporterProcessor
 
             if (isset($entity['levelId'])) {
                 $this->commandBus->dispatch(
-                    new MoveCustomerToLevel($customerId, new LevelId($entity['levelId']), true)
+                    new MoveCustomerToLevel($customerId, new LevelId($entity['levelId']), null, true)
                 );
             }
 

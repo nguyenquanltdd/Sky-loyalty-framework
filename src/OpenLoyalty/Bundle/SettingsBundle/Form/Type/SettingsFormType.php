@@ -224,6 +224,18 @@ class SettingsFormType extends AbstractType
         );
         $builder->add(
             $builder
+                ->create('webhookHeaderName', SettingsTextType::class, [
+                    'required' => false,
+                ])
+        );
+        $builder->add(
+            $builder
+                ->create('webhookHeaderValue', SettingsTextType::class, [
+                    'required' => false,
+                ])
+        );
+        $builder->add(
+            $builder
                 ->create('accentColor', SettingsTextType::class, [
                     'constraints' => [
                         new ValidHexColor(),

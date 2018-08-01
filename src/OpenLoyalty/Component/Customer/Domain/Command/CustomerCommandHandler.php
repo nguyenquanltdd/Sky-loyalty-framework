@@ -203,17 +203,19 @@ class CustomerCommandHandler extends SimpleCommandHandler
     public function handleMoveCustomerToLevel(MoveCustomerToLevel $command)
     {
         $customerId = $command->getCustomerId();
+
         /** @var Customer $customer */
         $customer = $this->repository->load($customerId->__toString());
         $customer->addToLevel($command->getLevelId(), $command->isManually(), $command->isRemoveLevelManually());
+
         $this->repository->save($customer);
-        $this->eventDispatcher->dispatch(
-            CustomerSystemEvents::CUSTOMER_UPDATED,
-            [new CustomerUpdatedSystemEvent($customerId)]
-        );
+
+        $this->eventDispatcher->dispatch(CustomerSystemEvents::CUSTOMER_UPDATED, [
+            new CustomerUpdatedSystemEvent($customerId),
+        ]);
 
         $this->eventDispatcher->dispatch(CustomerSystemEvents::CUSTOMER_LEVEL_CHANGED, [
-            new CustomerLevelChangedSystemEvent($customerId, $command->getLevelId()),
+            new CustomerLevelChangedSystemEvent($customerId, $command->getLevelId(), $command->getLevelName()),
         ]);
     }
 

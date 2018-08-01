@@ -7,7 +7,7 @@ namespace OpenLoyalty\Component\Webhook\Tests\Unit\Domain\Command;
 
 use OpenLoyalty\Component\Webhook\Domain\Command\DispatchWebhook;
 use OpenLoyalty\Component\Webhook\Domain\Command\WebhookCommandHandler;
-use OpenLoyalty\Component\Webhook\Infrastructure\Client\WebhookClient;
+use OpenLoyalty\Component\Webhook\Infrastructure\Client\WebhookClientInterface;
 use OpenLoyalty\Component\Webhook\Infrastructure\WebhookConfigProvider;
 
 /**
@@ -20,7 +20,7 @@ class WebhookCommandHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public function it_post_webhook_when_webhooks_is_enabled()
     {
-        $clientMock = $this->getMockBuilder(WebhookClient::class)->getMock();
+        $clientMock = $this->getMockBuilder(WebhookClientInterface::class)->getMock();
         $configProviderMock = $this->getMockBuilder(WebhookConfigProvider::class)->getMock();
 
         $configProviderMock->method('isEnabled')->willReturn(true);
@@ -36,7 +36,7 @@ class WebhookCommandHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public function it_post_webhook_when_webhooks_is_disabled()
     {
-        $clientMock = $this->getMockBuilder(WebhookClient::class)->getMock();
+        $clientMock = $this->getMockBuilder(WebhookClientInterface::class)->getMock();
         $configProviderMock = $this->getMockBuilder(WebhookConfigProvider::class)->getMock();
 
         $configProviderMock->method('isEnabled')->willReturn(false);
@@ -52,7 +52,7 @@ class WebhookCommandHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public function it_post_webhook_with_config_provider_uri()
     {
-        $clientMock = $this->getMockBuilder(WebhookClient::class)->getMock();
+        $clientMock = $this->getMockBuilder(WebhookClientInterface::class)->getMock();
         $configProviderMock = $this->getMockBuilder(WebhookConfigProvider::class)->getMock();
 
         $configProviderMock

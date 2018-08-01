@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM;
 
+use Broadway\CommandHandling\SimpleCommandBus;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use OpenLoyalty\Component\Level\Domain\Command\ActivateLevel;
@@ -18,14 +19,18 @@ use Symfony\Bridge\Doctrine\Tests\Fixtures\ContainerAwareFixture;
 class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInterface
 {
     const LEVEL_ID = 'e82c96cf-32a3-43bd-9034-4df343e5fd94';
+    const LEVEL_NAME = 'level0';
     const LEVEL2_ID = '000096cf-32a3-43bd-9034-4df343e5fd94';
+    const LEVEL2_NAME = 'level1';
     const LEVEL3_ID = '000096cf-32a3-43bd-9034-4df343e5fd93';
+    const LEVEL3_NAME = 'level2';
     const LEVEL4_ID = '000096cf-32a3-43bd-9034-4df343e5fd95';
+    const LEVEL4_NAME = 'level3';
 
     public function load(ObjectManager $manager)
     {
         $level0 = [
-            'name' => 'level0',
+            'name' => self::LEVEL_NAME,
             'description' => 'example level',
             'conditionValue' => 0,
             'reward' => [
@@ -36,7 +41,7 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
         ];
 
         $level1 = [
-            'name' => 'level1',
+            'name' => self::LEVEL2_NAME,
             'description' => 'example level',
             'conditionValue' => 20,
             'reward' => [
@@ -46,7 +51,7 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
             ],
         ];
         $level2 = [
-            'name' => 'level2',
+            'name' => self::LEVEL3_NAME,
             'description' => 'example level',
             'conditionValue' => 200,
             'reward' => [
@@ -76,8 +81,8 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
             ],
         ];
         $level4 = [
-            'name' => 'level4',
-            'description' => 'LEvel4',
+            'name' => self::LEVEL4_NAME,
+            'description' => 'Level4',
             'conditionValue' => 999,
             'reward' => [
                 'name' => 'Level 4 reward',
@@ -86,29 +91,30 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
             ],
         ];
 
-        $commandBud = $this->container->get('broadway.command_handling.command_bus');
-        $commandBud->dispatch(
+        /** @var SimpleCommandBus $commandBus */
+        $commandBus = $this->container->get('broadway.command_handling.command_bus');
+        $commandBus->dispatch(
             new CreateLevel(new LevelId(self::LEVEL_ID), $level1)
         );
-        $commandBud->dispatch(
+        $commandBus->dispatch(
             new ActivateLevel(new LevelId(self::LEVEL_ID))
         );
-        $commandBud->dispatch(
+        $commandBus->dispatch(
             new CreateLevel(new LevelId(self::LEVEL2_ID), $level2)
         );
-        $commandBud->dispatch(
+        $commandBus->dispatch(
             new ActivateLevel(new LevelId(self::LEVEL2_ID))
         );
-        $commandBud->dispatch(
+        $commandBus->dispatch(
             new CreateLevel(new LevelId(self::LEVEL3_ID), $level0)
         );
-        $commandBud->dispatch(
+        $commandBus->dispatch(
             new ActivateLevel(new LevelId(self::LEVEL3_ID))
         );
-        $commandBud->dispatch(
+        $commandBus->dispatch(
             new CreateLevel(new LevelId(self::LEVEL4_ID), $level4)
         );
-        $commandBud->dispatch(
+        $commandBus->dispatch(
             new ActivateLevel(new LevelId(self::LEVEL4_ID))
         );
     }

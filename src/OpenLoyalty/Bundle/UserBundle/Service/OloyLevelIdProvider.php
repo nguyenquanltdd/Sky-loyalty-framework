@@ -39,10 +39,10 @@ class OloyLevelIdProvider implements LevelIdProvider
         /** @var Level $level */
         $level = $this->levelRepository->findLevelByConditionValueWithTheBiggestReward($conditionValue);
 
-        if (!$level) {
+        if (null === $level) {
             return;
         }
 
-        return $level->getLevelId()->__toString();
+        return (string) $level->getLevelId();
     }
 }

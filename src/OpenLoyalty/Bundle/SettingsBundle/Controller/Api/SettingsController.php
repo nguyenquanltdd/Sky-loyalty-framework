@@ -436,16 +436,16 @@ class SettingsController extends FOSRestController
      *     section="Settings",
      *     input={"class" = "OpenLoyalty\Bundle\SettingsBundle\Form\Type\SettingsFormType", "name" = "settings"},
      *     statusCodes={
-     *       200="Returned when successful",
-     *       400="Returned when form contains errors",
+     *          200="Returned when successful",
+     *          400="Returned when form contains errors",
      *     }
      * )
      *
      * @param Request $request
      *
-     * @return View
+     * @return Response
      */
-    public function editAction(Request $request)
+    public function editAction(Request $request): Response
     {
         $settingsManager = $this->get('ol.settings.manager');
 
@@ -453,14 +453,17 @@ class SettingsController extends FOSRestController
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
-            return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
+            return $this->handleView(View::create($form->getErrors(), Response::HTTP_BAD_REQUEST));
         }
 
         $settingsManager->save($form->getData());
 
-        return $this->view([
-            'settings' => $form->getData()->toArray(),
-        ]);
+        return $this->handleView(View::create(
+            [
+                'settings' => $form->getData()->toArray(),
+            ],
+            Response::HTTP_OK
+        ));
     }
 
     /**

@@ -41,12 +41,13 @@ class MoveCustomerToLevelTest extends CustomerCommandHandlerTest
     {
         $levelId = new LevelId('00000000-2222-0000-0000-000000000000');
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000000');
+
         $this->scenario
             ->withAggregateId($customerId)
             ->given([
                 new CustomerWasRegistered($customerId, CustomerCommandHandlerTest::getCustomerData()),
             ])
-            ->when(new MoveCustomerToLevel($customerId, $levelId, true))
+            ->when(new MoveCustomerToLevel($customerId, $levelId, 'level0', true))
             ->then([
                 new CustomerWasMovedToLevel($customerId, $levelId, true),
             ]);
@@ -59,12 +60,13 @@ class MoveCustomerToLevelTest extends CustomerCommandHandlerTest
     {
         $levelId = new LevelId('00000000-2222-0000-0000-000000000000');
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000000');
+
         $this->scenario
             ->withAggregateId($customerId)
             ->given([
                 new CustomerWasRegistered($customerId, CustomerCommandHandlerTest::getCustomerData()),
             ])
-            ->when(new MoveCustomerToLevel($customerId, $levelId, true, true))
+            ->when(new MoveCustomerToLevel($customerId, $levelId, 'level0', true, true))
             ->then([
                 new CustomerWasMovedToLevel($customerId, $levelId, true, true),
             ]);

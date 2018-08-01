@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Component\Webhook\Infrastructure\Client;
@@ -8,12 +8,13 @@ namespace OpenLoyalty\Component\Webhook\Infrastructure\Client;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
+use OpenLoyalty\Component\Webhook\Infrastructure\Client\Request\Header\RequestHeaderInterface;
 use Psr\Log\LoggerInterface;
 
 /**
  * Class GuzzleWebhookClient.
  */
-class GuzzleWebhookClient implements WebhookClient
+final class DefaultWebhookClient implements WebhookClientInterface
 {
     /**
      * Timeout for guzzle request.
@@ -23,16 +24,22 @@ class GuzzleWebhookClient implements WebhookClient
     /**
      * @var LoggerInterface
      */
-    protected $logger;
+    private $logger;
+
+    /**
+     * @var RequestHeaderInterface
+     */
+    private $requestHeader;
 
     /**
      * GuzzleWebhookClient constructor.
      *
      * @param LoggerInterface $logger
      */
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, RequestHeaderInterface $requestHeader)
     {
         $this->logger = $logger;
+        $this->requestHeader = $requestHeader;
     }
 
     /**
@@ -40,14 +47,7 @@ class GuzzleWebhookClient implements WebhookClient
      */
     public function postAction(string $uri, array $data, array $config = []): void
     {
-        $clientConfig = [
-            'headers' => [
-                'Content-type' => 'application/json',
-                'User-Agent' => 'OpenLoyalty',
-            ],
-        ];
-
-        $client = new Client($clientConfig);
+        $client = new Client(['headers' => $this->requestHeader->headers()]);
 
         try {
             // Perform simulating async request with low timeout.
@@ -59,12 +59,12 @@ class GuzzleWebhookClient implements WebhookClient
                     'timeout' => self::TIMEOUT_SEC,
                 ]
             );
-        } catch (ConnectException $ex) {
-            $this->logger->debug(sprintf('[Webhooks] Request timeout: %s', $ex->getMessage()));
-        } catch (RequestException $ex) {
-            $this->logger->warning(sprintf('[Webhooks] Request problem: %s', $ex->getMessage()));
-        } catch (\Exception $ex) {
-            $this->logger->error(sprintf('[Webhooks] Error request: %s', $ex->getMessage()));
+        } catch (ConnectException $exception) {
+            $this->logger->debug(sprintf('[Webhooks] Request timeout: %s', $exception->getMessage()));
+        } catch (RequestException $exception) {
+            $this->logger->warning(sprintf('[Webhooks] Request problem: %s', $exception->getMessage()));
+        } catch (\Exception $exception) {
+            $this->logger->error(sprintf('[Webhooks] Error request: %s', $exception->getMessage()));
         }
     }
 }

@@ -32,11 +32,11 @@ class WebhookListener extends BaseWebhookListener
         $this->uniqueDispatchCommand(
             self::TRANSACTION_REGISTERED_WEBHOOK_TYPE,
             [
-                'transactionId' => $event->getTransactionId()->__toString(),
+                'transactionId' => (string) $event->getTransactionId(),
                 'transactionData' => $event->getTransactionData(),
                 'customerData' => $event->getCustomerData(),
                 'items' => $event->getItems(),
-                'postId' => $event->getPosId() ? $event->getPosId()->__toString() : null,
+                'postId' => $event->getPosId() ? (string) $event->getPosId() : null,
             ]
         );
     }
@@ -49,7 +49,7 @@ class WebhookListener extends BaseWebhookListener
         $this->uniqueDispatchCommand(
             self::CUSTOMER_ASSIGNED_TO_TRANSACTION_WEBHOOK_TYPE,
             [
-                'transactionId' => $event->getTransactionId()->__toString(),
+                'transactionId' => (string) $event->getTransactionId()->__toString(),
                 'customerId' => $event->getCustomerId()->__toString(),
             ]
         );

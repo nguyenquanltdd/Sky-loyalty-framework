@@ -6,7 +6,7 @@
 namespace OpenLoyalty\Component\Webhook\Domain\Command;
 
 use Broadway\CommandHandling\SimpleCommandHandler;
-use OpenLoyalty\Component\Webhook\Infrastructure\Client\WebhookClient;
+use OpenLoyalty\Component\Webhook\Infrastructure\Client\WebhookClientInterface;
 use OpenLoyalty\Component\Webhook\Infrastructure\WebhookConfigProvider;
 
 /**
@@ -14,7 +14,7 @@ use OpenLoyalty\Component\Webhook\Infrastructure\WebhookConfigProvider;
  */
 class WebhookCommandHandler extends SimpleCommandHandler
 {
-    /** @var WebhookClient */
+    /** @var WebhookClientInterface */
     protected $client;
 
     /** @var WebhookConfigProvider */
@@ -23,10 +23,10 @@ class WebhookCommandHandler extends SimpleCommandHandler
     /**
      * WebhookCommandHandler constructor.
      *
-     * @param WebhookClient         $client
-     * @param WebhookConfigProvider $configProvider
+     * @param WebhookClientInterface $client
+     * @param WebhookConfigProvider  $configProvider
      */
-    public function __construct(WebhookClient $client, WebhookConfigProvider $configProvider)
+    public function __construct(WebhookClientInterface $client, WebhookConfigProvider $configProvider)
     {
         $this->client = $client;
         $this->configProvider = $configProvider;

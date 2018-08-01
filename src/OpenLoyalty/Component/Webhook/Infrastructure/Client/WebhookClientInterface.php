@@ -6,9 +6,9 @@
 namespace OpenLoyalty\Component\Webhook\Infrastructure\Client;
 
 /**
- * Interface WebhookClient.
+ * Interface WebhookClientInterface.
  */
-interface WebhookClient
+interface WebhookClientInterface
 {
     /**
      * @param string $uri

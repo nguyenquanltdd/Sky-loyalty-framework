@@ -1867,6 +1867,10 @@
     "title": "Konfiguracja",
     "uri_webhooks": "Adres URL",
     "uri_webhooks_prompt": "adres URL usługi, gdzie przesyłane są zdarzenia",
+    "webhook_header_name": "Nazwa nagłówka",
+    "webhook_header_name_prompt": "np. Content-Acme-Key",
+    "webhook_header_value": "Wartość nagłówka",
+    "webhook_header_value_prompt": "",
     "webhooks": "Webhook"
   },
   "Ta wartość nie powinna być pusta.": "Ta wartość nie powinna być pusta",

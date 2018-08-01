@@ -127,7 +127,7 @@ class RegisterCustomerManager
 
         if (isset($customerData['level'])) {
             $this->commandBus->dispatch(
-                new MoveCustomerToLevel($customerId, new LevelId($customerData['level']), true)
+                new MoveCustomerToLevel($customerId, new LevelId($customerData['level']), null, true)
             );
         }
 

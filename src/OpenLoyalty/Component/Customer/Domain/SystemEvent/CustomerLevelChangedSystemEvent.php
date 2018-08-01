@@ -16,19 +16,34 @@ class CustomerLevelChangedSystemEvent extends CustomerSystemEvent
     /**
      * @var LevelId
      */
-    protected $levelId;
+    private $levelId;
 
-    public function __construct(CustomerId $customerId, LevelId $levelId)
+    /**
+     * @var null|string
+     */
+    private $levelName;
+
+    public function __construct(CustomerId $customerId, LevelId $levelId, ?string $levelName = null)
     {
         parent::__construct($customerId);
+
         $this->levelId = $levelId;
+        $this->levelName = $levelName;
     }
 
     /**
      * @return LevelId
      */
-    public function getLevelId()
+    public function getLevelId(): LevelId
     {
         return $this->levelId;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getLevelName(): ?string
+    {
+        return $this->levelName;
     }
 }

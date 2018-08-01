@@ -9,9 +9,9 @@ use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Component\Webhook\Infrastructure\WebhookConfigProvider;
 
 /**
- * Class DefaultWebookConfigProvider.
+ * Class DefaultWebhookConfigProvider.
  */
-class DefaultWebookConfigProvider implements WebhookConfigProvider
+class DefaultWebhookConfigProvider implements WebhookConfigProvider
 {
     /**
      * URI webhooks settings key.
@@ -29,7 +29,7 @@ class DefaultWebookConfigProvider implements WebhookConfigProvider
     protected $settingsManager;
 
     /**
-     * DefaultWebookConfigProvider constructor.
+     * DefaultWebhookConfigProvider constructor.
      *
      * @param SettingsManager $settingsManager
      */

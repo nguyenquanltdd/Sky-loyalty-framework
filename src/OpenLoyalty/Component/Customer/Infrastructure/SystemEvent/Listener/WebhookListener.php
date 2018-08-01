@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener;
 
+use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerDeactivatedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerLevelChangedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRegisteredSystemEvent;
 use OpenLoyalty\Component\Webhook\Infrastructure\SystemEvent\Listener\BaseWebhookListener;
@@ -26,6 +27,11 @@ class WebhookListener extends BaseWebhookListener
     const CUSTOMER_REGISTERED_WEBHOOK_TYPE = 'customer.registered';
 
     /**
+     * Customer deactivated webhook type (CustomerSystemEvents::CUSTOMER_DEACTIVATED).
+     */
+    const CUSTOMER_DEACTIVATED_WEBHOOK_TYPE = 'customer.deactivated';
+
+    /**
      * Customer level changed automatically webhook type (CustomerSystemEvents::CUSTOMER_LEVEL_CHANGED_AUTOMATICALLY).
      */
     const CUSTOMER_LEVEL_CHANGED_AUTOMATICALLY_WEBHOOK_TYPE = 'customer.level_changed_automatically';
@@ -42,7 +48,7 @@ class WebhookListener extends BaseWebhookListener
     {
         $this->uniqueDispatchCommand(
             self::CUSTOMER_UPDATED_WEBHOOK_TYPE,
-            ['customerId' => $event->getCustomerId()->__toString()]
+            ['customerId' => (string) $event->getCustomerId()]
         );
     }
 
@@ -54,8 +60,21 @@ class WebhookListener extends BaseWebhookListener
         $this->uniqueDispatchCommand(
             self::CUSTOMER_REGISTERED_WEBHOOK_TYPE,
             [
-                'customerId' => $event->getCustomerId()->__toString(),
+                'customerId' => (string) $event->getCustomerId(),
                 'data' => $event->getCustomerData(),
+            ]
+        );
+    }
+
+    /**
+     * @param CustomerDeactivatedSystemEvent $event
+     */
+    public function onCustomerDeactivated(CustomerDeactivatedSystemEvent $event): void
+    {
+        $this->uniqueDispatchCommand(
+            self::CUSTOMER_DEACTIVATED_WEBHOOK_TYPE,
+            [
+                'customerId' => (string) $event->getCustomerId(),
             ]
         );
     }
@@ -68,8 +87,9 @@ class WebhookListener extends BaseWebhookListener
         $this->uniqueDispatchCommand(
             self::CUSTOMER_LEVEL_CHANGED_AUTOMATICALLY_WEBHOOK_TYPE,
             [
-                'customerId' => $event->getCustomerId()->__toString(),
-                'levelId' => $event->getLevelId()->__toString(),
+                'customerId' => (string) $event->getCustomerId(),
+                'levelId' => (string) $event->getLevelId(),
+                'levelName' => $event->getLevelName(),
             ]
         );
     }
@@ -82,8 +102,9 @@ class WebhookListener extends BaseWebhookListener
         $this->uniqueDispatchCommand(
             self::CUSTOMER_LEVEL_CHANGED_WEBHOOK_TYPE,
             [
-                'customerId' => $event->getCustomerId()->__toString(),
-                'levelId' => $event->getLevelId()->__toString(),
+                'customerId' => (string) $event->getCustomerId(),
+                'levelId' => (string) $event->getLevelId(),
+                'levelName' => $event->getLevelName(),
             ]
         );
     }

@@ -7,27 +7,27 @@ use Broadway\EventDispatcher\EventDispatcher;
 use OpenLoyalty\Bundle\UserBundle\Model\CustomerStatus;
 use OpenLoyalty\Bundle\UserBundle\Status\CustomerStatusProvider;
 use OpenLoyalty\Component\Account\Domain\AccountId;
+use OpenLoyalty\Component\Account\Domain\CustomerId as AccountCustomerId;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountCreatedSystemEvent;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AvailablePointsAmountChangedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\Command\MoveCustomerToLevel;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\LevelId;
+use OpenLoyalty\Component\Customer\Domain\LevelId as CustomerLevelId;
 use OpenLoyalty\Component\Customer\Domain\LevelIdProvider;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRemovedManuallyLevelSystemEvent;
+use OpenLoyalty\Component\Customer\Infrastructure\ExcludeDeliveryCostsProvider;
 use OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener\CalculateCustomerLevelListener;
+use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
 use OpenLoyalty\Component\Level\Domain\Level;
-use OpenLoyalty\Component\Customer\Domain\LevelId as CustomerLevelId;
+use OpenLoyalty\Component\Level\Domain\LevelId as LevelLevelId;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
 use OpenLoyalty\Component\Level\Domain\Model\Reward;
+use OpenLoyalty\Component\Transaction\Domain\CustomerId as TransactionCustomerId;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\CustomerAssignedToTransactionSystemEvent;
 use OpenLoyalty\Component\Transaction\Domain\TransactionId;
-use OpenLoyalty\Component\Customer\Infrastructure\ExcludeDeliveryCostsProvider;
-use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
-use OpenLoyalty\Component\Transaction\Domain\CustomerId as TransactionCustomerId;
-use OpenLoyalty\Component\Account\Domain\CustomerId as AccountCustomerId;
-use OpenLoyalty\Component\Level\Domain\LevelId as LevelLevelId;
 
 /**
  * Class CalculateCustomerLevelListenerTest.
@@ -47,12 +47,14 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $level = new Level($levelId, 'test', 10);
 
+        /** @var CommandBus|\PHPUnit_Framework_MockObject_MockObject $commandBus */
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->once())->method('dispatch')->with(
             $this->equalTo(
                 new MoveCustomerToLevel(
                     new CustomerId($customerId),
                     new LevelId($levelId->__toString()),
+                    $level->getName(),
                     true,
                     true
                 )
@@ -84,12 +86,14 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $level = new Level($levelId, 'test', 10);
 
+        /** @var CommandBus|\PHPUnit_Framework_MockObject_MockObject $commandBus */
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->once())->method('dispatch')->with(
             $this->equalTo(
                 new MoveCustomerToLevel(
                     new CustomerId($customerId),
                     new LevelId($levelId->__toString()),
+                    $level->getName(),
                     false,
                     false
                 )
@@ -126,6 +130,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $level = new Level($levelId, 'test', 10);
         $level->setReward(new Reward('level_0_reward', 10, 'level'));
 
+        /** @var CommandBus|\PHPUnit_Framework_MockObject_MockObject $commandBus */
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->never())->method('dispatch');
 
@@ -153,21 +158,23 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
      * @dataProvider getLevelsWithAssignedProvider
      *
      * @param CustomerLevelId $currentLevelId
-     * @param CustomerLevelId $assignedLevel
+     * @param CustomerLevelId $assignedLevelId
      * @param $transactionAmount
      * @param CustomerLevelId|null $resultLevelId
      */
     public function it_moves_customer_to_correct_level_by_transaction_with_manually_assigned_level(
         CustomerLevelId $currentLevelId,
-        CustomerLevelId $assignedLevel,
+        CustomerLevelId $assignedLevelId,
         $transactionAmount,
+        string $levelName = null,
         CustomerLevelId $resultLevelId = null
-    ) {
+    ): void {
         $levels = $this->getSampleLevels();
         $levelsRepo = $this->getLevelRepositoryWithArray($levels);
 
         $customerId = '00000000-0000-0000-0000-000000000000';
 
+        /** @var CommandBus|\PHPUnit_Framework_MockObject_MockObject $commandBus */
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         if ($resultLevelId == null) {
             $commandBus->expects($this->never())->method('dispatch');
@@ -177,6 +184,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                     new MoveCustomerToLevel(
                         new CustomerId($customerId),
                         $resultLevelId,
+                        $levelName,
                         false,
                         false
                     )
@@ -186,7 +194,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
 
         $listener = new CalculateCustomerLevelListener(
             $this->getLevelIdProvider($levels),
-            $this->getCustomerDetailsRepository($currentLevelId, $assignedLevel),
+            $this->getCustomerDetailsRepository($currentLevelId, $assignedLevelId),
             $commandBus,
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_TRANSACTIONS),
             $this->getExcludeDeliveryCostsProvider(false),
@@ -212,12 +220,14 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $level = new Level($levelId, 'test', 0);
 
+        /** @var CommandBus|\PHPUnit_Framework_MockObject_MockObject $commandBus */
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->once())->method('dispatch')->with(
             $this->equalTo(
                 new MoveCustomerToLevel(
                     new CustomerId($customerId),
                     new LevelId($levelId->__toString()),
+                    $level->getName(),
                     false,
                     false
                 )
@@ -244,18 +254,20 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_moves_customer_to_correct_level_by_points()
+    public function it_moves_customer_to_correct_level_by_points(): void
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $level = new Level($levelId, 'test', 10);
 
+        /** @var CommandBus|\PHPUnit_Framework_MockObject_MockObject $commandBus */
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->once())->method('dispatch')->with(
             $this->equalTo(
                 new MoveCustomerToLevel(
                     new CustomerId($customerId),
                     new LevelId($levelId->__toString()),
+                    $level->getName(),
                     false,
                     false
                 )
@@ -272,6 +284,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->getDispatcher(),
             $this->getCustomerStatusProvider()
         );
+
         $listener->handle(new AvailablePointsAmountChangedSystemEvent(
             new AccountId('00000000-0000-0000-0000-000000000000'),
             new AccountCustomerId($customerId),
@@ -280,38 +293,65 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         ));
     }
 
-    protected function getTierTypeAssignProvider($type)
+    /**
+     * @param $type
+     *
+     * @return TierAssignTypeProvider
+     */
+    protected function getTierTypeAssignProvider($type): TierAssignTypeProvider
     {
+        /** @var TierAssignTypeProvider|\PHPUnit_Framework_MockObject_MockObject $mock */
         $mock = $this->getMockBuilder(TierAssignTypeProvider::class)->getMock();
         $mock->method('getType')->willReturn($type);
 
         return $mock;
     }
 
-    protected function getCustomerDetailsRepository(CustomerLevelId $currentLevelId = null, CustomerLevelId $assignedLevelId = null)
-    {
-        $repo = $this->getMockBuilder(CustomerDetailsRepository::class)->getMock();
-        $repo->method('find')->with($this->isType('string'))->willReturnCallback(function ($id) use ($currentLevelId, $assignedLevelId) {
-            $customer = $this->getMockBuilder(CustomerDetails::class);
-            $customer->disableOriginalConstructor();
-            $customer = $customer->getMock();
-            $customer->method('getCustomerId')->willReturn(new CustomerId($id));
-            $customer->method('getLevelId')->willReturn($currentLevelId);
-            $customer->method('getManuallyAssignedLevelId')->willReturn($assignedLevelId);
+    /**
+     * @param CustomerLevelId|null $currentLevelId
+     * @param CustomerLevelId|null $assignedLevelId
+     *
+     * @return CustomerDetailsRepository
+     */
+    protected function getCustomerDetailsRepository(
+        CustomerLevelId $currentLevelId = null,
+        CustomerLevelId $assignedLevelId = null
+    ): CustomerDetailsRepository {
+        /** @var CustomerDetailsRepository|\PHPUnit_Framework_MockObject_MockObject $customerDetailsRepository */
+        $customerDetailsRepository = $this->getMockBuilder(CustomerDetailsRepository::class)->getMock();
+        $customerDetailsRepository
+            ->method('find')
+            ->with($this->isType('string'))
+            ->willReturnCallback(function ($id) use ($currentLevelId, $assignedLevelId): CustomerDetails {
+                /** @var CustomerDetails|\PHPUnit_Framework_MockObject_MockBuilder $customer */
+                $customer = $this->getMockBuilder(CustomerDetails::class);
+                $customer->disableOriginalConstructor();
+                $customer = $customer->getMock();
+                $customer->method('getCustomerId')->willReturn(new CustomerId($id));
+                $customer->method('getLevelId')->willReturn($currentLevelId);
+                $customer->method('getManuallyAssignedLevelId')->willReturn($assignedLevelId);
 
-            return $customer;
-        });
+                return $customer;
+            })
+        ;
 
-        return $repo;
+        return $customerDetailsRepository;
     }
 
-    protected function getLevelIdProvider($levels)
+    /**
+     * @param $levels
+     *
+     * @return LevelIdProvider
+     */
+    protected function getLevelIdProvider($levels): LevelIdProvider
     {
         if (!is_array($levels)) {
             $levels = [$levels];
         }
-        $repo = $this->getMockBuilder(LevelIdProvider::class)->getMock();
-        $repo->method('findLevelIdByConditionValueWithTheBiggestReward')
+
+        /** @var LevelIdProvider|\PHPUnit_Framework_MockObject_MockObject $levelIdProviderMock */
+        $levelIdProviderMock = $this->getMockBuilder(LevelIdProvider::class)->getMock();
+        $levelIdProviderMock->method('findLevelIdByConditionValueWithTheBiggestReward')
             ->with($this->greaterThanOrEqual(0))
             ->will($this->returnCallback(function ($conditionValue) use ($levels) {
                 $current = null;
@@ -333,51 +373,83 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                 }
 
                 return $current ? $current->getLevelId()->__toString() : null;
-            }));
+            }))
+        ;
 
-        return $repo;
+        return $levelIdProviderMock;
     }
 
-    protected function getExcludeDeliveryCostsProvider($returnValue)
+    /**
+     * @param $returnValue
+     *
+     * @return ExcludeDeliveryCostsProvider
+     */
+    protected function getExcludeDeliveryCostsProvider($returnValue): ExcludeDeliveryCostsProvider
     {
+        /** @var ExcludeDeliveryCostsProvider|\PHPUnit_Framework_MockObject_MockObject $mock */
         $mock = $this->getMockBuilder(ExcludeDeliveryCostsProvider::class)->getMock();
         $mock->method('areExcluded')->willReturn($returnValue);
 
         return $mock;
     }
 
-    protected function getDispatcher()
+    /**
+     * @return EventDispatcher
+     */
+    protected function getDispatcher(): EventDispatcher
     {
-        $mock = $this->getMockBuilder(EventDispatcher::class)
+        /** @var EventDispatcher|\PHPUnit_Framework_MockObject_MockObject $mock */
+        $mock = $this
+            ->getMockBuilder(EventDispatcher::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
 
         return $mock;
     }
 
-    protected function getLevelRepository(Level $givenLevel = null)
+    /**
+     * @param Level|null $givenLevel
+     *
+     * @return LevelRepository
+     */
+    protected function getLevelRepository(Level $givenLevel = null): LevelRepository
     {
-        $mock = $this->getMockBuilder(LevelRepository::class)
+        /** @var LevelRepository|\PHPUnit_Framework_MockObject_MockObject $mock */
+        $mock = $this
+            ->getMockBuilder(LevelRepository::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
+
         if ($givenLevel) {
             $level = $givenLevel;
         } else {
             $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
-            $level = new Level($levelId, 'abcd', 20);
+            $level = new Level($levelId, 'test', 20);
         }
+
         $mock
             ->method('byId')
-            ->will($this->returnValue($level));
+            ->will($this->returnValue($level))
+        ;
 
         return $mock;
     }
 
-    protected function getLevelRepositoryWithArray($levels)
+    /**
+     * @param array $levels
+     *
+     * @return LevelRepository
+     */
+    protected function getLevelRepositoryWithArray(array $levels): LevelRepository
     {
-        $mock = $this->getMockBuilder(LevelRepository::class)
-        ->disableOriginalConstructor()
-        ->getMock();
+        /** @var LevelRepository|\PHPUnit_Framework_MockObject_MockObject $mock */
+        $mock = $this
+            ->getMockBuilder(LevelRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
         $mock
             ->method('byId')
             ->with($this->isInstanceOf(LevelLevelId::class))
@@ -387,7 +459,8 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                 }
 
                 return;
-            }));
+            }))
+        ;
 
         return $mock;
     }
@@ -399,47 +472,58 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
      */
     protected function getCustomerStatusProvider(float $points = 0)
     {
-        $mock = $this->getMockBuilder(CustomerStatusProvider::class)
+        /** @var CustomerStatusProvider|\PHPUnit_Framework_MockObject_MockObject $mock */
+        $mock = $this
+            ->getMockBuilder(CustomerStatusProvider::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $mock
             ->method('getStatus')
             ->with($this->isInstanceOf(CustomerId::class))
-            ->will($this->returnCallback(function (CustomerId $id) use ($points) {
+            ->will($this->returnCallback(function (CustomerId $id) use ($points): CustomerStatus {
                 $status = new CustomerStatus($id);
                 $status->setPoints($points);
 
                 return $status;
-            }));
+            }))
+        ;
 
         return $mock;
     }
 
-    public function getLevelsWithAssignedProvider()
+    /**
+     * @return array
+     */
+    public function getLevelsWithAssignedProvider(): array
     {
         return [
             [
                 new CustomerLevelId(static::LEVEL_WITH_REWARD_200_FROM_20),
                 new CustomerLevelId(static::LEVEL_WITH_REWARD_200_FROM_20),
                 40,
+                'level_2',
                 new CustomerLevelId(static::LEVEL_WITH_REWARD_300_FROM_30),
             ],
             [
                 new CustomerLevelId(static::LEVEL_WITH_REWARD_300_FROM_30),
                 new CustomerLevelId(static::LEVEL_WITH_REWARD_200_FROM_20),
                 0,
+                'level_0',
                 new CustomerLevelId(static::LEVEL_WITH_REWARD_200_FROM_20),
             ],
             [
                 new CustomerLevelId(static::LEVEL_WITH_REWARD_200_FROM_20),
                 new CustomerLevelId(static::LEVEL_WITH_REWARD_200_FROM_20),
                 21,
+                null,
                 null, // do not change level
             ],
             [
                 new CustomerLevelId(static::LEVEL_WITH_REWARD_300_FROM_30),
                 new CustomerLevelId(static::LEVEL_WITH_REWARD_10_FROM_0),
                 21,
+                'level_1',
                 new CustomerLevelId(static::LEVEL_WITH_REWARD_200_FROM_20),
             ],
         ];

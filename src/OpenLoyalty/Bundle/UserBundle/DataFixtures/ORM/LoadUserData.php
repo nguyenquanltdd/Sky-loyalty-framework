@@ -267,7 +267,11 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
             'country' => 'PL',
         ]));
         $bus->dispatch(new UpdateCustomerLoyaltyCardNumber($customerId, '0000'));
-        $bus->dispatch(new MoveCustomerToLevel($customerId, new LevelId(LoadLevelData::LEVEL_ID)));
+        $bus->dispatch(new MoveCustomerToLevel(
+            $customerId,
+            new LevelId(LoadLevelData::LEVEL_ID),
+            LoadLevelData::LEVEL_NAME)
+        );
         $bus->dispatch(new ActivateCustomer($customerId));
 
         $user = new Customer($customerId);

@@ -1,6 +1,6 @@
 services:
 
-  OpenLoyalty\Bundle\UtilityBundle\Provider\DefaultWebookConfigProvider:
+  OpenLoyalty\Bundle\UtilityBundle\Provider\DefaultWebhookConfigProvider:
     arguments: ['@ol.doctrine_settings.manager']
 
   OpenLoyalty\Component\Webhook\Domain\Command\WebhookCommandHandler:
@@ -14,9 +14,14 @@ services:
     calls:
         - [setCommandBus, ['@broadway.command_handling.command_bus']]
 
-  OpenLoyalty\Component\Webhook\Infrastructure\Client\GuzzleWebhookClient:
-    arguments: ['@logger']
+  OpenLoyalty\Component\Webhook\Infrastructure\Client\DefaultWebhookClient:
+    arguments:
+      - '@logger'
+      - '@OpenLoyalty\Component\Webhook\Infrastructure\Client\Request\Header\DefaultRequestHeader'
 
+  OpenLoyalty\Component\Webhook\Infrastructure\Client\Request\Header\DefaultRequestHeader:
+    arguments:
+      - '@ol.doctrine_settings.manager'
   # Webhooks event listeners
 
   OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener\WebhookListener:
@@ -24,6 +29,7 @@ services:
     tags:
       - { name: broadway.event_listener, event: oloy.customer.updated, method: onCustomerUpdated }
       - { name: broadway.event_listener, event: oloy.customer.registered, method: onCustomerRegistered }
+      - { name: broadway.event_listener, event: oloy.customer.deactivated, method: onCustomerDeactivated }
       - { name: broadway.event_listener, event: oloy.customer.level_changed_automatically, method: onCustomerLevelChangedAutomatically }
       - { name: broadway.event_listener, event: oloy.customer.level_changed, method: onCustomerLevelChanged }
 

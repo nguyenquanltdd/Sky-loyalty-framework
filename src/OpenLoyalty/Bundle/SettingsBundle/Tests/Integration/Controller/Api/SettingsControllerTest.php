@@ -149,6 +149,8 @@ class SettingsControllerTest extends BaseApiTest
             'helpEmailAddress' => '',
             'webhooks' => false,
             'uriWebhooks' => '',
+            'webhookHeaderName' => '',
+            'webhookHeaderValue' => '',
             'excludeDeliveryCostsFromTierAssignment' => false,
             'excludedDeliverySKUs' => [],
             'excludedLevelSKUs' => [],
@@ -171,7 +173,7 @@ class SettingsControllerTest extends BaseApiTest
         // revert to previous original settings
         $client->request('POST', '/api/settings', $originalSettings);
         $response = $client->getResponse();
-        $this->assertEquals('200', $response->getStatusCode(), 'Cannot restore original settings');
+        $this->assertEquals(200, $response->getStatusCode(), 'Cannot restore original settings');
     }
 
     /**

@@ -1838,6 +1838,10 @@
     "title": "Settings",
     "uri_webhooks": "URI",
     "uri_webhooks_prompt": "e.g. https://example.com/webhook.php",
+    "webhook_header_name": "Request header name",
+    "webhook_header_name_prompt": "e.g. Content-Acme-Key",
+    "webhook_header_value": "Request header value",
+    "webhook_header_value_prompt": "",
     "webhooks": "Webhooks"
   },
   "Ta wartość nie powinna być pusta.": "This value should not be empty",

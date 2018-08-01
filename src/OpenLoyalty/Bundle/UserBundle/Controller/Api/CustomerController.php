@@ -5,7 +5,9 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\Controller\Api;
 
+use Broadway\CommandHandling\CommandBus;
 use Broadway\ReadModel\Repository;
+use Broadway\UuidGenerator\UuidGeneratorInterface;
 use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\Route;
@@ -16,6 +18,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\AuditBundle\Service\AuditManagerInterface;
 use OpenLoyalty\Bundle\ImportBundle\Form\Type\ImportFileFormType;
 use OpenLoyalty\Bundle\ImportBundle\Service\ImportFileManager;
+use OpenLoyalty\Bundle\LevelBundle\Model\Level;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
 use OpenLoyalty\Bundle\UserBundle\Entity\Status;
@@ -33,11 +36,14 @@ use OpenLoyalty\Component\Customer\Domain\Command\DeactivateCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\MoveCustomerToLevel;
 use OpenLoyalty\Component\Customer\Domain\Command\RemoveManuallyAssignedLevel;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
+use OpenLoyalty\Component\Customer\Domain\LevelId as CustomerLevelId;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\PosId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
-use OpenLoyalty\Component\Customer\Domain\LevelId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
+use OpenLoyalty\Component\Customer\Domain\SellerId as CustomerSellerId;
+use OpenLoyalty\Component\Level\Domain\LevelId;
+use OpenLoyalty\Component\Level\Infrastructure\Persistence\Doctrine\Repository\DoctrineLevelRepository;
 use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomers;
 use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomersRepository;
 use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetails;
@@ -48,13 +54,34 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use OpenLoyalty\Component\Customer\Domain\SellerId as CustomerSellerId;
 
 /**
  * Class CustomerController.
  */
 class CustomerController extends FOSRestController
 {
+    /**
+     * @var CommandBus
+     */
+    private $commandBus;
+
+    /**
+     * @var DoctrineLevelRepository
+     */
+    private $levelRepository;
+
+    /**
+     * CustomerController constructor.
+     *
+     * @param CommandBus              $commandBus
+     * @param DoctrineLevelRepository $levelRepository
+     */
+    public function __construct(CommandBus $commandBus, DoctrineLevelRepository $levelRepository)
+    {
+        $this->commandBus = $commandBus;
+        $this->levelRepository = $levelRepository;
+    }
+
     /**
      * Method will return list of all customers.
      *
@@ -332,15 +359,20 @@ class CustomerController extends FOSRestController
      *     }
      * )
      */
-    public function registerCustomerAction(Request $request, RegisterCustomerManager $registerCustomerManager)
-    {
+    public function registerCustomerAction(
+        Request $request,
+        RegisterCustomerManager $registerCustomerManager,
+        UuidGeneratorInterface $uuidGenerator
+    ): View {
         $loggedUser = $this->getUser();
+
         $accountActivationMethod = $this->get('oloy.action_token_manager')->getCurrentMethod();
 
         $formOptions = [];
         $formOptions['includeLevelId'] = true;
         $formOptions['includePosId'] = true;
         $formOptions['activationMethod'] = $accountActivationMethod;
+
         if (!$this->isGranted('ROLE_SELLER')) {
             $formOptions['includeSellerId'] = true;
         }
@@ -355,22 +387,23 @@ class CustomerController extends FOSRestController
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            $customerId = new CustomerId($this->get('broadway.uuid.generator')->generate());
+            $customerId = new CustomerId($uuidGenerator->generate());
 
             $user = $this->get('oloy.user.form_handler.customer_registration')->onSuccess($customerId, $form);
 
             if ($user instanceof User) {
                 $user->setStatus(Status::typeNew());
+
                 $levelId = $form->get('levelId')->getData();
                 $posId = $form->get('posId')->getData();
                 $sellerId = $form->has('sellerId') ? $form->get('sellerId')->getData() : null;
+
                 $agreement2 = $form->get('agreement2')->getData();
-                $commandBus = $this->get('broadway.command_handling.command_bus');
 
                 if (!$posId && $this->isGranted('ROLE_SELLER')) {
                     $this->handleSellerWasACreator($loggedUser, $customerId, $user);
                 } elseif ($posId) {
-                    $commandBus->dispatch(
+                    $this->commandBus->dispatch(
                         new AssignPosToCustomer($customerId, new PosId($posId))
                     );
                 }
@@ -378,12 +411,15 @@ class CustomerController extends FOSRestController
                     $sellerId = (string) $loggedUser->getId();
                 }
                 if ($levelId) {
-                    $commandBus->dispatch(
-                        new MoveCustomerToLevel($customerId, new LevelId($levelId), true)
+                    /** @var Level $level */
+                    $level = $this->levelRepository->byId(new LevelId($levelId));
+
+                    $this->commandBus->dispatch(
+                        new MoveCustomerToLevel($customerId, new CustomerLevelId($levelId), $level->getName(), true)
                     );
                 }
                 if ($sellerId) {
-                    $commandBus->dispatch(
+                    $this->commandBus->dispatch(
                         new AssignSellerToCustomer($customerId, new CustomerSellerId($sellerId))
                     );
                 }
@@ -394,13 +430,15 @@ class CustomerController extends FOSRestController
                         && !AccountActivationMethod::isMethodSms($accountActivationMethod)
                     )
                 ) {
-                    $commandBus->dispatch(
+                    $this->commandBus->dispatch(
                         new ActivateCustomer($customerId)
                     );
                     $registerCustomerManager->activate($user);
                 } else {
-                    $this->get('oloy.action_token_manager')
-                        ->sendActivationMessage($user);
+                    $this
+                        ->get('oloy.action_token_manager')
+                        ->sendActivationMessage($user)
+                    ;
                 }
 
                 if ($agreement2) {
@@ -409,7 +447,7 @@ class CustomerController extends FOSRestController
 
                 return $this->view(
                     [
-                        'customerId' => $customerId->__toString(),
+                        'customerId' => (string) $customerId,
                         'email' => $user->getEmail(),
                     ]
                 );
@@ -508,8 +546,11 @@ class CustomerController extends FOSRestController
      *     }
      * )
      */
-    public function editCustomerAction(Request $request, CustomerDetails $customer, RegisterCustomerManager $registerCustomerManager)
-    {
+    public function editCustomerAction(
+        Request $request,
+        CustomerDetails $customer,
+        RegisterCustomerManager $registerCustomerManager
+    ): View {
         $loggedUser = $this->getUser();
         $accountActivationMethod = $this->get('oloy.action_token_manager')->getCurrentMethod();
 
@@ -548,21 +589,31 @@ class CustomerController extends FOSRestController
             $levelId = $form->get('levelId')->getData();
             $posId = $form->get('posId')->getData();
             $sellerId = $form->has('sellerId') ? $form->get('sellerId')->getData() : null;
-            $commandBus = $this->get('broadway.command_handling.command_bus');
+
             if ($posId) {
-                $commandBus->dispatch(
+                $this->commandBus->dispatch(
                     new AssignPosToCustomer($customer->getCustomerId(), new PosId($posId))
                 );
             }
+
             if ($levelId) {
                 if ($customer->getLevelId() != $levelId) {
-                    $commandBus->dispatch(
-                        new MoveCustomerToLevel($customer->getCustomerId(), new LevelId($levelId), true)
+                    /** @var Level $level */
+                    $level = $this->levelRepository->byId(new LevelId($levelId));
+
+                    $this->commandBus->dispatch(
+                        new MoveCustomerToLevel(
+                            $customer->getCustomerId(),
+                            new CustomerLevelId($levelId),
+                            $level->getName(),
+                            true
+                        )
                     );
                 }
             }
+
             if ($sellerId) {
-                $commandBus->dispatch(
+                $this->commandBus->dispatch(
                     new AssignSellerToCustomer($customer->getCustomerId(), new CustomerSellerId($sellerId))
                 );
             }
@@ -600,20 +651,24 @@ class CustomerController extends FOSRestController
      *     section="Customer",
      *     parameters={{"name"="levelId", "dataType"="string", "required"=true}},
      *     statusCodes={
-     *       200="Returned when successful",
-     *       400="Returned when levelId is not provided or customer does not exist",
+     *          200="Returned when successful",
+     *          400="Returned when levelId is not provided or customer does not exist",
      *     }
      * )
      */
     public function addCustomerToLevelAction(Request $request, CustomerDetails $customer)
     {
         $levelId = $request->request->get('levelId');
+
         if (!$levelId) {
             return $this->view(['levelId' => 'field is required'], Response::HTTP_BAD_REQUEST);
         }
 
-        $this->get('broadway.command_handling.command_bus')->dispatch(
-            new MoveCustomerToLevel($customer->getCustomerId(), new LevelId($levelId), true)
+        /** @var Level $level */
+        $level = $this->levelRepository->byId(new LevelId($levelId));
+
+        $this->commandBus->dispatch(
+            new MoveCustomerToLevel($customer->getCustomerId(), new CustomerLevelId($levelId), $level->getName(), true)
         );
 
         return $this->view([]);
@@ -648,7 +703,7 @@ class CustomerController extends FOSRestController
             return $this->view(['posId' => 'field is required'], Response::HTTP_BAD_REQUEST);
         }
 
-        $this->get('broadway.command_handling.command_bus')->dispatch(
+        $this->commandBus->dispatch(
             new AssignPosToCustomer($customer->getCustomerId(), new PosId($posId))
         );
 
@@ -674,7 +729,7 @@ class CustomerController extends FOSRestController
      */
     public function deactivateCustomerAction(CustomerDetails $customer)
     {
-        $this->get('broadway.command_handling.command_bus')->dispatch(
+        $this->commandBus->dispatch(
             new DeactivateCustomer($customer->getCustomerId())
         );
 
@@ -710,7 +765,7 @@ class CustomerController extends FOSRestController
      */
     public function activateCustomerAction(CustomerDetails $customer)
     {
-        $this->get('broadway.command_handling.command_bus')->dispatch(
+        $this->commandBus->dispatch(
             new ActivateCustomer($customer->getCustomerId())
         );
 
@@ -876,7 +931,7 @@ class CustomerController extends FOSRestController
         $sellerDetails = $this->getSellerDetails(new SellerId($loggedUser->getId()));
         if ($sellerDetails instanceof SellerDetails && $sellerDetails->getPosId()) {
             // assign pos and send email
-            $this->get('broadway.command_handling.command_bus')->dispatch(
+            $this->commandBus->dispatch(
                 new AssignPosToCustomer($customerId, new PosId($sellerDetails->getPosId()->__toString()))
             );
         }
@@ -913,7 +968,7 @@ class CustomerController extends FOSRestController
             );
         }
 
-        $this->get('broadway.command_handling.command_bus')->dispatch(
+        $this->commandBus->dispatch(
             new RemoveManuallyAssignedLevel($customer->getCustomerId())
         );
 
