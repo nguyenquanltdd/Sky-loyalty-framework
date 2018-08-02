@@ -14,6 +14,7 @@ use OpenLoyalty\Component\EarningRule\Domain\Algorithm\EarningRuleAlgorithmInter
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\RuleEvaluationContext;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\RuleNameContext;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\RuleNameContextInterface;
+use OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableProvider;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use OpenLoyalty\Component\Account\Infrastructure\EarningRuleApplier;
@@ -64,6 +65,11 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     protected $settingsManager;
 
     /**
+     * @var StoppableProvider
+     */
+    private $stoppableProvider;
+
+    /**
      * OloyEarningRuleEvaluator constructor.
      *
      * @param EarningRuleRepository                $earningRuleRepository
@@ -73,6 +79,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
      * @param SegmentedCustomersRepository         $segmentedCustomerElasticSearchRepository
      * @param CustomerDetailsRepository            $customerDetailsRepository
      * @param SettingsManager                      $settingsManager
+     * @param StoppableProvider                    $stoppableProvider
      */
     public function __construct(
         EarningRuleRepository $earningRuleRepository,
@@ -81,7 +88,8 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         InvitationDetailsRepository $invitationDetailsRepository,
         SegmentedCustomersRepository $segmentedCustomerElasticSearchRepository,
         CustomerDetailsRepository $customerDetailsRepository,
-        SettingsManager $settingsManager
+        SettingsManager $settingsManager,
+        StoppableProvider $stoppableProvider
     ) {
         $this->earningRuleRepository = $earningRuleRepository;
         $this->transactionDetailsRepository = $transactionDetailsRepository;
@@ -90,6 +98,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         $this->customerDetailsRepository = $customerDetailsRepository;
         $this->invitationDetailsRepository = $invitationDetailsRepository;
         $this->settingsManager = $settingsManager;
+        $this->stoppableProvider = $stoppableProvider;
     }
 
     /**
@@ -184,7 +193,11 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
             /** @var EarningRuleAlgorithmInterface $algorithm */
             $algorithm = $earningRuleItem[1];
 
-            $algorithm->evaluate($context, $earningRule);
+            $executed = $algorithm->evaluate($context, $earningRule);
+
+            if ($executed && $this->stoppableProvider->isStoppable($earningRule) && $earningRule->isLastExecutedRule()) {
+                break;
+            }
         }
 
         return round((float) array_sum($context->getProducts()), 2);

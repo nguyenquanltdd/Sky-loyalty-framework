@@ -9,6 +9,7 @@ use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\PosDataTransformer
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRule;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\LevelsDataTransformer;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\SegmentsDataTransformer;
+use OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableProvider;
 use OpenLoyalty\Component\EarningRule\Domain\PointsEarningRule;
 use Symfony\Component\Form\Exception\InvalidArgumentException;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -31,6 +32,21 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class EditEarningRuleFormType extends BaseEarningRuleFormType
 {
+    /**
+     * @var StoppableProvider
+     */
+    private $stoppableProvider;
+
+    /**
+     * EditEarningRuleFormType constructor.
+     *
+     * @param StoppableProvider $stoppableProvider
+     */
+    public function __construct(StoppableProvider $stoppableProvider)
+    {
+        $this->stoppableProvider = $stoppableProvider;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -201,6 +217,9 @@ class EditEarningRuleFormType extends BaseEarningRuleFormType
                 ]);
         } else {
             throw new InvalidArgumentException('Wrong "type" provided');
+        }
+        if ($this->stoppableProvider->isStoppableByType($type)) {
+            $builder->add('lastExecutedRule', CheckboxType::class, ['required' => false]);
         }
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
             $data = $event->getData();

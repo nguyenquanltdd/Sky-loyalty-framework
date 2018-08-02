@@ -53,7 +53,7 @@ services:
       - '@broadway.command_handling.command_bus'
       - '@oloy.points.account.repository.account_details'
       - '@broadway.uuid.generator'
-      - '@oloy.earning_rule.applier'
+      - '@OpenLoyalty\Component\EarningRule\Domain\OloyEarningRuleEvaluator'
     tags:
       - { name: broadway.event_listener, event: oloy.transaction.customer_assigned, method: onRegisteredTransaction}
   oloy.points.apply_earning_rule_listener.event:
@@ -62,7 +62,7 @@ services:
        $commandBus: '@broadway.command_handling.command_bus'
        $accountDetailsRepository: '@oloy.points.account.repository.account_details'
        $uuidGenerator: '@broadway.uuid.generator'
-       $earningRuleApplier: '@oloy.earning_rule.applier'
+       $earningRuleApplier: '@OpenLoyalty\Component\EarningRule\Domain\OloyEarningRuleEvaluator'
        $earningRuleLimitValidator: '@oloy.earning_rule.validator'
     tags:
       - { name: broadway.event_listener, event: oloy.account.created, method: onCustomerRegistered}

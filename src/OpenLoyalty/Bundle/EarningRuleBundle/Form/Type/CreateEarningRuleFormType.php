@@ -11,6 +11,7 @@ use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\LevelsDataTransfor
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\SegmentsDataTransformer;
 use OpenLoyalty\Component\EarningRule\Domain\PointsEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\InstantRewardRule;
+use OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableProvider;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -32,6 +33,21 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class CreateEarningRuleFormType extends BaseEarningRuleFormType
 {
+    /**
+     * @var StoppableProvider
+     */
+    private $stoppableProvider;
+
+    /**
+     * CreateEarningRuleFormType constructor.
+     *
+     * @param StoppableProvider $stoppableProvider
+     */
+    public function __construct(StoppableProvider $stoppableProvider)
+    {
+        $this->stoppableProvider = $stoppableProvider;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -231,6 +247,9 @@ class CreateEarningRuleFormType extends BaseEarningRuleFormType
         }
         if (!isset($data['target'])) {
             return;
+        }
+        if ($this->stoppableProvider->isStoppableByType($type)) {
+            $form->add('lastExecutedRule', CheckboxType::class, ['required' => false]);
         }
         $target = $data['target'];
         if ($target == 'level') {

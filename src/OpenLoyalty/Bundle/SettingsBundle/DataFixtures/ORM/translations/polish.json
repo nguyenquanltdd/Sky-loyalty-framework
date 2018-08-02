@@ -1250,6 +1250,8 @@
     "label_multiplier_prompt": "",
     "label_multipliers": "Mnożniki",
     "label_value_prompt": "",
+    "last_executed_rule": "Jest ostatnią wykonaną regułą",
+    "last_executed_rule_prompt": "Jeśli zaznaczone, zatrzymane zostanie wykonywanie innych reguł ktore wykonywane są przy transakcji",
     "levels": "Poziomy",
     "levels_prompt": "",
     "limit": {

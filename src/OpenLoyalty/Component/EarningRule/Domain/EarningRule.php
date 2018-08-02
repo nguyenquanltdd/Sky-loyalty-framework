@@ -92,6 +92,10 @@ abstract class EarningRule
      * @var EarningRulePhoto
      */
     protected $earningRulePhoto;
+    /**
+     * @var bool
+     */
+    protected $lastExecutedRule = false;
 
     /**
      * EarningRule constructor.
@@ -140,6 +144,9 @@ abstract class EarningRule
             $tmp = new \DateTime();
             $tmp->setTimestamp($earningRuleData['endAt']);
             $this->endAt = $tmp;
+        }
+        if (isset($earningRuleData['lastExecutedRule'])) {
+            $this->lastExecutedRule = $earningRuleData['lastExecutedRule'];
         }
     }
 
@@ -399,5 +406,21 @@ abstract class EarningRule
     public function hasEarningRulePhoto(): bool
     {
         return $this->earningRulePhoto instanceof EarningRulePhoto && $this->earningRulePhoto->getPath();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isLastExecutedRule(): bool
+    {
+        return $this->lastExecutedRule;
+    }
+
+    /**
+     * @param bool $lastExecutedRule
+     */
+    public function setLastExecutedRule(bool $lastExecutedRule): void
+    {
+        $this->lastExecutedRule = $lastExecutedRule;
     }
 }

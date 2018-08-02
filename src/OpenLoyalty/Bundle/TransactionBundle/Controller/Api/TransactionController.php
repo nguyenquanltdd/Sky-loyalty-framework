@@ -23,6 +23,7 @@ use OpenLoyalty\Bundle\TransactionBundle\Form\Type\TransactionSimulationFormType
 use OpenLoyalty\Bundle\TransactionBundle\Import\TransactionXmlImporter;
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
+use OpenLoyalty\Component\EarningRule\Domain\OloyEarningRuleEvaluator;
 use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetails;
 use OpenLoyalty\Component\Seller\Domain\SellerId;
 use OpenLoyalty\Component\Transaction\Domain\Command\RegisterTransaction;
@@ -389,7 +390,7 @@ class TransactionController extends FOSRestController
             $excludedSKUs = $settingsManager->getSettingByKey('excludedDeliverySKUs');
             $transactionDetails->setExcludedDeliverySKUs($excludedSKUs ? $excludedSKUs->getValue() : null);
 
-            $points = $this->get('oloy.earning_rule.applier')->evaluateTransaction($transactionDetails, $transactionDetails->getCustomerId());
+            $points = $this->get(OloyEarningRuleEvaluator::class)->evaluateTransaction($transactionDetails, $transactionDetails->getCustomerId());
 
             return $this->view(['points' => $points]);
         }

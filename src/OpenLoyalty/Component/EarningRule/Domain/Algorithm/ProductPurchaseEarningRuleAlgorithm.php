@@ -24,7 +24,7 @@ class ProductPurchaseEarningRuleAlgorithm extends AbstractRuleAlgorithm
     /**
      * {@inheritdoc}
      */
-    public function evaluate(RuleEvaluationContextInterface $context, EarningRule $rule)
+    public function evaluate(RuleEvaluationContextInterface $context, EarningRule $rule): bool
     {
         if (!$rule instanceof ProductPurchaseEarningRule) {
             throw new \InvalidArgumentException(get_class($rule));
@@ -46,5 +46,7 @@ class ProductPurchaseEarningRuleAlgorithm extends AbstractRuleAlgorithm
                 $rule->getName()
             );
         }
+
+        return true;
     }
 }

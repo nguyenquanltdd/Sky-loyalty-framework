@@ -197,6 +197,7 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
             'labelMultipliers' => $labelMultipliers,
             'rewardType' => $this->rewardType,
             'rewardCampaignId' => (string) $this->rewardCampaignId,
+            'lastExecutedRule' => $this->lastExecutedRule,
         ];
         if ($this->limit && $this->type == self::TYPE_CUSTOM_EVENT) {
             $data['limit'] = [

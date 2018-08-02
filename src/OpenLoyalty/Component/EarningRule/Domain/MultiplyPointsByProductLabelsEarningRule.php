@@ -8,11 +8,12 @@ namespace OpenLoyalty\Component\EarningRule\Domain;
 use Assert\Assertion as Assert;
 use Assert\AssertionFailedException;
 use OpenLoyalty\Component\Core\Domain\Model\LabelMultiplier;
+use OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableInterface;
 
 /**
  * Class MultiplyPointsByProductLabelsEarningRule.
  */
-class MultiplyPointsByProductLabelsEarningRule extends EarningRule
+class MultiplyPointsByProductLabelsEarningRule extends EarningRule implements StoppableInterface
 {
     /**
      * @var LabelMultiplier[]

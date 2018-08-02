@@ -39,6 +39,11 @@ OpenLoyalty\Component\EarningRule\Domain\EarningRule:
       type: datetime
       column: end_at
       nullable: true
+    lastExecutedRule:
+      type: boolean
+      column: last_executed_rule
+      options:
+        default: 0
   oneToMany:
     usages:
       targetEntity: OpenLoyalty\Component\EarningRule\Domain\EarningRuleUsage

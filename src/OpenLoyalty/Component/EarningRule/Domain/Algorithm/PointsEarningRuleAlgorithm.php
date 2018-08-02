@@ -24,7 +24,7 @@ class PointsEarningRuleAlgorithm extends AbstractRuleAlgorithm
     /**
      * {@inheritdoc}
      */
-    public function evaluate(RuleEvaluationContextInterface $context, EarningRule $rule)
+    public function evaluate(RuleEvaluationContextInterface $context, EarningRule $rule): bool
     {
         if (!$rule instanceof PointsEarningRule) {
             throw new \InvalidArgumentException(get_class($rule));
@@ -36,7 +36,7 @@ class PointsEarningRuleAlgorithm extends AbstractRuleAlgorithm
 
         // skip transaction bellow min order value
         if (!empty($rule->getMinOrderValue()) && $totalValue < $rule->getMinOrderValue()) {
-            return;
+            return false;
         }
 
         $inclusionType = $rule->getLabelsInclusionType();
@@ -63,5 +63,7 @@ class PointsEarningRuleAlgorithm extends AbstractRuleAlgorithm
                 $rule->getName()
             );
         }
+
+        return true;
     }
 }

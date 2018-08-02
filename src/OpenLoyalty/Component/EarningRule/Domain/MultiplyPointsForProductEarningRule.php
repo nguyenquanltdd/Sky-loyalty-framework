@@ -7,11 +7,12 @@ namespace OpenLoyalty\Component\EarningRule\Domain;
 
 use Assert\Assertion as Assert;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
+use OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableInterface;
 
 /**
  * Class MultiplyPointsForProductEarningRule.
  */
-class MultiplyPointsForProductEarningRule extends EarningRule
+class MultiplyPointsForProductEarningRule extends EarningRule implements StoppableInterface
 {
     /**
      * @var array

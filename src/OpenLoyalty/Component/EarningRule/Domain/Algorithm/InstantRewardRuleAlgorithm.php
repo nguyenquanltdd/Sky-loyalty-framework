@@ -40,14 +40,13 @@ class InstantRewardRuleAlgorithm extends AbstractRuleAlgorithm
     }
 
     /**
-     * @param RuleEvaluationContextInterface $context
-     * @param EarningRule                    $rule
+     * {@inheritdoc}
      */
-    public function evaluate(RuleEvaluationContextInterface $context, EarningRule $rule): void
+    public function evaluate(RuleEvaluationContextInterface $context, EarningRule $rule): bool
     {
         if (!$rule instanceof InstantRewardRule
             || !$this->instantRewardStrategy->isApplicable($context, $rule)) {
-            return;
+            return false;
         }
         $this->commandBus->dispatch(
             new ActivateInstantRewardRule(

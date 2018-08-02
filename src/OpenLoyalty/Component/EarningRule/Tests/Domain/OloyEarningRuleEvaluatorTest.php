@@ -5,17 +5,18 @@ namespace OpenLoyalty\Component\EarningRule\Tests\Domain;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Component\Account\Domain\TransactionId;
+use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Core\Domain\Model\LabelMultiplier;
+use OpenLoyalty\Component\Core\Domain\Model\SKU;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
+use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetailsRepository;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\EarningRuleAlgorithmFactoryInterface;
-use OpenLoyalty\Component\EarningRule\Domain\Algorithm\MultiplyPointsForProductRuleAlgorithm;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\MultiplyPointsByProductLabelsRuleAlgorithm;
+use OpenLoyalty\Component\EarningRule\Domain\Algorithm\MultiplyPointsForProductRuleAlgorithm;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\PointsEarningRuleAlgorithm;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\ProductPurchaseEarningRuleAlgorithm;
-use OpenLoyalty\Component\Core\Domain\Model\Label;
-use OpenLoyalty\Component\Core\Domain\Model\SKU;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleId;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleRepository;
 use OpenLoyalty\Component\EarningRule\Domain\EventEarningRule;
@@ -25,11 +26,11 @@ use OpenLoyalty\Component\EarningRule\Domain\OloyEarningRuleEvaluator;
 use OpenLoyalty\Component\EarningRule\Domain\PointsEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\PosId;
 use OpenLoyalty\Component\EarningRule\Domain\ProductPurchaseEarningRule;
+use OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableProvider;
+use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomersRepository;
 use OpenLoyalty\Component\Transaction\Domain\Model\Item;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
-use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomersRepository;
-use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
 
 /**
@@ -446,6 +447,59 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @test
+     */
+    public function it_will_stop_on_last_earning_rule()
+    {
+        $pointsEarningRule = new PointsEarningRule(new EarningRuleId('00000000-0000-0000-0000-000000000000'));
+        $pointsEarningRule->setPointValue(1);
+        $pointsEarningRule->setExcludeDeliveryCost(false);
+
+        $finalEarningRule = new PointsEarningRule(new EarningRuleId('00000000-0000-0000-0000-000000000000'));
+        $finalEarningRule->setPointValue(1);
+        $finalEarningRule->setExcludeDeliveryCost(false);
+        $finalEarningRule->setLastExecutedRule(true);
+
+        $notExecutedEarningRule = new PointsEarningRule(new EarningRuleId('00000000-0000-0000-0000-000000000000'));
+        $notExecutedEarningRule->setPointValue(10);
+        $notExecutedEarningRule->setExcludeDeliveryCost(false);
+
+        $evaluator = $this->getEarningRuleEvaluator(
+            [$pointsEarningRule, $finalEarningRule, $notExecutedEarningRule]
+        );
+
+        $points = $evaluator->evaluateTransaction(new TransactionId('00000000-0000-0000-0000-000000000000'), new CustomerId(static::USER_ID));
+        $this->assertEquals(304, $points);
+    }
+
+    /**
+     * @test
+     */
+    public function it_will_stops_only_on_executed_last_earning_rule()
+    {
+        $pointsEarningRule = new PointsEarningRule(new EarningRuleId('00000000-0000-0000-0000-000000000000'));
+        $pointsEarningRule->setPointValue(1);
+        $pointsEarningRule->setExcludeDeliveryCost(false);
+
+        $finalNonExecutedEarningRule = new PointsEarningRule(new EarningRuleId('00000000-0000-0000-0000-000000000000'));
+        $finalNonExecutedEarningRule->setPointValue(1);
+        $finalNonExecutedEarningRule->setExcludeDeliveryCost(false);
+        $finalNonExecutedEarningRule->setMinOrderValue(1000000);
+        $finalNonExecutedEarningRule->setLastExecutedRule(true);
+
+        $afterNonExecutedFinalEarningRule = new PointsEarningRule(new EarningRuleId('00000000-0000-0000-0000-000000000000'));
+        $afterNonExecutedFinalEarningRule->setPointValue(2);
+        $afterNonExecutedFinalEarningRule->setExcludeDeliveryCost(false);
+
+        $evaluator = $this->getEarningRuleEvaluator(
+            [$pointsEarningRule, $finalNonExecutedEarningRule, $afterNonExecutedFinalEarningRule]
+        );
+
+        $points = $evaluator->evaluateTransaction(new TransactionId('00000000-0000-0000-0000-000000000000'), new CustomerId(static::USER_ID));
+        $this->assertEquals(456, $points);
+    }
+
+    /**
      * @param array $rules
      *
      * @return OloyEarningRuleEvaluator
@@ -459,7 +513,8 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
             $this->getInvitationDetailsRepository(),
             $this->getSegmentedCustomersRepository(),
             $this->getCustomerDetailsRepository(),
-            $this->getSettingsManager([Status::TYPE_ACTIVE])
+            $this->getSettingsManager([Status::TYPE_ACTIVE]),
+            $this->getStoppableProvider()
         );
     }
 
@@ -635,5 +690,10 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
         $settingsManager->method('getSettingByKey')->willReturn($statuses);
 
         return $settingsManager;
+    }
+
+    protected function getStoppableProvider(): StoppableProvider
+    {
+        return new StoppableProvider();
     }
 }

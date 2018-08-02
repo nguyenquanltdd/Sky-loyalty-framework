@@ -27,7 +27,7 @@ class MultiplyPointsByProductLabelsRuleAlgorithm extends AbstractRuleAlgorithm
      *
      * @throws EarningRuleAlgorithmException
      */
-    public function evaluate(RuleEvaluationContextInterface $context, EarningRule $rule)
+    public function evaluate(RuleEvaluationContextInterface $context, EarningRule $rule): bool
     {
         if (!$rule instanceof MultiplyPointsByProductLabelsEarningRule) {
             throw new EarningRuleAlgorithmException(sprintf('"%s" class is not supported', get_class($rule)));
@@ -50,6 +50,8 @@ class MultiplyPointsByProductLabelsRuleAlgorithm extends AbstractRuleAlgorithm
                 $rule->getName()
             );
         }
+
+        return true;
     }
 
     /**
@@ -58,7 +60,7 @@ class MultiplyPointsByProductLabelsRuleAlgorithm extends AbstractRuleAlgorithm
      *
      * @return float|null
      */
-    protected function getMultiplier(MultiplyPointsByProductLabelsEarningRule $rule, Item $item): ? float
+    protected function getMultiplier(MultiplyPointsByProductLabelsEarningRule $rule, Item $item): ?float
     {
         $multiplier = null;
         foreach ($rule->getLabelMultipliers() as $labelMultiplier) {

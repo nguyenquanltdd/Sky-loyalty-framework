@@ -15,8 +15,10 @@ interface EarningRuleAlgorithmInterface
     /**
      * @param RuleEvaluationContextInterface $context
      * @param EarningRule                    $rule
+     *
+     * @return bool
      */
-    public function evaluate(RuleEvaluationContextInterface $context, EarningRule $rule);
+    public function evaluate(RuleEvaluationContextInterface $context, EarningRule $rule): bool;
 
     /**
      * @return int

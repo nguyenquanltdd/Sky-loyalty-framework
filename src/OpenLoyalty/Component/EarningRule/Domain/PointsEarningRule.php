@@ -8,11 +8,12 @@ namespace OpenLoyalty\Component\EarningRule\Domain;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Core\Domain\Model\SKU;
 use Assert\Assertion as Assert;
+use OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableInterface;
 
 /**
  * Class PointsEarningRule.
  */
-class PointsEarningRule extends EarningRule
+class PointsEarningRule extends EarningRule implements StoppableInterface
 {
     const LABELS_INCLUSION_TYPE_INCLUDE = 'include_labels';
     const LABELS_INCLUSION_TYPE_EXCLUDE = 'exclude_labels';

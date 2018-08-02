@@ -1,4 +1,7 @@
 services:
+  _defaults:
+      autowire: true
+
   oloy.earning_rule.command_handler:
     class: OpenLoyalty\Component\EarningRule\Domain\Command\EarningRuleCommandHandler
     arguments:
@@ -44,13 +47,14 @@ services:
     class: OpenLoyalty\Component\EarningRule\Domain\Strategy\InstantRewardEarningRuleStrategy
     arguments:
       - '@OpenLoyalty\Bundle\CampaignBundle\Service\EarningRuleCampaignProvider'
-  oloy.earning_rule.applier:
-    class: OpenLoyalty\Component\EarningRule\Domain\OloyEarningRuleEvaluator
+  OpenLoyalty\Component\EarningRule\Domain\OloyEarningRuleEvaluator:
     arguments:
-      - '@oloy.earning_rule.repository'
-      - '@oloy.transaction.read_model.repository.transaction_details'
-      - '@oloy.earning_rule.algorithm_factory'
-      - '@oloy.user.read_model.repository.invitation_details'
-      - '@oloy.segment.read_model.repository.segmented_customers'
-      - '@oloy.user.read_model.repository.customer_details'
-      - '@ol.settings.manager'
+      $earningRuleRepository: '@oloy.earning_rule.repository'
+      $transactionDetailsRepository: '@oloy.transaction.read_model.repository.transaction_details'
+      $algorithmFactory: '@oloy.earning_rule.algorithm_factory'
+      $invitationDetailsRepository: '@oloy.user.read_model.repository.invitation_details'
+      $segmentedCustomerElasticSearchRepository: '@oloy.segment.read_model.repository.segmented_customers'
+      $customerDetailsRepository: '@oloy.user.read_model.repository.customer_details'
+      $settingsManager: '@ol.settings.manager'
+      $stoppableProvider: '@OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableProvider'
+  OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableProvider: ~

@@ -5,9 +5,9 @@
  */
 namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Unit\Form\Type;
 
-use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\CreateEarningRuleFormType;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\EditEarningRuleFormType;
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRule;
+use OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableProvider;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\PreloadedExtension;
 use Symfony\Component\Form\Test\TypeTestCase;
@@ -42,7 +42,9 @@ class EditEarningRuleFormTypeTest extends TypeTestCase
 
     protected function getExtensions()
     {
-        $type = new CreateEarningRuleFormType();
+        $type = new EditEarningRuleFormType(
+            new StoppableProvider()
+        );
 
         return array(
             new PreloadedExtension(array($type), array()),

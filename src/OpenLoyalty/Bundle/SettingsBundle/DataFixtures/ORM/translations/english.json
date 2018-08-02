@@ -1241,6 +1241,8 @@
     "label_multiplier_prompt": "",
     "label_multipliers": "Label multipliers",
     "label_value_prompt": "",
+    "last_executed_rule": "Is last executed rule",
+    "last_executed_rule_prompt": "If selected all other earning rules (resolved after transaction) will be skipped",
     "levels": "Levels",
     "levels_prompt": "",
     "limit": {

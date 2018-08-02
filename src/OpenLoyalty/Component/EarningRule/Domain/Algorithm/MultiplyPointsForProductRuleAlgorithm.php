@@ -25,7 +25,7 @@ class MultiplyPointsForProductRuleAlgorithm extends AbstractRuleAlgorithm
     /**
      * {@inheritdoc}
      */
-    public function evaluate(RuleEvaluationContextInterface $context, EarningRule $rule)
+    public function evaluate(RuleEvaluationContextInterface $context, EarningRule $rule): bool
     {
         if (!$rule instanceof MultiplyPointsForProductEarningRule) {
             throw new \InvalidArgumentException(get_class($rule));
@@ -48,6 +48,8 @@ class MultiplyPointsForProductRuleAlgorithm extends AbstractRuleAlgorithm
                 $rule->getName()
             );
         }
+
+        return true;
     }
 
     /**

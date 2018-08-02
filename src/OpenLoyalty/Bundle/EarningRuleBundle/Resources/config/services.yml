@@ -1,4 +1,7 @@
 services:
+  _defaults:
+      autowire: true
+
   oloy.earning_rule.param_converter:
     class: OpenLoyalty\Bundle\EarningRuleBundle\ParamConverter\EarningRuleParamConverter
     arguments: ['@oloy.earning_rule.repository']
