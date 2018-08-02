@@ -7,16 +7,11 @@ namespace OpenLoyalty\Component\Campaign\Domain\Command;
 
 use Broadway\CommandHandling\CommandBus;
 use Broadway\CommandHandling\SimpleCommandHandler;
-use OpenLoyalty\Component\Campaign\Domain\Campaign;
+use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignLimitException;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\Coupon\CouponCodeProvider;
-use OpenLoyalty\Component\Campaign\Domain\Provider\CouponActivationDateProvider;
-use OpenLoyalty\Component\Campaign\Domain\Provider\CouponExpirationDateProvider;
-use OpenLoyalty\Component\Customer\Domain\CampaignId as CustomerCampaignId;
-use OpenLoyalty\Component\Customer\Domain\Command\BuyCampaign;
-use OpenLoyalty\Component\Customer\Domain\CustomerId;
-use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
+use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\EarningRule\Domain\Command\ActivateInstantRewardRule;
 
 /**
@@ -40,36 +35,20 @@ class InstantRewardHandler extends SimpleCommandHandler
     private $couponCodeProvider;
 
     /**
-     * @var CouponActivationDateProvider
-     */
-    private $activationDateProvider;
-
-    /**
-     * @var CouponExpirationDateProvider
-     */
-    private $expirationDateProvider;
-
-    /**
      * InstantRewardHandler constructor.
      *
-     * @param CampaignRepository           $campaignRepository
-     * @param CommandBus                   $commandBus
-     * @param CouponCodeProvider           $couponCodeProvider
-     * @param CouponActivationDateProvider $activationDateProvider
-     * @param CouponExpirationDateProvider $expirationDateProvider
+     * @param CampaignRepository $campaignRepository
+     * @param CommandBus         $commandBus
+     * @param CouponCodeProvider $couponCodeProvider
      */
     public function __construct(
         CampaignRepository $campaignRepository,
         CommandBus $commandBus,
-        CouponCodeProvider $couponCodeProvider,
-        CouponActivationDateProvider $activationDateProvider,
-        CouponExpirationDateProvider $expirationDateProvider
+        CouponCodeProvider $couponCodeProvider
     ) {
         $this->campaignRepository = $campaignRepository;
         $this->commandBus = $commandBus;
         $this->couponCodeProvider = $couponCodeProvider;
-        $this->activationDateProvider = $activationDateProvider;
-        $this->expirationDateProvider = $expirationDateProvider;
     }
 
     /**
@@ -78,32 +57,17 @@ class InstantRewardHandler extends SimpleCommandHandler
     public function handleActivateInstantRewardRule(ActivateInstantRewardRule $command)
     {
         $campaign = $this->campaignRepository->byId(new CampaignId($command->getCampaignId()));
-        $coupon = $this->couponCodeProvider->getCoupon($campaign, $command->getTransactionValue());
-        if (!$coupon) {
+        try {
+            $coupon = $this->couponCodeProvider->getCoupon($campaign, $command->getTransactionValue());
+        } catch (CampaignLimitException $e) {
             return;
-        }
-
-        $status = CampaignPurchase::STATUS_ACTIVE;
-        $activeSince = null;
-        $activeTo = null;
-
-        if ($campaign->getReward() === Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE) {
-            $status = CampaignPurchase::STATUS_INACTIVE;
-            $activeSince = $this->activationDateProvider->getActivationDate($campaign, new \DateTime());
-            $activeTo = $this->expirationDateProvider->getExpirationDate($campaign, new \DateTime());
         }
 
         $this->commandBus->dispatch(
             new BuyCampaign(
+                $campaign->getCampaignId(),
                 new CustomerId($command->getCustomerId()),
-                new CustomerCampaignId($campaign->getCampaignId()->__toString()),
-                $campaign->getName(),
-                $campaign->getCostInPoints(),
-                $coupon,
-                $campaign->getReward(),
-                $status,
-                $activeSince,
-                $activeTo
+                $coupon
             )
         );
     }

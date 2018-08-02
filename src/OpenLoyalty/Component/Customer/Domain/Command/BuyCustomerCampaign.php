@@ -7,13 +7,12 @@ namespace OpenLoyalty\Component\Customer\Domain\Command;
 
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
-use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 
 /**
  * Class BuyCampaign.
  */
-class BuyCampaign extends CustomerCommand
+class BuyCustomerCampaign extends CustomerCommand
 {
     /**
      * @var CampaignId
@@ -75,9 +74,9 @@ class BuyCampaign extends CustomerCommand
         $costInPoints,
         Coupon $coupon,
         $reward,
-        string $status = CampaignPurchase::STATUS_ACTIVE,
-        ?\DateTime $activeSince = null,
-        ?\DateTime $activeTo = null
+        string $status,
+        ?\DateTime $activeSince,
+        ?\DateTime $activeTo
     ) {
         parent::__construct($customerId);
         $this->campaignId = $campaignId;

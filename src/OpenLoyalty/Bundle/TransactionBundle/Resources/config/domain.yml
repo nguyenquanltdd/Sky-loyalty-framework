@@ -1,4 +1,8 @@
 services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
   OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository: '@oloy.transaction.read_model.repository.transaction_details'
 
   oloy.transaction.command_handler:
@@ -41,4 +45,3 @@ services:
     lazy: true
     tags:
       - { name: broadway.domain.event_listener }
-

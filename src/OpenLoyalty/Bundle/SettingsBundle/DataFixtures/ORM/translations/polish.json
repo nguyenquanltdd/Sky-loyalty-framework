@@ -98,6 +98,7 @@
     "all_time_visible": "Cały czas widoczne",
     "all_time_visible_prompt": "Nagroda jest dostępna bez ograniczeń",
     "basic_info": "Szczegóły",
+    "buy_campaign_manually_modal": "Kup kampanie {{name}} dla klientaZ",
     "campaign_type": {
       "all": "Wszystkie"
     },
@@ -116,6 +117,8 @@
     "coupons_upload_prompt": "",
     "current_points_amount": "Aktywne punkty klienta",
     "customer_email": "E-mail klienta",
+    "customer_email_or_phone": "E-mail lub telefon",
+    "customer_email_or_phone_prompt": "Znajdź klienta za pomocą adresu e-mail lub telefonu",
     "customer_lastname": "Nazwisko klienta",
     "customer_name": "Imię klienta",
     "customer_phone": "Telefon",
@@ -181,6 +184,8 @@
     "tax_price_value": "Kwota VAT",
     "tax_price_value_prompt": "Wartość podatku VAT",
     "tax_prompt": "Stawka podatku VAT",
+    "transaction_document_number": "Numer dokumentu",
+    "transaction_document_number_prompt": "Znajdź transakcję za pomocą numeru dokumentu",
     "transaction_percentage_value": "Procentowa wartość transakcji",
     "transaction_percentage_value_prompt": "Wartość kuponu, ktora bedzie bazowała na wartości transakcji",
     "type": "Rodzaj",
@@ -197,6 +202,8 @@
     },
     "used_by_user": "Wykorzystano",
     "users_in_campaign": "Użytkownicy przypisani do kampanii ",
+    "without_spending_points": "Bez wydawania punktów ",
+    "without_spending_points_prompt": "Punkty klienta nie będą używane ",
     "value": "Wartość",
     "value_code": "Rabat kwotowy",
     "visibility": "Widoczność",
@@ -2140,6 +2147,11 @@
       "error": "Błąd serwera",
       "success": "Dodano kampanię nagród",
       "warning": "Dodano kampanię bez zdjęcia"
+    },
+    "post_campaign_buy_manually_assign": {
+      "error": "Błąd podczas kupowania kampanii dla klienta",
+      "error_occurred": "Wystąpił błąd",
+      "success": "Kupiono kampanie dla klienta"
     },
     "post_cancel_transfer": {
       "error": "Błąd serwera",

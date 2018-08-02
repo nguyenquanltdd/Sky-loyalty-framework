@@ -17,14 +17,17 @@ use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignUsageChange\CampaignUsag
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotAllowedException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotEnoughPointsException;
 use OpenLoyalty\Bundle\CampaignBundle\ResponseModel\CouponUsageResponse;
+use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider;
+use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator;
 use OpenLoyalty\Bundle\CampaignBundle\Service\MultipleCampaignCouponUsageProvider;
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
+use OpenLoyalty\Component\Campaign\Domain\Command\BuyCampaign;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\LevelId;
+use OpenLoyalty\Component\Campaign\Domain\Model\Coupon as CampaignCoupon;
 use OpenLoyalty\Component\Campaign\Domain\SegmentId;
-use OpenLoyalty\Component\Customer\Domain\Command\BuyCampaign;
 use OpenLoyalty\Component\Customer\Domain\Command\ChangeCampaignUsage;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
@@ -110,8 +113,8 @@ class CustomerCampaignsController extends FOSRestController
         }
 
         $campaigns = array_filter($campaigns, function (Campaign $campaign) use ($customer) {
-            $usageLeft = $this->get('oloy.campaign.campaign_provider')->getUsageLeft($campaign);
-            $usageLeftForCustomer = $this->get('oloy.campaign.campaign_provider')
+            $usageLeft = $this->get(CampaignProvider::class)->getUsageLeft($campaign);
+            $usageLeftForCustomer = $this->get(CampaignProvider::class)
                 ->getUsageLeftForCustomer($campaign, $customer->getCustomerId()->__toString());
 
             return $usageLeft > 0 && $usageLeftForCustomer > 0 ? true : false;
@@ -222,8 +225,8 @@ class CustomerCampaignsController extends FOSRestController
      */
     public function buyCampaign(Campaign $campaign)
     {
-        $provider = $this->get('oloy.campaign.campaign_provider');
-        $campaignValidator = $this->get('oloy.campaign.campaign_validator');
+        $provider = $this->get(CampaignProvider::class);
+        $campaignValidator = $this->get(CampaignValidator::class);
 
         if (!$campaignValidator->isCampaignActive($campaign) || !$campaignValidator->isCampaignVisible($campaign)) {
             throw $this->createNotFoundException();
@@ -257,18 +260,15 @@ class CustomerCampaignsController extends FOSRestController
             $freeCoupons = $provider->getAllCoupons($campaign);
         }
 
-        $coupon = new Coupon(reset($freeCoupons));
+        $coupon = new CampaignCoupon(reset($freeCoupons));
 
         /** @var CommandBus $bus */
         $bus = $this->get('broadway.command_handling.command_bus');
         $bus->dispatch(
             new BuyCampaign(
-                $customer->getCustomerId(),
-                new \OpenLoyalty\Component\Customer\Domain\CampaignId($campaign->getCampaignId()->__toString()),
-                $campaign->getName(),
-                $campaign->getCostInPoints(),
-                $coupon,
-                $campaign->getReward()
+                $campaign->getCampaignId(),
+                new CustomerId($customer->getId()),
+                $coupon
             )
         );
 

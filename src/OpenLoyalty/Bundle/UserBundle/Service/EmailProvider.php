@@ -13,7 +13,7 @@ use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
-use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
+use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 
 /**
  * Class EmailProvider.

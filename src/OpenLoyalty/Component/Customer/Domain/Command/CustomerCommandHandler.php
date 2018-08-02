@@ -250,9 +250,9 @@ class CustomerCommandHandler extends SimpleCommandHandler
     }
 
     /**
-     * @param BuyCampaign $command
+     * @param BuyCustomerCampaign $command
      */
-    public function handleBuyCampaign(BuyCampaign $command)
+    public function handleBuyCustomerCampaign(BuyCustomerCampaign $command)
     {
         $customerId = $command->getCustomerId();
         /** @var Customer $customer */

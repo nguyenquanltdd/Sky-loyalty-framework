@@ -26,7 +26,8 @@ class CampaignVoter extends Voter
     const LIST_CAMPAIGNS_AVAILABLE_FOR_ME = 'LIST_CAMPAIGNS_AVAILABLE_FOR_ME';
     const LIST_CAMPAIGNS_BOUGHT_BY_ME = 'LIST_CAMPAIGNS_BOUGHT_BY_ME';
     const BUY = 'BUY';
-    const BUY_FOR_CUSTOMER = 'BUY_FOR_CUSTOMER';
+    const BUY_FOR_CUSTOMER_SELLER = 'BUY_FOR_CUSTOMER_SELLER';
+    const BUY_FOR_CUSTOMER_ADMIN = 'BUY_FOR_CUSTOMER_ADMIN';
     const MARK_COUPON_AS_USED = 'MARK_COUPON_AS_USED';
     const MARK_MULTIPLE_COUPONS_AS_USED = 'MARK_MULTIPLE_COUPONS_AS_USED';
     const MARK_SELF_MULTIPLE_COUPONS_AS_USED = 'MARK_SELF_MULTIPLE_COUPONS_AS_USED';
@@ -59,7 +60,8 @@ class CampaignVoter extends Voter
                 self::LIST_ALL_VISIBLE_CAMPAIGNS,
                 self::LIST_CAMPAIGNS_BOUGHT_BY_ME,
                 self::LIST_CAMPAIGNS_AVAILABLE_FOR_ME,
-                self::BUY_FOR_CUSTOMER,
+                self::BUY_FOR_CUSTOMER_SELLER,
+                self::BUY_FOR_CUSTOMER_ADMIN,
                 self::MARK_MULTIPLE_COUPONS_AS_USED,
                 self::MARK_SELF_MULTIPLE_COUPONS_AS_USED,
                 self::CASHBACK,
@@ -86,8 +88,10 @@ class CampaignVoter extends Voter
                 return $user->hasRole('ROLE_ADMIN');
             case self::LIST_ALL_VISIBLE_CAMPAIGNS:
                 return $user->hasRole('ROLE_ADMIN') || $user->hasRole('ROLE_SELLER');
-            case self::BUY_FOR_CUSTOMER:
-                return $user->hasRole('ROLE_ADMIN') || $user->hasRole('ROLE_SELLER');
+            case self::BUY_FOR_CUSTOMER_SELLER:
+                return $user->hasRole('ROLE_SELLER');
+            case self::BUY_FOR_CUSTOMER_ADMIN:
+                return $user->hasRole('ROLE_ADMIN');
             case self::EDIT:
                 return $user->hasRole('ROLE_ADMIN');
             case self::VIEW:

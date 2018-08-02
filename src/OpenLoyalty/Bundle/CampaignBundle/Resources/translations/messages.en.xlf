@@ -18,6 +18,22 @@
                 <source>campaign.invalid_value_in_row</source>
                 <target>%content% in row %row%</target>
             </trans-unit>
+            <trans-unit id="campaign.no_coupons_left">
+                <source>campaign.no_coupons_left</source>
+                <target>No coupons left</target>
+            </trans-unit>
+            <trans-unit id="campaign.too_low_coupon_value">
+                <source>campaign.too_low_coupon_value</source>
+                <target>Generated coupon value is 0</target>
+            </trans-unit>
+            <trans-unit id="campaign.transaction_required">
+                <source>campaign.transaction_required</source>
+                <target>Transaction required</target>
+            </trans-unit>
+            <trans-unit id="campaign.invalid_transaction">
+                <source>campaign.invalid_transaction</source>
+                <target>Invalid transaction</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

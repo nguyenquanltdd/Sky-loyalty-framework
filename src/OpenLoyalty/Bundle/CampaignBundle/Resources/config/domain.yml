@@ -14,6 +14,12 @@ services:
       $commandBus: '@broadway.command_handling.command_bus'
     tags:
       - { name: broadway.command_handler }
+  OpenLoyalty\Component\Campaign\Domain\Command\BuyCampaignHandler:
+    arguments:
+      $campaignRepository: '@oloy.campaign.repository'
+      $commandBus: '@broadway.command_handling.command_bus'
+    tags:
+      - { name: broadway.command_handler }
   oloy.campaign.repository:
     class: OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Repository\DoctrineCampaignRepository
     factory: ['@doctrine.orm.entity_manager', getRepository]
@@ -65,6 +71,6 @@ services:
   OpenLoyalty\Component\Campaign\Domain\Coupon\CouponCodeProvider:
     class: OpenLoyalty\Component\Campaign\Domain\Coupon\CouponCodeProvider
     arguments:
-      - '@oloy.campaign.campaign_provider'
+      - '@OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider'
   OpenLoyalty\Component\Campaign\Domain\Provider\CouponActivationDateProvider: ~
   OpenLoyalty\Component\Campaign\Domain\Provider\CouponExpirationDateProvider: ~
