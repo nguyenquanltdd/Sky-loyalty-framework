@@ -27,7 +27,7 @@ interface DoctrineEmailRepositoryInterface
     /**
      * @param $key
      *
-     * @return Email
+     * @return Email|null
      */
-    public function getByKey($key);
+    public function getByKey($key): ?Email;
 }

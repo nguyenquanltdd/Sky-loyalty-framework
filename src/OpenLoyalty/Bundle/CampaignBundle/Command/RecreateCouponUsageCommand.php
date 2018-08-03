@@ -20,11 +20,17 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class RecreateCouponUsageCommand extends ContainerAwareCommand
 {
+    /**
+     * {@inheritdoc}
+     */
     protected function configure()
     {
         $this->setName('oloy:coupon_usage:recreate');
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function run(InputInterface $input, OutputInterface $output)
     {
         /** @var LoggerInterface $logger */
