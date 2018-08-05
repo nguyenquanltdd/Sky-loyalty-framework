@@ -56,5 +56,7 @@ class InstantRewardRuleAlgorithm extends AbstractRuleAlgorithm
                 $rule->getRewardCampaignId()
             )
         );
+
+        return true;
     }
 }
