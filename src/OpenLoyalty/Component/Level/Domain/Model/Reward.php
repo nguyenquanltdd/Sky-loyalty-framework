@@ -37,7 +37,7 @@ class Reward
     public function __construct($name, $value, $code)
     {
         Assert::notEmpty($name);
-        Assert::notEmpty($value);
+        Assert::greaterOrEqualThan($value, 0);
         Assert::notEmpty($code);
 
         $this->name = $name;
