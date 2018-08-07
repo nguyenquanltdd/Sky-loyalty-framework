@@ -71,7 +71,6 @@ class MultipleCampaignCouponUsageProvider
 
         foreach ($coupons as $key => $coupon) {
             if (!isset($coupon['used'], $coupon['code'], $coupon['customerId'], $coupon['campaignId'])) {
-                var_dump($coupon);
                 throw new MissingDataInRowsException($this->translator->trans('campaign.missing_data_in_rows'));
             }
             try {

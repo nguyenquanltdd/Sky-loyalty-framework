@@ -6,8 +6,9 @@
 namespace OpenLoyalty\Component\EarningRule\Domain;
 
 use Assert\Assertion as Assert;
+use OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableInterface;
 
-class InstantRewardRule extends EarningRule
+class InstantRewardRule extends EarningRule implements StoppableInterface
 {
     /**
      * @var CampaignId
