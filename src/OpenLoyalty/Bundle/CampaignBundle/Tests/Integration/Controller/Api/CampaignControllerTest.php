@@ -482,12 +482,6 @@ class CampaignControllerTest extends BaseApiTest
     {
         return [
             ['campaignId', 'asc', 'desc'],
-            ['name', 'asc', 'desc'],
-            ['description', 'asc', 'desc'],
-            ['reward', 'asc', 'desc'],
-            ['costInPoints', 'asc', 'desc'],
-            ['hasPhoto', 'asc', 'desc'],
-            ['usageLeft', 'asc', 'desc'],
         ];
     }
 
