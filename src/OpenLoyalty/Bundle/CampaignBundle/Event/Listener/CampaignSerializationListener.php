@@ -9,6 +9,8 @@ use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
 use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider;
 use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator;
+use OpenLoyalty\Bundle\MarkDownBundle\Service\ContextMarkDownFormatter;
+use OpenLoyalty\Bundle\MarkDownBundle\Service\FOSContextProvider;
 use OpenLoyalty\Bundle\UserBundle\Status\CustomerStatusProvider;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignUsageRepository;
@@ -62,15 +64,21 @@ class CampaignSerializationListener implements EventSubscriberInterface
     private $customerStatusProvider;
 
     /**
+     * @var ContextMarkDownFormatter
+     */
+    protected $contextMarkDownFormatter;
+
+    /**
      * CampaignSerializationListener constructor.
      *
-     * @param CampaignValidator       $campaignValidator
-     * @param SegmentRepository       $segmentRepository
-     * @param LevelRepository         $levelRepository
-     * @param CouponUsageRepository   $couponUsageRepository
-     * @param CampaignProvider        $campaignProvider
-     * @param CampaignUsageRepository $campaignUsageRepository
-     * @param CustomerStatusProvider  $customerStatusProvider
+     * @param CampaignValidator        $campaignValidator
+     * @param SegmentRepository        $segmentRepository
+     * @param LevelRepository          $levelRepository
+     * @param CouponUsageRepository    $couponUsageRepository
+     * @param CampaignProvider         $campaignProvider
+     * @param CampaignUsageRepository  $campaignUsageRepository
+     * @param CustomerStatusProvider   $customerStatusProvider
+     * @param ContextMarkDownFormatter $contextMarkDownFormatter
      */
     public function __construct(
         CampaignValidator $campaignValidator,
@@ -79,7 +87,8 @@ class CampaignSerializationListener implements EventSubscriberInterface
         CouponUsageRepository $couponUsageRepository,
         CampaignProvider $campaignProvider,
         CampaignUsageRepository $campaignUsageRepository,
-        CustomerStatusProvider $customerStatusProvider
+        CustomerStatusProvider $customerStatusProvider,
+        ContextMarkDownFormatter $contextMarkDownFormatter
     ) {
         $this->campaignValidator = $campaignValidator;
         $this->segmentRepository = $segmentRepository;
@@ -88,6 +97,7 @@ class CampaignSerializationListener implements EventSubscriberInterface
         $this->campaignProvider = $campaignProvider;
         $this->campaignUsageRepository = $campaignUsageRepository;
         $this->customerStatusProvider = $customerStatusProvider;
+        $this->contextMarkDownFormatter = $contextMarkDownFormatter;
     }
 
     public static function getSubscribedEvents()
@@ -151,6 +161,25 @@ class CampaignSerializationListener implements EventSubscriberInterface
 
             $event->getVisitor()->addData('visibleForCustomersCount', count($this->campaignProvider->visibleForCustomers($campaign)));
             $event->getVisitor()->addData('usersWhoUsedThisCampaignCount', $this->countUsersWhoUsedThisCampaign($campaign));
+
+            $formatterContext = new FOSContextProvider($context);
+
+            $event->getVisitor()->setData(
+                'brandDescription',
+                $this->contextMarkDownFormatter->format($campaign->getBrandDescription(), $formatterContext)
+            );
+            $event->getVisitor()->setData(
+                'shortDescription',
+                $this->contextMarkDownFormatter->format($campaign->getShortDescription(), $formatterContext)
+            );
+            $event->getVisitor()->setData(
+                'conditionsDescription',
+                $this->contextMarkDownFormatter->format($campaign->getConditionsDescription(), $formatterContext)
+            );
+            $event->getVisitor()->setData(
+                'usageInstruction',
+                $this->contextMarkDownFormatter->format($campaign->getUsageInstruction(), $formatterContext)
+            );
         }
     }
 

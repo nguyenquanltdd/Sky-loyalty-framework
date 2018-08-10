@@ -59,6 +59,7 @@ class Campaign extends BaseCampaign
             'campaignActivity' => $this->campaignActivity ? $this->campaignActivity->toArray() : null,
             'campaignVisibility' => $this->campaignVisibility ? $this->campaignVisibility->toArray() : null,
             'usageInstruction' => $this->usageInstruction,
+            'brandDescription' => $this->brandDescription,
             'rewardValue' => $this->rewardValue,
             'tax' => $this->tax,
             'taxPriceValue' => $this->taxPriceValue,

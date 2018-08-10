@@ -149,6 +149,11 @@ class Campaign
     protected $labels = [];
 
     /**
+     * @var string|null
+     */
+    protected $brandDescription;
+
+    /**
      * @var int
      */
     protected $daysInactive;
@@ -266,6 +271,10 @@ class Campaign
 
         if (isset($data['usageInstruction'])) {
             $this->setUsageInstruction($data['usageInstruction']);
+        }
+
+        if (array_key_exists('brandDescription', $data)) {
+            $this->setBrandDescription($data['brandDescription']);
         }
 
         if (array_key_exists('rewardValue', $data)) {
@@ -798,6 +807,22 @@ class Campaign
         }
 
         return round($pointsAmount * $this->getPointValue(), 2);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getBrandDescription(): ?string
+    {
+        return $this->brandDescription;
+    }
+
+    /**
+     * @param string|null $brandDescription
+     */
+    public function setBrandDescription(?string $brandDescription)
+    {
+        $this->brandDescription = $brandDescription;
     }
 
     /**

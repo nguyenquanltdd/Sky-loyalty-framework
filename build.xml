@@ -26,7 +26,7 @@
         <exec command="bin/console security:check --env=test" checkreturn="true" passthru="true"/>
         <exec command="bin/console doctrine:schema:validate --env=test --skip-sync" checkreturn="true" passthru="true"/>
         <exec command="${disable_deprecations};vendor/phpunit/phpunit/phpunit" checkreturn="true" passthru="true"/>
-        <exec command="bin/php-cs-fixer fix --verbose --show-progress=estimating --dry-run --diff --rules=@Symfony,-yoda_style,-single_blank_line_before_namespace src" checkreturn="true" passthru="true"/>
+        <exec command="bin/php-cs-fixer fix --verbose --show-progress=estimating --dry-run --diff --rules=@Symfony,-yoda_style,-single_blank_line_before_namespace,compact_nullable_typehint src" checkreturn="true" passthru="true"/>
     </target>
     <target name="setup" description="Setup everything" depends="generate-jwt-keys">
         <phingcall target="prepare-for-tests">

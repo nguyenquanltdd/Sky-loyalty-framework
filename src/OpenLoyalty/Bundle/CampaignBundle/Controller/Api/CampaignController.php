@@ -24,6 +24,7 @@ use OpenLoyalty\Bundle\CampaignBundle\Model\Campaign;
 use OpenLoyalty\Bundle\CampaignBundle\ResponseModel\CouponUsageResponse;
 use OpenLoyalty\Bundle\CampaignBundle\Service\MultipleCampaignCouponUsageProvider;
 use OpenLoyalty\Bundle\CoreBundle\Service\CSVGenerator;
+use OpenLoyalty\Bundle\MarkDownBundle\Service\FOSContextProvider;
 use OpenLoyalty\Component\Campaign\Domain\Campaign as DomainCampaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
@@ -370,6 +371,10 @@ class CampaignController extends FOSRestController
 
         $context = new Context();
         $context->setGroups(['Default', 'list']);
+        $context->setAttribute(
+            FOSContextProvider::OUTPUT_FORMAT_ATTRIBUTE_NAME,
+            $request->get('format')
+        );
         $view->setContext($context);
 
         return $view;
@@ -466,7 +471,6 @@ class CampaignController extends FOSRestController
         $repo = $this->get('oloy.campaign.read_model.repository.campaign_bought');
         $headers = $this->getParameter('oloy.campaign.bought.export.headers');
         $fields = $this->getParameter('oloy.campaign.bought.export.fields');
-        $filenamePrefix = $this->getParameter('oloy.campaign.bought.export.filename_prefix');
 
         try {
             // extract ES-like params for date range filter
@@ -542,6 +546,10 @@ class CampaignController extends FOSRestController
 
         $context = new Context();
         $context->setGroups(['Default', 'list']);
+        $context->setAttribute(
+            FOSContextProvider::OUTPUT_FORMAT_ATTRIBUTE_NAME,
+            $request->get('format')
+        );
         $view->setContext($context);
 
         return $view;
@@ -558,11 +566,12 @@ class CampaignController extends FOSRestController
      *     section="Campaign"
      * )
      *
+     * @param Request            $request
      * @param CampaignRepository $campaignRepository
      *
      * @return \FOS\RestBundle\View\View
      */
-    public function getActiveCampaignsAction(CampaignRepository $campaignRepository)
+    public function getActiveCampaignsAction(Request $request, CampaignRepository $campaignRepository)
     {
         $domainCampaigns = $campaignRepository->getActiveCampaigns();
 
@@ -583,6 +592,10 @@ class CampaignController extends FOSRestController
 
         $context = new Context();
         $context->setGroups(['Default', 'list']);
+        $context->setAttribute(
+            FOSContextProvider::OUTPUT_FORMAT_ATTRIBUTE_NAME,
+            $request->get('format')
+        );
         $view->setContext($context);
 
         return $view;
@@ -600,14 +613,21 @@ class CampaignController extends FOSRestController
      *     section="Campaign"
      * )
      *
+     * @param Request        $request
      * @param DomainCampaign $campaign
-     * @View(serializerGroups={"admin", "Default"})
      *
      * @return \FOS\RestBundle\View\View
+     * @View(serializerGroups={"admin", "Default"})
      */
-    public function getAction(DomainCampaign $campaign)
+    public function getAction(Request $request, DomainCampaign $campaign)
     {
-        return $this->view($campaign);
+        $view = $this->view($campaign);
+        $view->getContext()->setAttribute(
+            FOSContextProvider::OUTPUT_FORMAT_ATTRIBUTE_NAME,
+            $request->get('format')
+        );
+
+        return $view;
     }
 
     /**
@@ -722,6 +742,10 @@ class CampaignController extends FOSRestController
         $context = new Context();
         $context->setGroups(['Default']);
         $context->setAttribute('customerId', $customer->getCustomerId()->__toString());
+        $context->setAttribute(
+            FOSContextProvider::OUTPUT_FORMAT_ATTRIBUTE_NAME,
+            $request->get('format')
+        );
         $view->setContext($context);
 
         return $view;

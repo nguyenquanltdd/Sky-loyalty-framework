@@ -97,6 +97,11 @@ class CampaignFormType extends AbstractType
         $builder->add('usageInstruction', TextareaType::class, [
             'required' => false,
         ]);
+
+        $builder->add('brandDescription', TextareaType::class, [
+            'required' => false,
+        ]);
+
         $builder->add('active', CheckboxType::class, [
             'required' => false,
         ]);

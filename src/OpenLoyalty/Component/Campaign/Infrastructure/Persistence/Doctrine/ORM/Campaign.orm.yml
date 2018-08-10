@@ -27,6 +27,11 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
       type: text
       nullable: true
       column: usage_instruction
+    brandDescription:
+      type: text
+      nullable: true
+      column: brand_description
+      nullable: true
     active:
       type: boolean
       options:

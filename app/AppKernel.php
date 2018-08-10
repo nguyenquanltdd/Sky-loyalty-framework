@@ -51,6 +51,7 @@ class AppKernel extends Kernel
             new OpenLoyaltyPlugin\SalesManagoBundle\SalesManagoBundle(),
             new OpenLoyalty\Bundle\ImportBundle\OpenLoyaltyImportBundle(),
             new OpenLoyalty\Bundle\WorldTextBundle\OpenLoyaltyWorldTextBundle(),
+            new OpenLoyalty\Bundle\MarkDownBundle\OpenLoyaltyMarkDownBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {

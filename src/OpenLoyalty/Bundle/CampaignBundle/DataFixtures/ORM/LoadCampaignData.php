@@ -43,6 +43,10 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaign->setCoupons([new Coupon('123')]);
         $campaign->setReward(Campaign::REWARD_TYPE_DISCOUNT_CODE);
         $campaign->setName('tests');
+        $campaign->setBrandDescription('_branddescription_');
+        $campaign->setShortDescription('_shortdescription_');
+        $campaign->setConditionsDescription('_conditionsdescription_');
+        $campaign->setUsageInstruction('_usageinstruction_');
         $campaign->setLabels([new Label('type', 'promotion')]);
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(false);

@@ -212,6 +212,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setConditionsDescription('Terms and conditions of reward');
         $campaign->setUsageInstruction('Instructions how to use coupon');
         $campaign->setShortDescription('Sample free delivery reward');
+        $campaign->setBrandDescription('Sample brand description');
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(true);
         $campaign->setCampaignActivity($campaignActivity);
@@ -259,6 +260,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setConditionsDescription('Terms and conditions of reward');
         $campaign->setUsageInstruction('Instructions how to use coupon');
         $campaign->setShortDescription('Sample discount code reward');
+        $campaign->setBrandDescription('Sample brand description');
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(true);
         $campaign->setCampaignActivity($campaignActivity);
@@ -301,6 +303,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setConditionsDescription('Terms and conditions of reward');
         $campaign->setUsageInstruction('Instructions how to use coupon');
         $campaign->setShortDescription('Value code reward');
+        $campaign->setBrandDescription('Sample brand description');
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(true);
         $campaign->setCampaignActivity($campaignActivity);
@@ -343,6 +346,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setConditionsDescription('Terms and conditions of reward');
         $campaign->setUsageInstruction('Instructions how to use coupon');
         $campaign->setShortDescription('Sample invitation reward');
+        $campaign->setBrandDescription('Sample brand description');
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(true);
         $campaign->setCampaignActivity($campaignActivity);
@@ -387,6 +391,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setShortDescription('Gift reward');
         $campaign->setConditionsDescription('Terms and conditions of reward');
         $campaign->setUsageInstruction('Instructions how to use coupon');
+        $campaign->setBrandDescription('Sample brand description');
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(true);
         $campaign->setCampaignActivity($campaignActivity);
@@ -421,6 +426,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setShortDescription('Gift reward');
         $campaign->setConditionsDescription('Terms and conditions of reward');
         $campaign->setUsageInstruction('Instructions how to use coupon');
+        $campaign->setBrandDescription('Sample brand description');
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(true);
         $campaign->setCampaignActivity($campaignActivity);
@@ -462,6 +468,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setShortDescription('Gift reward');
         $campaign->setConditionsDescription('Terms and conditions of reward');
         $campaign->setUsageInstruction('Instructions how to use coupon');
+        $campaign->setBrandDescription('Sample brand description');
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(true);
         $campaign->setCampaignActivity($campaignActivity);
@@ -499,6 +506,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setShortDescription('Gift reward');
         $campaign->setConditionsDescription('Terms and conditions of reward');
         $campaign->setUsageInstruction('Instructions how to use coupon');
+        $campaign->setBrandDescription('Sample brand description');
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(true);
         $campaign->setCampaignActivity($campaignActivity);
@@ -545,6 +553,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setShortDescription('Invitation for the event reward');
         $campaign->setConditionsDescription('Terms and conditions of reward');
         $campaign->setUsageInstruction('Instructions how to use coupon');
+        $campaign->setBrandDescription('Sample brand description');
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(true);
         $campaign->setCampaignActivity($campaignActivity);
@@ -582,6 +591,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setShortDescription('Discount code');
         $campaign->setConditionsDescription('Terms and conditions of reward');
         $campaign->setUsageInstruction('Instructions how to use coupon');
+        $campaign->setBrandDescription('Sample brand description');
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(true);
         $campaign->setCampaignActivity($campaignActivity);
@@ -631,6 +641,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setShortDescription('Discount code reward');
         $campaign->setConditionsDescription('Terms and conditions of reward');
         $campaign->setUsageInstruction('Instructions how to use coupon');
+        $campaign->setBrandDescription('Sample brand description');
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(true);
         $campaign->setCampaignActivity($campaignActivity);

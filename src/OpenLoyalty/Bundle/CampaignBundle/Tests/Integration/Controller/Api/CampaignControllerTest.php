@@ -64,6 +64,7 @@ class CampaignControllerTest extends BaseApiTest
                     'limitPerUser' => 2,
                     'coupons' => ['123'],
                     'costInPoints' => 12,
+                    'brandDescription' => '_test_brand_desc_',
                     'campaignActivity' => [
                         'allTimeActive' => false,
                         'activeFrom' => (new \DateTime('2016-01-01'))->format('Y-m-d H:i'),
@@ -89,6 +90,7 @@ class CampaignControllerTest extends BaseApiTest
         $this->assertInstanceOf(Campaign::class, $campaign);
         $this->assertEquals(99.95, $campaign->getTaxPriceValue());
         $this->assertEquals(23, $campaign->getTax());
+        $this->assertEquals('_test_brand_desc_', $campaign->getBrandDescription());
         $this->assertInternalType('array', $campaign->getLabels());
         $this->assertCount(2, $campaign->getLabels());
         foreach ($campaign->getLabels() as $key => $label) {
@@ -417,6 +419,44 @@ class CampaignControllerTest extends BaseApiTest
         $this->assertCount(1, $data['labels']);
         $this->assertArrayHasKey('key', $data['labels'][0]);
         $this->assertArrayHasKey('value', $data['labels'][0]);
+
+        $this->assertArrayHasKey('brandDescription', $data);
+        $this->assertArrayHasKey('shortDescription', $data);
+        $this->assertArrayHasKey('conditionsDescription', $data);
+        $this->assertArrayHasKey('usageInstruction', $data);
+
+        $this->assertEquals('_branddescription_', $data['brandDescription']);
+        $this->assertEquals('_shortdescription_', $data['shortDescription']);
+        $this->assertEquals('_conditionsdescription_', $data['conditionsDescription']);
+        $this->assertEquals('_usageinstruction_', $data['usageInstruction']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_campaign_using_html_format()
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/campaign/'.LoadCampaignData::CAMPAIGN_ID,
+            [
+                'format' => 'html',
+            ]
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        $this->assertArrayHasKey('brandDescription', $data);
+        $this->assertArrayHasKey('shortDescription', $data);
+        $this->assertArrayHasKey('conditionsDescription', $data);
+        $this->assertArrayHasKey('usageInstruction', $data);
+
+        $this->assertEquals('<em>branddescription</em>', $data['brandDescription']);
+        $this->assertEquals('<em>shortdescription</em>', $data['shortDescription']);
+        $this->assertEquals('<em>conditionsdescription</em>', $data['conditionsDescription']);
+        $this->assertEquals('<em>usageinstruction</em>', $data['usageInstruction']);
     }
 
     /**

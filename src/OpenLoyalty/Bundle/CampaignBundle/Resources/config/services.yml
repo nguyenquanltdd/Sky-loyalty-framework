@@ -59,6 +59,7 @@ services:
       - '@oloy.campaign.repository'
   oloy.campaign.serialization_listener:
     class: OpenLoyalty\Bundle\CampaignBundle\Event\Listener\CampaignSerializationListener
+    autowire: true
     arguments:
       - '@oloy.campaign.campaign_validator'
       - '@oloy.segment.repository'
@@ -67,7 +68,6 @@ services:
       - '@oloy.campaign.campaign_provider'
       - '@oloy.campaign.read_model.repository.campaign_usage'
       - '@oloy.customer_status_provider'
-      - '@router'
     tags:
       - { name: jms_serializer.event_subscriber }
 

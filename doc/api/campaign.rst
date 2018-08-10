@@ -199,7 +199,7 @@ Exemplary Response
     }
 
 Get the collection of campaigns
-------------------------
+-------------------------------
 
 To retrieve a paginated list of campaigns you will need to call the ``/api/campaign`` endpoint with the ``GET`` method.
 
@@ -227,6 +227,9 @@ Definition
 +-------------------------------------+----------------+----------------------------------------------------+
 | direction                           | query          | *(optional)* Direction of sorting [ASC, DESC],     |
 |                                     |                | by default = ASC                                   |
++-------------------------------------+----------------+----------------------------------------------------+
+| format                              | query          | *(optional)* Format of descriptions [html].        |
+|                                     |                | Default is RAW.                                    |
 +-------------------------------------+----------------+----------------------------------------------------+
 
 To see the first page of all campaigns use the below method:
@@ -553,13 +556,16 @@ Definition
 
     GET /api/campaign/<campaign>
 
-+---------------+----------------+--------------------------------------+
-| Parameter     | Parameter type | Description                          |
-+===============+================+======================================+
-| Authorization | header         | Token received during authentication |
-+---------------+----------------+--------------------------------------+
-| <campaign>    | query          | Id of the campaign                   |
-+---------------+----------------+--------------------------------------+
++---------------+----------------+----------------------------------------------------+
+| Parameter     | Parameter type | Description                                        |
++===============+================+====================================================+
+| Authorization | header         | Token received during authentication               |
++---------------+----------------+----------------------------------------------------+
+| <campaign>    | query          | Id of the campaign                                 |
++---------------+----------------+----------------------------------------------------+
+| format        | query          | *(optional)* Format of descriptions [html].        |
+|               |                | Default is RAW.                                    |
++-------------------------------------+----------------+------------------------------+
 
 Example
 ^^^^^^^

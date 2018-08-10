@@ -201,7 +201,9 @@
     "visible_from": "Visible From",
     "visible_from_prompt": "",
     "visible_to": "Visible To",
-    "visible_to_prompt": ""
+    "visible_to_prompt": "",
+    "brand_description": "Brand description",
+    "brand_description_prompt": ""
   },
   "client_cockpit": {
     "register": {
