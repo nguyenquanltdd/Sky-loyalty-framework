@@ -1672,6 +1672,8 @@
       "heading": "Zidentyfikuj klienta",
       "loyalty_card_number": "Numer karty lojalnościowej",
       "name": "Imię i nazwisko",
+      "firstName" : "Imię",
+      "lastName" : "Nazwisko",
       "phone": "Numer telefonu",
       "phone_prompt": "Numer telefonu klienta",
       "postcode": "Kod pocztowy",

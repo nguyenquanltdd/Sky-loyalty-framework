@@ -1666,6 +1666,8 @@
       "heading": "Identify customer",
       "loyalty_card_number": "Loyalty card number",
       "name": "First and second name",
+      "firstName" : "First name",
+      "lastName" : "Last name",
       "phone": "Phone number",
       "phone_prompt": "Phone number of customer",
       "postcode": "Post code",
