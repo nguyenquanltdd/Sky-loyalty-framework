@@ -52,13 +52,14 @@ class DoctrineEmailRepository implements DoctrineEmailRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getByKey($key)
+    public function getByKey($key): ?Email
     {
         $queryBuilder = $this->connection->createQueryBuilder();
-        $queryBuilder->select('email.*')
-                     ->from('ol__email', 'email')
-                     ->where('email.key = :key')
-                     ->setParameter('key', $key);
+        $queryBuilder
+            ->select('email.*')
+            ->from('ol__email', 'email')
+            ->where('email.key = :key')
+            ->setParameter('key', $key);
 
         $emailData = $this->connection->fetchAssoc(
             $queryBuilder->getSQL(),
@@ -66,7 +67,7 @@ class DoctrineEmailRepository implements DoctrineEmailRepositoryInterface
         );
 
         if (empty($emailData)) {
-            return;
+            return null;
         }
 
         return $this->hydrate($emailData);

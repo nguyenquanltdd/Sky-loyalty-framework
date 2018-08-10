@@ -65,3 +65,7 @@ services:
     oloy.activation_code.num:
         alias: OpenLoyalty\Bundle\ActivationCodeBundle\Generator\NumericCodeGenerator
         deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.email.settings:
+        alias: OpenLoyalty\Bundle\EmailSettingsBundle\Service\EmailSettings
+        deprecated: The "%service_id%" service is deprecated since 2.8.0

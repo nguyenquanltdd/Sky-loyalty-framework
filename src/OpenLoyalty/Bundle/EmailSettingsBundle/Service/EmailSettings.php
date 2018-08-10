@@ -11,31 +11,30 @@ use Symfony\Bundle\TwigBundle\Loader\FilesystemLoader;
 /**
  * Class EmailSettings.
  */
-class EmailSettings
+class EmailSettings implements EmailSettingsInterface
 {
     /**
-     * Emails list.
-     *
      * @var array
      */
-    protected $emails = [];
+    private $emails = [];
 
     /**
-     * FilesystemLoader.
-     *
      * @var FilesystemLoader
      */
-    protected $filesystemLoader;
+    private $filesystemLoader;
 
     /**
-     * Twig.
-     *
      * @var \Twig_Environment
      */
-    protected $twig;
+    private $twig;
 
     /**
-     * OloyEmailSettings constructor.
+     * @var array
+     */
+    private $defaultSettingsBag = [];
+
+    /**
+     * EmailSettings constructor.
      *
      * @param array             $emails
      * @param FilesystemLoader  $filesystemLoader
@@ -49,33 +48,80 @@ class EmailSettings
     }
 
     /**
-     * Get emails parameter.
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    public function getEmailsParameter()
+    public function addDefaultSettings(string $key, string $value): void
+    {
+        $this->defaultSettingsBag[$key] = $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDefaultSetting(string $key): string
+    {
+        if (!isset($this->defaultSettingsBag[$key])) {
+            throw new \InvalidArgumentException(sprintf('Setting %s does not exists!', $key));
+        }
+
+        return $this->defaultSettingsBag[$key];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEmailsParameter(): array
     {
         foreach ($this->emails as &$settings) {
             $settings['content'] = '';
-
             // fill with default template if empty
             if ($this->filesystemLoader->exists($settings['template'])) {
                 $sourceContext = $this->filesystemLoader->getSourceContext($settings['template']);
                 $settings['content'] = $sourceContext->getCode();
             }
+
+            $settings['name'] = $this->getTemplateName($settings['template']);
         }
 
         return $this->emails;
     }
 
     /**
-     * Get additional params.
-     *
-     * @param Email $email
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    public function getAdditionalParams(Email $email)
+    public function filterByName(string $templateName): array
+    {
+        $results = current(
+            array_filter(
+                $this->getEmailsParameter(),
+                function (array $templateData) use ($templateName): bool {
+                    return $templateName === $this->getTemplateName($templateData['template']);
+                }
+            )
+        );
+
+        return false === $results ? [] : $results;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function templateExistsByName(string $templateName): bool
+    {
+        $results = array_filter(
+            $this->emails,
+            function (array $templateData) use ($templateName): bool {
+                return $templateName === $this->getTemplateName($templateData['template']);
+            }
+        );
+
+        return count($results) > 0;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAdditionalParams(Email $email): array
     {
         $additionalParams = [];
 
@@ -91,5 +137,15 @@ class EmailSettings
         }
 
         return $additionalParams;
+    }
+
+    /**
+     * @param string $template
+     *
+     * @return string
+     */
+    private function getTemplateName(string $template): string
+    {
+        return str_replace(['OpenLoyaltyUserBundle:email:', '.html.twig'], '', $template);
     }
 }

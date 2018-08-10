@@ -83,6 +83,7 @@ class InvitationController extends FOSRestController
      * @ApiDoc(
      *     name="Invite user",
      *     section="Invitation",
+     *     input={"class" = "OpenLoyalty\Bundle\UserBundle\Form\Type\InvitationFormType", "name" = "invitation"},
      * )
      *
      * @param Request $request

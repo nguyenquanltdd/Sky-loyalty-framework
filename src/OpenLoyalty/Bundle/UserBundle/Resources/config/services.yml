@@ -6,6 +6,7 @@ parameters:
       - { template: 'OpenLoyaltyUserBundle:email:customer_reward_bought.html.twig', subject: '{{ program_name }} - new reward', variables: ['program_name', 'reward_name', 'reward_code', 'reward_instructions', 'ecommerce_address'] }
       - { template: 'OpenLoyaltyUserBundle:email:new_points.html.twig', subject: '{{ program_name }} - new points', variables: ['program_name', 'added_points_amount', 'active_points_amount', 'ecommerce_address'] }
       - { template: 'OpenLoyaltyUserBundle:email:new_level.html.twig', subject: '{{ program_name }} - new level', variables: ['program_name', 'level_name', 'level_discount', 'ecommerce_address'] }
+      - { template: 'OpenLoyaltyUserBundle:email:invitation.html.twig', subject: 'Invitation', variables: ['referrerName', 'url'] }
 
 services:
 
