@@ -138,7 +138,7 @@ abstract class PointsTransfer implements Serializable
     /**
      * @return string
      */
-    public function getComment(): ? string
+    public function getComment(): ?string
     {
         return $this->comment;
     }

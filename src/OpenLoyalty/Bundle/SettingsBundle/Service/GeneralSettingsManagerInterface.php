@@ -33,17 +33,17 @@ interface GeneralSettingsManagerInterface
     /**
      * @return null|string
      */
-    public function getProgramUrl(): ? string;
+    public function getProgramUrl(): ?string;
 
     /**
      * @return null|string
      */
-    public function getConditionsUrl(): ? string;
+    public function getConditionsUrl(): ?string;
 
     /**
      * @return null|string
      */
-    public function FAQUrl(): ? string;
+    public function FAQUrl(): ?string;
 
     /**
      * @return string
@@ -58,12 +58,12 @@ interface GeneralSettingsManagerInterface
     /**
      * @return null|string
      */
-    public function getHelpEmail(): ? string;
+    public function getHelpEmail(): ?string;
 
     /**
      * @return bool|null
      */
-    public function isAllTimeActive(): ? bool;
+    public function isAllTimeActive(): ?bool;
 
     /**
      * @return int

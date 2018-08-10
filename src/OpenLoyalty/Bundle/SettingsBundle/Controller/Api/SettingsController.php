@@ -398,7 +398,7 @@ class SettingsController extends FOSRestController
      *
      * @return Response
      */
-    private function getPhoto(string $entryName, ? string $size = null)
+    private function getPhoto(string $entryName, ?string $size = null)
     {
         $settingsManager = $this->get('ol.settings.manager');
         $settings = $settingsManager->getSettings();

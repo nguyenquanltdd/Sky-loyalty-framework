@@ -282,7 +282,7 @@ class PointsTransferDetails implements SerializableReadModel
     /**
      * @return \DateTime
      */
-    public function getCreatedAt(): ? \DateTime
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
     }
@@ -290,7 +290,7 @@ class PointsTransferDetails implements SerializableReadModel
     /**
      * @return \DateTime
      */
-    public function getExpiresAt(): ? \DateTime
+    public function getExpiresAt(): ?\DateTime
     {
         return $this->expiresAt;
     }

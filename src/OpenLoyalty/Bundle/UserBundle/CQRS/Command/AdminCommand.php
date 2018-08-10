@@ -61,7 +61,7 @@ class AdminCommand
     /**
      * @return string|null
      */
-    public function getFirstName(): ? string
+    public function getFirstName(): ?string
     {
         return $this->firstName;
     }
@@ -77,7 +77,7 @@ class AdminCommand
     /**
      * @return string|null
      */
-    public function getLastName(): ? string
+    public function getLastName(): ?string
     {
         return $this->lastName;
     }
@@ -93,7 +93,7 @@ class AdminCommand
     /**
      * @return string|null
      */
-    public function getPhone(): ? string
+    public function getPhone(): ?string
     {
         return $this->phone;
     }
@@ -109,7 +109,7 @@ class AdminCommand
     /**
      * @return string|null
      */
-    public function getEmail(): ? string
+    public function getEmail(): ?string
     {
         return $this->email;
     }

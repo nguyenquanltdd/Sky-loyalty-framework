@@ -38,7 +38,7 @@ class MoveCustomerToLevel extends CustomerCommand
      */
     public function __construct(
         CustomerId $customerId,
-        ? LevelId $levelId = null,
+        ?LevelId $levelId = null,
         bool $manually = false,
         bool $removeLevelManually = false
     ) {
@@ -51,7 +51,7 @@ class MoveCustomerToLevel extends CustomerCommand
     /**
      * @return null|LevelId
      */
-    public function getLevelId(): ? LevelId
+    public function getLevelId(): ?LevelId
     {
         return $this->levelId;
     }

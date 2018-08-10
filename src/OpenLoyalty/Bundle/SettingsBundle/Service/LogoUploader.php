@@ -50,7 +50,7 @@ class LogoUploader
      *
      * @return string|null
      */
-    public function get(Logo $photo, ? string $size = null)
+    public function get(Logo $photo, ?string $size = null)
     {
         if (null === $photo || null === $photo->getPath()) {
             return;

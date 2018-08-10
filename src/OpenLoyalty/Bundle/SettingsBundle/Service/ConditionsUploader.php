@@ -33,7 +33,7 @@ class ConditionsUploader
      * @param Filesystem  $filesystem
      * @param string|null $customerPanelUrl
      */
-    public function __construct(Filesystem $filesystem, ? string $customerPanelUrl = null)
+    public function __construct(Filesystem $filesystem, ?string $customerPanelUrl = null)
     {
         $this->filesystem = $filesystem;
         $this->customerPanelUrl = $customerPanelUrl;
@@ -44,7 +44,7 @@ class ConditionsUploader
      *
      * @return string|null
      */
-    public function get(Conditions $conditions): ? string
+    public function get(Conditions $conditions): ?string
     {
         if (null === $conditions || null === $conditions->getPath()) {
             return null;

@@ -42,7 +42,7 @@ class AccountDetailsProvider implements AccountDetailsProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function getCustomerById(CustomerId $customerId): ? Customer
+    public function getCustomerById(CustomerId $customerId): ?Customer
     {
         $customer = $this->customerRepository->load($customerId->__toString());
 

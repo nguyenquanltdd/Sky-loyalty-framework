@@ -64,7 +64,7 @@ interface LevelRepository
      *
      * @return mixed
      */
-    public function findActivePaginated(? int $page = 1, ? int $perPage = 10, ? string $sortField = null, ? string $direction = 'ASC');
+    public function findActivePaginated(?int $page = 1, ?int $perPage = 10, ?string $sortField = null, ?string $direction = 'ASC');
 
     /**
      * @return mixed

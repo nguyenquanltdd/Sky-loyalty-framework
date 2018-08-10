@@ -265,7 +265,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     /**
      * {@inheritdoc}
      */
-    public function evaluateEventWithContext(string $eventName, ? string $customerId): array
+    public function evaluateEventWithContext(string $eventName, ?string $customerId): array
     {
         $context = new RuleNameContext();
         $points = $this->evaluateEvent($eventName, $customerId, $context);

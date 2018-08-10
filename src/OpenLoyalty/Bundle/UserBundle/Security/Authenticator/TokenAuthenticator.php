@@ -71,7 +71,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
      *
      * @return null|Admin
      */
-    protected function loadUserByApiMasterKey(string $apiKey): ? Admin
+    protected function loadUserByApiMasterKey(string $apiKey): ?Admin
     {
         $user = $this->masterAdminProvider->loadUserByUsername(MasterAdminProvider::USERNAME);
         if ($user && $user->getPassword() == $apiKey) {

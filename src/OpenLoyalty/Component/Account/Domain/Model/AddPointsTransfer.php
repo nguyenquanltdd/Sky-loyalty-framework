@@ -147,7 +147,7 @@ class AddPointsTransfer extends PointsTransfer
     /**
      * @return \DateTime
      */
-    public function getExpiresAt(): ? \DateTime
+    public function getExpiresAt(): ?\DateTime
     {
         return $this->expiresAt;
     }

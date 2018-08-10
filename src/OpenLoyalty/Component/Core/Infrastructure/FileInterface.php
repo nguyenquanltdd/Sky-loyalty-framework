@@ -15,7 +15,7 @@ interface FileInterface
     /**
      * @return null|UploadedFile
      */
-    public function getFile(): ? UploadedFile;
+    public function getFile(): ?UploadedFile;
 
     /**
      * @param UploadedFile $file
@@ -25,7 +25,7 @@ interface FileInterface
     /**
      * @return null|string
      */
-    public function getPath(): ? string;
+    public function getPath(): ?string;
 
     /**
      * @param string $path
@@ -35,7 +35,7 @@ interface FileInterface
     /**
      * @return null|string
      */
-    public function getOriginalName(): ? string;
+    public function getOriginalName(): ?string;
 
     /**
      * @param string $originalName
@@ -45,7 +45,7 @@ interface FileInterface
     /**
      * @return null|string
      */
-    public function getMime(): ? string;
+    public function getMime(): ?string;
 
     /**
      * @param string $mime

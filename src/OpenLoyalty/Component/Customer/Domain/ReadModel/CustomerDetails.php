@@ -919,7 +919,7 @@ class CustomerDetails implements SerializableReadModel
     /**
      * @return LevelDetails|null
      */
-    public function getLevel(): ? LevelDetails
+    public function getLevel(): ?LevelDetails
     {
         return $this->level;
     }
@@ -927,7 +927,7 @@ class CustomerDetails implements SerializableReadModel
     /**
      * @param LevelDetails|null $level
      */
-    public function setLevel(? LevelDetails $level)
+    public function setLevel(?LevelDetails $level)
     {
         $this->level = $level;
     }

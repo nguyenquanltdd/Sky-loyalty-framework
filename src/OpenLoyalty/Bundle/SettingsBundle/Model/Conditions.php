@@ -42,7 +42,7 @@ class Conditions implements FileInterface
     /**
      * {@inheritdoc}
      */
-    public function getFile(): ? UploadedFile
+    public function getFile(): ?UploadedFile
     {
         return $this->file;
     }
@@ -58,7 +58,7 @@ class Conditions implements FileInterface
     /**
      * {@inheritdoc}
      */
-    public function getPath(): ? string
+    public function getPath(): ?string
     {
         return $this->path;
     }
@@ -74,7 +74,7 @@ class Conditions implements FileInterface
     /**
      * {@inheritdoc}
      */
-    public function getOriginalName(): ? string
+    public function getOriginalName(): ?string
     {
         return $this->originalName;
     }
@@ -90,7 +90,7 @@ class Conditions implements FileInterface
     /**
      * {@inheritdoc}
      */
-    public function getMime(): ? string
+    public function getMime(): ?string
     {
         return $this->mime;
     }

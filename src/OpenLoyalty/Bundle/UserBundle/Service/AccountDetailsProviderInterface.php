@@ -19,7 +19,7 @@ interface AccountDetailsProviderInterface
      *
      * @return null|Customer
      */
-    public function getCustomerById(CustomerId $customerId): ? Customer;
+    public function getCustomerById(CustomerId $customerId): ?Customer;
 
     /**
      * @param Customer $customer

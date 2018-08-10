@@ -47,7 +47,7 @@ class CreateAdmin extends AdminCommand
     /**
      * @return string|null
      */
-    public function getPlainPassword(): ? string
+    public function getPlainPassword(): ?string
     {
         return $this->plainPassword;
     }
@@ -63,7 +63,7 @@ class CreateAdmin extends AdminCommand
     /**
      * @return bool|null
      */
-    public function isExternal(): ? bool
+    public function isExternal(): ?bool
     {
         return $this->external;
     }
@@ -79,7 +79,7 @@ class CreateAdmin extends AdminCommand
     /**
      * @return string|null
      */
-    public function getApiKey(): ? string
+    public function getApiKey(): ?string
     {
         return $this->apiKey;
     }
@@ -95,7 +95,7 @@ class CreateAdmin extends AdminCommand
     /**
      * @return bool|null
      */
-    public function isActive(): ? bool
+    public function isActive(): ?bool
     {
         return $this->isActive;
     }

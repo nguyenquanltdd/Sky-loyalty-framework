@@ -57,7 +57,7 @@ class ImportResultItem
         string $status,
         string $identifier,
         $object = null,
-        ? string $message = null,
+        ?string $message = null,
         \Exception $exception = null,
         ProcessImportResult $processImportResult = null
     ) {
@@ -79,9 +79,9 @@ class ImportResultItem
      */
     public static function success(
         $object = null,
-        ? string $identify = null,
+        ?string $identify = null,
         ProcessImportResult $processResult = null,
-        ? string $message = null
+        ?string $message = null
     ) {
         return new self(self::SUCCESS, $identify, $object, $message, null, $processResult);
     }

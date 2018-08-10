@@ -97,7 +97,7 @@ class CustomersBelongingToOneLevelProjector extends Projector
      *
      * @return null|CustomersBelongingToOneLevel
      */
-    private function getReadModel(LevelId $levelId, $createIfNull = true): ? CustomersBelongingToOneLevel
+    private function getReadModel(LevelId $levelId, $createIfNull = true): ?CustomersBelongingToOneLevel
     {
         $readModel = $this->customersBelongingToOneLevelRepository->find($levelId->__toString());
 

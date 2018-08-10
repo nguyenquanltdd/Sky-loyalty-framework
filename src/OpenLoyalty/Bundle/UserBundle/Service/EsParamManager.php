@@ -50,7 +50,7 @@ class EsParamManager implements ParamManager
      * @param null|string $dateFrom
      * @param null|string $dateTo
      */
-    public function appendDateRangeFilter(array &$params, string $key, ? string $dateFrom, ? string $dateTo)
+    public function appendDateRangeFilter(array &$params, string $key, ?string $dateFrom, ?string $dateTo)
     {
         if (!$dateFrom && !$dateTo) {
             return;

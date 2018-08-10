@@ -49,7 +49,7 @@ class TransactionRegisteredEvent
      * @param PosId|null    $posId
      */
     public function __construct(TransactionId $transactionId, array $transactionData, array $customerData, array
-    $items, ? PosId $posId = null)
+    $items, ?PosId $posId = null)
     {
         $this->transactionId = $transactionId;
         $this->transactionData = $transactionData;
@@ -93,7 +93,7 @@ class TransactionRegisteredEvent
     /**
      * @return PosId|null
      */
-    public function getPosId(): ? PosId
+    public function getPosId(): ?PosId
     {
         return $this->posId;
     }
