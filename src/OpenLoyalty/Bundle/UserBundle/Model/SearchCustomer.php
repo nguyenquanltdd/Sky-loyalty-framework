@@ -189,15 +189,12 @@ class SearchCustomer
         if ($this->firstName && $this->lastName) {
             $atLeastOne = true;
         }
-
-        if ($this->firstName && !$this->lastName) {
-            $context->buildViolation('This field is required')->atPath('lastName')->addViolation();
-        }
-
         if (!$this->firstName && $this->lastName) {
-            $context->buildViolation('This field is required')->atPath('firstName')->addViolation();
+            $atLeastOne = true;
         }
-
+        if ($this->firstName && !$this->lastName) {
+            $atLeastOne = true;
+        }
         if (!$atLeastOne) {
             $context->buildViolation('Provide at least one field')->addViolation();
         }
@@ -223,8 +220,10 @@ class SearchCustomer
             $criteria['address.postal'] = strtolower($this->postcode);
         }
         if ($this->lastName) {
-            $criteria['firstName'] = strtolower($this->firstName);
             $criteria['lastName'] = strtolower($this->lastName);
+        }
+        if ($this->firstName) {
+            $criteria['firstName'] = strtolower($this->firstName);
         }
 
         return $criteria;
