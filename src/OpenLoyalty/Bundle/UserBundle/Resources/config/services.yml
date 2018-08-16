@@ -9,6 +9,9 @@ parameters:
       - { template: 'OpenLoyaltyUserBundle:email:invitation.html.twig', subject: 'Invitation', variables: ['referrerName', 'url'] }
 
 services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
 
   OpenLoyalty\Bundle\UserBundle\Controller\:
       resource: '../../Controller'
@@ -103,8 +106,7 @@ services:
       - '@broadway.command_handling.command_bus'
       - '@oloy.user.user_manager'
       - '@doctrine.orm.entity_manager'
-  oloy.user.form_handler.customer_edit:
-    class: OpenLoyalty\Bundle\UserBundle\Form\Handler\CustomerEditFormHandler
+  OpenLoyalty\Bundle\UserBundle\Form\Handler\CustomerEditFormHandler:
     arguments:
       - '@broadway.command_handling.command_bus'
       - '@oloy.user.user_manager'

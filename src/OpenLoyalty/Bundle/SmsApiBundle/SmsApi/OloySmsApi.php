@@ -13,6 +13,7 @@ use Psr\Log\LoggerInterface;
 use SMSApi\Client;
 use SMSApi\Api\SmsFactory;
 use SMSApi\Exception\SmsapiException;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class OloySmsApi.
@@ -37,15 +38,21 @@ class OloySmsApi implements SmsSender
     private $logger;
 
     /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
      * OloySmsApi constructor.
      *
      * @param SettingsManager $settingsManager
      * @param LoggerInterface $logger
      */
-    public function __construct(SettingsManager $settingsManager, LoggerInterface $logger)
+    public function __construct(SettingsManager $settingsManager, LoggerInterface $logger, TranslatorInterface $translator)
     {
         $this->settingsManager = $settingsManager;
         $this->logger = $logger;
+        $this->translator = $translator;
     }
 
     /**
@@ -124,9 +131,9 @@ class OloySmsApi implements SmsSender
                 ]);
             }
         } catch (SmsapiException $e) {
-            $this->logger->error('Send sms failed: '.$e->getMessage(), ['exception' => $e]);
+            $this->logger->error($this->translator->trans('Send sms failed: '.$e->getMessage()), ['exception' => $e]);
 
-            throw new SmsSendException('Send sms failed: '.$e->getMessage(), $message->getRecipient(), $e);
+            throw new SmsSendException($this->translator->trans('Send sms failed: '.$e->getMessage()), $message->getRecipient(), $e);
         }
     }
 

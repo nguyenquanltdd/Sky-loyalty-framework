@@ -13,6 +13,7 @@ use OpenLoyalty\Component\Seller\Domain\Exception\EmailAlreadyExistsException;
 use OpenLoyalty\Component\Seller\Domain\SellerId;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class SellerEditFormHandler.
@@ -34,17 +35,23 @@ class SellerEditFormHandler
     protected $em;
 
     /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
      * SellerEditFormHandler constructor.
      *
      * @param CommandBus    $commandBus
      * @param UserManager   $userManager
      * @param EntityManager $em
      */
-    public function __construct(CommandBus $commandBus, UserManager $userManager, EntityManager $em)
+    public function __construct(CommandBus $commandBus, UserManager $userManager, EntityManager $em, TranslatorInterface $translator)
     {
         $this->commandBus = $commandBus;
         $this->userManager = $userManager;
         $this->em = $em;
+        $this->translator = $translator;
     }
 
     public function onSuccess(SellerId $sellerId, FormInterface $form)
@@ -55,7 +62,7 @@ class SellerEditFormHandler
             $email = $sellerData['email'];
 
             if ($this->isUserExistAndIsDifferentThanEdited($sellerId->__toString(), $email)) {
-                $form->get('email')->addError(new FormError('This email is already taken'));
+                $form->get('email')->addError(new FormError($this->translator->trans('This email is already taken')));
 
                 return false;
             }
@@ -66,7 +73,7 @@ class SellerEditFormHandler
         try {
             $this->commandBus->dispatch($command);
         } catch (EmailAlreadyExistsException $e) {
-            $form->get('email')->addError(new FormError($e->getMessage()));
+            $form->get('email')->addError(new FormError($this->translator->trans($e->getMessage())));
 
             return false;
         }

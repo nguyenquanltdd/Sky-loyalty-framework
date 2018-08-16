@@ -104,7 +104,7 @@
     },
     "cashback": "Cashback",
     "conditions_description": "Warunki otrzymania nagrody",
-    "conditions_description_prompt": "",
+    "coditions_description_prompt": "",
     "cost_in_points": "Koszt w punktach",
     "cost_in_points_prompt": "",
     "coupon": "Kupon",
@@ -214,7 +214,17 @@
   },
   "campaign-value-code": "Rabat kwotowy",
   "client_cockpit": {
+    "meta": {
+      "title": "Program motywacyjny"
+    },
     "register": {
+      "submit_message": "Sprawdź swój email i aktywuj swoje konto",
+      "activation": {
+        "message_failed": "Wystąpił problem z aktywacją Twojego konta",
+        "message_success": "Twoje konto zostało aktywowane",
+        "failed": "Aktywacja konta nie powiodła się",
+        "success": "Aktywacja konta zakończona pomyślnie"
+      },
       "form": {
         "login": {
           "prefix": "lub ",
@@ -230,8 +240,8 @@
       }
     },
     "login": {
-      "headline": "Sprzedawaj produkty finansowe, zbieraj punkty i odbieraj atrakcyjne nagrody",
-      "subtitle": "Program motywacyjny dla Agentów ubezpieczeniowych Credit Agricole",
+      "headline": "Sprzedawaj, zarabiaj punkty i odbieraj nagrody!",
+      "subtitle": "Program motywacyjny",
       "form": {
         "label": {
           "email": "Adres e-mail",
@@ -240,8 +250,8 @@
           "reset_password": "Zapomniałeś hasła?"
         },
         "register": {
-          "prefix": "lub ",
-          "link": "zarejestruj nowe konto",
+          "prefix": "",
+          "link": "Zarejestruj nowe konto",
           "suffix": " w serwisie"
         },
         "validation": {
@@ -271,9 +281,18 @@
           "button": "Zresetuj hasło",
           "back_to_login_prefix": "Lub wróć do ",
           "back_to_login_text": "strony logowania",
-          "back_to_login_suffix": ""
+          "back_to_login_suffix": "",
+          "reset_your_password": "Resetowanie hasła",
+          "choose_new_password": "Zmień swoje hasło",
+          "new_password": "Nowe hasło"
         },
         "validation": {
+          "password_too_weak": "Hasło jest zbyt słąbe",
+          "password_reset_success": "Twoje hasło zostało zmienione pomyślnie.",
+          "password_reset_error": "Proces resetowania hasła został już zakończony",
+          "not_found": "Ten adres email jest niepoprawny",
+          "field_username_should_not_be_empty": "Podaj swój adres email",
+          "resetting_password_already_requested": "Proces resetowania hasła został już rozpoczety. Proszę sprawdź swoją skrzynkę email ",
           "wrong_data": "Podany e-mail jest nieprawidłowy lub nie istnieje w bazie danych",
           "email_with_reset_link_sent": "Na podany adres e-mail został wysłany link do zresetowania hasła. Prosimy sprawdzić skrzynkę mailową."
         }
@@ -298,10 +317,10 @@
       }
     },
     "homepage": {
-      "headline": "Sprzedawaj produkty finansowe, zbieraj punkty i odbieraj atrakcyjne nagrody",
-      "subtitle": "Program motywacyjny dla Agentów ubezpieczeniowych Credit Agricole",
+      "headline": "Sprzedawaj, zarabiaj punkty i odbieraj nagrody!",
+      "subtitle": "Program motywacyjny",
       "earning_points_rules": {
-        "headline": "Jak zarabiać punkty?",
+        "headline": "Jak zdobyć punkty?",
         "button_text": "Zarabiaj punkty"
       },
       "rewards": {
@@ -345,7 +364,7 @@
       "single": {
         "page": {
           "back_to_earning_points_rules_list": "Zobacz inne sposoby zarabiania punktów",
-          "how_to_earn_points": "Jak zarabiać punkty?",
+          "how_to_earn_points": "Jak zdobyć punkty?",
           "points": {
             "points": {
               "prefix": "",
@@ -383,9 +402,9 @@
         "show_more_rewards": "Pokaż więcej nagród"
       },
       "list": {
-        "see_more_link_text": "więcej nagród",
-        "see_more_link_title": "Pokaż więcej nagród",
-        "see_more_prefix": "Pokaż ",
+        "see_more_link_text": "inne dostępne nagrody",
+        "see_more_link_title": "Zobacz inne dostępne nagrody",
+        "see_more_prefix": "Zobacz ",
         "see_more_suffix": " "
       },
       "single": {
@@ -439,58 +458,58 @@
     "header": {
       "get_rewards": "Odbieraj nagrody",
       "earn_points": "Zdobywaj punkty",
-      "level": "poziom",
+      "level": "level",
       "points": "punktów",
-      "logo_alt_text": "logo Credit Agricole",
-      "notification_text_prefix": "Witaj, XYZ, zobacz jakie",
+      "logo_alt_text": "logo",
+      "notification_text_prefix": "Witaj Anna Nowak, sprawdź ",
       "notification_text": "nowe nagrody",
-      "notification_text_suffix": " dla Ciebie przygotowaliśmy"
+      "notification_text_suffix": ", które dla Ciebie przygotowaliśmy!"
     },
     "footer": {
       "section": {
         "first": {
-          "headline": "Sekcja 1",
+          "headline": "O PROGRAMIE",
           "link": {
             "a_route": "http://pwacc-dev.herokuapp.com/link-1",
-            "b": "Link 2",
+            "b": "Warunki programu",
             "b_route": "http://pwacc-dev.herokuapp.com/link-1",
-            "c": "Link 3",
+            "c": "Jak zdobyć wyższy level?",
             "c_route": "http://pwacc-dev.herokuapp.com/link-1",
-            "d": "",
+            "d": "Regulamin programu",
             "d_route": ""
           }
         },
         "second": {
-          "headline": "Sekcja 2",
+          "headline": "PUNKTY",
           "link": {
             "a_route": "http://pwacc-dev.herokuapp.com/link-1",
-            "b": "Link 2",
+            "b": "Jak zarabiać punkty?",
             "b_route": "http://pwacc-dev.herokuapp.com/link-2",
-            "c": "Link 3",
+            "c": "Moje punkty",
             "c_route": "http://pwacc-dev.herokuapp.com/link-3",
             "d": "",
             "d_route": ""
           }
         },
         "third": {
-          "headline": "Sekcja 3",
+          "headline": "NAGRODY",
           "link": {
             "a_route": "http://pwacc-dev.herokuapp.com/link-1",
-            "b": "Link 2",
+            "b": "Jak odbierać nagrody?",
             "b_route": "http://pwacc-dev.herokuapp.com/link-2",
-            "c": "Link 3",
+            "c": "Jak odblokować nagrody?",
             "c_route": "http://pwacc-dev.herokuapp.com/link-3",
-            "d": "",
+            "d": "Moje nagrody",
             "d_route": ""
           }
         },
         "fourth": {
-          "headline": "Sekcja 4",
+          "headline": "POMOC",
           "link": {
             "a_route": "http://pwacc-dev.herokuapp.com/link-1",
-            "b": "Link 2",
+            "b": "Pytania i odpowiedzi",
             "b_route": "http://pwacc-dev.herokuapp.com/link-2",
-            "c": "Link 3",
+            "c": "Kontakt",
             "c_route": "http://pwacc-dev.herokuapp.com/link-3",
             "d": "",
             "d_route": ""
@@ -500,12 +519,12 @@
       "link": {
         "cookie_policy": "<a href='https://test.web.cloud.openloyalty.io/terms-conditions'>Polityka plików cookie</a>"
       },
-      "copyright_text": " 2018 Credit Agricole Ubezpieczenia. Wszystkie prawa zastrzeżone."
+      "copyright_text": " 2018 Program motywacyjny. Wszystkie prawa zastrzeżone."
     },
     "customer": {
       "navigation": {
         "my_profile": "Mój profil",
-        "my_level": "Mój poziom",
+        "my_level": "Mój level",
         "my_transactions": "Moje transakcje",
         "my_points": "Moje punkty",
         "my_rewards": "Moje nagrody",
@@ -519,7 +538,7 @@
         "total_points": "Suma zgromadzonych punktów"
       },
       "table": {
-        "date_and_time": "Data",
+        "date_and_time": "Data i godzina",
         "transaction_number": "Numer transakcji",
         "value": "Wartość",
         "points_number": "Zdobyte punkty",
@@ -578,10 +597,10 @@
       "email": "Adres e-mail: ",
       "buy_date": "Data zakupu: ",
       "points_count": "Zdobyte punkty: ",
-      "assigned_level": "Twój aktualny poziom to",
+      "assigned_level": "Twój aktualny level to",
       "delete_confirmation_description": "Konto zostanie dezaktywowane i nie będzie możliwości aktywowania go ponownie",
-      "transactions_amount_to_next_level": "Do osiągnięcia kolejnego poziomu brakuje Ci ",
-      "next_level": "Kolejny poziom to",
+      "transactions_amount_to_next_level": "Do osiągnięcia kolejnego levelu brakuje Ci ",
+      "next_level": "Kolejny level to",
       "rewards_page": "Moje nagrody",
       "transactions_page": "Moje transakcje",
       "transaction": "Transakcja ",
@@ -1236,7 +1255,7 @@
     "description": "Opis",
     "description_prompt": "",
     "details": "Szczegóły reguły",
-    "edit": "Edytuj regułę zdobywania punktów",
+    "edit": "Edytuj regułę nagradzania",
     "edit_heading": "Edytuj regułę",
     "end_at": "Obowiązuje do",
     "end_at_prompt": "",
@@ -1248,6 +1267,7 @@
     "included_labels": "Zawiera etykiety:",
     "excluded_skus": "Z wyłączeniem SKU:",
     "excluded_skus_prompt": "",
+    "exluded_labels": "Z wyłączeniem etykiet:",
     "labels_inclusion_type": "Etykiety",
     "labels_inclusion_type_none": "brak",
     "labels_inclusion_type_exclude": "z wyłączeniem",
@@ -1474,7 +1494,7 @@
     "campaigns": "Nagrody",
     "customers": "Klienci",
     "dashboard": "Dashboard",
-    "earning_rules": "Zasady przyznawania punktów",
+    "earning_rules": "Reguły nagradzania",
     "guide": "Poradnik",
     "home": "Panel główny",
     "levels": "Poziomy",
@@ -1670,7 +1690,7 @@
     "active_prompt": "",
     "add": "Dodaj sprzedawcę",
     "add_heading": "Dodaj sprzedawcę",
-    "allow_point_transfer": "Zezwól sprzedawcy dodawać nowy transfer punktów",
+    "allow_point_transfer": "Zezwól sprzedawcy dodawać nowy transfer punktów",
     "change_passowrd": "Zmień hasło",
     "customer_search": {
       "city": "Miasto",
@@ -1698,18 +1718,18 @@
       "match_transaction_and_customer": "Dopasuj transakcję i klienta",
       "register_customer": "Zarejestruj klienta",
       "title": {
-        "campaign_list": "lista kampanii",
+        "campaign_list": "Katalog nagród",
         "customer_campaigns": "kampanie klienta",
         "customer_edit": "Edytuj klienta",
-        "customer_registration": "rejestracja klienta",
+        "customer_registration": "Rejestracja klienta",
         "customer_registration_activation": "rejestracja klienta",
         "customer_rewards": "nagrody klienta",
         "customer_transactions": "transakcje klienta",
         "customer_transfers": "transfery klienta",
-        "earning_rules": "reguły zarabiania",
-        "find_customer": "znajdź klienta",
-        "find_transaction": "znajdź transakcję",
-        "transactions": "transakcje"
+        "earning_rules": "Reguły nagradzania",
+        "find_customer": "Znajdź klienta",
+        "find_transaction": "Znajdź transakcję",
+        "transactions": "Transakcje"
       }
     },
     "delete_confirmation": "Czy chcesz usunąć konto sprzedawcy?",
@@ -1753,7 +1773,9 @@
   },
   "settings": {
     "accent_color": "Zdefiniuj kolor",
+    "conditions_file": "Warunki i Zasady Użytkowania",
     "accent_color_prompt": "Kolor w HEX (#000000)",
+    "account_activation": "Aktywacja konta",
     "account_activation_method": "Metoda aktywacji konta",
     "account_activation_method_prompt": "",
     "add_identification_priority": "",
@@ -2032,10 +2054,10 @@
     },
     "get_campaign": {
       "error": "Wystąpił błąd",
-      "no_id": "Nie odnaleziono ID kampanii nagród"
+      "no_id": "Nie odnaleziono nagród"
     },
     "get_campaigns": {
-      "error": "Nie można uzyskać kampanii nagród"
+      "error": "Nie można uzyskać listy nagród"
     },
     "get_customer": {
       "cant_edit": "Nie masz praw do edycji tego klienta",
@@ -2047,11 +2069,11 @@
     },
     "get_customers_for_campaign": {
       "error": "Wystapił błąd",
-      "no_id": "Kampania nie została odnaleziona"
+      "no_id": "Nagroda nie została odnaleziona"
     },
     "get_earning_rule": {
       "error": "Wystąpił błąd",
-      "no_id": "ID reguły zdobywania punktów nie odnaleziono"
+      "no_id": "ID reguły nagradzania nie odnaleziono"
     },
     "get_earning_rules": {
       "error": "Nie można uzyskać listy reguł zdobywania punktów"
@@ -2060,7 +2082,7 @@
       "error": "Nie można uzyskać przypisanego poziomu"
     },
     "get_levels": {
-      "error": "Nie można uzyskać dostępnych poziomów"
+      "error": "Nie można uzyskać listy dostępnych poziomów"
     },
     "get_levels_list": {
       "error": "Nie można uzyskać listy poziomów"
@@ -2084,7 +2106,7 @@
     },
     "get_seller": {
       "error": "Wystąpił błąd",
-      "no_id": "ID sprzedawcy nie znaleziono"
+      "no_id": "Nie znaleziono ID sprzedawcy"
     },
     "get_sellers": {
       "error": "Nie można uzyskać listy sprzedawców"
@@ -2094,7 +2116,7 @@
     },
     "get_single_level": {
       "error": "Błąd serwera",
-      "no_id": "ID poziomu nie znaleziono"
+      "no_id": "Nie znaleziono ID poziomu"
     },
     "get_transations": {
       "error": "Nie można uzyskać listy transakcji"
@@ -2111,13 +2133,13 @@
     },
     "get_ustomers_for_campaign": {
       "error": "Wystąpił błąd",
-      "no_id": "Nie odnaleziono ID kampanii nagród"
+      "no_id": "Nie odnaleziono ID nagrody"
     },
     "import": {
       "error": "Import nie został zrealizowany",
       "no_data": "Brak pozycji do importu",
-      "success": "Import został ukończony (Processed {{ processed }})",
-      "warning": "Import został ukończony, pojawiły się błędy: (Processed {{ processed }}, ukończono z sukcesem{{ success }}, błędy pojawiły się {{ failed }})"
+      "success": "Import został ukończony (Przetworzonych {{ processed }})",
+      "warning": "Import został ukończony, pojawiły się błędy: (Przetworzonych {{ processed }}, ukończono z sukcesem{{ success }}, błędy pojawiły się {{ failed }})"
     },
     "post_activate_campaign": {
       "success": "Zmieniono status nagrody"
@@ -2148,8 +2170,8 @@
     },
     "post_campaign": {
       "error": "Błąd serwera",
-      "success": "Dodano kampanię nagród",
-      "warning": "Dodano kampanię bez zdjęcia"
+      "success": "Dodano nagrodę",
+      "warning": "Dodano nagrodę bez zdjęcia"
     },
     "post_campaign_buy_manually_assign": {
       "error": "Błąd podczas kupowania kampanii dla klienta",
@@ -2183,7 +2205,7 @@
     "post_earning_rule": {
       "error": "Wystąpił błąd",
       "success": "Dodano regułę zdobywania punktów",
-      "warning": "Dodano regułę zdobywania bez zdjęcia"
+      "warning": "Dodano regułę zdobywania punktów bez zdjęcia"
     },
     "post_level": {
       "error": "Wystąpił błąd",
@@ -2234,15 +2256,15 @@
     },
     "post_single_level": {
       "error": "Wystąpił błąd",
-      "success": "Poziom został wyedytowany.",
-      "warning": "Level added without photo"
+      "success": "Poziom został edytowany.",
+      "warning": "Poziom został dodany bez zdjęcia"
     },
     "post_spend_transfer": {
       "error": "Błąd serwera",
       "success": "Punkty zostały wydane"
     },
     "post_transaction_assign": {
-      "error": "Wystąpił błąd podczas. Sprawdź szczegóły formularza",
+      "error": "Wystąpił błąd. Sprawdź szczegóły formularza",
       "success": "Transakcja została przypisana do konta Klienta"
     },
     "post_transaction_labels": {
@@ -2267,7 +2289,7 @@
     },
     "put_customer": {
       "error": "Wystąpił błąd",
-      "success": "Klient został wyedytowany"
+      "success": "Klient został edytowany"
     },
     "put_earning_rule": {
       "error": "Wystąpił błąd",
@@ -2276,15 +2298,15 @@
     },
     "put_pos": {
       "error": "Wystąpił błąd",
-      "success": "Sprzedawca został wyedytowany"
+      "success": "Sprzedawca został edytowany"
     },
     "put_segment": {
       "error": "Wystąpił błąd",
-      "success": "Segment został wyedytowany"
+      "success": "Segment został edytowany"
     },
     "put_seller": {
       "error": "Wystąpił błąd",
-      "success": "Sprzedawca został wyedytowany."
+      "success": "Sprzedawca został edytowany."
     },
     "put_settings": {
       "error": "Błąd serwera",
@@ -2292,7 +2314,7 @@
     },
     "put_single_level": {
       "error": "Wystąpił błąd",
-      "success": "Poziom został wyedytowany",
+      "success": "Poziom został edytowany",
       "warning": "Poziom edytowany bez zdjęcia"
     },
     "put_translations": {
@@ -2301,7 +2323,7 @@
     },
     "put_user": {
       "error": "Wystąpił błąd",
-      "success": "Użytkownik wyedytowany"
+      "success": "Użytkownik edytowany"
     },
     "upload_settings_conditions_file": {
       "error": "Regulamin nie został zapisany",

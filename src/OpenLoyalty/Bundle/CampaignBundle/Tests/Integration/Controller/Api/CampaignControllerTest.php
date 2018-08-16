@@ -286,9 +286,9 @@ class CampaignControllerTest extends BaseApiTest
             [['labels' => [['key' => 'key0'], ['value' => 'value0']]], 1],
             [['labels' => [['key' => 'type']]], 4],
             [['labels' => [['key' => 'test']]], 0],
-            [['active' => 1], 9],
-            [['active' => 0], 7],
-            [['campaignType' => 'discount_code'], 6],
+            [['active' => 1], 10],
+            [['active' => 0], 8],
+            [['campaignType' => 'discount_code'], 7],
         ];
     }
 

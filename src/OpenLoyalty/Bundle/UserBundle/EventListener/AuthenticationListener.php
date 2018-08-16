@@ -17,7 +17,10 @@ use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerLoggedInSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Role\RoleInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class AuthenticationListener.
@@ -35,17 +38,27 @@ class AuthenticationListener
     protected $dispatcher;
 
     /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
      * AuthenticationListener constructor.
      *
-     * @param UserManager     $userManager
-     * @param EventDispatcher $dispatcher
+     * @param UserManager         $userManager
+     * @param EventDispatcher     $dispatcher
+     * @param TranslatorInterface $translator
      */
-    public function __construct(UserManager $userManager, EventDispatcher $dispatcher)
+    public function __construct(UserManager $userManager, EventDispatcher $dispatcher, TranslatorInterface $translator)
     {
         $this->userManager = $userManager;
         $this->dispatcher = $dispatcher;
+        $this->translator = $translator;
     }
 
+    /**
+     * @param JWTCreatedEvent $event
+     */
     public function onJWTCreated(JWTCreatedEvent $event)
     {
         $user = $event->getUser();
@@ -64,6 +77,9 @@ class AuthenticationListener
         $event->setData($payload);
     }
 
+    /**
+     * @param AuthenticationSuccessEvent $event
+     */
     public function onAuthenticationSuccessResponse(AuthenticationSuccessEvent $event)
     {
         $user = $event->getUser();
@@ -85,14 +101,29 @@ class AuthenticationListener
         $event->setData($data);
     }
 
+    /**
+     * @param AuthenticationFailureEvent $event
+     */
     public function onAuthenticationFailureResponse(AuthenticationFailureEvent $event)
     {
         $exception = $event->getException();
         $previous = $exception->getPrevious();
+
+        if ($exception instanceof BadCredentialsException) {
+            $event->setResponse(
+                new JsonResponse(
+                    [
+                        'message' => $this->translator->trans($exception->getMessage()),
+                    ],
+                    Response::HTTP_UNAUTHORIZED
+                )
+            );
+        }
+
         if ($previous instanceof SellerIsNotActiveException) {
             $event->setResponse(new JsonResponse([
                 'message' => $exception->getMessage(),
-            ], 400));
+            ], Response::HTTP_BAD_REQUEST));
         }
     }
 }

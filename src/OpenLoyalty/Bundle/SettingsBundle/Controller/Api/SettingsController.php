@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class SettingsController.
@@ -568,16 +569,17 @@ class SettingsController extends FOSRestController
      *     section="Settings"
      * )
      *
-     * @param $key
+     * @param string              $key
+     * @param TranslatorInterface $translator
      *
      * @return View
      */
-    public function getTranslationByKeyAction($key)
+    public function getTranslationByKeyAction($key, TranslatorInterface $translator)
     {
         try {
             $translationsEntry = $this->get('ol.settings.translations')->getTranslationsByKey($key);
         } catch (\Exception $e) {
-            throw $this->createNotFoundException($e->getMessage(), $e);
+            throw $this->createNotFoundException($translator->trans($e->getMessage()), $e);
         }
 
         return $this->view($translationsEntry, 200);

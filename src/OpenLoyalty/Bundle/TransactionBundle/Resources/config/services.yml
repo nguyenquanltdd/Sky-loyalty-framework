@@ -1,4 +1,8 @@
 services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
 
   OpenLoyalty\Bundle\TransactionBundle\Controller\:
       resource: '../../Controller'
@@ -74,11 +78,11 @@ services:
   oloy.transaction.serialization_listener.transaction:
     class: OpenLoyalty\Bundle\TransactionBundle\Event\Listener\TransactionSerializationListener
     arguments: ['@oloy.points.account.repository.points_transfer_details', '@ol.settings.manager', '@oloy.pos.repository']
+    public: true
     tags:
         - { name: jms_serializer.event_subscriber }
 
-  oloy.transaction.form_handler.manually_assign_customer_to_transaction:
-    class: OpenLoyalty\Bundle\TransactionBundle\Form\Handler\ManuallyAssignCustomerToTransactionFormHandler
+  OpenLoyalty\Bundle\TransactionBundle\Form\Handler\ManuallyAssignCustomerToTransactionFormHandler:
     arguments:
       - '@oloy.transaction.read_model.repository.transaction_details'
       - '@oloy.user.read_model.repository.customer_details'
@@ -86,15 +90,13 @@ services:
       - '@broadway.event_dispatcher'
       - '@security.authorization_checker'
 
-  oloy.transaction.form_handler.append_labels_to_transaction:
-    class: OpenLoyalty\Bundle\TransactionBundle\Form\Handler\AppendLabelsToTransactionFormHandler
+  OpenLoyalty\Bundle\TransactionBundle\Form\Handler\AppendLabelsToTransactionFormHandler:
     arguments:
       - '@oloy.transaction.read_model.repository.transaction_details'
       - '@broadway.command_handling.command_bus'
       - '@security.authorization_checker'
 
-  oloy.transaction.form_handler.edit_transaction_labels:
-    class: OpenLoyalty\Bundle\TransactionBundle\Form\Handler\EditTransactionLabelsFormHandler
+  OpenLoyalty\Bundle\TransactionBundle\Form\Handler\EditTransactionLabelsFormHandler:
     arguments:
       - '@oloy.transaction.read_model.repository.transaction_details'
       - '@broadway.command_handling.command_bus'

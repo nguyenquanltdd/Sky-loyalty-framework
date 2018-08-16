@@ -52,9 +52,21 @@ class AssignCustomer
         }
 
         if ($set == 0) {
-            $context->buildViolation('Fill at least one customer field')->atPath('customerId')->addViolation();
-            $context->buildViolation('Fill at least one customer field')->atPath('customerLoyaltyCardNumber')->addViolation();
-            $context->buildViolation('Fill at least one customer field')->atPath('customerPhoneNumber')->addViolation();
+            $context
+                ->buildViolation('Fill at least one customer field')
+                ->atPath('customerId')
+                ->setTranslationDomain('messages')
+                ->addViolation();
+            $context
+                ->buildViolation('Fill at least one customer field')
+                ->atPath('customerLoyaltyCardNumber')
+                ->setTranslationDomain('messages')
+                ->addViolation();
+            $context
+                ->buildViolation('Fill at least one customer field')
+                ->atPath('customerPhoneNumber')
+                ->setTranslationDomain('messages')
+                ->addViolation();
         }
     }
 

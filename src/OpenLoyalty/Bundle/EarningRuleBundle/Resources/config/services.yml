@@ -1,6 +1,12 @@
 services:
   _defaults:
-      autowire: true
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  OpenLoyalty\Bundle\EarningRuleBundle\Controller\Api\:
+          resource: '../../Controller/Api'
+          tags: ['controller.service_arguments']
 
   oloy.earning_rule.param_converter:
     class: OpenLoyalty\Bundle\EarningRuleBundle\ParamConverter\EarningRuleParamConverter
@@ -33,7 +39,8 @@ services:
       - "@translator"
     tags:
       - { name: form.type }
-  oloy.earning_rule.listener:
+  OpenLoyalty\Bundle\EarningRuleBundle\Event\Listener\EarningRuleSerializationListener:
+    public: true
     class: OpenLoyalty\Bundle\EarningRuleBundle\Event\Listener\EarningRuleSerializationListener
     arguments: ['@router', '@oloy.segment.repository', '@oloy.level.repository', '@oloy.pos.repository']
     tags:

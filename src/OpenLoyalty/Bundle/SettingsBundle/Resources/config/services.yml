@@ -41,8 +41,12 @@ services:
     OpenLoyalty\Bundle\SettingsBundle\Service\LogoUploader:
         arguments: ['@oloy.settings.photos_filesystem']
 
-    OpenLoyalty\Bundle\SettingsBundle\Service\TemplateProvider:
-        arguments: ['@ol.settings.manager']
+    OpenLoyalty\Bundle\SettingsBundle\Service\LocaleProvider:
+        scope: prototype
+        arguments:
+            $defaultLocale: '%locale%'
+            $localeMap: '%oloy.locale.mapping%'
+
 
     ol.settings.frontend_translations_filesystem:
         class:     Gaufrette\Filesystem
@@ -73,3 +77,5 @@ services:
     OpenLoyalty\Bundle\SettingsBundle\Event\Listener\LogoResizedListener:
       tags:
         - { name: broadway.event_listener, method: onChange, event: !php/const:OpenLoyalty\Component\Core\Domain\SystemEvent\LogoSystemEvents::RESIZED_LOGO_EVENT }
+
+    OpenLoyalty\Bundle\SettingsBundle\EventSubscriber\RequestListener: ~

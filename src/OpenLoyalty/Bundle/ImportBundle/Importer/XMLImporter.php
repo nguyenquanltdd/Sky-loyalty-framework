@@ -14,12 +14,18 @@ use OpenLoyalty\Component\Import\Infrastructure\ImportResultItem;
 use OpenLoyalty\Component\Import\Infrastructure\ProcessImportResult;
 use OpenLoyalty\Component\Import\Infrastructure\XMLFileStreamer;
 use OpenLoyalty\Component\Import\Infrastructure\XMLImportConverter;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class XMLImporter.
  */
 class XMLImporter implements FileImporter
 {
+    /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
     /** @var ImporterProcessor */
     protected $processor;
 
@@ -28,6 +34,16 @@ class XMLImporter implements FileImporter
 
     /** @var XMLFileStreamer */
     protected $xmlStreamer;
+
+    /**
+     * XMLImporter constructor.
+     *
+     * @param TranslatorInterface $translator
+     */
+    public function __construct(TranslatorInterface $translator)
+    {
+        $this->translator = $translator;
+    }
 
     /**
      * @return XMLFileStreamer
@@ -109,7 +125,7 @@ class XMLImporter implements FileImporter
                 $results[] = ImportResultItem::error(
                     $node,
                     $identifier ?? '',
-                    sprintf('Convert exception: %s', $ex->getMessage()),
+                    $this->translator->trans(sprintf('Convert exception: %s', $ex->getMessage())),
                     $ex
                 );
                 continue;
@@ -117,7 +133,7 @@ class XMLImporter implements FileImporter
                 $results[] = ImportResultItem::error(
                     $entity,
                     $identifier ?? '',
-                    sprintf('Process exception: %s', $ex->getMessage()),
+                    $this->translator->trans(sprintf('Process exception: %s', $ex->getMessage())),
                     $ex
                 );
                 continue;
@@ -139,7 +155,7 @@ class XMLImporter implements FileImporter
         try {
             return $this->processor->processItem($entity);
         } catch (\Exception $ex) {
-            throw new ImportProcessException($ex->getMessage(), $ex->getCode(), $ex);
+            throw new ImportProcessException($this->translator->trans($ex->getMessage()), $ex->getCode(), $ex);
         }
     }
 
@@ -155,7 +171,7 @@ class XMLImporter implements FileImporter
         try {
             return $this->converter->convert($xmlNode);
         } catch (\Exception $ex) {
-            throw new ImportConvertException($ex->getMessage(), $ex->getCode(), $ex);
+            throw new ImportConvertException($this->translator->trans($ex->getMessage()), $ex->getCode(), $ex);
         }
     }
 

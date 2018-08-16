@@ -20,6 +20,7 @@ use OpenLoyalty\Component\Customer\Domain\Exception\PhoneAlreadyExistsException;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class CustomerEditFormHandler.
@@ -46,6 +47,11 @@ class CustomerEditFormHandler
     protected $customerUniqueValidator;
 
     /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
      * CustomerEditFormHandler constructor.
      *
      * @param CommandBus              $commandBus
@@ -57,12 +63,14 @@ class CustomerEditFormHandler
         CommandBus $commandBus,
         UserManager $userManager,
         EntityManager $em,
-        CustomerUniqueValidator $customerUniqueValidator
+        CustomerUniqueValidator $customerUniqueValidator,
+        TranslatorInterface $translator
     ) {
         $this->commandBus = $commandBus;
         $this->userManager = $userManager;
         $this->em = $em;
         $this->customerUniqueValidator = $customerUniqueValidator;
+        $this->translator = $translator;
     }
 
     public function onSuccess(CustomerId $customerId, FormInterface $form)
@@ -73,12 +81,12 @@ class CustomerEditFormHandler
 
             $emailExists = false;
             if ($this->isUserExistAndIsDifferentThanEdited($customerId->__toString(), $email)) {
-                $emailExists = 'This email is already taken';
+                $emailExists = $this->translator->trans('This email is already taken');
             }
             try {
                 $this->customerUniqueValidator->validateEmailUnique($email, $customerId);
             } catch (EmailAlreadyExistsException $e) {
-                $emailExists = $e->getMessage();
+                $emailExists = $this->translator->trans($e->getMessage());
             }
             if ($emailExists) {
                 $form->get('email')->addError(new FormError($emailExists));
@@ -88,7 +96,7 @@ class CustomerEditFormHandler
             try {
                 $this->customerUniqueValidator->validatePhoneUnique($customerData['phone'], $customerId);
             } catch (PhoneAlreadyExistsException $e) {
-                $form->get('phone')->addError(new FormError($e->getMessage()));
+                $form->get('phone')->addError(new FormError($this->translator->trans($e->getMessage())));
             }
         }
         if (isset($customerData['loyaltyCardNumber'])) {
@@ -98,7 +106,7 @@ class CustomerEditFormHandler
                     $customerId
                 );
             } catch (LoyaltyCardNumberAlreadyExistsException $e) {
-                $form->get('loyaltyCardNumber')->addError(new FormError($e->getMessage()));
+                $form->get('loyaltyCardNumber')->addError(new FormError($this->translator->trans($e->getMessage())));
             }
         }
 

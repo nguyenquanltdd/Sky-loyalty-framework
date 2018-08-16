@@ -143,7 +143,7 @@ class LoadCampaignData extends ContainerAwareFixture
     protected function loadRandomActiveCampaigns()
     {
         $commandBus = $this->container->get('broadway.command_handling.command_bus');
-        for ($i = 0; $i < 10; ++$i) {
+        for ($i = 0; $i < 12; ++$i) {
             $randomId = Uuid::uuid();
             $campaign = new Campaign();
             $campaign->setActive($i % 2 == 0);

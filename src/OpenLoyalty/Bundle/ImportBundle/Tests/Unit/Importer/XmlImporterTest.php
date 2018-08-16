@@ -9,6 +9,7 @@ use OpenLoyalty\Component\Import\Infrastructure\ProcessImportResult;
 use OpenLoyalty\Component\Import\Infrastructure\XMLFileStreamer;
 use OpenLoyalty\Component\Import\Infrastructure\XMLImportConverter;
 use Prewk\XmlStringStreamer;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class XmlImporterTest.
@@ -23,7 +24,8 @@ class XmlImporterTest extends \PHPUnit_Framework_TestCase
      */
     protected function prepareXmlImporter(int $correctNodes, ...$nodes)
     {
-        $xmlImporter = new XMLImporter();
+        $translatorMock = $this->getMockForAbstractClass(TranslatorInterface::class);
+        $xmlImporter = new XMLImporter($translatorMock);
 
         $someStreamer = $this->getMockBuilder(XmlStringStreamer::class)
             ->disableOriginalConstructor()

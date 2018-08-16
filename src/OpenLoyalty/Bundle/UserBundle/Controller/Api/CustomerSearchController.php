@@ -15,6 +15,7 @@ use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -38,11 +39,12 @@ class CustomerSearchController extends FOSRestController
      *     }
      * )
      *
-     * @param Request $request
+     * @param Request             $request
+     * @param TranslatorInterface $translator
      *
      * @return \FOS\RestBundle\View\View
      */
-    public function findAction(Request $request)
+    public function findAction(Request $request, TranslatorInterface $translator)
     {
         $form = $this->get('form.factory')->createNamed('search', CustomerSearchFormType::class);
 

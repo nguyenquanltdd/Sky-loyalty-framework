@@ -20,7 +20,8 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('open_loyalty_settings');
-        $rootNode->children()
+        $rootNode
+            ->children()
             ->arrayNode('mapping')
                 ->useAttributeAsKey('image')
                 ->prototype('array')
@@ -40,6 +41,16 @@ class Configuration implements ConfigurationInterface
                             ->scalarNode('width')->end()
                             ->scalarNode('height')->end()
                         ->end()
+                ->end()
+            ->end();
+
+        $rootNode->children()
+                ->arrayNode('locales_map')
+                ->useAttributeAsKey('translation')
+                ->arrayPrototype()
+                ->children()
+                ->scalarNode('translation')->end()
+                ->scalarNode('locale')->end()
                 ->end()
             ->end();
 

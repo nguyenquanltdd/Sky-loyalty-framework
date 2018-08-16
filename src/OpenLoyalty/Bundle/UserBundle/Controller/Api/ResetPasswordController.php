@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class ResetPasswordController.
@@ -26,10 +27,6 @@ class ResetPasswordController extends FOSRestController
     /**
      * Purpose of this method is to provide "Forgot password" functionality.<br/>Invoking this method will send message to the user with password reset url.
      *
-     * @param Request $request
-     * @param bool    $customer
-     *
-     * @return View
      * @Route(name="oloy.user.reset.request", path="/password/reset/request")
      * @Route(name="oloy.user.reset.request_customer", path="/customer/password/reset/request", defaults={"customer":1})
      * @Method("POST")
@@ -42,8 +39,14 @@ class ResetPasswordController extends FOSRestController
      *       400="Returned when username parameter is not present or resetting password already requested",
      *     }
      * )
+     *
+     * @param Request             $request
+     * @param bool                $customer
+     * @param TranslatorInterface $translator
+     *
+     * @return View
      */
-    public function resetRequestAction(Request $request, $customer = false)
+    public function resetRequestAction(Request $request, $customer = false, TranslatorInterface $translator)
     {
         $username = $request->request->get('username');
         if (!$username) {
@@ -59,7 +62,7 @@ class ResetPasswordController extends FOSRestController
         try {
             $user = $provider->loadUserByUsername($username);
         } catch (UsernameNotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage());
+            throw new NotFoundHttpException($translator->trans($e->getMessage()));
         }
 
         if (null === $user) {
@@ -67,7 +70,7 @@ class ResetPasswordController extends FOSRestController
         }
 
         if ($user->isPasswordRequestNonExpired(86400)) {
-            return $this->view(['error' => 'resetting password already requested'], Response::HTTP_BAD_REQUEST);
+            return $this->view(['error' => $translator->trans('resetting password already requested')], Response::HTTP_BAD_REQUEST);
         }
         if (null === $user->getConfirmationToken()) {
             $tokenGenerator = $this->get('oloy.user.token_generator');

@@ -12,6 +12,7 @@ use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class ActivationMethodProvider.
@@ -29,6 +30,11 @@ class ActionTokenManager
      * @var array
      */
     private $availableMethods;
+
+    /**
+     * @var TranslatorInterface
+     */
+    private $translator;
 
     /**
      * @var AuthorizationCheckerInterface
@@ -59,13 +65,15 @@ class ActionTokenManager
         AuthorizationCheckerInterface $ac,
         ActivationCodeManager $activationCodeManager,
         AdapterInterface $cache,
-        array $availableMethods
+        array $availableMethods,
+        TranslatorInterface $translator
     ) {
         $this->settingsManager = $settingsManager;
         $this->ac = $ac;
         $this->activationCodeManager = $activationCodeManager;
         $this->cache = $cache;
         $this->availableMethods = $availableMethods;
+        $this->translator = $translator;
     }
 
     /**
@@ -85,7 +93,7 @@ class ActionTokenManager
         $accountActivationMethod = $this->settingsManager->getSettingByKey('accountActivationMethod');
         if (!$accountActivationMethod || !$accountActivationMethod->getValue()) {
             throw new \InvalidArgumentException(
-                'Setting "accountActivationMethod" is not set'
+                $this->translator->trans('Setting "accountActivationMethod" is not set')
             );
         }
 

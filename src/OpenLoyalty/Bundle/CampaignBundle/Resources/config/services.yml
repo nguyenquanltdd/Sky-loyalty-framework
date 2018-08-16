@@ -55,9 +55,7 @@ services:
       - '@OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider'
       - '@OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator'
       - '@oloy.campaign.repository'
-  oloy.campaign.serialization_listener:
-    class: OpenLoyalty\Bundle\CampaignBundle\Event\Listener\CampaignSerializationListener
-    autowire: true
+  OpenLoyalty\Bundle\CampaignBundle\Event\Listener\CampaignSerializationListener:
     arguments:
       - '@OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator'
       - '@oloy.segment.repository'

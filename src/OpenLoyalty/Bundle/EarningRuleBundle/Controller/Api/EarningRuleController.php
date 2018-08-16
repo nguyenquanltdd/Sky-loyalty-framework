@@ -37,6 +37,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRule as BundleEarningRule;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class EarningRuleController.
@@ -63,7 +64,7 @@ class EarningRuleController extends FOSRestController
      *
      * @return \FOS\RestBundle\View\View
      */
-    public function createAction(Request $request)
+    public function createAction(Request $request, TranslatorInterface $translator)
     {
         $form = $this->get('form.factory')->createNamed('earningRule', CreateEarningRuleFormType::class);
         $uuidGenerator = $this->get('broadway.uuid.generator');
@@ -83,7 +84,7 @@ class EarningRuleController extends FOSRestController
                     new CreateEarningRule($id, $data->getType(), $data->toArray())
                 );
             } catch (CustomEventEarningRuleAlreadyExistsException $e) {
-                $form->get('eventName')->addError(new FormError($e->getMessage()));
+                $form->get('eventName')->addError(new FormError($translator->trans($e->getMessage())));
 
                 return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
             }
@@ -116,7 +117,7 @@ class EarningRuleController extends FOSRestController
      *
      * @return \FOS\RestBundle\View\View
      */
-    public function editAction(Request $request, EarningRule $earningRule)
+    public function editAction(Request $request, EarningRule $earningRule, TranslatorInterface $translator)
     {
         $model = BundleEarningRule::createFromDomain($earningRule);
 
@@ -145,7 +146,7 @@ class EarningRuleController extends FOSRestController
                     new UpdateEarningRule($earningRule->getEarningRuleId(), $data->toArray())
                 );
             } catch (CustomEventEarningRuleAlreadyExistsException $e) {
-                $form->get('eventName')->addError(new FormError($e->getMessage()));
+                $form->get('eventName')->addError(new FormError($translator->trans($e->getMessage())));
 
                 return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
             }
@@ -306,7 +307,7 @@ class EarningRuleController extends FOSRestController
      *
      * @return \FOS\RestBundle\View\View
      */
-    public function reportCustomEventAction($eventName, CustomerDetails $customer)
+    public function reportCustomEventAction($eventName, CustomerDetails $customer, TranslatorInterface $translator)
     {
         $event = new CustomEventOccurredSystemEvent(
             new CustomerId($customer->getCustomerId()->__toString()),
@@ -319,11 +320,11 @@ class EarningRuleController extends FOSRestController
                 [$event]
             );
         } catch (EarningRuleLimitExceededException $e) {
-            return $this->view(['error' => 'limit exceeded'], Response::HTTP_BAD_REQUEST);
+            return $this->view(['error' => $translator->trans('limit exceeded')], Response::HTTP_BAD_REQUEST);
         }
 
         if ($event->getEvaluationResult() === null) {
-            return $this->view(['error' => 'event does not exist'], Response::HTTP_BAD_REQUEST);
+            return $this->view(['error' => $translator->trans('event does not exist')], Response::HTTP_BAD_REQUEST);
         }
 
         $this->get('broadway.command_handling.command_bus')
@@ -347,12 +348,14 @@ class EarningRuleController extends FOSRestController
      *     input={"class" = "OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\EarningRulePhotoFormType", "name" = "photo"}
      * )
      *
-     * @param Request     $request
-     * @param EarningRule $earningRule
+     * @param Request                  $request
+     * @param EarningRule              $earningRule
+     * @param TranslatorInterface      $translator
+     * @param EarningRulePhotoUploader $uploader
      *
      * @return View
      */
-    public function addPhotoAction(Request $request, EarningRule $earningRule)
+    public function addPhotoAction(Request $request, EarningRule $earningRule, TranslatorInterface $translator, EarningRulePhotoUploader $uploader)
     {
         /** @var EarningRulePhotoFormType $form */
         $form = $this->get('form.factory')->createNamed('photo', EarningRulePhotoFormType::class);
@@ -361,9 +364,7 @@ class EarningRuleController extends FOSRestController
         if ($form->isValid()) {
             /** @var UploadedFile $file */
             $file = $form->getData()->getFile();
-            /** @var EarningRulePhotoUploader $uploader */
-            $uploader = $this->get('oloy.earning_rule.photo_uploader');
-
+            /* @var EarningRulePhotoUploader $uploader */
             try {
                 $uploader->remove($earningRule->getEarningRulePhoto());
                 $photo = $uploader->upload($file);
@@ -372,7 +373,7 @@ class EarningRuleController extends FOSRestController
 
                 return $this->view([], Response::HTTP_OK);
             } catch (\Exception $ex) {
-                return $this->view($ex->getMessage(), Response::HTTP_BAD_REQUEST);
+                return $this->view($translator->trans($ex->getMessage()), Response::HTTP_BAD_REQUEST);
             }
         }
 
@@ -394,7 +395,7 @@ class EarningRuleController extends FOSRestController
      *
      * @return View
      */
-    public function removePhotoAction(EarningRule $earningRule)
+    public function removePhotoAction(EarningRule $earningRule, TranslatorInterface $translator)
     {
         $uploader = $this->get('oloy.earning_rule.photo_uploader');
         $uploader->remove($earningRule->getEarningRulePhoto());
@@ -403,7 +404,7 @@ class EarningRuleController extends FOSRestController
         try {
             $this->get('broadway.command_handling.command_bus')->dispatch($command);
         } catch (\Exception $ex) {
-            return $this->view($ex->getMessage(), Response::HTTP_BAD_REQUEST);
+            return $this->view($translator->trans($ex->getMessage()), Response::HTTP_BAD_REQUEST);
         }
 
         return $this->view([], Response::HTTP_OK);

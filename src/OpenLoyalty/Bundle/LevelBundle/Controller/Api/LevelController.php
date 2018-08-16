@@ -27,6 +27,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class LevelController.
@@ -301,12 +302,13 @@ class LevelController extends FOSRestController
      *     input={"class" = "OpenLoyalty\Bundle\LevelBundle\Form\Type\LevelPhotoFormType", "name" = "photo"}
      * )
      *
-     * @param Request $request
-     * @param Level   $level
+     * @param Request             $request
+     * @param Level               $level
+     * @param TranslatorInterface $translator
      *
      * @return View
      */
-    public function addPhotoAction(Request $request, Level $level)
+    public function addPhotoAction(Request $request, Level $level, TranslatorInterface $translator)
     {
         $form = $this->get('form.factory')->createNamed('photo', LevelPhotoFormType::class);
         $form->handleRequest($request);
@@ -323,7 +325,7 @@ class LevelController extends FOSRestController
 
                 return $this->view([], Response::HTTP_OK);
             } catch (\Exception $ex) {
-                return $this->view(['error' => $ex->getMessage()], Response::HTTP_BAD_REQUEST);
+                return $this->view(['error' => $translator->trans($ex->getMessage())], Response::HTTP_BAD_REQUEST);
             }
         }
 
@@ -373,11 +375,12 @@ class LevelController extends FOSRestController
      *     section="Level"
      * )
      *
-     * @param Level $level
+     * @param Level               $level
+     * @param TranslatorInterface $translator
      *
      * @return View
      */
-    public function removePhotoAction(Level $level)
+    public function removePhotoAction(Level $level, TranslatorInterface $translator)
     {
         $uploader = $this->get('oloy.level.photo_uploader');
         $uploader->remove($level->getPhoto());
@@ -389,7 +392,7 @@ class LevelController extends FOSRestController
 
             return $this->view([], Response::HTTP_OK);
         } catch (\Exception $ex) {
-            return $this->view(['error' => $ex->getMessage()], Response::HTTP_BAD_REQUEST);
+            return $this->view(['error' => $translator->trans($ex->getMessage())], Response::HTTP_BAD_REQUEST);
         }
     }
 

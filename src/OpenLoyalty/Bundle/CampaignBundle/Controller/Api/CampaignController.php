@@ -507,7 +507,7 @@ class CampaignController extends FOSRestController
      *
      * @return Response|FosView
      */
-    public function exportBoughtAction(ParamFetcher $paramFetcher)
+    public function exportBoughtAction(ParamFetcher $paramFetcher, TranslatorInterface $translator)
     {
         $params = $this->get('oloy.user.param_manager')->stripNulls($paramFetcher->all());
         $generator = $this->get(CSVGenerator::class);
@@ -538,7 +538,7 @@ class CampaignController extends FOSRestController
 
             return $response;
         } catch (\Exception $exception) {
-            return $this->view($exception->getMessage(), Response::HTTP_BAD_REQUEST);
+            return $this->view($translator->trans($exception->getMessage()), Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -813,9 +813,11 @@ class CampaignController extends FOSRestController
      * @param CustomerDetails $customer
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return FosView
+     * @param TranslatorInterface $translator
+     *
+     * @return \FOS\RestBundle\View\View
      */
-    public function buyCampaign(DomainCampaign $campaign, CustomerDetails $customer)
+    public function buyCampaign(DomainCampaign $campaign, CustomerDetails $customer, TranslatorInterface $translator)
     {
         if (!$this->campaignValidator->isCampaignActive($campaign) || !$this->campaignValidator->isCampaignVisible($campaign)) {
             throw $this->createNotFoundException();
@@ -824,19 +826,19 @@ class CampaignController extends FOSRestController
         try {
             $this->campaignValidator->validateCampaignLimits($campaign, new CustomerId($customer->getCustomerId()->__toString()));
         } catch (CampaignLimitException $e) {
-            return $this->view(['error' => $e->getMessage()], 400);
+            return $this->view(['error' => $translator->trans($e->getMessage())], 400);
         }
 
         try {
             $this->campaignValidator->checkIfCustomerStatusIsAllowed($customer->getStatus());
         } catch (NotAllowedException $e) {
-            return $this->view(['error' => $e->getMessage()], 400);
+            return $this->view(['error' => $translator->trans($e->getMessage())], 400);
         }
 
         try {
             $this->campaignValidator->checkIfCustomerHasEnoughPoints($campaign, new CustomerId($customer->getCustomerId()->__toString()));
         } catch (NotEnoughPointsException $e) {
-            return $this->view(['error' => $e->getMessage()], 400);
+            return $this->view(['error' => $translator->trans($e->getMessage())], 400);
         }
 
         $freeCoupons = $this->campaignProvider->getFreeCoupons($campaign);

@@ -38,6 +38,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -83,9 +84,11 @@ class CustomerCampaignsController extends FOSRestController
      * @param Request $request
      * @View(serializerGroups={"customer", "Default"})
      *
+     * @param TranslatorInterface $translator
+     *
      * @return \FOS\RestBundle\View\View
      */
-    public function availableCampaigns(Request $request)
+    public function availableCampaigns(Request $request, TranslatorInterface $translator)
     {
         $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
         $customer = $this->getLoggedCustomer();
@@ -109,7 +112,7 @@ class CustomerCampaignsController extends FOSRestController
                     $pagination->getSortDirection()
                 );
         } catch (QueryException $exception) {
-            return $this->view($exception->getMessage(), Response::HTTP_BAD_REQUEST);
+            return $this->view($translator->trans($exception->getMessage()), Response::HTTP_BAD_REQUEST);
         }
 
         $campaigns = array_filter($campaigns, function (Campaign $campaign) use ($customer) {
@@ -218,12 +221,13 @@ class CustomerCampaignsController extends FOSRestController
      *     }
      * )
      *
-     * @param Campaign $campaign
+     * @param TranslatorInterface $translator
+     * @param Campaign            $campaign
      * @View(serializerGroups={"customer", "Default"})
      *
      * @return \FOS\RestBundle\View\View
      */
-    public function buyCampaign(Campaign $campaign)
+    public function buyCampaign(Campaign $campaign, TranslatorInterface $translator)
     {
         $provider = $this->get(CampaignProvider::class);
         $campaignValidator = $this->get(CampaignValidator::class);
@@ -237,19 +241,19 @@ class CustomerCampaignsController extends FOSRestController
         try {
             $campaignValidator->validateCampaignLimits($campaign, new CustomerId($customer->getCustomerId()->__toString()));
         } catch (CampaignLimitException $e) {
-            return $this->view(['error' => $e->getMessage()], 400);
+            return $this->view(['error' => $translator->trans($e->getMessage())], 400);
         }
 
         try {
             $campaignValidator->checkIfCustomerStatusIsAllowed($customer->getStatus());
         } catch (NotAllowedException $e) {
-            return $this->view(['error' => $e->getMessage()], 400);
+            return $this->view(['error' => $translator->trans($e->getMessage())], 400);
         }
 
         try {
             $campaignValidator->checkIfCustomerHasEnoughPoints($campaign, new CustomerId($customer->getCustomerId()->__toString()));
         } catch (NotEnoughPointsException $e) {
-            return $this->view(['error' => $e->getMessage()], 400);
+            return $this->view(['error' => $translator->trans($e->getMessage())], 400);
         }
 
         $freeCoupons = $provider->getFreeCoupons($campaign);

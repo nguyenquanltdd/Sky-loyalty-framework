@@ -14,6 +14,8 @@ use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\ImportBundle\Form\Type\ImportFileFormType;
 use OpenLoyalty\Bundle\ImportBundle\Service\ImportFileManager;
+use OpenLoyalty\Bundle\TransactionBundle\Form\Handler\AppendLabelsToTransactionFormHandler;
+use OpenLoyalty\Bundle\TransactionBundle\Form\Handler\EditTransactionLabelsFormHandler;
 use OpenLoyalty\Bundle\TransactionBundle\Form\Type\AppendLabelsToTransactionFormType;
 use OpenLoyalty\Bundle\TransactionBundle\Form\Type\EditTransactionLabelsFormType;
 use OpenLoyalty\Bundle\TransactionBundle\Form\Type\LabelsFilterFormType;
@@ -326,17 +328,18 @@ class TransactionController extends FOSRestController
      *     }
      * )
      *
-     * @param Request $request
+     * @param Request                          $request
+     * @param EditTransactionLabelsFormHandler $handler
      *
      * @return \FOS\RestBundle\View\View
      */
-    public function editLabelsAction(Request $request)
+    public function editLabelsAction(Request $request, EditTransactionLabelsFormHandler $handler)
     {
         $form = $this->get('form.factory')->createNamed('transaction_labels', EditTransactionLabelsFormType::class);
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            $result = $this->get('oloy.transaction.form_handler.edit_transaction_labels')->onSuccess($form);
+            $result = $handler->onSuccess($form);
 
             if ($result === false) {
                 return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
@@ -463,12 +466,14 @@ class TransactionController extends FOSRestController
      *     }
      * )
      *
-     * @param Request $request
      * @Security("is_granted('ROLE_PARTICIPANT')")
      *
-     * @return \FOS\RestBundle\View\View
+     * @param Request                              $request
+     * @param AppendLabelsToTransactionFormHandler $handler
+     *
+     * @return View
      */
-    public function appendLabelsAction(Request $request)
+    public function appendLabelsAction(Request $request, AppendLabelsToTransactionFormHandler $handler)
     {
         /** @var ManuallyAssignCustomerToTransactionFormType|FormInterface $form */
         $form = $this->get('form.factory')->createNamed('append', AppendLabelsToTransactionFormType::class, null, [
@@ -477,7 +482,7 @@ class TransactionController extends FOSRestController
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            $result = $this->get('oloy.transaction.form_handler.append_labels_to_transaction')->onSuccess($form);
+            $result = $handler->onSuccess($form);
 
             if ($result === false) {
                 return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);

@@ -66,6 +66,37 @@ services:
         alias: OpenLoyalty\Bundle\ActivationCodeBundle\Generator\NumericCodeGenerator
         deprecated: The "%service_id%" service is deprecated since 2.8.0
 
+    oloy.campaign.serialization_listener:
+        alias: OpenLoyalty\Bundle\CampaignBundle\Event\Listener\CampaignSerializationListener
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.earning_rule.listener:
+        alias: OpenLoyalty\Bundle\EarningRuleBundle\Event\Listener\EarningRuleSerializationListener
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.import.importer.xml_importer:
+        alias: OpenLoyalty\Bundle\ImportBundle\Importer\XMLImporter
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.level.photo_uploader:
+        alias: OpenLoyalty\Bundle\LevelBundle\Service\LevelPhotoUploader
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.transaction.form_handler.edit_transaction_labels:
+        alias: OpenLoyalty\Bundle\TransactionBundle\Form\Handler\EditTransactionLabelsFormHandler
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.transaction.form_handler.append_labels_to_transaction:
+        alias: OpenLoyalty\Bundle\TransactionBundle\Form\Handler\AppendLabelsToTransactionFormHandler
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.transaction.form_handler.manually_assign_customer_to_transaction:
+        alias: OpenLoyalty\Bundle\TransactionBundle\Form\Handler\ManuallyAssignCustomerToTransactionFormHandler
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.user.form_handler.customer_edit:
+        alias: OpenLoyalty\Bundle\UserBundle\Form\Handler\CustomerEditFormHandler
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
     oloy.email.settings:
         alias: OpenLoyalty\Bundle\EmailSettingsBundle\Service\EmailSettings
         deprecated: The "%service_id%" service is deprecated since 2.8.0

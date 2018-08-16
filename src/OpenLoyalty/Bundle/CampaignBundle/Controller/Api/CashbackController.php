@@ -26,6 +26,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId as CampaignCustomerId;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class CashbackController.
@@ -45,11 +46,12 @@ class CashbackController extends FOSRestController
      *     input={"class"="OpenLoyalty\Bundle\CampaignBundle\Form\Type\CashbackSimulationFormType" ,"name"= ""}
      * )
      *
-     * @param Request $request
+     * @param TranslatorInterface $translator
+     * @param Request             $request
      *
      * @return View
      */
-    public function simulateAction(Request $request)
+    public function simulateAction(Request $request, TranslatorInterface $translator)
     {
         $form = $this->get('form.factory')->createNamed('', CashbackSimulationFormType::class);
 
@@ -78,7 +80,7 @@ class CashbackController extends FOSRestController
                     new CampaignCustomerId($data->getCustomerId())
                 );
             } catch (NotEnoughPointsException $e) {
-                return $this->view(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+                return $this->view(['error' => $translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
             }
 
             return $this->view(new CashbackSimulation(
@@ -105,11 +107,12 @@ class CashbackController extends FOSRestController
      *     input={"class"="OpenLoyalty\Bundle\CampaignBundle\Form\Type\CashbackRedeemFormType" ,"name"= ""}
      * )
      *
-     * @param Request $request
+     * @param TranslatorInterface $translator
+     * @param Request             $request
      *
      * @return View
      */
-    public function redeemAction(Request $request)
+    public function redeemAction(Request $request, TranslatorInterface $translator)
     {
         $form = $this->get('form.factory')->createNamed('', CashbackRedeemFormType::class);
 
@@ -142,7 +145,7 @@ class CashbackController extends FOSRestController
                     new CampaignCustomerId($data->getCustomerId())
                 );
             } catch (NotEnoughPointsException $e) {
-                return $this->view(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+                return $this->view(['error' => $translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
             }
 
             /** @var CommandBus $bus */

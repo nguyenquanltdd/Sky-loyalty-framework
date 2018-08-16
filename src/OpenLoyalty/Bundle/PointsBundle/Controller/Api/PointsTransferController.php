@@ -40,6 +40,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class PointsTransferController.
@@ -206,7 +207,7 @@ class PointsTransferController extends FOSRestController
      *
      * @throws \Exception
      */
-    public function spendPointsAction(Request $request)
+    public function spendPointsAction(Request $request, TranslatorInterface $translator)
     {
         $form = $this->get('form.factory')->createNamed('transfer', SpendPointsFormType::class);
         $commandBus = $this->get('broadway.command_handling.command_bus');
@@ -260,9 +261,6 @@ class PointsTransferController extends FOSRestController
     /**
      * Cancel specific points transfer.
      *
-     * @param PointsTransferDetails $transfer
-     *
-     * @return \FOS\RestBundle\View\View
      * @Route(name="oloy.points.transfer.cancel", path="/points/transfer/{transfer}/cancel")
      * @Security("is_granted('CANCEL', transfer)")
      * @Method("POST")
@@ -276,8 +274,15 @@ class PointsTransferController extends FOSRestController
      *       404="Returned when points transfer does not exist"
      *     }
      * )
+     *
+     * @param PointsTransferDetails $transfer
+     * @param TranslatorInterface   $translator
+     *
+     * @return \FOS\RestBundle\View\View
+     *
+     * @throws \Exception
      */
-    public function cancelTransferAction(PointsTransferDetails $transfer)
+    public function cancelTransferAction(PointsTransferDetails $transfer, TranslatorInterface $translator)
     {
         $commandBus = $this->get('broadway.command_handling.command_bus');
 
@@ -290,7 +295,7 @@ class PointsTransferController extends FOSRestController
             );
         } catch (PointsTransferCannotBeCanceledException $e) {
             return $this->view([
-                'error' => 'this transfer cannot be canceled',
+                'error' => $translator->trans('this transfer cannot be canceled'),
             ], Response::HTTP_BAD_REQUEST);
         }
 

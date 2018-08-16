@@ -22,6 +22,7 @@ use OpenLoyalty\Component\Customer\Domain\Exception\PhoneAlreadyExistsException;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class CustomerRegistrationFormHandler.
@@ -64,6 +65,11 @@ class CustomerRegistrationFormHandler
     protected $registerCustomerManager;
 
     /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
      * CustomerRegistrationFormHandler constructor.
      *
      * @param CommandBus              $commandBus
@@ -81,7 +87,8 @@ class CustomerRegistrationFormHandler
         UuidGeneratorInterface $uuidGenerator,
         CustomerUniqueValidator $customerUniqueValidator,
         ActionTokenManager $actionTokenManager,
-        RegisterCustomerManager $registerCustomerManager
+        RegisterCustomerManager $registerCustomerManager,
+        TranslatorInterface $translator
     ) {
         $this->commandBus = $commandBus;
         $this->userManager = $userManager;
@@ -90,6 +97,7 @@ class CustomerRegistrationFormHandler
         $this->customerUniqueValidator = $customerUniqueValidator;
         $this->actionTokenManager = $actionTokenManager;
         $this->registerCustomerManager = $registerCustomerManager;
+        $this->translator = $translator;
     }
 
     /**
@@ -121,11 +129,11 @@ class CustomerRegistrationFormHandler
         try {
             return $this->registerCustomerManager->register($customerId, $customerData, $password);
         } catch (EmailAlreadyExistsException $ex) {
-            $form->get('email')->addError(new FormError($ex->getMessage()));
+            $form->get('email')->addError(new FormError($this->translator->trans($ex->getMessage())));
         } catch (LoyaltyCardNumberAlreadyExistsException $ex) {
-            $form->get('loyaltyCardNumber')->addError(new FormError($ex->getMessage()));
+            $form->get('loyaltyCardNumber')->addError(new FormError($this->translator->trans($ex->getMessage())));
         } catch (PhoneAlreadyExistsException $ex) {
-            $form->get('phone')->addError(new FormError($ex->getMessage()));
+            $form->get('phone')->addError(new FormError($this->translator->trans($ex->getMessage())));
         }
 
         return;

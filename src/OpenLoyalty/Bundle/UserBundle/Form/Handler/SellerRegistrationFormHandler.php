@@ -72,7 +72,7 @@ class SellerRegistrationFormHandler
         try {
             $this->commandBus->dispatch($command);
         } catch (EmailAlreadyExistsException $e) {
-            $form->get('email')->addError(new FormError($e->getMessage()));
+            $form->get('email')->addError(new FormError($this->translator->trans($e->getMessage())));
 
             return $form->getErrors();
         }

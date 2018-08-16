@@ -216,14 +216,15 @@ class AdminController extends FOSRestController
     {
         /** @var SimpleCommandBus $commandBus */
         $commandBus = $this->get('broadway.command_handling.command_bus');
+        $translator = $this->get('translator');
         try {
             $commandBus->dispatch($command);
         } catch (EmailAlreadyExistException $e) {
-            $form->get('email')->addError(new FormError($e->getMessage()));
+            $form->get('email')->addError(new FormError($translator->trans($e->getMessage())));
 
             return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
         } catch (\DomainException $e) {
-            $form->addError(new FormError($e->getMessage()));
+            $form->addError(new FormError($translator->trans($e->getMessage())));
 
             return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {

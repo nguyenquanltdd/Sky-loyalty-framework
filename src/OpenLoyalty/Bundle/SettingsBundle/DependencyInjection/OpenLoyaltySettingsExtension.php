@@ -26,6 +26,7 @@ class OpenLoyaltySettingsExtension extends Extension
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $config = $this->processConfiguration($configuration, $configs);
         $container->setParameter('oloy.logo.resize.mapping', $config['mapping']);
+        $container->setParameter('oloy.locale.mapping', $config['locales_map']);
         $loader->load('services.yml');
         $loader->load('voters.yml');
     }

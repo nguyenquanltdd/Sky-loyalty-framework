@@ -22,6 +22,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class ManuallyAssignCustomerToTransactionFormHandler.
@@ -54,6 +55,11 @@ class ManuallyAssignCustomerToTransactionFormHandler
     protected $ac;
 
     /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
      * ManuallyAssignCustomerToTransactionFormHandler constructor.
      *
      * @param TransactionDetailsRepository $transactionDetailsRepository
@@ -67,13 +73,15 @@ class ManuallyAssignCustomerToTransactionFormHandler
         CustomerDetailsRepository $customerDetailsRepository,
         CommandBus $commandBus,
         EventDispatcher $eventDispatcher,
-        AuthorizationChecker $ac
+        AuthorizationChecker $ac,
+        TranslatorInterface $translator
     ) {
         $this->transactionDetailsRepository = $transactionDetailsRepository;
         $this->customerDetailsRepository = $customerDetailsRepository;
         $this->commandBus = $commandBus;
         $this->eventDispatcher = $eventDispatcher;
         $this->ac = $ac;
+        $this->translator = $translator;
     }
 
     /**
@@ -130,14 +138,14 @@ class ManuallyAssignCustomerToTransactionFormHandler
         try {
             $customers = $this->customerDetailsRepository->findOneByCriteria($criteria, 1);
         } catch (TooManyResultsException $e) {
-            $form->get($field)->addError(new FormError('To many customers with such data. Please provide more details.'));
+            $form->get($field)->addError(new FormError($this->translator->trans('To many customers with such data. Please provide more details.')));
 
             return false;
         }
 
         $customer = reset($customers);
         if (!$customer instanceof CustomerDetails) {
-            $form->get($field)->addError(new FormError('Such customer does not exist. Please provide more details.'));
+            $form->get($field)->addError(new FormError($this->translator->trans('Such customer does not exist. Please provide more details.')));
 
             return false;
         }

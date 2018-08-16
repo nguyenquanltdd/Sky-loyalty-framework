@@ -1,4 +1,20 @@
 services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  OpenLoyalty\Bundle\LevelBundle\Controller\Api\:
+    resource: '../../Controller/Api'
+    tags: ['controller.service_arguments']
+
+  OpenLoyalty\Bundle\LevelBundle\Service\:
+    resource: '../../Service'
+
+  OpenLoyalty\Bundle\LevelBundle\Service\LevelPhotoUploader:
+    arguments:
+      $filesystem: "@oloy.level.photos_filesystem"
+
   oloy.level.form_type.level:
     class: OpenLoyalty\Bundle\LevelBundle\Form\Type\LevelFormType
     tags:
@@ -23,10 +39,6 @@ services:
     class:     Gaufrette\Filesystem
     factory:   ['@knp_gaufrette.filesystem_map', get]
     arguments: ['campaign_photos']
-
-  oloy.level.photo_uploader:
-    class: OpenLoyalty\Bundle\LevelBundle\Service\LevelPhotoUploader
-    arguments: ["@oloy.level.photos_filesystem"]
 
   oloy.level.validator.image:
     class: OpenLoyalty\Bundle\LevelBundle\Validator\Constraints\ImageValidator

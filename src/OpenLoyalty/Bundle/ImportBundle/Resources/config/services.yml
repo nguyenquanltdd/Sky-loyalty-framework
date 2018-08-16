@@ -1,6 +1,10 @@
 services:
-  oloy.import.importer.xml_importer:
-    class: OpenLoyalty\Bundle\ImportBundle\Importer\XMLImporter
+  _defaults:
+      autowire: true
+      autoconfigure: true
+      public: false
+
+  OpenLoyalty\Bundle\ImportBundle\Importer\XMLImporter: ~
 
   oloy.import.import_filesystem:
     class:     Gaufrette\Filesystem
