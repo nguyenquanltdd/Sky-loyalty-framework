@@ -1203,7 +1203,8 @@
     "list": "Lista transferów punktowych",
     "state": "Status",
     "type": "Rodzaj",
-    "value": "Wartość"
+    "value": "Wartość",
+    "locked_until": "Zablokowane do"
   },
   "dashboard": {
     "heading": "Dashboard"
@@ -1937,6 +1938,7 @@
     "revised_transaction": "Zwrócona transakcja",
     "revised_transaction_id": "Numer zwróconej transakcji",
     "locked_until": "Punkty będą zablokowane do",
+    "expires_at": "Punkty wygasną w dniu",
     "select_customer": "Wybierz klienta",
     "spend_points": "Wydaj punkty",
     "state": "Status",

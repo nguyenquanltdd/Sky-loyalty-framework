@@ -1196,7 +1196,8 @@
     "list": "Points transfers list",
     "state": "State",
     "type": "Type",
-    "value": "Value"
+    "value": "Value",
+    "locked_until": "Locked till"
   },
   "dashboard": {
     "heading": "Dashboard"
@@ -1930,6 +1931,7 @@
     "revised_transaction": "Revised transaction",
     "revised_transaction_id": "Revised transaction id",
     "locked_until": "Points will be locked until",
+    "expires_at": "Expires at",
     "select_customer": "Select customer",
     "spend_points": "Spend points",
     "state": "State",
