@@ -20,6 +20,7 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
     const LEVEL_ID = 'e82c96cf-32a3-43bd-9034-4df343e5fd94';
     const LEVEL2_ID = '000096cf-32a3-43bd-9034-4df343e5fd94';
     const LEVEL3_ID = '000096cf-32a3-43bd-9034-4df343e5fd93';
+    const LEVEL4_ID = '000096cf-32a3-43bd-9034-4df343e5fd95';
 
     public function load(ObjectManager $manager)
     {
@@ -34,7 +35,7 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
             ],
         ];
 
-        $level = [
+        $level1 = [
             'name' => 'level1',
             'description' => 'example level',
             'conditionValue' => 20,
@@ -74,10 +75,20 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
                 ],
             ],
         ];
+        $level4 = [
+            'name' => 'level4',
+            'description' => 'LEvel4',
+            'conditionValue' => 999,
+            'reward' => [
+                'name' => 'Level 4 reward',
+                'value' => 0.00,
+                'code' => 'level4',
+            ],
+        ];
 
         $commandBud = $this->container->get('broadway.command_handling.command_bus');
         $commandBud->dispatch(
-            new CreateLevel(new LevelId(self::LEVEL_ID), $level)
+            new CreateLevel(new LevelId(self::LEVEL_ID), $level1)
         );
         $commandBud->dispatch(
             new ActivateLevel(new LevelId(self::LEVEL_ID))
@@ -93,6 +104,12 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
         );
         $commandBud->dispatch(
             new ActivateLevel(new LevelId(self::LEVEL3_ID))
+        );
+        $commandBud->dispatch(
+            new CreateLevel(new LevelId(self::LEVEL4_ID), $level4)
+        );
+        $commandBud->dispatch(
+            new ActivateLevel(new LevelId(self::LEVEL4_ID))
         );
     }
 

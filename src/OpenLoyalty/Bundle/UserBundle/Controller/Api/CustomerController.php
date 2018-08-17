@@ -563,7 +563,7 @@ class CustomerController extends FOSRestController
             }
             if ($sellerId) {
                 $commandBus->dispatch(
-                    new AssignSellerToCustomer($customer->getCustomerId(), new \OpenLoyalty\Component\Customer\Domain\SellerId($sellerId))
+                    new AssignSellerToCustomer($customer->getCustomerId(), new CustomerSellerId($sellerId))
                 );
             }
 
@@ -572,6 +572,11 @@ class CustomerController extends FOSRestController
                 $user = $em->getRepository('OpenLoyaltyUserBundle:Customer')->findOneBy(['id' => $customer->getId()]);
                 $registerCustomerManager->dispatchNewsletterSubscriptionEvent($user, $customer->getCustomerId());
             }
+
+            // as we may move to other level or change sellerId we need to refresh customer data
+            // and return latest customer state
+            /** @var CustomerDetails $customer */
+            $customer = $repo->find($customer->getCustomerId()->__toString());
 
             return $this->view($customer);
         }
