@@ -1242,6 +1242,7 @@
     "excluded_skus": "Z wyłączeniem SKU:",
     "excluded_skus_prompt": "",
     "labels_inclusion_type": "Etykiety",
+    "labels_inclusion_type_none": "brak",
     "labels_inclusion_type_exclude": "z wyłączeniem",
     "labels_inclusion_type_include": "tylko wybrane",
     "labels_inclusion_type_prompt": "",

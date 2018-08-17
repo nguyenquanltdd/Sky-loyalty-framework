@@ -1235,6 +1235,7 @@
     "excluded_skus": "Excluded SKUs",
     "excluded_skus_prompt": "",
     "labels_inclusion_type": "Labels inclusion type",
+    "labels_inclusion_type_none": "none",
     "labels_inclusion_type_exclude": "exclude",
     "labels_inclusion_type_include": "include",
     "labels_inclusion_type_prompt": "",

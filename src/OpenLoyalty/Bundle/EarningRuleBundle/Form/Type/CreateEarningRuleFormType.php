@@ -154,9 +154,12 @@ class CreateEarningRuleFormType extends BaseEarningRuleFormType
                 ->add('excludedSKUs', ExcludedSKUsFormType::class)
                 ->add('labelsInclusionType', ChoiceType::class, [
                     'choices' => [
+                        PointsEarningRule::LABELS_INCLUSION_TYPE_NONE,
                         PointsEarningRule::LABELS_INCLUSION_TYPE_EXCLUDE,
                         PointsEarningRule::LABELS_INCLUSION_TYPE_INCLUDE,
                     ],
+                    'required' => false,
+                    'empty_data' => PointsEarningRule::LABELS_INCLUSION_TYPE_NONE,
                 ])
                 ->add('excludedLabels', ExcludedLabelsFormType::class)
                 ->add('includedLabels', IncludedLabelsFormType::class)

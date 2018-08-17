@@ -15,6 +15,7 @@ use OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableInterface;
  */
 class PointsEarningRule extends EarningRule implements StoppableInterface
 {
+    const LABELS_INCLUSION_TYPE_NONE = 'none_labels';
     const LABELS_INCLUSION_TYPE_INCLUDE = 'include_labels';
     const LABELS_INCLUSION_TYPE_EXCLUDE = 'exclude_labels';
 
@@ -41,7 +42,7 @@ class PointsEarningRule extends EarningRule implements StoppableInterface
     /**
      * @var string
      */
-    protected $labelsInclusionType = self::LABELS_INCLUSION_TYPE_EXCLUDE;
+    protected $labelsInclusionType = self::LABELS_INCLUSION_TYPE_NONE;
 
     /**
      * @var bool
@@ -89,9 +90,9 @@ class PointsEarningRule extends EarningRule implements StoppableInterface
         }
         if (isset($earningRuleData['labelsInclusionType'])) {
             $inclusion = $earningRuleData['labelsInclusionType'];
-            $this->labelsInclusionType = $inclusion === self::LABELS_INCLUSION_TYPE_INCLUDE ?
-                self::LABELS_INCLUSION_TYPE_INCLUDE :
-                self::LABELS_INCLUSION_TYPE_EXCLUDE;
+            $this->labelsInclusionType = $inclusion !== self::LABELS_INCLUSION_TYPE_INCLUDE && $inclusion !== self::LABELS_INCLUSION_TYPE_EXCLUDE ?
+                self::LABELS_INCLUSION_TYPE_NONE :
+                $inclusion;
         }
         if (isset($earningRuleData['excludeDeliveryCost'])) {
             $this->excludeDeliveryCost = $earningRuleData['excludeDeliveryCost'];

@@ -547,6 +547,7 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
         }
 
         if (!in_array($this->labelsInclusionType, [
+            PointsEarningRule::LABELS_INCLUSION_TYPE_NONE,
             PointsEarningRule::LABELS_INCLUSION_TYPE_INCLUDE,
             PointsEarningRule::LABELS_INCLUSION_TYPE_EXCLUDE,
         ])) {
