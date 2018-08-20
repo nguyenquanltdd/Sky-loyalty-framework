@@ -84,7 +84,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.9.x-dev"
+            "dev-master": "2.10.x-dev"
         },
         "symfony-app-dir": "app",
         "symfony-bin-dir": "bin",
