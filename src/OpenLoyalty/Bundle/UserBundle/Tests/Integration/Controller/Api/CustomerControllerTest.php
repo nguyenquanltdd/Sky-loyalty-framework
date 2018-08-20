@@ -970,7 +970,7 @@ class CustomerControllerTest extends BaseApiTest
             ['lastName', 'Smith', 2],
             ['phone', '48', 5],
             ['phone', '645', 2],
-            ['email', '@', 13],
+            ['email', '@', 14],
             ['email', 'user-1', 1],
             ['loyaltyCardNumber', '000000', 3],
             ['transactionsAmount', '3', 0],
