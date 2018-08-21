@@ -5,8 +5,8 @@ namespace OpenLoyalty\Bundle\CoreBundle\Tests\Integration;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
  * Class BaseApiTest.
@@ -19,19 +19,37 @@ abstract class BaseApiTest extends WebTestCase
         $client->request(
             'POST',
             '/api/'.$type.'/login_check',
-            array(
+            [
                 '_username' => $username,
                 '_password' => $password,
-            )
+            ]
         );
 
         $data = json_decode($client->getResponse()->getContent(), true);
-        $this->assertTrue(isset($data['token']), 'Response should have field "token". '.$client->getResponse()->getContent().json_encode(['/api/'.$type.'/login_check',
-                array(
-                    '_username' => $username,
-                    '_password' => $password,
-                ), ]));
-        $this->assertTrue(isset($data['refresh_token']), 'Response should have field "refresh_token". '.$client->getResponse()->getContent());
+
+        $this->assertTrue(
+            isset($data['token']),
+            sprintf(
+                'Response should have field "token". %s%s',
+                $client->getResponse()->getContent(),
+                json_encode(
+                    [
+                        '/api/'.$type.'/login_check',
+                        [
+                            '_username' => $username,
+                            '_password' => $password,
+                        ],
+                    ]
+                )
+            )
+        );
+        $this->assertTrue(
+            isset($data['refresh_token']),
+            sprintf(
+                'Response should have field "refresh_token". %s',
+                $client->getResponse()->getContent()
+            )
+        );
 
         $client = static::createClient();
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['token']));

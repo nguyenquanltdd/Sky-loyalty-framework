@@ -18,6 +18,11 @@ class EsParamManager implements ParamManager
                 continue;
             }
 
+            if (is_array($val)) {
+                $this->stripNulls($val, $toLower, $escape, $types);
+                continue;
+            }
+
             $val = rawurldecode($val);
             $params[$key] = $val;
 

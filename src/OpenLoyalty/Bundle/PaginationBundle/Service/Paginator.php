@@ -19,7 +19,7 @@ class Paginator
 
     protected $sortFieldName;
 
-    protected $sortDirectionFieldName;
+    protected $sortDirectionName;
 
     protected $perPageDefault;
 
@@ -42,7 +42,7 @@ class Paginator
         $this->pageFieldName = $pageFieldName;
         $this->perPageFieldName = $perPageFieldName;
         $this->sortFieldName = $sortFieldName;
-        $this->sortDirectionFieldName = $sortDirectionFieldName;
+        $this->sortDirectionName = $sortDirectionFieldName;
         $this->perPageDefault = $perPageDefault;
     }
 
@@ -52,7 +52,7 @@ class Paginator
             $request->get($this->pageFieldName, 1),
             $request->get($this->perPageFieldName, $this->perPageDefault),
             $request->get($this->sortFieldName, $defaultSortField),
-            $request->get($this->sortDirectionFieldName, $defaultSortDirection)
+            $request->get($this->sortDirectionName, $defaultSortDirection)
         );
     }
 }

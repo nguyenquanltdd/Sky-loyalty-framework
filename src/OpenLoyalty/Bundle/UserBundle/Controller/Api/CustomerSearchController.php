@@ -10,11 +10,12 @@ use FOS\RestBundle\Controller\FOSRestController;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerSearchFormType;
 use OpenLoyalty\Bundle\UserBundle\Model\SearchCustomer;
-use OpenLoyalty\Component\Customer\Domain\Exception\ToManyResultsException;
+use OpenLoyalty\Component\Customer\Domain\Exception\TooManyResultsException;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class CustomerSearchController.
@@ -48,19 +49,22 @@ class CustomerSearchController extends FOSRestController
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            /** @var CustomerDetailsRepository $repo */
-            $repo = $this->get('oloy.user.read_model.repository.customer_details');
+            /** @var CustomerDetailsRepository $customerDetailsRepository */
+            $customerDetailsRepository = $this->get('oloy.user.read_model.repository.customer_details');
             /** @var SearchCustomer $data */
             $data = $form->getData();
             try {
-                $customers = $repo->findOneByCriteria($data->toCriteriaArray(), $this->container->getParameter('oloy.user.customerSearchMaxResults'));
-            } catch (ToManyResultsException $e) {
-                return $this->view(['error' => 'to many results'], 400);
+                $customers = $customerDetailsRepository->findOneByCriteria(
+                    $data->toCriteriaArray(),
+                    $this->container->getParameter('oloy.user.customerSearchMaxResults')
+                );
+            } catch (TooManyResultsException $e) {
+                return $this->view(['error' => 'too many results'], Response::HTTP_BAD_REQUEST);
             }
 
-            return $this->view(['customers' => $customers]);
+            return $this->view(['customers' => $customers], Response::HTTP_OK);
         }
 
-        return $this->view($form->getErrors(), 400);
+        return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
     }
 }

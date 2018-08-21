@@ -69,3 +69,7 @@ services:
     oloy.email.settings:
         alias: OpenLoyalty\Bundle\EmailSettingsBundle\Service\EmailSettings
         deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.points.account.repository.points_transfer_details:
+        alias: OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsRepository
+        deprecated: The "%service_id%" service is deprecated since 2.8.0

@@ -40,19 +40,21 @@ class PointsTransferParamConverter implements ParamConverterInterface
      *
      * @return bool True if the object has been successfully set, else false
      */
-    public function apply(Request $request, ParamConverter $configuration)
+    public function apply(Request $request, ParamConverter $configuration): bool
     {
         $name = $configuration->getName();
 
         if (null === $request->attributes->get($name, false)) {
             $configuration->setIsOptional(true);
         }
+
         $value = $request->attributes->get($name);
         $object = $this->repository->find($value);
 
         if (null === $object && false === $configuration->isOptional()) {
             throw new NotFoundHttpException(sprintf('%s object not found.', $configuration->getClass()));
         }
+
         $request->attributes->set($name, $object);
 
         return true;
@@ -65,7 +67,7 @@ class PointsTransferParamConverter implements ParamConverterInterface
      *
      * @return bool True if the object is supported, else false
      */
-    public function supports(ParamConverter $configuration)
+    public function supports(ParamConverter $configuration): bool
     {
         return $configuration->getClass() === PointsTransferDetails::class;
     }
