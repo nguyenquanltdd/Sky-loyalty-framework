@@ -714,6 +714,22 @@ class Campaign
     }
 
     /**
+     * @return bool
+     */
+    public function canBeBoughtManually(): bool
+    {
+        return !$this->isCashback();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isTransactionRequired(): bool
+    {
+        return $this->isPercentageDiscountCode();
+    }
+
+    /**
      * @param float|null $rewardValue
      *
      * @return $this

@@ -73,8 +73,8 @@ class CampaignControllerAccessTest extends BaseAccessControlTest
             }));
 
         $customerClient = $this->getCustomerClient();
-        static::$kernel->getContainer()->set('oloy.campaign.campaign_provider', $provider);
-        $customerClient->getContainer()->set('oloy.campaign.campaign_provider', $provider);
+        static::$kernel->getContainer()->set(CampaignProvider::class, $provider);
+        $customerClient->getContainer()->set(CampaignProvider::class, $provider);
         $customerClient->request('GET', '/api/campaign/'.LoadCampaignData::CAMPAIGN_ID);
         $this->assertTrue(
             403 != $customerClient->getResponse()->getStatusCode(),
@@ -96,8 +96,8 @@ class CampaignControllerAccessTest extends BaseAccessControlTest
         $this->checkClients($clients, '/api/campaign/'.LoadCampaignData::CAMPAIGN2_ID);
 
         $customerClient = $this->getCustomerClient();
-        static::$kernel->getContainer()->set('oloy.campaign.campaign_provider', $provider);
-        $customerClient->getContainer()->set('oloy.campaign.campaign_provider', $provider);
+        static::$kernel->getContainer()->set(CampaignProvider::class, $provider);
+        $customerClient->getContainer()->set(CampaignProvider::class, $provider);
         $customerClient->request('GET', '/api/campaign/'.LoadCampaignData::CAMPAIGN2_ID);
         $this->assertTrue(
             403 == $customerClient->getResponse()->getStatusCode(),

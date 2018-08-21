@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Component\Campaign\Tests\Domain\Coupon;
 
+use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\Coupon\CouponCodeProvider;
@@ -23,7 +24,7 @@ class CouponCodeProviderTest extends WebTestCase
         parent::setUp();
 
         static::bootKernel();
-        $campaignProvider = static::$kernel->getContainer()->get('oloy.campaign.campaign_provider');
+        $campaignProvider = static::$kernel->getContainer()->get(CampaignProvider::class);
 
         $this->couponCodeProvider = new CouponCodeProvider($campaignProvider);
     }

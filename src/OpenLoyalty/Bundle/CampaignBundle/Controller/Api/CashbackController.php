@@ -16,11 +16,11 @@ use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CashbackSimulationFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Model\CashbackRedeem;
 use OpenLoyalty\Bundle\CampaignBundle\Model\CashbackSimulation;
 use OpenLoyalty\Bundle\CampaignBundle\Model\CashbackSimulationCriteria;
+use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider;
+use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
-use OpenLoyalty\Component\Customer\Domain\CampaignId;
-use OpenLoyalty\Component\Customer\Domain\Command\BuyCampaign;
-use OpenLoyalty\Component\Customer\Domain\CustomerId;
-use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
+use OpenLoyalty\Component\Campaign\Domain\Command\BuyCampaign;
+use OpenLoyalty\Component\Campaign\Domain\Model\Coupon as CampaignCoupon;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
@@ -54,10 +54,10 @@ class CashbackController extends FOSRestController
         $form = $this->get('form.factory')->createNamed('', CashbackSimulationFormType::class);
 
         $form->handleRequest($request);
-        $campaignValidator = $this->get('oloy.campaign.campaign_validator');
+        $campaignValidator = $this->get(CampaignValidator::class);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $provider = $this->get('oloy.campaign.campaign_provider');
+            $provider = $this->get(CampaignProvider::class);
             /** @var CashbackSimulationCriteria $data */
             $data = $form->getData();
             $customer = $this->get('oloy.user.read_model.repository.customer_details')->find($data->getCustomerId());
@@ -114,10 +114,10 @@ class CashbackController extends FOSRestController
         $form = $this->get('form.factory')->createNamed('', CashbackRedeemFormType::class);
 
         $form->handleRequest($request);
-        $campaignValidator = $this->get('oloy.campaign.campaign_validator');
+        $campaignValidator = $this->get(CampaignValidator::class);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $provider = $this->get('oloy.campaign.campaign_provider');
+            $provider = $this->get(CampaignProvider::class);
             /** @var CashbackRedeem $data */
             $data = $form->getData();
             $customer = $this->get('oloy.user.read_model.repository.customer_details')->find($data->getCustomerId());
@@ -149,12 +149,9 @@ class CashbackController extends FOSRestController
             $bus = $this->get('broadway.command_handling.command_bus');
             $bus->dispatch(
                 new BuyCampaign(
-                    new CustomerId($data->getCustomerId()),
-                    new CampaignId($cashback->getCampaignId()->__toString()),
-                    $cashback->getName(),
-                    $data->getPointsAmount(),
-                    new Coupon(''),
-                    $cashback->getReward()
+                    $cashback->getCampaignId(),
+                    new CampaignCustomerId($data->getCustomerId()),
+                    new CampaignCoupon('')
                 )
             );
 

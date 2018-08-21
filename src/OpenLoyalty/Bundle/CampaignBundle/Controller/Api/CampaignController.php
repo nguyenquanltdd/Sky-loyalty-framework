@@ -12,40 +12,48 @@ use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
+use FOS\RestBundle\View\View as FosView;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignLimitException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignUsageChange\CampaignUsageChangeException;
+use OpenLoyalty\Bundle\CampaignBundle\Exception\InvalidTransactionException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotAllowedException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotEnoughPointsException;
+use OpenLoyalty\Bundle\CampaignBundle\Exception\TransactionRequiredException;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignPhotoFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\EditCampaignFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Model\Campaign;
 use OpenLoyalty\Bundle\CampaignBundle\ResponseModel\CouponUsageResponse;
+use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider;
+use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator;
 use OpenLoyalty\Bundle\CampaignBundle\Service\MultipleCampaignCouponUsageProvider;
 use OpenLoyalty\Bundle\CoreBundle\Service\CSVGenerator;
 use OpenLoyalty\Bundle\MarkDownBundle\Service\FOSContextProvider;
 use OpenLoyalty\Component\Campaign\Domain\Campaign as DomainCampaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
+use OpenLoyalty\Component\Campaign\Domain\Command\BuyCampaign;
 use OpenLoyalty\Component\Campaign\Domain\Command\ChangeCampaignState;
 use OpenLoyalty\Component\Campaign\Domain\Command\CreateCampaign;
 use OpenLoyalty\Component\Campaign\Domain\Command\RemoveCampaignPhoto;
 use OpenLoyalty\Component\Campaign\Domain\Command\SetCampaignPhoto;
 use OpenLoyalty\Component\Campaign\Domain\Command\UpdateCampaign;
+use OpenLoyalty\Component\Campaign\Domain\Coupon\CouponCodeProvider;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\LevelId;
+use OpenLoyalty\Component\Campaign\Domain\Model\Coupon as CampaignCoupon;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\ActiveCampaigns;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignShortInfo;
 use OpenLoyalty\Component\Campaign\Domain\SegmentId;
 use OpenLoyalty\Component\Customer\Domain\CampaignId as CustomerCampaignId;
-use OpenLoyalty\Component\Customer\Domain\Command\BuyCampaign;
 use OpenLoyalty\Component\Customer\Domain\Command\ChangeCampaignUsage;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomers;
+use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -55,6 +63,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
@@ -73,15 +82,49 @@ class CampaignController extends FOSRestController
     private $translator;
 
     /**
+     * @var CampaignValidator
+     */
+    private $campaignValidator;
+
+    /**
+     * @var CampaignProvider
+     */
+    private $campaignProvider;
+
+    /**
+     * @var CouponCodeProvider
+     */
+    private $couponCodeProvider;
+
+    /**
+     * @var TransactionDetailsRepository
+     */
+    private $transactionDetailsRepository;
+
+    /**
      * CampaignController constructor.
      *
-     * @param CommandBus          $commandBus
-     * @param TranslatorInterface $translator
+     * @param CommandBus                   $commandBus
+     * @param TranslatorInterface          $translator
+     * @param CampaignValidator            $campaignValidator
+     * @param CampaignProvider             $campaignProvider
+     * @param CouponCodeProvider           $couponCodeProvider
+     * @param TransactionDetailsRepository $transactionDetailsRepository
      */
-    public function __construct(CommandBus $commandBus, TranslatorInterface $translator)
-    {
+    public function __construct(
+        CommandBus $commandBus,
+        TranslatorInterface $translator,
+        CampaignValidator $campaignValidator,
+        CampaignProvider $campaignProvider,
+        CouponCodeProvider $couponCodeProvider,
+        TransactionDetailsRepository $transactionDetailsRepository
+    ) {
         $this->commandBus = $commandBus;
         $this->translator = $translator;
+        $this->campaignValidator = $campaignValidator;
+        $this->campaignProvider = $campaignProvider;
+        $this->couponCodeProvider = $couponCodeProvider;
+        $this->transactionDetailsRepository = $transactionDetailsRepository;
     }
 
     /**
@@ -104,7 +147,7 @@ class CampaignController extends FOSRestController
      * @param Request $request
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function createAction(Request $request)
     {
@@ -147,7 +190,7 @@ class CampaignController extends FOSRestController
      * @param DomainCampaign $campaign
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function addPhotoAction(Request $request, DomainCampaign $campaign)
     {
@@ -183,7 +226,7 @@ class CampaignController extends FOSRestController
      * @param DomainCampaign $campaign
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function removePhotoAction(DomainCampaign $campaign)
     {
@@ -252,7 +295,7 @@ class CampaignController extends FOSRestController
      * @param DomainCampaign $campaign
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function editAction(Request $request, DomainCampaign $campaign)
     {
@@ -292,7 +335,7 @@ class CampaignController extends FOSRestController
      * @param                $active
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function changeStateAction(DomainCampaign $campaign, $active)
     {
@@ -336,7 +379,7 @@ class CampaignController extends FOSRestController
      *
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      *
      * @QueryParam(name="labels", nullable=true, description="filter by labels"))
      * @QueryParam(name="active", nullable=true, description="filter by activity"))
@@ -406,7 +449,7 @@ class CampaignController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function getBoughtListAction(Request $request, ParamFetcher $paramFetcher)
     {
@@ -462,7 +505,7 @@ class CampaignController extends FOSRestController
      * @QueryParam(name="purchasedAtFrom", nullable=true, description="Range date filter"))
      * @QueryParam(name="purchasedAtTo", nullable=true, description="Range date filter"))
      *
-     * @return Response|\FOS\RestBundle\View\View
+     * @return Response|FosView
      */
     public function exportBoughtAction(ParamFetcher $paramFetcher)
     {
@@ -520,7 +563,7 @@ class CampaignController extends FOSRestController
      * @param Request $request
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function getVisibleListAction(Request $request)
     {
@@ -569,7 +612,7 @@ class CampaignController extends FOSRestController
      * @param Request            $request
      * @param CampaignRepository $campaignRepository
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function getActiveCampaignsAction(Request $request, CampaignRepository $campaignRepository)
     {
@@ -616,7 +659,7 @@ class CampaignController extends FOSRestController
      * @param Request        $request
      * @param DomainCampaign $campaign
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      * @View(serializerGroups={"admin", "Default"})
      */
     public function getAction(Request $request, DomainCampaign $campaign)
@@ -652,14 +695,13 @@ class CampaignController extends FOSRestController
      * @param DomainCampaign $campaign
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function getVisibleForCustomersAction(Request $request, DomainCampaign $campaign)
     {
-        $provider = $this->get('oloy.campaign.campaign_provider');
         $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
 
-        $customers = array_values($provider->visibleForCustomers($campaign));
+        $customers = array_values($this->campaignProvider->visibleForCustomers($campaign));
         /** @var CustomerDetailsRepository $repo */
         $repo = $this->get('oloy.user.read_model.repository.customer_details');
         $res = [];
@@ -684,7 +726,7 @@ class CampaignController extends FOSRestController
      * @Route(name="oloy.campaign.admin.customer.available", path="/admin/customer/{customer}/campaign/available")
      * @Route(name="oloy.campaign.seller.customer.available", path="/seller/customer/{customer}/campaign/available")
      * @Method("GET")
-     * @Security("is_granted('BUY_FOR_CUSTOMER')")
+     * @Security("is_granted('BUY_FOR_CUSTOMER_SELLER') or is_granted('BUY_FOR_CUSTOMER_ADMIN')")
      *
      * @ApiDoc(
      *     name="get available campaigns for customer list",
@@ -701,7 +743,7 @@ class CampaignController extends FOSRestController
      * @param CustomerDetails $customer
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function availableCampaigns(Request $request, CustomerDetails $customer)
     {
@@ -724,8 +766,8 @@ class CampaignController extends FOSRestController
                 $pagination->getSortDirection()
             );
         $campaigns = array_filter($campaigns, function (DomainCampaign $campaign) use ($customer) {
-            $usageLeft = $this->get('oloy.campaign.campaign_provider')->getUsageLeft($campaign);
-            $usageLeftForCustomer = $this->get('oloy.campaign.campaign_provider')
+            $usageLeft = $this->campaignProvider->getUsageLeft($campaign);
+            $usageLeftForCustomer = $this->campaignProvider
                 ->getUsageLeftForCustomer($campaign, $customer->getCustomerId()->__toString());
 
             return $usageLeft > 0 && $usageLeftForCustomer > 0 ? true : false;
@@ -752,12 +794,11 @@ class CampaignController extends FOSRestController
     }
 
     /**
-     * Buy campaign.
+     * Buy campaign as seller for customer.
      *
-     * @Route(name="oloy.campaign.buy", path="/admin/customer/{customer}/campaign/{campaign}/buy")
      * @Route(name="oloy.campaign.seller.buy", path="/seller/customer/{customer}/campaign/{campaign}/buy")
      * @Method("POST")
-     * @Security("is_granted('BUY_FOR_CUSTOMER')")
+     * @Security("is_granted('BUY_FOR_CUSTOMER_SELLER')")
      *
      * @ApiDoc(
      *     name="buy campaign for customer",
@@ -772,53 +813,132 @@ class CampaignController extends FOSRestController
      * @param CustomerDetails $customer
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function buyCampaign(DomainCampaign $campaign, CustomerDetails $customer)
     {
-        $provider = $this->get('oloy.campaign.campaign_provider');
-        $campaignValidator = $this->get('oloy.campaign.campaign_validator');
-
-        if (!$campaignValidator->isCampaignActive($campaign) || !$campaignValidator->isCampaignVisible($campaign)) {
+        if (!$this->campaignValidator->isCampaignActive($campaign) || !$this->campaignValidator->isCampaignVisible($campaign)) {
             throw $this->createNotFoundException();
         }
 
         try {
-            $campaignValidator->validateCampaignLimits($campaign, new CustomerId($customer->getCustomerId()->__toString()));
+            $this->campaignValidator->validateCampaignLimits($campaign, new CustomerId($customer->getCustomerId()->__toString()));
         } catch (CampaignLimitException $e) {
             return $this->view(['error' => $e->getMessage()], 400);
         }
 
         try {
-            $campaignValidator->checkIfCustomerStatusIsAllowed($customer->getStatus());
+            $this->campaignValidator->checkIfCustomerStatusIsAllowed($customer->getStatus());
         } catch (NotAllowedException $e) {
             return $this->view(['error' => $e->getMessage()], 400);
         }
 
         try {
-            $campaignValidator->checkIfCustomerHasEnoughPoints($campaign, new CustomerId($customer->getCustomerId()->__toString()));
+            $this->campaignValidator->checkIfCustomerHasEnoughPoints($campaign, new CustomerId($customer->getCustomerId()->__toString()));
         } catch (NotEnoughPointsException $e) {
             return $this->view(['error' => $e->getMessage()], 400);
         }
 
-        $freeCoupons = $provider->getFreeCoupons($campaign);
+        $freeCoupons = $this->campaignProvider->getFreeCoupons($campaign);
         if (!$campaign->isSingleCoupon() && count($freeCoupons) == 0) {
             return $this->view(['error' => 'No coupons left'], 400);
         } elseif ($campaign->isSingleCoupon()) {
-            $freeCoupons = $provider->getAllCoupons($campaign);
+            $freeCoupons = $this->campaignProvider->getAllCoupons($campaign);
         }
-        $coupon = new Coupon(reset($freeCoupons));
+        $coupon = new CampaignCoupon(reset($freeCoupons));
 
         /** @var CommandBus $bus */
         $bus = $this->get('broadway.command_handling.command_bus');
         $bus->dispatch(
             new BuyCampaign(
-                $customer->getCustomerId(),
-                new CustomerCampaignId($campaign->getCampaignId()->__toString()),
-                $campaign->getName(),
-                $campaign->getCostInPoints(),
+                $campaign->getCampaignId(),
+                new CustomerId($customer->getId()),
+                $coupon
+            )
+        );
+
+        $this->get('oloy.user.email_provider')->customerBoughtCampaign(
+            $customer,
+            $campaign,
+            $coupon
+        );
+
+        return $this->view(['coupon' => $coupon]);
+    }
+
+    /**
+     * Buy campaign for customer as admin.
+     *
+     * @Route(name="oloy.campaign.buy", path="/admin/customer/{customer}/campaign/{campaign}/buy")
+     * @Method("POST")
+     * @Security("is_granted('BUY_FOR_CUSTOMER_ADMIN')")
+     *
+     * @ApiDoc(
+     *     name="buy campaign for customer",
+     *     section="Campaign",
+     *     parameters={
+     *      {"name"="withoutPoints", "dataType"="boolean", "required"=false}
+     *     },
+     *     statusCodes={
+     *       200="Returned when successful",
+     *       400="With error 'No coupons left' returned when campaign cannot be bought because of lack of coupons. With error 'Not enough points' returned when campaign cannot be bought because of not enough points on customer account. With empty error returned when campaign limits exceeded."
+     *     }
+     * )
+     *
+     * @param DomainCampaign  $campaign
+     * @param CustomerDetails $customer
+     * @param Request         $request
+     * @View(serializerGroups={"admin", "Default"})
+     *
+     * @return FosView
+     *
+     * @throws \Exception
+     * @throws NotFoundHttpException
+     */
+    public function buyCampaignAdmin(DomainCampaign $campaign, CustomerDetails $customer, Request $request)
+    {
+        if (!$campaign->canBeBoughtManually()) {
+            throw new BadRequestHttpException();
+        }
+
+        $withoutPoints = $request->get('withoutPoints', false);
+        $transactionId = $request->get('transactionId', null);
+
+        if (!$this->campaignValidator->isCampaignActive($campaign)) {
+            throw $this->createNotFoundException();
+        }
+
+        try {
+            if ($transactionId) {
+                $transaction = $this->transactionDetailsRepository->find($transactionId);
+                if ($transaction) {
+                    $transactionValue = $transaction->getGrossValue();
+                    if ($transaction->getCustomerId()->__toString() != $customer->getId()) {
+                        throw new InvalidTransactionException();
+                    }
+                }
+            }
+
+            if (!isset($transactionValue) && $campaign->isTransactionRequired()) {
+                throw new TransactionRequiredException();
+            }
+
+            $this->campaignValidator->validateCampaignLimits($campaign, new CustomerId($customer->getCustomerId()->__toString()));
+            $this->campaignValidator->checkIfCustomerStatusIsAllowed($customer->getStatus());
+            if (!$withoutPoints) {
+                $this->campaignValidator->checkIfCustomerHasEnoughPoints($campaign, new CustomerId($customer->getCustomerId()->__toString()));
+            }
+            $coupon = $this->couponCodeProvider->getCoupon($campaign, $transactionValue ?? 0);
+        } catch (CampaignLimitException | NotAllowedException | NotEnoughPointsException $e) {
+            return $this->view(['error' => $this->translator->trans($e->getMessage())], 400);
+        }
+
+        $this->commandBus->dispatch(
+            new BuyCampaign(
+                $campaign->getCampaignId(),
+                new CustomerId($customer->getId()),
                 $coupon,
-                $campaign->getReward()
+                $withoutPoints === true ? 0 : $campaign->getCostInPoints()
             )
         );
 
@@ -837,7 +957,7 @@ class CampaignController extends FOSRestController
      * @Route(name="oloy.campaign.admin.customer.bought", path="/admin/customer/{customer}/campaign/bought")
      * @Route(name="oloy.campaign.seller.customer.bought", path="/seller/customer/{customer}/campaign/bought")
      * @Method("GET")
-     * @Security("is_granted('BUY_FOR_CUSTOMER')")
+     * @Security("is_granted('BUY_FOR_CUSTOMER_SELLER') or is_granted('BUY_FOR_CUSTOMER_ADMIN')")
      *
      * @ApiDoc(
      *     name="get customer bough campaigns list",
@@ -855,7 +975,7 @@ class CampaignController extends FOSRestController
      * @param CustomerDetails $customer
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function boughtCampaigns(Request $request, CustomerDetails $customer)
     {
@@ -928,7 +1048,7 @@ class CampaignController extends FOSRestController
      * @param string          $coupon
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function campaignCouponUsage(Request $request, CustomerDetails $customer, DomainCampaign $campaign, $coupon)
     {
@@ -987,7 +1107,7 @@ class CampaignController extends FOSRestController
      * @param Request                             $request
      * @param MultipleCampaignCouponUsageProvider $multipleCampaignCouponUsageProvider
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      * @View(serializerGroups={"admin", "Default"})
      *
      * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
@@ -1012,11 +1132,11 @@ class CampaignController extends FOSRestController
             $this->commandBus->dispatch($command);
 
             $result[] = new CouponUsageResponse(
-                    $command->getCoupon()->getCode(),
-                    $command->isUsed(),
-                    $command->getCampaignId()->__toString(),
-                    $command->getCustomerId()->__toString()
-                );
+                $command->getCoupon()->getCode(),
+                $command->isUsed(),
+                $command->getCampaignId()->__toString(),
+                $command->getCustomerId()->__toString()
+            );
         }
 
         return $this->view(['coupons' => $result]);

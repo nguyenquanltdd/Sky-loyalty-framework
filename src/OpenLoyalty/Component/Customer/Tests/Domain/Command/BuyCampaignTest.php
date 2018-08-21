@@ -4,7 +4,7 @@ namespace OpenLoyalty\Component\Customer\Tests\Domain\Command;
 
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
-use OpenLoyalty\Component\Customer\Domain\Command\BuyCampaign;
+use OpenLoyalty\Component\Customer\Domain\Command\BuyCustomerCampaign;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasRegistered;
@@ -29,7 +29,18 @@ class BuyCampaignTest extends CustomerCommandHandlerTest
             ->given([
                 new CustomerWasRegistered($customerId, CustomerCommandHandlerTest::getCustomerData()),
             ])
-            ->when(new BuyCampaign($customerId, $campaignId, 'test', 99, new Coupon('123'), Campaign::REWARD_TYPE_DISCOUNT_CODE))
+            ->when(
+                new BuyCustomerCampaign(
+                    $customerId,
+                    $campaignId,
+                    'test',
+                    99, new Coupon('123'),
+                    Campaign::REWARD_TYPE_DISCOUNT_CODE,
+                    CampaignPurchase::STATUS_ACTIVE,
+                    null,
+                    null
+                    )
+            )
             ->then([
                 new CampaignWasBoughtByCustomer($customerId, $campaignId, 'test', 99, new Coupon('123'), Campaign::REWARD_TYPE_DISCOUNT_CODE),
             ]);
@@ -49,14 +60,16 @@ class BuyCampaignTest extends CustomerCommandHandlerTest
                 new CustomerWasRegistered($customerId, CustomerCommandHandlerTest::getCustomerData()),
             ])
             ->when(
-                new BuyCampaign(
+                new BuyCustomerCampaign(
                 $customerId,
                 $campaignId,
                 'test',
                 99,
                 new Coupon('123'),
                 Campaign::REWARD_TYPE_DISCOUNT_CODE,
-                CampaignPurchase::STATUS_INACTIVE
+                CampaignPurchase::STATUS_INACTIVE,
+                null,
+                null
             )
             )->then([
                 new CampaignWasBoughtByCustomer(

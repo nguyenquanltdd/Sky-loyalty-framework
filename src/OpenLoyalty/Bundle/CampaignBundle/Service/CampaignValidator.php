@@ -57,6 +57,9 @@ class CampaignValidator
 
     public function validateCampaignLimits(Campaign $campaign, CustomerId $customerId)
     {
+        if ($campaign->isPercentageDiscountCode()) {
+            return;
+        }
         $countUsageForCampaign = $this->couponUsageRepository->countUsageForCampaign($campaign->getCampaignId());
 
         if ($campaign->isUnlimited()) {

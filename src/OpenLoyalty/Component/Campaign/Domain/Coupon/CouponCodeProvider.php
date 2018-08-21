@@ -5,9 +5,12 @@
  */
 namespace OpenLoyalty\Component\Campaign\Domain\Coupon;
 
+use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignLimitException;
+use OpenLoyalty\Bundle\CampaignBundle\Exception\NoCouponsLeftException;
+use OpenLoyalty\Bundle\CampaignBundle\Exception\TooLowCouponValueException;
 use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
-use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
+use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 
 /**
  * Class CouponCodeProvider.
@@ -34,15 +37,17 @@ class CouponCodeProvider
      * @param float|null $transactionValue
      *
      * @return Coupon
+     *
+     * @throws CampaignLimitException
      */
-    public function getCoupon(Campaign $campaign, float $transactionValue): ?Coupon
+    public function getCoupon(Campaign $campaign, float $transactionValue): Coupon
     {
         if ($campaign->getReward() === Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE) {
             $couponPercentage = $campaign->getTransactionPercentageValue();
             $couponValue = round($transactionValue * $couponPercentage / 100, 0);
 
             if ($couponValue === 0.0) {
-                return null;
+                throw new TooLowCouponValueException();
             }
 
             return new Coupon((string) $couponValue);
@@ -54,7 +59,7 @@ class CouponCodeProvider
         }
 
         if (count($freeCoupons) === 0) {
-            return null;
+            throw new NoCouponsLeftException();
         }
 
         return new Coupon(reset($freeCoupons));

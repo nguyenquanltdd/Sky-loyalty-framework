@@ -97,6 +97,7 @@
     "all_time_visible": "All time visible",
     "all_time_visible_prompt": "Reward campaign is always visible to customers",
     "basic_info": "Campaign details",
+    "buy_campaign_manually_modal": "Buy {{name}} campaign for client",
     "campaign_type": {
       "all": "All"
     },
@@ -115,6 +116,8 @@
     "coupons_upload_prompt": "",
     "current_points_amount": "Customer active points amount",
     "customer_email": "Customer e-mail",
+    "customer_email_or_phone": "E-mail or phone",
+    "customer_email_or_phone_prompt": "Find customer by e-mail or phone",
     "customer_lastname": "Customer's surname",
     "customer_name": "Customer's first name",
     "customer_phone": "Phone",
@@ -180,6 +183,8 @@
     "tax_price_value": "Tax value",
     "tax_price_value_prompt": "Value of tax for reward",
     "tax_prompt": "Percentage Value of tax for reward",
+    "transaction_document_number": "Transaction document number",
+    "transaction_document_number_prompt": "Find transaction by document number",
     "transaction_percentage_value": "Transaction percentage value",
     "transaction_percentage_value_prompt": "Percentage value of transaction in coupons",
     "type": "Campaign type",
@@ -194,6 +199,8 @@
     "usage_types.true": "Used",
     "used_by_user": "Used by customers",
     "users_in_campaign": "Users in campaign ",
+    "without_spending_points": "Without spending points ",
+    "without_spending_points_prompt": "Users points will not be used ",
     "value": "Value",
     "value code": "Value code",
     "value_code": "Value code",
@@ -2126,6 +2133,11 @@
       "error": "Server error",
       "success": "Reward campaign added",
       "warning": "Campaign added without photo"
+    },
+    "post_campaign_buy_manually_assign": {
+      "success": "Campaing has been successfully bought",
+      "error_occurred": "Error occurred",
+      "error": "Error when buing campaign for customer"
     },
     "post_cancel_transfer": {
       "error": "Server error",
