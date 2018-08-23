@@ -3,16 +3,22 @@
 namespace OpenLoyalty\Bundle\TransactionBundle\Tests\Integration\Controller\Api;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
+use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRule;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
 use OpenLoyalty\Bundle\TransactionBundle\DataFixtures\ORM\LoadTransactionData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Bundle\UserBundle\Status\CustomerStatusProvider;
 use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
+use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Import\Infrastructure\ImportResultItem;
+use OpenLoyalty\Component\Segment\Domain\Model\Criterion;
+use OpenLoyalty\Component\Segment\Domain\Segment;
+use OpenLoyalty\Component\Segment\Domain\SegmentId;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use Symfony\Component\HttpFoundation\Response;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * Class TransactionControllerTest.
@@ -1335,5 +1341,164 @@ class TransactionControllerTest extends BaseApiTest
                 $this->assertArrayHasKey('category', $item);
             }
         }
+    }
+
+    /**
+     * @test
+     */
+    public function it_register_new_transaction_and_assign_customer_by_email_and_multiply_points_by_customer_label_segment_group()
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/customer/register',
+            [
+                'customer' => [
+                    'firstName' => 'Anne',
+                    'lastName' => 'Rich',
+                    'email' => 'rich.anne@natyepaulinho.com',
+                    'gender' => 'male',
+                    'birthDate' => '1990-01-01',
+                    'labels' => 'customgroup:',
+                    'agreement1' => true,
+                ],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $customer = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('customerId', $customer);
+        $this->assertArrayHasKey('email', $customer);
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/segment',
+            [
+                'segment' => [
+                    'name' => 'Custom group',
+                    'description' => 'Custom group - customers with label customgroup',
+                    'active' => 1,
+                    'parts' => [
+                        [
+                            'criteria' => [
+                                [
+                                    'type' => Criterion::TYPE_CUSTOMER_HAS_LABELS,
+                                    'labels' => [
+                                        ['key' => 'customgroup', 'value' => ''],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $segmentData = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('segmentId', $segmentData);
+        /** @var Segment $segment */
+        $segment = static::$kernel->getContainer()->get('oloy.segment.repository')->byId(new SegmentId($segmentData['segmentId']));
+        $this->assertInstanceOf(Segment::class, $segment);
+        $this->assertEquals('Custom group', $segment->getName());
+        $this->assertEquals(1, count($segment->getParts()));
+        $segmentParts = $segment->getParts();
+
+        if ($segmentParts instanceof Collection) {
+            $part = $segmentParts->first();
+        } else {
+            $part = reset($segmentParts);
+        }
+
+        $this->assertEquals(1, count($part->getCriteria()));
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/earningRule',
+            [
+                'earningRule' => [
+                    'name' => 'Custom group multiplier',
+                    'description' => 'Custom group multiplier',
+                    'type' => EarningRule::TYPE_MULTIPLY_FOR_PRODUCT,
+                    'active' => 1,
+                    'allTimeActive' => true,
+                    'multiplier' => 4,
+                    'segments' => [
+                        $segment->getSegmentId()->__toString(),
+                    ],
+                    'skuIds' => [
+                        'SKU123',
+                    ],
+                    'target' => 'segment',
+                ],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('earningRuleId', $data);
+
+        $formData = [
+            'transactionData' => [
+                'documentNumber' => 'Custom-1234',
+                'documentType' => 'sell',
+                'purchaseDate' => '2018-08-01',
+                'purchasePlace' => 'wroclaw',
+            ],
+            'items' => [
+                0 => [
+                    'sku' => ['code' => 'SKU123'],
+                    'name' => 'Product abc',
+                    'quantity' => 1,
+                    'grossValue' => 100,
+                    'category' => 'Abc',
+                    'maker' => 'Company Inc.',
+                ],
+            ],
+            'customerData' => [
+                'name' => 'Anne Rich',
+                'email' => 'rich.anne@natyepaulinho.com',
+                'nip' => '00000000000000',
+                'loyaltyCardNumber' => '11111111111',
+                'address' => [
+                    'street' => 'Tori Lane',
+                    'address1' => '12',
+                    'city' => 'Salt Lake City',
+                    'country' => 'PL',
+                    'province' => 'Mazowieckie',
+                    'postal' => '00-800',
+                ],
+            ],
+        ];
+
+        $client = $this->createAuthenticatedClient();
+
+        $client->request(
+            'POST',
+            '/api/transaction',
+            [
+                'transaction' => $formData,
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        /** @var TransactionDetails $transaction */
+        $transaction = $repo->find($data['transactionId']);
+        $this->assertInstanceOf(TransactionDetails::class, $transaction);
+        $this->assertEquals($customer['customerId'], $transaction->getCustomerId()->__toString());
+
+        /** @var CustomerStatusProvider $statusProvider */
+        $statusProvider = static::$kernel->getContainer()->get('oloy.customer_status_provider');
+        $status = $statusProvider->getStatus(new CustomerId($customer['customerId']));
+
+        $this->assertEquals(1850, $status->getPoints());
     }
 }
