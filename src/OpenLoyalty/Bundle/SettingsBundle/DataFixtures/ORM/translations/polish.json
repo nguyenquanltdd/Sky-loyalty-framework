@@ -210,7 +210,11 @@
     "visible_from": "Widoczna Od",
     "visible_from_prompt": "",
     "visible_to": "Widoczna Do",
-    "visible_to_prompt": ""
+    "visible_to_prompt": "",
+    "brand_icon": "Logo marki",
+    "brand_info": "Marka",
+    "brand_name": "Nazwa marki",
+    "brand_name_prompt": ""
   },
   "campaign-value-code": "Rabat kwotowy",
   "client_cockpit": {
@@ -2340,6 +2344,20 @@
     "upload_settings_small_logo": {
       "error": "Małe logo nie zostało zapisane",
       "success": "Małe logo zostało zapisane"
+    },
+    "put_campaign_brand_icon": {
+      "error": "Wystąpił błąd",
+      "success": "Logo marki zostało dodane",
+      "warning": "Kampania została zapisana bez loga marki"
+    },
+    "delete_campaign_brand_icon": {
+      "error": "Wystąpił błąd",
+      "success": "Logo marki zostało wysynięte"
+    },
+    "post_campaign_brand_icon": {
+      "error": "Server error",
+      "success": "Logo marki zostało dodane",
+      "warning": "Kampania została zapisana bez loga marki"
     }
   },
   "Your password must be at least 8 characters long.": "Twoje hasło musi mieć co najmniej 8 znaków",

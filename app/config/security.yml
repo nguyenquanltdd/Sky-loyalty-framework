@@ -76,6 +76,11 @@ security:
             pattern:  ^/api/customer/customer-phone/send-sms-code
             stateless: true
             anonymous: true
+        campaign_brand_icon:
+            pattern:  ^/api/campaign/([a-zA-Z\-0-9]+)/brand_icon
+            methods: ["GET"]
+            stateless: true
+            anonymous: true
         campaign_photo:
             pattern:  ^/api/campaign/([a-zA-Z\-0-9]+)/photo
             methods: ["GET"]
@@ -166,6 +171,7 @@ security:
         - { path: ^/api/customer/self_register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/customer/activate/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/campaign/([a-zA-Z\-0-9]+)/photo, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
+        - { path: ^/api/campaign/([a-zA-Z\-0-9]+)/brand_icon, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
         - { path: ^/api/earningRule/([a-zA-Z\-0-9]+)/photo, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
         - { path: ^/api/level/([a-zA-Z\-0-9]+)/photo, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
         - { path: ^/api/password/reset, roles: IS_AUTHENTICATED_ANONYMOUSLY }

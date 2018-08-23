@@ -1,19 +1,19 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\CampaignBundle\Service;
 
-use OpenLoyalty\Bundle\CampaignBundle\Model\CampaignPhoto;
+use OpenLoyalty\Bundle\CampaignBundle\Model\CampaignBrandIcon;
 use OpenLoyalty\Component\Campaign\Domain\Model\CampaignFile;
 
 /**
- * Class CampaignPhotoUploader.
+ * Class CampaignBrandIconUploader.
  */
-class CampaignPhotoUploader extends CampaignFileUploader
+class CampaignBrandIconUploader extends CampaignFileUploader
 {
-    const FOLDER_NAME = 'campaign_photos';
+    const FOLDER_NAME = 'campaign_brand_icons';
 
     /**
      * {@inheritdoc}
@@ -28,6 +28,6 @@ class CampaignPhotoUploader extends CampaignFileUploader
      */
     public function getNewInstance(): CampaignFile
     {
-        return new CampaignPhoto();
+        return new CampaignBrandIcon();
     }
 }

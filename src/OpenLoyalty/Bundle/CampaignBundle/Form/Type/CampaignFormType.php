@@ -76,6 +76,9 @@ class CampaignFormType extends AbstractType
         $builder->add('conditionsDescription', TextareaType::class, [
             'required' => false,
         ]);
+        $builder->add('brandName', TextType::class, [
+            'required' => false,
+        ]);
 
         $builder->add('rewardValue', NumberType::class, [
             'scale' => 2,
