@@ -2,7 +2,7 @@ How to add a new API endpoint
 =============================
 
 Let’s say you want to add a new endpoint that will return just another list of earning points rules.
-Here is a step-by-step guid how to achieve this.
+Here is a step-by-step guide how to achieve this.
 
 First of all, you need to create a new controller in existing ``AppBundle`` in ``Controller`` directory.
 Here is a sample code
@@ -43,14 +43,14 @@ Here is a sample code
         }
     }
 
-@Route is an annotation to create a new route in Symfony Framework. Name is useful for creating links and redirection but not used as we’re implementing RESTful API. Path is an enpoint URI.
+@Route is an annotation to create a new route in Symfony Framework. The name is useful for creating links and redirection but not used as we’re implementing RESTful API. A path is an endpoint URI.
 
-If you’re not familiar with it check `documentation <https://symfony.com/doc/3.4/routing.html>`_.
+Route is an annotation to create a new route in Symfony Framework. The name is useful for creating links and redirection but not used as we’re implementing RESTful API. A path is an endpoint URI. <https://symfony.com/doc/3.4/routing.html>`_.
 
 @Method is an annotation to specify which HTTP requests are allowed for this endpoint. Here we accept only GET requests.
 
 @ApiDoc is an annotation from NelmioDocApi bundle to create a documentation for our API. This documentation is
-automatically generated from this annotations and available at ``http://openloyalty.localhost/doc``
+automatically generated from this annotation and available at ``http://openloyalty.localhost/doc``
 
 More information about this bundle you can find `here <https://symfony.com/doc/current/bundles/NelmioApiDocBundle/index.html>`_.
 
@@ -58,7 +58,7 @@ More information about this bundle you can find `here <https://symfony.com/doc/c
 
 Then we have an action in our controller ``indexAction`` that takes HTTP request as an argument and return a json response.
 
-Now, when we have a new controller, the last thing is to do is register it in the framework. To do that, add a follow
+Now, when we have a new controller, the last thing to do is register it in the framework. To do that, add a follow
 line in ``app/config/routing.yml``
 
 .. code-block:: yaml
