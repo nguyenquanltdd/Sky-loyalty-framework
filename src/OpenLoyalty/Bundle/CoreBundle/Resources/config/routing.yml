@@ -74,3 +74,7 @@ oloy_audit:
 terms_conditions:
   path: /terms-conditions
   controller: OpenLoyalty\Bundle\SettingsBundle\Controller\Api\SettingsController::getConditionsFileAction
+
+manifest:
+    path: /manifest
+    controller: OpenLoyalty\Bundle\SettingsBundle\Controller\Api\SettingsController::getManifestAction
