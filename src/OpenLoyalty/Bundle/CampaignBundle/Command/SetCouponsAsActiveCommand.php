@@ -85,7 +85,8 @@ class SetCouponsAsActiveCommand extends Command
                         new ActivateBoughtCampaign(
                             $customer->getCustomerId(),
                             $campaignPurchase->getCampaignId(),
-                            $campaignPurchase->getCoupon()
+                            $campaignPurchase->getCoupon(),
+                            $campaignPurchase->getTransactionId()
                         )
                     );
 

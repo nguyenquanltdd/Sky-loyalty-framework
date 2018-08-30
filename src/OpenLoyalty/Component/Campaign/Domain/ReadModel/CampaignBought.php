@@ -9,6 +9,8 @@ use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
+use OpenLoyalty\Component\Campaign\Domain\TransactionId;
+use OpenLoyalty\Component\Core\Domain\Model\Identifier;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 
 /**
@@ -102,25 +104,31 @@ class CampaignBought implements SerializableReadModel
     private $activeTo;
 
     /**
+     * @var Identifier|null
+     */
+    private $transactionId;
+
+    /**
      * CampaignBought constructor.
      *
-     * @param CampaignId     $campaignId
-     * @param CustomerId     $customerId
-     * @param \DateTime      $purchasedAt
-     * @param Coupon         $coupon
-     * @param string         $campaignType
-     * @param string         $campaignName
-     * @param string|null    $customerEmail
-     * @param string|null    $customerPhone
-     * @param string         $status
-     * @param bool           $used
-     * @param string         $customerName
-     * @param string         $customerLastname
-     * @param int            $costInPoints
-     * @param int            $currentPointsAmount
-     * @param float|null     $taxPriceValue
-     * @param \DateTime|null $activeSince
-     * @param \DateTime|null $activeTo
+     * @param CampaignId      $campaignId
+     * @param CustomerId      $customerId
+     * @param \DateTime       $purchasedAt
+     * @param Coupon          $coupon
+     * @param string          $campaignType
+     * @param string          $campaignName
+     * @param string|null     $customerEmail
+     * @param string|null     $customerPhone
+     * @param string          $status
+     * @param bool            $used
+     * @param string          $customerName
+     * @param string          $customerLastname
+     * @param int             $costInPoints
+     * @param int             $currentPointsAmount
+     * @param float|null      $taxPriceValue
+     * @param \DateTime|null  $activeSince
+     * @param \DateTime|null  $activeTo
+     * @param Identifier|null $transactionId
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -141,7 +149,8 @@ class CampaignBought implements SerializableReadModel
         ?int $currentPointsAmount = null,
         ?float $taxPriceValue = null,
         ?\DateTime $activeSince = null,
-        ?\DateTime $activeTo = null
+        ?\DateTime $activeTo = null,
+        ?Identifier $transactionId = null
     ) {
         $this->campaignId = $campaignId;
         $this->customerId = $customerId;
@@ -160,6 +169,7 @@ class CampaignBought implements SerializableReadModel
         $this->taxPriceValue = $taxPriceValue;
         $this->activeSince = $activeSince;
         $this->activeTo = $activeTo;
+        $this->transactionId = $transactionId;
     }
 
     /**
@@ -167,7 +177,7 @@ class CampaignBought implements SerializableReadModel
      */
     public function getId(): string
     {
-        return self::createId($this->campaignId, $this->customerId, $this->coupon);
+        return self::createId($this->campaignId, $this->customerId, $this->coupon, $this->transactionId);
     }
 
     /**
@@ -204,7 +214,8 @@ class CampaignBought implements SerializableReadModel
             $data['currentPointsAmount'] ?? null,
             $data['taxPriceValue'] ?? null,
             $activeSince ?? null,
-            $activeTo ?? null
+            $activeTo ?? null,
+            isset($data['transactionId']) ? new TransactionId($data['transactionId']) : null
         );
     }
 
@@ -231,19 +242,23 @@ class CampaignBought implements SerializableReadModel
             'taxPriceValue' => $this->taxPriceValue,
             'activeSince' => $this->activeSince ? $this->activeSince->getTimestamp() : null,
             'activeTo' => $this->activeTo ? $this->activeTo->getTimestamp() : null,
+            'transactionId' => $this->transactionId ? $this->transactionId->__toString() : null,
         ];
     }
 
     /**
-     * @param CampaignId $campaignId
-     * @param CustomerId $customerId
-     * @param Coupon     $coupon
+     * @param CampaignId         $campaignId
+     * @param CustomerId         $customerId
+     * @param Coupon             $coupon
+     * @param null|TransactionId $transactionId
      *
      * @return string
      */
-    public static function createId(CampaignId $campaignId, CustomerId $customerId, Coupon $coupon): string
+    public static function createId(CampaignId $campaignId, CustomerId $customerId, Coupon $coupon, ?TransactionId $transactionId = null): string
     {
-        return $campaignId->__toString().'_'.$customerId->__toString().'_'.$coupon->getCode();
+        $transactionSuffix = $transactionId ? '_'.$transactionId->__toString() : '';
+
+        return $campaignId->__toString().'_'.$customerId->__toString().'_'.$coupon->getCode().$transactionSuffix;
     }
 
     /**
@@ -260,5 +275,77 @@ class CampaignBought implements SerializableReadModel
     public function setStatus(string $status): void
     {
         $this->status = $status;
+    }
+
+    /**
+     * @return CampaignId
+     */
+    public function getCampaignId(): CampaignId
+    {
+        return $this->campaignId;
+    }
+
+    /**
+     * @return CustomerId
+     */
+    public function getCustomerId(): CustomerId
+    {
+        return $this->customerId;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getPurchasedAt(): \DateTime
+    {
+        return $this->purchasedAt;
+    }
+
+    /**
+     * @return Coupon
+     */
+    public function getCoupon(): Coupon
+    {
+        return $this->coupon;
+    }
+
+    /**
+     * @param Coupon $coupon
+     */
+    public function setCoupon(Coupon $coupon): void
+    {
+        $this->coupon = $coupon;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCampaignType(): string
+    {
+        return $this->campaignType;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    /**
+     * @return Identifier|null
+     */
+    public function getTransactionId(): ?Identifier
+    {
+        return $this->transactionId;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUsed(): bool
+    {
+        return $this->used;
     }
 }

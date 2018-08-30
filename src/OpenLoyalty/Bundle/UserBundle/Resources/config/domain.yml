@@ -1,5 +1,6 @@
 services:
-  OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository: '@oloy.user.read_model.repository.customer_details'
+  _defaults:
+    autowire: true
 
   oloy.user.customer.command_handler:
     class: OpenLoyalty\Component\Customer\Domain\Command\CustomerCommandHandler
@@ -92,9 +93,8 @@ services:
     tags:
       - { name: broadway.domain.event_listener }
     arguments:
-      - '@oloy.user.read_model.repository.customer_details'
-      - '@oloy.transaction.read_model.repository.transaction_details'
-      - '@oloy.level.repository'
+      $repository: '@oloy.user.read_model.repository.customer_details'
+      $levelRepository: '@oloy.level.repository'
   oloy.user.customer.read_model.projector.invitation_details:
     class: 'OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetailsProjector'
     tags:
@@ -168,3 +168,5 @@ services:
       - { name: broadway.event_listener, event: oloy.pos.updated, method: handlePosUpdated }
     arguments:
       - '@oloy.user.read_model.repository.seller_details'
+
+  OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository: '@oloy.user.read_model.repository.customer_details'

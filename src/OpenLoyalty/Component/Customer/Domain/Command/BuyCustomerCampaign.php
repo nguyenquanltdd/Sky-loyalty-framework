@@ -5,9 +5,11 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\Command;
 
+use OpenLoyalty\Component\Core\Domain\Model\Identifier;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
+use OpenLoyalty\Component\Customer\Domain\TransactionId;
 
 /**
  * Class BuyCampaign.
@@ -55,6 +57,11 @@ class BuyCustomerCampaign extends CustomerCommand
     private $activeTo;
 
     /**
+     * @var Identifier|null
+     */
+    private $transactionId;
+
+    /**
      * BuyCampaign constructor.
      *
      * @param CustomerId $customerId
@@ -63,9 +70,10 @@ class BuyCustomerCampaign extends CustomerCommand
      * @param $costInPoints
      * @param Coupon $coupon
      * @param $reward
-     * @param string         $status
-     * @param \DateTime|null $activeSince
-     * @param \DateTime|null $activeTo
+     * @param string          $status
+     * @param \DateTime|null  $activeSince
+     * @param \DateTime|null  $activeTo
+     * @param Identifier|null $transactionId
      */
     public function __construct(
         CustomerId $customerId,
@@ -74,9 +82,10 @@ class BuyCustomerCampaign extends CustomerCommand
         $costInPoints,
         Coupon $coupon,
         $reward,
-        string $status,
-        ?\DateTime $activeSince,
-        ?\DateTime $activeTo
+        string $status = CampaignPurchase::STATUS_ACTIVE,
+        ?\DateTime $activeSince = null,
+        ?\DateTime $activeTo = null,
+        ?Identifier $transactionId = null
     ) {
         parent::__construct($customerId);
         $this->campaignId = $campaignId;
@@ -87,6 +96,7 @@ class BuyCustomerCampaign extends CustomerCommand
         $this->status = $status;
         $this->activeSince = $activeSince;
         $this->activeTo = $activeTo;
+        $this->transactionId = $transactionId;
     }
 
     /**
@@ -151,5 +161,13 @@ class BuyCustomerCampaign extends CustomerCommand
     public function getActiveTo(): ?\DateTime
     {
         return $this->activeTo;
+    }
+
+    /**
+     * @return null|Identifier
+     */
+    public function getTransactionId(): ?Identifier
+    {
+        return $this->transactionId;
     }
 }

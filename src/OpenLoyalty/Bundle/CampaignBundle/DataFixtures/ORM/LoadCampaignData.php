@@ -150,7 +150,7 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaign->setName('Percentage discount code');
         $campaign->setActive(true);
         $campaign->setLabels([new Label('type', 'cashback')]);
-        $campaign->setLevels([new LevelId(LoadLevelData::LEVEL2_ID)]);
+        $campaign->setLevels([new LevelId(LoadLevelData::LEVEL_ID), new LevelId(LoadLevelData::LEVEL2_ID), new LevelId(LoadLevelData::LEVEL3_ID)]);
         $campaign->setSegments([new SegmentId(LoadSegmentData::SEGMENT2_ID)]);
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(true);
@@ -158,8 +158,8 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaignVisibility = new CampaignVisibility();
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
-        $campaign->setDaysInactive(28);
-        $campaign->setDaysValid(100);
+        $campaign->setDaysInactive(0);
+        $campaign->setDaysValid(0);
         $campaign->setTransactionPercentageValue(10);
         $campaign->setCategories([
             new CampaignCategoryId(self::CAMPAIGN_CATEGORY2_ID),

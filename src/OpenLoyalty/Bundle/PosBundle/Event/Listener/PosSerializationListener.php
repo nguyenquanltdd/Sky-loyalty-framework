@@ -5,12 +5,12 @@
  */
 namespace OpenLoyalty\Bundle\PosBundle\Event\Listener;
 
-use Broadway\ReadModel\Repository;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Component\Pos\Domain\Pos;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
+use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 
 /**
  * Class PosSerializationListener.
@@ -18,7 +18,7 @@ use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 class PosSerializationListener implements EventSubscriberInterface
 {
     /**
-     * @var Repository
+     * @var TransactionDetailsRepository
      */
     protected $transactionDetailsRepository;
 
@@ -30,10 +30,10 @@ class PosSerializationListener implements EventSubscriberInterface
     /**
      * PosSerializationListener constructor.
      *
-     * @param Repository      $transactionDetailsRepository
-     * @param SettingsManager $settingsManager
+     * @param TransactionDetailsRepository $transactionDetailsRepository
+     * @param SettingsManager              $settingsManager
      */
-    public function __construct(Repository $transactionDetailsRepository, SettingsManager $settingsManager)
+    public function __construct(TransactionDetailsRepository $transactionDetailsRepository, SettingsManager $settingsManager)
     {
         $this->transactionDetailsRepository = $transactionDetailsRepository;
         $this->settingsManager = $settingsManager;

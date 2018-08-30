@@ -7,6 +7,7 @@ namespace OpenLoyalty\Component\Transaction\Infrastructure\Repository;
 
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use OpenLoyalty\Component\Core\Infrastructure\Repository\OloyElasticsearchRepository;
+use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 
 /**
@@ -236,6 +237,36 @@ class TransactionDetailsElasticsearchRepository extends OloyElasticsearchReposit
         $params = $this->prepareLabels($params);
 
         return parent::findByParametersPaginated($params, $exact, $page, $perPage, $sortField, $direction);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findTransactionByDocumentNumber(string $documentNumber, bool $customer = true): ?TransactionDetails
+    {
+        $query['bool']['must'][]['term'] = ['documentNumber' => $documentNumber];
+
+        if ($customer) {
+            $query['bool']['must'][]['exists'] = ['field' => 'customerId'];
+        }
+
+        $result = $this->findByParameters(['documentNumber' => $documentNumber]);
+
+        return $result[0] ?? null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findReturnsByDocumentNumber(string $documentNumber, bool $customer = true): array
+    {
+        $query['bool']['must'][]['term'] = ['revisedDocument' => $documentNumber];
+
+        if ($customer) {
+            $query['bool']['must'][]['exists'] = ['field' => 'customerId'];
+        }
+
+        return $this->query($query);
     }
 
     /**

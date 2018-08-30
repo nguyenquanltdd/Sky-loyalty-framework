@@ -86,7 +86,8 @@ class BuyCampaignHandler extends SimpleCommandHandler
                 $campaign->getReward(),
                 $status,
                 $activeSince,
-                $activeTo
+                $activeTo,
+                $command->getTransactionId()
             )
         );
     }

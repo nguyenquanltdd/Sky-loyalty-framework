@@ -13,6 +13,9 @@ use OpenLoyalty\Component\Core\Domain\Model\Identifier;
  */
 class TransactionId implements Identifier
 {
+    /**
+     * @var string
+     */
     private $transactionId;
 
     /**

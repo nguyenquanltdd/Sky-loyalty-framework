@@ -967,7 +967,7 @@ class CustomerControllerTest extends BaseApiTest
             ['lastName', 'Doe', 11],
             ['lastName', 'Doe1', 1],
             ['lastName', 'Smith', 2],
-            ['phone', '48', 5],
+            ['phone', '48', 6],
             ['phone', '645', 2],
             ['email', '@', 14],
             ['email', 'user-1', 1],
@@ -1232,7 +1232,7 @@ class CustomerControllerTest extends BaseApiTest
         return [
             ['emailOrPhone', 'user-1', 1, ['email', 'phone']],
             ['emailOrPhone', 'user-1@oloy.com', 1, ['email', 'phone']],
-            ['emailOrPhone', '+48', 5, ['email', 'phone']],
+            ['emailOrPhone', '+48', 6, ['email', 'phone']],
             ['emailOrPhone', '645', 2, ['email', 'phone']],
         ];
     }

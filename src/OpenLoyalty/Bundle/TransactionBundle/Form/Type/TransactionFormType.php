@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\TransactionBundle\Form\Type;
 
+use OpenLoyalty\Bundle\TransactionBundle\Validator\Constraints\UniqueDocumentNumber;
 use OpenLoyalty\Component\Pos\Domain\Pos;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
 use OpenLoyalty\Component\Transaction\Domain\Transaction;
@@ -82,7 +83,7 @@ class TransactionFormType extends AbstractType
         ]);
         $dataFrom->add('documentNumber', TextType::class, [
             'required' => true,
-            'constraints' => [new NotBlank()],
+            'constraints' => [new NotBlank(), new UniqueDocumentNumber()],
         ]);
         $dataFrom->add('purchasePlace', TextType::class);
         $dataFrom->add('purchaseDate', DateTimeType::class, [

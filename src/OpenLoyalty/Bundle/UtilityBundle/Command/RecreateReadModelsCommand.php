@@ -9,6 +9,7 @@ use Broadway\Domain\DateTime;
 use Broadway\Domain\DomainEventStream;
 use Broadway\Domain\DomainMessage;
 use Broadway\EventHandling\SimpleEventBus;
+use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsProjector;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -27,7 +28,7 @@ class RecreateReadModelsCommand extends ContainerAwareCommand
         'oloy.user.customer.read_model.projector.customers_belonging_to_one_level',
         'oloy.points.account.read_model.projector.account_details',
         'oloy.points.account.read_model.projector.point_transfer_details',
-        'oloy.transaction.read_model.projector.transaction_details',
+        TransactionDetailsProjector::class,
         'oloy.campaign.read_model.projector.coupon_usage',
         'oloy.campaign.read_model.projector.campaign_usage',
         'oloy.campaign.read_model.projector.campaign_bought',

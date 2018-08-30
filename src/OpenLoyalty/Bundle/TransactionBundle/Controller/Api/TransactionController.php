@@ -101,7 +101,7 @@ class TransactionController extends FOSRestController
         $pagination = $this->get('oloy.pagination')->handleFromRequest($request, 'purchaseDate', 'DESC');
 
         /** @var TransactionDetailsRepository $repo */
-        $repo = $this->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = $this->get(TransactionDetailsRepository::class);
 
         $transactions = $repo->findByParametersPaginated(
             $params,
@@ -152,7 +152,7 @@ class TransactionController extends FOSRestController
         $pagination = $this->get('oloy.pagination')->handleFromRequest($request, 'purchaseDate', 'DESC');
 
         /** @var TransactionDetailsRepository $repo */
-        $repo = $this->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = $this->get(TransactionDetailsRepository::class);
 
         $transactions = $repo->findByParametersPaginated(
             $params,
@@ -188,7 +188,7 @@ class TransactionController extends FOSRestController
     public function listByDocumentNumberAction($documentNumber)
     {
         /** @var TransactionDetailsRepository $repo */
-        $repo = $this->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = $this->get(TransactionDetailsRepository::class);
 
         $transactions = $repo->findByParameters(
             ['documentNumber' => $documentNumber]
@@ -223,7 +223,7 @@ class TransactionController extends FOSRestController
     public function getItemLabelsAction()
     {
         /** @var TransactionDetailsRepository $repo */
-        $repo = $this->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = $this->get(TransactionDetailsRepository::class);
         $labels = $repo->getAvailableLabels();
 
         return $this->view([

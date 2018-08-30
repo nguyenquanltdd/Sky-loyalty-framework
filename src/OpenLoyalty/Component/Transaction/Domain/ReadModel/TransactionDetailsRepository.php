@@ -73,6 +73,22 @@ interface TransactionDetailsRepository extends Repository
     public function findByParametersPaginated(array $params, $exact = true, $page = 1, $perPage = 10, $sortField = null, $direction = 'DESC'): array;
 
     /**
+     * @param string $documentNumber
+     * @param bool   $customer
+     *
+     * @return TransactionDetails|null
+     */
+    public function findTransactionByDocumentNumber(string $documentNumber, bool $customer = true): ?TransactionDetails;
+
+    /**
+     * @param string $documentNumber
+     * @param bool   $customer
+     *
+     * @return TransactionDetails[]
+     */
+    public function findReturnsByDocumentNumber(string $documentNumber, bool $customer = true): array;
+
+    /**
      * @param array $params
      * @param bool  $exact
      *

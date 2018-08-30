@@ -17,8 +17,10 @@ use OpenLoyalty\Component\Segment\Domain\Model\Criterion;
 use OpenLoyalty\Component\Segment\Domain\Segment;
 use OpenLoyalty\Component\Segment\Domain\SegmentId;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
+use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\HttpKernel\Client;
 
 /**
  * Class TransactionControllerTest.
@@ -130,7 +132,7 @@ class TransactionControllerTest extends BaseApiTest
     {
         $formData = [
             'transactionData' => [
-                'documentNumber' => '123',
+                'documentNumber' => '12311',
                 'documentType' => 'sell',
                 'purchaseDate' => '2015-01-01',
                 'purchasePlace' => 'wroclaw',
@@ -176,20 +178,11 @@ class TransactionControllerTest extends BaseApiTest
             ],
         ];
 
-        $client = $this->createAuthenticatedClient();
-        $client->request(
-            'POST',
-            '/api/transaction',
-            [
-                'transaction' => $formData,
-            ]
-        );
-
-        $response = $client->getResponse();
+        $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
         /** @var TransactionDetails $transaction */
         $transaction = $repo->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
@@ -203,7 +196,7 @@ class TransactionControllerTest extends BaseApiTest
     {
         $formData = [
             'transactionData' => [
-                'documentNumber' => '123',
+                'documentNumber' => '12322',
                 'purchaseDate' => '2015-01-01',
                 'purchasePlace' => 'wroclaw',
             ],
@@ -228,20 +221,11 @@ class TransactionControllerTest extends BaseApiTest
             ],
         ];
 
-        $client = $this->createAuthenticatedClient();
-        $client->request(
-            'POST',
-            '/api/transaction',
-            [
-                'transaction' => $formData,
-            ]
-        );
-
-        $response = $client->getResponse();
+        $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
         /** @var TransactionDetails $transaction */
         $transaction = $repo->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
@@ -256,7 +240,7 @@ class TransactionControllerTest extends BaseApiTest
         $formData = [
             'revisedDocument' => 'revised test',
             'transactionData' => [
-                'documentNumber' => '123',
+                'documentNumber' => '12333',
                 'purchaseDate' => '2015-01-01',
                 'purchasePlace' => 'wroclaw',
                 'documentType' => 'return',
@@ -282,20 +266,11 @@ class TransactionControllerTest extends BaseApiTest
             ],
         ];
 
-        $client = $this->createAuthenticatedClient();
-        $client->request(
-            'POST',
-            '/api/transaction',
-            [
-                'transaction' => $formData,
-            ]
-        );
-
-        $response = $client->getResponse();
+        $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
         /** @var TransactionDetails $transaction */
         $transaction = $repo->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
@@ -312,7 +287,7 @@ class TransactionControllerTest extends BaseApiTest
     {
         $formData = [
             'transactionData' => [
-                'documentNumber' => '123',
+                'documentNumber' => '12344',
                 'documentType' => 'sell',
                 'purchaseDate' => '2015-01-01',
                 'purchasePlace' => 'wroclaw',
@@ -353,20 +328,11 @@ class TransactionControllerTest extends BaseApiTest
             'pos' => LoadPosData::POS_ID,
         ];
 
-        $client = $this->createAuthenticatedClient();
-        $client->request(
-            'POST',
-            '/api/transaction',
-            [
-                'transaction' => $formData,
-            ]
-        );
-
-        $response = $client->getResponse();
+        $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
         /** @var TransactionDetails $transaction */
         $transaction = $repo->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
@@ -381,7 +347,7 @@ class TransactionControllerTest extends BaseApiTest
     {
         $formData = [
             'transactionData' => [
-                'documentNumber' => '123',
+                'documentNumber' => '12355',
                 'documentType' => 'sell',
                 'purchaseDate' => '2015-01-01',
                 'purchasePlace' => 'wroclaw',
@@ -421,20 +387,11 @@ class TransactionControllerTest extends BaseApiTest
             ],
         ];
 
-        $client = $this->createAuthenticatedClient();
-        $client->request(
-            'POST',
-            '/api/transaction',
-            [
-                'transaction' => $formData,
-            ]
-        );
-
-        $response = $client->getResponse();
+        $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
         /** @var TransactionDetails $transaction */
         $transaction = $repo->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
@@ -449,7 +406,7 @@ class TransactionControllerTest extends BaseApiTest
     {
         $formData = [
             'transactionData' => [
-                'documentNumber' => '123',
+                'documentNumber' => '12366',
                 'documentType' => 'sell',
                 'purchaseDate' => '2015-01-01',
                 'purchasePlace' => 'wroclaw',
@@ -492,20 +449,11 @@ class TransactionControllerTest extends BaseApiTest
             ],
         ];
 
-        $client = $this->createAuthenticatedClient();
-        $client->request(
-            'POST',
-            '/api/transaction',
-            [
-                'transaction' => $formData,
-            ]
-        );
-
-        $response = $client->getResponse();
+        $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
         /** @var TransactionDetails $transaction */
         $transaction = $repo->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
@@ -537,7 +485,7 @@ class TransactionControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
         /** @var TransactionDetails $transaction */
         $transaction = $repo->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
@@ -570,7 +518,7 @@ class TransactionControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
         static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
         /** @var TransactionDetails $transaction */
         $transaction = $repo->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
@@ -592,7 +540,7 @@ class TransactionControllerTest extends BaseApiTest
 
         $formData = [
             'transactionData' => [
-                'documentNumber' => '11238',
+                'documentNumber' => '12377',
                 'documentType' => 'sell',
                 'purchaseDate' => (new \DateTime())->format('Y-m-d'),
                 'purchasePlace' => 'NY',
@@ -632,19 +580,11 @@ class TransactionControllerTest extends BaseApiTest
             ],
         ];
 
-        $client = $this->createAuthenticatedClient();
-        $client->request(
-            'POST',
-            '/api/transaction',
-            [
-                'transaction' => $formData,
-            ]
-        );
-
+        $this->sendCreateTransactionRequest($formData);
         //create return transaction for 11238
 
         $formData = [
-            'revisedDocument' => '11238',
+            'revisedDocument' => '12377',
             'transactionData' => [
                 'documentNumber' => '999911238',
                 'documentType' => 'return',
@@ -682,16 +622,7 @@ class TransactionControllerTest extends BaseApiTest
             ],
         ];
 
-        $client = $this->createAuthenticatedClient();
-        $client->request(
-            'POST',
-            '/api/transaction',
-            [
-                'transaction' => $formData,
-            ]
-        );
-
-        $response = $client->getResponse();
+        $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200'
             .$response->getContent());
 
@@ -786,14 +717,7 @@ class TransactionControllerTest extends BaseApiTest
             ],
         ];
 
-        $client = $this->createAuthenticatedClient();
-        $client->request(
-            'POST',
-            '/api/transaction',
-            [
-                'transaction' => $formData,
-            ]
-        );
+        $this->sendCreateTransactionRequest($formData);
 
         //create return transaction for R/11234
 
@@ -840,21 +764,12 @@ class TransactionControllerTest extends BaseApiTest
             ],
         ];
 
-        $client = $this->createAuthenticatedClient();
-        $client->request(
-            'POST',
-            '/api/transaction',
-            [
-                'transaction' => $formData,
-            ]
-        );
-
-        $response = $client->getResponse();
+        $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200'
             .$response->getContent());
         static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
         /** @var TransactionDetails $transaction */
         $transaction = $repo->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
@@ -930,14 +845,7 @@ class TransactionControllerTest extends BaseApiTest
             ],
         ];
 
-        $client = $this->createAuthenticatedClient();
-        $client->request(
-            'POST',
-            '/api/transaction',
-            [
-                'transaction' => $formData,
-            ]
-        );
+        $this->sendCreateTransactionRequest($formData);
 
         //create return transaction for R/11235
 
@@ -984,21 +892,12 @@ class TransactionControllerTest extends BaseApiTest
             ],
         ];
 
-        $client = $this->createAuthenticatedClient();
-        $client->request(
-            'POST',
-            '/api/transaction',
-            [
-                'transaction' => $formData,
-            ]
-        );
-
-        $response = $client->getResponse();
+        $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200'
             .$response->getContent());
         static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
         /** @var TransactionDetails $transaction */
         $transaction = $repo->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
@@ -1029,7 +928,7 @@ class TransactionControllerTest extends BaseApiTest
 
         $formData = [
             'transactionData' => [
-                'documentNumber' => '123',
+                'documentNumber' => '12399',
                 'documentType' => 'sell',
                 'purchaseDate' => '2015-01-01',
                 'purchasePlace' => 'wroclaw',
@@ -1069,20 +968,10 @@ class TransactionControllerTest extends BaseApiTest
             ],
         ];
 
-        $client = $this->createAuthenticatedClient();
-
-        $client->request(
-            'POST',
-            '/api/transaction',
-            [
-                'transaction' => $formData,
-            ]
-        );
-
-        $response = $client->getResponse();
+        $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
         /** @var TransactionDetails $transaction */
         $transaction = $repo->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
@@ -1144,20 +1033,10 @@ class TransactionControllerTest extends BaseApiTest
             ],
         ];
 
-        $client = $this->createAuthenticatedClient();
-
-        $client->request(
-            'POST',
-            '/api/transaction',
-            [
-                'transaction' => $formData,
-            ]
-        );
-
-        $response = $client->getResponse();
+        $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
         /** @var TransactionDetails $transaction */
         $transaction = $repo->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
@@ -1173,7 +1052,7 @@ class TransactionControllerTest extends BaseApiTest
 
         $formData = [
             'transactionData' => [
-                'documentNumber' => '123',
+                'documentNumber' => '123111',
                 'documentType' => 'sell',
                 'purchaseDate' => '2015-01-01',
                 'purchasePlace' => 'wroclaw',
@@ -1213,20 +1092,10 @@ class TransactionControllerTest extends BaseApiTest
             ],
         ];
 
-        $client = $this->createAuthenticatedClient();
-
-        $client->request(
-            'POST',
-            '/api/transaction',
-            [
-                'transaction' => $formData,
-            ]
-        );
-
-        $response = $client->getResponse();
+        $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
         /** @var TransactionDetails $transaction */
         $transaction = $repo->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
@@ -1256,7 +1125,7 @@ class TransactionControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
         static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
         /** @var TransactionDetails $transaction */
         $transaction = $repo->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
@@ -1287,7 +1156,7 @@ class TransactionControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
         static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
         /** @var TransactionDetails $transaction */
         $transaction = $repo->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
@@ -1360,6 +1229,7 @@ class TransactionControllerTest extends BaseApiTest
                     'gender' => 'male',
                     'birthDate' => '1990-01-01',
                     'labels' => 'customgroup:',
+                    'phone' => self::PHONE_NUMBER,
                     'agreement1' => true,
                 ],
             ]
@@ -1476,20 +1346,10 @@ class TransactionControllerTest extends BaseApiTest
             ],
         ];
 
-        $client = $this->createAuthenticatedClient();
-
-        $client->request(
-            'POST',
-            '/api/transaction',
-            [
-                'transaction' => $formData,
-            ]
-        );
-
-        $response = $client->getResponse();
+        $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $repo = static::$kernel->getContainer()->get('oloy.transaction.read_model.repository.transaction_details');
+        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
         /** @var TransactionDetails $transaction */
         $transaction = $repo->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
@@ -1500,5 +1360,83 @@ class TransactionControllerTest extends BaseApiTest
         $status = $statusProvider->getStatus(new CustomerId($customer['customerId']));
 
         $this->assertEquals(1850, $status->getPoints());
+    }
+
+    /**
+     * @dataProvider getDuplicatedNumberTransactionData
+     * @test
+     *
+     * @param array $transactionData
+     */
+    public function it_blocks_trasaction_with_duplicated_document_number(array $transactionData)
+    {
+        $response = $this->sendCreateTransactionRequest($transactionData)->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        $response = $this->sendCreateTransactionRequest($transactionData)->getResponse();
+        $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 400');
+    }
+
+    /**
+     * @param array $transactionData
+     *
+     * @return Client
+     */
+    private function sendCreateTransactionRequest(array $transactionData): Client
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/transaction',
+            [
+                'transaction' => $transactionData,
+            ]
+        );
+
+        return $client;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDuplicatedNumberTransactionData(): array
+    {
+        return [
+            [
+                [
+                    'transactionData' => [
+                        'documentNumber' => '431234',
+                        'documentType' => 'sell',
+                        'purchaseDate' => (new \DateTime('+1 day'))->format('Y-m-d'),
+                        'purchasePlace' => 'wroclaw',
+                    ],
+                    'items' => [
+                        0 => [
+                            'sku' => ['code' => '12113'],
+                            'name' => 'sku',
+                            'quantity' => 1,
+                            'grossValue' => 3,
+                            'category' => 'test',
+                            'maker' => 'company',
+                        ],
+                    ],
+                    'customerData' => [
+                        'name' => 'Jan Nowak',
+                        'email' => 'user-temp@oloy.com',
+                        'nip' => 'aaa',
+                        'phone' => '+48123123123',
+                        'loyaltyCardNumber' => 'not-present-in-system',
+                        'address' => [
+                            'street' => 'Bagno',
+                            'address1' => '12',
+                            'city' => 'Warszawa',
+                            'country' => 'PL',
+                            'province' => 'Mazowieckie',
+                            'postal' => '00-800',
+                        ],
+                    ],
+                ],
+            ],
+        ];
     }
 }

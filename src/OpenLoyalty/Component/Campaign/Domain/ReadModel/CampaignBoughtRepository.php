@@ -9,4 +9,26 @@ use Broadway\ReadModel\Repository;
 
 interface CampaignBoughtRepository extends Repository
 {
+    /**
+     * @param string $transactionId
+     * @param string $customerId
+     *
+     * @return CampaignBought[]
+     */
+    public function findByTransactionIdAndCustomerId(string $transactionId, string $customerId): array;
+
+    /**
+     * @param string $customerId
+     * @param bool   $used
+     *
+     * @return CampaignBought[]
+     */
+    public function findByCustomerIdAndUsed(string $customerId, bool $used): array;
+
+    /**
+     * @param string $customerId
+     *
+     * @return CampaignBought[]
+     */
+    public function findByCustomerId(string $customerId): array;
 }

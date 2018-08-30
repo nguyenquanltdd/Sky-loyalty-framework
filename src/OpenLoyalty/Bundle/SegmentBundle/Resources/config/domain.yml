@@ -1,4 +1,7 @@
 services:
+  _defaults:
+    autowire: true
+
   oloy.segment.command_handler:
     class: OpenLoyalty\Component\Segment\Domain\Command\SegmentCommandHandler
     arguments:
@@ -42,8 +45,7 @@ services:
   oloy.segment.evaluator.bought_in_pos:
     class: OpenLoyalty\Component\Segment\Domain\Segmentation\CriteriaEvaluators\BoughtInPosEvaluator
     arguments:
-      - '@oloy.transaction.read_model.repository.transaction_details'
-      - '@oloy.segment.customer_validator'
+      $customerValidator: '@oloy.segment.customer_validator'
     tags:
       - { name: oloy_segmentation_evaluator }
   oloy.segment.evaluator.transaction_count:
@@ -73,43 +75,37 @@ services:
   oloy.segment.evaluator.purchase_in_period:
     class: OpenLoyalty\Component\Segment\Domain\Segmentation\CriteriaEvaluators\PurchasePeriodEvaluator
     arguments:
-      - '@oloy.transaction.read_model.repository.transaction_details'
-      - '@oloy.segment.customer_validator'
+      $customerValidator: '@oloy.segment.customer_validator'
     tags:
       - { name: oloy_segmentation_evaluator }
   oloy.segment.evaluator.last_purchase_n_days_before:
     class: OpenLoyalty\Component\Segment\Domain\Segmentation\CriteriaEvaluators\LastPurchaseNDaysBeforeEvaluator
     arguments:
-      - '@oloy.transaction.read_model.repository.transaction_details'
-      - '@oloy.segment.customer_validator'
+      $customerValidator: '@oloy.segment.customer_validator'
     tags:
       - { name: oloy_segmentation_evaluator }
   oloy.segment.evaluator.transaction_percent_in_pos:
     class: OpenLoyalty\Component\Segment\Domain\Segmentation\CriteriaEvaluators\TransactionPercentInPosEvaluator
     arguments:
-      - '@oloy.transaction.read_model.repository.transaction_details'
-      - '@oloy.segment.customer_validator'
+      $customerValidator: '@oloy.segment.customer_validator'
     tags:
       - { name: oloy_segmentation_evaluator }
   oloy.segment.evaluator.bought_skus:
     class: OpenLoyalty\Component\Segment\Domain\Segmentation\CriteriaEvaluators\BoughtSKUsEvaluator
     arguments:
-      - '@oloy.transaction.read_model.repository.transaction_details'
-      - '@oloy.segment.customer_validator'
+      $customerValidator: '@oloy.segment.customer_validator'
     tags:
       - { name: oloy_segmentation_evaluator }
   oloy.segment.evaluator.bought_makers:
     class: OpenLoyalty\Component\Segment\Domain\Segmentation\CriteriaEvaluators\BoughtMakersEvaluator
     arguments:
-      - '@oloy.transaction.read_model.repository.transaction_details'
-      - '@oloy.segment.customer_validator'
+      $customerValidator: '@oloy.segment.customer_validator'
     tags:
       - { name: oloy_segmentation_evaluator }
   oloy.segment.evaluator.bought_labels:
     class: OpenLoyalty\Component\Segment\Domain\Segmentation\CriteriaEvaluators\BoughtLabelsEvaluator
     arguments:
-      - '@oloy.transaction.read_model.repository.transaction_details'
-      - '@oloy.segment.customer_validator'
+      $customerValidator: '@oloy.segment.customer_validator'
     tags:
       - { name: oloy_segmentation_evaluator }
   oloy.segment.evaluator.customer_has_labels:

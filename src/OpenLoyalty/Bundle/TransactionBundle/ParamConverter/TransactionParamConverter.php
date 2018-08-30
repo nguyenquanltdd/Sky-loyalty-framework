@@ -5,8 +5,8 @@
  */
 namespace OpenLoyalty\Bundle\TransactionBundle\ParamConverter;
 
-use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
+use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\ParamConverterInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,16 +18,16 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class TransactionParamConverter implements ParamConverterInterface
 {
     /**
-     * @var Repository
+     * @var TransactionDetailsRepository
      */
     protected $repository;
 
     /**
      * TransactionParamConverter constructor.
      *
-     * @param Repository $repository
+     * @param TransactionDetailsRepository $repository
      */
-    public function __construct(Repository $repository)
+    public function __construct(TransactionDetailsRepository $repository)
     {
         $this->repository = $repository;
     }

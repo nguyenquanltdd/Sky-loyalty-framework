@@ -53,6 +53,7 @@ class InstantRewardRuleAlgorithm extends AbstractRuleAlgorithm
                 $rule->getEarningRuleId(),
                 $context->getCustomerId(),
                 $context->getTransaction()->getGrossValue(),
+                $context->getTransaction()->getTransactionId()->__toString(),
                 $rule->getRewardCampaignId()
             )
         );

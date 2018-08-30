@@ -8,8 +8,10 @@ namespace OpenLoyalty\Component\Customer\Domain\Command;
 use Broadway\CommandHandling\SimpleCommandHandler;
 use Broadway\EventDispatcher\EventDispatcher;
 use OpenLoyalty\Bundle\AuditBundle\Service\AuditManagerInterface;
+use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\Customer;
 use OpenLoyalty\Component\Customer\Domain\CustomerRepository;
+use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerActivatedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerAgreementsUpdatedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerDeactivatedSystemEvent;
@@ -20,6 +22,7 @@ use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRemovedManuallyLev
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerUpdatedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\NewsletterSubscriptionSystemEvent;
+use OpenLoyalty\Component\Customer\Domain\TransactionId;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
 
 /**
@@ -268,7 +271,8 @@ class CustomerCommandHandler extends SimpleCommandHandler
             $command->getReward(),
             $command->getStatus(),
             $command->getActiveSince(),
-            $command->getActiveTo()
+            $command->getActiveTo(),
+            $command->getTransactionId()
         );
         $this->repository->save($customer);
     }
@@ -293,7 +297,7 @@ class CustomerCommandHandler extends SimpleCommandHandler
         $customerId = $command->getCustomerId();
         /** @var Customer $customer */
         $customer = $this->repository->load($customerId->__toString());
-        $customer->activateCampaignBought($command->getCampaignId(), $command->getCoupon());
+        $customer->activateCampaignBought($command->getCampaignId(), $command->getCoupon(), $command->getTransactionId());
         $this->repository->save($customer);
     }
 
@@ -305,7 +309,7 @@ class CustomerCommandHandler extends SimpleCommandHandler
         $customerId = $command->getCustomerId();
         /** @var Customer $customer */
         $customer = $this->repository->load($customerId->__toString());
-        $customer->expireCampaignBought($command->getCampaignId(), $command->getCoupon());
+        $customer->expireCampaignBought($command->getCampaignId(), $command->getCoupon(), $command->getTransactionId());
         $this->repository->save($customer);
     }
 
@@ -368,6 +372,41 @@ class CustomerCommandHandler extends SimpleCommandHandler
             CustomerSystemEvents::CUSTOMER_UPDATED,
             [new CustomerUpdatedSystemEvent($customerId)]
         );
+    }
+
+    /**
+     * @param UpdateBoughtCampaignCouponCommand $command
+     */
+    public function handleUpdateBoughtCampaignCouponCommand(UpdateBoughtCampaignCouponCommand $command)
+    {
+        $customerId = $command->getCustomerId();
+        /** @var Customer $customer */
+        $customer = $this->repository->load($customerId);
+        $customer->changeCampaignCoupon(
+            new CampaignId($command->getCampaignId()),
+            new TransactionId($command->getTransactionId()),
+            $command->getCreatedAt(),
+            new Coupon($command->getNewCoupon())
+        );
+        $this->repository->save($customer);
+    }
+
+    /**
+     * @param CancelBoughtCampaign $command
+     */
+    public function handleCancelBoughtCampaign(CancelBoughtCampaign $command)
+    {
+        $customerId = $command->getCustomerId();
+        /** @var Customer $customer */
+        $customer = $this->repository->load($customerId);
+
+        $customer->cancelCampaignBought(
+            $command->getCampaignId(),
+            $command->getCoupon(),
+            $command->getTransactionId()
+        );
+
+        $this->repository->save($customer);
     }
 
     /**

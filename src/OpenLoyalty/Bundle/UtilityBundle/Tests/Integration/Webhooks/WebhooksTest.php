@@ -111,7 +111,7 @@ class WebhooksTest extends BaseApiTest
             [
                 'transaction' => [
                     'transactionData' => [
-                        'documentNumber' => '123',
+                        'documentNumber' => '12311111',
                         'documentType' => 'sell',
                         'purchaseDate' => '2015-01-01',
                         'purchasePlace' => 'wroclaw',

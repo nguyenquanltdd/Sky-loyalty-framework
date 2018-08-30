@@ -88,6 +88,13 @@
       "all": "All",
       "inactive": "Inactive"
     },
+    "status": "Status",
+    "coupon_statuses": {
+      "inactive": "Inactive",
+      "active": "Active",
+      "expired": "Expired",
+      "cancelled": "Cancelled"
+    },
     "add": "Add reward campaign",
     "add_heading": "Add reward campaign",
     "add_label": "Add label",

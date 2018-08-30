@@ -105,6 +105,18 @@ services:
         alias: OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsRepository
         deprecated: The "%service_id%" service is deprecated since 2.8.0
 
+    oloy.campaign.read_model.repository.campaign_bought:
+        alias: OpenLoyalty\Component\Campaign\Infrastructure\Repository\CampaignBoughtElasticsearchRepository
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.transaction.read_model.repository.transaction_details:
+        alias: OpenLoyalty\Component\Transaction\Infrastructure\Repository\TransactionDetailsElasticsearchRepository
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.transaction.read_model.projector.transaction_details:
+        alias: OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsProjector
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
     oloy.pagination:
         alias: OpenLoyalty\Bundle\PaginationBundle\Service\Paginator
         deprecated: The "%service_id%" service is deprecated since 2.8.0

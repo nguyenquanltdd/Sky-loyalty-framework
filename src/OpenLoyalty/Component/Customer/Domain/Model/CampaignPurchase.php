@@ -7,7 +7,9 @@ namespace OpenLoyalty\Component\Customer\Domain\Model;
 
 use Broadway\Serializer\Serializable;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
+use OpenLoyalty\Component\Core\Domain\Model\Identifier;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
+use OpenLoyalty\Component\Customer\Domain\TransactionId;
 
 /**
  * Class CampaignPurchase.
@@ -17,6 +19,7 @@ class CampaignPurchase implements Serializable
     public const STATUS_INACTIVE = 'inactive';
     public const STATUS_ACTIVE = 'active';
     public const STATUS_EXPIRED = 'expired';
+    public const STATUS_CANCELLED = 'cancelled';
 
     /**
      * @var \DateTime
@@ -69,6 +72,11 @@ class CampaignPurchase implements Serializable
     protected $activeTo;
 
     /**
+     * @var Identifier|null
+     */
+    private $transactionId;
+
+    /**
      * CampaignPurchase constructor.
      *
      * @param \DateTime  $purchaseAt
@@ -76,9 +84,10 @@ class CampaignPurchase implements Serializable
      * @param CampaignId $campaignId
      * @param Coupon     $coupon
      * @param $reward
-     * @param string         $status
-     * @param \DateTime|null $activeSince
-     * @param \DateTime|null $activeTo
+     * @param string          $status
+     * @param \DateTime|null  $activeSince
+     * @param \DateTime|null  $activeTo
+     * @param Identifier|null $transactionId
      */
     public function __construct(
         \DateTime $purchaseAt,
@@ -88,7 +97,8 @@ class CampaignPurchase implements Serializable
         $reward,
         string $status = self::STATUS_ACTIVE,
         ?\DateTime $activeSince = null,
-        ?\DateTime $activeTo = null
+        ?\DateTime $activeTo = null,
+        ?Identifier $transactionId = null
     ) {
         $this->purchaseAt = $purchaseAt;
         $this->costInPoints = $costInPoints;
@@ -98,6 +108,7 @@ class CampaignPurchase implements Serializable
         $this->status = $status;
         $this->activeSince = $activeSince;
         $this->activeTo = $activeTo;
+        $this->transactionId = $transactionId;
     }
 
     /**
@@ -152,7 +163,8 @@ class CampaignPurchase implements Serializable
             $data['reward'],
             $data['status'] ?? self::STATUS_ACTIVE,
             $activeSince ?? null,
-            $activeTo ?? null
+            $activeTo ?? null,
+            isset($data['transactionId']) ? new TransactionId($data['transactionId']) : null
         );
         $purchase->setUsed($data['used']);
 
@@ -175,6 +187,7 @@ class CampaignPurchase implements Serializable
             'status' => $this->status,
             'activeSince' => $this->activeSince ? $this->activeSince->getTimestamp() : null,
             'activeTo' => $this->activeTo ? $this->activeTo->getTimestamp() : null,
+            'transactionId' => $this->transactionId ? $this->transactionId->__toString() : null,
         ];
     }
 
@@ -216,6 +229,14 @@ class CampaignPurchase implements Serializable
     public function getCoupon()
     {
         return $this->coupon;
+    }
+
+    /**
+     * @param Coupon $coupon
+     */
+    public function setCoupon(Coupon $coupon): void
+    {
+        $this->coupon = $coupon;
     }
 
     /**
@@ -264,5 +285,13 @@ class CampaignPurchase implements Serializable
     public function getActiveTo(): ?\DateTime
     {
         return $this->activeTo;
+    }
+
+    /**
+     * @return Identifier|null
+     */
+    public function getTransactionId(): ?Identifier
+    {
+        return $this->transactionId;
     }
 }

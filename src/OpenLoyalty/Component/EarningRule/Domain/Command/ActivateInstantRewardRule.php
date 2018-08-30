@@ -25,6 +25,11 @@ class ActivateInstantRewardRule extends ActivateEarningRule
     /**
      * @var string
      */
+    private $transactionId;
+
+    /**
+     * @var string
+     */
     private $campaignId;
 
     /**
@@ -33,17 +38,20 @@ class ActivateInstantRewardRule extends ActivateEarningRule
      * @param EarningRuleId $earningRuleId
      * @param string        $customerId
      * @param float         $transactionValue
+     * @param string        $transactionId
      * @param string        $campaignId
      */
     public function __construct(
         EarningRuleId $earningRuleId,
         string $customerId,
         float $transactionValue,
+        string $transactionId,
         string $campaignId
     ) {
         parent::__construct($earningRuleId);
         $this->customerId = $customerId;
         $this->transactionValue = $transactionValue;
+        $this->transactionId = $transactionId;
         $this->campaignId = $campaignId;
     }
 
@@ -69,5 +77,13 @@ class ActivateInstantRewardRule extends ActivateEarningRule
     public function getCampaignId(): string
     {
         return $this->campaignId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTransactionId(): string
+    {
+        return $this->transactionId;
     }
 }

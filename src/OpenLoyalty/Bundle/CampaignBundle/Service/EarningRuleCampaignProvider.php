@@ -8,6 +8,8 @@ namespace OpenLoyalty\Bundle\CampaignBundle\Service;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
+use OpenLoyalty\Component\Campaign\Domain\Coupon\CouponCodeProvider;
+use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository;
 
 /**
  * Class EarningRuleCampaignProvider.
@@ -30,20 +32,36 @@ class EarningRuleCampaignProvider implements EarningRuleCampaignProviderInterfac
     private $campaignRepository;
 
     /**
+     * @var CouponCodeProvider
+     */
+    private $couponCodeProvider;
+
+    /**
+     * @var CampaignBoughtRepository
+     */
+    private $campaignBoughtRepository;
+
+    /**
      * EarningRuleCampaignProvider constructor.
      *
-     * @param CampaignProvider   $campaignProvider
-     * @param CampaignValidator  $campaignValidator
-     * @param CampaignRepository $campaignRepository
+     * @param CampaignProvider         $campaignProvider
+     * @param CampaignValidator        $campaignValidator
+     * @param CampaignRepository       $campaignRepository
+     * @param CouponCodeProvider       $couponCodeProvider
+     * @param CampaignBoughtRepository $campaignBoughtRepository
      */
     public function __construct(
         CampaignProvider $campaignProvider,
         CampaignValidator $campaignValidator,
-        CampaignRepository $campaignRepository
+        CampaignRepository $campaignRepository,
+        CouponCodeProvider $couponCodeProvider,
+        CampaignBoughtRepository $campaignBoughtRepository
     ) {
         $this->campaignProvider = $campaignProvider;
         $this->campaignValidator = $campaignValidator;
         $this->campaignRepository = $campaignRepository;
+        $this->couponCodeProvider = $couponCodeProvider;
+        $this->campaignBoughtRepository = $campaignBoughtRepository;
     }
 
     /**
@@ -82,5 +100,17 @@ class EarningRuleCampaignProvider implements EarningRuleCampaignProviderInterfac
         $customers = $this->campaignProvider->validForCustomers($campaign);
 
         return in_array($customerId, $customers, true);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getNewCouponCodeForDiscountPercentageCode(string $campaignId, float $transactionValue): ?string
+    {
+        $campaign = $this->findCampaign($campaignId);
+
+        $coupon = $this->couponCodeProvider->getCoupon($campaign, $transactionValue);
+
+        return $coupon ? $coupon->getCode() : null;
     }
 }

@@ -54,7 +54,7 @@ services:
       - [setLogger, ['@logger']]
     tags:
       - { name: broadway.domain.event_listener }
-  oloy.campaign.read_model.repository.campaign_bought:
+  OpenLoyalty\Component\Campaign\Infrastructure\Repository\CampaignBoughtElasticsearchRepository:
     class: 'Broadway\ReadModel\ReadModel'
     factory: ['@oloy.user.read_model.repository_factory', create]
     arguments:
@@ -64,12 +64,11 @@ services:
   oloy.campaign.read_model.projector.campaign_bought:
     class: OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtProjector
     arguments:
-      - '@oloy.campaign.read_model.repository.campaign_bought'
-      - '@oloy.campaign.repository'
+      $repository: '@OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository'
+      $campaignRepository: '@oloy.campaign.repository'
     tags:
       - { name: broadway.domain.event_listener }
   OpenLoyalty\Component\Campaign\Domain\Coupon\CouponCodeProvider:
-    class: OpenLoyalty\Component\Campaign\Domain\Coupon\CouponCodeProvider
     arguments:
       - '@OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider'
   OpenLoyalty\Component\Campaign\Domain\Provider\CouponActivationDateProvider: ~

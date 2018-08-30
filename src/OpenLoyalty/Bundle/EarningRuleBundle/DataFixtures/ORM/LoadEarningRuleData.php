@@ -143,6 +143,22 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
                 'pos' => [LoadPosData::POS_ID],
             ],
         ],
+        self::INSTANT_REWARD_RULE_UUID => [
+            'type' => EarningRule::TYPE_INSTANT_REWARD,
+            'data' => [
+                'target' => 'level',
+                'active' => '1',
+                'name' => 'Instant reward test rule',
+                'description' => 'asd',
+                'allTimeActive' => true,
+                'levels' => [
+                    0 => LoadLevelData::LEVEL_ID,
+                    1 => LoadLevelData::LEVEL2_ID,
+                    2 => LoadLevelData::LEVEL3_ID,
+                ],
+                'rewardCampaignId' => LoadCampaignData::PERCENTAGE_COUPON_CAMPAIGN_ID,
+            ],
+        ],
     ];
 
     /**
@@ -183,16 +199,6 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
                 new CreateEarningRule(new EarningRuleId($earningRuleId), $earningRule['type'], $ruleData)
             );
         }
-
-        $ruleData = array_merge($this->getMainData(), [
-            'rewardCampaignId' => LoadCampaignData::PERCENTAGE_COUPON_CAMPAIGN_ID,
-        ]);
-        $ruleData['name'] = 'Instant reward test rule';
-
-        $this->container->get('broadway.command_handling.command_bus')
-            ->dispatch(
-                new CreateEarningRule(new EarningRuleId(self::INSTANT_REWARD_RULE_UUID), EarningRule::TYPE_INSTANT_REWARD, $ruleData)
-            );
     }
 
     /**

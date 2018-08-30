@@ -2,25 +2,20 @@ services:
   _defaults:
       autoconfigure: true
       autowire: true
-      public: false
 
   OpenLoyalty\Bundle\PointsBundle\Controller\:
       resource: '../../Controller'
       tags: ['controller.service_arguments']
 
-  oloy.account.form_type.add_points:
-      class: OpenLoyalty\Bundle\PointsBundle\Form\Type\AddPointsFormType
+  OpenLoyalty\Bundle\PointsBundle\Form\Type\AddPointsFormType:
       arguments:
         - '@oloy.user.read_model.repository.customer_details'
       tags:
         - { name: form.type }
-
-  oloy.account.form_type.spend_points:
-      class: OpenLoyalty\Bundle\PointsBundle\Form\Type\SpendPointsFormType
-      parent: 'oloy.account.form_type.add_points'
+  OpenLoyalty\Bundle\PointsBundle\Form\Type\SpendPointsFormType:
+      parent: 'OpenLoyalty\Bundle\PointsBundle\Form\Type\AddPointsFormType'
       autoconfigure: false
       autowire: false
-      public: true
       tags:
         - { name: form.type }
 
@@ -35,9 +30,7 @@ services:
   oloy.account.points_transfers.serialization_listener:
       class: OpenLoyalty\Bundle\PointsBundle\Event\Listener\PointsTransferSerializationListener
       arguments:
-        - '@oloy.pos.repository'
-        - '@oloy.transaction.read_model.repository.transaction_details'
-      public: true
+        $posRepository: '@oloy.pos.repository'
       tags:
         - { name: jms_serializer.event_subscriber }
 

@@ -5,10 +5,12 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\Event;
 
+use OpenLoyalty\Component\Core\Domain\Model\Identifier;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
+use OpenLoyalty\Component\Customer\Domain\TransactionId;
 
 /**
  * Class CampaignWasBoughtByCustomer.
@@ -61,6 +63,11 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
     protected $activeTo;
 
     /**
+     * @var null|Identifier
+     */
+    private $transactionId;
+
+    /**
      * CampaignWasBoughtByCustomer constructor.
      *
      * @param CustomerId $customerId
@@ -69,9 +76,10 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
      * @param $costInPoints
      * @param Coupon $coupon
      * @param $reward
-     * @param string         $status
-     * @param \DateTime|null $activeSince
-     * @param \DateTime|null $activeTo
+     * @param string          $status
+     * @param \DateTime|null  $activeSince
+     * @param \DateTime|null  $activeTo
+     * @param Identifier|null $transactionId
      */
     public function __construct(
         CustomerId $customerId,
@@ -82,7 +90,8 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
         $reward,
         string $status = CampaignPurchase::STATUS_ACTIVE,
         ?\DateTime $activeSince = null,
-        ?\DateTime $activeTo = null
+        ?\DateTime $activeTo = null,
+        ?Identifier $transactionId = null
     ) {
         parent::__construct($customerId);
         $this->campaignId = $campaignId;
@@ -95,6 +104,7 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
         $this->status = $status;
         $this->activeSince = $activeSince;
         $this->activeTo = $activeTo;
+        $this->transactionId = $transactionId;
     }
 
     /**
@@ -122,6 +132,7 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
                 'status' => $this->status,
                 'activeSince' => $this->activeSince ? $this->activeSince->getTimestamp() : null,
                 'activeTo' => $this->activeTo ? $this->activeTo->getTimestamp() : null,
+                'transactionId' => $this->transactionId ? $this->transactionId->__toString() : null,
             ]
         );
     }
@@ -152,7 +163,8 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
             $data['reward'],
             $data['status'] ?? CampaignPurchase::STATUS_ACTIVE,
             $activeSince ?? null,
-            $activeTo ?? null
+            $activeTo ?? null,
+            isset($data['transactionId']) ? new TransactionId($data['transactionId']) : null
         );
 
         $date = new \DateTime();
@@ -224,5 +236,13 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
     public function getActiveTo(): ?\DateTime
     {
         return $this->activeTo;
+    }
+
+    /**
+     * @return null|Identifier
+     */
+    public function getTransactionId(): ?Identifier
+    {
+        return $this->transactionId;
     }
 }

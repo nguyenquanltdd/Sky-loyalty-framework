@@ -9,6 +9,7 @@ use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Account\Domain\TransactionId;
+use OpenLoyalty\Component\EarningRule\Domain\Command\RefundEarningRuleCommand;
 use OpenLoyalty\Component\EarningRule\Domain\ReferralEarningRule;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\CustomerAssignedToTransactionSystemEvent;
 
@@ -25,7 +26,17 @@ class ApplyEarningRuleToTransactionListener extends BaseApplyEarningRuleListener
         $customerId = $event->getCustomerId();
         $transactionId = $event->getTransactionId();
         $accounts = $this->accountDetailsRepository->findBy(['customerId' => $customerId->__toString()]);
-        if (count($accounts) == 0 || $event->isReturn()) {
+
+        if (count($accounts) == 0) {
+            return;
+        }
+
+        if ($event->isReturn()) {
+            $this->commandBus->dispatch(new RefundEarningRuleCommand(
+                $transactionId->__toString(),
+                $customerId->__toString()
+            ));
+
             return;
         }
 

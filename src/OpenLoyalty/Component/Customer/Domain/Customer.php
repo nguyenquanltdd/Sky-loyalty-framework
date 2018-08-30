@@ -6,6 +6,8 @@
 namespace OpenLoyalty\Component\Customer\Domain;
 
 use Broadway\EventSourcing\EventSourcedAggregateRoot;
+use OpenLoyalty\Component\Core\Domain\Model\Identifier;
+use OpenLoyalty\Component\Customer\Domain\Event\CampaignCouponWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignStatusWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
@@ -224,14 +226,15 @@ class Customer extends EventSourcedAggregateRoot
      * @param $costInPoints
      * @param Coupon $coupon
      * @param $reward
-     * @param string         $status
-     * @param \DateTime|null $activeSince
-     * @param \DateTime|null $activeTo
+     * @param string          $status
+     * @param \DateTime|null  $activeSince
+     * @param \DateTime|null  $activeTo
+     * @param null|Identifier $transactionId
      */
-    public function buyCampaign(CampaignId $campaignId, $campaignName, $costInPoints, Coupon $coupon, $reward, string $status, ?\DateTime $activeSince, ?\DateTime $activeTo): void
+    public function buyCampaign(CampaignId $campaignId, $campaignName, $costInPoints, Coupon $coupon, $reward, string $status, ?\DateTime $activeSince, ?\DateTime $activeTo, ?Identifier $transactionId): void
     {
         $this->apply(
-            new CampaignWasBoughtByCustomer($this->getId(), $campaignId, $campaignName, $costInPoints, $coupon, $reward, $status, $activeSince, $activeTo)
+            new CampaignWasBoughtByCustomer($this->getId(), $campaignId, $campaignName, $costInPoints, $coupon, $reward, $status, $activeSince, $activeTo, $transactionId)
         );
     }
 
@@ -248,36 +251,51 @@ class Customer extends EventSourcedAggregateRoot
     }
 
     /**
-     * @param CampaignId $campaignId
-     * @param Coupon     $coupon
-     * @param $status
+     * @param CampaignId         $campaignId
+     * @param Coupon             $coupon
+     * @param null|TransactionId $transactionId
      */
-    public function changeCampaignStatus(CampaignId $campaignId, Coupon $coupon, $status): void
+    public function expireCampaignBought(CampaignId $campaignId, Coupon $coupon, ?TransactionId $transactionId): void
     {
         $this->apply(
-            new CampaignStatusWasChanged($this->getId(), $campaignId, $coupon, $status)
+            new CampaignStatusWasChanged($this->getId(), $campaignId, $coupon, CampaignPurchase::STATUS_EXPIRED, $transactionId)
         );
     }
 
     /**
-     * @param CampaignId $campaignId
-     * @param Coupon     $coupon
+     * @param CampaignId         $campaignId
+     * @param Coupon             $coupon
+     * @param null|TransactionId $transactionId
      */
-    public function expireCampaignBought(CampaignId $campaignId, Coupon $coupon): void
+    public function activateCampaignBought(CampaignId $campaignId, Coupon $coupon, ?TransactionId $transactionId): void
     {
         $this->apply(
-            new CampaignStatusWasChanged($this->getId(), $campaignId, $coupon, CampaignPurchase::STATUS_EXPIRED)
+            new CampaignStatusWasChanged($this->getId(), $campaignId, $coupon, CampaignPurchase::STATUS_ACTIVE, $transactionId)
         );
     }
 
     /**
-     * @param CampaignId $campaignId
-     * @param Coupon     $coupon
+     * @param CampaignId    $campaignId
+     * @param TransactionId $transactionId
+     * @param \DateTime     $createdAt
+     * @param Coupon        $newCoupon
      */
-    public function activateCampaignBought(CampaignId $campaignId, Coupon $coupon): void
+    public function changeCampaignCoupon(CampaignId $campaignId, TransactionId $transactionId, \DateTime $createdAt, Coupon $newCoupon): void
     {
         $this->apply(
-            new CampaignStatusWasChanged($this->getId(), $campaignId, $coupon, CampaignPurchase::STATUS_ACTIVE)
+            new CampaignCouponWasChanged($this->getId(), $campaignId, $transactionId, $createdAt, $newCoupon)
+        );
+    }
+
+    /**
+     * @param CampaignId         $campaignId
+     * @param Coupon             $coupon
+     * @param null|TransactionId $transactionId
+     */
+    public function cancelCampaignBought(CampaignId $campaignId, Coupon $coupon, ?TransactionId $transactionId): void
+    {
+        $this->apply(
+            new CampaignStatusWasChanged($this->getId(), $campaignId, $coupon, CampaignPurchase::STATUS_CANCELLED, $transactionId)
         );
     }
 

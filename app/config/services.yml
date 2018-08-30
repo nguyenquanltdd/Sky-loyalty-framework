@@ -5,6 +5,7 @@ services:
   _defaults:
     autowire: true
     autoconfigure: true
+    public: false
 
   OpenLoyalty\Bundle\CoreBundle\Service\CSVGenerator:
     public: true

@@ -5,6 +5,8 @@
  */
 namespace OpenLoyalty\Bundle\CampaignBundle\Service;
 
+use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignLimitException;
+
 /**
  * Interface EarningRuleCampaignProviderInterface.
  */
@@ -24,4 +26,14 @@ interface EarningRuleCampaignProviderInterface
      * @return bool
      */
     public function isValidForCustomer(string $campaignId, string $customerId): bool;
+
+    /**
+     * @param string $campaignId
+     * @param float  $transactionValue
+     *
+     * @return string|null
+     *
+     * @throws CampaignLimitException
+     */
+    public function getNewCouponCodeForDiscountPercentageCode(string $campaignId, float $transactionValue): ?string;
 }

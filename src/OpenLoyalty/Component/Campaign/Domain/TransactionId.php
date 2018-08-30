@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Component\Campaign\Domain;

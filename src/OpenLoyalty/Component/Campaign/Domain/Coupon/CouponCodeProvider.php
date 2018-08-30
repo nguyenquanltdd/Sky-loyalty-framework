@@ -46,7 +46,7 @@ class CouponCodeProvider
             $couponPercentage = $campaign->getTransactionPercentageValue();
             $couponValue = round($transactionValue * $couponPercentage / 100, 0);
 
-            if ($couponValue === 0.0) {
+            if ($couponValue <= 0.0) {
                 throw new TooLowCouponValueException();
             }
 

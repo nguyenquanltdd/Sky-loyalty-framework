@@ -50,8 +50,10 @@ use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\LevelId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon as CampaignCoupon;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\ActiveCampaigns;
+use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignShortInfo;
 use OpenLoyalty\Component\Campaign\Domain\SegmentId;
+use OpenLoyalty\Component\Campaign\Domain\TransactionId;
 use OpenLoyalty\Component\Campaign\Domain\Model\CampaignFile;
 use OpenLoyalty\Component\Customer\Domain\CampaignId as CustomerCampaignId;
 use OpenLoyalty\Component\Customer\Domain\Command\ChangeCampaignUsage;
@@ -109,6 +111,11 @@ class CampaignController extends FOSRestController
     private $transactionDetailsRepository;
 
     /**
+     * @var CampaignBoughtRepository
+     */
+    private $campaignBoughtRepository;
+
+    /**
      * @var CampaignBrandIconUploader
      */
     private $campaignBrandIconUploader;
@@ -123,6 +130,7 @@ class CampaignController extends FOSRestController
      * @param CouponCodeProvider           $couponCodeProvider
      * @param TransactionDetailsRepository $transactionDetailsRepository
      * @param CampaignBrandIconUploader    $campaignBrandIconUploader
+     * @param CampaignBoughtRepository     $campaignBoughtRepository
      */
     public function __construct(
         CommandBus $commandBus,
@@ -131,6 +139,7 @@ class CampaignController extends FOSRestController
         CampaignProvider $campaignProvider,
         CouponCodeProvider $couponCodeProvider,
         TransactionDetailsRepository $transactionDetailsRepository,
+        CampaignBoughtRepository $campaignBoughtRepository,
         CampaignBrandIconUploader $campaignBrandIconUploader
     ) {
         $this->commandBus = $commandBus;
@@ -139,6 +148,7 @@ class CampaignController extends FOSRestController
         $this->campaignProvider = $campaignProvider;
         $this->couponCodeProvider = $couponCodeProvider;
         $this->transactionDetailsRepository = $transactionDetailsRepository;
+        $this->campaignBoughtRepository = $campaignBoughtRepository;
         $this->campaignBrandIconUploader = $campaignBrandIconUploader;
     }
 
@@ -561,7 +571,6 @@ class CampaignController extends FOSRestController
     public function getBoughtListAction(Request $request, ParamFetcher $paramFetcher)
     {
         $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
-        $repo = $this->get('oloy.campaign.read_model.repository.campaign_bought');
         $params = $this->get('oloy.user.param_manager')->stripNulls($paramFetcher->all());
 
         // extract ES-like params for date range filter
@@ -576,7 +585,7 @@ class CampaignController extends FOSRestController
         unset($params['purchasedAtFrom']);
         unset($params['purchasedAtTo']);
 
-        $boughtCampaigns = $repo->findByParametersPaginated(
+        $boughtCampaigns = $this->campaignBoughtRepository->findByParametersPaginated(
             $params,
             true,
             $pagination->getPage(),
@@ -585,7 +594,7 @@ class CampaignController extends FOSRestController
             $pagination->getSortDirection()
         );
 
-        $total = $repo->countTotal($params);
+        $total = $this->campaignBoughtRepository->countTotal($params);
 
         return $this->view(
             [
@@ -618,7 +627,6 @@ class CampaignController extends FOSRestController
     {
         $params = $this->get('oloy.user.param_manager')->stripNulls($paramFetcher->all());
         $generator = $this->get(CSVGenerator::class);
-        $repo = $this->get('oloy.campaign.read_model.repository.campaign_bought');
         $headers = $this->getParameter('oloy.campaign.bought.export.headers');
         $fields = $this->getParameter('oloy.campaign.bought.export.fields');
 
@@ -634,7 +642,7 @@ class CampaignController extends FOSRestController
 
             unset($params['purchasedAtFrom']);
             unset($params['purchasedAtTo']);
-            $content = $generator->generate($repo->findByParameters($params), $headers, $fields);
+            $content = $generator->generate($this->campaignBoughtRepository->findByParameters($params), $headers, $fields);
             $handle = tmpfile();
             fwrite($handle, $content);
             $file = new File(stream_get_meta_data($handle)['uri'], false);
@@ -1048,7 +1056,8 @@ class CampaignController extends FOSRestController
                 $campaign->getCampaignId(),
                 new CustomerId($customer->getId()),
                 $coupon,
-                $withoutPoints === true ? 0 : $campaign->getCostInPoints()
+                $withoutPoints === true ? 0 : $campaign->getCostInPoints(),
+                $transactionId ? new TransactionId($transactionId) : null
             )
         );
 

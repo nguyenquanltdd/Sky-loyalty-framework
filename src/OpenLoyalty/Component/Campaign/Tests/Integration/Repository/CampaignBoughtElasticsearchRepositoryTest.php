@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Component\Campaign\Infrastructure\Repository;
 
+use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
@@ -21,7 +22,7 @@ class CampaignBoughtElasticsearchRepositoryTest extends KernelTestCase
     {
         parent::setUp();
         static::bootKernel();
-        $this->campaignBoughtRepository = self::$kernel->getContainer()->get('oloy.campaign.read_model.repository.campaign_bought');
+        $this->campaignBoughtRepository = self::$kernel->getContainer()->get(CampaignBoughtRepository::class);
     }
 
     /**

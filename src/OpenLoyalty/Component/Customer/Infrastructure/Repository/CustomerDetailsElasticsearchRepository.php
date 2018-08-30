@@ -352,35 +352,25 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
             'index' => $this->index,
             'body' => [
                 'query' => [
-                    'bool' => [
-                        'must' => [
-                            [
-                                'nested' => [
-                                    'path' => 'campaignPurchases',
-                                    'query' => [
-                                        'term' => [
+                    'nested' => [
+                        'path' => 'campaignPurchases',
+                        'query' => [
+                            'bool' => [
+                                'must' => [
+                                    [
+                                        'match' => [
                                             'campaignPurchases.status' => CampaignPurchase::STATUS_INACTIVE,
                                         ],
                                     ],
                                 ],
-                            ],
-                        ],
-                        'must_not' => [
-                            [
-                                'nested' => [
-                                    'path' => 'campaignPurchases',
-                                    'query' => [
-                                        'term' => [
+                                'must_not' => [
+                                    [
+                                        'match' => [
                                             'campaignPurchases.used' => true,
                                         ],
                                     ],
                                 ],
-                            ],
-                        ],
-                        'filter' => [
-                            'nested' => [
-                                'path' => 'campaignPurchases',
-                                'query' => [
+                                'filter' => [
                                     'exists' => [
                                         'field' => 'campaignPurchases.activeSince',
                                     ],
@@ -404,35 +394,25 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
             'index' => $this->index,
             'body' => [
                 'query' => [
-                    'bool' => [
-                        'must' => [
-                            [
-                                'nested' => [
-                                    'path' => 'campaignPurchases',
-                                    'query' => [
-                                        'term' => [
+                    'nested' => [
+                        'path' => 'campaignPurchases',
+                        'query' => [
+                            'bool' => [
+                                'must' => [
+                                    [
+                                        'match' => [
                                             'campaignPurchases.status' => CampaignPurchase::STATUS_ACTIVE,
                                         ],
                                     ],
                                 ],
-                            ],
-                        ],
-                        'must_not' => [
-                            [
-                                'nested' => [
-                                    'path' => 'campaignPurchases',
-                                    'query' => [
-                                        'term' => [
+                                'must_not' => [
+                                    [
+                                        'match' => [
                                             'campaignPurchases.used' => true,
                                         ],
                                     ],
                                 ],
-                            ],
-                        ],
-                        'filter' => [
-                            'nested' => [
-                                'path' => 'campaignPurchases',
-                                'query' => [
+                                'filter' => [
                                     'exists' => [
                                         'field' => 'campaignPurchases.activeTo',
                                     ],

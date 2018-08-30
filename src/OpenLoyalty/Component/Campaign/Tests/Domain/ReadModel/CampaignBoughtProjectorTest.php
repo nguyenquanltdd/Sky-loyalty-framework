@@ -8,8 +8,8 @@ use Broadway\ReadModel\Testing\ProjectorScenarioTestCase;
 use OpenLoyalty\Bundle\UserBundle\Service\AccountDetailsProvider;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
-use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtProjector;
+use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository;
 use OpenLoyalty\Component\Customer\Domain\Customer;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
@@ -29,7 +29,7 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
     protected function createProjector(InMemoryRepository $repository): Projector
     {
         $this->repository = $repository;
-        $campaignRepository = $this->getMockBuilder(CampaignRepository::class)->getMock();
+        $campaignRepository = $this->getMockBuilder(CampaignBoughtRepository::class)->getMock();
         $campaignRepository->method('byId')->willReturn(
             new Campaign(new CampaignId('11111111-0000-0000-0000-000000000000'), ['reward' => 'Reward', 'name' => 'campaignName'])
         );
@@ -67,6 +67,7 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
             'status' => CampaignPurchase::STATUS_ACTIVE,
             'activeSince' => null,
             'activeTo' => null,
+            'transactionId' => null,
         ];
         $this->scenario->given(array())
             ->when(
@@ -113,6 +114,7 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
             'status' => CampaignPurchase::STATUS_ACTIVE,
             'activeSince' => null,
             'activeTo' => null,
+            'transactionId' => null,
         ];
         $this->scenario->given(
                 array(

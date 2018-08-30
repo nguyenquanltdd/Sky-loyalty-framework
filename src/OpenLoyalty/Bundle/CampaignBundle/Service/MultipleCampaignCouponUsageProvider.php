@@ -139,16 +139,16 @@ class MultipleCampaignCouponUsageProvider
     }
 
     /**
-     * @param bool            $used
-     * @param CustomerDetails $customer
-     * @param Campaign        $campaign
-     * @param string          $key
+     * @param bool                 $used
+     * @param null|CustomerDetails $customer
+     * @param null|Campaign        $campaign
+     * @param string               $key
      *
-     * @throws CampaignUsageChangeException
+     * @throws InvalidDataProvidedException
      */
-    private function checkFields(bool $used, CustomerDetails $customer, Campaign $campaign, string $key)
+    private function checkFields(bool $used, ?CustomerDetails $customer, ?Campaign $campaign, string $key)
     {
-        if (!$used) {
+        if (!is_bool($used)) {
             throw new InvalidDataProvidedException(
                 $this->translator->trans('campaign.invalid_value_field_in_row', ['%name%' => 'used', '%row%' => $key])
             );

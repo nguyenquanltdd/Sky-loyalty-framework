@@ -8,6 +8,7 @@ namespace OpenLoyalty\Component\Customer\Domain\Command;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
+use OpenLoyalty\Component\Customer\Domain\TransactionId;
 
 /**
  * Class ChangeBoughtCampaignStatus.
@@ -35,17 +36,24 @@ abstract class ChangeBoughtCampaignStatus
     protected $status;
 
     /**
+     * @var null|TransactionId
+     */
+    private $transactionId;
+
+    /**
      * ChangeBoughtCampaignStatus constructor.
      *
-     * @param CustomerId $customerId
-     * @param CampaignId $campaignId
-     * @param Coupon     $coupon
+     * @param CustomerId         $customerId
+     * @param CampaignId         $campaignId
+     * @param Coupon             $coupon
+     * @param null|TransactionId $transactionId
      */
-    public function __construct(CustomerId $customerId, CampaignId $campaignId, Coupon $coupon)
+    public function __construct(CustomerId $customerId, CampaignId $campaignId, Coupon $coupon, ?TransactionId $transactionId = null)
     {
         $this->customerId = $customerId;
         $this->campaignId = $campaignId;
         $this->coupon = $coupon;
+        $this->transactionId = $transactionId;
     }
 
     /**
@@ -78,5 +86,13 @@ abstract class ChangeBoughtCampaignStatus
     public function getStatus(): string
     {
         return $this->status;
+    }
+
+    /**
+     * @return null|TransactionId
+     */
+    public function getTransactionId(): ?TransactionId
+    {
+        return $this->transactionId;
     }
 }

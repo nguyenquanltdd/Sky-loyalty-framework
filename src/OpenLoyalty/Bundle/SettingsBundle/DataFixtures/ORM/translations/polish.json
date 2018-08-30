@@ -89,6 +89,13 @@
       "all": "Wszystkie",
       "inactive": "Nieaktywny"
     },
+    "status": "Status",
+    "coupon_statuses": {
+      "inactive": "Nieaktywny",
+      "active": "Aktywny",
+      "expired": "Wygasły",
+      "cancelled": "Anulowany"
+    },
     "add": "Dodaj nagrodę",
     "add_heading": "Dodaj nagrodę",
     "add_label": "Dodaj kategorię",

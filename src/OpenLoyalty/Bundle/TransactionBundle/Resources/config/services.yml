@@ -2,7 +2,9 @@ services:
   _defaults:
     autowire: true
     autoconfigure: true
-    public: false
+
+  OpenLoyalty\Bundle\TransactionBundle\Validator\Constraints\:
+    resource: '../../Validator/Constraints/*'
 
   OpenLoyalty\Bundle\TransactionBundle\Controller\:
       resource: '../../Controller'
@@ -34,8 +36,6 @@ services:
       - { name: form.type }
   oloy.transaction.form_type.transaction_id:
     class: OpenLoyalty\Bundle\TransactionBundle\Form\Type\TransactionIdFormType
-    arguments:
-      - '@oloy.transaction.read_model.repository.transaction_details'
     tags:
       - { name: form.type }
   oloy.transaction.form_type.customer_id:
@@ -56,7 +56,6 @@ services:
       - { name: form.type }
   oloy.transaction.param_converter:
     class: OpenLoyalty\Bundle\TransactionBundle\ParamConverter\TransactionParamConverter
-    arguments: ['@oloy.transaction.read_model.repository.transaction_details']
     tags:
       - { name: request.param_converter, priority: -2, converter: transaction_details_converter }
   oloy.transaction.settings_based_customer_id_provider:
@@ -84,23 +83,20 @@ services:
 
   OpenLoyalty\Bundle\TransactionBundle\Form\Handler\ManuallyAssignCustomerToTransactionFormHandler:
     arguments:
-      - '@oloy.transaction.read_model.repository.transaction_details'
-      - '@oloy.user.read_model.repository.customer_details'
-      - '@broadway.command_handling.command_bus'
-      - '@broadway.event_dispatcher'
-      - '@security.authorization_checker'
+      $customerDetailsRepository: '@oloy.user.read_model.repository.customer_details'
+      $commandBus: '@broadway.command_handling.command_bus'
+      $eventDispatcher: '@broadway.event_dispatcher'
+      $ac: '@security.authorization_checker'
 
   OpenLoyalty\Bundle\TransactionBundle\Form\Handler\AppendLabelsToTransactionFormHandler:
     arguments:
-      - '@oloy.transaction.read_model.repository.transaction_details'
-      - '@broadway.command_handling.command_bus'
-      - '@security.authorization_checker'
+      $commandBus: '@broadway.command_handling.command_bus'
+      $ac: '@security.authorization_checker'
 
   OpenLoyalty\Bundle\TransactionBundle\Form\Handler\EditTransactionLabelsFormHandler:
     arguments:
-      - '@oloy.transaction.read_model.repository.transaction_details'
-      - '@broadway.command_handling.command_bus'
-      - '@security.authorization_checker'
+      $commandBus: '@broadway.command_handling.command_bus'
+      $ac: '@security.authorization_checker'
 
   OpenLoyalty\Bundle\TransactionBundle\Import\TransactionNodeStreamer: ~
 

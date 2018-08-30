@@ -10,6 +10,10 @@ services:
     lazy: true
     tags:
       - { name: broadway.command_handler }
+  OpenLoyalty\Component\EarningRule\Domain\Command\RefundEarningRuleHandler:
+    lazy: true
+    tags:
+      - { name: broadway.command_handler }
   oloy.earning_rule.repository:
     class: OpenLoyalty\Component\EarningRule\Infrastructure\Persistence\Doctrine\Repository\DoctrineEarningRuleRepository
     factory: ['@doctrine.orm.entity_manager', getRepository]
@@ -43,14 +47,10 @@ services:
       - "@broadway.command_handling.command_bus"
     tags:
       - { name: oloy.earning_rule.algorithm, alias: InstantRewardRule }
-  OpenLoyalty\Component\EarningRule\Domain\Strategy\InstantRewardEarningRuleStrategy:
-    class: OpenLoyalty\Component\EarningRule\Domain\Strategy\InstantRewardEarningRuleStrategy
-    arguments:
-      - '@OpenLoyalty\Bundle\CampaignBundle\Service\EarningRuleCampaignProvider'
+  OpenLoyalty\Component\EarningRule\Domain\Strategy\InstantRewardEarningRuleStrategy: ~
   OpenLoyalty\Component\EarningRule\Domain\OloyEarningRuleEvaluator:
     arguments:
       $earningRuleRepository: '@oloy.earning_rule.repository'
-      $transactionDetailsRepository: '@oloy.transaction.read_model.repository.transaction_details'
       $algorithmFactory: '@oloy.earning_rule.algorithm_factory'
       $invitationDetailsRepository: '@oloy.user.read_model.repository.invitation_details'
       $segmentedCustomerElasticSearchRepository: '@oloy.segment.read_model.repository.segmented_customers'
@@ -58,3 +58,10 @@ services:
       $settingsManager: '@ol.settings.manager'
       $stoppableProvider: '@OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableProvider'
   OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableProvider: ~
+  OpenLoyalty\Component\EarningRule\Domain\Returns\RefundAlgorithmProvider:
+    arguments:
+      - !tagged earning_rule.return.algorithm
+  OpenLoyalty\Component\EarningRule\Domain\Returns\RefundEvaluator: ~
+  OpenLoyalty\Component\EarningRule\Domain\Returns\RefundInstantRewardAlgorithm:
+    tags:
+      - { name: earning_rule.return.algorithm, alias: RefundInstantRewardAlgorithm }

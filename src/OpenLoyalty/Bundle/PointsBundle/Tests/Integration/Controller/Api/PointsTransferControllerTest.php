@@ -93,8 +93,8 @@ class PointsTransferControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
 
         $this->assertSame(200, $response->getStatusCode(), 'Response should have status 200');
-        $this->assertEquals(6, $data['total']);
-        $this->assertCount(6, $data['transfers']);
+        $this->assertEquals(7, $data['total']);
+        $this->assertCount(7, $data['transfers']);
     }
 
     /**

@@ -1,4 +1,7 @@
 services:
+  _defaults:
+    autowire: true
+
   oloy.pos.form_type.create:
     class: OpenLoyalty\Bundle\PosBundle\Form\Type\CreatePosFormType
     tags:
@@ -19,7 +22,6 @@ services:
   oloy.pos.serialization_listener.pos:
     class: OpenLoyalty\Bundle\PosBundle\Event\Listener\PosSerializationListener
     arguments:
-      - '@oloy.transaction.read_model.repository.transaction_details'
-      - '@ol.settings.manager'
+      $settingsManager: '@ol.settings.manager'
     tags:
       - { name: jms_serializer.event_subscriber }

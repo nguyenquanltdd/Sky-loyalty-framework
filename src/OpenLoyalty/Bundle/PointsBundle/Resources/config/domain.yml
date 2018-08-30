@@ -29,11 +29,10 @@ services:
     tags:
       - { name: broadway.domain.event_listener }
     arguments:
-      - '@oloy.points.account.repository.points_transfer_details'
-      - '@oloy.points.account.repository.account_details'
-      - '@oloy.user.read_model.repository.customer_details'
-      - '@oloy.transaction.read_model.repository.transaction_details'
-      - '@oloy.pos.repository'
+      $repository: '@oloy.points.account.repository.points_transfer_details'
+      $accountRepository: '@oloy.points.account.repository.account_details'
+      $customerRepository: '@oloy.user.read_model.repository.customer_details'
+      $posRepository: '@oloy.pos.repository'
 
   oloy.points.account.repository.account_details:
     class: 'Broadway\ReadModel\ReadModel'
@@ -84,11 +83,10 @@ services:
   oloy.account.revoke_points_on_return_transaction_listener:
       class: OpenLoyalty\Component\Account\Infrastructure\Event\Listener\RevokePointsOnReturnTransactionListener
       arguments:
-        - '@oloy.transaction.read_model.repository.transaction_details'
-        - '@oloy.points.account.repository.points_transfer_details'
-        - '@oloy.points.account.repository.account_details'
-        - '@broadway.command_handling.command_bus'
-        - '@broadway.uuid.generator'
+        $transfersRepo: '@oloy.points.account.repository.points_transfer_details'
+        $accountDetailsRepository: '@oloy.points.account.repository.account_details'
+        $commandBus: '@broadway.command_handling.command_bus'
+        $uuidGenerator: '@broadway.uuid.generator'
       lazy: true
       tags:
         - { name: broadway.domain.event_listener }

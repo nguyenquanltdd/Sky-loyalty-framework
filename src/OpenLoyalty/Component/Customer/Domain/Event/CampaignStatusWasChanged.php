@@ -8,6 +8,7 @@ namespace OpenLoyalty\Component\Customer\Domain\Event;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
+use OpenLoyalty\Component\Customer\Domain\TransactionId;
 
 /**
  * Class CampaignStatusWasChanged.
@@ -30,19 +31,31 @@ class CampaignStatusWasChanged extends CustomerEvent
     protected $status;
 
     /**
+     * @var null|TransactionId
+     */
+    private $transactionId;
+
+    /**
      * CampaignStatusWasChanged constructor.
      *
-     * @param CustomerId $customerId
-     * @param CampaignId $campaignId
-     * @param Coupon     $coupon
-     * @param string     $status
+     * @param CustomerId         $customerId
+     * @param CampaignId         $campaignId
+     * @param Coupon             $coupon
+     * @param string             $status
+     * @param null|TransactionId $transactionId
      */
-    public function __construct(CustomerId $customerId, CampaignId $campaignId, Coupon $coupon, string $status)
-    {
+    public function __construct(
+        CustomerId $customerId,
+        CampaignId $campaignId,
+        Coupon $coupon,
+        string $status,
+        ?TransactionId $transactionId = null
+    ) {
         parent::__construct($customerId);
         $this->campaignId = $campaignId;
         $this->status = $status;
         $this->coupon = $coupon;
+        $this->transactionId = $transactionId;
     }
 
     /**
@@ -56,6 +69,7 @@ class CampaignStatusWasChanged extends CustomerEvent
                 'campaignId' => $this->campaignId->__toString(),
                 'status' => $this->status,
                 'coupon' => $this->coupon->getCode(),
+                'transactionId' => $this->transactionId ? $this->transactionId->__toString() : null,
             ]
         );
     }
@@ -65,7 +79,13 @@ class CampaignStatusWasChanged extends CustomerEvent
      */
     public static function deserialize(array $data)
     {
-        return new self(new CustomerId($data['customerId']), new CampaignId($data['campaignId']), new Coupon($data['coupon']), $data['status']);
+        return new self(
+            new CustomerId($data['customerId']),
+            new CampaignId($data['campaignId']),
+            new Coupon($data['coupon']),
+            $data['status'],
+            isset($data['transactionId']) ? new TransactionId($data['transactionId']) : null
+        );
     }
 
     /**
@@ -90,5 +110,13 @@ class CampaignStatusWasChanged extends CustomerEvent
     public function getCoupon(): Coupon
     {
         return $this->coupon;
+    }
+
+    /**
+     * @return null|TransactionId
+     */
+    public function getTransactionId(): ?TransactionId
+    {
+        return $this->transactionId;
     }
 }

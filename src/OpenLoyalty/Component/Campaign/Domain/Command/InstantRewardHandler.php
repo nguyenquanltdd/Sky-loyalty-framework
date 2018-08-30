@@ -12,6 +12,7 @@ use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\Coupon\CouponCodeProvider;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
+use OpenLoyalty\Component\Campaign\Domain\TransactionId;
 use OpenLoyalty\Component\EarningRule\Domain\Command\ActivateInstantRewardRule;
 
 /**
@@ -67,7 +68,9 @@ class InstantRewardHandler extends SimpleCommandHandler
             new BuyCampaign(
                 $campaign->getCampaignId(),
                 new CustomerId($command->getCustomerId()),
-                $coupon
+                $coupon,
+                $campaign->getCostInPoints(),
+                new TransactionId($command->getTransactionId())
             )
         );
     }

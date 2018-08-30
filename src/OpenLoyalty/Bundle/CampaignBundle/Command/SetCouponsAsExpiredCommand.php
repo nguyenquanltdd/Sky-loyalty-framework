@@ -79,13 +79,15 @@ class SetCouponsAsExpiredCommand extends Command
         foreach ($customers as $customer) {
             /** @var CampaignPurchase $campaignPurchase */
             foreach ($customer->getCampaignPurchases() as $campaignPurchase) {
-                if ($campaignPurchase->getStatus() === CampaignPurchase::STATUS_ACTIVE &&
-                    $campaignPurchase->getActiveTo() < new \DateTime()) {
+                if ($campaignPurchase->getStatus() === CampaignPurchase::STATUS_ACTIVE
+                    && $campaignPurchase->isUsed() !== false
+                    && $campaignPurchase->getActiveTo() < new \DateTime()) {
                     $this->commandBus->dispatch(
                         new ExpireBoughtCampaign(
                             $customer->getCustomerId(),
                             $campaignPurchase->getCampaignId(),
-                            $campaignPurchase->getCoupon()
+                            $campaignPurchase->getCoupon(),
+                            $campaignPurchase->getTransactionId()
                         )
                     );
 

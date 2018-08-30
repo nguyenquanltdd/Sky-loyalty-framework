@@ -18,3 +18,5 @@ OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase:
       expose: true
     activeTo:
       expose: true
+    status:
+      expose: true

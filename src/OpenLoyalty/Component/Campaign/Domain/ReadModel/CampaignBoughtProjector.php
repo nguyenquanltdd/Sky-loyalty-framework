@@ -14,6 +14,9 @@ use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
+use OpenLoyalty\Component\Campaign\Domain\TransactionId;
+use OpenLoyalty\Component\Core\Domain\Model\Identifier;
+use OpenLoyalty\Component\Customer\Domain\Event\CampaignCouponWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignStatusWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
@@ -24,7 +27,7 @@ use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 class CampaignBoughtProjector extends Projector
 {
     /**
-     * @var Repository
+     * @var CampaignBoughtRepository
      */
     protected $repository;
 
@@ -65,15 +68,15 @@ class CampaignBoughtProjector extends Projector
      */
     protected function applyCampaignWasBoughtByCustomer(CampaignWasBoughtByCustomer $event)
     {
-        $campainId = new CampaignId($event->getCampaignId()->__toString());
+        $campaignId = new CampaignId($event->getCampaignId()->__toString());
 
         /** @var Campaign $campaign */
-        $campaign = $this->campaignRepository->byId($campainId);
+        $campaign = $this->campaignRepository->byId($campaignId);
         $customer = $this->accountDetailsProvider->getCustomerById($event->getCustomerId());
         $account = $this->accountDetailsProvider->getAccountByCustomer($customer);
 
         $this->storeCampaignUsages(
-            $campainId,
+            $campaignId,
             new CustomerId($event->getCustomerId()->__toString()),
             $event->getCreatedAt(),
             new Coupon($event->getCoupon()->getCode()),
@@ -88,27 +91,31 @@ class CampaignBoughtProjector extends Projector
             $campaign->getTaxPriceValue(),
             $event->getStatus(),
             $event->getActiveSince(),
-            $event->getActiveTo()
+            $event->getActiveTo(),
+            $event->getTransactionId()
         );
     }
 
     /**
-     * @param CampaignId     $campaignId
-     * @param CustomerId     $customerId
-     * @param \DateTime      $boughtAt
-     * @param Coupon         $coupon
-     * @param string         $couponType
-     * @param string         $campaignName
-     * @param string         $customerEmail
-     * @param string         $customerPhone
-     * @param string         $customerName
-     * @param string         $customerLastname
-     * @param int            $costInPoints
-     * @param int            $currentPointsAmount
-     * @param float|null     $taxPriceValue
-     * @param string         $status
-     * @param \DateTime|null $activeSince
-     * @param \DateTime|null $activeTo
+     * @param CampaignId      $campaignId
+     * @param CustomerId      $customerId
+     * @param \DateTime       $boughtAt
+     * @param Coupon          $coupon
+     * @param string          $couponType
+     * @param string          $campaignName
+     * @param string          $customerEmail
+     * @param string          $customerPhone
+     * @param string          $customerName
+     * @param string          $customerLastname
+     * @param int             $costInPoints
+     * @param int             $currentPointsAmount
+     * @param float|null      $taxPriceValue
+     * @param string          $status
+     * @param \DateTime|null  $activeSince
+     * @param \DateTime|null  $activeTo
+     * @param null|Identifier $transactionId
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     private function storeCampaignUsages(
         CampaignId $campaignId,
@@ -126,7 +133,8 @@ class CampaignBoughtProjector extends Projector
         ?float $taxPriceValue,
         string $status,
         ?\DateTime $activeSince,
-        ?\DateTime $activeTo
+        ?\DateTime $activeTo,
+        ?Identifier $transactionId
     ) {
         $readModel = new CampaignBought(
             $campaignId,
@@ -145,7 +153,8 @@ class CampaignBoughtProjector extends Projector
             $currentPointsAmount,
             $taxPriceValue,
             $activeSince,
-            $activeTo
+            $activeTo,
+            $transactionId
         );
 
         $this->repository->save($readModel);
@@ -156,17 +165,16 @@ class CampaignBoughtProjector extends Projector
      */
     protected function applyCampaignUsageWasChanged(CampaignUsageWasChanged $event)
     {
-        /* @var CampaignBought $readModel */
-        $campaignBoughtId = CampaignBought::createId(
-            new CampaignId($event->getCampaignId()->__toString()),
-            new CustomerId($event->getCustomerId()->__toString()),
-            new Coupon($event->getCoupon()->getCode())
-        );
-        $readModel = $this->repository->find($campaignBoughtId);
+        $campaigns = $this->repository->findByCustomerIdAndUsed($event->getCustomerId()->__toString(), !$event->isUsed());
 
-        if ($readModel instanceof CampaignBought) {
-            $readModel->setUsed($event->isUsed());
-            $this->repository->save($readModel);
+        foreach ($campaigns as $campaign) {
+            if ($campaign->getCampaignId()->__toString() === $event->getCampaignId()->__toString()
+                && $campaign->getCoupon()->getCode() === $event->getCoupon()->getCode()) {
+                $campaign->setUsed($event->isUsed());
+                $this->repository->save($campaign);
+
+                return;
+            }
         }
     }
 
@@ -175,17 +183,42 @@ class CampaignBoughtProjector extends Projector
      */
     protected function applyCampaignStatusWasChanged(CampaignStatusWasChanged $event): void
     {
-        /* @var CampaignBought $readModel */
-        $campaignBoughtId = CampaignBought::createId(
-            new CampaignId($event->getCampaignId()->__toString()),
-            new CustomerId($event->getCustomerId()->__toString()),
-            new Coupon($event->getCoupon()->getCode())
-        );
-        $readModel = $this->repository->find($campaignBoughtId);
+        $campaigns = $this->repository->findByCustomerId($event->getCustomerId()->__toString());
+        $campaignId = $event->getCampaignId()->__toString();
+        $coupon = $event->getCoupon()->getCode();
+        $transactionId = $event->getTransactionId() ? $event->getTransactionId()->__toString() : null;
 
-        if ($readModel instanceof CampaignBought) {
-            $readModel->setStatus($event->getStatus());
-            $this->repository->save($readModel);
+        foreach ($campaigns as $campaign) {
+            if ($campaign->getCampaignId()->__toString() === $campaignId
+                && ($campaign->getTransactionId() ? $campaign->getTransactionId()->__toString() : null) === $transactionId
+                && $campaign->getCoupon()->getCode() === $coupon) {
+                $campaign->setStatus($event->getStatus());
+                $this->repository->save($campaign);
+
+                return;
+            }
+        }
+    }
+
+    /**
+     * @param CampaignCouponWasChanged $event
+     */
+    protected function applyCampaignCouponWasChanged(CampaignCouponWasChanged $event): void
+    {
+        $campaigns = $this->repository->findByTransactionIdAndCustomerId(
+            $event->getTransactionId()->__toString(),
+            $event->getCustomerId()->__toString()
+        );
+
+        foreach ($campaigns as $readModel) {
+            if ($readModel instanceof CampaignBought
+                && $readModel->getPurchasedAt() == $event->getCreatedAt()
+                && $readModel->getCampaignId()->__toString() === $event->getCampaignId()->__toString()) {
+                $readModel->setCoupon(new Coupon($event->getNewCoupon()->getCode()));
+                $this->repository->save($readModel);
+
+                return;
+            }
         }
     }
 }
