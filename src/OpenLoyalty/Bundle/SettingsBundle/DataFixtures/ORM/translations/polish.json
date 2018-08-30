@@ -1942,6 +1942,7 @@
     "customer_phone_number": "Numer telefonu",
     "details": "Szczegóły przedmiotu",
     "document_number": "Numer dokumentu",
+    "document_number_should_be_unique": "Numer dokumentu musi być unikalny",
     "document_type": "Rodzaj dokumentu",
     "document_types": {
       "both": "Wszystkie",

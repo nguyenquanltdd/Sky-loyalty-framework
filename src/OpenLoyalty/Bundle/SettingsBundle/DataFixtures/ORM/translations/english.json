@@ -1916,6 +1916,7 @@
     "customer_phone_number": "Phone number",
     "details": "Transaction details",
     "document_number": "Document number",
+    "document_number_should_be_unique": "Document number should be unique",
     "document_type": "Document type",
     "document_types": {
       "both": "Both",
