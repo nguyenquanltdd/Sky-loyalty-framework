@@ -66,6 +66,11 @@ class CustomerStatus
     protected $levelName;
 
     /**
+     * @var float
+     */
+    protected $levelConditionValue = 0.00;
+
+    /**
      * @var string
      * @JMS\SerializedName("nextLevel")
      */
@@ -75,6 +80,11 @@ class CustomerStatus
      * @var string
      */
     protected $nextLevelName;
+
+    /**
+     * @var float
+     */
+    protected $nextLevelConditionValue = 0.00;
 
     /**
      * @var float
@@ -125,6 +135,11 @@ class CustomerStatus
      * @var float|null
      */
     protected $pointsSinceLastLevelRecalculation;
+
+    /**
+     * @var float|null
+     */
+    protected $pointsRequiredToRetainLevel;
 
     /**
      * CustomerStatus constructor.
@@ -471,5 +486,53 @@ class CustomerStatus
     public function setPointsSinceLastLevelRecalculation(?float $pointsSinceLastLevelRecalculation): void
     {
         $this->pointsSinceLastLevelRecalculation = $pointsSinceLastLevelRecalculation;
+    }
+
+    /**
+     * @return float|null
+     */
+    public function getPointsRequiredToRetainLevel(): ?float
+    {
+        return $this->pointsRequiredToRetainLevel;
+    }
+
+    /**
+     * @param float|null $pointsRequiredToRetainLevel
+     */
+    public function setPointsRequiredToRetainLevel(?float $pointsRequiredToRetainLevel): void
+    {
+        $this->pointsRequiredToRetainLevel = $pointsRequiredToRetainLevel;
+    }
+
+    /**
+     * @return float
+     */
+    public function getLevelConditionValue(): float
+    {
+        return $this->levelConditionValue;
+    }
+
+    /**
+     * @param float $levelConditionValue
+     */
+    public function setLevelConditionValue(float $levelConditionValue): void
+    {
+        $this->levelConditionValue = $levelConditionValue;
+    }
+
+    /**
+     * @return float
+     */
+    public function getNextLevelConditionValue(): float
+    {
+        return $this->nextLevelConditionValue;
+    }
+
+    /**
+     * @param float $nextLevelConditionValue
+     */
+    public function setNextLevelConditionValue(float $nextLevelConditionValue): void
+    {
+        $this->nextLevelConditionValue = $nextLevelConditionValue;
     }
 }

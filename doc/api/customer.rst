@@ -162,23 +162,36 @@ Exemplary Response
 .. code-block:: json
 
     {
-      "firstName": "test",
+      "firstName": "Test",
       "lastName": "test",
-      "customerId": "1bbafb37-b51b-47c5-b3e4-e0a2d028e655",
+      "customerId": "a284f230-c1c0-4a1c-af9a-159b81de1f2b",
       "points": 0,
+      "totalEarnedPoints": 0,
       "usedPoints": 0,
       "expiredPoints": 0,
-      "level": "14.00%",
-      "levelName": "level0",
-      "nextLevel": "15.00%",
-      "nextLevelName": "level1",
-      "transactionsAmountWithoutDeliveryCosts": 0,
-      "transactionsAmountToNextLevel": 20,
-      "averageTransactionsAmount": "0.00",
-      "transactionsCount": 0,
-      "transactionsAmount": 0,
-      "currency": "eur"
+      "lockedPoints": 0,
+      "level": "15.00%",
+      "levelName": "level1",
+      "levelConditionValue": 20,
+      "nextLevel": "20.00%",
+      "nextLevelName": "level2",
+      "nextLevelConditionValue": 200,
+      "transactionsAmountToNextLevelWithoutDeliveryCosts": 100,
+      "transactionsAmountWithoutDeliveryCosts": 100,
+      "averageTransactionsAmount": "50.00",
+      "transactionsCount": 2,
+      "transactionsAmount": 100,
+      "pointsToNextLevel": 200,
+      "currency": "eur",
+      "levelWillExpireInDays": 100,
+      "pointsSinceLastLevelRecalculation": 0,
+      "pointsRequiredToRetainLevel": 20
     }
+
+.. note::
+
+    The information in response may vary depends on the loyalty program configuration. Here is an example
+    of all possible information combine.
 
 Get customers
 -------------

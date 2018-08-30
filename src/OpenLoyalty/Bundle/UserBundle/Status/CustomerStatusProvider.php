@@ -12,6 +12,7 @@ use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
+use OpenLoyalty\Component\Customer\Infrastructure\Exception\LevelDowngradeModeNotSupportedException;
 use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
@@ -156,11 +157,21 @@ class CustomerStatusProvider
         if ($level) {
             $status->setLevelName($level->getName());
             $status->setLevelPercent(number_format($level->getReward()->getValue() * 100, 2).'%');
+            $status->setLevelConditionValue($level->getConditionValue());
         }
 
         if ($nextLevel) {
             $status->setNextLevelName($nextLevel->getName());
             $status->setNextLevelPercent(number_format($nextLevel->getReward()->getValue() * 100, 2).'%');
+            $status->setNextLevelConditionValue($nextLevel->getConditionValue());
+        }
+
+        if ($level && $nextLevel && $this->displayDowngradeModeXDaysStats()) {
+            $pointsRequiredToRetainLevel = $status->getLevelConditionValue() - $status->getPointsSinceLastLevelRecalculation();
+            if ($pointsRequiredToRetainLevel < 0) {
+                $pointsRequiredToRetainLevel = 0.00;
+            }
+            $status->setPointsRequiredToRetainLevel($pointsRequiredToRetainLevel);
         }
 
         if ($nextLevel && $accountDetails) {
@@ -170,11 +181,12 @@ class CustomerStatusProvider
         if ($this->displayDowngradeModeXDaysStats()) {
             $date = $customer->getLastLevelRecalculation() ?: $customer->getCreatedAt();
             $nextDate = (clone $date)->modify(sprintf('+%u days', $this->levelDowngradeModeProvider->getDays()));
-            if ($nextDate < (new \DateTime())) {
+            $currentDate = new \DateTime();
+            if ($nextDate < $currentDate) {
                 $days = 0;
             } else {
-                $diff = abs($nextDate->getTimestamp() - $date->getTimestamp());
-                $days = floor($diff / 86400);
+                $diff = abs($nextDate->getTimestamp() - $currentDate->getTimestamp());
+                $days = ceil($diff / 86400);
             }
 
             $status->setLevelWillExpireInDays($days);
@@ -183,6 +195,12 @@ class CustomerStatusProvider
         return $status;
     }
 
+    /**
+     * @param CustomerDetails $customer
+     * @param CustomerStatus  $status
+     * @param Level           $nextLevel
+     * @param                 $currentPoints
+     */
     protected function applyNextLevelRequirements(
         CustomerDetails $customer,
         CustomerStatus $status,
@@ -247,11 +265,13 @@ class CustomerStatusProvider
 
     /**
      * @return bool
-     *
-     * @throws \OpenLoyalty\Component\Customer\Infrastructure\Exception\LevelDowngradeModeNotSupportedException
      */
     private function displayDowngradeModeXDaysStats(): bool
     {
-        return $this->tierAssignTypeProvider->getType() == TierAssignTypeProvider::TYPE_POINTS && $this->levelDowngradeModeProvider->getMode() === LevelDowngradeModeProvider::MODE_X_DAYS;
+        try {
+            return $this->tierAssignTypeProvider->getType() == TierAssignTypeProvider::TYPE_POINTS && $this->levelDowngradeModeProvider->getMode() === LevelDowngradeModeProvider::MODE_X_DAYS;
+        } catch (LevelDowngradeModeNotSupportedException $e) {
+            return false;
+        }
     }
 }

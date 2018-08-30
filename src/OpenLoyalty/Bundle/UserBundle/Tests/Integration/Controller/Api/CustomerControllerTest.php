@@ -9,7 +9,6 @@ use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
 use OpenLoyalty\Component\Customer\Tests\Domain\Command\CustomerCommandHandlerTest;
 use OpenLoyalty\Component\Customer\Domain\PosId;
 use OpenLoyalty\Component\Import\Infrastructure\ImportResultItem;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class CustomerControllerTest.
@@ -34,7 +33,7 @@ class CustomerControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $this->assertEquals(
-            Response::HTTP_OK,
+            200,
             $response->getStatusCode(),
             'Response should have status 200'
         );
@@ -53,7 +52,7 @@ class CustomerControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $this->assertEquals(
-            Response::HTTP_NO_CONTENT,
+            204,
             $response->getStatusCode(),
             'Response should have status 204'
         );
@@ -73,7 +72,7 @@ class CustomerControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $this->assertEquals(
-            Response::HTTP_BAD_REQUEST,
+            400,
             $response->getStatusCode(),
             'Response should have status 400'
         );
@@ -1123,7 +1122,7 @@ class CustomerControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
 
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
 
         $this->assertArrayHasKey('items', $data);
         $this->assertCount(1, $data['items']);
@@ -1134,7 +1133,71 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_receives_levels_as_customer()
+    public function it_gets_customer_status_as_an_administrator(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/admin/customer/'.LoadUserData::USER_USER_ID.'/status'
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        $this->assertArrayHasKey('firstName', $data);
+        $this->assertArrayHasKey('lastName', $data);
+        $this->assertArrayHasKey('customerId', $data);
+        $this->assertArrayHasKey('points', $data);
+        $this->assertArrayHasKey('totalEarnedPoints', $data);
+        $this->assertArrayHasKey('usedPoints', $data);
+        $this->assertArrayHasKey('expiredPoints', $data);
+        $this->assertArrayHasKey('lockedPoints', $data);
+        $this->assertArrayHasKey('level', $data);
+        $this->assertArrayHasKey('levelName', $data);
+        $this->assertArrayHasKey('levelConditionValue', $data);
+        $this->assertArrayHasKey('nextLevel', $data);
+        $this->assertArrayHasKey('nextLevelName', $data);
+        $this->assertArrayHasKey('nextLevelConditionValue', $data);
+        $this->assertArrayHasKey('transactionsAmountWithoutDeliveryCosts', $data);
+        $this->assertArrayHasKey('averageTransactionsAmount', $data);
+        $this->assertArrayHasKey('transactionsCount', $data);
+        $this->assertArrayHasKey('transactionsAmount', $data);
+        $this->assertArrayHasKey('currency', $data);
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_allow_to_get_customer_status_as_a_different_customer(): void
+    {
+        $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
+        $client->request(
+            'GET',
+            '/api/customer/'.LoadUserData::USER1_USER_ID.'/status'
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), 'Response should have status 403');
+    }
+
+    /**
+     * @test
+     */
+    public function it_gets_customer_status_as_a_client(): void
+    {
+        $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
+        $client->request(
+            'GET',
+            '/api/customer/'.LoadUserData::USER_USER_ID.'/status'
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+    }
+
+    /**
+     * @test
+     */
+    public function it_receives_a_customer_status()
     {
         $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
         $client->request(
@@ -1144,7 +1207,7 @@ class CustomerControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
 
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
 
         $this->assertArrayHasKey('levels', $data);
         $first = reset($data['levels']);
