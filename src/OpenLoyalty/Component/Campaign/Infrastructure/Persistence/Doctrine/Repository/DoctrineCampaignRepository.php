@@ -196,9 +196,9 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     /**
      * {@inheritdoc}
      */
-    public function getActiveCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC')
+    public function getActiveCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, array $categoryIds = [], $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC'): array
     {
-        $qb = $this->getCampaignsForLevelAndSegmentQueryBuilder($segmentIds, $levelId, $page, $perPage, $sortField, $direction);
+        $qb = $this->getCampaignsForLevelAndSegmentQueryBuilder($segmentIds, $levelId, $categoryIds, $page, $perPage, $sortField, $direction);
         $qb->andWhere(
             $qb->expr()->orX(
                 'c.campaignActivity.allTimeActive = :true',
@@ -238,9 +238,9 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     /**
      * {@inheritdoc}
      */
-    public function getVisibleCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC')
+    public function getVisibleCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, array $categoryIds = [], $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC'): array
     {
-        $qb = $this->getCampaignsForLevelAndSegmentQueryBuilder($segmentIds, $levelId, $page, $perPage, $sortField, $direction);
+        $qb = $this->getCampaignsForLevelAndSegmentQueryBuilder($segmentIds, $levelId, $categoryIds, $page, $perPage, $sortField, $direction);
         $qb->andWhere(
             $qb->expr()->orX(
                 'c.campaignVisibility.allTimeVisible = :true',
@@ -258,6 +258,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     /**
      * @param array        $segmentIds
      * @param LevelId|null $levelId
+     * @param array        $categoryIds
      * @param int          $page
      * @param int          $perPage
      * @param null         $sortField
@@ -267,7 +268,8 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      *
      * @throws \Doctrine\ORM\ORMException
      */
-    protected function getCampaignsForLevelAndSegmentQueryBuilder(array $segmentIds = [], LevelId $levelId = null, $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC')
+    protected function getCampaignsForLevelAndSegmentQueryBuilder(array $segmentIds = [], LevelId $levelId = null,
+        array $categoryIds = [], $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC'): QueryBuilder
     {
         $this->getEntityManager()->getConfiguration()->addCustomStringFunction('cast', Cast::class);
         $qb = $this->createQueryBuilder('c');
@@ -288,6 +290,8 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
         }
 
         $qb->andWhere($levelOrSegment);
+
+        $this->updateQueryByCategoriesIds($qb, $categoryIds);
 
         if ($sortField) {
             $qb->orderBy(
@@ -356,7 +360,31 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
             }
         }
 
+        if (array_key_exists('categoryId', $params) && is_array($params['categoryId'])) {
+            $this->updateQueryByCategoriesIds($qb, $params['categoryId']);
+        }
+
         return $qb;
+    }
+
+    /**
+     * @param QueryBuilder $queryBuilder
+     * @param array        $categoryIds
+     */
+    protected function updateQueryByCategoriesIds(QueryBuilder $queryBuilder, array $categoryIds): void
+    {
+        if (count($categoryIds) == 0) {
+            return;
+        }
+
+        $categoriesOrX = $queryBuilder->expr()->orX();
+        $i = 0;
+        foreach ($categoryIds as $categoryId) {
+            $categoriesOrX->add($queryBuilder->expr()->like('cast(c.categories as text)', ':categories'.$i));
+            $queryBuilder->setParameter('categories'.$i, '%'.$categoryId.'%');
+            ++$i;
+        }
+        $queryBuilder->andWhere($categoriesOrX);
     }
 
     /**

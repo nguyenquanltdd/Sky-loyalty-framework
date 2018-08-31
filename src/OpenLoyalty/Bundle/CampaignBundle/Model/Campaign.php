@@ -68,6 +68,7 @@ class Campaign extends BaseCampaign
             'daysInactive' => $this->daysInactive,
             'daysValid' => $this->daysValid,
             'transactionPercentageValue' => $this->transactionPercentageValue,
+            'categories' => $this->categories,
         ];
     }
 

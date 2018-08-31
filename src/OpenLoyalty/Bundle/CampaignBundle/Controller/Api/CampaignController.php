@@ -476,6 +476,7 @@ class CampaignController extends FOSRestController
      *      {"name"="active", "dataType"="boolean", "required"=false, "description"="Filter by activity"},
      *      {"name"="campaignType", "dataType"="string", "required"=false, "description"="Filter by campaign type"},
      *      {"name"="name", "dataType"="string", "required"=false, "description"="Filter by campaign name"},
+     *      {"name"="categoryId[]", "dataType"="string", "required"=false, "description"="Filter by categories"},
      *     }
      * )
      *
@@ -490,6 +491,7 @@ class CampaignController extends FOSRestController
      * @QueryParam(name="active", nullable=true, description="filter by activity"))
      * @QueryParam(name="campaignType", nullable=true, description="filter by campaign type"))
      * @QueryParam(name="name", nullable=true, description="filter by campaign name"))
+     * @QueryParam(name="categoryId", nullable=true, description="filter by categories"))
      */
     public function getListAction(Request $request, ParamFetcher $paramFetcher)
     {
@@ -841,6 +843,7 @@ class CampaignController extends FOSRestController
      *      {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
      *      {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
      *      {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
+     *      {"name"="categoryId[]", "dataType"="string", "required"=false, "description"="Filter by categories"},
      *     }
      * )
      *
@@ -854,6 +857,7 @@ class CampaignController extends FOSRestController
     {
         $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
 
+        $categoryIds = $request->query->get('categoryId', []);
         $customerSegments = $this->get('oloy.segment.read_model.repository.segmented_customers')
             ->findBy(['customerId' => $customer->getCustomerId()->__toString()]);
         $segments = array_map(function (SegmentedCustomers $segmentedCustomers) {
@@ -865,6 +869,7 @@ class CampaignController extends FOSRestController
             ->getVisibleCampaignsForLevelAndSegment(
                 $segments,
                 $customer->getLevelId() ? new LevelId($customer->getLevelId()->__toString()) : null,
+                $categoryIds,
                 null,
                 null,
                 $pagination->getSort(),

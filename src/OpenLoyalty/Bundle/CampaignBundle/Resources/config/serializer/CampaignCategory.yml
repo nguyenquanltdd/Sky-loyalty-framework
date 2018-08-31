@@ -1,0 +1,5 @@
+OpenLoyalty\Component\Campaign\Domain\CampaignCategory:
+  properties:
+    campaignCategoryId:
+      expose: true
+      inline: true

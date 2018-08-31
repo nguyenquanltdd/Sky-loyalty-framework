@@ -104,3 +104,7 @@ services:
     oloy.points.account.repository.points_transfer_details:
         alias: OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsRepository
         deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.pagination:
+        alias: OpenLoyalty\Bundle\PaginationBundle\Service\Paginator
+        deprecated: The "%service_id%" service is deprecated since 2.8.0

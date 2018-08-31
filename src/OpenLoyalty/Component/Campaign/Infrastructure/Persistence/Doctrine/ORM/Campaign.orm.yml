@@ -104,6 +104,9 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
       type: integer
       nullable: true
       column: transaction_percentage_value
+    categories:
+      type: campaign_categories_json_array
+      nullable: true
   embedded:
     campaignActivity:
       class: OpenLoyalty\Component\Campaign\Domain\Model\CampaignActivity

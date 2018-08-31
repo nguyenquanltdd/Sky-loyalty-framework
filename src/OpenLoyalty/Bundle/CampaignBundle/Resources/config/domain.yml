@@ -74,3 +74,12 @@ services:
       - '@OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider'
   OpenLoyalty\Component\Campaign\Domain\Provider\CouponActivationDateProvider: ~
   OpenLoyalty\Component\Campaign\Domain\Provider\CouponExpirationDateProvider: ~
+
+  OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Repository\DoctrineCampaignCategoryRepository:
+    factory: ['@doctrine.orm.entity_manager', getRepository]
+    arguments:
+    - 'OpenLoyalty\Component\Campaign\Domain\CampaignCategory'
+
+  OpenLoyalty\Component\Campaign\Domain\Command\CampaignCategoryCommandHandler:
+    tags:
+    - { name: broadway.command_handler }

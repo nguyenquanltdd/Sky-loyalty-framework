@@ -47,6 +47,7 @@ interface CampaignRepository
     /**
      * @param SegmentId[] $segmentIds
      * @param LevelId     $levelId
+     * @param array       $categoryIds
      * @param int         $page
      * @param int         $perPage
      * @param null        $sortField
@@ -54,13 +55,14 @@ interface CampaignRepository
      *
      * @return Campaign[]
      */
-    public function getActiveCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC');
+    public function getActiveCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, array $categoryIds = [], $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC'): array;
 
     public function getActiveCashbackCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null);
 
     /**
      * @param SegmentId[] $segmentIds
      * @param LevelId     $levelId
+     * @param array       $categoryIds
      * @param int         $page
      * @param int         $perPage
      * @param null        $sortField
@@ -68,7 +70,7 @@ interface CampaignRepository
      *
      * @return Campaign[]
      */
-    public function getVisibleCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC');
+    public function getVisibleCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, array $categoryIds = [], $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC'): array;
 
     /**
      * @param bool $onlyVisible

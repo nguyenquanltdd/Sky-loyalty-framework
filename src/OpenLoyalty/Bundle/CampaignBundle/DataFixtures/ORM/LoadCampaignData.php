@@ -9,11 +9,14 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Provider\Uuid;
 use OpenLoyalty\Bundle\CampaignBundle\Model\Campaign;
 use OpenLoyalty\Bundle\CampaignBundle\Model\CampaignActivity;
+use OpenLoyalty\Bundle\CampaignBundle\Model\CampaignCategory;
 use OpenLoyalty\Bundle\CampaignBundle\Model\CampaignVisibility;
 use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
 use OpenLoyalty\Bundle\SegmentBundle\DataFixtures\ORM\LoadSegmentData;
+use OpenLoyalty\Component\Campaign\Domain\CampaignCategoryId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\Command\CreateCampaign;
+use OpenLoyalty\Component\Campaign\Domain\Command\CreateCampaignCategory;
 use OpenLoyalty\Component\Campaign\Domain\LevelId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 use OpenLoyalty\Component\Campaign\Domain\SegmentId;
@@ -30,8 +33,34 @@ class LoadCampaignData extends ContainerAwareFixture
     const CAMPAIGN3_ID = '000096cf-32a3-43bd-9034-4df343e5fd91';
     const PERCENTAGE_COUPON_CAMPAIGN_ID = '000096cf-32a3-43bd-9034-4df343e5fd94';
 
+    const CAMPAIGN_CATEGORY1_ID = '000096cf-32a3-43bd-9034-4df343e5fd99';
+    const CAMPAIGN_CATEGORY2_ID = '000096cf-32a3-43bd-9034-4df343e5fd98';
+
+    /**
+     * {@inheritdoc}
+     */
     public function load(ObjectManager $manager)
     {
+        $campaignCategory = new CampaignCategory();
+        $campaignCategory->setName('Category A');
+        $campaignCategory->setActive(true);
+        $campaignCategory->setSortOrder(0);
+
+        $this->container->get('broadway.command_handling.command_bus')
+            ->dispatch(
+                new CreateCampaignCategory(new CampaignCategoryId(self::CAMPAIGN_CATEGORY1_ID), $campaignCategory->toArray())
+            );
+
+        $campaignCategory = new CampaignCategory();
+        $campaignCategory->setName('Category B');
+        $campaignCategory->setActive(true);
+        $campaignCategory->setSortOrder(0);
+
+        $this->container->get('broadway.command_handling.command_bus')
+            ->dispatch(
+                new CreateCampaignCategory(new CampaignCategoryId(self::CAMPAIGN_CATEGORY2_ID), $campaignCategory->toArray())
+            );
+
         $campaign = new Campaign();
         $campaign->setActive(true);
         $campaign->setCostInPoints(10);
@@ -58,6 +87,10 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaignVisibility->setVisibleFrom(new \DateTime('2016-01-01'));
         $campaignVisibility->setVisibleTo(new \DateTime('2037-01-01'));
         $campaign->setCampaignVisibility($campaignVisibility);
+        $campaign->setCategories([
+            new CampaignCategoryId(self::CAMPAIGN_CATEGORY1_ID),
+            new CampaignCategoryId(self::CAMPAIGN_CATEGORY2_ID),
+        ]);
 
         $this->container->get('broadway.command_handling.command_bus')
             ->dispatch(
@@ -128,6 +161,9 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaign->setDaysInactive(28);
         $campaign->setDaysValid(100);
         $campaign->setTransactionPercentageValue(10);
+        $campaign->setCategories([
+            new CampaignCategoryId(self::CAMPAIGN_CATEGORY2_ID),
+        ]);
 
         $this->container->get('broadway.command_handling.command_bus')
             ->dispatch(

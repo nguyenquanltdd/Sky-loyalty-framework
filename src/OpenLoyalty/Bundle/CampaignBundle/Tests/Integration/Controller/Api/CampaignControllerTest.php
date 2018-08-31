@@ -403,6 +403,10 @@ class CampaignControllerTest extends BaseApiTest
             [['active' => 1], 10],
             [['active' => 0], 8],
             [['campaignType' => 'discount_code'], 7],
+            [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY2_ID]], 2],
+            [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID]], 1],
+            [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID, LoadCampaignData::CAMPAIGN_CATEGORY2_ID]], 2],
+            [['categoryId' => ['not-exist-sid']], 0],
         ];
     }
 

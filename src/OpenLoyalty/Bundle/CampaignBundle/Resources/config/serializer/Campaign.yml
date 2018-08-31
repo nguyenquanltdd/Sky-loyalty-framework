@@ -5,6 +5,8 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
       inline: true
     levels:
       exclude: true
+    categories:
+      exclude: true
     segments:
       exclude: true
     coupons:
@@ -24,6 +26,10 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
         groups: ['admin']
     getFlatSegments:
         serialized_name: segments
+        type: array
+        groups: ['admin']
+    getFlatCategories:
+        serialized_name: categories
         type: array
         groups: ['admin']
     getFlatCoupons:

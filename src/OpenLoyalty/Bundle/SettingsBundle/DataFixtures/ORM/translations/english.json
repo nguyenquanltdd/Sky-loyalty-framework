@@ -98,6 +98,22 @@
     "all_time_visible_prompt": "Reward campaign is always visible to customers",
     "basic_info": "Campaign details",
     "buy_campaign_manually_modal": "Buy {{name}} campaign for client",
+    "categories": "Categories",
+    "categories_prompt": "",
+    "category": {
+      "heading": "Campaign categories",
+      "edit_heading": "Edit",
+      "add_heading": "Add campaign category",
+      "list": "Campaign categories list",
+      "name": "Name",
+      "name_prompt": "",
+      "sort_order": "Sort order",
+      "sort_order_prompt": "",
+      "active": "Active",
+      "active_prompt": "",
+      "add": "Add campaign category",
+      "basic_info": "Basic information"
+    },
     "campaign_type": {
       "all": "All"
     },
@@ -1493,7 +1509,8 @@
     "sellers": "Merchants",
     "support": "Support",
     "transactions": "Transactions",
-    "transfers": "Points transfers"
+    "transfers": "Points transfers",
+    "all_campaign_categories": "All campaign categories"
   },
   "Plik nie mógł zostać odnaleziony.": "File could not be found",
   "pos": {
@@ -2357,6 +2374,18 @@
     "upload_settings_small_logo": {
       "error": "Small logo hasn't been saved",
       "success": "Small logo has been saved"
+    },
+    "post_campaign_category": {
+      "error": "Campaign category hasn't been saved",
+      "success": "Campaign category has been saved"
+    },
+    "put_campaign_category": {
+      "error": "Campaign category hasn't been saved",
+      "success": "Campaign category has been saved"
+    },
+    "post_activate_campaign_category": {
+      "error": "Campaign category hasn't been saved",
+      "success": "Campaign category has been saved"
     }
   },
   "Your password must be at least 8 characters long.": "Your password must be at least 8 characters long",

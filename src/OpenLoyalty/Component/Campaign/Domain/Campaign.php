@@ -180,6 +180,11 @@ class Campaign
     protected $transactionPercentageValue;
 
     /**
+     * @var CampaignCategoryId[]
+     */
+    protected $categories = [];
+
+    /**
      * Campaign constructor.
      *
      * @param CampaignId $campaignId
@@ -191,6 +196,9 @@ class Campaign
         $this->setFromArray($data);
     }
 
+    /**
+     * @param array $data
+     */
     public function setFromArray(array $data)
     {
         if (isset($data['reward'])) {
@@ -274,6 +282,10 @@ class Campaign
 
         if (isset($data['segments'])) {
             $this->segments = $data['segments'];
+        }
+
+        if (isset($data['categories'])) {
+            $this->categories = $data['categories'];
         }
 
         if (isset($data['campaignActivity'])) {
@@ -681,6 +693,16 @@ class Campaign
     }
 
     /**
+     * @return array
+     */
+    public function getFlatCategories(): array
+    {
+        return array_map(function (CampaignCategoryId $campaignCategoryId) {
+            return $campaignCategoryId->__toString();
+        }, $this->categories);
+    }
+
+    /**
      * @return CampaignFile|null
      */
     public function getCampaignBrandIcon(): ?CampaignFile
@@ -942,5 +964,21 @@ class Campaign
     public function setTransactionPercentageValue(int $transactionPercentageValue): void
     {
         $this->transactionPercentageValue = $transactionPercentageValue;
+    }
+
+    /**
+     * @return CampaignCategoryId[]
+     */
+    public function getCategories(): array
+    {
+        return $this->categories;
+    }
+
+    /**
+     * @param CampaignCategoryId[] $categories
+     */
+    public function setCategories(array $categories): void
+    {
+        $this->categories = $categories;
     }
 }

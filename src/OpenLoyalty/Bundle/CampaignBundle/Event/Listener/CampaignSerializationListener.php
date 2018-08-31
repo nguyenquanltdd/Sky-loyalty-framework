@@ -13,6 +13,9 @@ use OpenLoyalty\Bundle\MarkDownBundle\Service\ContextMarkDownFormatter;
 use OpenLoyalty\Bundle\MarkDownBundle\Service\FOSContextProvider;
 use OpenLoyalty\Bundle\UserBundle\Status\CustomerStatusProvider;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
+use OpenLoyalty\Component\Campaign\Domain\CampaignCategory;
+use OpenLoyalty\Component\Campaign\Domain\CampaignCategoryId;
+use OpenLoyalty\Component\Campaign\Domain\CampaignCategoryRepository;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignUsageRepository;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CouponUsage;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CouponUsageRepository;
@@ -50,9 +53,15 @@ class CampaignSerializationListener implements EventSubscriberInterface
     protected $couponUsageRepository;
 
     /**
+     * @var CampaignCategoryRepository
+     */
+    protected $categoryRepository;
+
+    /**
      * @var CampaignProvider
      */
     protected $campaignProvider;
+
     /**
      * @var CampaignUsageRepository
      */
@@ -71,14 +80,15 @@ class CampaignSerializationListener implements EventSubscriberInterface
     /**
      * CampaignSerializationListener constructor.
      *
-     * @param CampaignValidator        $campaignValidator
-     * @param SegmentRepository        $segmentRepository
-     * @param LevelRepository          $levelRepository
-     * @param CouponUsageRepository    $couponUsageRepository
-     * @param CampaignProvider         $campaignProvider
-     * @param CampaignUsageRepository  $campaignUsageRepository
-     * @param CustomerStatusProvider   $customerStatusProvider
-     * @param ContextMarkDownFormatter $contextMarkDownFormatter
+     * @param CampaignValidator          $campaignValidator
+     * @param SegmentRepository          $segmentRepository
+     * @param LevelRepository            $levelRepository
+     * @param CouponUsageRepository      $couponUsageRepository
+     * @param CampaignProvider           $campaignProvider
+     * @param CampaignUsageRepository    $campaignUsageRepository
+     * @param CustomerStatusProvider     $customerStatusProvider
+     * @param ContextMarkDownFormatter   $contextMarkDownFormatter
+     * @param CampaignCategoryRepository $categoryRepository
      */
     public function __construct(
         CampaignValidator $campaignValidator,
@@ -88,7 +98,8 @@ class CampaignSerializationListener implements EventSubscriberInterface
         CampaignProvider $campaignProvider,
         CampaignUsageRepository $campaignUsageRepository,
         CustomerStatusProvider $customerStatusProvider,
-        ContextMarkDownFormatter $contextMarkDownFormatter
+        ContextMarkDownFormatter $contextMarkDownFormatter,
+        CampaignCategoryRepository $categoryRepository
     ) {
         $this->campaignValidator = $campaignValidator;
         $this->segmentRepository = $segmentRepository;
@@ -98,6 +109,7 @@ class CampaignSerializationListener implements EventSubscriberInterface
         $this->campaignUsageRepository = $campaignUsageRepository;
         $this->customerStatusProvider = $customerStatusProvider;
         $this->contextMarkDownFormatter = $contextMarkDownFormatter;
+        $this->categoryRepository = $categoryRepository;
     }
 
     public static function getSubscribedEvents()
@@ -115,6 +127,7 @@ class CampaignSerializationListener implements EventSubscriberInterface
         if ($campaign instanceof Campaign) {
             $segmentNames = [];
             $levelNames = [];
+            $categoryNames = [];
 
             foreach ($campaign->getSegments() as $segmentId) {
                 $segment = $this->segmentRepository->byId(new SegmentId($segmentId->__toString()));
@@ -128,7 +141,13 @@ class CampaignSerializationListener implements EventSubscriberInterface
                     $levelNames[$levelId->__toString()] = $level->getName();
                 }
             }
-
+            foreach ($campaign->getCategories() as $categoryId) {
+                $category = $this->categoryRepository->byId(new CampaignCategoryId($categoryId->__toString()));
+                if ($category instanceof CampaignCategory) {
+                    $categoryNames[$categoryId->__toString()] = $category->getName();
+                }
+            }
+            $event->getVisitor()->addData('categoryNames', $categoryNames);
             $event->getVisitor()->addData('segmentNames', $segmentNames);
             $event->getVisitor()->addData('levelNames', $levelNames);
 

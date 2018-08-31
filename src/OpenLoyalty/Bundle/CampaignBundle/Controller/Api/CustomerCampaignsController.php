@@ -78,6 +78,7 @@ class CustomerCampaignsController extends FOSRestController
      *      {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
      *      {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
      *      {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
+     *      {"name"="categoryId[]", "dataType"="string", "required"=false, "description"="Filter by categories"},
      *     }
      * )
      *
@@ -93,6 +94,8 @@ class CustomerCampaignsController extends FOSRestController
         $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
         $customer = $this->getLoggedCustomer();
         $availablePoints = null;
+
+        $categoryIds = $request->query->get('categoryId', []);
         $customerSegments = $this->get('oloy.segment.read_model.repository.segmented_customers')
             ->findBy(['customerId' => $customer->getCustomerId()->__toString()]);
         $segments = array_map(function (SegmentedCustomers $segmentedCustomers) {
@@ -106,6 +109,7 @@ class CustomerCampaignsController extends FOSRestController
                 ->getVisibleCampaignsForLevelAndSegment(
                     $segments,
                     new LevelId($customer->getLevelId()->__toString()),
+                    $categoryIds,
                     null,
                     null,
                     $pagination->getSort(),

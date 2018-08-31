@@ -5,3 +5,7 @@ services:
       - '@OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider'
     tags:
       - { name: security.voter }
+
+  OpenLoyalty\Bundle\CampaignBundle\Security\Voter\CampaignCategoryVoter:
+    tags:
+      - { name: security.voter }

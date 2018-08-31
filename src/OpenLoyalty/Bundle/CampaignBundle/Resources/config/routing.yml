@@ -4,7 +4,9 @@ campaign:
 customer_campaign:
     resource: '@OpenLoyaltyCampaignBundle/Controller/Api/CustomerCampaignsController.php'
     type: annotation
-
+campaign_category:
+    resource: '@OpenLoyaltyCampaignBundle/Controller/Api/CampaignCategoryController.php'
+    type: annotation
 cashback:
     resource: '@OpenLoyaltyCampaignBundle/Controller/Api/CashbackController.php'
     type: annotation

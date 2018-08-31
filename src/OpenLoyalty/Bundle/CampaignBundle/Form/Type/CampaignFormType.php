@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\CampaignBundle\Form\Type;
 
+use OpenLoyalty\Bundle\CampaignBundle\Form\DataTransformer\CategoriesDataTransformer;
 use OpenLoyalty\Bundle\CampaignBundle\Form\DataTransformer\CouponsDataTransformer;
 use OpenLoyalty\Bundle\CampaignBundle\Form\DataTransformer\LevelsDataTransformer;
 use OpenLoyalty\Bundle\CampaignBundle\Form\DataTransformer\SegmentsDataTransformer;
@@ -76,6 +77,14 @@ class CampaignFormType extends AbstractType
         $builder->add('conditionsDescription', TextareaType::class, [
             'required' => false,
         ]);
+        $builder->add(
+            $builder->create('categories', CollectionType::class, [
+                'entry_type' => TextType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'error_bubbling' => false,
+            ])->addModelTransformer(new CategoriesDataTransformer())
+        );
         $builder->add('brandName', TextType::class, [
             'required' => false,
         ]);

@@ -98,7 +98,23 @@
     "all_time_visible": "Cały czas widoczne",
     "all_time_visible_prompt": "Nagroda jest dostępna bez ograniczeń",
     "basic_info": "Szczegóły",
-    "buy_campaign_manually_modal": "Kup kampanie {{name}} dla klientaZ",
+    "buy_campaign_manually_modal": "Kup kampanie {{name}} dla klienta",
+    "categories": "Kategorie",
+    "categories_prompt": "",
+    "category": {
+      "heading": "Kategorie kampanii",
+      "edit_heading": "Edycja",
+      "add_heading": "Dodaj kategorie kampanii",
+      "list": "List kategorii kampanii",
+      "name": "Nazwa",
+      "name_prompt": "",
+      "sort_order": "Kolejność",
+      "sort_order_prompt": "",
+      "active": "Aktywny",
+      "active_prompt": "",
+      "add": "Dodaj kategorie kampanii",
+      "basic_info": "Podstawowe informacje"
+    },
     "campaign_type": {
       "all": "Wszystkie"
     },
@@ -1516,7 +1532,8 @@
     "sellers": "Sprzedawcy",
     "support": "Wsparcie",
     "transactions": "Transakcje",
-    "transfers": "Transfery punktów"
+    "transfers": "Transfery punktów",
+    "all_campaign_categories": "Wszystkie kategorie kampanii"
   },
   "Plik nie mógł zostać odnaleziony.": "Nie można znaleźć pliku",
   "pos": {
@@ -2383,6 +2400,18 @@
       "error": "Server error",
       "success": "Logo marki zostało dodane",
       "warning": "Kampania została zapisana bez loga marki"
+    },
+    "post_campaign_category": {
+      "error": "Kategoria kampanii nie została zapisana",
+      "success": "Kategoria kampani została zapisana"
+    },
+    "put_campaign_category": {
+      "error": "Kategoria kampanii nie została zapisana",
+      "success": "Kategoria kampani została zapisana"
+    },
+    "post_activate_campaign_category": {
+      "error": "Kategoria kampanii nie została zapisana",
+      "success": "Kategoria kampani została zapisana"
     }
   },
   "Your password must be at least 8 characters long.": "Twoje hasło musi mieć co najmniej 8 znaków",

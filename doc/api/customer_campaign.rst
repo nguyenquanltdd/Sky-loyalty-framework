@@ -298,6 +298,8 @@ Definition
 | direction            | query          | *(optional)* Direction of sorting [ASC, DESC],         |
 |                      |                | by default = ASC                                       |
 +----------------------+----------------+--------------------------------------------------------+
+| categoryId[]         | query          | *(optional)* Array of category Ids                     |
++----------------------+----------------+--------------------------------------------------------+
 
 Example
 ^^^^^^^
