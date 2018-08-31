@@ -76,6 +76,9 @@ services:
     class: OpenLoyalty\Bundle\CampaignBundle\Service\CampaignPhotoUploader
     arguments: ["@oloy.campaign.photos_filesystem"]
 
+  OpenLoyalty\Bundle\CampaignBundle\Service\CampaignBrandIconUploader:
+    arguments: ["@oloy.campaign.photos_filesystem"]
+
   oloy.campaign.validator.image:
     class: OpenLoyalty\Bundle\CampaignBundle\Validator\Constraints\ImageValidator
     arguments:

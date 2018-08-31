@@ -6,6 +6,7 @@ use OpenLoyalty\Bundle\CampaignBundle\DataFixtures\ORM\LoadCampaignData;
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
+use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
 use OpenLoyalty\Component\Account\Domain\CustomerId;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
@@ -25,6 +26,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CampaignControllerTest extends BaseApiTest
 {
+    use UploadedFileTrait;
+
     /**
      * @var CampaignRepository
      */
@@ -35,6 +38,9 @@ class CampaignControllerTest extends BaseApiTest
      */
     private $customerDetailsRepository;
 
+    /**
+     * {@inheritdoc}
+     */
     protected function setUp()
     {
         parent::setUp();
@@ -42,6 +48,114 @@ class CampaignControllerTest extends BaseApiTest
         static::bootKernel();
         $this->campaignRepository = static::$kernel->getContainer()->get('oloy.campaign.repository');
         $this->customerDetailsRepository = static::$kernel->getContainer()->get('oloy.user.read_model.repository.customer_details');
+    }
+
+    /**
+     * @test
+     */
+    public function it_updates_campaign_photo()
+    {
+        $imgContent = file_get_contents(__DIR__.'/../../../Resources/test.jpg');
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/campaign/'.LoadCampaignData::CAMPAIGN2_ID.'/photo',
+            [],
+            [
+                'photo' => [
+                    'file' => $this->createUploadedFile($imgContent, 'test.jpg', 'image/jpeg', UPLOAD_ERR_OK),
+                ],
+            ]
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+    }
+
+    /**
+     * @test
+     * @depends it_updates_campaign_photo
+     */
+    public function it_gets_campaign_photo()
+    {
+        $fileHash = md5_file(__DIR__.'/../../../Resources/test.jpg');
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/campaign/'.LoadCampaignData::CAMPAIGN2_ID.'/photo'
+        );
+        $response = $client->getResponse();
+        $this->assertEquals($fileHash, md5($response->getContent()), 'File has not been uploaded correctly.');
+    }
+
+    /**
+     * @test
+     * @depends it_gets_campaign_photo
+     */
+    public function it_removes_campaign_photo()
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'DELETE',
+            '/api/campaign/'.LoadCampaignData::CAMPAIGN2_ID.'/photo'
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+    }
+
+    /**
+     * @test
+     */
+    public function it_updates_campaign_brand()
+    {
+        $imgContent = file_get_contents(__DIR__.'/../../../Resources/test.jpg');
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/campaign/'.LoadCampaignData::CAMPAIGN2_ID.'/brand_icon',
+            [],
+            [
+                'brand_icon' => [
+                    'file' => $this->createUploadedFile($imgContent, 'test.jpg', 'image/jpeg', UPLOAD_ERR_OK),
+                ],
+            ]
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+    }
+
+    /**
+     * @test
+     * @depends it_updates_campaign_brand
+     */
+    public function it_gets_campaign_brand()
+    {
+        $fileHash = md5_file(__DIR__.'/../../../Resources/test.jpg');
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/campaign/'.LoadCampaignData::CAMPAIGN2_ID.'/brand_icon'
+        );
+        $response = $client->getResponse();
+        $this->assertEquals($fileHash, md5($response->getContent()), 'File has not been uploaded correctly.');
+    }
+
+    /**
+     * @test
+     * @depends it_gets_campaign_photo
+     */
+    public function it_removes_campaign_brand()
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'DELETE',
+            '/api/campaign/'.LoadCampaignData::CAMPAIGN2_ID.'/brand_icon'
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
     }
 
     /**
@@ -183,7 +297,7 @@ class CampaignControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('campaignId', $data);
         $campaign = $this->campaignRepository->byId(new CampaignId($data['campaignId']));
         $this->assertInstanceOf(Campaign::class, $campaign);
@@ -231,7 +345,7 @@ class CampaignControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+        $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 200');
     }
 
     /**

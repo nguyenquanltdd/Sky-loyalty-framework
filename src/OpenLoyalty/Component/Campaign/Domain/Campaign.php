@@ -7,6 +7,7 @@ namespace OpenLoyalty\Component\Campaign\Domain;
 
 use OpenLoyalty\Component\Campaign\Domain\Model\CampaignActivity;
 use OpenLoyalty\Component\Campaign\Domain\Model\CampaignPhoto;
+use OpenLoyalty\Component\Campaign\Domain\Model\CampaignFile;
 use OpenLoyalty\Component\Campaign\Domain\Model\CampaignVisibility;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
@@ -52,6 +53,16 @@ class Campaign
      * @var string
      */
     protected $moreInformationLink;
+
+    /**
+     * @var string|null
+     */
+    protected $brandName;
+
+    /**
+     * @var CampaignFile|null
+     */
+    protected $brandIcon;
 
     /**
      * @var string
@@ -196,6 +207,10 @@ class Campaign
 
         if (isset($data['moreInformationLink'])) {
             $this->moreInformationLink = $data['moreInformationLink'];
+        }
+
+        if (isset($data['brandName'])) {
+            $this->brandName = $data['brandName'];
         }
 
         if (isset($data['conditionsDescription'])) {
@@ -663,6 +678,46 @@ class Campaign
         return array_map(function (Coupon $coupon) {
             return $coupon->getCode();
         }, $this->coupons);
+    }
+
+    /**
+     * @return CampaignFile|null
+     */
+    public function getCampaignBrandIcon(): ?CampaignFile
+    {
+        return $this->brandIcon;
+    }
+
+    /**
+     * @param CampaignFile|null $brandIcon
+     */
+    public function setCampaignBrandIcon(?CampaignFile $brandIcon)
+    {
+        $this->brandIcon = $brandIcon;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getBrandIcon(): bool
+    {
+        return $this->brandIcon->getPath() ? true : false;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getBrandName(): ?string
+    {
+        return $this->brandName;
+    }
+
+    /**
+     * @param string|null $brandName
+     */
+    public function setBrandName(?string $brandName)
+    {
+        $this->brandName = $brandName;
     }
 
     /**

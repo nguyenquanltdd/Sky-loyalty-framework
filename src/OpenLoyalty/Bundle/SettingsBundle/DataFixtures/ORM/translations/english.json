@@ -210,7 +210,11 @@
     "visible_to": "Visible To",
     "visible_to_prompt": "",
     "brand_description": "Brand description",
-    "brand_description_prompt": ""
+    "brand_description_prompt": "",
+    "brand_icon": "Brand icon",
+    "brand_info": "Brand info",
+    "brand_name": "Brand name",
+    "brand_name_prompt": ""
   },
   "client_cockpit": {
     "register": {
@@ -2008,6 +2012,30 @@
       "nothing_found": "No customers found",
       "success": "Success",
       "to_many_results": "There are to many results, please provide some additional data"
+    },
+    "put_campaign_brand_icon": {
+      "error": "Server error",
+      "success": "Reward campaign brand icon added",
+      "warning": "Campaign edited without brand icon"
+    },
+    "put_campaign_image": {
+      "error": "Server error",
+      "success": "Reward campaign photo added",
+      "warning": "Campaign edited without photo"
+    },
+    "delete_campaign_brand_icon": {
+      "error": "An error occurred",
+      "success": "Image deleted"
+    },
+    "post_campaign_brand_icon": {
+      "error": "Server error",
+      "success": "Reward campaign brand icon added",
+      "warning": "Campaign added without brand icon"
+    },
+    "post_campaign_image": {
+      "error": "Server error",
+      "success": "Reward campaign photo added",
+      "warning": "Campaign added without photo"
     },
     "delete_campaign_image": {
       "error": "An error occurred",

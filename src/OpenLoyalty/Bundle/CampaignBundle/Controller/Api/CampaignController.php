@@ -23,11 +23,15 @@ use OpenLoyalty\Bundle\CampaignBundle\Exception\TransactionRequiredException;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignPhotoFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\EditCampaignFormType;
+use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignBrandIconFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Model\Campaign;
 use OpenLoyalty\Bundle\CampaignBundle\ResponseModel\CouponUsageResponse;
 use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider;
 use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator;
 use OpenLoyalty\Bundle\CampaignBundle\Service\MultipleCampaignCouponUsageProvider;
+use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignBrandIconUploader;
+use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignPhotoUploader;
+use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignFileUploader;
 use OpenLoyalty\Bundle\CoreBundle\Service\CSVGenerator;
 use OpenLoyalty\Bundle\MarkDownBundle\Service\FOSContextProvider;
 use OpenLoyalty\Component\Campaign\Domain\Campaign as DomainCampaign;
@@ -36,7 +40,9 @@ use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\Command\BuyCampaign;
 use OpenLoyalty\Component\Campaign\Domain\Command\ChangeCampaignState;
 use OpenLoyalty\Component\Campaign\Domain\Command\CreateCampaign;
+use OpenLoyalty\Component\Campaign\Domain\Command\RemoveCampaignBrandIcon;
 use OpenLoyalty\Component\Campaign\Domain\Command\RemoveCampaignPhoto;
+use OpenLoyalty\Component\Campaign\Domain\Command\SetCampaignBrandIcon;
 use OpenLoyalty\Component\Campaign\Domain\Command\SetCampaignPhoto;
 use OpenLoyalty\Component\Campaign\Domain\Command\UpdateCampaign;
 use OpenLoyalty\Component\Campaign\Domain\Coupon\CouponCodeProvider;
@@ -46,6 +52,7 @@ use OpenLoyalty\Component\Campaign\Domain\Model\Coupon as CampaignCoupon;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\ActiveCampaigns;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignShortInfo;
 use OpenLoyalty\Component\Campaign\Domain\SegmentId;
+use OpenLoyalty\Component\Campaign\Domain\Model\CampaignFile;
 use OpenLoyalty\Component\Customer\Domain\CampaignId as CustomerCampaignId;
 use OpenLoyalty\Component\Customer\Domain\Command\ChangeCampaignUsage;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
@@ -102,6 +109,11 @@ class CampaignController extends FOSRestController
     private $transactionDetailsRepository;
 
     /**
+     * @var CampaignBrandIconUploader
+     */
+    private $campaignBrandIconUploader;
+
+    /**
      * CampaignController constructor.
      *
      * @param CommandBus                   $commandBus
@@ -110,6 +122,7 @@ class CampaignController extends FOSRestController
      * @param CampaignProvider             $campaignProvider
      * @param CouponCodeProvider           $couponCodeProvider
      * @param TransactionDetailsRepository $transactionDetailsRepository
+     * @param CampaignBrandIconUploader    $campaignBrandIconUploader
      */
     public function __construct(
         CommandBus $commandBus,
@@ -117,7 +130,8 @@ class CampaignController extends FOSRestController
         CampaignValidator $campaignValidator,
         CampaignProvider $campaignProvider,
         CouponCodeProvider $couponCodeProvider,
-        TransactionDetailsRepository $transactionDetailsRepository
+        TransactionDetailsRepository $transactionDetailsRepository,
+        CampaignBrandIconUploader $campaignBrandIconUploader
     ) {
         $this->commandBus = $commandBus;
         $this->translator = $translator;
@@ -125,6 +139,7 @@ class CampaignController extends FOSRestController
         $this->campaignProvider = $campaignProvider;
         $this->couponCodeProvider = $couponCodeProvider;
         $this->transactionDetailsRepository = $transactionDetailsRepository;
+        $this->campaignBrandIconUploader = $campaignBrandIconUploader;
     }
 
     /**
@@ -154,9 +169,6 @@ class CampaignController extends FOSRestController
         $form = $this->get('form.factory')->createNamed('campaign', CampaignFormType::class);
         $uuidGenerator = $this->get('broadway.uuid.generator');
 
-        /** @var CommandBus $commandBus */
-        $commandBus = $this->get('broadway.command_handling.command_bus');
-
         $form->handleRequest($request);
 
         if ($form->isValid()) {
@@ -164,11 +176,48 @@ class CampaignController extends FOSRestController
             $data = $form->getData();
             $id = new CampaignId($uuidGenerator->generate());
 
-            $commandBus->dispatch(
+            $this->commandBus->dispatch(
                 new CreateCampaign($id, $data->toArray())
             );
 
             return $this->view(['campaignId' => $id->__toString()]);
+        }
+
+        return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * Add Brand Icon to campaign.
+     *
+     * @Route(name="oloy.campaign.add_brand_icon", path="/campaign/{campaign}/brand_icon")
+     * @Method("POST")
+     * @Security("is_granted('EDIT', campaign)")
+     * @ApiDoc(
+     *     name="Add brand icon to Campaign",
+     *     section="Campaign",
+     *     input={"class" = "OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignBrandIconFormType", "name" = "icon"}
+     * )
+     *
+     * @param Request        $request
+     * @param DomainCampaign $campaign
+     * @View(serializerGroups={"admin", "Default"})
+     *
+     * @return FOSView
+     */
+    public function addBrandIconAction(Request $request, DomainCampaign $campaign): FosView
+    {
+        $form = $this->get('form.factory')->createNamed('brand_icon', CampaignBrandIconFormType::class);
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            /** @var UploadedFile $file */
+            $file = $form->getData()->getFile();
+            $this->campaignBrandIconUploader->remove($campaign->getCampaignBrandIcon());
+            $icon = $this->campaignBrandIconUploader->upload($file);
+            $command = new SetCampaignBrandIcon($campaign->getCampaignId(), $icon);
+            $this->commandBus->dispatch($command);
+
+            return $this->view([], Response::HTTP_OK);
         }
 
         return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
@@ -204,12 +253,84 @@ class CampaignController extends FOSRestController
             $uploader->remove($campaign->getCampaignPhoto());
             $photo = $uploader->upload($file);
             $command = new SetCampaignPhoto($campaign->getCampaignId(), $photo);
-            $this->get('broadway.command_handling.command_bus')->dispatch($command);
+            $this->commandBus->dispatch($command);
 
             return $this->view([], Response::HTTP_OK);
         }
 
         return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * Remove brand icon from campaign.
+     *
+     * @Route(name="oloy.campaign.remove_brand_icon", path="/campaign/{campaign}/brand_icon")
+     * @Method("DELETE")
+     * @Security("is_granted('EDIT', campaign)")
+     * @ApiDoc(
+     *     name="Delete brand icon from Campaign",
+     *     section="Campaign"
+     * )
+     *
+     * @param DomainCampaign $campaign
+     * @View(serializerGroups={"admin", "Default"})
+     *
+     * @return FOSView
+     */
+    public function removeBrandIconAction(DomainCampaign $campaign): FosView
+    {
+        $this->campaignBrandIconUploader->remove($campaign->getCampaignBrandIcon());
+
+        $command = new RemoveCampaignBrandIcon($campaign->getCampaignId());
+        $this->commandBus->dispatch($command);
+
+        return $this->view([], Response::HTTP_OK);
+    }
+
+    /**
+     * Get campaign brand icon.
+     *
+     * @Route(name="oloy.campaign.get_brand_icon", path="/campaign/{campaign}/brand_icon")
+     * @Method("GET")
+     * @ApiDoc(
+     *     name="Get campaign brand icon",
+     *     section="Campaign"
+     * )
+     *
+     * @param DomainCampaign $campaign
+     * @View(serializerGroups={"admin", "Default"})
+     *
+     * @return Response
+     */
+    public function getBrandIconAction(DomainCampaign $campaign): Response
+    {
+        $photo = $campaign->getCampaignBrandIcon();
+
+        return $this->getCampaignFileResponse($this->campaignBrandIconUploader, $photo);
+    }
+
+    /**
+     * @param CampaignFileUploader $uploader
+     * @param CampaignFile         $file
+     *
+     * @return Response
+     */
+    protected function getCampaignFileResponse(?CampaignFileUploader $uploader, ?CampaignFile $file): Response
+    {
+        if (!$file) {
+            throw $this->createNotFoundException();
+        }
+        $content = $uploader->get($file);
+        if (!$content) {
+            throw $this->createNotFoundException();
+        }
+
+        $response = new Response($content);
+        $response->headers->set('Content-Disposition', 'inline');
+        $response->headers->set('Content-Type', $file->getMime());
+        $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+
+        return $response;
     }
 
     /**
@@ -234,7 +355,7 @@ class CampaignController extends FOSRestController
         $uploader->remove($campaign->getCampaignPhoto());
 
         $command = new RemoveCampaignPhoto($campaign->getCampaignId());
-        $this->get('broadway.command_handling.command_bus')->dispatch($command);
+        $this->commandBus->dispatch($command);
 
         return $this->view([], Response::HTTP_OK);
     }
@@ -249,29 +370,17 @@ class CampaignController extends FOSRestController
      *     section="Campaign"
      * )
      *
-     * @param Request        $request
-     * @param DomainCampaign $campaign
+     * @param DomainCampaign        $campaign
+     * @param CampaignPhotoUploader $uploader
      * @View(serializerGroups={"admin", "Default"})
      *
      * @return Response
      */
-    public function getPhotoAction(Request $request, DomainCampaign $campaign)
+    public function getPhotoAction(DomainCampaign $campaign, CampaignPhotoUploader $uploader)
     {
         $photo = $campaign->getCampaignPhoto();
-        if (!$photo) {
-            throw $this->createNotFoundException();
-        }
-        $content = $this->get('oloy.campaign.photo_uploader')->get($photo);
-        if (!$content) {
-            throw $this->createNotFoundException();
-        }
 
-        $response = new Response($content);
-        $response->headers->set('Content-Disposition', 'inline');
-        $response->headers->set('Content-Type', $photo->getMime());
-        $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
-
-        return $response;
+        return $this->getCampaignFileResponse($uploader, $photo);
     }
 
     /**
@@ -303,14 +412,11 @@ class CampaignController extends FOSRestController
             'method' => 'PUT',
         ]);
 
-        /** @var CommandBus $commandBus */
-        $commandBus = $this->get('broadway.command_handling.command_bus');
-
         $form->handleRequest($request);
         if ($form->isValid()) {
             /** @var Campaign $data */
             $data = $form->getData();
-            $commandBus->dispatch(
+            $this->commandBus->dispatch(
                 new UpdateCampaign($campaign->getCampaignId(), $data->toArray())
             );
 
@@ -344,9 +450,8 @@ class CampaignController extends FOSRestController
         } elseif ($active == 'inactive') {
             $campaign->setActive(false);
         }
-        /** @var CommandBus $commandBus */
-        $commandBus = $this->get('broadway.command_handling.command_bus');
-        $commandBus->dispatch(
+
+        $this->commandBus->dispatch(
             new ChangeCampaignState($campaign->getCampaignId(), $campaign->isActive())
         );
 
@@ -849,9 +954,7 @@ class CampaignController extends FOSRestController
         }
         $coupon = new CampaignCoupon(reset($freeCoupons));
 
-        /** @var CommandBus $bus */
-        $bus = $this->get('broadway.command_handling.command_bus');
-        $bus->dispatch(
+        $this->commandBus->dispatch(
             new BuyCampaign(
                 $campaign->getCampaignId(),
                 new CustomerId($customer->getId()),
@@ -1068,9 +1171,7 @@ class CampaignController extends FOSRestController
             $used = false;
         }
 
-        /** @var CommandBus $bus */
-        $bus = $this->get('broadway.command_handling.command_bus');
-        $bus->dispatch(
+        $this->commandBus->dispatch(
             new ChangeCampaignUsage(
                 $customer->getCustomerId(),
                 new CustomerCampaignId($campaign->getCampaignId()->__toString()),

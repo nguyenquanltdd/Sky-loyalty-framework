@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Component\Campaign\Domain\Command;
 
 use Broadway\CommandHandling\SimpleCommandHandler;
+use Doctrine\ORM\OptimisticLockException;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 
@@ -71,6 +72,34 @@ class CampaignCommandHandler extends SimpleCommandHandler
         /** @var Campaign $campaign */
         $campaign = $this->campaignRepository->byId($command->getCampaignId());
         $campaign->setCampaignPhoto(null);
+
+        $this->campaignRepository->save($campaign);
+    }
+
+    /**
+     * @param SetCampaignBrandIcon $command
+     *
+     * @throws OptimisticLockException
+     */
+    public function handleSetCampaignBrandIcon(SetCampaignBrandIcon $command)
+    {
+        /** @var Campaign $campaign */
+        $campaign = $this->campaignRepository->byId($command->getCampaignId());
+        $campaign->setCampaignBrandIcon($command->getCampaignBrandIcon());
+
+        $this->campaignRepository->save($campaign);
+    }
+
+    /**
+     * @param RemoveCampaignBrandIcon $command
+     *
+     * @throws OptimisticLockException
+     */
+    public function handleRemoveCampaignBrandIcon(RemoveCampaignBrandIcon $command)
+    {
+        /** @var Campaign $campaign */
+        $campaign = $this->campaignRepository->byId($command->getCampaignId());
+        $campaign->setCampaignBrandIcon(null);
 
         $this->campaignRepository->save($campaign);
     }

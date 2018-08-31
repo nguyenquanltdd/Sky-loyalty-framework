@@ -1,26 +1,26 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Component\Campaign\Domain\Command;
 
-use OpenLoyalty\Bundle\CampaignBundle\Model\CampaignPhoto;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
+use OpenLoyalty\Component\Campaign\Domain\Model\CampaignBrandIcon;
 use OpenLoyalty\Component\Campaign\Domain\Model\CampaignFile;
 
 /**
- * Class SetCampaignPhoto.
+ * Class SetCampaignBrandIcon.
  */
-class SetCampaignPhoto extends CampaignCommand
+class SetCampaignBrandIcon extends CampaignCommand
 {
     /**
-     * @var CampaignPhoto
+     * @var CampaignBrandIcon
      */
-    protected $campaignPhoto;
+    protected $campaignBrandIcon;
 
     /**
-     * SetCampaignPhoto constructor.
+     * SetCampaignBrandIcon constructor.
      *
      * @param CampaignId   $campaignId
      * @param CampaignFile $campaignFile
@@ -28,14 +28,14 @@ class SetCampaignPhoto extends CampaignCommand
     public function __construct(CampaignId $campaignId, CampaignFile $campaignFile)
     {
         parent::__construct($campaignId);
-        $this->campaignPhoto = $campaignFile;
+        $this->campaignBrandIcon = $campaignFile;
     }
 
     /**
-     * @return CampaignPhoto
+     * @return CampaignBrandIcon
      */
-    public function getCampaignPhoto(): CampaignPhoto
+    public function getCampaignBrandIcon(): CampaignBrandIcon
     {
-        return $this->campaignPhoto;
+        return $this->campaignBrandIcon;
     }
 }
