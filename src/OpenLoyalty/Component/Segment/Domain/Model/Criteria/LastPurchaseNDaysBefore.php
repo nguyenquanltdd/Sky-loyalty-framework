@@ -50,4 +50,22 @@ class LastPurchaseNDaysBefore extends Criterion
     {
         $this->days = $days;
     }
+
+    /**
+     * @return array
+     */
+    public function getDataAsArray(): array
+    {
+        return [
+            'days' => $this->getDays(),
+        ];
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return Criterion::TYPE_LAST_PURCHASE_N_DAYS_BEFORE;
+    }
 }

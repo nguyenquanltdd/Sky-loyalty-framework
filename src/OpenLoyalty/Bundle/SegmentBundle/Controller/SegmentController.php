@@ -10,9 +10,12 @@ use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\SegmentBundle\Form\Type\EditSegmentFormType;
 use OpenLoyalty\Bundle\SegmentBundle\Form\Type\SegmentFormType;
+use OpenLoyalty\Bundle\SegmentBundle\Service\OloySegmentValidator;
+use OpenLoyalty\Bundle\SegmentBundle\Transformer\SegmentReadModelTransformer;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Segment\Domain\Command\ActivateSegment;
 use OpenLoyalty\Component\Segment\Domain\Command\CreateSegment;
@@ -62,7 +65,7 @@ class SegmentController extends FOSRestController
         $form->handleRequest($request);
         if ($form->isValid()) {
             /* @var SegmentRepository $segmentRepository */
-            if ($this->get('oloy.segment.segment_unique')->exists($form->getData()['name'])) {
+            if ($this->get(OloySegmentValidator::class)->exists($form->getData()['name'])) {
                 $form->get('name')->addError(new FormError('Segment with this name already exists'));
 
                 return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
@@ -125,7 +128,7 @@ class SegmentController extends FOSRestController
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            if ($this->get('oloy.segment.segment_unique')->updateExists(
+            if ($this->get(OloySegmentValidator::class)->updateExists(
                 $form->getData()['name'],
                 $segment->getSegmentId()->__toString()
             )) {
@@ -246,11 +249,11 @@ class SegmentController extends FOSRestController
      *
      * @param Segment $segment
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
-    public function getSegmentAction(Segment $segment)
+    public function getSegmentAction(Segment $segment): View
     {
-        return $this->view($segment, 200);
+        return $this->view($this->get(SegmentReadModelTransformer::class)->transform($segment), 200);
     }
 
     /**
@@ -278,7 +281,7 @@ class SegmentController extends FOSRestController
      * @param Segment               $segment
      * @param ParamFetcherInterface $paramFetcher
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function getCustomersInSegmentAction(Request $request, Segment $segment, ParamFetcherInterface $paramFetcher)
     {
@@ -350,7 +353,7 @@ class SegmentController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function getListAction(Request $request)
     {

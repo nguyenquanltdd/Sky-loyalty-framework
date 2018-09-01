@@ -5,15 +5,16 @@
  */
 namespace OpenLoyalty\Component\Segment\Domain\Model;
 
-use OpenLoyalty\Component\Segment\Domain\CriterionId;
 use Assert\Assertion as Assert;
+use OpenLoyalty\Component\Segment\Domain\CriterionId;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\Anniversary;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\AverageTransactionAmount;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\BoughtInPos;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\BoughtLabels;
-use OpenLoyalty\Component\Segment\Domain\Model\Criteria\CustomerHasLabels;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\BoughtMakers;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\BoughtSKUs;
+use OpenLoyalty\Component\Segment\Domain\Model\Criteria\CustomerHasLabels;
+use OpenLoyalty\Component\Segment\Domain\Model\Criteria\CustomerList;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\CustomersWithLabelsValues;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\LastPurchaseNDaysBefore;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\PurchaseInPeriod;
@@ -24,7 +25,7 @@ use OpenLoyalty\Component\Segment\Domain\Model\Criteria\TransactionPercentInPos;
 /**
  * Class Criterion.
  */
-abstract class Criterion
+abstract class Criterion implements CriterionInterface
 {
     const TYPE_BOUGHT_IN_POS = 'bought_in_pos';
     const TYPE_TRANSACTION_COUNT = 'transaction_count';
@@ -39,6 +40,7 @@ abstract class Criterion
     const TYPE_BOUGHT_LABELS = 'bought_labels';
     const TYPE_CUSTOMER_HAS_LABELS = 'customer_has_labels';
     const TYPE_CUSTOMER_WITH_LABELS_VALUES = 'customer_with_labels_values';
+    const TYPE_CUSTOMER_LIST = 'customer_list';
 
     const TYPE_MAP = [
         self::TYPE_BOUGHT_IN_POS => BoughtInPos::class,
@@ -54,6 +56,7 @@ abstract class Criterion
         self::TYPE_BOUGHT_LABELS => BoughtLabels::class,
         self::TYPE_CUSTOMER_HAS_LABELS => CustomerHasLabels::class,
         self::TYPE_CUSTOMER_WITH_LABELS_VALUES => CustomersWithLabelsValues::class,
+        self::TYPE_CUSTOMER_LIST => CustomerList::class,
     ];
 
     /**

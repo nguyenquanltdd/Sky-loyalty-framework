@@ -8,6 +8,8 @@ namespace OpenLoyalty\Bundle\SegmentBundle\DataFixtures\ORM;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
+use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
+use OpenLoyalty\Component\Segment\Domain\Command\ActivateSegment;
 use OpenLoyalty\Component\Segment\Domain\Command\CreateSegment;
 use OpenLoyalty\Component\Segment\Domain\Model\Criteria\Anniversary;
 use OpenLoyalty\Component\Segment\Domain\Model\Criterion;
@@ -28,6 +30,8 @@ class LoadSegmentData extends ContainerAwareFixture implements OrderedFixtureInt
     const SEGMENT7_ID = '00000000-0000-0000-0000-000000000007';
     const SEGMENT8_ID = '00000000-0000-0000-0000-000000000008';
     const SEGMENT9_ID = '00000000-0000-0000-0000-000000000009';
+    const SEGMENT10_ID = '00000000-0000-0000-0000-000000000010';
+    const SEGMENT11_ID = '00000000-0000-0000-0000-000000000011';
 
     public function load(ObjectManager $manager)
     {
@@ -229,6 +233,66 @@ class LoadSegmentData extends ContainerAwareFixture implements OrderedFixtureInt
                     ],
                 ])
             );
+        $this->container
+            ->get('broadway.command_handling.command_bus')
+            ->dispatch(
+                new CreateSegment(new SegmentId(self::SEGMENT10_ID), [
+                    'name' => 'customer list',
+                    'description' => 'desc',
+                    'parts' => [
+                        [
+                            'segmentPartId' => '00000000-0000-0000-0000-000000000100',
+                            'criteria' => [
+                                [
+                                    'type' => Criterion::TYPE_CUSTOMER_LIST,
+                                    'criterionId' => '00000000-0000-0000-0000-000000001000',
+                                    'customers' => [
+                                        LoadUserData::USER1_USER_ID,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ])
+            );
+
+        $this->container
+            ->get('broadway.command_handling.command_bus')
+            ->dispatch(
+                new CreateSegment(new SegmentId(self::SEGMENT11_ID), [
+                    'name' => 'customer list with label',
+                    'description' => 'desc',
+                    'parts' => [
+                        [
+                            'segmentPartId' => '00000000-0000-0000-0000-000000000111',
+                            'criteria' => [
+                                [
+                                    'type' => Criterion::TYPE_CUSTOMER_LIST,
+                                    'criterionId' => '00000000-0000-0000-0000-000000001111',
+                                    'customers' => [
+                                        LoadUserData::USER1_USER_ID,
+                                    ],
+                                ],
+                            ],
+                        ],
+                        [
+                            'segmentPartId' => '00000000-0000-0000-0000-000000000112',
+                            'criteria' => [
+                                [
+                                    'type' => Criterion::TYPE_CUSTOMER_HAS_LABELS,
+                                    'criterionId' => '00000000-0000-0000-0000-000000001112',
+                                    'labels' => [
+                                        ['key' => 'test'],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ])
+            );
+        $this->container
+            ->get('broadway.command_handling.command_bus')
+            ->dispatch(new ActivateSegment(new SegmentId(self::SEGMENT11_ID)));
     }
 
     public function getOrder()

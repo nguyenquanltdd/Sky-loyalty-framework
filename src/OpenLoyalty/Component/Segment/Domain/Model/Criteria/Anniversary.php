@@ -80,4 +80,23 @@ class Anniversary extends Criterion
         Assert::string($data['anniversaryType']);
         Assert::choice($data['anniversaryType'], [self::TYPE_BIRTHDAY, self::TYPE_REGISTRATION]);
     }
+
+    /**
+     * @return array
+     */
+    public function getDataAsArray(): array
+    {
+        return [
+            'anniversaryType' => $this->anniversaryType,
+            'days' => $this->days,
+        ];
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return Criterion::TYPE_ANNIVERSARY;
+    }
 }

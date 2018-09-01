@@ -75,6 +75,7 @@ class CriterionFormType extends AbstractType
             Criterion::TYPE_TRANSACTION_AMOUNT,
             Criterion::TYPE_CUSTOMER_HAS_LABELS,
             Criterion::TYPE_CUSTOMER_WITH_LABELS_VALUES,
+            Criterion::TYPE_CUSTOMER_LIST,
         ];
 
         $pos = array_map(function (Pos $pos) {
@@ -144,6 +145,9 @@ class CriterionFormType extends AbstractType
                 case Criterion::TYPE_CUSTOMER_WITH_LABELS_VALUES:
                     $this->prepareCustomerHasLabelsForm($form);
                     break;
+                case Criterion::TYPE_CUSTOMER_LIST:
+                    $this->prepareCustomerList($form);
+                    break;
             }
         });
     }
@@ -152,7 +156,7 @@ class CriterionFormType extends AbstractType
      * @param FormInterface $form
      * @param array         $posChoices
      */
-    protected function prepareBoughtInPosForm(FormInterface $form, array $posChoices)
+    protected function prepareBoughtInPosForm(FormInterface $form, array $posChoices): void
     {
         $form->add('posIds', CollectionType::class, [
             'allow_add' => true,
@@ -169,7 +173,7 @@ class CriterionFormType extends AbstractType
     /**
      * @param FormInterface $form
      */
-    protected function prepareTransactionCountForm(FormInterface $form)
+    protected function prepareTransactionCountForm(FormInterface $form): void
     {
         $form->add('min', IntegerType::class, [
             'required' => true,
@@ -184,7 +188,7 @@ class CriterionFormType extends AbstractType
     /**
      * @param FormInterface $form
      */
-    protected function prepareAverageTransactionAmountForm(FormInterface $form)
+    protected function prepareAverageTransactionAmountForm(FormInterface $form): void
     {
         $form->add('fromAmount', NumberType::class, [
             'required' => true,
@@ -199,7 +203,7 @@ class CriterionFormType extends AbstractType
     /**
      * @param FormInterface $form
      */
-    protected function preparePurchasePeriodForm(FormInterface $form)
+    protected function preparePurchasePeriodForm(FormInterface $form): void
     {
         $form->add('fromDate', DateTimeType::class, [
             'required' => true,
@@ -222,7 +226,7 @@ class CriterionFormType extends AbstractType
     /**
      * @param FormInterface $form
      */
-    protected function prepareLastPurchaseNDaysBeforeForm(FormInterface $form)
+    protected function prepareLastPurchaseNDaysBeforeForm(FormInterface $form): void
     {
         $form->add('days', IntegerType::class, [
             'required' => true,
@@ -233,7 +237,7 @@ class CriterionFormType extends AbstractType
     /**
      * @param FormInterface $form
      */
-    protected function prepareTransactionAmountForm(FormInterface $form)
+    protected function prepareTransactionAmountForm(FormInterface $form): void
     {
         $form->add('fromAmount', NumberType::class, [
             'required' => true,
@@ -248,7 +252,7 @@ class CriterionFormType extends AbstractType
     /**
      * @param FormInterface $form
      */
-    protected function prepareAnniversaryForm(FormInterface $form)
+    protected function prepareAnniversaryForm(FormInterface $form): void
     {
         $form->add('anniversaryType', ChoiceType::class, [
             'required' => true,
@@ -268,7 +272,7 @@ class CriterionFormType extends AbstractType
      * @param FormInterface $form
      * @param array         $posChoices
      */
-    protected function prepareTransactionPercentInPosForm(FormInterface $form, array $posChoices)
+    protected function prepareTransactionPercentInPosForm(FormInterface $form, array $posChoices): void
     {
         $form->add('posId', ChoiceType::class, [
             'required' => true,
@@ -284,7 +288,7 @@ class CriterionFormType extends AbstractType
     /**
      * @param FormInterface $form
      */
-    protected function prepareBoughtSKUsForm(FormInterface $form)
+    protected function prepareBoughtSKUsForm(FormInterface $form): void
     {
         $form->add('skuIds', CollectionType::class, [
             'allow_add' => true,
@@ -298,7 +302,7 @@ class CriterionFormType extends AbstractType
     /**
      * @param FormInterface $form
      */
-    protected function prepareBoughtMakersForm(FormInterface $form)
+    protected function prepareBoughtMakersForm(FormInterface $form): void
     {
         $form->add('makers', CollectionType::class, [
             'allow_add' => true,
@@ -312,7 +316,7 @@ class CriterionFormType extends AbstractType
     /**
      * @param FormInterface $form
      */
-    protected function prepareBoughtLabelsForm(FormInterface $form)
+    protected function prepareBoughtLabelsForm(FormInterface $form): void
     {
         $form->add('labels', CollectionType::class, [
             'allow_add' => true,
@@ -326,7 +330,7 @@ class CriterionFormType extends AbstractType
     /**
      * @param FormInterface $form
      */
-    protected function prepareCustomersWithLabelsValuesForm(FormInterface $form)
+    protected function prepareCustomersWithLabelsValuesForm(FormInterface $form): void
     {
         $form->add('labels', CollectionType::class, [
             'allow_add' => true,
@@ -340,12 +344,26 @@ class CriterionFormType extends AbstractType
     /**
      * @param FormInterface $form
      */
-    protected function prepareCustomerHasLabelsForm(FormInterface $form)
+    protected function prepareCustomerHasLabelsForm(FormInterface $form): void
     {
         $form->add('labels', CollectionType::class, [
             'allow_add' => true,
             'allow_delete' => true,
             'entry_type' => LabelWithoutValueFormType::class,
+            'error_bubbling' => false,
+            'constraints' => [new Count(['min' => 1])],
+        ]);
+    }
+
+    /**
+     * @param FormInterface $form
+     */
+    private function prepareCustomerList(FormInterface $form): void
+    {
+        $form->add('customers', CollectionType::class, [
+            'allow_add' => true,
+            'allow_delete' => true,
+            'entry_type' => CustomerType::class,
             'error_bubbling' => false,
             'constraints' => [new Count(['min' => 1])],
         ]);

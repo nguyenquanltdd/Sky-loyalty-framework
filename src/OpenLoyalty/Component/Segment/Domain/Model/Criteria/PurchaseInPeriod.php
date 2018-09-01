@@ -73,4 +73,23 @@ class PurchaseInPeriod extends Criterion
         Assert::notBlank($data, 'fromDate');
         Assert::notBlank($data, 'toDate');
     }
+
+    /**
+     * @return array
+     */
+    public function getDataAsArray(): array
+    {
+        return [
+            'fromDate' => $this->getFromDate(),
+            'toDate' => $this->getToDate(),
+        ];
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return Criterion::TYPE_PURCHASE_PERIOD;
+    }
 }

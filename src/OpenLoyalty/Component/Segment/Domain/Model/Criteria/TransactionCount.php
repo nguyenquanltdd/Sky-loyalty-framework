@@ -73,4 +73,23 @@ class TransactionCount extends Criterion
         Assert::notBlank($data, 'min');
         Assert::notBlank($data, 'max');
     }
+
+    /**
+     * @return array
+     */
+    public function getDataAsArray(): array
+    {
+        return [
+            'min' => $this->getMin(),
+            'max' => $this->getMax(),
+        ];
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return Criterion::TYPE_TRANSACTION_COUNT;
+    }
 }

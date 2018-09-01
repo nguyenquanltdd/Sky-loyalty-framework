@@ -50,4 +50,22 @@ class BoughtSKUs extends Criterion
         Assert::notBlank($data, 'skuIds');
         Assert::isArray($data['skuIds']);
     }
+
+    /**
+     * @return array
+     */
+    public function getDataAsArray(): array
+    {
+        return [
+            'skuIds' => $this->getSkuIds(),
+        ];
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return Criterion::TYPE_BOUGHT_SKUS;
+    }
 }

@@ -3,6 +3,7 @@
 namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Integration;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
+use OpenLoyalty\Bundle\EarningRuleBundle\DataFixtures\ORM\LoadEarningRuleData;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;
@@ -13,6 +14,22 @@ use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsReposito
  */
 class ApplyingEarningRulesTest extends BaseApiTest
 {
+    /**
+     * @var PointsTransferDetailsRepository
+     */
+    private $pointsTransferDetailsRepository;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setUp()
+    {
+        parent::setUp();
+        static::bootKernel();
+
+        $this->pointsTransferDetailsRepository = static::$kernel->getContainer()->get(PointsTransferDetailsRepository::class);
+    }
+
     /**
      * @test
      */
@@ -185,5 +202,97 @@ class ApplyingEarningRulesTest extends BaseApiTest
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('points', $data);
         $this->assertEquals(88, $data['points']);
+    }
+
+    /**
+     * @test
+     * @dataProvider getTransactionDataForSegmentEarningRule
+     *
+     * @param array $transactionArray
+     */
+    public function it_should_execute_earning_rule_with_segment(array $transactionArray): void
+    {
+        $transactionId = $this->sendTransactionData($transactionArray);
+
+        /** @var PointsTransferDetails[] $pointsTransferDetailsList */
+        $pointsTransferDetailsList = $this->pointsTransferDetailsRepository->findBy(
+            [
+                'customerId' => LoadUserData::USER1_USER_ID,
+                'transactionId' => $transactionId,
+            ]
+        );
+
+        $result = null;
+        foreach ($pointsTransferDetailsList as $pointsTransferDetails) {
+            if ($pointsTransferDetails->getComment() === LoadEarningRuleData::GENERAL_EARNING_RULE_WITH_SEGMENT_NAME) {
+                $result = $pointsTransferDetails;
+            }
+        }
+
+        $this->assertNotNull($result);
+        $this->assertEquals(10000, $result->getValue());
+    }
+
+    /**
+     * @return array
+     */
+    public function getTransactionDataForSegmentEarningRule(): array
+    {
+        return [
+            [
+                [
+                    'transactionData' => [
+                        'documentNumber' => '1230009922',
+                        'documentType' => 'sell',
+                        'purchaseDate' => (new \DateTime('+1 day'))->format('Y-m-d'),
+                        'purchasePlace' => 'wroclaw',
+                    ],
+                    'items' => [
+                        0 => [
+                            'sku' => ['code' => '123'],
+                            'name' => 'sku',
+                            'quantity' => 1,
+                            'grossValue' => 100,
+                            'category' => 'test',
+                            'maker' => 'company',
+                        ],
+                    ],
+                    'customerData' => [
+                        'name' => 'Jan Nowak',
+                        'email' => 'user-1@oloy.com',
+                        'nip' => 'aaa',
+                        'phone' => '+48123123123',
+                        'loyaltyCardNumber' => 'not-present-in-system',
+                        'address' => [
+                            'street' => 'Bagno',
+                            'address1' => '12',
+                            'city' => 'Warszawa',
+                            'country' => 'PL',
+                            'province' => 'Mazowieckie',
+                            'postal' => '00-800',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @param array
+     *
+     * @return string
+     */
+    private function sendTransactionData(array $data): string
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/transaction',
+            [
+                'transaction' => $data,
+            ]
+        );
+
+        return json_decode($client->getResponse()->getContent(), true)['transactionId'];
     }
 }

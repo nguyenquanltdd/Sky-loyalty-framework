@@ -20,6 +20,7 @@ use OpenLoyalty\Component\Customer\Domain\Command\AssignPosToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\MoveCustomerToLevel;
 use OpenLoyalty\Component\Customer\Domain\Command\RegisterCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\UpdateCustomerAddress;
+use OpenLoyalty\Component\Customer\Domain\Command\UpdateCustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\Command\UpdateCustomerLoyaltyCardNumber;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\LevelId;
@@ -211,6 +212,21 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
 
         $bus->dispatch($command);
         $bus->dispatch(new ActivateCustomer($customerId));
+
+        $command = new UpdateCustomerDetails(
+            $customerId,
+            [
+                'labels' => [
+                    0 => [
+                        'key' => 'test',
+                        'value' => 'test',
+                    ],
+                ],
+                'birthDate' => (new \DateTime())->setTimestamp(653011200),
+                'phone' => $this::USER1_PHONE_NUMBER,
+            ]
+        );
+        $bus->dispatch($command);
 
         $user = new Customer($customerId);
         $user->setPlainPassword($this::USER1_PASSWORD);

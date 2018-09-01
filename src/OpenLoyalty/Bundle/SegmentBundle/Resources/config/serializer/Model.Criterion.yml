@@ -16,6 +16,7 @@ OpenLoyalty\Component\Segment\Domain\Model\Criterion:
         bought_labels: OpenLoyalty\Component\Segment\Domain\Model\Criteria\BoughtLabels
         customer_has_labels: OpenLoyalty\Component\Segment\Domain\Model\Criteria\CustomerHasLabels
         customer_with_labels_values: OpenLoyalty\Component\Segment\Domain\Model\Criteria\CustomersWithLabelsValues
+        customer_list: OpenLoyalty\Component\Segment\Domain\Model\Criteria\CustomerList
   properties:
     criterionId:
       expose: true

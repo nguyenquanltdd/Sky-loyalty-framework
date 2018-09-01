@@ -9,6 +9,7 @@ use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
+use OpenLoyalty\Bundle\SegmentBundle\DataFixtures\ORM\LoadSegmentData;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Bundle\CampaignBundle\DataFixtures\ORM\LoadCampaignData;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
@@ -17,6 +18,7 @@ use OpenLoyalty\Component\EarningRule\Domain\EarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleId;
 use OpenLoyalty\Component\Core\Domain\Model\SKU;
 use OpenLoyalty\Component\EarningRule\Domain\PosId;
+use OpenLoyalty\Component\Segment\Domain\SegmentId;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
 use Symfony\Bridge\Doctrine\Tests\Fixtures\ContainerAwareFixture;
 use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
@@ -40,6 +42,8 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
     const EVENT_RULE_ID_FIRST_PURCHASE = '00000000-0000-474c-b092-b0dd990c07e3';
     const EVENT_RULE_ID_FIRST_PURCHASE_WITH_POST = '00000000-0000-474c-b092-b0dd770c07e3';
     const INSTANT_REWARD_RULE_UUID = '4e7f7412-89bf-11e8-9a94-a6cf71072f73';
+    const GENERAL_EARNING_RULE_WITH_SEGMENT = '0e7f7412-89bf-11e8-9a94-a6cf71072f73';
+    const GENERAL_EARNING_RULE_WITH_SEGMENT_NAME = 'General spending rule with segment';
 
     /**
      * @var array
@@ -199,6 +203,15 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
                 new CreateEarningRule(new EarningRuleId($earningRuleId), $earningRule['type'], $ruleData)
             );
         }
+
+        $this->container->get('broadway.command_handling.command_bus')
+            ->dispatch(
+                new CreateEarningRule(
+                    new EarningRuleId(self::GENERAL_EARNING_RULE_WITH_SEGMENT),
+                    EarningRule::TYPE_POINTS,
+                    $this->getDataForEarningRuleWithSegment()
+                )
+            );
     }
 
     /**
@@ -213,6 +226,21 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             'active' => true,
             'allTimeActive' => false,
             'levels' => ([new LevelId(LoadLevelData::LEVEL3_ID)]),
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getDataForEarningRuleWithSegment(): array
+    {
+        return [
+            'description' => 'sth',
+            'active' => true,
+            'allTimeActive' => true,
+            'segments' => [new SegmentId(LoadSegmentData::SEGMENT11_ID)],
+            'pointValue' => 100,
+            'name' => self::GENERAL_EARNING_RULE_WITH_SEGMENT_NAME,
         ];
     }
 

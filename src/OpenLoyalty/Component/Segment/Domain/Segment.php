@@ -155,4 +155,12 @@ class Segment
     {
         $this->customersCount = $customersCount;
     }
+
+    /**
+     * @return \DateTime
+     */
+    public function getCreatedAt(): \DateTime
+    {
+        return $this->createdAt;
+    }
 }

@@ -73,4 +73,23 @@ class AverageTransactionAmount extends Criterion
         Assert::notBlank($data, 'fromAmount');
         Assert::notBlank($data, 'toAmount');
     }
+
+    /**
+     * @return array
+     */
+    public function getDataAsArray(): array
+    {
+        return[
+            'fromAmount' => round($this->getFromAmount(), 0),
+            'toAmount' => round($this->getToAmount(), 0),
+        ];
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return Criterion::TYPE_AVERAGE_TRANSACTION_AMOUNT;
+    }
 }

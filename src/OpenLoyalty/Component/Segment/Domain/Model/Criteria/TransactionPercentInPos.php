@@ -76,4 +76,23 @@ class TransactionPercentInPos extends Criterion
         Assert::float($data['percent']);
         Assert::range($data['percent'], 0, 1);
     }
+
+    /**
+     * @return array
+     */
+    public function getDataAsArray(): array
+    {
+        return [
+            'posId' => $this->getPosId()->__toString(),
+            'percent' => $this->getPercent(),
+        ];
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return Criterion::TYPE_TRANSACTION_PERCENT_IN_POS;
+    }
 }

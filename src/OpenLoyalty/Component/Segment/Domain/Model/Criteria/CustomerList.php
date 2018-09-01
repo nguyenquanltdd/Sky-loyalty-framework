@@ -1,54 +1,61 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Component\Segment\Domain\Model\Criteria;
 
 use OpenLoyalty\Component\Segment\Domain\CriterionId;
-use Assert\Assertion as Assert;
 use OpenLoyalty\Component\Segment\Domain\Model\Criterion;
+use Assert\Assertion as Assert;
 
 /**
- * Class BoughtLabels.
+ * Class CustomerList.
  */
-class BoughtLabels extends Criterion
+class CustomerList extends Criterion
 {
     /**
      * @var array
      */
-    protected $labels = [];
+    private $customers;
 
     /**
      * @return array
      */
-    public function getLabels()
+    public function getCustomers(): array
     {
-        return $this->labels;
+        return $this->customers;
     }
 
     /**
-     * @param array $labels
+     * @param array $customers
      */
-    public function setLabels($labels)
+    public function setCustomers(array $customers): void
     {
-        $this->labels = $labels;
+        $this->customers = $customers;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function fromArray(array $data)
     {
         $criterion = new self(new CriterionId($data['criterionId']));
-        $criterion->setLabels($data['labels']);
+        $criterion->setCustomers($data['customers']);
 
         return $criterion;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function validate(array $data)
     {
         parent::validate($data);
-        Assert::keyIsset($data, 'labels');
-        Assert::notBlank($data, 'labels');
-        Assert::isArray($data['labels']);
+        Assert::keyIsset($data, 'customers');
+        Assert::notBlank($data, 'customers');
+        Assert::isArray($data['customers']);
+        Assert::allString($data['customers']);
     }
 
     /**
@@ -57,7 +64,7 @@ class BoughtLabels extends Criterion
     public function getDataAsArray(): array
     {
         return [
-            'labels' => $this->getLabels(),
+            'customers' => $this->getCustomers(),
         ];
     }
 
@@ -66,6 +73,6 @@ class BoughtLabels extends Criterion
      */
     public function getType(): string
     {
-        return Criterion::TYPE_BOUGHT_LABELS;
+        return Criterion::TYPE_CUSTOMER_LIST;
     }
 }

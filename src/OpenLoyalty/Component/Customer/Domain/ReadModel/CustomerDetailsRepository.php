@@ -152,4 +152,11 @@ interface CustomerDetailsRepository extends Repository
      * @return CustomerDetails[]
      */
     public function findWithLabels(array $labels, $active = null);
+
+    /**
+     * @param string[] $customerIds
+     *
+     * @return CustomerDetails[]
+     */
+    public function findByIds(array $customerIds): array;
 }

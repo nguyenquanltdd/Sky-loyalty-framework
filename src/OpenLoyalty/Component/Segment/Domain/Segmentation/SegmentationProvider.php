@@ -93,6 +93,6 @@ class SegmentationProvider
             }
         }
 
-        return $customers;
+        return array_unique($customers);
     }
 }

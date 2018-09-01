@@ -52,4 +52,22 @@ class BoughtInPos extends Criterion
         Assert::allString($data['posIds']);
         Assert::allUuid($data['posIds']);
     }
+
+    /**
+     * @return array
+     */
+    public function getDataAsArray(): array
+    {
+        return [
+            'posIds' => $this->getPosIds(),
+        ];
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return Criterion::TYPE_BOUGHT_IN_POS;
+    }
 }

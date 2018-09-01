@@ -50,4 +50,22 @@ class BoughtMakers extends Criterion
         Assert::notBlank($data, 'makers');
         Assert::isArray($data['makers']);
     }
+
+    /**
+     * @return array
+     */
+    public function getDataAsArray(): array
+    {
+        return [
+            'makers' => $this->getMakers(),
+        ];
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return Criterion::TYPE_BOUGHT_MAKERS;
+    }
 }

@@ -44,8 +44,6 @@ services:
       - [ setLogger, ['@logger']]
   oloy.segment.evaluator.bought_in_pos:
     class: OpenLoyalty\Component\Segment\Domain\Segmentation\CriteriaEvaluators\BoughtInPosEvaluator
-    arguments:
-      $customerValidator: '@oloy.segment.customer_validator'
     tags:
       - { name: oloy_segmentation_evaluator }
   oloy.segment.evaluator.transaction_count:
@@ -74,38 +72,26 @@ services:
       - { name: oloy_segmentation_evaluator }
   oloy.segment.evaluator.purchase_in_period:
     class: OpenLoyalty\Component\Segment\Domain\Segmentation\CriteriaEvaluators\PurchasePeriodEvaluator
-    arguments:
-      $customerValidator: '@oloy.segment.customer_validator'
     tags:
       - { name: oloy_segmentation_evaluator }
   oloy.segment.evaluator.last_purchase_n_days_before:
     class: OpenLoyalty\Component\Segment\Domain\Segmentation\CriteriaEvaluators\LastPurchaseNDaysBeforeEvaluator
-    arguments:
-      $customerValidator: '@oloy.segment.customer_validator'
     tags:
       - { name: oloy_segmentation_evaluator }
   oloy.segment.evaluator.transaction_percent_in_pos:
     class: OpenLoyalty\Component\Segment\Domain\Segmentation\CriteriaEvaluators\TransactionPercentInPosEvaluator
-    arguments:
-      $customerValidator: '@oloy.segment.customer_validator'
     tags:
       - { name: oloy_segmentation_evaluator }
   oloy.segment.evaluator.bought_skus:
     class: OpenLoyalty\Component\Segment\Domain\Segmentation\CriteriaEvaluators\BoughtSKUsEvaluator
-    arguments:
-      $customerValidator: '@oloy.segment.customer_validator'
     tags:
       - { name: oloy_segmentation_evaluator }
   oloy.segment.evaluator.bought_makers:
     class: OpenLoyalty\Component\Segment\Domain\Segmentation\CriteriaEvaluators\BoughtMakersEvaluator
-    arguments:
-      $customerValidator: '@oloy.segment.customer_validator'
     tags:
       - { name: oloy_segmentation_evaluator }
   oloy.segment.evaluator.bought_labels:
     class: OpenLoyalty\Component\Segment\Domain\Segmentation\CriteriaEvaluators\BoughtLabelsEvaluator
-    arguments:
-      $customerValidator: '@oloy.segment.customer_validator'
     tags:
       - { name: oloy_segmentation_evaluator }
   oloy.segment.evaluator.customer_has_labels:
@@ -127,3 +113,7 @@ services:
       - { name: broadway.event_listener, event: oloy.segment.changed, method: handle }
     arguments:
       - '@kernel'
+
+  OpenLoyalty\Component\Segment\Domain\Segmentation\CriteriaEvaluators\CustomerListEvaluator:
+    tags:
+      - { name: oloy_segmentation_evaluator }

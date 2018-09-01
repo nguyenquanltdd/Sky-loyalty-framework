@@ -60,4 +60,22 @@ class CustomerHasLabels extends Criterion
         Assert::notBlank($data, 'labels');
         Assert::isArray($data['labels']);
     }
+
+    /**
+     * @return array
+     */
+    public function getDataAsArray(): array
+    {
+        return [
+            'labels' => $this->getLabels(),
+        ];
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return Criterion::TYPE_CUSTOMER_HAS_LABELS;
+    }
 }

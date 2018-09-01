@@ -758,4 +758,18 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
 
         return $this->query($query);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findByIds(array $customerIds): array
+    {
+        $query = array(
+            'ids' => [
+                'values' => $customerIds,
+            ],
+        );
+
+        return $this->query($query);
+    }
 }
