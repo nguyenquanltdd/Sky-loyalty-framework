@@ -10,5 +10,5 @@ namespace OpenLoyalty\Bundle\CampaignBundle\Exception;
  */
 class CampaignLimitExceededException extends CampaignLimitException
 {
-    protected $message = 'Limit exceeded';
+    protected $message = 'campaign.limit_exceeded';
 }

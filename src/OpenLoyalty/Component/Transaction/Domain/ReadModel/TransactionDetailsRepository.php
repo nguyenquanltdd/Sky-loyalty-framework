@@ -78,7 +78,7 @@ interface TransactionDetailsRepository extends Repository
      *
      * @return TransactionDetails|null
      */
-    public function findTransactionByDocumentNumber(string $documentNumber, bool $customer = true): ?TransactionDetails;
+    public function findTransactionByDocumentNumber(string $documentNumber, bool $customer = false): ?TransactionDetails;
 
     /**
      * @param string $documentNumber

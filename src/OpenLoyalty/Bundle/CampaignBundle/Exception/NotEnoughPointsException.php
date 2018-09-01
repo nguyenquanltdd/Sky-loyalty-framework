@@ -10,5 +10,5 @@ namespace OpenLoyalty\Bundle\CampaignBundle\Exception;
  */
 class NotEnoughPointsException extends \Exception
 {
-    protected $message = 'Not enough points';
+    protected $message = 'campaign.not_enough_points';
 }

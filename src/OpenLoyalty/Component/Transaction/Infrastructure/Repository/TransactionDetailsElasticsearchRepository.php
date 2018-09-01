@@ -72,6 +72,16 @@ class TransactionDetailsElasticsearchRepository extends OloyElasticsearchReposit
                 ],
             ],
         ],
+        [
+            'revised_document' => [
+                'match' => 'revisedDocument',
+                'match_mapping_type' => 'string',
+                'mapping' => [
+                    'type' => 'string',
+                    'index' => 'not_analyzed',
+                ],
+            ],
+        ],
     ];
 
     /**
@@ -242,15 +252,15 @@ class TransactionDetailsElasticsearchRepository extends OloyElasticsearchReposit
     /**
      * {@inheritdoc}
      */
-    public function findTransactionByDocumentNumber(string $documentNumber, bool $customer = true): ?TransactionDetails
+    public function findTransactionByDocumentNumber(string $documentNumber, bool $customer = false): ?TransactionDetails
     {
-        $query['bool']['must'][]['term'] = ['documentNumber' => $documentNumber];
+        $query['bool']['must'][]['term'] = ['documentNumberRaw' => $documentNumber];
 
         if ($customer) {
             $query['bool']['must'][]['exists'] = ['field' => 'customerId'];
         }
 
-        $result = $this->findByParameters(['documentNumber' => $documentNumber]);
+        $result = $this->query($query);
 
         return $result[0] ?? null;
     }

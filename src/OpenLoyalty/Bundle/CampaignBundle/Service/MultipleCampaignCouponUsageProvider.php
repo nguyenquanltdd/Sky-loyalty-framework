@@ -9,6 +9,7 @@ use Assert\AssertionFailedException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignUsageChange\CampaignUsageChangeException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignUsageChange\InvalidDataProvidedException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignUsageChange\MissingDataInRowsException;
+use OpenLoyalty\Bundle\CampaignBundle\Exception\NoCouponsLeftException;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
@@ -64,6 +65,7 @@ class MultipleCampaignCouponUsageProvider
      * @return ChangeCampaignUsage[]
      *
      * @throws CampaignUsageChangeException
+     * @throws NoCouponsLeftException
      */
     public function validateRequest(array $coupons): array
     {
@@ -109,6 +111,7 @@ class MultipleCampaignCouponUsageProvider
      * @return array
      *
      * @throws CampaignUsageChangeException
+     * @throws NoCouponsLeftException
      */
     public function validateRequestForCustomer(array $coupons, CustomerDetails $customer): array
     {
@@ -145,6 +148,7 @@ class MultipleCampaignCouponUsageProvider
      * @param string               $key
      *
      * @throws InvalidDataProvidedException
+     * @throws NoCouponsLeftException
      */
     private function checkFields(bool $used, ?CustomerDetails $customer, ?Campaign $campaign, string $key)
     {
@@ -164,11 +168,9 @@ class MultipleCampaignCouponUsageProvider
             );
         }
         if (count(array_filter($customer->getCampaignPurchases(), function (CampaignPurchase $campaignPurchase) use ($campaign) {
-            return $campaignPurchase->getCampaignId()->__toString() === $campaign->getCampaignId()->__toString();
+            return $campaignPurchase->getCampaignId()->__toString() === $campaign->getCampaignId()->__toString() && $campaignPurchase->getStatus() === CampaignPurchase::STATUS_ACTIVE && !$campaignPurchase->isUsed();
         })) === 0) {
-            throw new InvalidDataProvidedException(
-                $this->translator->trans('campaign.invalid_value_field_in_row', ['%name%' => 'code', '%row%' => $key])
-            );
+            throw new NoCouponsLeftException();
         }
     }
 }

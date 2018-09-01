@@ -10,5 +10,5 @@ namespace OpenLoyalty\Bundle\CampaignBundle\Exception;
  */
 class CampaignLimitPerCustomerExceededException extends CampaignLimitException
 {
-    protected $message = 'Limit per customer exceeded';
+    protected $message = 'campaign.limit_per_customer_exceeded';
 }

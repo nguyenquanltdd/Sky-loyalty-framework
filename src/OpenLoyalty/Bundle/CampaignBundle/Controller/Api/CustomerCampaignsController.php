@@ -11,9 +11,11 @@ use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\View\View as FosView;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignLimitException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignUsageChange\CampaignUsageChangeException;
+use OpenLoyalty\Bundle\CampaignBundle\Exception\NoCouponsLeftException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotAllowedException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotEnoughPointsException;
 use OpenLoyalty\Bundle\CampaignBundle\ResponseModel\CouponUsageResponse;
@@ -28,6 +30,7 @@ use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\LevelId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon as CampaignCoupon;
 use OpenLoyalty\Component\Campaign\Domain\SegmentId;
+use OpenLoyalty\Component\Customer\Domain\CampaignId as CustomerCampaignId;
 use OpenLoyalty\Component\Customer\Domain\Command\ChangeCampaignUsage;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
@@ -54,13 +57,27 @@ class CustomerCampaignsController extends FOSRestController
     private $commandBus;
 
     /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
+     * @var MultipleCampaignCouponUsageProvider
+     */
+    private $multipleCampaignCouponUsageProvider;
+
+    /**
      * CustomerCampaignsController constructor.
      *
-     * @param CommandBus $commandBus
+     * @param CommandBus                          $commandBus
+     * @param TranslatorInterface                 $translator
+     * @param MultipleCampaignCouponUsageProvider $multipleCampaignCouponUsageProvider
      */
-    public function __construct(CommandBus $commandBus)
+    public function __construct(CommandBus $commandBus, TranslatorInterface $translator, MultipleCampaignCouponUsageProvider $multipleCampaignCouponUsageProvider)
     {
         $this->commandBus = $commandBus;
+        $this->translator = $translator;
+        $this->multipleCampaignCouponUsageProvider = $multipleCampaignCouponUsageProvider;
     }
 
     /**
@@ -87,7 +104,7 @@ class CustomerCampaignsController extends FOSRestController
      *
      * @param TranslatorInterface $translator
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function availableCampaigns(Request $request, TranslatorInterface $translator)
     {
@@ -132,7 +149,7 @@ class CustomerCampaignsController extends FOSRestController
                 'campaigns' => array_slice($campaigns, ($pagination->getPage() - 1) * $pagination->getPerPage(), $pagination->getPerPage()),
                 'total' => count($campaigns),
             ],
-            200
+            Response::HTTP_OK
         );
         $context = new Context();
         $context->setGroups(['Default']);
@@ -164,7 +181,7 @@ class CustomerCampaignsController extends FOSRestController
      * @param Request $request
      * @View(serializerGroups={"customer", "Default"})
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function boughtCampaigns(Request $request)
     {
@@ -178,7 +195,7 @@ class CustomerCampaignsController extends FOSRestController
                     'campaigns' => [],
                     'total' => 0,
                 ],
-                200
+                Response::HTTP_OK
             );
         }
         $campaigns = $repo
@@ -205,7 +222,7 @@ class CustomerCampaignsController extends FOSRestController
                 'campaigns' => $campaigns,
                 'total' => $repo->countPurchasesByCustomerId($customer->getCustomerId()),
             ],
-            200
+            Response::HTTP_OK
         );
     }
 
@@ -229,7 +246,7 @@ class CustomerCampaignsController extends FOSRestController
      * @param Campaign            $campaign
      * @View(serializerGroups={"customer", "Default"})
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function buyCampaign(Campaign $campaign, TranslatorInterface $translator)
     {
@@ -245,25 +262,25 @@ class CustomerCampaignsController extends FOSRestController
         try {
             $campaignValidator->validateCampaignLimits($campaign, new CustomerId($customer->getCustomerId()->__toString()));
         } catch (CampaignLimitException $e) {
-            return $this->view(['error' => $translator->trans($e->getMessage())], 400);
+            return $this->view(['error' => $translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
         }
 
         try {
             $campaignValidator->checkIfCustomerStatusIsAllowed($customer->getStatus());
         } catch (NotAllowedException $e) {
-            return $this->view(['error' => $translator->trans($e->getMessage())], 400);
+            return $this->view(['error' => $translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
         }
 
         try {
             $campaignValidator->checkIfCustomerHasEnoughPoints($campaign, new CustomerId($customer->getCustomerId()->__toString()));
         } catch (NotEnoughPointsException $e) {
-            return $this->view(['error' => $translator->trans($e->getMessage())], 400);
+            return $this->view(['error' => $translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
         }
 
         $freeCoupons = $provider->getFreeCoupons($campaign);
 
         if (!$campaign->isSingleCoupon() && count($freeCoupons) == 0) {
-            return $this->view(['error' => 'No coupons left'], 400);
+            return $this->view(['error' => $this->translator->trans('campaign.no_coupons_left')], Response::HTTP_BAD_REQUEST);
         } elseif ($campaign->isSingleCoupon()) {
             $freeCoupons = $provider->getAllCoupons($campaign);
         }
@@ -314,12 +331,10 @@ class CustomerCampaignsController extends FOSRestController
      * @param string   $coupon
      * @View(serializerGroups={"customer", "Default"})
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function campaignCouponUsage(Request $request, Campaign $campaign, $coupon)
     {
-        /** @var CustomerDetails $customer */
-        $customer = $this->getLoggedCustomer();
         $used = $request->request->get('used', null);
         if ($used === null) {
             return $this->view(['errors' => 'field "used" is required'], 400);
@@ -334,12 +349,32 @@ class CustomerCampaignsController extends FOSRestController
             $used = false;
         }
 
+        /** @var CustomerDetails $customer */
+        $customer = $this->getLoggedCustomer();
+
+        try {
+            $this->multipleCampaignCouponUsageProvider->validateRequestForCustomer(
+                [
+                    [
+                        'code' => $coupon,
+                        'campaignId' => (string) $campaign->getCampaignId(),
+                        'used' => $used,
+                    ],
+                ],
+                $customer
+            );
+        } catch (NoCouponsLeftException $e) {
+            return $this->view(['error' => $this->translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
+        } catch (CampaignUsageChangeException $e) {
+            throw new BadRequestHttpException($e->getMessage());
+        }
+
         /** @var CommandBus $bus */
         $bus = $this->get('broadway.command_handling.command_bus');
         $bus->dispatch(
             new ChangeCampaignUsage(
                 $customer->getCustomerId(),
-                new \OpenLoyalty\Component\Customer\Domain\CampaignId($campaign->getCampaignId()->__toString()),
+                new CustomerCampaignId($campaign->getCampaignId()->__toString()),
                 new Coupon($coupon),
                 $used
             )
@@ -371,13 +406,12 @@ class CustomerCampaignsController extends FOSRestController
      *     }
      * )
      *
-     * @param Request                             $request
-     * @param MultipleCampaignCouponUsageProvider $multipleCampaignCouponUsageProvider
+     * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      * @View(serializerGroups={"admin", "Default"})
      */
-    public function campaignCouponListUsage(Request $request, MultipleCampaignCouponUsageProvider $multipleCampaignCouponUsageProvider)
+    public function campaignCouponListUsage(Request $request): FosView
     {
         $coupons = $request->request->get('coupons', []);
 
@@ -388,7 +422,9 @@ class CustomerCampaignsController extends FOSRestController
         /** @var CustomerDetails $customer */
         $customer = $this->getLoggedCustomer();
         try {
-            $commands = $multipleCampaignCouponUsageProvider->validateRequestForCustomer($coupons, $customer);
+            $commands = $this->multipleCampaignCouponUsageProvider->validateRequestForCustomer($coupons, $customer);
+        } catch (NoCouponsLeftException $e) {
+            return $this->view(['error' => $this->translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
         } catch (CampaignUsageChangeException $e) {
             throw new BadRequestHttpException($e->getMessage());
         }
@@ -412,7 +448,7 @@ class CustomerCampaignsController extends FOSRestController
     /**
      * @return CustomerDetails
      */
-    protected function getLoggedCustomer()
+    protected function getLoggedCustomer(): CustomerDetails
     {
         /** @var User $user */
         $user = $this->getUser();

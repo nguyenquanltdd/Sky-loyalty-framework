@@ -10,5 +10,5 @@ namespace OpenLoyalty\Bundle\CampaignBundle\Exception;
  */
 class NoCouponsLeftException extends CampaignLimitException
 {
-    protected $message = 'No coupons left';
+    protected $message = 'campaign.no_coupons_left';
 }

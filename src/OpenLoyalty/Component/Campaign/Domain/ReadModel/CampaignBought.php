@@ -346,6 +346,6 @@ class CampaignBought implements SerializableReadModel
      */
     public function isUsed(): bool
     {
-        return $this->used;
+        return (is_bool($this->used)) ? $this->used : false;
     }
 }

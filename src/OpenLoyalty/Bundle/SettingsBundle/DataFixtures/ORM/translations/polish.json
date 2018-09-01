@@ -2195,9 +2195,6 @@
       "success": "Import został ukończony (Przetworzonych {{ processed }})",
       "warning": "Import został ukończony, pojawiły się błędy: (Przetworzonych {{ processed }}, ukończono z sukcesem{{ success }}, błędy pojawiły się {{ failed }})"
     },
-    "post_activate_campaign": {
-      "success": "Zmieniono status nagrody"
-    },
     "post_activate_customer": {
       "error": "Błąd",
       "success": "Sukces."
@@ -2416,6 +2413,10 @@
     "put_campaign_category": {
       "error": "Kategoria kampanii nie została zapisana",
       "success": "Kategoria kampani została zapisana"
+    },
+    "post_activate_campaign": {
+      "error": "Kampania nie została zapisana",
+      "success": "Kampania została zapisana"
     },
     "post_activate_campaign_category": {
       "error": "Kategoria kampanii nie została zapisana",

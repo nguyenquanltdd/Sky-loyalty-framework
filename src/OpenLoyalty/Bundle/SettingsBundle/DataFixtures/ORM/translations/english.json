@@ -2391,6 +2391,10 @@
       "error": "Campaign category hasn't been saved",
       "success": "Campaign category has been saved"
     },
+    "post_activate_campaign": {
+      "error": "Campaign hasn't been saved",
+      "success": "Campaign has been saved"
+    },
     "post_activate_campaign_category": {
       "error": "Campaign category hasn't been saved",
       "success": "Campaign category has been saved"

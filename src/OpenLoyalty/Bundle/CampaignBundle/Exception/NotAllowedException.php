@@ -10,5 +10,5 @@ namespace OpenLoyalty\Bundle\CampaignBundle\Exception;
  */
 class NotAllowedException extends \Exception
 {
-    protected $message = 'Not allowed';
+    protected $message = 'campaign.not_allowed';
 }

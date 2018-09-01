@@ -17,6 +17,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignLimitException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignUsageChange\CampaignUsageChangeException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\InvalidTransactionException;
+use OpenLoyalty\Bundle\CampaignBundle\Exception\NoCouponsLeftException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotAllowedException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotEnoughPointsException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\TransactionRequiredException;
@@ -121,16 +122,22 @@ class CampaignController extends FOSRestController
     private $campaignBrandIconUploader;
 
     /**
+     * @var MultipleCampaignCouponUsageProvider
+     */
+    private $multipleCampaignCouponUsageProvider;
+
+    /**
      * CampaignController constructor.
      *
-     * @param CommandBus                   $commandBus
-     * @param TranslatorInterface          $translator
-     * @param CampaignValidator            $campaignValidator
-     * @param CampaignProvider             $campaignProvider
-     * @param CouponCodeProvider           $couponCodeProvider
-     * @param TransactionDetailsRepository $transactionDetailsRepository
-     * @param CampaignBrandIconUploader    $campaignBrandIconUploader
-     * @param CampaignBoughtRepository     $campaignBoughtRepository
+     * @param CommandBus                          $commandBus
+     * @param TranslatorInterface                 $translator
+     * @param CampaignValidator                   $campaignValidator
+     * @param CampaignProvider                    $campaignProvider
+     * @param CouponCodeProvider                  $couponCodeProvider
+     * @param TransactionDetailsRepository        $transactionDetailsRepository
+     * @param CampaignBrandIconUploader           $campaignBrandIconUploader
+     * @param CampaignBoughtRepository            $campaignBoughtRepository
+     * @param MultipleCampaignCouponUsageProvider $multipleCampaignCouponUsageProvider
      */
     public function __construct(
         CommandBus $commandBus,
@@ -140,7 +147,8 @@ class CampaignController extends FOSRestController
         CouponCodeProvider $couponCodeProvider,
         TransactionDetailsRepository $transactionDetailsRepository,
         CampaignBoughtRepository $campaignBoughtRepository,
-        CampaignBrandIconUploader $campaignBrandIconUploader
+        CampaignBrandIconUploader $campaignBrandIconUploader,
+        MultipleCampaignCouponUsageProvider $multipleCampaignCouponUsageProvider
     ) {
         $this->commandBus = $commandBus;
         $this->translator = $translator;
@@ -150,6 +158,7 @@ class CampaignController extends FOSRestController
         $this->transactionDetailsRepository = $transactionDetailsRepository;
         $this->campaignBoughtRepository = $campaignBoughtRepository;
         $this->campaignBrandIconUploader = $campaignBrandIconUploader;
+        $this->multipleCampaignCouponUsageProvider = $multipleCampaignCouponUsageProvider;
     }
 
     /**
@@ -937,31 +946,39 @@ class CampaignController extends FOSRestController
      */
     public function buyCampaign(DomainCampaign $campaign, CustomerDetails $customer, TranslatorInterface $translator)
     {
-        if (!$this->campaignValidator->isCampaignActive($campaign) || !$this->campaignValidator->isCampaignVisible($campaign)) {
+        if (!$this->campaignValidator->isCampaignActive($campaign) ||
+            !$this->campaignValidator->isCampaignVisible($campaign)
+        ) {
             throw $this->createNotFoundException();
         }
 
         try {
-            $this->campaignValidator->validateCampaignLimits($campaign, new CustomerId($customer->getCustomerId()->__toString()));
+            $this->campaignValidator->validateCampaignLimits(
+                $campaign,
+                new CustomerId($customer->getCustomerId()->__toString())
+            );
         } catch (CampaignLimitException $e) {
-            return $this->view(['error' => $translator->trans($e->getMessage())], 400);
+            return $this->view(['error' => $translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
         }
 
         try {
             $this->campaignValidator->checkIfCustomerStatusIsAllowed($customer->getStatus());
         } catch (NotAllowedException $e) {
-            return $this->view(['error' => $translator->trans($e->getMessage())], 400);
+            return $this->view(['error' => $translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
         }
 
         try {
-            $this->campaignValidator->checkIfCustomerHasEnoughPoints($campaign, new CustomerId($customer->getCustomerId()->__toString()));
+            $this->campaignValidator->checkIfCustomerHasEnoughPoints(
+                $campaign,
+                new CustomerId($customer->getCustomerId()->__toString())
+            );
         } catch (NotEnoughPointsException $e) {
-            return $this->view(['error' => $translator->trans($e->getMessage())], 400);
+            return $this->view(['error' => $translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
         }
 
         $freeCoupons = $this->campaignProvider->getFreeCoupons($campaign);
         if (!$campaign->isSingleCoupon() && count($freeCoupons) == 0) {
-            return $this->view(['error' => 'No coupons left'], 400);
+            return $this->view(['error' => $this->translator->trans('campaign.no_coupons_left')], Response::HTTP_BAD_REQUEST);
         } elseif ($campaign->isSingleCoupon()) {
             $freeCoupons = $this->campaignProvider->getAllCoupons($campaign);
         }
@@ -1041,14 +1058,20 @@ class CampaignController extends FOSRestController
                 throw new TransactionRequiredException();
             }
 
-            $this->campaignValidator->validateCampaignLimits($campaign, new CustomerId($customer->getCustomerId()->__toString()));
+            $this->campaignValidator->validateCampaignLimits(
+                $campaign,
+                new CustomerId($customer->getCustomerId()->__toString())
+            );
             $this->campaignValidator->checkIfCustomerStatusIsAllowed($customer->getStatus());
             if (!$withoutPoints) {
-                $this->campaignValidator->checkIfCustomerHasEnoughPoints($campaign, new CustomerId($customer->getCustomerId()->__toString()));
+                $this->campaignValidator->checkIfCustomerHasEnoughPoints(
+                    $campaign,
+                    new CustomerId($customer->getCustomerId()->__toString())
+                );
             }
             $coupon = $this->couponCodeProvider->getCoupon($campaign, $transactionValue ?? 0);
         } catch (CampaignLimitException | NotAllowedException | NotEnoughPointsException $e) {
-            return $this->view(['error' => $this->translator->trans($e->getMessage())], 400);
+            return $this->view(['error' => $this->translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
         }
 
         $this->commandBus->dispatch(
@@ -1109,7 +1132,7 @@ class CampaignController extends FOSRestController
                     'campaigns' => [],
                     'total' => 0,
                 ],
-                200
+                Response::HTTP_OK
             );
         }
 
@@ -1127,7 +1150,9 @@ class CampaignController extends FOSRestController
             $campaignRepo = $this->get('oloy.campaign.repository');
 
             $campaigns = array_map(function (CampaignPurchase $campaignPurchase) use ($campaignRepo) {
-                $campaignPurchase->setCampaign($campaignRepo->byId(new CampaignId($campaignPurchase->getCampaignId()->__toString())));
+                $campaignPurchase->setCampaign(
+                    $campaignRepo->byId(new CampaignId($campaignPurchase->getCampaignId()->__toString()))
+                );
 
                 return $campaignPurchase;
             }, $campaigns);
@@ -1138,7 +1163,7 @@ class CampaignController extends FOSRestController
                 'campaigns' => $campaigns,
                 'total' => $repo->countPurchasesByCustomerId($customer->getCustomerId(), true),
             ],
-            200
+            Response::HTTP_OK
         );
     }
 
@@ -1169,11 +1194,14 @@ class CampaignController extends FOSRestController
      *
      * @return FosView
      */
-    public function campaignCouponUsage(Request $request, CustomerDetails $customer, DomainCampaign $campaign, $coupon)
+    public function campaignCouponUsage(Request $request, CustomerDetails $customer, DomainCampaign $campaign, $coupon): FosView
     {
         $used = $request->request->get('used', null);
         if ($used === null) {
-            return $this->view(['errors' => 'field "used" is required'], 400);
+            return $this->view(
+                ['errors' => $this->translator->trans('campaign.field_used_is_required')],
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         if (is_string($used)) {
@@ -1183,6 +1211,23 @@ class CampaignController extends FOSRestController
 
         if ($used === 'false' || $used === '0' || $used === 0) {
             $used = false;
+        }
+
+        try {
+            $this->multipleCampaignCouponUsageProvider->validateRequestForCustomer(
+                [
+                    [
+                        'code' => $coupon,
+                        'campaignId' => (string) $campaign->getCampaignId(),
+                        'used' => $used,
+                    ],
+                ],
+                $customer
+            );
+        } catch (NoCouponsLeftException $e) {
+            return $this->view(['error' => $this->translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
+        } catch (CampaignUsageChangeException $e) {
+            throw new BadRequestHttpException($e->getMessage());
         }
 
         $this->commandBus->dispatch(
@@ -1221,15 +1266,14 @@ class CampaignController extends FOSRestController
      *     }
      * )
      *
-     * @param Request                             $request
-     * @param MultipleCampaignCouponUsageProvider $multipleCampaignCouponUsageProvider
+     * @param Request $request
      *
      * @return FosView
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
+     * @throws BadRequestHttpException
      */
-    public function campaignCouponListUsage(Request $request, MultipleCampaignCouponUsageProvider $multipleCampaignCouponUsageProvider)
+    public function campaignCouponListUsage(Request $request): FosView
     {
         $coupons = $request->request->get('coupons', []);
 
@@ -1238,7 +1282,9 @@ class CampaignController extends FOSRestController
         }
 
         try {
-            $commands = $multipleCampaignCouponUsageProvider->validateRequest($coupons);
+            $commands = $this->multipleCampaignCouponUsageProvider->validateRequest($coupons);
+        } catch (NoCouponsLeftException $e) {
+            return $this->view(['error' => $this->translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
         } catch (CampaignUsageChangeException $e) {
             throw new BadRequestHttpException($e->getMessage());
         }

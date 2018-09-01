@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * Copyright © 2017 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Bundle\TransactionBundle\Tests\Integration\Controller\Api;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
@@ -1225,7 +1228,7 @@ class TransactionControllerTest extends BaseApiTest
                 'customer' => [
                     'firstName' => 'Anne',
                     'lastName' => 'Rich',
-                    'email' => 'rich.anne@natyepaulinho.com',
+                    'email' => 'rich.anne@example.com',
                     'gender' => 'male',
                     'birthDate' => '1990-01-01',
                     'labels' => 'customgroup:',
@@ -1313,11 +1316,12 @@ class TransactionControllerTest extends BaseApiTest
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('earningRuleId', $data);
 
+        $purchaseDate = new \DateTime();
         $formData = [
             'transactionData' => [
                 'documentNumber' => 'Custom-1234',
                 'documentType' => 'sell',
-                'purchaseDate' => '2018-08-01',
+                'purchaseDate' => $purchaseDate->format('Y-m-d'),
                 'purchasePlace' => 'wroclaw',
             ],
             'items' => [
@@ -1332,7 +1336,7 @@ class TransactionControllerTest extends BaseApiTest
             ],
             'customerData' => [
                 'name' => 'Anne Rich',
-                'email' => 'rich.anne@natyepaulinho.com',
+                'email' => 'rich.anne@example.com',
                 'nip' => '00000000000000',
                 'loyaltyCardNumber' => '11111111111',
                 'address' => [

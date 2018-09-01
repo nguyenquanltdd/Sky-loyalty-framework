@@ -11,7 +11,6 @@ use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\LevelId;
-use OpenLoyalty\Component\Campaign\Domain\SegmentId;
 use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\Functions\Cast;
 use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortByFilter;
 use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortFilter;
@@ -213,12 +212,9 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     }
 
     /**
-     * @param SegmentId[]  $segmentIds
-     * @param LevelId|null $levelId
-     *
-     * @return Campaign[]
+     * {@inheritdoc}
      */
-    public function getActiveCashbackCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null)
+    public function getActiveCashbackCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null): array
     {
         $qb = $this->getCampaignsForLevelAndSegmentQueryBuilder($segmentIds, $levelId);
         $qb->andWhere('c.reward = :reward')->setParameter('reward', Campaign::REWARD_TYPE_CASHBACK);

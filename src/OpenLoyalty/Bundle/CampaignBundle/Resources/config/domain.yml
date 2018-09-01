@@ -65,6 +65,7 @@ services:
     class: OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtProjector
     arguments:
       $repository: '@OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository'
+      $campaignBoughtRepository: '@OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository'
       $campaignRepository: '@oloy.campaign.repository'
     tags:
       - { name: broadway.domain.event_listener }
