@@ -99,6 +99,7 @@ class CustomerDetailsCsvFormatter
         }
 
         return [
+            $details->getCustomerId(),
             $details->getFirstName(),
             $details->getLastName(),
             $details->getEmail(),
