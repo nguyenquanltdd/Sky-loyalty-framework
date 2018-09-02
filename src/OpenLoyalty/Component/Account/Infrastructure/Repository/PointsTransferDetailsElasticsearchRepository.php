@@ -20,7 +20,7 @@ class PointsTransferDetailsElasticsearchRepository extends OloyElasticsearchRepo
     /**
      * {@inheritdoc}
      */
-    public function findAllActiveAddingTransfersExpiredAfter(int $timestamp): array
+    public function findAllActiveAddingTransfersExpiredAfter(\DateTime $dateTime): array
     {
         $filter = [];
         $filter[] = [
@@ -29,15 +29,26 @@ class PointsTransferDetailsElasticsearchRepository extends OloyElasticsearchRepo
             ],
         ];
         $filter[] = [
-            'term' => [
-                'type' => PointsTransferDetails::TYPE_ADDING,
+            'bool' => [
+                'should' => [
+                    [
+                        'term' => [
+                            'type' => PointsTransferDetails::TYPE_ADDING,
+                        ],
+                    ],
+                    [
+                        'term' => [
+                            'type' => PointsTransferDetails::TYPE_P2P_ADDING,
+                        ],
+                    ],
+                ],
             ],
         ];
 
         $filter[] = [
             'range' => [
                 'expiresAt' => [
-                    'lt' => $timestamp,
+                    'lt' => $dateTime->getTimestamp(),
                 ],
             ],
         ];
@@ -88,7 +99,7 @@ class PointsTransferDetailsElasticsearchRepository extends OloyElasticsearchRepo
     /**
      * {@inheritdoc}
      */
-    public function findAllActiveAddingTransfersCreatedAfter($timestamp): array
+    public function findAllActiveAddingTransfersCreatedAfter(\DateTime $dateTime): array
     {
         $filter = [];
         $filter[] = ['term' => [
@@ -100,7 +111,7 @@ class PointsTransferDetailsElasticsearchRepository extends OloyElasticsearchRepo
 
         $filter[] = ['range' => [
             'createdAt' => [
-                'lt' => $timestamp,
+                'lt' => $dateTime->getTimestamp(),
             ],
         ]];
 

@@ -18,6 +18,10 @@
                 <source>account.points_transfer.cannot_be_cancelled</source>
                 <target>Transfer punktowy: #{{ id }} - nie może zostać anulowany</target>
             </trans-unit>
+            <trans-unit id="account_points_transfer_cannot_be_transferred">
+                <source>account.points_transfer.cannot_be_transferred</source>
+                <target>Transfer punktowy: #{{ id }} - nie może zostać przeniesiony</target>
+            </trans-unit>
             <trans-unit id="account_points_transfer_already_exist">
                 <source>account.points_transfer.already_exist</source>
                 <target>Transfer punktowy: #{{ id }} - już istnieje</target>
@@ -25,6 +29,18 @@
             <trans-unit id="account_points_transfer_not_enough_points">
                 <source>account.points_transfer.not_enough_points</source>
                 <target>zbyt mało punktów</target>
+            </trans-unit>
+            <trans-unit id="account_points_transfer_cannot_transfer_to_yourself">
+                <source>account.points_transfer.cannot_transfer_to_yourself</source>
+                <target>transfer na własne konto jest zabroniony</target>
+            </trans-unit>
+            <trans-unit id="account_points_transfer_sender_does_not_exist">
+                <source>account.points_transfer.sender_does_not_exist</source>
+                <target>klient nie istnieje</target>
+            </trans-unit>
+            <trans-unit id="account_points_transfer_receiver_does_not_exist">
+                <source>account.points_transfer.receiver_does_not_exist</source>
+                <target>klient nie istnieje</target>
             </trans-unit>
             <trans-unit id="account_points_transfer_no_transfers_to_unlock">
                 <source>account.points_transfer.no_transfers_to_unlock</source>

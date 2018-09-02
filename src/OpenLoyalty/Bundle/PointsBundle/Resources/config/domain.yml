@@ -7,6 +7,7 @@ services:
     class: OpenLoyalty\Component\Account\Domain\Command\AccountCommandHandler
     arguments:
       - '@oloy.points.account.repository'
+      - '@broadway.uuid.generator'
       - '@broadway.event_dispatcher'
     lazy: true
     tags:

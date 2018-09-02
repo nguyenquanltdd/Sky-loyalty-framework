@@ -7,8 +7,12 @@ namespace OpenLoyalty\Component\Account\Domain\Command;
 
 use Broadway\CommandHandling\SimpleCommandHandler;
 use Broadway\EventDispatcher\EventDispatcher;
+use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Component\Account\Domain\Account;
 use OpenLoyalty\Component\Account\Domain\AccountRepository;
+use OpenLoyalty\Component\Account\Domain\Exception\NotEnoughPointsException;
+use OpenLoyalty\Component\Account\Domain\Model\P2PAddPointsTransfer;
+use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountCreatedSystemEvent;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AvailablePointsAmountChangedSystemEvent;
@@ -29,14 +33,21 @@ class AccountCommandHandler extends SimpleCommandHandler
     protected $eventDispatcher;
 
     /**
+     * @var UuidGeneratorInterface
+     */
+    protected $uuidGenerator;
+
+    /**
      * AccountCommandHandler constructor.
      *
-     * @param AccountRepository $repository
-     * @param EventDispatcher   $eventDispatcher
+     * @param AccountRepository      $repository
+     * @param UuidGeneratorInterface $uuidGenerator
+     * @param EventDispatcher        $eventDispatcher
      */
-    public function __construct(AccountRepository $repository, EventDispatcher $eventDispatcher = null)
+    public function __construct(AccountRepository $repository, UuidGeneratorInterface $uuidGenerator, EventDispatcher $eventDispatcher = null)
     {
         $this->repository = $repository;
+        $this->uuidGenerator = $uuidGenerator;
         $this->eventDispatcher = $eventDispatcher;
     }
 
@@ -76,6 +87,64 @@ class AccountCommandHandler extends SimpleCommandHandler
                         $account->getAvailableAmount(),
                         $pointsTransfer->getValue(),
                         AvailablePointsAmountChangedSystemEvent::OPERATION_TYPE_ADD
+                    ),
+                ]
+            );
+        }
+    }
+
+    /**
+     * @param TransferPoints $command
+     */
+    public function handleTransferPoints(TransferPoints $command)
+    {
+        /** @var Account $receiver */
+        $receiver = $this->repository->load($command->getPointsTransfer()->getReceiverId());
+        /** @var Account $sender */
+        $sender = $this->repository->load($command->getAccountId());
+        $pointsToTransfer = $command->getPointsTransfer()->getValue();
+
+        $availableAmount = $sender->getAvailableAmount();
+        if ($availableAmount < $pointsToTransfer) {
+            throw new NotEnoughPointsException();
+        }
+
+        $transfers = $sender->transferPoints($command->getPointsTransfer());
+        foreach ($transfers as $data) {
+            $receiver->addPoints(P2PAddPointsTransfer::createFromAddPointsTransfer(
+                new PointsTransferId($this->uuidGenerator->generate()),
+                $command->getAccountId(),
+                $data[1],
+                $data[0],
+                $command->getCreatedAt()
+            ));
+            $this->repository->save($receiver);
+        }
+
+        $this->repository->save($sender);
+
+        if ($this->eventDispatcher) {
+            $this->eventDispatcher->dispatch(
+                AccountSystemEvents::AVAILABLE_POINTS_AMOUNT_CHANGED,
+                [
+                    new AvailablePointsAmountChangedSystemEvent(
+                        $sender->getId(),
+                        $sender->getCustomerId(),
+                        $sender->getAvailableAmount(),
+                        $command->getPointsTransfer()->getValue(),
+                        AvailablePointsAmountChangedSystemEvent::OPERATION_TYPE_P2P_SUBTRACT
+                    ),
+                ]
+            );
+            $this->eventDispatcher->dispatch(
+                AccountSystemEvents::AVAILABLE_POINTS_AMOUNT_CHANGED,
+                [
+                    new AvailablePointsAmountChangedSystemEvent(
+                        $receiver->getId(),
+                        $receiver->getCustomerId(),
+                        $receiver->getAvailableAmount(),
+                        $command->getPointsTransfer()->getValue(),
+                        AvailablePointsAmountChangedSystemEvent::OPERATION_TYPE_P2P_ADD
                     ),
                 ]
             );

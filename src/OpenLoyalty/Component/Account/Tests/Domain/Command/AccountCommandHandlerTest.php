@@ -6,6 +6,7 @@ use Broadway\CommandHandling\CommandHandler;
 use Broadway\CommandHandling\Testing\CommandHandlerScenarioTestCase;
 use Broadway\EventHandling\EventBus;
 use Broadway\EventStore\EventStore;
+use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Component\Account\Domain\AccountRepository;
 use OpenLoyalty\Component\Account\Domain\Command\AccountCommandHandler;
 
@@ -14,6 +15,8 @@ use OpenLoyalty\Component\Account\Domain\Command\AccountCommandHandler;
  */
 abstract class AccountCommandHandlerTest extends CommandHandlerScenarioTestCase
 {
+    public static $uuidCount = 0;
+
     /**
      * Create a command handler for the given scenario test case.
      *
@@ -25,7 +28,24 @@ abstract class AccountCommandHandlerTest extends CommandHandlerScenarioTestCase
     protected function createCommandHandler(EventStore $eventStore, EventBus $eventBus): CommandHandler
     {
         return new AccountCommandHandler(
-            new AccountRepository($eventStore, $eventBus)
+            new AccountRepository($eventStore, $eventBus),
+            $this->getUuidGenerator()
         );
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|UuidGeneratorInterface
+     */
+    protected function getUuidGenerator()
+    {
+        $mock = $this->getMockBuilder(UuidGeneratorInterface::class)->getMock();
+        $mock->method('generate')->willReturnCallback(function () {
+            $uuid = sprintf('00000000-0000-0000-0000-000000000%03d', self::$uuidCount);
+            ++self::$uuidCount;
+
+            return $uuid;
+        });
+
+        return $mock;
     }
 }

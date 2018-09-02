@@ -9,11 +9,16 @@ use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
-use FOS\RestBundle\View\View;
+use FOS\RestBundle\View\View as FosView;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use OpenLoyalty\Bundle\PaginationBundle\Service\Paginator;
+use OpenLoyalty\Bundle\PointsBundle\Form\Handler\TransferPointsFormHandler;
+use OpenLoyalty\Bundle\PointsBundle\Form\Type\TransferPointsByCustomerFormType;
+use OpenLoyalty\Bundle\UserBundle\Service\EsParamManager;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -24,6 +29,62 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CustomerPointsTransferController extends FOSRestController
 {
+    /**
+     * @var ParamFetcher
+     */
+    private $paramFetcher;
+
+    /**
+     * @var PointsTransferDetailsRepository
+     */
+    private $pointsTransferDetailsRepository;
+
+    /**
+     * @var FormFactoryInterface
+     */
+    private $formFactory;
+
+    /**
+     * @var EsParamManager
+     */
+    private $paramManager;
+
+    /**
+     * @var Paginator
+     */
+    private $paginator;
+
+    /**
+     * @var TransferPointsFormHandler
+     */
+    private $transferPointsFormHandler;
+
+    /**
+     * CustomerPointsTransferController constructor.
+     *
+     * @param ParamFetcher                    $paramFetcher
+     * @param PointsTransferDetailsRepository $pointsTransferDetailsRepository
+     * @param FormFactoryInterface            $formFactory
+     * @param EsParamManager                  $paramManager
+     * @param Paginator                       $paginator
+     * @param TransferPointsFormHandler       $transferPointsFormHandler
+     */
+    public function __construct(
+        ParamFetcher $paramFetcher,
+        PointsTransferDetailsRepository $pointsTransferDetailsRepository,
+        FormFactoryInterface $formFactory,
+        EsParamManager $paramManager,
+        Paginator $paginator,
+        TransferPointsFormHandler $transferPointsFormHandler
+    ) {
+        $this->paramFetcher = $paramFetcher;
+        $this->pointsTransferDetailsRepository = $pointsTransferDetailsRepository;
+        $this->formFactory = $formFactory;
+        $this->paramManager = $paramManager;
+        $this->paginator = $paginator;
+        $this->transferPointsFormHandler = $transferPointsFormHandler;
+    }
+
     /**
      * List of all logged in customer points transfer.
      *
@@ -45,21 +106,17 @@ class CustomerPointsTransferController extends FOSRestController
      *     }
      * )
      *
-     * @param Request      $request
-     * @param ParamFetcher $paramFetcher
+     * @param Request $request
      *
-     * @return View
+     * @return FosView
      */
-    public function listAction(Request $request, ParamFetcher $paramFetcher): View
+    public function listAction(Request $request): FosView
     {
-        $params = $this->get('oloy.user.param_manager')->stripNulls($paramFetcher->all(), true, false);
+        $params = $this->paramManager->stripNulls($this->paramFetcher->all(), true, false);
         $params['customerId'] = $this->getUser()->getId();
-        $pagination = $this->get('oloy.pagination')->handleFromRequest($request, 'createdAt', 'DESC');
+        $pagination = $this->paginator->handleFromRequest($request, 'createdAt', 'DESC');
 
-        /** @var PointsTransferDetailsRepository $repo */
-        $repo = $this->get('oloy.points.account.repository.points_transfer_details');
-
-        $transfers = $repo->findByParametersPaginated(
+        $transfers = $this->pointsTransferDetailsRepository->findByParametersPaginated(
             $params,
             false,
             $pagination->getPage(),
@@ -68,7 +125,7 @@ class CustomerPointsTransferController extends FOSRestController
             $pagination->getSortDirection()
         );
 
-        $total = $repo->countTotal($params, false);
+        $total = $this->pointsTransferDetailsRepository->countTotal($params, false);
 
         return $this->view(
             [
@@ -77,5 +134,33 @@ class CustomerPointsTransferController extends FOSRestController
             ],
             Response::HTTP_OK
         );
+    }
+
+    /**
+     * Method allows to transfer points between customers.
+     *
+     * @param Request $request
+     *
+     * @return FosView
+     *
+     * @Route(name="oloy.points.transfer.customer.p2p", path="/customer/points/p2p-transfer")
+     * @Method("POST")
+     * @Security("is_granted('TRANSFER_POINTS')")
+     * @ApiDoc(
+     *     name="Transfer points",
+     *     section="Customer Points transfers",
+     *     input={"class" = "OpenLoyalty\Bundle\PointsBundle\Form\Type\TransferPointsByCustomerFormType", "name" = "transfer"},
+     *     statusCodes={
+     *       200="Returned when successful",
+     *       400="Returned when form contains errors",
+     *       404="Returned when there is no account attached to customer"
+     *     }
+     * )
+     */
+    public function transferPointsAction(Request $request): FosView
+    {
+        $form = $this->formFactory->createNamed('transfer', TransferPointsByCustomerFormType::class);
+
+        return $this->transferPointsFormHandler->handle($request, $this->getUser(), $form);
     }
 }

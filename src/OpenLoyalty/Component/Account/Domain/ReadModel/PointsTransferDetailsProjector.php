@@ -9,15 +9,19 @@ use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Account\Domain\Account;
 use OpenLoyalty\Component\Account\Domain\AccountId;
+use OpenLoyalty\Component\Account\Domain\CustomerId;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenCanceled;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenExpired;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenUnlocked;
 use OpenLoyalty\Component\Account\Domain\Event\PointsWereAdded;
 use OpenLoyalty\Component\Account\Domain\Event\PointsWereSpent;
+use OpenLoyalty\Component\Account\Domain\Event\PointsWereTransferred;
 use OpenLoyalty\Component\Account\Domain\Exception\PointsTransferCannotBeCanceledException;
 use OpenLoyalty\Component\Account\Domain\Exception\PointsTransferCannotBeExpiredException;
 use OpenLoyalty\Component\Account\Domain\Exception\PointsTransferCannotBeUnlockedException;
+use OpenLoyalty\Component\Account\Domain\Model\P2PAddPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
+use OpenLoyalty\Component\Customer\Domain\Customer;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Pos\Domain\Pos;
 use OpenLoyalty\Component\Pos\Domain\PosId;
@@ -103,7 +107,16 @@ class PointsTransferDetailsProjector extends Projector
             $state = PointsTransferDetails::STATE_ACTIVE;
         }
         $readModel->setState($state);
-        $readModel->setType(PointsTransferDetails::TYPE_ADDING);
+        if ($transfer instanceof P2PAddPointsTransfer) {
+            $readModel->setType(PointsTransferDetails::TYPE_P2P_ADDING);
+            /** @var Account $account */
+            $account = $this->accountRepository->find($transfer->getSenderId()->__toString());
+            if ($account && $customer = $this->customerRepository->find($account->getCustomerId()->__toString())) {
+                $readModel->setSenderId(new CustomerId((string) $customer->getId()));
+            }
+        } else {
+            $readModel->setType(PointsTransferDetails::TYPE_ADDING);
+        }
         $readModel->setTransactionId($transfer->getTransactionId());
         $readModel->setIssuer($transfer->getIssuer());
         if ($transfer->getTransactionId()) {
@@ -150,6 +163,42 @@ class PointsTransferDetailsProjector extends Projector
     }
 
     /**
+     * @param PointsWereTransferred $event
+     */
+    protected function applyPointsWereTransferred(PointsWereTransferred $event)
+    {
+        $transfer = $event->getPointsTransfer();
+        $id = $transfer->getId();
+        /** @var PointsTransferDetails $readModel */
+        $readModel = $this->getReadModel($id, $event->getAccountId());
+        $readModel->setValue($transfer->getValue());
+        $readModel->setCreatedAt($transfer->getCreatedAt());
+        $readModel->setExpiresAt($transfer->getCreatedAt());
+        $readModel->setState($transfer->isCanceled() ? PointsTransferDetails::STATE_CANCELED : PointsTransferDetails::STATE_ACTIVE);
+        $readModel->setType(PointsTransferDetails::TYPE_P2P_SPENDING);
+        /** @var Account $account */
+        $account = $this->accountRepository->find((string) $transfer->getReceiverId());
+        /** @var Customer $customer */
+        if ($account && $customer = $this->customerRepository->find((string) $account->getCustomerId())) {
+            $readModel->setReceiverId(new CustomerId((string) $customer->getId()));
+        }
+        $readModel->setComment($transfer->getComment());
+        $readModel->setIssuer($transfer->getIssuer());
+        $readModel->setTransactionId($transfer->getTransactionId());
+        $readModel->setRevisedTransactionId($transfer->getRevisedTransactionId());
+        if ($transfer->getTransactionId()) {
+            $transaction = $this->transactionDetailsRepository->find((string) $transfer->getTransactionId());
+            if ($transaction instanceof TransactionDetails && $transaction->getPosId()) {
+                $pos = $this->posRepository->byId(new PosId((string) $transaction->getPosId()));
+                if ($pos instanceof Pos) {
+                    $readModel->setPosIdentifier($pos->getIdentifier());
+                }
+            }
+        }
+        $this->repository->save($readModel);
+    }
+
+    /**
      * @param PointsTransferHasBeenCanceled $event
      *
      * @throws PointsTransferCannotBeCanceledException
@@ -174,7 +223,7 @@ class PointsTransferDetailsProjector extends Projector
         $id = $event->getPointsTransferId();
         /** @var PointsTransferDetails $readModel */
         $readModel = $this->getReadModel($id, $event->getAccountId());
-        if ($readModel->getType() != PointsTransferDetails::TYPE_ADDING) {
+        if (!in_array($readModel->getType(), [PointsTransferDetails::TYPE_ADDING, PointsTransferDetails::TYPE_P2P_ADDING])) {
             throw new PointsTransferCannotBeExpiredException($id->__toString());
         }
         $readModel->setState(PointsTransferDetails::STATE_EXPIRED);

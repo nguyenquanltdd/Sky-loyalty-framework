@@ -37,6 +37,11 @@ class CustomerStatus
     /**
      * @var float
      */
+    protected $p2pPoints = 0;
+
+    /**
+     * @var float
+     */
     protected $totalEarnedPoints = 0;
 
     /**
@@ -486,6 +491,22 @@ class CustomerStatus
     public function setPointsSinceLastLevelRecalculation(?float $pointsSinceLastLevelRecalculation): void
     {
         $this->pointsSinceLastLevelRecalculation = $pointsSinceLastLevelRecalculation;
+    }
+
+    /**
+     * @return float
+     */
+    public function getP2pPoints(): float
+    {
+        return $this->p2pPoints;
+    }
+
+    /**
+     * @param float $p2pPoints
+     */
+    public function setP2pPoints(float $p2pPoints): void
+    {
+        $this->p2pPoints = $p2pPoints;
     }
 
     /**

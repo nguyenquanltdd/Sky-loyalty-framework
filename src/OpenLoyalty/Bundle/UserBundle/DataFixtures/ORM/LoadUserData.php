@@ -71,6 +71,18 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
     const TEST_SELLER2_USERNAME = 'john2@doe2.com';
     const TEST_SELLER2_PASSWORD = 'open';
 
+    const USER_TRANSFER_1_USER_ID = '00000000-0000-474c-b092-b0dd880c07f3';
+    const USER_TRANSFER_1_USERNAME = 'user-transfer-1@oloy.com';
+    const USER_TRANSFER_1_PASSWORD = 'loyalty';
+
+    const USER_TRANSFER_2_USER_ID = '00000000-0000-474c-b092-b0dd880c07f4';
+    const USER_TRANSFER_2_USERNAME = 'user-transfer-2@oloy.com';
+    const USER_TRANSFER_2_PASSWORD = 'loyalty';
+
+    const USER_TRANSFER_3_USER_ID = '00000000-0000-474c-b092-b0dd880c07f5';
+    const USER_TRANSFER_3_USERNAME = 'user-transfer-3@oloy.com';
+    const USER_TRANSFER_3_PASSWORD = 'loyalty';
+
     /**
      * @var ContainerInterface
      */
@@ -107,6 +119,7 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
         $manager->flush();
 
         $this->loadCustomersData($manager);
+        $this->loadForTransferData($manager);
         $this->loadSeller($manager);
     }
 
@@ -335,6 +348,53 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
 
         $manager->persist($user);
         $manager->flush();
+    }
+
+    /**
+     * @param ObjectManager $manager
+     *
+     * @throws \Exception
+     */
+    protected function loadForTransferData(ObjectManager $manager): void
+    {
+        $bus = $this->container->get('broadway.command_handling.command_bus');
+        $users = [
+            [static::USER_TRANSFER_1_USER_ID, static::USER_TRANSFER_1_USERNAME, static::USER_TRANSFER_1_PASSWORD],
+            [static::USER_TRANSFER_2_USER_ID, static::USER_TRANSFER_2_USERNAME, static::USER_TRANSFER_2_PASSWORD],
+            [static::USER_TRANSFER_3_USER_ID, static::USER_TRANSFER_3_USERNAME, static::USER_TRANSFER_3_PASSWORD],
+        ];
+        $i = 0;
+        foreach ($users as $data) {
+            $customerId = new CustomerId($data[0]);
+            $command = new RegisterCustomer(
+                $customerId,
+                $this->getDefaultCustomerData(
+                    'TestUser',
+                    'ForTransfersTest',
+                    $data[1],
+                    '123123231231231236'.$i
+                )
+            );
+
+            $bus->dispatch($command);
+            $bus->dispatch(new ActivateCustomer($customerId));
+
+            $user = new Customer($customerId);
+            $user->setPlainPassword($data[2]);
+            $user->setPhone($command->getCustomerData()['phone']);
+
+            $password = $this->container->get('security.password_encoder')
+                ->encodePassword($user, $user->getPlainPassword());
+
+            $user->addRole($this->getReference('role_participant'));
+            $user->setPassword($password);
+            $user->setIsActive(true);
+            $user->setStatus(Status::typeActiveNoCard());
+
+            $user->setEmail($data[1]);
+            $manager->persist($user);
+            ++$i;
+        }
     }
 
     /**

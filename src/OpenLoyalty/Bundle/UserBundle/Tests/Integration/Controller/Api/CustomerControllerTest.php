@@ -969,7 +969,7 @@ class CustomerControllerTest extends BaseApiTest
             ['lastName', 'Smith', 2],
             ['phone', '48', 6],
             ['phone', '645', 2],
-            ['email', '@', 14],
+            ['email', '@', 17],
             ['email', 'user-1', 1],
             ['loyaltyCardNumber', '000000', 3],
             ['transactionsAmount', '3', 0],
@@ -980,7 +980,7 @@ class CustomerControllerTest extends BaseApiTest
             ['averageTransactionAmount', '7.5', 0],
             ['transactionsCount', '4', 0],
             ['transactionsCount', '2', 0],
-            ['transactionsCount', '0', 9],
+            ['transactionsCount', '0', 12],
         ];
     }
 
@@ -999,7 +999,7 @@ class CustomerControllerTest extends BaseApiTest
         $client->request(
             'GET',
             '/api/customer',
-            [$field => $phrase, 'strict' => true]
+            [$field => $phrase, 'strict' => true, 'perPage' => 1000]
         );
 
         $response = $client->getResponse();
@@ -1050,7 +1050,7 @@ class CustomerControllerTest extends BaseApiTest
             ['averageTransactionAmount', '7.5', 0],
             ['transactionsCount', '4', 0],
             ['transactionsCount', '2', 0],
-            ['transactionsCount', '0', 9],
+            ['transactionsCount', '0', 12],
         ];
     }
 

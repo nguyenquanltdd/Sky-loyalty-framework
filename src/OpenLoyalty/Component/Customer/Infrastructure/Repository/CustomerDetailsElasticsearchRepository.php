@@ -552,6 +552,43 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
     /**
      * {@inheritdoc}
      */
+    public function findByAnyCriteria($criteria): array
+    {
+        $filter = [];
+        foreach ($criteria as $key => $value) {
+            if ($key == 'id') {
+                continue;
+            }
+            $filter[] = ['term' => [
+                $key => $value,
+            ]];
+        }
+
+        if (count($filter) > 0) {
+            $query = [
+                'bool' => [
+                    'should' => $filter,
+                    'minimum_should_match' => 1,
+                ],
+            ];
+
+            if (isset($criteria['id'])) {
+                $query['bool']['should'][]['ids'] = ['values' => [$criteria['id']]];
+            }
+        } else {
+            $query = [
+                'ids' => ['values' => [$criteria['id']]],
+            ];
+        }
+
+        $result = $this->query($query);
+
+        return $result;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function findAllWithAverageTransactionAmountBetween($from, $to, $onlyActive = true)
     {
         $filter = [['range' => [

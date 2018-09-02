@@ -11,11 +11,11 @@ use OpenLoyalty\Bundle\PaginationBundle\Model\Pagination;
 interface PointsTransferDetailsRepository extends Repository
 {
     /**
-     * @param int $timestamp
+     * @param \DateTime $dateTime
      *
      * @return array
      */
-    public function findAllActiveAddingTransfersExpiredAfter(int $timestamp): array;
+    public function findAllActiveAddingTransfersExpiredAfter(\DateTime $dateTime): array;
 
     /**
      * @param \DateTime $dateTime
@@ -25,11 +25,11 @@ interface PointsTransferDetailsRepository extends Repository
     public function findAllPendingAddingTransfersToUnlock(\DateTime $dateTime): array;
 
     /**
-     * @param $timestamp
+     * @param \DateTime $dateTime
      *
      * @return PointsTransferDetails[]
      */
-    public function findAllActiveAddingTransfersCreatedAfter($timestamp): array;
+    public function findAllActiveAddingTransfersCreatedAfter(\DateTime $dateTime): array;
 
     /**
      * @param int    $page

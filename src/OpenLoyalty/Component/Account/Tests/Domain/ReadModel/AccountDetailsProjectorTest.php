@@ -8,7 +8,9 @@ use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Event\AccountWasCreated;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenUnlocked;
 use OpenLoyalty\Component\Account\Domain\Event\PointsWereAdded;
+use OpenLoyalty\Component\Account\Domain\Event\PointsWereTransferred;
 use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
+use OpenLoyalty\Component\Account\Domain\Model\P2PSpendPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\Event\PointsHasBeenReset;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
@@ -51,7 +53,7 @@ class AccountDetailsProjectorTest extends ProjectorScenarioTestCase
     /**
      * @test
      */
-    public function it_creates_a_read_model()
+    public function it_creates_a_read_model(): void
     {
         $this->scenario->given(array())
             ->when(new AccountWasCreated($this->accountId, $this->customerId))
@@ -63,7 +65,7 @@ class AccountDetailsProjectorTest extends ProjectorScenarioTestCase
     /**
      * @test
      */
-    public function it_unlocks_points()
+    public function it_unlocks_points(): void
     {
         $pointsId = new PointsTransferId('00000000-0000-0000-0000-000000000000');
         $date = new \DateTime();
@@ -85,7 +87,7 @@ class AccountDetailsProjectorTest extends ProjectorScenarioTestCase
     /**
      * @test
      */
-    public function it_expires_all_active_and_locked_points_on_reset()
+    public function it_expires_all_active_and_locked_points_on_reset(): void
     {
         $date = new \DateTime();
         $expectedReadModel = $this->createReadModel();
@@ -105,7 +107,34 @@ class AccountDetailsProjectorTest extends ProjectorScenarioTestCase
             ]);
     }
 
-    private function createReadModel()
+    /**
+     * @test
+     */
+    public function it_transfer_points(): void
+    {
+        $pointsId = new PointsTransferId('00000000-0000-0000-0000-000000000000');
+        $points2Id = new PointsTransferId('00000000-0000-0000-0000-000000000001');
+        $date = new \DateTime();
+        $expectedReadModel = $this->createReadModel();
+        $pointsTransfer = new AddPointsTransfer($pointsId, 100, null, null, $date);
+        $pointsTransfer->updateAvailableAmount(10);
+        $transfer = new P2PSpendPointsTransfer($this->accountId, $points2Id, 90);
+
+        $expectedReadModel->addPointsTransfer($pointsTransfer);
+        $expectedReadModel->addPointsTransfer($transfer);
+
+        $this->scenario->given(array())
+            ->given([
+                new AccountWasCreated($this->accountId, $this->customerId),
+                new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, null, null, $date)),
+            ])
+            ->when(new PointsWereTransferred($this->accountId, $transfer))
+            ->then(array(
+                $expectedReadModel,
+            ));
+    }
+
+    private function createReadModel(): AccountDetails
     {
         return new AccountDetails($this->accountId, $this->customerId);
     }

@@ -27,7 +27,7 @@ class SpendPointsTransfer extends PointsTransfer
      * PointsTransfer constructor.
      *
      * @param PointsTransferId   $id
-     * @param int                $value
+     * @param float              $value
      * @param \DateTime          $createdAt
      * @param bool               $canceled
      * @param string             $comment
@@ -35,17 +35,23 @@ class SpendPointsTransfer extends PointsTransfer
      * @param TransactionId|null $transactionId
      * @param TransactionId|null $revisedTransactionId
      */
-    public function __construct(PointsTransferId $id, $value, \DateTime $createdAt = null, $canceled = false, $comment = null, $issuer = self::ISSUER_SYSTEM, TransactionId $transactionId = null, TransactionId $revisedTransactionId = null)
-    {
+    public function __construct(
+        PointsTransferId $id,
+        float $value,
+        \DateTime $createdAt = null,
+        $canceled = false,
+        $comment = null,
+        $issuer = self::ISSUER_SYSTEM,
+        TransactionId $transactionId = null,
+        TransactionId $revisedTransactionId = null
+    ) {
         parent::__construct($id, $value, $createdAt, $canceled, $comment, $issuer);
         $this->transactionId = $transactionId;
         $this->revisedTransactionId = $revisedTransactionId;
     }
 
     /**
-     * @param array $data
-     *
-     * @return mixed The object instance
+     * {@inheritdoc}
      */
     public static function deserialize(array $data)
     {
@@ -74,6 +80,9 @@ class SpendPointsTransfer extends PointsTransfer
         return $transfer;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function serialize(): array
     {
         return array_merge(
@@ -99,5 +108,13 @@ class SpendPointsTransfer extends PointsTransfer
     public function getRevisedTransactionId()
     {
         return $this->revisedTransactionId;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getType(): string
+    {
+        return self::TYPE_SYSTEM;
     }
 }

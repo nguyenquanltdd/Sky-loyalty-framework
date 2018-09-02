@@ -31,6 +31,8 @@ class LoadAccountsWithTransfersData extends ContainerAwareFixture implements Ord
     const POINTS2_ID = 'e82c96cf-32a3-43bd-9034-4df343e5f222';
     const POINTS3_ID = 'e82c96cf-32a3-43bd-9034-4df343e5f333';
     const POINTS4_ID = 'e82c96cf-32a3-43bd-9034-4df343e5f433';
+    const POINTS5_ID = 'e82c96cf-32a3-43bd-9034-4df343e5f435';
+    const POINTS6_ID = 'e82c96cf-32a3-43bd-9034-4df343e5f436';
 
     public function load(ObjectManager $manager)
     {
@@ -41,6 +43,16 @@ class LoadAccountsWithTransfersData extends ContainerAwareFixture implements Ord
         $commandBud = $this->container->get('broadway.command_handling.command_bus');
         $accountId = $this->getAccountIdByCustomerId(LoadUserData::TEST_USER_ID);
         $account2Id = $this->getAccountIdByCustomerId(LoadUserData::USER_USER_ID);
+
+        $accountForTransfer1 = $this->getAccountIdByCustomerId(LoadUserData::USER_TRANSFER_2_USER_ID);
+        $accountForTransfer2 = $this->getAccountIdByCustomerId(LoadUserData::USER_TRANSFER_3_USER_ID);
+
+        $commandBud->dispatch(
+            new AddPoints(new AccountId($accountForTransfer1), $pointsTransferManager->createAddPointsTransferInstance(new PointsTransferId(static::POINTS5_ID), 100))
+        );
+        $commandBud->dispatch(
+            new AddPoints(new AccountId($accountForTransfer2), $pointsTransferManager->createAddPointsTransferInstance(new PointsTransferId(static::POINTS6_ID), 100))
+        );
 
         $commandBud->dispatch(
             new AddPoints(new AccountId($accountId), $pointsTransferManager->createAddPointsTransferInstance(new PointsTransferId(static::POINTS_ID), 100, new \DateTime('-29 days')))

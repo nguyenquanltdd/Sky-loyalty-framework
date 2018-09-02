@@ -8,7 +8,7 @@ namespace OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Service;
 use Broadway\ReadModel\Repository;
 use OpenLoyalty\Bundle\UtilityBundle\Service\CustomerDetailsCsvFormatter;
 use OpenLoyalty\Component\Account\Domain\Account;
-use OpenLoyalty\Component\Campaign\Domain\CustomerId;
+use OpenLoyalty\Component\Account\Domain\CustomerId as AccountCustomerId;
 use OpenLoyalty\Component\Campaign\Domain\SegmentId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomersBelongingToOneLevel;
@@ -29,6 +29,7 @@ class CustomerDetailsCsvFormatterTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
+        $customerIdString = '22200000-0000-474c-b092-b0dd880c07e2';
         $this->repo = $this->getMockBuilder(Repository::class)->getMock();
         $this->custDetailsRepo = $this->getMockBuilder(Repository::class)->getMock();
         $this->levelRepo = $this->getMockBuilder(Repository::class)->getMock();
@@ -37,14 +38,13 @@ class CustomerDetailsCsvFormatterTest extends \PHPUnit_Framework_TestCase
         $customerDetails->method('getBirthDate')->willReturn(new \DateTime());
         $customerDetails->method('getCreatedAt')->willReturn(new \DateTime());
 
-        $customerId = $this->getMockBuilder(CustomerId::class)->disableOriginalConstructor()->getMock();
-        $customerId->method('__toString')->willReturn('0000000000');
+        $customerId = new AccountCustomerId($customerIdString);
 
         $account = $this->getMockBuilder(Account::class)->disableOriginalConstructor()->getMock();
         $account->method('getCustomerId')->willReturn($customerId);
 
         $customersLevel = $this->getMockBuilder(CustomersBelongingToOneLevel::class)->disableOriginalConstructor()->getMock();
-        $customersLevel->method('getCustomers')->willReturn([['customerId' => '0000000']]);
+        $customersLevel->method('getCustomers')->willReturn([['customerId' => $customerIdString]]);
         $levelId = $this->getMockBuilder(LevelId::class)->disableOriginalConstructor()->getMock();
         $levelId->method('__toString')->willReturn('00000000');
 

@@ -7,17 +7,35 @@ services:
       resource: '../../Controller'
       tags: ['controller.service_arguments']
 
+  OpenLoyalty\Bundle\PointsBundle\Form\DataTransformer\CustomerDataTransformer: ~
+  OpenLoyalty\Bundle\PointsBundle\Form\Type\TransferPointsFormType:
+    arguments: ['@OpenLoyalty\Bundle\PointsBundle\Form\DataTransformer\CustomerDataTransformer']
+    autowire: false
+    tags:
+      - { name: form.type }
+  OpenLoyalty\Bundle\PointsBundle\Form\Handler\TransferPointsFormHandler:
+    arguments:
+      $accountDetailsRepo: '@oloy.points.account.repository.account_details'
+
+  OpenLoyalty\Bundle\PointsBundle\Form\Type\TransferPointsByCustomerFormType:
+    arguments: ['@OpenLoyalty\Bundle\PointsBundle\Form\DataTransformer\CustomerDataTransformer']
+    autowire: false
+    tags:
+      - { name: form.type }
+
   OpenLoyalty\Bundle\PointsBundle\Form\Type\AddPointsFormType:
-      arguments:
-        - '@oloy.user.read_model.repository.customer_details'
-      tags:
-        - { name: form.type }
+    arguments:
+      - '@oloy.user.read_model.repository.customer_details'
+    tags:
+      - { name: form.type }
+
   OpenLoyalty\Bundle\PointsBundle\Form\Type\SpendPointsFormType:
-      parent: 'OpenLoyalty\Bundle\PointsBundle\Form\Type\AddPointsFormType'
-      autoconfigure: false
-      autowire: false
-      tags:
-        - { name: form.type }
+    parent: 'OpenLoyalty\Bundle\PointsBundle\Form\Type\AddPointsFormType'
+    autoconfigure: false
+    autowire: false
+    public: true
+    tags:
+      - { name: form.type }
 
   OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager:
       #alias: 'oloy.account.points_transfers_manager'

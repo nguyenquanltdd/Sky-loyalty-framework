@@ -8,6 +8,7 @@ namespace OpenLoyalty\Component\Account\Domain\ReadModel;
 use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
+use OpenLoyalty\Component\Account\Domain\Model\P2PAddPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Model\PointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\CustomerId;
@@ -272,11 +273,32 @@ class AccountDetails implements SerializableReadModel
         $this->transfers[$pointsTransfer->getId()->__toString()] = $pointsTransfer;
     }
 
-    public function getAvailableAmount()
+    /**
+     * @return float
+     */
+    public function getAvailableAmount(): float
     {
-        $sum = 0;
+        $sum = 0.0;
 
         foreach ($this->getAllActiveAddPointsTransfers() as $pointsTransfer) {
+            $sum += $pointsTransfer->getAvailableAmount();
+        }
+
+        return $sum;
+    }
+
+    /**
+     * @return float
+     */
+    public function getP2PAvailableAmount(): float
+    {
+        $sum = 0.0;
+
+        foreach ($this->getAllActiveAddPointsTransfers() as $pointsTransfer) {
+            if (!$pointsTransfer instanceof P2PAddPointsTransfer) {
+                continue;
+            }
+
             $sum += $pointsTransfer->getAvailableAmount();
         }
 
@@ -291,9 +313,10 @@ class AccountDetails implements SerializableReadModel
         $sum = 0.0;
 
         foreach ($this->getAllAddPointsTransfers() as $pointsTransfer) {
-            if ($pointsTransfer->isCanceled()) {
+            if ($pointsTransfer->isCanceled() || $pointsTransfer instanceof P2PAddPointsTransfer) {
                 continue;
             }
+
             $sum += $pointsTransfer->getValue();
         }
 
@@ -310,7 +333,7 @@ class AccountDetails implements SerializableReadModel
         $sum = 0.0;
 
         foreach ($this->getAllAddPointsTransfers() as $pointsTransfer) {
-            if ($pointsTransfer->isCanceled()) {
+            if ($pointsTransfer->isCanceled() || $pointsTransfer instanceof P2PAddPointsTransfer) {
                 continue;
             }
             if ($pointsTransfer->getCreatedAt() <= $startDate) {

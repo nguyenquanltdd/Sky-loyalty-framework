@@ -19,6 +19,7 @@ class PointsTransferVoter extends Voter
     const LIST_POINTS_TRANSFERS = 'LIST_POINTS_TRANSFERS';
     const ADD_POINTS = 'ADD_POINTS';
     const SPEND_POINTS = 'SPEND_POINTS';
+    const TRANSFER_POINTS = 'TRANSFER_POINTS';
     const CANCEL = 'CANCEL';
     const LIST_CUSTOMER_POINTS_TRANSFERS = 'LIST_CUSTOMER_POINTS_TRANSFERS';
 
@@ -36,6 +37,7 @@ class PointsTransferVoter extends Voter
                         self::LIST_POINTS_TRANSFERS,
                         self::ADD_POINTS,
                         self::SPEND_POINTS,
+                        self::TRANSFER_POINTS,
                     ]
             );
     }
@@ -55,6 +57,8 @@ class PointsTransferVoter extends Voter
         switch ($attribute) {
             case self::LIST_POINTS_TRANSFERS:
                 return $user->hasRole('ROLE_ADMIN') || $user->hasRole('ROLE_SELLER');
+            case self::TRANSFER_POINTS:
+                return $user->hasRole('ROLE_ADMIN') || $user->hasRole('ROLE_PARTICIPANT');
             case self::ADD_POINTS:
                 return
                     $user->hasRole('ROLE_ADMIN')

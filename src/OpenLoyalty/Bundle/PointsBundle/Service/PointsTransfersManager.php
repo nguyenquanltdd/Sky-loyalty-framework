@@ -65,7 +65,8 @@ class PointsTransfersManager implements PointsTransferManagerInterface
             return [];
         }
 
-        $transfers = $this->pointsTransferDetailsRepository->findAllActiveAddingTransfersExpiredAfter(time());
+        $date = new \DateTime();
+        $transfers = $this->pointsTransferDetailsRepository->findAllActiveAddingTransfersExpiredAfter($date);
 
         /** @var PointsTransferDetails $transfer */
         foreach ($transfers as $transfer) {

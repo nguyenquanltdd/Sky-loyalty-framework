@@ -14,7 +14,9 @@ use OpenLoyalty\Component\Account\Domain\CustomerId;
 class AvailablePointsAmountChangedSystemEvent extends AccountSystemEvent
 {
     const OPERATION_TYPE_ADD = 'add';
+    const OPERATION_TYPE_P2P_ADD = 'p2p_add';
     const OPERATION_TYPE_SUBTRACT = 'subtract';
+    const OPERATION_TYPE_P2P_SUBTRACT = 'p2p_subtract';
     /**
      * @var float
      */

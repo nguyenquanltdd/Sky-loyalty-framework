@@ -48,7 +48,7 @@ class AddPointsTransfer extends PointsTransfer
      * PointsTransfer constructor.
      *
      * @param PointsTransferId $id
-     * @param int              $value
+     * @param float            $value
      * @param int|null         $validityDuration
      * @param int|null         $lockDaysDuration
      * @param \DateTime        $createdAt
@@ -61,7 +61,7 @@ class AddPointsTransfer extends PointsTransfer
      */
     public function __construct(
         PointsTransferId $id,
-        $value,
+        float $value,
         int $validityDuration = null,
         int $lockDaysDuration = null,
         \DateTime $createdAt = null,
@@ -83,11 +83,7 @@ class AddPointsTransfer extends PointsTransfer
     }
 
     /**
-     * @param array $data
-     *
-     * @return mixed The object instance
-     *
-     * @throws \Assert\AssertionFailedException
+     * {@inheritdoc}
      */
     public static function deserialize(array $data)
     {
@@ -210,7 +206,7 @@ class AddPointsTransfer extends PointsTransfer
     /**
      * @return float
      */
-    public function getAvailableAmount()
+    public function getAvailableAmount(): float
     {
         return $this->availableAmount;
     }
@@ -218,7 +214,7 @@ class AddPointsTransfer extends PointsTransfer
     /**
      * @return float
      */
-    public function getUsedAmount()
+    public function getUsedAmount(): float
     {
         return $this->value - $this->availableAmount;
     }
@@ -271,6 +267,14 @@ class AddPointsTransfer extends PointsTransfer
         $this->locked = false;
 
         return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getType(): string
+    {
+        return self::TYPE_SYSTEM;
     }
 
     /**

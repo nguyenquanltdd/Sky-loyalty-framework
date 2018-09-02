@@ -33,7 +33,8 @@ Definition
 +-------------------------------------+----------------+---------------------------------------------------+
 | state[]                             | query          | *(optional)* Possible values: active, expired     |
 +-------------------------------------+----------------+---------------------------------------------------+
-| type                                | query          | *(optional)* Possible values: adding, spending    |
+| type                                | query          | *(optional)* Possible values: adding, spending,   |
+|                                     |                | p2p_adding, p2p_spending                          |
 +-------------------------------------+----------------+---------------------------------------------------+
 | page                                | query          | *(optional)* Start from page, by default 1        |
 +-------------------------------------+----------------+---------------------------------------------------+
@@ -385,6 +386,130 @@ Exemplary Response
     {
       "pointsTransferId": "b97a31fe-9bc9-4fff-a467-487f2c316371"
     }
+
+
+Transfer points between customers (admin)
+-----------------------------------------
+
+To transfer points between customers you will need to call the ``/api/admin/p2p-points-tranfer`` endpoint with the ``POST`` method.
+
+Definition
+^^^^^^^^^^
+
+.. code-block:: text
+
+    POST /api/admin/p2p-points-tranfer
+
++-------------------------------------+----------------+---------------------------------------------------+
+| Parameter                           | Parameter type | Description                                       |
++=====================================+================+===================================================+
+| Authorization                       | header         | Token received during authentication              |
++-------------------------------------+----------------+---------------------------------------------------+
+| transfer[sender]                    | query          | email/phone or uuid of customer from whom points  |
+|                                     |                | will be transferred                               |
++-------------------------------------+----------------+---------------------------------------------------+
+| transfer[receiver]                  | query          | email/phone or uuid of customer who will get      |
+|                                     |                | points                                            |
++-------------------------------------+----------------+---------------------------------------------------+
+| transfer[points]                    | query          | How many points will be transferred               |
++-------------------------------------+----------------+---------------------------------------------------+
+
+Example
+^^^^^^^
+
+.. code-block:: bash
+
+    curl http://localhost:8181/api/admin/p2p-points-tranfer \
+        -X "POST" \
+        -H "Accept: application/json" \
+        -H "Content-type: application/x-www-form-urlencoded" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
+        -d "transfer[sender]=b9af6a8c-9cc5-4924-989c-e4af614ab2a3" \
+        -d "transfer[receiver]=b9af6a8c-9cc5-4924-989c-e4af614ab3c5" \
+        -d "transfer[points]=100"
+
+.. note::
+
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
+
+
+Exemplary Response
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    STATUS: 200 OK
+
+.. code-block:: json
+
+    {
+      "pointsTransferId": "b97a31fe-9bc9-4fff-a467-487f2c316371"
+    }
+
+.. note::
+
+    Returned pointsTransferId is a uuid of created P2P spend points transfer.
+
+
+Transfer points between customers (customer)
+--------------------------------------------
+
+To transfer points between logged in customer and another customer you will need to call the ``/api/customer/points/p2p-transfer`` endpoint with the ``POST`` method.
+
+Definition
+^^^^^^^^^^
+
+.. code-block:: text
+
+    POST /api/customer/points/p2p-transfer
+
++-------------------------------------+----------------+---------------------------------------------------+
+| Parameter                           | Parameter type | Description                                       |
++=====================================+================+===================================================+
+| Authorization                       | header         | Token received during authentication              |
++-------------------------------------+----------------+---------------------------------------------------+
+| transfer[receiver]                  | query          | email/phone or uuid of customer who will get      |
+|                                     |                | points                                            |
++-------------------------------------+----------------+---------------------------------------------------+
+| transfer[points]                    | query          | How many points will be transferred               |
++-------------------------------------+----------------+---------------------------------------------------+
+
+Example
+^^^^^^^
+
+.. code-block:: bash
+
+    curl http://localhost:8181/api/admin/p2p-points-tranfer \
+        -X "POST" \
+        -H "Accept: application/json" \
+        -H "Content-type: application/x-www-form-urlencoded" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
+        -d "transfer[receiver]=b9af6a8c-9cc5-4924-989c-e4af614ab3c5" \
+        -d "transfer[points]=100"
+
+.. note::
+
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
+
+
+Exemplary Response
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    STATUS: 200 OK
+
+.. code-block:: json
+
+    {
+      "pointsTransferId": "b97a31fe-9bc9-4fff-a467-487f2c316371"
+    }
+
+.. note::
+
+    Returned pointsTransferId is a uuid of created P2P spend points transfer.
 
 
 Cancel specific points transfer

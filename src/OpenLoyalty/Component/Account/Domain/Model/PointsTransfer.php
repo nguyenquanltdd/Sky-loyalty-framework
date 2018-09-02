@@ -18,6 +18,10 @@ abstract class PointsTransfer implements Serializable
     const ISSUER_SELLER = 'seller';
     const ISSUER_SYSTEM = 'system';
     const ISSUER_API = 'api';
+    const ISSUER_INTERNAL = 'internal';
+
+    const TYPE_SYSTEM = 'system';
+    const TYPE_P2P = 'p2p';
 
     /**
      * @var PointsTransferId
@@ -53,7 +57,7 @@ abstract class PointsTransfer implements Serializable
      * PointsTransfer constructor.
      *
      * @param PointsTransferId $id
-     * @param int              $value
+     * @param float            $value
      * @param \DateTime        $createdAt
      * @param bool             $canceled
      * @param string|null      $comment
@@ -63,7 +67,7 @@ abstract class PointsTransfer implements Serializable
      */
     public function __construct(
         PointsTransferId $id,
-        $value,
+        float $value,
         \DateTime $createdAt = null,
         $canceled = false,
         $comment = null,
@@ -72,7 +76,7 @@ abstract class PointsTransfer implements Serializable
         $this->id = $id;
         Assert::notBlank($value);
         Assert::numeric($value);
-        Assert::min($value, 1);
+        Assert::greaterThan($value, 0);
 
         $this->value = $value;
 
@@ -113,7 +117,7 @@ abstract class PointsTransfer implements Serializable
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
     public function serialize(): array
     {
@@ -150,4 +154,9 @@ abstract class PointsTransfer implements Serializable
     {
         return $this->issuer;
     }
+
+    /**
+     * @return string
+     */
+    abstract public function getType(): string;
 }

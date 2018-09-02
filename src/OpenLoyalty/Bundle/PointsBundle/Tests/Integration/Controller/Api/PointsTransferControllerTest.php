@@ -5,12 +5,14 @@
  */
 namespace OpenLoyalty\Bundle\PointsBundle\Tests\Integration\Controller\Api;
 
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\PointsBundle\DataFixtures\ORM\LoadAccountsWithTransfersData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider;
 use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
 use OpenLoyalty\Component\Account\Domain\Model\PointsTransfer;
+use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;
 use OpenLoyalty\Component\Import\Infrastructure\ImportResultItem;
 
@@ -93,8 +95,8 @@ class PointsTransferControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
 
         $this->assertSame(200, $response->getStatusCode(), 'Response should have status 200');
-        $this->assertEquals(7, $data['total']);
-        $this->assertCount(7, $data['transfers']);
+        $this->assertEquals(8, $data['total']);
+        $this->assertCount(8, $data['transfers']);
     }
 
     /**
@@ -126,7 +128,108 @@ class PointsTransferControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_adds_points_as_api_when_logged_in_using_master_key()
+    public function it_throws_error_where_no_points_on_transfer(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/admin/p2p-points-transfer',
+            [
+                'transfer' => [
+                    'sender' => LoadUserData::USER_TRANSFER_1_USER_ID,
+                    'receiver' => LoadUserData::USER_TRANSFER_2_USER_ID,
+                    'points' => 1000,
+                ],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 400');
+        $this->assertArrayHasKey('form', $data);
+    }
+
+    /**
+     * @test
+     */
+    public function it_transfer_points(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/admin/p2p-points-transfer',
+            [
+                'transfer' => [
+                    'sender' => LoadUserData::USER_TRANSFER_2_USER_ID,
+                    'receiver' => LoadUserData::USER_TRANSFER_3_USER_ID,
+                    'points' => 100,
+                ],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('pointsTransferId', $data);
+        $senderAccount = $this->getAccountIdByCustomerId(LoadUserData::USER_TRANSFER_2_USER_ID);
+        $receiverAccount = $this->getAccountIdByCustomerId(LoadUserData::USER_TRANSFER_3_USER_ID);
+
+        $this->assertEquals(0, $senderAccount->getAvailableAmount());
+        $this->assertEquals(100, $receiverAccount->getAvailableAmount());
+        $this->assertEquals(100, $senderAccount->getEarnedAmount());
+        $this->assertEquals(100, $receiverAccount->getEarnedAmount());
+    }
+
+    /**
+     * @test
+     */
+    public function it_not_transfers_points_when_there_is_no_points(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/admin/p2p-points-transfer',
+            [
+                'transfer' => [
+                    'sender' => LoadUserData::USER_TRANSFER_3_USER_ID,
+                    'receiver' => LoadUserData::USER_TRANSFER_1_USER_ID,
+                    'points' => 100,
+                ],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('pointsTransferId', $data);
+        $senderAccount = $this->getAccountIdByCustomerId(LoadUserData::USER_TRANSFER_3_USER_ID);
+        $receiverAccount = $this->getAccountIdByCustomerId(LoadUserData::USER_TRANSFER_1_USER_ID);
+
+        $this->assertEquals(0, $senderAccount->getAvailableAmount());
+        $this->assertEquals(200, $receiverAccount->getAvailableAmount());
+
+        $client->request(
+            'POST',
+            '/api/admin/p2p-points-transfer',
+            [
+                'transfer' => [
+                    'sender' => LoadUserData::USER_TRANSFER_3_USER_ID,
+                    'receiver' => LoadUserData::USER_TRANSFER_1_USER_ID,
+                    'points' => 10,
+                ],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 400');
+        $this->assertArrayHasKey('form', $data);
+    }
+
+    /**
+     * @test
+     */
+    public function it_adds_points_as_api_when_logged_in_using_master_key(): void
     {
         $client = static::createClient();
         $container = static::$kernel->getContainer();
@@ -317,5 +420,21 @@ class PointsTransferControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $this->assertEquals(403, $response->getStatusCode(), 'Response should have status 403');
+    }
+
+    /**
+     * @param $customerId
+     *
+     * @return AccountDetails
+     */
+    protected function getAccountIdByCustomerId($customerId): AccountDetails
+    {
+        /** @var Repository $repo */
+        $repo = self::$kernel->getContainer()->get('oloy.points.account.repository.account_details');
+        $accounts = $repo->findBy(['customerId' => $customerId]);
+        /** @var AccountDetails $account */
+        $account = reset($accounts);
+
+        return $account;
     }
 }

@@ -205,7 +205,7 @@ class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framework_Tes
     protected function getCommandBus($expected, $times)
     {
         $mock = $this->getMockBuilder(CommandBus::class)->getMock();
-        $mock->expects($this->exactly($times))->method('dispatch')->with($this->equalTo($expected));
+        $mock->expects($this->exactly($times))->method('dispatch')->with($this->equalTo($expected, 2));
 
         return $mock;
     }

@@ -104,6 +104,13 @@ interface CustomerDetailsRepository extends Repository
     public function findOneByCriteria($criteria, $limit);
 
     /**
+     * @param $criteria
+     *
+     * @return CustomerDetails[]
+     */
+    public function findByAnyCriteria($criteria): array;
+
+    /**
      * @param $from
      * @param $to
      * @param bool $onlyActive

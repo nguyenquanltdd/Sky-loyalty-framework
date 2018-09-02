@@ -139,6 +139,7 @@ class CustomerStatusProvider
 
         if ($accountDetails) {
             $status->setPoints($accountDetails->getAvailableAmount());
+            $status->setP2pPoints($accountDetails->getP2PAvailableAmount());
             $status->setTotalEarnedPoints($accountDetails->getEarnedAmount());
             $status->setUsedPoints($accountDetails->getUsedAmount());
             $status->setExpiredPoints($accountDetails->getExpiredAmount());

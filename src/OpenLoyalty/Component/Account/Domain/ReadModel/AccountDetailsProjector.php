@@ -7,7 +7,6 @@ namespace OpenLoyalty\Component\Account\Domain\ReadModel;
 
 use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\Repository;
-use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Event\AccountWasCreated;
 use OpenLoyalty\Component\Account\Domain\Event\PointsHasBeenReset;
@@ -16,6 +15,7 @@ use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenExpired;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenUnlocked;
 use OpenLoyalty\Component\Account\Domain\Event\PointsWereAdded;
 use OpenLoyalty\Component\Account\Domain\Event\PointsWereSpent;
+use OpenLoyalty\Component\Account\Domain\Event\PointsWereTransferred;
 use OpenLoyalty\Component\Account\Domain\Exception\PointsTransferCannotBeCanceledException;
 use OpenLoyalty\Component\Account\Domain\Exception\PointsTransferCannotBeExpiredException;
 use OpenLoyalty\Component\Account\Domain\Exception\PointsTransferCannotBeUnlockedException;
@@ -46,13 +46,16 @@ class AccountDetailsProjector extends Projector
     /**
      * @param AccountWasCreated $event
      */
-    protected function applyAccountWasCreated(AccountWasCreated $event)
+    protected function applyAccountWasCreated(AccountWasCreated $event): void
     {
         $readModel = $this->getReadModel($event->getAccountId(), $event->getCustomerId());
         $this->repository->save($readModel);
     }
 
-    protected function applyPointsWereAdded(PointsWereAdded $event)
+    /**
+     * @param PointsWereAdded $event
+     */
+    protected function applyPointsWereAdded(PointsWereAdded $event): void
     {
         /** @var AccountDetails $readModel */
         $readModel = $this->getReadModel($event->getAccountId());
@@ -60,7 +63,10 @@ class AccountDetailsProjector extends Projector
         $this->repository->save($readModel);
     }
 
-    protected function applyPointsWereSpent(PointsWereSpent $event)
+    /**
+     * @param PointsWereSpent $event
+     */
+    protected function applyPointsWereSpent(PointsWereSpent $event): void
     {
         /** @var AccountDetails $readModel */
         $readModel = $this->getReadModel($event->getAccountId());
@@ -83,7 +89,10 @@ class AccountDetailsProjector extends Projector
         $this->repository->save($readModel);
     }
 
-    protected function applyPointsTransferHasBeenCanceled(PointsTransferHasBeenCanceled $event)
+    /**
+     * @param PointsTransferHasBeenCanceled $event
+     */
+    protected function applyPointsTransferHasBeenCanceled(PointsTransferHasBeenCanceled $event): void
     {
         /** @var AccountDetails $readModel */
         $readModel = $this->getReadModel($event->getAccountId());
@@ -99,7 +108,36 @@ class AccountDetailsProjector extends Projector
         $this->repository->save($readModel);
     }
 
-    protected function applyPointsTransferHasBeenExpired(PointsTransferHasBeenExpired $event)
+    /**
+     * @param PointsWereTransferred $event
+     */
+    protected function applyPointsWereTransferred(PointsWereTransferred $event): void
+    {
+        /** @var AccountDetails $readModel */
+        $readModel = $this->getReadModel($event->getAccountId());
+        $readModel->addPointsTransfer($event->getPointsTransfer());
+        $amount = $event->getPointsTransfer()->getValue();
+        foreach ($readModel->getAllActiveAddPointsTransfers() as $pointsTransfer) {
+            if ($amount <= 0) {
+                break;
+            }
+            $availableAmount = $pointsTransfer->getAvailableAmount();
+            if ($availableAmount > $amount) {
+                $availableAmount -= $amount;
+                $amount = 0;
+            } else {
+                $amount -= $availableAmount;
+                $availableAmount = 0;
+            }
+            $readModel->setTransfer($pointsTransfer->updateAvailableAmount($availableAmount));
+        }
+        $this->repository->save($readModel);
+    }
+
+    /**
+     * @param PointsTransferHasBeenExpired $event
+     */
+    protected function applyPointsTransferHasBeenExpired(PointsTransferHasBeenExpired $event): void
     {
         /** @var AccountDetails $readModel */
         $readModel = $this->getReadModel($event->getAccountId());
@@ -115,7 +153,10 @@ class AccountDetailsProjector extends Projector
         $this->repository->save($readModel);
     }
 
-    protected function applyPointsTransferHasBeenUnlocked(PointsTransferHasBeenUnlocked $event)
+    /**
+     * @param PointsTransferHasBeenUnlocked $event
+     */
+    protected function applyPointsTransferHasBeenUnlocked(PointsTransferHasBeenUnlocked $event): void
     {
         /** @var AccountDetails $readModel */
         $readModel = $this->getReadModel($event->getAccountId());
@@ -150,9 +191,9 @@ class AccountDetailsProjector extends Projector
      * @param AccountId       $accountId
      * @param CustomerId|null $customerId
      *
-     * @return SerializableReadModel|null|PointsTransferDetails
+     * @return AccountDetails
      */
-    private function getReadModel(AccountId $accountId, CustomerId $customerId = null)
+    private function getReadModel(AccountId $accountId, CustomerId $customerId = null): AccountDetails
     {
         $readModel = $this->repository->find($accountId->__toString());
 

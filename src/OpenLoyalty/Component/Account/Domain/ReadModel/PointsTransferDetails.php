@@ -19,6 +19,8 @@ class PointsTransferDetails implements SerializableReadModel
 {
     const TYPE_ADDING = 'adding';
     const TYPE_SPENDING = 'spending';
+    const TYPE_P2P_SPENDING = 'p2p_spending';
+    const TYPE_P2P_ADDING = 'p2p_adding';
     const STATE_CANCELED = 'canceled';
     const STATE_ACTIVE = 'active';
     const STATE_EXPIRED = 'expired';
@@ -117,6 +119,16 @@ class PointsTransferDetails implements SerializableReadModel
     protected $issuer = PointsTransfer::ISSUER_SYSTEM;
 
     /**
+     * @var CustomerId
+     */
+    protected $senderId;
+
+    /**
+     * @var CustomerId
+     */
+    protected $receiverId;
+
+    /**
      * PointsTransfer constructor.
      *
      * @param PointsTransferId $pointsTransferId
@@ -165,6 +177,8 @@ class PointsTransferDetails implements SerializableReadModel
         $newTransfer->value = $data['value'];
         $newTransfer->state = $data['state'];
         $newTransfer->type = $data['type'];
+        $newTransfer->senderId = isset($data['senderId']) ? new CustomerId($data['senderId']) : null;
+        $newTransfer->receiverId = isset($data['receiverId']) ? new CustomerId($data['receiverId']) : null;
 
         if (isset($data['posIdentifier'])) {
             $newTransfer->posIdentifier = $data['posIdentifier'];
@@ -226,6 +240,8 @@ class PointsTransferDetails implements SerializableReadModel
             'comment' => $this->comment,
             'posIdentifier' => $this->posIdentifier,
             'issuer' => $this->issuer,
+            'senderId' => $this->senderId ? $this->senderId->__toString() : null,
+            'receiverId' => $this->receiverId ? $this->receiverId->__toString() : null,
         ];
 
         return $data;
@@ -501,5 +517,37 @@ class PointsTransferDetails implements SerializableReadModel
     public function setRevisedTransactionId($revisedTransactionId)
     {
         $this->revisedTransactionId = $revisedTransactionId;
+    }
+
+    /**
+     * @return CustomerId
+     */
+    public function getSenderId(): CustomerId
+    {
+        return $this->senderId;
+    }
+
+    /**
+     * @return CustomerId
+     */
+    public function getReceiverId(): CustomerId
+    {
+        return $this->receiverId;
+    }
+
+    /**
+     * @param CustomerId $senderId
+     */
+    public function setSenderId(CustomerId $senderId): void
+    {
+        $this->senderId = $senderId;
+    }
+
+    /**
+     * @param CustomerId $receiverId
+     */
+    public function setReceiverId(CustomerId $receiverId): void
+    {
+        $this->receiverId = $receiverId;
     }
 }
