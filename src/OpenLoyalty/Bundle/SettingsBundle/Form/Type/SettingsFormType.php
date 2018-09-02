@@ -30,6 +30,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Constraints\UrlValidator;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -95,7 +96,7 @@ class SettingsFormType extends AbstractType
     /**
      * @param SmsSender $smsGateway
      */
-    public function setSmsSender(SmsSender $smsGateway)
+    public function setSmsSender(SmsSender $smsGateway): void
     {
         $this->smsGateway = $smsGateway;
     }
@@ -105,6 +106,8 @@ class SettingsFormType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $translations = $this->translationsProvider->getAvailableTranslationsList();
+
         $builder->add(
             $builder
                 ->create('currency', SettingsChoicesType::class, [
@@ -116,7 +119,6 @@ class SettingsFormType extends AbstractType
                     'constraints' => [new NotEmptyValue()],
                 ])
         );
-        $translations = $this->translationsProvider->getAvailableTranslationsList();
         $builder->add(
             $builder
                 ->create('defaultFrontendTranslations', SettingsChoicesType::class, [
@@ -131,7 +133,6 @@ class SettingsFormType extends AbstractType
                     'constraints' => [new NotEmptyValue()],
                 ])
         );
-
         $builder->add(
             $builder
                 ->create('customerStatusesEarning', SettingsChoicesType::class, [
@@ -197,12 +198,20 @@ class SettingsFormType extends AbstractType
         );
         $builder->add($builder->create('helpEmailAddress', SettingsTextType::class, ['required' => false]));
         $builder->add($builder->create('returns', SettingsCheckboxType::class, ['required' => false]));
-
         $builder->add(
             $builder
                 ->create('pointsDaysActive', SettingsIntegerType::class, [
                     'required' => false,
                     'empty_data' => '',
+                ])
+        );
+        $builder->add(
+            $builder
+                ->create('expirePointsNotificationDays', SettingsIntegerType::class, [
+                    'required' => false,
+                    'constraints' => [
+                        new Optional(),
+                    ],
                 ])
         );
         $builder->add($builder->create('allTimeNotLocked', SettingsCheckboxType::class, ['required' => false]));
@@ -345,19 +354,21 @@ class SettingsFormType extends AbstractType
      * @param StringSettingEntry        $value
      * @param ExecutionContextInterface $context
      */
-    public function checkUrl($value, ExecutionContextInterface $context)
+    public function checkUrl($value, ExecutionContextInterface $context): void
     {
-        if ($value) {
-            $validator = new UrlValidator();
-            $validator->initialize($context);
-            $validator->validate($value->getValue(), new Url());
+        if (!$value) {
+            return;
         }
+
+        $validator = new UrlValidator();
+        $validator->initialize($context);
+        $validator->validate($value->getValue(), new Url());
     }
 
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Settings::class,
@@ -368,7 +379,7 @@ class SettingsFormType extends AbstractType
     /**
      * @param FormBuilderInterface $builder
      */
-    private function addSmsConfig(FormBuilderInterface $builder)
+    private function addSmsConfig(FormBuilderInterface $builder): void
     {
         // no sms gateway
         if (null === $this->smsGateway) {
@@ -389,18 +400,17 @@ class SettingsFormType extends AbstractType
      *
      * @return FormBuilderInterface
      */
-    private function createField(FormBuilderInterface $builder, $name, $type)
+    private function createField(FormBuilderInterface $builder, string $name, string $type): FormBuilderInterface
     {
         switch ($type) {
             case 'text':
-                return $builder
-                    ->create($name, SettingsTextType::class, []);
+                return $builder->create($name, SettingsTextType::class, []);
             case 'bool':
-                return $builder
-                    ->create($name, SettingsCheckboxType::class, []);
+                return $builder->create($name, SettingsCheckboxType::class, []);
             case 'integer':
-                return $builder
-                    ->create($name, SettingsIntegerType::class, []);
+                return $builder->create($name, SettingsIntegerType::class, []);
         }
+
+        throw new \InvalidArgumentException('Undefined field type');
     }
 }
