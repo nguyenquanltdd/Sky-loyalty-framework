@@ -28,6 +28,7 @@ use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\LessThan;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Optional;
+use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Constraints\Valid;
 
@@ -161,10 +162,13 @@ class CampaignFormType extends AbstractType
     /**
      * @param FormEvent $event
      */
-    public function adjustCampaignForm(FormEvent $event)
+    public function adjustCampaignForm(FormEvent $event): void
     {
         $data = $event->getData();
         $form = $event->getForm();
+        if (isset($data['reward']) && $data['reward'] !== Campaign::REWARD_TYPE_CASHBACK) {
+            $this->addValidityFields($form);
+        }
         if (isset($data['reward']) && $data['reward'] === Campaign::REWARD_TYPE_CASHBACK) {
             $form->add('pointValue', NumberType::class, [
                 'scale' => 2,
@@ -221,13 +225,20 @@ class CampaignFormType extends AbstractType
                     new LessThan(Campaign::MAX_TRANSACTION_PERCENTAGE_VALUE),
                 ],
         ]);
+    }
+
+    /**
+     * @param FormInterface $form
+     */
+    private function addValidityFields(FormInterface $form): void
+    {
         $form->add('daysInactive', IntegerType::class, [
             'required' => true,
-            'constraints' => [new NotBlank()],
+            'constraints' => [new NotBlank(), new Range(['min' => 0])],
         ]);
         $form->add('daysValid', IntegerType::class, [
             'required' => true,
-            'constraints' => [new NotBlank()],
+            'constraints' => [new NotBlank(), new Range(['min' => 0])],
         ]);
     }
 

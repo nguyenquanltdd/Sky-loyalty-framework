@@ -32,6 +32,7 @@ class LoadCampaignData extends ContainerAwareFixture
     const CAMPAIGN2_ID = '000096cf-32a3-43bd-9034-4df343e5fd92';
     const CAMPAIGN3_ID = '000096cf-32a3-43bd-9034-4df343e5fd91';
     const PERCENTAGE_COUPON_CAMPAIGN_ID = '000096cf-32a3-43bd-9034-4df343e5fd94';
+    const INACTIVE_CAMPAIGN_ID = '000096cf-32a3-43bd-9034-4df343e5fd11';
 
     const CAMPAIGN_CATEGORY1_ID = '000096cf-32a3-43bd-9034-4df343e5fd99';
     const CAMPAIGN_CATEGORY2_ID = '000096cf-32a3-43bd-9034-4df343e5fd98';
@@ -77,6 +78,8 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaign->setConditionsDescription('_conditionsdescription_');
         $campaign->setUsageInstruction('_usageinstruction_');
         $campaign->setLabels([new Label('type', 'promotion')]);
+        $campaign->setDaysInactive(0);
+        $campaign->setDaysValid(0);
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(false);
         $campaignActivity->setActiveFrom(new \DateTime('2016-01-01'));
@@ -109,6 +112,8 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaign->setReward(Campaign::REWARD_TYPE_DISCOUNT_CODE);
         $campaign->setName('for test');
         $campaign->setLabels([new Label('type', 'test')]);
+        $campaign->setDaysInactive(0);
+        $campaign->setDaysValid(0);
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(false);
         $campaignActivity->setActiveFrom(new \DateTime('2016-01-01'));
@@ -169,6 +174,10 @@ class LoadCampaignData extends ContainerAwareFixture
             ->dispatch(
                 new CreateCampaign(new CampaignId(self::PERCENTAGE_COUPON_CAMPAIGN_ID), $campaign->toArray())
             );
+        $this->container->get('broadway.command_handling.command_bus')
+            ->dispatch(
+                new CreateCampaign(new CampaignId(self::INACTIVE_CAMPAIGN_ID), $this->getInactiveCampaignData()->toArray())
+            );
 
         $this->loadRandomActiveCampaigns();
     }
@@ -191,6 +200,8 @@ class LoadCampaignData extends ContainerAwareFixture
             $campaign->setCoupons([new Coupon(rand(100, 1000))]);
             $campaign->setReward($i % 2 == 0 ? Campaign::REWARD_TYPE_DISCOUNT_CODE : Campaign::REWARD_TYPE_FREE_DELIVERY_CODE);
             $campaign->setName(sprintf('%s', $i));
+            $campaign->setDaysInactive(0);
+            $campaign->setDaysValid(0);
             $campaignActivity = new CampaignActivity();
             $campaignActivity->setAllTimeActive(false);
             $campaignActivity->setActiveFrom(new \DateTime('now'));
@@ -206,5 +217,41 @@ class LoadCampaignData extends ContainerAwareFixture
                     new CreateCampaign(new CampaignId($randomId), $campaign->toArray())
                 );
         }
+    }
+
+    /**
+     * @return Campaign
+     */
+    protected function getInactiveCampaignData(): Campaign
+    {
+        $campaign = new Campaign();
+        $campaign->setActive(true);
+        $campaign->setCostInPoints(5);
+        $campaign->setLimit(10);
+        $campaign->setUnlimited(false);
+        $campaign->setLimitPerUser(2);
+        $campaign->setLevels(
+            [
+                new LevelId(LoadLevelData::LEVEL2_ID),
+                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL3_ID),
+                new LevelId(LoadLevelData::LEVEL4_ID),
+            ]
+        );
+        $campaign->setSegments([new SegmentId(LoadSegmentData::SEGMENT2_ID)]);
+        $campaign->setCoupons([new Coupon('123'), new Coupon('1233'), new Coupon('1234')]);
+        $campaign->setReward(Campaign::REWARD_TYPE_DISCOUNT_CODE);
+        $campaign->setName('Inactive');
+        $campaign->setLabels([new Label('type', 'test')]);
+        $campaign->setDaysInactive(10);
+        $campaign->setDaysValid(20);
+        $campaignActivity = new CampaignActivity();
+        $campaignActivity->setAllTimeActive(true);
+        $campaign->setCampaignActivity($campaignActivity);
+        $campaignVisibility = new CampaignVisibility();
+        $campaignVisibility->setAllTimeVisible(true);
+        $campaign->setCampaignVisibility($campaignVisibility);
+
+        return $campaign;
     }
 }

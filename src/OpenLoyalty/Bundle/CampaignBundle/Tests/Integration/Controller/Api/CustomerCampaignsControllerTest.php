@@ -15,7 +15,6 @@ use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class CustomerCampaignsControllerTest.
@@ -84,7 +83,66 @@ class CustomerCampaignsControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_serialized_response_with_proper_fields()
+    public function it_allows_to_buy_a_campaign_and_properly_sets_active_dates(): void
+    {
+        static::bootKernel();
+        $customerDetailsBefore = $this->getCustomerDetails(LoadUserData::USER_USERNAME);
+        $accountBefore = $this->getCustomerAccount(new CustomerId($customerDetailsBefore->getCustomerId()->__toString()));
+
+        $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
+        $date = new \DateTime();
+        $activeSince = (clone $date)->modify('+10 days');
+        $activeSince->setTime($activeSince->format('H'), $activeSince->format('i'), 0, 0);
+
+        $activeTo = (clone $date)->modify('+30 days');
+        $activeTo->setTime($activeTo->format('H'), $activeTo->format('i'), 0, 0);
+
+        $client->request(
+            'POST',
+            '/api/customer/campaign/'.LoadCampaignData::INACTIVE_CAMPAIGN_ID.'/buy'
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('coupon', $data);
+        $customerDetails = $this->getCustomerDetails(LoadUserData::USER_USERNAME);
+        $this->assertInstanceOf(CustomerDetails::class, $customerDetails);
+        $campaigns = $customerDetails->getCampaignPurchases();
+        $found = null;
+        foreach ($campaigns as $campaignPurchase) {
+            if ($campaignPurchase->getCampaignId()->__toString() == LoadCampaignData::INACTIVE_CAMPAIGN_ID) {
+                $found = $campaignPurchase;
+                break;
+            }
+        }
+
+        $this->assertInstanceOf(CampaignPurchase::class, $found, 'Customer should have campaign purchase with campaign id = '.LoadCampaignData::INACTIVE_CAMPAIGN_ID);
+        $this->assertEquals(CampaignPurchase::STATUS_INACTIVE, $found->getStatus());
+        $foundActiveSince = $found->getActiveSince();
+        $foundActiveSince->setTime($foundActiveSince->format('H'), $foundActiveSince->format('i'), 0, 0);
+        $this->assertEquals($activeSince, $foundActiveSince);
+
+        $foundActiveTo = $found->getActiveTo();
+        $foundActiveTo->setTime($foundActiveTo->format('H'), $foundActiveTo->format('i'), 0, 0);
+        $this->assertEquals($activeTo, $foundActiveTo);
+
+        $accountAfter = $this->getCustomerAccount(new CustomerId($customerDetails->getCustomerId()->__toString()));
+
+        $beforeAmount = $accountBefore ? $accountBefore->getAvailableAmount() : 0;
+        $afterAmount = $accountAfter ? $accountAfter->getAvailableAmount() : 0;
+
+        $this->assertTrue(
+            $beforeAmount - 5 == $afterAmount,
+            'Available points after campaign is bought should be '.(($beforeAmount) - 5)
+            .', but it is '.($afterAmount)
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_serialized_response_with_proper_fields(): void
     {
         static::bootKernel();
         $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
@@ -267,10 +325,62 @@ class CustomerCampaignsControllerTest extends BaseApiTest
             }
         }
 
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertNotNull($campaignPurchase);
         $this->assertInstanceOf(CampaignPurchase::class, $campaignPurchase);
         $this->assertTrue($campaignPurchase->isUsed());
+    }
+
+    /**
+     * @test
+     */
+    public function it_cannot_change_customer_coupon_to_used_when_not_active(): void
+    {
+        $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
+        $couponCode = Uuid::uuid4()->toString();
+        $customerDetails->addCampaignPurchase(
+            new CampaignPurchase(
+                new \DateTime(),
+                0,
+                new CustomerCampaignId(LoadCampaignData::INACTIVE_CAMPAIGN_ID),
+                new Coupon($couponCode),
+                Campaign::REWARD_TYPE_DISCOUNT_CODE,
+                CampaignPurchase::STATUS_INACTIVE
+            )
+        );
+
+        $this->customerDetailsRepository->save($customerDetails);
+
+        $client = $this->createAuthenticatedClient(LoadUserData::USER2_USERNAME, LoadUserData::USER2_PASSWORD, 'customer');
+        $client->request(
+            'POST',
+            sprintf(
+                '/api/customer/campaign/%s/coupon/%s',
+                LoadCampaignData::INACTIVE_CAMPAIGN_ID,
+                $couponCode
+            ),
+            [
+                'used' => true,
+            ]
+        );
+
+        $response = $client->getResponse();
+
+        $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
+        $campaigns = $customerDetails->getCampaignPurchases();
+        $campaignPurchase = null;
+
+        /** @var CampaignPurchase $campaign */
+        foreach ($campaigns as $campaign) {
+            if ($campaign->getCoupon()->getCode() === $couponCode) {
+                $campaignPurchase = $campaign;
+            }
+        }
+
+        $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 400');
+        $this->assertNotNull($campaignPurchase);
+        $this->assertInstanceOf(CampaignPurchase::class, $campaignPurchase);
+        $this->assertTrue(!$campaignPurchase->isUsed());
     }
 
     /**
@@ -320,7 +430,7 @@ class CustomerCampaignsControllerTest extends BaseApiTest
             }
         }
 
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertNotNull($campaignPurchase);
         $this->assertInstanceOf(CampaignPurchase::class, $campaignPurchase);
         $this->assertTrue($campaignPurchase->isUsed());

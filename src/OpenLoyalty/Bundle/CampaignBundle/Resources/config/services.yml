@@ -73,8 +73,7 @@ services:
     factory:   ['@knp_gaufrette.filesystem_map', get]
     arguments: ['campaign_photos']
 
-  oloy.campaign.photo_uploader:
-    class: OpenLoyalty\Bundle\CampaignBundle\Service\CampaignPhotoUploader
+  OpenLoyalty\Bundle\CampaignBundle\Service\CampaignPhotoUploader:
     arguments: ["@oloy.campaign.photos_filesystem"]
 
   OpenLoyalty\Bundle\CampaignBundle\Service\CampaignBrandIconUploader:
@@ -115,4 +114,4 @@ services:
 
   OpenLoyalty\Bundle\CampaignBundle\ParamConverter\CampaignCategoryParamConverter:
     tags:
-    - { name: request.param_converter, priority: 2, converter: campaign_category_converter }
+      - { name: request.param_converter, priority: 2, converter: campaign_category_converter }

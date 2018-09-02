@@ -185,6 +185,8 @@ class CampaignControllerTest extends BaseApiTest
                         'activeFrom' => (new \DateTime('2016-01-01'))->format('Y-m-d H:i'),
                         'activeTo' => (new \DateTime('2037-01-11'))->format('Y-m-d H:i'),
                     ],
+                    'daysValid' => 0,
+                    'daysInactive' => 0,
                     'campaignVisibility' => [
                         'allTimeVisible' => false,
                         'visibleFrom' => (new \DateTime('2016-02-01'))->format('Y-m-d H:i'),
@@ -236,6 +238,8 @@ class CampaignControllerTest extends BaseApiTest
                     'singleCoupon' => true,
                     'coupons' => ['123'],
                     'costInPoints' => 12,
+                    'daysValid' => 0,
+                    'daysInactive' => 0,
                     'campaignActivity' => [
                         'allTimeActive' => false,
                         'activeFrom' => (new \DateTime('2016-01-01'))->format('Y-m-d H:i'),
@@ -279,6 +283,8 @@ class CampaignControllerTest extends BaseApiTest
                     'limit' => 10,
                     'limitPerUser' => 2,
                     'coupons' => ['123'],
+                    'daysValid' => 0,
+                    'daysInactive' => 0,
                     'labels' => 'type:promotion',
                     'campaignActivity' => [
                         'allTimeActive' => false,
@@ -331,6 +337,8 @@ class CampaignControllerTest extends BaseApiTest
                     'limitPerUser' => 2,
                     'coupons' => ['123'],
                     'singleCoupon' => false,
+                    'daysValid' => 0,
+                    'daysInactive' => 0,
                     'campaignActivity' => [
                         'allTimeActive' => false,
                         'activeFrom' => (new \DateTime('2016-01-01'))->format('Y-m-d H:i'),
@@ -377,6 +385,8 @@ class CampaignControllerTest extends BaseApiTest
     public function it_filters_campaigns_list(array $filters, int $expectedCount)
     {
         $client = $this->createAuthenticatedClient();
+        $filters['perPage'] = 1000;
+
         $client->request(
             'GET',
             '/api/campaign',
@@ -399,11 +409,11 @@ class CampaignControllerTest extends BaseApiTest
     {
         return [
             [['labels' => [['key' => 'key0'], ['value' => 'value0']]], 1],
-            [['labels' => [['key' => 'type']]], 4],
+            [['labels' => [['key' => 'type']]], 5],
             [['labels' => [['key' => 'test']]], 0],
-            [['active' => 1], 10],
+            [['active' => 1], 11],
             [['active' => 0], 8],
-            [['campaignType' => 'discount_code'], 7],
+            [['campaignType' => 'discount_code'], 8],
             [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY2_ID]], 2],
             [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID]], 1],
             [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID, LoadCampaignData::CAMPAIGN_CATEGORY2_ID]], 2],

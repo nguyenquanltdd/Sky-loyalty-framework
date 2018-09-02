@@ -13,7 +13,7 @@ use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
-use FOS\RestBundle\View\View as FOSView;
+use FOS\RestBundle\View\View as FosView;
 use FOS\RestBundle\View\ViewHandlerInterface;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignLimitException;
@@ -29,18 +29,19 @@ use OpenLoyalty\Bundle\CampaignBundle\Form\Type\EditCampaignFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignBrandIconFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Model\Campaign;
 use OpenLoyalty\Bundle\CampaignBundle\ResponseModel\CouponUsageResponse;
+use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignPhotoUploader;
 use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider;
 use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator;
 use OpenLoyalty\Bundle\CampaignBundle\Service\MultipleCampaignCouponUsageProvider;
 use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignBrandIconUploader;
-use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignPhotoUploader;
 use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignFileUploader;
 use OpenLoyalty\Bundle\CoreBundle\Service\CSVGenerator;
 use OpenLoyalty\Bundle\MarkDownBundle\Service\FOSContextProvider;
 use OpenLoyalty\Bundle\PaginationBundle\Service\Paginator;
+use OpenLoyalty\Bundle\UserBundle\Service\EmailProvider;
+use OpenLoyalty\Bundle\UserBundle\Service\EsParamManager;
 use OpenLoyalty\Component\Campaign\Domain\Campaign as DomainCampaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
-use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\Command\BuyCampaign;
 use OpenLoyalty\Component\Campaign\Domain\Command\ChangeCampaignState;
 use OpenLoyalty\Component\Campaign\Domain\Command\CreateCampaign;
@@ -60,6 +61,7 @@ use OpenLoyalty\Component\Campaign\Domain\SegmentId;
 use OpenLoyalty\Component\Campaign\Domain\TransactionId;
 use OpenLoyalty\Component\Campaign\Domain\Model\CampaignFile;
 use OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Repository\DoctrineCampaignRepository;
+use OpenLoyalty\Component\Campaign\Infrastructure\Repository\CampaignBoughtElasticsearchRepository;
 use OpenLoyalty\Component\Customer\Domain\CampaignId as CustomerCampaignId;
 use OpenLoyalty\Component\Customer\Domain\Command\ChangeCampaignUsage;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
@@ -67,6 +69,7 @@ use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomers;
+use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomersRepository;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -132,19 +135,24 @@ class CampaignController extends FOSRestController
     private $formFactory;
 
     /**
-     * @var ViewHandlerInterface
-     */
-    private $viewHandler;
-
-    /**
      * @var UuidGeneratorInterface
      */
     private $uuidGenerator;
 
     /**
+     * @var CampaignPhotoUploader
+     */
+    private $campaignPhotoUploader;
+
+    /**
      * @var Paginator
      */
-    private $pagination;
+    private $paginator;
+
+    /**
+     * @var ParamFetcher
+     */
+    private $paramFetcher;
 
     /**
      * @var DoctrineCampaignRepository
@@ -152,27 +160,64 @@ class CampaignController extends FOSRestController
     private $campaignRepository;
 
     /**
+     * @var EsParamManager
+     */
+    private $paramManager;
+
+    /**
+     * @var CSVGenerator
+     */
+    private $csvGenerator;
+
+    /**
+     * @var EmailProvider
+     */
+    private $customerEmailProvider;
+
+    /**
+     * @var CustomerDetailsRepository
+     */
+    private $customerDetailsRepository;
+
+    /**
      * @var MultipleCampaignCouponUsageProvider
      */
     private $multipleCampaignCouponUsageProvider;
 
     /**
+     * @var SegmentedCustomersRepository
+     */
+    private $segmentedCustomersRepository;
+
+    /**
+     * @var ViewHandlerInterface
+     */
+    private $viewHandler;
+
+    /**
      * CampaignController constructor.
      *
-     * @param CommandBus                          $commandBus
-     * @param TranslatorInterface                 $translator
-     * @param FormFactoryInterface                $formFactory
-     * @param ViewHandlerInterface                $viewHandler
-     * @param UuidGeneratorInterface              $uuidGenerator
-     * @param Paginator                           $paginator
-     * @param DoctrineCampaignRepository          $campaignRepository
-     * @param CampaignValidator                   $campaignValidator
-     * @param CampaignProvider                    $campaignProvider
-     * @param CouponCodeProvider                  $couponCodeProvider
-     * @param TransactionDetailsRepository        $transactionDetailsRepository
-     * @param CampaignBoughtRepository            $campaignBoughtRepository
-     * @param CampaignBrandIconUploader           $campaignBrandIconUploader
-     * @param MultipleCampaignCouponUsageProvider $multipleCampaignCouponUsageProvider
+     * @param CommandBus                            $commandBus
+     * @param TranslatorInterface                   $translator
+     * @param FormFactoryInterface                  $formFactory
+     * @param ViewHandlerInterface                  $viewHandler
+     * @param UuidGeneratorInterface                $uuidGenerator
+     * @param Paginator                             $paginator
+     * @param DoctrineCampaignRepository            $campaignRepository
+     * @param CampaignValidator                     $campaignValidator
+     * @param CampaignProvider                      $campaignProvider
+     * @param CouponCodeProvider                    $couponCodeProvider
+     * @param TransactionDetailsRepository          $transactionDetailsRepository
+     * @param CampaignBrandIconUploader             $campaignBrandIconUploader
+     * @param CampaignPhotoUploader                 $campaignPhotoUploader
+     * @param ParamFetcher                          $paramFetcher
+     * @param CampaignBoughtElasticsearchRepository $campaignBoughtRepository
+     * @param EsParamManager                        $paramManager
+     * @param CSVGenerator                          $csvGenerator
+     * @param EmailProvider                         $customerEmailProvider
+     * @param CustomerDetailsRepository             $customerDetailsRepository
+     * @param MultipleCampaignCouponUsageProvider   $multipleCampaignCouponUsageProvider
+     * @param SegmentedCustomersRepository          $segmentedCustomersRepository
      */
     public function __construct(
         CommandBus $commandBus,
@@ -186,16 +231,23 @@ class CampaignController extends FOSRestController
         CampaignProvider $campaignProvider,
         CouponCodeProvider $couponCodeProvider,
         TransactionDetailsRepository $transactionDetailsRepository,
-        CampaignBoughtRepository $campaignBoughtRepository,
         CampaignBrandIconUploader $campaignBrandIconUploader,
-        MultipleCampaignCouponUsageProvider $multipleCampaignCouponUsageProvider
+        CampaignPhotoUploader $campaignPhotoUploader,
+        ParamFetcher $paramFetcher,
+        CampaignBoughtElasticsearchRepository $campaignBoughtRepository,
+        EsParamManager $paramManager,
+        CSVGenerator $csvGenerator,
+        EmailProvider $customerEmailProvider,
+        CustomerDetailsRepository $customerDetailsRepository,
+        MultipleCampaignCouponUsageProvider $multipleCampaignCouponUsageProvider,
+        SegmentedCustomersRepository $segmentedCustomersRepository
     ) {
         $this->commandBus = $commandBus;
         $this->translator = $translator;
         $this->formFactory = $formFactory;
         $this->viewHandler = $viewHandler;
         $this->uuidGenerator = $uuidGenerator;
-        $this->pagination = $paginator;
+        $this->paginator = $paginator;
         $this->campaignRepository = $campaignRepository;
         $this->campaignValidator = $campaignValidator;
         $this->campaignProvider = $campaignProvider;
@@ -203,7 +255,14 @@ class CampaignController extends FOSRestController
         $this->transactionDetailsRepository = $transactionDetailsRepository;
         $this->campaignBoughtRepository = $campaignBoughtRepository;
         $this->campaignBrandIconUploader = $campaignBrandIconUploader;
+        $this->campaignPhotoUploader = $campaignPhotoUploader;
+        $this->paramFetcher = $paramFetcher;
+        $this->paramManager = $paramManager;
+        $this->csvGenerator = $csvGenerator;
+        $this->customerEmailProvider = $customerEmailProvider;
+        $this->customerDetailsRepository = $customerDetailsRepository;
         $this->multipleCampaignCouponUsageProvider = $multipleCampaignCouponUsageProvider;
+        $this->segmentedCustomersRepository = $segmentedCustomersRepository;
     }
 
     /**
@@ -243,10 +302,10 @@ class CampaignController extends FOSRestController
 
             $this->commandBus->dispatch(new CreateCampaign($id, $data->toArray()));
 
-            return $this->viewHandler->handle(FOSView::create(['campaignId' => (string) $id]));
+            return $this->viewHandler->handle(FosView::create(['campaignId' => (string) $id]));
         }
 
-        return $this->viewHandler->handle(FOSView::create($form->getErrors(), Response::HTTP_BAD_REQUEST));
+        return $this->viewHandler->handle(FosView::create($form->getErrors(), Response::HTTP_BAD_REQUEST));
     }
 
     /**
@@ -261,15 +320,16 @@ class CampaignController extends FOSRestController
      *     input={"class" = "OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignBrandIconFormType", "name" = "icon"}
      * )
      *
-     * @param Request        $request
-     * @param DomainCampaign $campaign
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return FOSView
+     * @param Request        $request
+     * @param DomainCampaign $campaign
+     *
+     * @return FosView
      */
     public function addBrandIconAction(Request $request, DomainCampaign $campaign): FosView
     {
-        $form = $this->get('form.factory')->createNamed('brand_icon', CampaignBrandIconFormType::class);
+        $form = $this->formFactory->createNamed('brand_icon', CampaignBrandIconFormType::class);
         $form->handleRequest($request);
 
         if ($form->isValid()) {
@@ -303,9 +363,9 @@ class CampaignController extends FOSRestController
      * @param Request        $request
      * @param DomainCampaign $campaign
      *
-     * @return FOSView
+     * @return FosView
      */
-    public function addPhotoAction(Request $request, DomainCampaign $campaign)
+    public function addPhotoAction(Request $request, DomainCampaign $campaign): FosView
     {
         $form = $this->formFactory->createNamed('photo', CampaignPhotoFormType::class);
         $form->handleRequest($request);
@@ -313,9 +373,8 @@ class CampaignController extends FOSRestController
         if ($form->isValid()) {
             /** @var UploadedFile $file */
             $file = $form->getData()->getFile();
-            $uploader = $this->get('oloy.campaign.photo_uploader');
-            $uploader->remove($campaign->getCampaignPhoto());
-            $photo = $uploader->upload($file);
+            $this->campaignPhotoUploader->remove($campaign->getCampaignPhoto());
+            $photo = $this->campaignPhotoUploader->upload($file);
             $command = new SetCampaignPhoto($campaign->getCampaignId(), $photo);
             $this->commandBus->dispatch($command);
 
@@ -336,10 +395,11 @@ class CampaignController extends FOSRestController
      *     section="Campaign"
      * )
      *
-     * @param DomainCampaign $campaign
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return FOSView
+     * @param DomainCampaign $campaign
+     *
+     * @return FosView
      */
     public function removeBrandIconAction(DomainCampaign $campaign): FosView
     {
@@ -361,8 +421,9 @@ class CampaignController extends FOSRestController
      *     section="Campaign"
      * )
      *
-     * @param DomainCampaign $campaign
      * @View(serializerGroups={"admin", "Default"})
+     *
+     * @param DomainCampaign $campaign
      *
      * @return Response
      */
@@ -374,8 +435,8 @@ class CampaignController extends FOSRestController
     }
 
     /**
-     * @param CampaignFileUploader $uploader
-     * @param CampaignFile         $file
+     * @param CampaignFileUploader|null $uploader
+     * @param CampaignFile|null         $file
      *
      * @return Response
      */
@@ -412,12 +473,11 @@ class CampaignController extends FOSRestController
      *
      * @param DomainCampaign $campaign
      *
-     * @return FOSView
+     * @return FosView
      */
-    public function removePhotoAction(DomainCampaign $campaign)
+    public function removePhotoAction(DomainCampaign $campaign): FosView
     {
-        $uploader = $this->get('oloy.campaign.photo_uploader');
-        $uploader->remove($campaign->getCampaignPhoto());
+        $this->campaignPhotoUploader->remove($campaign->getCampaignPhoto());
 
         $command = new RemoveCampaignPhoto($campaign->getCampaignId());
         $this->commandBus->dispatch($command);
@@ -435,17 +495,17 @@ class CampaignController extends FOSRestController
      *     section="Campaign"
      * )
      *
-     * @param DomainCampaign        $campaign
-     * @param CampaignPhotoUploader $uploader
      * @View(serializerGroups={"admin", "Default"})
+     *
+     * @param DomainCampaign $campaign
      *
      * @return Response
      */
-    public function getPhotoAction(DomainCampaign $campaign, CampaignPhotoUploader $uploader)
+    public function getPhotoAction(DomainCampaign $campaign): Response
     {
         $photo = $campaign->getCampaignPhoto();
 
-        return $this->getCampaignFileResponse($uploader, $photo);
+        return $this->getCampaignFileResponse($this->campaignPhotoUploader, $photo);
     }
 
     /**
@@ -464,6 +524,7 @@ class CampaignController extends FOSRestController
      *       404="Returned when campaign not found"
      *     }
      * )
+     *
      * @View(serializerGroups={"admin", "Default"})
      *
      * @param Request        $request
@@ -476,6 +537,7 @@ class CampaignController extends FOSRestController
         $form = $this->formFactory->createNamed('campaign', EditCampaignFormType::class, null, [
             'method' => 'PUT',
         ]);
+
         $form->handleRequest($request);
 
         if ($form->isValid()) {
@@ -484,10 +546,10 @@ class CampaignController extends FOSRestController
 
             $this->commandBus->dispatch(new UpdateCampaign($campaign->getCampaignId(), $data->toArray()));
 
-            return $this->viewHandler->handle(FOSView::create(['campaignId' => $campaign->getCampaignId()->__toString()]));
+            return $this->viewHandler->handle(FosView::create(['campaignId' => $campaign->getCampaignId()->__toString()]));
         }
 
-        return $this->viewHandler->handle(FOSView::create($form->getErrors(), Response::HTTP_BAD_REQUEST));
+        return $this->viewHandler->handle(FosView::create($form->getErrors(), Response::HTTP_BAD_REQUEST));
     }
 
     /**
@@ -501,13 +563,14 @@ class CampaignController extends FOSRestController
      *     section="Campaign"
      * )
      *
-     * @param DomainCampaign $campaign
-     * @param                $active
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return FOSView
+     * @param DomainCampaign $campaign
+     * @param                $active
+     *
+     * @return FosView
      */
-    public function changeStateAction(DomainCampaign $campaign, $active)
+    public function changeStateAction(DomainCampaign $campaign, $active): FosView
     {
         if ('active' === $active) {
             $campaign->setActive(true);
@@ -545,39 +608,39 @@ class CampaignController extends FOSRestController
      *     }
      * )
      *
-     * @param Request      $request
-     * @param ParamFetcher $paramFetcher
-     *
-     * @View(serializerGroups={"admin", "Default"})
-     *
-     * @return FOSView
-     *
      * @QueryParam(name="labels", nullable=true, description="filter by labels"))
      * @QueryParam(name="active", nullable=true, description="filter by activity"))
      * @QueryParam(name="isFeatured", nullable=true, description="filter by featured tag"))
      * @QueryParam(name="campaignType", nullable=true, description="filter by campaign type"))
      * @QueryParam(name="name", nullable=true, description="filter by campaign name"))
      * @QueryParam(name="categoryId", nullable=true, description="filter by categories"))
+     *
+     * @View(serializerGroups={"admin", "Default"})
+     *
+     * @param Request $request
+     *
+     * @return FosView
+     *
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Doctrine\ORM\ORMException
      */
-    public function getListAction(Request $request, ParamFetcher $paramFetcher)
+    public function getListAction(Request $request): FosView
     {
-        $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
+        $paginator = $this->paginator->handleFromRequest($request);
 
-        $params = $paramFetcher->all();
+        $params = $this->paramFetcher->all();
 
-        $campaignRepository = $this->get('oloy.campaign.repository');
-
-        $campaigns = $campaignRepository
+        $campaigns = $this->campaignRepository
             ->findByParametersPaginated(
                 $params,
-                $pagination->getPage(),
-                $pagination->getPerPage(),
-                $pagination->getSort(),
-                $pagination->getSortDirection()
-            )
-        ;
+                $paginator->getPage(),
+                $paginator->getPerPage(),
+                $paginator->getSort(),
+                $paginator->getSortDirection()
+            );
 
-        $total = $campaignRepository->countFindByParameters($params);
+        $total = $this->campaignRepository->countFindByParameters($params);
 
         $view = $this->view(
             [
@@ -615,41 +678,63 @@ class CampaignController extends FOSRestController
      *      {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
      *      {"name"="purchasedAtFrom", "dataType"="string", "required"=false, "description"="Purchased date from filter"},
      *      {"name"="purchasedAtTo", "dataType"="string", "required"=false, "description"="Purchased date to filter"},
+     *      {"name"="activeSinceFrom", "dataType"="string", "required"=false, "description"="Active since date from filter"},
+     *      {"name"="activeSinceTo", "dataType"="string", "required"=false, "description"="Active since date to filter"},
+     *      {"name"="activeToFrom", "dataType"="string", "required"=false, "description"="Active to date from filter"},
+     *      {"name"="activeToTo", "dataType"="string", "required"=false, "description"="Active to date to filter"},
      *     }
      * )
      *
      * @QueryParam(name="used", nullable=true, description="Used"))
      * @QueryParam(name="purchasedAtFrom", nullable=true, description="Range date filter"))
      * @QueryParam(name="purchasedAtTo", nullable=true, description="Range date filter"))
+     * @QueryParam(name="activeSinceFrom", nullable=true, description="Range date filter"))
+     * @QueryParam(name="activeSinceTo", nullable=true, description="Range date filter"))
+     * @QueryParam(name="activeToFrom", nullable=true, description="Range date filter"))
+     * @QueryParam(name="activeToTo", nullable=true, description="Range date filter"))
      *
      * @param Request $request
      *
-     * @return FOSView
+     * @return FosView
      */
-    public function getBoughtListAction(Request $request, ParamFetcher $paramFetcher)
+    public function getBoughtListAction(Request $request): FosView
     {
-        $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
-        $params = $this->get('oloy.user.param_manager')->stripNulls($paramFetcher->all());
-
+        $paginator = $this->paginator->handleFromRequest($request);
+        $params = $this->paramManager->stripNulls($this->paramFetcher->all());
         // extract ES-like params for date range filter
-        $this->get('oloy.user.param_manager')
-            ->appendDateRangeFilter(
+        $this->paramManager->appendDateRangeFilter(
+            $params,
+            'purchasedAt',
+            $params['purchasedAtFrom'] ?? null,
+            $params['purchasedAtTo'] ?? null
+        );
+        $this->paramManager->appendDateRangeFilter(
+            $params,
+            'activeSince',
+            $params['activeSinceFrom'] ?? null,
+            $params['activeSinceTo'] ?? null
+        );
+        $this->paramManager->appendDateRangeFilter(
                 $params,
-                'purchasedAt',
-                $params['purchasedAtFrom'] ?? null,
-                $params['purchasedAtTo'] ?? null
+                'activeSince',
+                $params['activeToFrom'] ?? null,
+                $params['activeToTo'] ?? null
             );
 
         unset($params['purchasedAtFrom']);
         unset($params['purchasedAtTo']);
+        unset($params['activeSinceFrom']);
+        unset($params['activeSinceTo']);
+        unset($params['activeToFrom']);
+        unset($params['activeToTo']);
 
         $boughtCampaigns = $this->campaignBoughtRepository->findByParametersPaginated(
             $params,
             true,
-            $pagination->getPage(),
-            $pagination->getPerPage(),
-            $pagination->getSort(),
-            $pagination->getSortDirection()
+            $paginator->getPage(),
+            $paginator->getPerPage(),
+            $paginator->getSort(),
+            $paginator->getSortDirection()
         );
 
         $total = $this->campaignBoughtRepository->countTotal($params);
@@ -663,11 +748,10 @@ class CampaignController extends FOSRestController
     }
 
     /**
-     * @param ParamFetcher $paramFetcher
-     *
      * @Route(name="oloy.campaign.bought.csv", path="/campaign/bought/export/csv")
      * @Security("is_granted('LIST_ALL_BOUGHT_CAMPAIGNS')")
      * @Method("GET")
+     *
      * @ApiDoc(
      *     name="generate CSV of bought campaigns",
      *     section="Campaign",
@@ -676,21 +760,21 @@ class CampaignController extends FOSRestController
      *      {"name"="purchasedAtTo", "dataType"="string", "required"=false, "description"="Purchased date to filter"},
      *     }
      * )
-     * @QueryParam(name="purchasedAtFrom", nullable=true, description="Range date filter"))
+     * @QueryParam(
+     *     name="purchasedAtFrom", nullable=true, description="Range date filter"))
      * @QueryParam(name="purchasedAtTo", nullable=true, description="Range date filter"))
      *
-     * @return Response|FOSView
+     * @return BinaryFileResponse|FosView
      */
-    public function exportBoughtAction(ParamFetcher $paramFetcher, TranslatorInterface $translator)
+    public function exportBoughtAction()
     {
-        $params = $this->get('oloy.user.param_manager')->stripNulls($paramFetcher->all());
-        $generator = $this->get(CSVGenerator::class);
+        $params = $this->paramManager->stripNulls($this->paramFetcher->all());
         $headers = $this->getParameter('oloy.campaign.bought.export.headers');
         $fields = $this->getParameter('oloy.campaign.bought.export.fields');
 
         try {
             // extract ES-like params for date range filter
-            $this->get('oloy.user.param_manager')
+            $this->paramManager
                 ->appendDateRangeFilter(
                     $params,
                     'purchasedAt',
@@ -700,7 +784,7 @@ class CampaignController extends FOSRestController
 
             unset($params['purchasedAtFrom']);
             unset($params['purchasedAtTo']);
-            $content = $generator->generate($this->campaignBoughtRepository->findByParameters($params), $headers, $fields);
+            $content = $this->csvGenerator->generate($this->campaignBoughtRepository->findByParameters($params), $headers, $fields);
             $handle = tmpfile();
             fwrite($handle, $content);
             $file = new File(stream_get_meta_data($handle)['uri'], false);
@@ -711,7 +795,7 @@ class CampaignController extends FOSRestController
 
             return $response;
         } catch (\Exception $exception) {
-            return $this->view($translator->trans($exception->getMessage()), Response::HTTP_BAD_REQUEST);
+            return $this->view($this->translator->trans($exception->getMessage()), Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -733,31 +817,34 @@ class CampaignController extends FOSRestController
      *     }
      * )
      *
-     * @param Request $request
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return FOSView
+     * @param Request $request
+     *
+     * @return FosView
+     *
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function getVisibleListAction(Request $request)
+    public function getVisibleListAction(Request $request): FosView
     {
-        $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
+        $paginator = $this->paginator->handleFromRequest($request);
 
-        $campaignRepository = $this->get('oloy.campaign.repository');
-        $campaigns = $campaignRepository
+        $campaigns = $this->campaignRepository
             ->findAllVisiblePaginated(
-                $pagination->getPage(),
-                $pagination->getPerPage(),
-                $pagination->getSort(),
-                $pagination->getSortDirection()
+                $paginator->getPage(),
+                $paginator->getPerPage(),
+                $paginator->getSort(),
+                $paginator->getSortDirection()
             );
-        $total = $campaignRepository->countTotal(true);
+        $total = $this->campaignRepository->countTotal(true);
 
         $view = $this->view(
             [
                 'campaigns' => $campaigns,
                 'total' => $total,
             ],
-            200
+            Response::HTTP_OK
         );
 
         $context = new Context();
@@ -777,19 +864,19 @@ class CampaignController extends FOSRestController
      * @Route(name="oloy.campaign.active.get", path="/campaign/active")
      * @Method("GET")
      * @Security("is_granted('LIST_ALL_ACTIVE_CAMPAIGNS')")
+     *
      * @ApiDoc(
      *     name="Get active campaigns",
      *     section="Campaign"
      * )
      *
-     * @param Request            $request
-     * @param CampaignRepository $campaignRepository
+     * @param Request $request
      *
-     * @return FOSView
+     * @return FosView
      */
-    public function getActiveCampaignsAction(Request $request, CampaignRepository $campaignRepository)
+    public function getActiveCampaignsAction(Request $request): FosView
     {
-        $domainCampaigns = $campaignRepository->getActiveCampaigns();
+        $domainCampaigns = $this->campaignRepository->getActiveCampaigns();
 
         $activeCampaigns = new ActiveCampaigns();
 
@@ -822,6 +909,7 @@ class CampaignController extends FOSRestController
      *
      * @Route(name="oloy.campaign.get", path="/campaign/{campaign}")
      * @Route(name="oloy.campaign.seller.get", path="/seller/campaign/{campaign}")
+     *
      * @Method("GET")
      * @Security("is_granted('VIEW', campaign)")
      * @ApiDoc(
@@ -829,13 +917,14 @@ class CampaignController extends FOSRestController
      *     section="Campaign"
      * )
      *
+     * @View(serializerGroups={"admin", "Default"})
+     *
      * @param Request        $request
      * @param DomainCampaign $campaign
      *
-     * @return FOSView
-     * @View(serializerGroups={"admin", "Default"})
+     * @return FosView
      */
-    public function getAction(Request $request, DomainCampaign $campaign)
+    public function getAction(Request $request, DomainCampaign $campaign): FosView
     {
         $view = $this->view($campaign);
         $view->getContext()->setAttribute(
@@ -864,28 +953,28 @@ class CampaignController extends FOSRestController
      *     }
      * )
      *
-     * @param Request        $request
-     * @param DomainCampaign $campaign
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return FOSView
+     * @param Request        $request
+     * @param DomainCampaign $campaign
+     *
+     * @return FosView
      */
-    public function getVisibleForCustomersAction(Request $request, DomainCampaign $campaign)
+    public function getVisibleForCustomersAction(Request $request, DomainCampaign $campaign): FosView
     {
-        $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
+        $paginator = $this->paginator->handleFromRequest($request);
 
         $customers = array_values($this->campaignProvider->visibleForCustomers($campaign));
-        /** @var CustomerDetailsRepository $repo */
-        $repo = $this->get('oloy.user.read_model.repository.customer_details');
+
         $res = [];
         foreach ($customers as $id) {
-            $tmp = $repo->find($id);
+            $tmp = $this->customerDetailsRepository->find($id);
             if ($tmp instanceof CustomerDetails) {
                 $res[] = $tmp;
             }
         }
         $total = count($res);
-        $res = array_slice($res, ($pagination->getPage() - 1) * $pagination->getPerPage(), $pagination->getPerPage());
+        $res = array_slice($res, ($paginator->getPage() - 1) * $paginator->getPerPage(), $paginator->getPerPage());
 
         return $this->view([
             'customers' => $res,
@@ -914,35 +1003,33 @@ class CampaignController extends FOSRestController
      *     }
      * )
      *
-     * @param Request         $request
-     * @param CustomerDetails $customer
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return FOSView
+     * @param Request         $request
+     * @param CustomerDetails $customer
+     *
+     * @return FosView
      */
-    public function availableCampaigns(Request $request, CustomerDetails $customer)
+    public function availableCampaigns(Request $request, CustomerDetails $customer): FosView
     {
-        $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
-        $categoryIds = $request->query->get('categoryId', []);
-        $customerSegments = $this
-            ->get('oloy.segment.read_model.repository.segmented_customers')
-            ->findBy(['customerId' => $customer->getCustomerId()->__toString()])
-        ;
+        $paginator = $this->paginator->handleFromRequest($request);
 
+        $categoryIds = $request->query->get('categoryId', []);
+        $customerSegments = $this->segmentedCustomersRepository
+            ->findBy(['customerId' => $customer->getCustomerId()->__toString()]);
         $segments = array_map(function (SegmentedCustomers $segmentedCustomers) {
             return new SegmentId($segmentedCustomers->getSegmentId()->__toString());
         }, $customerSegments);
 
-        $campaignRepository = $this->get('oloy.campaign.repository');
-        $campaigns = $campaignRepository
+        $campaigns = $this->campaignRepository
             ->getVisibleCampaignsForLevelAndSegment(
                 $segments,
                 $customer->getLevelId() ? new LevelId($customer->getLevelId()->__toString()) : null,
                 $categoryIds,
                 null,
                 null,
-                $pagination->getSort(),
-                $pagination->getSortDirection(),
+                $paginator->getSort(),
+                $paginator->getSortDirection(),
                 [
                     'featured' => $request->query->get('isFeatured'),
                 ]
@@ -957,10 +1044,10 @@ class CampaignController extends FOSRestController
 
         $view = $this->view(
             [
-                'campaigns' => array_slice($campaigns, ($pagination->getPage() - 1) * $pagination->getPerPage(), $pagination->getPerPage()),
+                'campaigns' => array_slice($campaigns, ($paginator->getPage() - 1) * $paginator->getPerPage(), $paginator->getPerPage()),
                 'total' => count($campaigns),
             ],
-            200
+            Response::HTTP_OK
         );
 
         $context = new Context();
@@ -991,15 +1078,14 @@ class CampaignController extends FOSRestController
      *     }
      * )
      *
-     * @param DomainCampaign  $campaign
-     * @param CustomerDetails $customer
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @param TranslatorInterface $translator
+     * @param DomainCampaign  $campaign
+     * @param CustomerDetails $customer
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
-    public function buyCampaign(DomainCampaign $campaign, CustomerDetails $customer, TranslatorInterface $translator)
+    public function buyCampaign(DomainCampaign $campaign, CustomerDetails $customer): FosView
     {
         if (!$this->campaignValidator->isCampaignActive($campaign) ||
             !$this->campaignValidator->isCampaignVisible($campaign)
@@ -1013,13 +1099,13 @@ class CampaignController extends FOSRestController
                 new CustomerId($customer->getCustomerId()->__toString())
             );
         } catch (CampaignLimitException $e) {
-            return $this->view(['error' => $translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
+            return $this->view(['error' => $this->translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
         }
 
         try {
             $this->campaignValidator->checkIfCustomerStatusIsAllowed($customer->getStatus());
         } catch (NotAllowedException $e) {
-            return $this->view(['error' => $translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
+            return $this->view(['error' => $this->translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
         }
 
         try {
@@ -1028,7 +1114,7 @@ class CampaignController extends FOSRestController
                 new CustomerId($customer->getCustomerId()->__toString())
             );
         } catch (NotEnoughPointsException $e) {
-            return $this->view(['error' => $translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
+            return $this->view(['error' => $this->translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
         }
 
         $freeCoupons = $this->campaignProvider->getFreeCoupons($campaign);
@@ -1047,7 +1133,7 @@ class CampaignController extends FOSRestController
             )
         );
 
-        $this->get('oloy.user.email_provider')->customerBoughtCampaign(
+        $this->customerEmailProvider->customerBoughtCampaign(
             $customer,
             $campaign,
             $coupon
@@ -1075,17 +1161,18 @@ class CampaignController extends FOSRestController
      *     }
      * )
      *
+     * @View(serializerGroups={"admin", "Default"})
+     *
      * @param DomainCampaign  $campaign
      * @param CustomerDetails $customer
      * @param Request         $request
-     * @View(serializerGroups={"admin", "Default"})
      *
-     * @return FOSView
+     * @return FosView
      *
      * @throws \Exception
      * @throws NotFoundHttpException
      */
-    public function buyCampaignAdmin(DomainCampaign $campaign, CustomerDetails $customer, Request $request)
+    public function buyCampaignAdmin(DomainCampaign $campaign, CustomerDetails $customer, Request $request): FosView
     {
         if (!$campaign->canBeBoughtManually()) {
             throw new BadRequestHttpException();
@@ -1139,7 +1226,7 @@ class CampaignController extends FOSRestController
             )
         );
 
-        $this->get('oloy.user.email_provider')->customerBoughtCampaign(
+        $this->customerEmailProvider->customerBoughtCampaign(
             $customer,
             $campaign,
             $coupon
@@ -1168,18 +1255,16 @@ class CampaignController extends FOSRestController
      *     }
      * )
      *
-     * @param Request         $request
-     * @param CustomerDetails $customer
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return FOSView
+     * @param Request         $request
+     * @param CustomerDetails $customer
+     *
+     * @return FosView
      */
-    public function boughtCampaigns(Request $request, CustomerDetails $customer)
+    public function boughtCampaigns(Request $request, CustomerDetails $customer): FosView
     {
-        $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
-
-        /** @var CustomerDetailsRepository $repo */
-        $repo = $this->get('oloy.user.read_model.repository.customer_details');
+        $paginator = $this->paginator->handleFromRequest($request);
 
         if (count($customer->getCampaignPurchases()) == 0) {
             return $this->view(
@@ -1191,23 +1276,19 @@ class CampaignController extends FOSRestController
             );
         }
 
-        $campaigns = $repo
+        $campaigns = $this->customerDetailsRepository
             ->findPurchasesByCustomerIdPaginated(
                 $customer->getCustomerId(),
-                $pagination->getPage(),
-                $pagination->getPerPage(),
-                $pagination->getSort(),
-                $pagination->getSortDirection(),
+                $paginator->getPage(),
+                $paginator->getPerPage(),
+                $paginator->getSort(),
+                $paginator->getSortDirection(),
                 true
             );
 
         if ($request->get('includeDetails', false)) {
-            $campaignRepo = $this->get('oloy.campaign.repository');
-
-            $campaigns = array_map(function (CampaignPurchase $campaignPurchase) use ($campaignRepo) {
-                $campaignPurchase->setCampaign(
-                    $campaignRepo->byId(new CampaignId($campaignPurchase->getCampaignId()->__toString()))
-                );
+            $campaigns = array_map(function (CampaignPurchase $campaignPurchase) {
+                $campaignPurchase->setCampaign($this->campaignRepository->byId(new CampaignId($campaignPurchase->getCampaignId()->__toString())));
 
                 return $campaignPurchase;
             }, $campaigns);
@@ -1216,7 +1297,7 @@ class CampaignController extends FOSRestController
         return $this->view(
             [
                 'campaigns' => $campaigns,
-                'total' => $repo->countPurchasesByCustomerId($customer->getCustomerId(), true),
+                'total' => $this->customerDetailsRepository->countPurchasesByCustomerId($customer->getCustomerId(), true),
             ],
             Response::HTTP_OK
         );
@@ -1241,13 +1322,14 @@ class CampaignController extends FOSRestController
      *     }
      * )
      *
+     * @View(serializerGroups={"admin", "Default"})
+     *
      * @param Request         $request
      * @param CustomerDetails $customer
      * @param DomainCampaign  $campaign
      * @param string          $coupon
-     * @View(serializerGroups={"admin", "Default"})
      *
-     * @return FOSView
+     * @return FosView
      */
     public function campaignCouponUsage(Request $request, CustomerDetails $customer, DomainCampaign $campaign, $coupon): FosView
     {
@@ -1321,11 +1403,11 @@ class CampaignController extends FOSRestController
      *     }
      * )
      *
-     * @param Request $request
-     *
      * @View(serializerGroups={"admin", "Default"})
      *
-     * @return FOSView
+     * @param Request $request
+     *
+     * @return FosView
      *
      * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
      * @throws BadRequestHttpException
@@ -1387,18 +1469,18 @@ class CampaignController extends FOSRestController
      */
     public function getPublicFeaturedAction(Request $request): Response
     {
-        $pagination = $this->pagination->handleFromRequest($request);
+        $paginator = $this->paginator->handleFromRequest($request);
 
         $campaigns = $this->campaignRepository->findAllFeaturedPaginated(
-            $pagination->getPage(),
-            $pagination->getPerPage(),
-            $pagination->getSort(),
-            $pagination->getSortDirection()
+            $paginator->getPage(),
+            $paginator->getPerPage(),
+            $paginator->getSort(),
+            $paginator->getSortDirection()
         );
 
         $total = $this->campaignRepository->countFeatured();
 
-        $view = FOSView::create(
+        $view = FosView::create(
             [
                 'campaigns' => $campaigns,
                 'total' => $total,

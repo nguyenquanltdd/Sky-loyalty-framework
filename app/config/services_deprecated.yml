@@ -2,6 +2,14 @@ services:
     _defaults:
         public: true
 
+    oloy.pagination:
+        alias: OpenLoyalty\Bundle\PaginationBundle\Service\Paginator
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.campaign.photo_uploader:
+        alias: OpenLoyalty\Bundle\CampaignBundle\Service\CampaignPhotoUploader
+        deprecated: The "%service_id%" service is deprecated since 2.8.0
+
     ol.settings.form_type.settings:
         alias: OpenLoyalty\Bundle\SettingsBundle\Form\Type\SettingsFormType
         deprecated: The "%service_id%" service is deprecated since 2.8.0
@@ -97,6 +105,7 @@ services:
     oloy.user.form_handler.customer_edit:
         alias: OpenLoyalty\Bundle\UserBundle\Form\Handler\CustomerEditFormHandler
         deprecated: The "%service_id%" service is deprecated since 2.8.0
+
     oloy.email.settings:
         alias: OpenLoyalty\Bundle\EmailSettingsBundle\Service\EmailSettings
         deprecated: The "%service_id%" service is deprecated since 2.8.0
@@ -115,8 +124,4 @@ services:
 
     oloy.transaction.read_model.projector.transaction_details:
         alias: OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsProjector
-        deprecated: The "%service_id%" service is deprecated since 2.8.0
-
-    oloy.pagination:
-        alias: OpenLoyalty\Bundle\PaginationBundle\Service\Paginator
         deprecated: The "%service_id%" service is deprecated since 2.8.0

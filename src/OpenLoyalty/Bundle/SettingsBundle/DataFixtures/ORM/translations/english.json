@@ -234,6 +234,9 @@
     "visible_from_prompt": "",
     "visible_to": "Visible To",
     "visible_to_prompt": "",
+    "coupon_active_since": "Coupon active since",
+    "coupon_active_to": "Coupon active to",
+    "coupon_forever_active": "forever",
     "brand_description": "Brand description",
     "brand_description_prompt": "",
     "brand_icon": "Brand icon",
@@ -838,6 +841,8 @@
     "coupon_used": "This coupon has been used",
     "footer": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget tincidunt est. Sed fringilla dapibus venenatis.",
     "list": "My rewards",
+    "will_be_active_since": "Coupon became active on  {{ date }}",
+    "will_be_active_till": "You can use this coupon until {{ date }}",
     "more_information": {
       "button": "Click here for more info"
     },

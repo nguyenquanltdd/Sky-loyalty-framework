@@ -234,13 +234,7 @@ class Campaign
             $this->active = $data['active'];
         }
 
-        if ($this->reward == self::REWARD_TYPE_CASHBACK) {
-            if (isset($data['pointValue'])) {
-                $this->pointValue = $data['pointValue'];
-            }
-            $this->unlimited = true;
-            $this->singleCoupon = true;
-        } elseif ($this->reward === self::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE) {
+        if ($this->reward !== self::REWARD_TYPE_CASHBACK) {
             if (array_key_exists('daysInactive', $data)) {
                 $this->setDaysInactive($data['daysInactive']);
             }
@@ -248,7 +242,14 @@ class Campaign
             if (array_key_exists('daysValid', $data)) {
                 $this->setDaysValid($data['daysValid']);
             }
-
+        }
+        if ($this->reward == self::REWARD_TYPE_CASHBACK) {
+            if (isset($data['pointValue'])) {
+                $this->pointValue = $data['pointValue'];
+            }
+            $this->unlimited = true;
+            $this->singleCoupon = true;
+        } elseif ($this->reward === self::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE) {
             if (array_key_exists('transactionPercentageValue', $data)) {
                 $this->setTransactionPercentageValue($data['transactionPercentageValue']);
             }
@@ -661,6 +662,10 @@ class Campaign
             CampaignVisibility::validateRequiredData($data['campaignVisibility']);
         }
 
+        if ($data['reward'] !== self::REWARD_TYPE_CASHBACK) {
+            Assert::notBlank($data['daysInactive']);
+            Assert::notBlank($data['daysValid']);
+        }
         if ($data['reward'] == self::REWARD_TYPE_CASHBACK) {
             Assert::notBlank($data['pointValue']);
             Assert::greaterOrEqualThan($data['pointValue'], 0);
@@ -670,10 +675,6 @@ class Campaign
             Assert::notBlank($data['transactionPercentageValue']);
             Assert::greaterOrEqualThan($data['transactionPercentageValue'], self::MIN_TRANSACTION_PERCENTAGE_VALUE);
             Assert::lessThan($data['transactionPercentageValue'], self::MAX_TRANSACTION_PERCENTAGE_VALUE);
-
-            Assert::notBlank($data['daysInactive']);
-
-            Assert::notBlank($data['daysValid']);
         }
 
         Assert::keyIsset($data, 'campaignActivity');

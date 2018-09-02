@@ -12,7 +12,6 @@ use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\Command\CancelBoughtCampaign;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
-use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\TransactionId;
 use OpenLoyalty\Component\EarningRule\Domain\Returns\Model\ReturnContext;
@@ -62,7 +61,7 @@ class RefundInstantRewardAlgorithm implements RefundAlgorithmInterface
     public function evaluate(ReturnContext $refundContext): bool
     {
         foreach ($refundContext->getCampaigns() as $campaign) {
-            if ($campaign->getType() === Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE && $campaign->getStatus() === CampaignPurchase::STATUS_INACTIVE) {
+            if ($campaign->getType() === Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE) {
                 $couponValue = $this->transactionValueProvider->getTransactionValue(new TransactionTransactionId($refundContext->getBaseTransactionId()->__toString()), true);
 
                 try {

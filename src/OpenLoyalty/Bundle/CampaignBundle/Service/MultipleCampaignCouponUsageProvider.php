@@ -79,8 +79,9 @@ class MultipleCampaignCouponUsageProvider
                 $used = boolval($coupon['used']);
                 $campaign = $this->campaignRepository->byId(new CampaignId($coupon['campaignId']));
                 $customer = $this->customerDetailsRepository->find(new CustomerId($coupon['customerId']));
+                $coupon = new Coupon($coupon['code']);
 
-                $this->checkFields($used, $customer, $campaign, (string) $key);
+                $this->checkFields($used, $customer, $campaign, $coupon, (string) $key);
             } catch (AssertionFailedException $exception) {
                 throw new InvalidDataProvidedException(
                     $this->translator->trans(
@@ -96,7 +97,7 @@ class MultipleCampaignCouponUsageProvider
             $result[] = new ChangeCampaignUsage(
                 $customer->getCustomerId(),
                 new CustomerCampaignId($campaign->getCampaignId()->__toString()),
-                new Coupon($coupon['code']),
+                $coupon,
                 $used
             );
         }
@@ -124,8 +125,8 @@ class MultipleCampaignCouponUsageProvider
             try {
                 $used = boolval($coupon['used']);
                 $campaign = $this->campaignRepository->byId(new CampaignId($coupon['campaignId']));
-
-                $this->checkFields($used, $customer, $campaign, $key);
+                $coupon = new Coupon($coupon['code']);
+                $this->checkFields($used, $customer, $campaign, $coupon, $key);
             } catch (AssertionFailedException $exception) {
                 throw new InvalidDataProvidedException();
             }
@@ -133,7 +134,7 @@ class MultipleCampaignCouponUsageProvider
             $result[] = new ChangeCampaignUsage(
                 $customer->getCustomerId(),
                 new CustomerCampaignId($campaign->getCampaignId()->__toString()),
-                new Coupon($coupon['code']),
+                $coupon,
                 $used
             );
         }
@@ -142,15 +143,16 @@ class MultipleCampaignCouponUsageProvider
     }
 
     /**
-     * @param bool                 $used
-     * @param null|CustomerDetails $customer
-     * @param null|Campaign        $campaign
-     * @param string               $key
+     * @param bool            $used
+     * @param CustomerDetails $customer
+     * @param Campaign        $campaign
+     * @param Coupon          $coupon
+     * @param string          $key
      *
      * @throws InvalidDataProvidedException
      * @throws NoCouponsLeftException
      */
-    private function checkFields(bool $used, ?CustomerDetails $customer, ?Campaign $campaign, string $key)
+    private function checkFields(bool $used, CustomerDetails $customer, Campaign $campaign, Coupon $coupon, string $key): void
     {
         if (!is_bool($used)) {
             throw new InvalidDataProvidedException(
@@ -171,6 +173,11 @@ class MultipleCampaignCouponUsageProvider
             return $campaignPurchase->getCampaignId()->__toString() === $campaign->getCampaignId()->__toString() && $campaignPurchase->getStatus() === CampaignPurchase::STATUS_ACTIVE && !$campaignPurchase->isUsed();
         })) === 0) {
             throw new NoCouponsLeftException();
+        }
+        if (!$customer->canUsePurchase(new CustomerCampaignId((string) $campaign->getCampaignId()), $coupon)) {
+            throw new InvalidDataProvidedException(
+                $this->translator->trans('campaign.invalid_value_field_in_row', ['%name%' => 'code', '%row%' => $key])
+            );
         }
     }
 }

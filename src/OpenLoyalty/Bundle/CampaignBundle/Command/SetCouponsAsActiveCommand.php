@@ -75,13 +75,12 @@ class SetCouponsAsActiveCommand extends Command
             $progressBar->start();
         }
         $date = new \DateTime();
-        $date->add(new \DateInterval('P1D'));
         /** @var CustomerDetails $customer */
         foreach ($customers as $customer) {
             /** @var CampaignPurchase $campaignPurchase */
             foreach ($customer->getCampaignPurchases() as $campaignPurchase) {
                 if ($campaignPurchase->getStatus() === CampaignPurchase::STATUS_INACTIVE &&
-                    $campaignPurchase->getActiveSince() < $date) {
+                    $campaignPurchase->getActiveSince() && $campaignPurchase->getActiveSince() < $date) {
                     $this->commandBus->dispatch(
                         new ActivateBoughtCampaign(
                             $customer->getCustomerId(),

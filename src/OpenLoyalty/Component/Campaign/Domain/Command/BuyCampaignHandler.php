@@ -70,10 +70,14 @@ class BuyCampaignHandler extends SimpleCommandHandler
         $activeSince = null;
         $activeTo = null;
 
-        if ($campaign->getReward() === Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE) {
-            $status = CampaignPurchase::STATUS_INACTIVE;
-            $activeSince = $this->activationDateProvider->getActivationDate($campaign, new \DateTime());
-            $activeTo = $this->expirationDateProvider->getExpirationDate($campaign, new \DateTime());
+        if ($campaign->getReward() !== Campaign::REWARD_TYPE_CASHBACK) {
+            if ($campaign->getDaysInactive() !== 0) {
+                $status = CampaignPurchase::STATUS_INACTIVE;
+                $activeSince = $this->activationDateProvider->getActivationDate($campaign, new \DateTime());
+            }
+            if ($campaign->getDaysValid() !== 0) {
+                $activeTo = $this->expirationDateProvider->getExpirationDate($campaign, new \DateTime());
+            }
         }
 
         $this->commandBus->dispatch(

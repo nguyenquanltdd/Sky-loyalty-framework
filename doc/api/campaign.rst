@@ -60,6 +60,14 @@ Definition
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | campaign[coupons]                              | request        |  Array of coupon codes.                                                    |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| campaign[daysInactive]                         | request        |  Number of days, while coupon will not be active after purchase            |
+|                                                |                |  0 means "active immediately"                                              |
+|                                                |                |  Required for all rewards besides cashback                                 |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| campaign[daysValid]                            | request        |  Number of days, while coupon will be valid, after activation              |
+|                                                |                |  0 means "valid forever"                                                   |
+|                                                |                |  Required for all rewards besides cashback                                 |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | campaign[campaignVisibility][allTimeVisible]   | request        |  Set 1 if always visible, otherwise 0                                      |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | campaign[campaignVisibility][visibleFrom]      | request        |  Campaign visible from YYYY-MM-DD HH:mm, for example ``2017-10-05 10:59``. |
@@ -102,6 +110,8 @@ Example
         -d "campaign[singleCoupon]=0" \
         -d "campaign[limit]=10" \
         -d "campaign[limitPerUser]=1" \
+        -d "campaign[daysValid]=0" \
+        -d "campaign[daysInactive]=0" \
         -d "campaign[coupons][0]=testCoupon" \
         -d "campaign[coupons][1]=DiscountCoupon" \
         -d "campaign[campaignVisibility][allTimeVisible]=0" \
@@ -181,6 +191,8 @@ Exemplary Response
           "limit": {},
           "limitPerUser": {},
           "coupons": {},
+          "daysInactive": {},
+          "daysValid": {},
           "campaignVisibility": {
             "children": {
               "allTimeVisible": {},
@@ -296,6 +308,8 @@ Exemplary Response
           "unlimited": false,
           "limit": 10,
           "limitPerUser": 2,
+          "daysValid": 0,
+          "daysInactive": 0,
           "campaignActivity": {
             "allTimeActive": false,
             "activeFrom": "2016-01-01T00:00:00+0100",
@@ -342,6 +356,8 @@ Exemplary Response
           "unlimited": false,
           "limit": 10,
           "limitPerUser": 2,
+          "daysValid": 0,
+          "daysInactive": 0,
           "campaignActivity": {
             "allTimeActive": false,
             "activeFrom": "2016-01-01T00:00:00+0100",
@@ -386,6 +402,8 @@ Exemplary Response
           "unlimited": false,
           "limit": 10,
           "limitPerUser": 1,
+          "daysValid": 0,
+          "daysInactive": 0,
           "campaignActivity": {
             "allTimeActive": false,
             "activeFrom": "2017-09-05T10:59:00+0200",
@@ -466,6 +484,14 @@ Definition
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | campaign[coupons]                              | request        |  Array of coupon codes.                                                    |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| campaign[daysInactive]                         | request        |  Number of days, while coupon will not be active after purchase            |
+|                                                |                |  0 means "active immediately"                                              |
+|                                                |                |  Required for all rewards besides cashback                                 |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| campaign[daysValid]                            | request        |  Number of days, while coupon will be valid, after activation              |
+|                                                |                |  0 means "valid forever"                                                   |
+|                                                |                |  Required for all rewards besides cashback                                 |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | campaign[campaignVisibility][allTimeVisible]   | request        |  Set 1 if always visible, otherwise 0                                      |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | campaign[campaignVisibility][visibleFrom]      | request        |  Campaign visible from YYYY-MM-DD HH:mm, for example ``2017-10-05 10:59``. |
@@ -510,6 +536,8 @@ Example
         -d "campaign[singleCoupon]=0" \
         -d "campaign[limit]=10" \
         -d "campaign[limitPerUser]=1" \
+        -d "campaign[daysInactive]=0" \
+        -d "campaign[daysValid]=1" \
         -d "campaign[coupons][0]=testCoupon" \
         -d "campaign[coupons][1]=DiscountCoupon" \
         -d "campaign[campaignVisibility][allTimeVisible]=0" \
@@ -625,6 +653,8 @@ Exemplary Response
       "unlimited": false,
       "limit": 10,
       "limitPerUser": 1,
+      "daysValid": 1,
+      "daysInactive": 0,
       "campaignActivity": {
         "allTimeActive": false,
         "activeFrom": "2017-09-05T10:59:00+0200",
@@ -739,6 +769,8 @@ Exemplary Response
           "unlimited": false,
           "limit": 10,
           "limitPerUser": 2,
+          "daysValid": 0,
+          "daysInactive": 0,
           "campaignActivity": {
             "allTimeActive": false,
             "activeFrom": "2016-01-01T00:00:00+0100",

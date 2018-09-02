@@ -54,6 +54,7 @@ services:
       - [setLogger, ['@logger']]
     tags:
       - { name: broadway.domain.event_listener }
+
   OpenLoyalty\Component\Campaign\Infrastructure\Repository\CampaignBoughtElasticsearchRepository:
     class: 'Broadway\ReadModel\ReadModel'
     factory: ['@oloy.user.read_model.repository_factory', create]
@@ -78,8 +79,8 @@ services:
   OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Repository\DoctrineCampaignCategoryRepository:
     factory: ['@doctrine.orm.entity_manager', getRepository]
     arguments:
-    - 'OpenLoyalty\Component\Campaign\Domain\CampaignCategory'
+      - 'OpenLoyalty\Component\Campaign\Domain\CampaignCategory'
 
   OpenLoyalty\Component\Campaign\Domain\Command\CampaignCategoryCommandHandler:
     tags:
-    - { name: broadway.command_handler }
+      - { name: broadway.command_handler }

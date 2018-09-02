@@ -10,6 +10,7 @@ use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\Model\Address;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
+use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\Model\Gender;
 use OpenLoyalty\Component\Customer\Domain\Model\Company;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
@@ -790,6 +791,24 @@ class CustomerDetails implements SerializableReadModel
     public function addCampaignPurchase(CampaignPurchase $campaignPurchase)
     {
         $this->campaignPurchases[] = $campaignPurchase;
+    }
+
+    /**
+     * @param CampaignId $campaignId
+     * @param Coupon     $coupon
+     *
+     * @return bool
+     */
+    public function canUsePurchase(CampaignId $campaignId, Coupon $coupon): bool
+    {
+        /** @var CampaignPurchase $purchase */
+        foreach ($this->getPurchasesByCampaignId($campaignId) as $purchase) {
+            if ($purchase->getCoupon()->getCode() == $coupon->getCode()) {
+                return $purchase->canBeUsed();
+            }
+        }
+
+        return false;
     }
 
     public function getPurchasesByCampaignId(CampaignId $campaignId)

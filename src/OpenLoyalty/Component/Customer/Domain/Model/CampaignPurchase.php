@@ -200,6 +200,14 @@ class CampaignPurchase implements Serializable
     }
 
     /**
+     * @return bool
+     */
+    public function canBeUsed(): bool
+    {
+        return self::STATUS_ACTIVE === $this->status;
+    }
+
+    /**
      * @param bool $used
      */
     public function setUsed($used)

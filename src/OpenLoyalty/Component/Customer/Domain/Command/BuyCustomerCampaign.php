@@ -12,7 +12,7 @@ use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\TransactionId;
 
 /**
- * Class BuyCampaign.
+ * Class BuyCustomerCampaign.
  */
 class BuyCustomerCampaign extends CustomerCommand
 {

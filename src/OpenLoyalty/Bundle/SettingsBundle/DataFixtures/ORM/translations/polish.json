@@ -236,6 +236,9 @@
     "visible_from_prompt": "",
     "visible_to": "Widoczna Do",
     "visible_to_prompt": "",
+    "coupon_active_since": "Kupon aktywny od",
+    "coupon_active_to": "Kupon aktywny do",
+    "coupon_forever_active": "zawsze",
     "brand_icon": "Logo marki",
     "brand_info": "Marka",
     "brand_name": "Nazwa marki",
@@ -858,6 +861,8 @@
     "coupon_used": "Ten kupon został wykorzystany",
     "footer": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget tincidunt est. Sed fringilla dapibus venenatis.",
     "list": "Moje nagrody",
+    "will_be_active_since": "Kupon będzie ważny od  {{ date }}",
+    "will_be_active_till": "Kupon będzie ważny do {{ date }}",
     "more_information": {
       "button": "Kliknij tutaj, aby uzyskać więcej informacji"
     },

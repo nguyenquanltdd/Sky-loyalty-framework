@@ -32,6 +32,8 @@ class CreateCampaignTest extends CampaignCommandHandlerTest
             'limitPerUser' => 2,
             'singleCoupon' => false,
             'coupons' => [new Coupon('123')],
+            'daysValid' => 0,
+            'daysInactive' => 0,
             'campaignActivity' => [
                 'allTimeActive' => false,
                 'activeFrom' => new \DateTime('2016-01-01'),
@@ -67,6 +69,8 @@ class CreateCampaignTest extends CampaignCommandHandlerTest
             'limit' => 10,
             'limitPerUser' => 2,
             'coupons' => [new Coupon('123')],
+            'daysValid' => 0,
+            'daysInactive' => 0,
             'campaignActivity' => [
                 'allTimeActive' => false,
                 'activeFrom' => new \DateTime('2016-01-01'),
