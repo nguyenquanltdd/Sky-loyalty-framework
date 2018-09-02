@@ -90,6 +90,7 @@ class WebhookListener extends BaseWebhookListener
                 'customerId' => (string) $event->getCustomerId(),
                 'levelId' => (string) $event->getLevelId(),
                 'levelName' => $event->getLevelName(),
+                'levelMove' => $event->getLevelMove(),
             ]
         );
     }

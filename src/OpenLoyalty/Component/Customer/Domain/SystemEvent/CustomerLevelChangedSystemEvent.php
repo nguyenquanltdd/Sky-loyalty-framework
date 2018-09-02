@@ -13,6 +13,9 @@ use OpenLoyalty\Component\Customer\Domain\LevelId;
  */
 class CustomerLevelChangedSystemEvent extends CustomerSystemEvent
 {
+    private const LEVEL_GOES_UP = 'up';
+    private const LEVEL_GOES_DOWN = 'down';
+
     /**
      * @var LevelId
      */
@@ -23,12 +26,30 @@ class CustomerLevelChangedSystemEvent extends CustomerSystemEvent
      */
     private $levelName;
 
-    public function __construct(CustomerId $customerId, LevelId $levelId, ?string $levelName = null)
-    {
+    /**
+     * @var null|bool
+     */
+    private $levelMove;
+
+    /**
+     * CustomerLevelChangedSystemEvent constructor.
+     *
+     * @param CustomerId  $customerId
+     * @param LevelId     $levelId
+     * @param null|string $levelName
+     * @param null|bool   $levelMove
+     */
+    public function __construct(
+        CustomerId $customerId,
+        LevelId $levelId,
+        ?string $levelName = null,
+        ?bool $levelMove = null
+    ) {
         parent::__construct($customerId);
 
         $this->levelId = $levelId;
         $this->levelName = $levelName;
+        $this->levelMove = $levelMove;
     }
 
     /**
@@ -45,5 +66,13 @@ class CustomerLevelChangedSystemEvent extends CustomerSystemEvent
     public function getLevelName(): ?string
     {
         return $this->levelName;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getLevelMove(): ?string
+    {
+        return (true === $this->levelMove) ? self::LEVEL_GOES_UP : self::LEVEL_GOES_DOWN;
     }
 }

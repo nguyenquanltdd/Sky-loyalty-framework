@@ -19,8 +19,10 @@ use OpenLoyalty\Component\Customer\Domain\LevelId as CustomerLevelId;
 use OpenLoyalty\Component\Customer\Domain\LevelIdProvider;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
+use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerLevelChangedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRecalculateLevelRequestedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRemovedManuallyLevelSystemEvent;
+use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
 use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 use OpenLoyalty\Component\Customer\Infrastructure\ExcludeDeliveryCostsProvider;
 use OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener\CalculateCustomerLevelListener;
@@ -32,6 +34,7 @@ use OpenLoyalty\Component\Level\Domain\Model\Reward;
 use OpenLoyalty\Component\Transaction\Domain\CustomerId as TransactionCustomerId;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\CustomerAssignedToTransactionSystemEvent;
 use OpenLoyalty\Component\Transaction\Domain\TransactionId;
+use PHPUnit_Framework_MockObject_MockObject;
 
 /**
  * Class CalculateCustomerLevelListenerTest.
@@ -51,7 +54,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $level = new Level($levelId, 'test', 10);
 
-        /** @var CommandBus|\PHPUnit_Framework_MockObject_MockObject $commandBus */
+        /** @var CommandBus|PHPUnit_Framework_MockObject_MockObject $commandBus */
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->once())->method('dispatch')->with(
             $this->equalTo(
@@ -64,6 +67,9 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                 )
             )
         );
+
+        $eventDispatcher = $this->getDispatcher();
+        $eventDispatcher->expects($this->never())->method('dispatch');
 
         $listener = new CalculateCustomerLevelListener(
             $this->getLevelIdProvider($level),
@@ -92,7 +98,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $level = new Level($levelId, 'test', 10);
 
-        /** @var CommandBus|\PHPUnit_Framework_MockObject_MockObject $commandBus */
+        /** @var CommandBus|PHPUnit_Framework_MockObject_MockObject $commandBus */
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->once())->method('dispatch')->with(
             $this->equalTo(
@@ -106,6 +112,21 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             )
         );
 
+        $eventDispatcher = $this->getDispatcher();
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(
+            $this->equalTo(CustomerSystemEvents::CUSTOMER_LEVEL_CHANGED_AUTOMATICALLY),
+            $this->equalTo(
+                [
+                    new CustomerLevelChangedSystemEvent(
+                        new CustomerId($customerId),
+                        new LevelId((string) $levelId),
+                        'test',
+                        true
+                    ),
+                ]
+            )
+        );
+
         $listener = new CalculateCustomerLevelListener(
             $this->getLevelIdProvider($level),
             $this->getCustomerDetailsRepository(),
@@ -113,7 +134,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_TRANSACTIONS),
             $this->getExcludeDeliveryCostsProvider(false),
             $this->getLevelRepository(),
-            $this->getDispatcher(),
+            $eventDispatcher,
             $this->getCustomerStatusProvider(),
             $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_NONE),
             $this->getAccountDetailsRepository(100)
@@ -138,9 +159,12 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $level = new Level($levelId, 'test', 10);
         $level->setReward(new Reward('level_0_reward', 10, 'level'));
 
-        /** @var CommandBus|\PHPUnit_Framework_MockObject_MockObject $commandBus */
+        /** @var CommandBus|PHPUnit_Framework_MockObject_MockObject $commandBus */
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->never())->method('dispatch');
+
+        $eventDispatcher = $this->getDispatcher();
+        $eventDispatcher->expects($this->never())->method('dispatch');
 
         $listener = new CalculateCustomerLevelListener(
             $this->getLevelIdProvider($level),
@@ -149,7 +173,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_TRANSACTIONS),
             $this->getExcludeDeliveryCostsProvider(false),
             $this->getLevelRepository($level),
-            $this->getDispatcher(),
+            $eventDispatcher,
             $this->getCustomerStatusProvider(),
             $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_NONE),
             $this->getAccountDetailsRepository(100)
@@ -170,24 +194,30 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
      * @param CustomerLevelId $currentLevelId
      * @param CustomerLevelId $assignedLevelId
      * @param $transactionAmount
+     * @param string|null          $levelName
      * @param CustomerLevelId|null $resultLevelId
+     * @param bool                 $levelMove
      */
     public function it_moves_customer_to_correct_level_by_transaction_with_manually_assigned_level(
         CustomerLevelId $currentLevelId,
         CustomerLevelId $assignedLevelId,
         $transactionAmount,
-        string $levelName = null,
-        CustomerLevelId $resultLevelId = null
+        ?string $levelName = null,
+        CustomerLevelId $resultLevelId = null,
+        bool $levelMove
     ): void {
         $levels = $this->getSampleLevels();
         $levelsRepo = $this->getLevelRepositoryWithArray($levels);
 
         $customerId = '00000000-0000-0000-0000-000000000000';
 
-        /** @var CommandBus|\PHPUnit_Framework_MockObject_MockObject $commandBus */
+        /** @var CommandBus|PHPUnit_Framework_MockObject_MockObject $commandBus */
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
+        $eventDispatcher = $this->getDispatcher();
+
         if ($resultLevelId == null) {
             $commandBus->expects($this->never())->method('dispatch');
+            $eventDispatcher->expects($this->never())->method('dispatch');
         } else {
             $commandBus->expects($this->once())->method('dispatch')->with(
                 $this->equalTo(
@@ -200,6 +230,20 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                     )
                 )
             );
+            $eventDispatcher = $this->getDispatcher();
+            $eventDispatcher->expects($this->once())->method('dispatch')->with(
+                $this->equalTo(CustomerSystemEvents::CUSTOMER_LEVEL_CHANGED_AUTOMATICALLY),
+                $this->equalTo(
+                    [
+                        new CustomerLevelChangedSystemEvent(
+                            new CustomerId($customerId),
+                            new LevelId((string) $resultLevelId),
+                            $levelName,
+                            $levelMove
+                        ),
+                    ]
+                )
+            );
         }
 
         $listener = new CalculateCustomerLevelListener(
@@ -209,7 +253,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_TRANSACTIONS),
             $this->getExcludeDeliveryCostsProvider(false),
             $levelsRepo,
-            $this->getDispatcher(),
+            $eventDispatcher,
             $this->getCustomerStatusProvider(),
             $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_NONE),
             $this->getAccountDetailsRepository(100)
@@ -232,7 +276,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $level = new Level($levelId, 'test', 0);
 
-        /** @var CommandBus|\PHPUnit_Framework_MockObject_MockObject $commandBus */
+        /** @var CommandBus|PHPUnit_Framework_MockObject_MockObject $commandBus */
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->once())->method('dispatch')->with(
             $this->equalTo(
@@ -246,6 +290,9 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             )
         );
 
+        $eventDispatcher = $this->getDispatcher();
+        $eventDispatcher->expects($this->never())->method('dispatch');
+
         $listener = new CalculateCustomerLevelListener(
             $this->getLevelIdProvider($level),
             $this->getCustomerDetailsRepository(),
@@ -253,7 +300,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_TRANSACTIONS),
             $this->getExcludeDeliveryCostsProvider(false),
             $this->getLevelRepository(),
-            $this->getDispatcher(),
+            $eventDispatcher,
             $this->getCustomerStatusProvider(),
             $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_NONE),
             $this->getAccountDetailsRepository(100)
@@ -274,7 +321,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $level = new Level($levelId, 'test', 10);
 
-        /** @var CommandBus|\PHPUnit_Framework_MockObject_MockObject $commandBus */
+        /** @var CommandBus|PHPUnit_Framework_MockObject_MockObject $commandBus */
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->once())->method('dispatch')->with(
             $this->equalTo(
@@ -288,6 +335,21 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             )
         );
 
+        $eventDispatcher = $this->getDispatcher();
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(
+            $this->equalTo(CustomerSystemEvents::CUSTOMER_LEVEL_CHANGED_AUTOMATICALLY),
+            $this->equalTo(
+                [
+                    new CustomerLevelChangedSystemEvent(
+                        new CustomerId($customerId),
+                        new LevelId((string) $levelId),
+                        'test',
+                        true
+                    ),
+                ]
+            )
+        );
+
         $listener = new CalculateCustomerLevelListener(
             $this->getLevelIdProvider($level),
             $this->getCustomerDetailsRepository(),
@@ -295,7 +357,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
             $this->getExcludeDeliveryCostsProvider(true),
             $this->getLevelRepository(),
-            $this->getDispatcher(),
+            $eventDispatcher,
             $this->getCustomerStatusProvider(),
             $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_NONE),
             $this->getAccountDetailsRepository(100)
@@ -326,6 +388,9 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->never())->method('dispatch');
 
+        $eventDispatcher = $this->getDispatcher();
+        $eventDispatcher->expects($this->never())->method('dispatch');
+
         $listener = new CalculateCustomerLevelListener(
             $this->getLevelIdProvider($level),
             $this->getCustomerDetailsRepository($customerLevelId),
@@ -336,7 +401,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                 $level->getLevelId()->__toString() => $level,
                 $customerLevel->getLevelId()->__toString() => $customerLevel,
             ]),
-            $this->getDispatcher(),
+            $eventDispatcher,
             $this->getCustomerStatusProvider(),
             $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_NONE),
             $this->getAccountDetailsRepository(100)
@@ -367,6 +432,9 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->never())->method('dispatch');
 
+        $eventDispatcher = $this->getDispatcher();
+        $eventDispatcher->expects($this->never())->method('dispatch');
+
         $listener = new CalculateCustomerLevelListener(
             $this->getLevelIdProvider($level),
             $this->getCustomerDetailsRepository($customerLevelId),
@@ -377,7 +445,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                 $level->getLevelId()->__toString() => $level,
                 $customerLevel->getLevelId()->__toString() => $customerLevel,
             ]),
-            $this->getDispatcher(),
+            $eventDispatcher,
             $this->getCustomerStatusProvider(),
             $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_NONE),
             $this->getAccountDetailsRepository(11)
@@ -415,6 +483,21 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             )
         );
 
+        $eventDispatcher = $this->getDispatcher();
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(
+            $this->equalTo(CustomerSystemEvents::CUSTOMER_LEVEL_CHANGED_AUTOMATICALLY),
+            $this->equalTo(
+                [
+                    new CustomerLevelChangedSystemEvent(
+                        new CustomerId($customerId),
+                        new LevelId((string) $levelId),
+                        'test',
+                        false
+                    ),
+                ]
+            )
+        );
+
         $listener = new CalculateCustomerLevelListener(
             $this->getLevelIdProvider($level),
             $this->getCustomerDetailsRepository($customerLevelId),
@@ -425,7 +508,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                 $level->getLevelId()->__toString() => $level,
                 $customerLevel->getLevelId()->__toString() => $customerLevel,
             ]),
-            $this->getDispatcher(),
+            $eventDispatcher,
             $this->getCustomerStatusProvider(),
             $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_X_DAYS),
             $this->getAccountDetailsRepository(11)
@@ -463,6 +546,21 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             )
         );
 
+        $eventDispatcher = $this->getDispatcher();
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(
+            $this->equalTo(CustomerSystemEvents::CUSTOMER_LEVEL_CHANGED_AUTOMATICALLY),
+            $this->equalTo(
+                [
+                    new CustomerLevelChangedSystemEvent(
+                        new CustomerId($customerId),
+                        new LevelId((string) $levelId),
+                        'test',
+                        false
+                    ),
+                ]
+            )
+        );
+
         $listener = new CalculateCustomerLevelListener(
             $this->getLevelIdProvider([$level, $customerLevel]),
             $this->getCustomerDetailsRepository($customerLevelId),
@@ -473,7 +571,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                 $level->getLevelId()->__toString() => $level,
                 $customerLevel->getLevelId()->__toString() => $customerLevel,
             ]),
-            $this->getDispatcher(),
+            $eventDispatcher,
             $this->getCustomerStatusProvider(),
             $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_X_DAYS, LevelDowngradeModeProvider::BASE_EARNED_POINTS),
             $this->getAccountDetailsRepository(1000, 11)
@@ -501,6 +599,9 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->never())->method('dispatch');
 
+        $eventDispatcher = $this->getDispatcher();
+        $eventDispatcher->expects($this->never())->method('dispatch');
+
         $listener = new CalculateCustomerLevelListener(
             $this->getLevelIdProvider($level),
             $this->getCustomerDetailsRepository($customerLevelId, $customerLevelId),
@@ -511,7 +612,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                 $level->getLevelId()->__toString() => $level,
                 $customerLevel->getLevelId()->__toString() => $customerLevel,
             ]),
-            $this->getDispatcher(),
+            $eventDispatcher,
             $this->getCustomerStatusProvider(),
             $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_AUTO),
             $this->getAccountDetailsRepository(100)
@@ -542,6 +643,9 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->never())->method('dispatch');
 
+        $eventDispatcher = $this->getDispatcher();
+        $eventDispatcher->expects($this->never())->method('dispatch');
+
         $listener = new CalculateCustomerLevelListener(
             $this->getLevelIdProvider($level),
             $this->getCustomerDetailsRepository($customerLevelId, $customerLevelId),
@@ -552,7 +656,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                 $level->getLevelId()->__toString() => $level,
                 $customerLevel->getLevelId()->__toString() => $customerLevel,
             ]),
-            $this->getDispatcher(),
+            $eventDispatcher,
             $this->getCustomerStatusProvider(),
             $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_X_DAYS),
             $this->getAccountDetailsRepository(100)
@@ -593,6 +697,21 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             )
         );
 
+        $eventDispatcher = $this->getDispatcher();
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(
+            $this->equalTo(CustomerSystemEvents::CUSTOMER_LEVEL_CHANGED_AUTOMATICALLY),
+            $this->equalTo(
+                [
+                    new CustomerLevelChangedSystemEvent(
+                        new CustomerId($customerId),
+                        new LevelId((string) $levelId),
+                        'test',
+                        false
+                    ),
+                ]
+            )
+        );
+
         $listener = new CalculateCustomerLevelListener(
             $this->getLevelIdProvider($level),
             $this->getCustomerDetailsRepository($customerLevelId),
@@ -603,7 +722,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                 $level->getLevelId()->__toString() => $level,
                 $customerLevel->getLevelId()->__toString() => $customerLevel,
             ]),
-            $this->getDispatcher(),
+            $eventDispatcher,
             $this->getCustomerStatusProvider(),
             $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_AUTO),
             $this->getAccountDetailsRepository(100)
@@ -629,6 +748,9 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
 
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->never())->method('dispatch');
+
+        $eventDispatcher = $this->getDispatcher();
+        $eventDispatcher->expects($this->never())->method('dispatch');
 
         // none
         $listener = new CalculateCustomerLevelListener(
@@ -657,7 +779,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
             $this->getExcludeDeliveryCostsProvider(true),
             $this->getLevelRepository($level),
-            $this->getDispatcher(),
+            $eventDispatcher,
             $this->getCustomerStatusProvider(),
             $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_AUTO),
             $this->getAccountDetailsRepository(100)
@@ -676,7 +798,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
             $this->getExcludeDeliveryCostsProvider(true),
             $this->getLevelRepository($level),
-            $this->getDispatcher(),
+            $eventDispatcher,
             $this->getCustomerStatusProvider(),
             $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_X_DAYS),
             $this->getAccountDetailsRepository(100)
@@ -697,7 +819,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
      */
     protected function getTierTypeAssignProvider($type): TierAssignTypeProvider
     {
-        /** @var TierAssignTypeProvider|\PHPUnit_Framework_MockObject_MockObject $mock */
+        /** @var TierAssignTypeProvider|PHPUnit_Framework_MockObject_MockObject $mock */
         $mock = $this->getMockBuilder(TierAssignTypeProvider::class)->getMock();
         $mock->method('getType')->willReturn($type);
 
@@ -708,7 +830,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
      * @param $mode
      * @param string $base
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject|LevelDowngradeModeProvider
+     * @return PHPUnit_Framework_MockObject_MockObject|LevelDowngradeModeProvider
      */
     protected function getLevelDowngradeModeProvider($mode, $base = LevelDowngradeModeProvider::BASE_ACTIVE_POINTS): LevelDowngradeModeProvider
     {
@@ -729,7 +851,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         CustomerLevelId $currentLevelId = null,
         CustomerLevelId $assignedLevelId = null
     ): CustomerDetailsRepository {
-        /** @var CustomerDetailsRepository|\PHPUnit_Framework_MockObject_MockObject $customerDetailsRepository */
+        /** @var CustomerDetailsRepository|PHPUnit_Framework_MockObject_MockObject $customerDetailsRepository */
         $customerDetailsRepository = $this->getMockBuilder(CustomerDetailsRepository::class)->getMock();
         $customerDetailsRepository
             ->method('find')
@@ -762,7 +884,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $levels = [$levels];
         }
 
-        /** @var LevelIdProvider|\PHPUnit_Framework_MockObject_MockObject $levelIdProviderMock */
+        /** @var LevelIdProvider|PHPUnit_Framework_MockObject_MockObject $levelIdProviderMock */
         $levelIdProviderMock = $this->getMockBuilder(LevelIdProvider::class)->getMock();
         $levelIdProviderMock->method('findLevelIdByConditionValueWithTheBiggestReward')
             ->with($this->greaterThanOrEqual(0))
@@ -799,7 +921,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
      */
     protected function getExcludeDeliveryCostsProvider($returnValue): ExcludeDeliveryCostsProvider
     {
-        /** @var ExcludeDeliveryCostsProvider|\PHPUnit_Framework_MockObject_MockObject $mock */
+        /** @var ExcludeDeliveryCostsProvider|PHPUnit_Framework_MockObject_MockObject $mock */
         $mock = $this->getMockBuilder(ExcludeDeliveryCostsProvider::class)->getMock();
         $mock->method('areExcluded')->willReturn($returnValue);
 
@@ -807,11 +929,11 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return EventDispatcher
+     * @return EventDispatcher|PHPUnit_Framework_MockObject_MockObject
      */
-    protected function getDispatcher(): EventDispatcher
+    protected function getDispatcher(): PHPUnit_Framework_MockObject_MockObject
     {
-        /** @var EventDispatcher|\PHPUnit_Framework_MockObject_MockObject $mock */
+        /** @var EventDispatcher|PHPUnit_Framework_MockObject_MockObject $mock */
         $mock = $this
             ->getMockBuilder(EventDispatcher::class)
             ->disableOriginalConstructor()
@@ -828,7 +950,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
      */
     protected function getLevelRepository(Level $givenLevel = null): LevelRepository
     {
-        /** @var LevelRepository|\PHPUnit_Framework_MockObject_MockObject $mock */
+        /** @var LevelRepository|PHPUnit_Framework_MockObject_MockObject $mock */
         $mock = $this
             ->getMockBuilder(LevelRepository::class)
             ->disableOriginalConstructor()
@@ -857,7 +979,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
      */
     protected function getLevelRepositoryWithArray(array $levels): LevelRepository
     {
-        /** @var LevelRepository|\PHPUnit_Framework_MockObject_MockObject $mock */
+        /** @var LevelRepository|PHPUnit_Framework_MockObject_MockObject $mock */
         $mock = $this
             ->getMockBuilder(LevelRepository::class)
             ->disableOriginalConstructor()
@@ -882,7 +1004,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
      * @param $points
      * @param int $earnedPoints
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject|Repository
+     * @return PHPUnit_Framework_MockObject_MockObject|Repository
      */
     public function getAccountDetailsRepository($points, $earnedPoints = 0): Repository
     {
@@ -910,7 +1032,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
      */
     protected function getCustomerStatusProvider(float $points = 0)
     {
-        /** @var CustomerStatusProvider|\PHPUnit_Framework_MockObject_MockObject $mock */
+        /** @var CustomerStatusProvider|PHPUnit_Framework_MockObject_MockObject $mock */
         $mock = $this
             ->getMockBuilder(CustomerStatusProvider::class)
             ->disableOriginalConstructor()
@@ -942,6 +1064,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                 40,
                 'level_2',
                 new CustomerLevelId(static::LEVEL_WITH_REWARD_300_FROM_30),
+                true,
             ],
             [
                 new CustomerLevelId(static::LEVEL_WITH_REWARD_300_FROM_30),
@@ -949,6 +1072,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                 0,
                 'level_0',
                 new CustomerLevelId(static::LEVEL_WITH_REWARD_200_FROM_20),
+                false,
             ],
             [
                 new CustomerLevelId(static::LEVEL_WITH_REWARD_200_FROM_20),
@@ -956,6 +1080,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                 21,
                 null,
                 null, // do not change level
+                false,
             ],
             [
                 new CustomerLevelId(static::LEVEL_WITH_REWARD_300_FROM_30),
@@ -963,6 +1088,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                 21,
                 'level_1',
                 new CustomerLevelId(static::LEVEL_WITH_REWARD_200_FROM_20),
+                false,
             ],
         ];
     }

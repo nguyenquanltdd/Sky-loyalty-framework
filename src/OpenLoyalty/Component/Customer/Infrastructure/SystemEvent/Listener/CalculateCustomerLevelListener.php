@@ -279,7 +279,8 @@ class CalculateCustomerLevelListener
                     new CustomerLevelChangedSystemEvent(
                         $customer->getCustomerId(),
                         new CustomerLevelId($levelId),
-                        $level->getName()
+                        $level->getName(),
+                        (!$currentLevel || $currentLevel->getReward()->getValue() < $level->getReward()->getValue())
                     ),
                 ]);
             }
@@ -314,7 +315,8 @@ class CalculateCustomerLevelListener
                 new CustomerLevelChangedSystemEvent(
                     $customer->getCustomerId(),
                     new CustomerLevelId($newLevelId),
-                    $level->getName()
+                    $level->getName(),
+                    (!$currentLevel || $currentLevel->getReward()->getValue() < $level->getReward()->getValue())
                 ),
             ]);
         }
@@ -364,7 +366,8 @@ class CalculateCustomerLevelListener
                 new CustomerLevelChangedSystemEvent(
                     $customer->getCustomerId(),
                     new CustomerLevelId($levelId),
-                    $level->getName()
+                    $level->getName(),
+                    (!$currentLevel || $currentLevel->getReward()->getValue() < $level->getReward()->getValue())
                 ),
             ]);
         }
