@@ -149,6 +149,11 @@ security:
             methods: ["GET"]
             stateless: true
             anonymous: true
+        admin_campaign_featured:
+            pattern:  ^/api/campaign/public/featured
+            methods: ["GET"]
+            stateless: true
+            anonymous: true
         admin_api:
             pattern:   ^/api
             stateless: true
@@ -168,6 +173,7 @@ security:
     access_control:
         - { path: ^/api/admin/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/admin/login_check, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/campaign/public/featured, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
         - { path: ^/api/customer/self_register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/customer/activate/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/campaign/([a-zA-Z\-0-9]+)/photo, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
@@ -192,4 +198,4 @@ security:
         - { path: ^/api/settings/activation-method, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
         - { path: ^/api/settings/css, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: ["GET"] }
         - { path: ^/api/translations, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

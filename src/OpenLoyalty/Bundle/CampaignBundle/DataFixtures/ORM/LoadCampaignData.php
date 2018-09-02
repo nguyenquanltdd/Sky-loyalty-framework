@@ -199,6 +199,7 @@ class LoadCampaignData extends ContainerAwareFixture
             $campaignVisibility = new CampaignVisibility();
             $campaignVisibility->setAllTimeVisible(true);
             $campaign->setCampaignVisibility($campaignVisibility);
+            $campaign->setFeatured(true);
 
             $commandBus
                 ->dispatch(

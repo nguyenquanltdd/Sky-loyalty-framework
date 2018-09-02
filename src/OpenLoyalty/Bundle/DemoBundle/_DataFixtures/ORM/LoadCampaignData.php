@@ -172,6 +172,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
         $campaign->setRewardValue(1950.50);
+        $campaign->setFeatured(true);
 
         return $campaign;
     }

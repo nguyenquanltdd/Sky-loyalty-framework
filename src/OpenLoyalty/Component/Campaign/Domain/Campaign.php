@@ -180,6 +180,11 @@ class Campaign
     protected $transactionPercentageValue;
 
     /**
+     * @var bool
+     */
+    protected $featured = false;
+
+    /**
      * @var CampaignCategoryId[]
      */
     protected $categories = [];
@@ -314,6 +319,10 @@ class Campaign
 
         if (array_key_exists('taxPriceValue', $data)) {
             $this->setTaxPriceValue($data['taxPriceValue']);
+        }
+
+        if (array_key_exists('featured', $data)) {
+            $this->setFeatured($data['featured']);
         }
 
         if (array_key_exists('labels', $data)) {
@@ -813,7 +822,7 @@ class Campaign
      */
     public function setRewardValue($rewardValue)
     {
-        if (is_null($rewardValue)) {
+        if (null === $rewardValue) {
             $this->rewardValue = null;
 
             return $this;
@@ -964,6 +973,22 @@ class Campaign
     public function setTransactionPercentageValue(int $transactionPercentageValue): void
     {
         $this->transactionPercentageValue = $transactionPercentageValue;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isFeatured(): bool
+    {
+        return $this->featured;
+    }
+
+    /**
+     * @param bool $featured
+     */
+    public function setFeatured(bool $featured): void
+    {
+        $this->featured = $featured;
     }
 
     /**

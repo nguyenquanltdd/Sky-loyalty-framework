@@ -73,10 +73,11 @@ interface CampaignRepository
      * @param int         $perPage
      * @param null        $sortField
      * @param string      $direction
+     * @param array       $filters
      *
      * @return Campaign[]
      */
-    public function getVisibleCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, array $categoryIds = [], $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC'): array;
+    public function getVisibleCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, array $categoryIds = [], $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC', array $filters = []): array;
 
     /**
      * @param bool $onlyVisible

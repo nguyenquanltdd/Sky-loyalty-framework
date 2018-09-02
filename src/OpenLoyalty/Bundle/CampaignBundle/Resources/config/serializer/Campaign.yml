@@ -1,5 +1,9 @@
 OpenLoyalty\Component\Campaign\Domain\Campaign:
   properties:
+    name:
+      groups: ['admin', 'Public']
+    shortDescription:
+      groups: ['admin', 'Public']
     campaignId:
       expose: true
       inline: true
@@ -21,24 +25,24 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
       exclude: true
   virtual_properties:
     getFlatLevels:
-        serialized_name: levels
-        type: array
-        groups: ['admin']
+      serialized_name: levels
+      type: array
+      groups: ['admin']
     getFlatSegments:
-        serialized_name: segments
-        type: array
-        groups: ['admin']
+      serialized_name: segments
+      type: array
+      groups: ['admin']
     getFlatCategories:
-        serialized_name: categories
-        type: array
-        groups: ['admin']
+      serialized_name: categories
+      type: array
+      groups: ['admin']
     getFlatCoupons:
-        serialized_name: coupons
-        type: array
-        groups: ['admin']
+      serialized_name: coupons
+      type: array
+      groups: ['admin']
     hasCampaignPhoto:
-        serialized_name: hasPhoto
-        type: boolean
+      serialized_name: hasPhoto
+      type: boolean
     getBrandIcon:
-        serialized_name: brandIcon
-        type: boolean
+      serialized_name: brandIcon
+      type: boolean

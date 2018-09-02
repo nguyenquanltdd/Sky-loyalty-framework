@@ -31,7 +31,6 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
       type: text
       nullable: true
       column: brand_description
-      nullable: true
     active:
       type: boolean
       options:
@@ -107,6 +106,10 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
     categories:
       type: campaign_categories_json_array
       nullable: true
+    featured:
+      type: boolean
+      options:
+        default: 1
   embedded:
     campaignActivity:
       class: OpenLoyalty\Component\Campaign\Domain\Model\CampaignActivity

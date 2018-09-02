@@ -9,6 +9,7 @@ services:
 
   Broadway\CommandHandling\CommandBus: '@broadway.command_handling.command_bus'
   Symfony\Component\Translation\TranslationInterface: '@translator'
+  OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomersRepository: '@oloy.segment.read_model.repository.segmented_customers'
 
   oloy.campaign.form_type.campaign:
     class: OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignFormType

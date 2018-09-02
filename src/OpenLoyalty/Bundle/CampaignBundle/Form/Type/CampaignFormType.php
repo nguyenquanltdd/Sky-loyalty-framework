@@ -151,6 +151,10 @@ class CampaignFormType extends AbstractType
             'required' => false,
         ]);
 
+        $builder->add('featured', CheckboxType::class, [
+            'required' => false,
+        ]);
+
         $builder->addEventListener(FormEvents::PRE_SUBMIT, [$this, 'adjustCampaignForm']);
     }
 

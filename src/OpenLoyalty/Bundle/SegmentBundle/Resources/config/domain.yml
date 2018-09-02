@@ -106,7 +106,6 @@ services:
       - '@oloy.user.read_model.repository.customer_details'
     tags:
       - { name: oloy_segmentation_evaluator }
-
   oloy.segment.recalculate.segment:
     class: 'OpenLoyalty\Component\Segment\Infrastructure\SystemEvent\Listener\RecalculateSegment'
     tags:

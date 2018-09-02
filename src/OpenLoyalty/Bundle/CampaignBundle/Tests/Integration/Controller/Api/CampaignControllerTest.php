@@ -19,6 +19,7 @@ use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -634,16 +635,6 @@ class CampaignControllerTest extends BaseApiTest
     }
 
     /**
-     * @return array
-     */
-    public function sortParamsProvider()
-    {
-        return [
-            ['campaignId', 'asc', 'desc'],
-        ];
-    }
-
-    /**
      * @test
      */
     public function it_returns_csv_response_when_exports_bought_data()
@@ -658,36 +649,6 @@ class CampaignControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200');
         $this->assertEquals(0, strpos($expectedHeaderData, $response->headers->get('content-disposition')));
-    }
-
-    /**
-     * @param CustomerId $customerId
-     *
-     * @return AccountDetails|null
-     */
-    protected function getCustomerAccount(CustomerId $customerId)
-    {
-        $accountDetailsRepository = static::$kernel->getContainer()->get('oloy.points.account.repository.account_details');
-        $accounts = $accountDetailsRepository->findBy(['customerId' => $customerId->__toString()]);
-        if (count($accounts) == 0) {
-            return;
-        }
-
-        return reset($accounts);
-    }
-
-    /**
-     * @param $email
-     *
-     * @return CustomerDetails
-     */
-    protected function getCustomerDetails($email)
-    {
-        $customerDetails = $this->customerDetailsRepository->findBy(['email' => $email]);
-        /** @var CustomerDetails $customerDetails */
-        $customerDetails = reset($customerDetails);
-
-        return $customerDetails;
     }
 
     /**
@@ -794,5 +755,63 @@ class CampaignControllerTest extends BaseApiTest
         $this->assertNotNull($campaignPurchase);
         $this->assertInstanceOf(CampaignPurchase::class, $campaignPurchase);
         $this->assertTrue($campaignPurchase->isUsed());
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_public_list_of_featured_campaigns(): void
+    {
+        $client = self::createClient();
+
+        $client->request(Request::METHOD_GET, '/api/campaign/public/featured');
+
+        $response = $client->getResponse();
+
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertCount(6, $data['campaigns']);
+        $this->assertSame(6, $data['total']);
+    }
+
+    /**
+     * @return array
+     */
+    public function sortParamsProvider(): array
+    {
+        return [
+            ['campaignId', 'asc', 'desc'],
+        ];
+    }
+
+    /**
+     * @param $email
+     *
+     * @return CustomerDetails
+     */
+    protected function getCustomerDetails($email)
+    {
+        $customerDetails = $this->customerDetailsRepository->findBy(['email' => $email]);
+        /** @var CustomerDetails $customerDetails */
+        $customerDetails = reset($customerDetails);
+
+        return $customerDetails;
+    }
+
+    /**
+     * @param CustomerId $customerId
+     *
+     * @return AccountDetails|null
+     */
+    protected function getCustomerAccount(CustomerId $customerId)
+    {
+        $accountDetailsRepository = static::$kernel->getContainer()->get('oloy.points.account.repository.account_details');
+        $accounts = $accountDetailsRepository->findBy(['customerId' => $customerId->__toString()]);
+        if (count($accounts) == 0) {
+            return;
+        }
+
+        return reset($accounts);
     }
 }

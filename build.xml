@@ -47,7 +47,7 @@
                 <phingcall target="prepare-for-tests" />
             </else>
         </if>
-        <exec command="${disable_deprecations};vendor/phpunit/phpunit/phpunit ${src} --stop-on-error --stop-on-failure -v" checkreturn="true" passthru="true"/>
+        <exec command="${disable_deprecations};vendor/phpunit/phpunit/phpunit ${src} -v" checkreturn="true" passthru="true"/>
     </target>
     <target name="unit" description="Run unit tests">
         <exec command="${disable_deprecations};vendor/phpunit/phpunit/phpunit --testsuite Unit" checkreturn="true" passthru="true"/>

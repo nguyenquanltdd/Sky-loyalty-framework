@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\ORMException;
 use Doctrine\ORM\QueryBuilder;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
@@ -165,31 +166,102 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     }
 
     /**
+     * @param int    $page
+     * @param int    $perPage
+     * @param null   $sortField
+     * @param string $direction
+     *
+     * @return array
+     */
+    public function findAllFeaturedPaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'ASC'): array
+    {
+        $query = $this->getFeaturedCampaignsQueryBuilder();
+
+        if ($sortField) {
+            $query->orderBy(sprintf('campaign.%s', $this->validateSort($sortField)), $this->validateSortBy($direction));
+        }
+
+        $query
+            ->setMaxResults($perPage)
+            ->setFirstResult(($page - 1) * $perPage)
+        ;
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @return int
+     */
+    public function countFeatured(): int
+    {
+        $query = $this->getFeaturedCampaignsQueryBuilder();
+        $query->select('count(campaign.campaignId)');
+
+        try {
+            return $query->getQuery()->getSingleScalarResult();
+        } catch (ORMException $ex) {
+            return 0;
+        }
+    }
+
+    /**
+     * @return QueryBuilder
+     */
+    protected function getFeaturedCampaignsQueryBuilder(): QueryBuilder
+    {
+        $query = $this->createQueryBuilder('campaign');
+        $query
+            ->andWhere('campaign.active = :true')
+            ->setParameter('true', true)
+        ;
+
+        $query
+            ->andWhere('campaign.featured = :featured')
+            ->setParameter('featured', true)
+        ;
+
+        $query
+            ->andWhere(
+                $query->expr()->orX(
+                    'campaign.campaignVisibility.allTimeVisible = :visible',
+                    $query->expr()->andX(
+                        'campaign.campaignVisibility.visibleFrom <= :now',
+                        'campaign.campaignVisibility.visibleTo >= :now'
+                    )
+                )
+            )
+            ->setParameter('now', new \DateTime())
+            ->setParameter('visible', true);
+
+        return $query;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function countTotal($onlyVisible = false)
     {
-        $qb = $this->createQueryBuilder('e');
-        $qb->select('count(e.campaignId)');
+        $query = $this->createQueryBuilder('e');
+        $query->select('count(e.campaignId)');
 
         if ($onlyVisible) {
-            $qb->andWhere(
-                $qb->expr()->orX(
+            $query->andWhere(
+                $query->expr()->orX(
                     'e.campaignVisibility.allTimeVisible = :true',
-                    $qb->expr()->andX(
+                    $query->expr()->andX(
                         'e.campaignVisibility.visibleFrom <= :now',
                         'e.campaignVisibility.visibleTo >= :now'
                     )
                 )
             );
 
-            $qb->andWhere('e.reward != :cashback')->setParameter('cashback', Campaign::REWARD_TYPE_CASHBACK);
+            $query->andWhere('e.reward != :cashback')->setParameter('cashback', Campaign::REWARD_TYPE_CASHBACK);
 
-            $qb->andWhere('e.active = :true')->setParameter('true', true);
-            $qb->setParameter('now', new \DateTime());
+            $query->andWhere('e.active = :true')->setParameter('true', true);
+            $query->setParameter('now', new \DateTime());
         }
 
-        return $qb->getQuery()->getSingleScalarResult();
+        return $query->getQuery()->getSingleScalarResult();
     }
 
     /**
@@ -234,8 +306,16 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     /**
      * {@inheritdoc}
      */
-    public function getVisibleCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, array $categoryIds = [], $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC'): array
-    {
+    public function getVisibleCampaignsForLevelAndSegment(
+        array $segmentIds = [],
+        LevelId $levelId = null,
+        array $categoryIds = [],
+        $page = 1,
+        $perPage = 10,
+        $sortField = null,
+        $direction = 'ASC',
+        array $filters = []
+    ): array {
         $qb = $this->getCampaignsForLevelAndSegmentQueryBuilder($segmentIds, $levelId, $categoryIds, $page, $perPage, $sortField, $direction);
         $qb->andWhere(
             $qb->expr()->orX(
@@ -247,6 +327,10 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
             )
         );
         $qb->andWhere('c.reward != :cashback')->setParameter('cashback', Campaign::REWARD_TYPE_CASHBACK);
+
+        if (array_key_exists('featured', $filters) && !is_null($filters['featured'])) {
+            $qb->andWhere('c.featured = :featured')->setParameter('featured', $filters['featured']);
+        }
 
         return $qb->getQuery()->getResult();
     }
@@ -340,6 +424,14 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
                 $qb->andWhere('c.active = :true')->setParameter('true', true);
             } else {
                 $qb->andWhere('c.active = :false')->setParameter('false', false);
+            }
+        }
+
+        if (array_key_exists('isFeatured', $params) && !is_null($params['isFeatured'])) {
+            if ($params['isFeatured']) {
+                $qb->andWhere('c.featured = :true')->setParameter('true', true);
+            } else {
+                $qb->andWhere('c.featured = :false')->setParameter('false', false);
             }
         }
 

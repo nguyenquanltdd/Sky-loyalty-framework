@@ -19,6 +19,7 @@ use OpenLoyalty\Component\Campaign\Domain\CampaignCategoryRepository;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignUsageRepository;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CouponUsage;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CouponUsageRepository;
+use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelId;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
@@ -32,6 +33,8 @@ use PhpOption\None;
  */
 class CampaignSerializationListener implements EventSubscriberInterface
 {
+    public const PUBLIC_VISIBILITY = 'Public';
+
     /**
      * @var CampaignValidator
      */
@@ -112,100 +115,146 @@ class CampaignSerializationListener implements EventSubscriberInterface
         $this->categoryRepository = $categoryRepository;
     }
 
-    public static function getSubscribedEvents()
+    /**
+     * @return array
+     */
+    public static function getSubscribedEvents(): array
     {
-        return array(
-            array('event' => 'serializer.post_serialize', 'method' => 'onPostSerialize'),
-        );
+        return [
+            [
+                'event' => 'serializer.post_serialize',
+                'method' => 'onPostSerialize',
+            ],
+        ];
     }
 
-    public function onPostSerialize(ObjectEvent $event)
+    /**
+     * @param ObjectEvent $event
+     */
+    public function onPostSerialize(ObjectEvent $event): void
     {
+        $context = $event->getContext();
+
         /** @var Campaign $campaign */
         $campaign = $event->getObject();
 
-        if ($campaign instanceof Campaign) {
-            $segmentNames = [];
-            $levelNames = [];
-            $categoryNames = [];
-
-            foreach ($campaign->getSegments() as $segmentId) {
-                $segment = $this->segmentRepository->byId(new SegmentId($segmentId->__toString()));
-                if ($segment instanceof Segment) {
-                    $segmentNames[$segmentId->__toString()] = $segment->getName();
-                }
-            }
-            foreach ($campaign->getLevels() as $levelId) {
-                $level = $this->levelRepository->byId(new LevelId($levelId->__toString()));
-                if ($level instanceof Level) {
-                    $levelNames[$levelId->__toString()] = $level->getName();
-                }
-            }
-            foreach ($campaign->getCategories() as $categoryId) {
-                $category = $this->categoryRepository->byId(new CampaignCategoryId($categoryId->__toString()));
-                if ($category instanceof CampaignCategory) {
-                    $categoryNames[$categoryId->__toString()] = $category->getName();
-                }
-            }
-            $event->getVisitor()->addData('categoryNames', $categoryNames);
-            $event->getVisitor()->addData('segmentNames', $segmentNames);
-            $event->getVisitor()->addData('levelNames', $levelNames);
-
-            if (!$this->campaignValidator->isCampaignActive($campaign)) {
-                if (!$campaign->getCampaignActivity()->isAllTimeActive()) {
-                    $event->getVisitor()->addData('will_be_active_from', $campaign->getCampaignActivity()->getActiveFrom()->format(\DateTime::ISO8601));
-                    $event->getVisitor()->addData('will_be_active_to', $campaign->getCampaignActivity()->getActiveTo()->format(\DateTime::ISO8601));
-                }
-            }
-
-            $usageLeft = $this->campaignProvider->getUsageLeft($campaign);
-            $event->getVisitor()->addData('usageLeft', $usageLeft);
-
-            $context = $event->getContext();
-            $option = $context->attributes->get('customerId');
-            if ($option && !$option instanceof None) {
-                $customerId = $context->attributes->get('customerId')->get();
-                $usageLeftForCustomer = $this->campaignProvider->getUsageLeftForCustomer($campaign, $customerId);
-                $event->getVisitor()->addData('usageLeftForCustomer', $usageLeftForCustomer);
-
-                $customerStatus = $this->customerStatusProvider->getStatus(new \OpenLoyalty\Component\Customer\Domain\CustomerId($customerId));
-                $points = $customerStatus->getPoints();
-                $canBuy = false;
-                if ($points >= $campaign->getCostInPoints() && $this->campaignValidator->isCampaignActive($campaign)) {
-                    $canBuy = true;
-                }
-
-                $event->getVisitor()->setData('canBeBoughtByCustomer', $canBuy);
-            }
-
-            $event->getVisitor()->addData('visibleForCustomersCount', count($this->campaignProvider->visibleForCustomers($campaign)));
-            $event->getVisitor()->addData('usersWhoUsedThisCampaignCount', $this->countUsersWhoUsedThisCampaign($campaign));
-
-            $formatterContext = new FOSContextProvider($context);
-
-            $event->getVisitor()->setData(
-                'brandDescription',
-                $this->contextMarkDownFormatter->format($campaign->getBrandDescription(), $formatterContext)
-            );
-            $event->getVisitor()->setData(
-                'shortDescription',
-                $this->contextMarkDownFormatter->format($campaign->getShortDescription(), $formatterContext)
-            );
-            $event->getVisitor()->setData(
-                'conditionsDescription',
-                $this->contextMarkDownFormatter->format($campaign->getConditionsDescription(), $formatterContext)
-            );
-            $event->getVisitor()->setData(
-                'usageInstruction',
-                $this->contextMarkDownFormatter->format($campaign->getUsageInstruction(), $formatterContext)
-            );
+        if (!$campaign instanceof Campaign) {
+            return;
         }
+
+        $this->serializeSegments($event, $campaign);
+
+        if (in_array(self::PUBLIC_VISIBILITY, (array) $context->attributes->get('groups')->get())) {
+            return;
+        }
+
+        $this->serializeLevelNames($event, $campaign);
+
+        if (!$this->campaignValidator->isCampaignActive($campaign)) {
+            if (!$campaign->getCampaignActivity()->isAllTimeActive()) {
+                $event->getVisitor()->addData('will_be_active_from', $campaign->getCampaignActivity()->getActiveFrom()->format(\DateTime::ISO8601));
+                $event->getVisitor()->addData('will_be_active_to', $campaign->getCampaignActivity()->getActiveTo()->format(\DateTime::ISO8601));
+            }
+        }
+
+        $categoryNames = [];
+        foreach ($campaign->getCategories() as $categoryId) {
+            $category = $this->categoryRepository->byId(new CampaignCategoryId($categoryId->__toString()));
+            if ($category instanceof CampaignCategory) {
+                $categoryNames[$categoryId->__toString()] = $category->getName();
+            }
+        }
+        $event->getVisitor()->addData('categoryNames', $categoryNames);
+
+        $event->getVisitor()->addData('usageLeft', $this->campaignProvider->getUsageLeft($campaign));
+
+        $customerId = $context->attributes->get('customerId');
+
+        if ($customerId && !$customerId instanceof None) {
+            $customerId = $context->attributes->get('customerId')->get();
+            $usageLeftForCustomer = $this->campaignProvider->getUsageLeftForCustomer($campaign, $customerId);
+            $event->getVisitor()->addData('usageLeftForCustomer', $usageLeftForCustomer);
+
+            $customerStatus = $this->customerStatusProvider->getStatus(new CustomerId($customerId));
+            $points = $customerStatus->getPoints();
+
+            $canBuy = false;
+            if ($points >= $campaign->getCostInPoints() && $this->campaignValidator->isCampaignActive($campaign)) {
+                $canBuy = true;
+            }
+
+            $event->getVisitor()->setData('canBeBoughtByCustomer', $canBuy);
+        }
+
+        $event->getVisitor()->addData('visibleForCustomersCount', count($this->campaignProvider->visibleForCustomers($campaign)));
+        $event->getVisitor()->addData('usersWhoUsedThisCampaignCount', $this->countUsersWhoUsedThisCampaign($campaign));
+
+        $formatterContext = new FOSContextProvider($context);
+
+        $event->getVisitor()->setData(
+            'brandDescription',
+            $this->contextMarkDownFormatter->format($campaign->getBrandDescription(), $formatterContext)
+        );
+        $event->getVisitor()->setData(
+            'shortDescription',
+            $this->contextMarkDownFormatter->format($campaign->getShortDescription(), $formatterContext)
+        );
+        $event->getVisitor()->setData(
+            'conditionsDescription',
+            $this->contextMarkDownFormatter->format($campaign->getConditionsDescription(), $formatterContext)
+        );
+        $event->getVisitor()->setData(
+            'usageInstruction',
+            $this->contextMarkDownFormatter->format($campaign->getUsageInstruction(), $formatterContext)
+        );
     }
 
-    protected function countUsersWhoUsedThisCampaign(Campaign $campaign)
+    /**
+     * @param ObjectEvent $event
+     * @param Campaign    $campaign
+     */
+    private function serializeSegments(ObjectEvent $event, Campaign $campaign): void
+    {
+        $segmentNames = [];
+
+        foreach ($campaign->getSegments() as $segmentId) {
+            $segment = $this->segmentRepository->byId(new SegmentId($segmentId->__toString()));
+            if ($segment instanceof Segment) {
+                $segmentNames[$segmentId->__toString()] = $segment->getName();
+            }
+        }
+
+        $event->getVisitor()->addData('segmentNames', $segmentNames);
+    }
+
+    /**
+     * @param ObjectEvent $event
+     * @param Campaign    $campaign
+     */
+    private function serializeLevelNames(ObjectEvent $event, Campaign $campaign): void
+    {
+        $levelNames = [];
+
+        foreach ($campaign->getLevels() as $levelId) {
+            $level = $this->levelRepository->byId(new LevelId($levelId->__toString()));
+            if ($level instanceof Level) {
+                $levelNames[$levelId->__toString()] = $level->getName();
+            }
+        }
+
+        $event->getVisitor()->addData('levelNames', $levelNames);
+    }
+
+    /**
+     * @param Campaign $campaign
+     *
+     * @return int
+     */
+    protected function countUsersWhoUsedThisCampaign(Campaign $campaign): int
     {
         $usages = $this->couponUsageRepository->findByCampaign($campaign->getCampaignId());
         $users = [];
+
         /** @var CouponUsage $usage */
         foreach ($usages as $usage) {
             $users[$usage->getCustomerId()->__toString()] = true;
