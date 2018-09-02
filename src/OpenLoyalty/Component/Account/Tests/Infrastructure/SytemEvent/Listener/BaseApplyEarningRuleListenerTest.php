@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * Copyright © 2017 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Component\Account\Tests\Infrastructure\SytemEvent\Listener;
 
 use Broadway\CommandHandling\CommandBus;

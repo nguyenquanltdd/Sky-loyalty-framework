@@ -65,6 +65,7 @@ class SettingsFormTypeTest extends TypeTestCase
 
     protected $integerEntries = [
         'pointsDaysActive' => 10,
+        'expirePointsNotificationDays' => 10,
         'levelDowngradeDays' => 0,
     ];
 
@@ -95,10 +96,13 @@ class SettingsFormTypeTest extends TypeTestCase
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->translationProvider = $this->getMockBuilder(TranslationsProvider::class)->disableOriginalConstructor()
-                                          ->getMock();
+        $this->translationProvider = $this
+            ->getMockBuilder(TranslationsProvider::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
 
         $this->marketingVendorsProvider = $this->getMockBuilder(AvailableMarketingVendors::class)->getMock();
         $this->marketingVendorsProvider->method('getChoices')->willReturn(
@@ -147,7 +151,7 @@ class SettingsFormTypeTest extends TypeTestCase
         parent::setUp();
     }
 
-    protected function getExtensions()
+    protected function getExtensions(): array
     {
         $type = new SettingsFormType(
             $this->settingsManager,
@@ -179,7 +183,7 @@ class SettingsFormTypeTest extends TypeTestCase
     /**
      * @test
      */
-    public function it_has_valid_data_after_submit()
+    public function it_has_valid_data_after_submit(): void
     {
         $form = $this->factory->create(SettingsFormType::class);
         $object = new Settings();
@@ -232,6 +236,10 @@ class SettingsFormTypeTest extends TypeTestCase
 
         $entry = new IntegerSettingEntry('pointsDaysLocked');
         $entry->setValue(null);
+        $object->addEntry($entry);
+
+        $entry = new IntegerSettingEntry('expirePointsNotificationDays');
+        $entry->setValue(10);
         $object->addEntry($entry);
 
         $formData = array_merge($this->stringEntries, $this->booleanEntries, $this->integerEntries, [

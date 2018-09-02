@@ -19,7 +19,7 @@ final class DefaultWebhookClient implements WebhookClientInterface
     /**
      * Timeout for guzzle request.
      */
-    const TIMEOUT_SEC = 0.5;
+    const TIMEOUT_SEC = 1;
 
     /**
      * @var LoggerInterface
@@ -34,7 +34,8 @@ final class DefaultWebhookClient implements WebhookClientInterface
     /**
      * GuzzleWebhookClient constructor.
      *
-     * @param LoggerInterface $logger
+     * @param LoggerInterface        $logger
+     * @param RequestHeaderInterface $requestHeader
      */
     public function __construct(LoggerInterface $logger, RequestHeaderInterface $requestHeader)
     {

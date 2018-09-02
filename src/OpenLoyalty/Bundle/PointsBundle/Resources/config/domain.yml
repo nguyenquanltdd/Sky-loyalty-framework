@@ -91,3 +91,6 @@ services:
       lazy: true
       tags:
         - { name: broadway.domain.event_listener }
+
+  OpenLoyalty\Component\Account\Infrastructure\Notifier\ExpirePointsNotifierInterface:
+    class: OpenLoyalty\Component\Account\Infrastructure\Notifier\ExpirePointsNotifier

@@ -20,6 +20,13 @@ interface PointsTransferDetailsRepository extends Repository
     /**
      * @param \DateTime $dateTime
      *
+     * @return array
+     */
+    public function findAllActiveAddingTransfersBeforeExpired(\DateTime $dateTime): array;
+
+    /**
+     * @param \DateTime $dateTime
+     *
      * @return PointsTransferDetails[]
      */
     public function findAllPendingAddingTransfersToUnlock(\DateTime $dateTime): array;

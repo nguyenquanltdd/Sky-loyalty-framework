@@ -65,6 +65,58 @@ class PointsTransferDetailsElasticsearchRepository extends OloyElasticsearchRepo
     /**
      * {@inheritdoc}
      */
+    public function findAllActiveAddingTransfersBeforeExpired(\DateTime $dateTime): array
+    {
+        $filter = [];
+        $filter[] = [
+            'term' => [
+                'state' => PointsTransferDetails::STATE_ACTIVE,
+            ],
+        ];
+        $filter[] = [
+            'bool' => [
+                'should' => [
+                    [
+                        'term' => [
+                            'type' => PointsTransferDetails::TYPE_ADDING,
+                        ],
+                    ],
+                    [
+                        'term' => [
+                            'type' => PointsTransferDetails::TYPE_P2P_ADDING,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $from = (new \DateTime())->setTimestamp(
+            strtotime($dateTime->format('Y-m-d'))
+        );
+        $to = clone $from;
+        $to->add(new \DateInterval('P1D'));
+
+        $filter[] = [
+            'range' => [
+                'expiresAt' => [
+                    'gte' => $from->getTimestamp(),
+                    'lte' => $to->getTimestamp(),
+                ],
+            ],
+        ];
+
+        $query = [
+            'bool' => [
+                'must' => $filter,
+            ],
+        ];
+
+        return $this->query($query);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function findAllPendingAddingTransfersToUnlock(\DateTime $dateTime): array
     {
         $filter = [];
