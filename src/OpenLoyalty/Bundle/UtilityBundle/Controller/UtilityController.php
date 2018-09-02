@@ -81,6 +81,7 @@ class UtilityController extends FOSRestController
     protected function getCsvMap()
     {
         return [
+            'Customer id',
             'First name',
             'Last name',
             'E-mail address',
