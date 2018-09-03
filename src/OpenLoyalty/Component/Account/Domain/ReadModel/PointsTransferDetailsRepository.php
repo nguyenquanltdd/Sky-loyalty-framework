@@ -22,7 +22,7 @@ interface PointsTransferDetailsRepository extends Repository
      *
      * @return array
      */
-    public function findAllActiveAddingTransfersBeforeExpired(\DateTime $dateTime): array;
+    public function findAllActiveAddingTransfersBeforeExpired(\DateTimeInterface $dateTime): array;
 
     /**
      * @param \DateTime $dateTime
