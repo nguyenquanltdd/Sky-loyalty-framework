@@ -69,6 +69,11 @@ services:
       tags:
         - { name: broadway.command_handler }
 
+    OpenLoyalty\Component\Core\Domain\Command\PhotoCommandHandler:
+        lazy: true
+        tags:
+        - { name: broadway.command_handler }
+
     OpenLoyalty\Bundle\SettingsBundle\Service\ImageResizer:
       arguments:
         $directory: '%kernel.project_dir%/app/uploads'

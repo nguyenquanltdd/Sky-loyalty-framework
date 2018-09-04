@@ -16,6 +16,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Logo;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
 use OpenLoyalty\Bundle\SettingsBundle\Provider\AvailableMarketingVendors;
+use OpenLoyalty\Bundle\SettingsBundle\Service\LogoUploader;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
@@ -89,28 +90,29 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
             $filesystem->mkdir($destinationDirectory);
         }
         $kernel = $this->getContainer()->get('kernel');
-        $filesystem->copy(
-            $kernel->locateResource('@OpenLoyaltySettingsBundle/Resources/images/logo/logo.png'),
-            $destinationDirectory.'/logo.png'
-        );
 
-        $logo = new Logo();
-        $logo->setMime('image/png');
-        $logo->setPath('logo/logo.png');
-        $entry4 = new FileSettingEntry('logo', $logo);
-        $settings->addEntry($entry4);
+        $photoNames = [
+            LogoUploader::LOGO,
+            LogoUploader::SMALL_LOGO,
+            LogoUploader::HERO_IMAGE,
+            LogoUploader::ADMIN_COCKPIT_LOGO,
+            LogoUploader::CLIENT_COCKPIT_LOGO_BIG,
+            LogoUploader::CLIENT_COCKPIT_LOGO_SMALL,
+            LogoUploader::CLIENT_COCKPIT_HERO_IMAGE,
+        ];
 
-        $smallLogo = new Logo();
-        $smallLogo->setMime('image/png');
-        $smallLogo->setPath('logo/logo.png');
-        $entry5 = new FileSettingEntry('small-logo', $smallLogo);
-        $settings->addEntry($entry5);
+        foreach ($photoNames as $name) {
+            $filesystem->copy(
+                $kernel->locateResource('@OpenLoyaltySettingsBundle/Resources/images/logo/logo.png'),
+                $destinationDirectory.'/'.$name.'.png'
+            );
 
-        $heroImage = new Logo();
-        $heroImage->setMime('image/png');
-        $heroImage->setPath('logo/logo.png');
-        $entry6 = new FileSettingEntry('hero-image', $heroImage);
-        $settings->addEntry($entry6);
+            $photo = new Logo();
+            $photo->setMime('image/png');
+            $photo->setPath('logo/'.$name.'.png');
+            $entry = new FileSettingEntry($name, $photo);
+            $settings->addEntry($entry);
+        }
 
         $earningStatuses = new JsonSettingEntry('customerStatusesEarning');
         $earningStatuses->setValue([Status::TYPE_ACTIVE]);

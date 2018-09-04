@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\SettingsBundle\Controller\Api;
 
+use Broadway\CommandHandling\SimpleCommandBus;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
@@ -20,6 +21,9 @@ use OpenLoyalty\Bundle\SettingsBundle\Service\LogoUploader;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\SettingsBundle\Service\TemplateProvider;
 use OpenLoyalty\Bundle\SettingsBundle\Provider\ChoicesProvider;
+use OpenLoyalty\Component\Core\Domain\Command\RemovePhoto;
+use OpenLoyalty\Component\Core\Domain\Command\UploadPhoto;
+use OpenLoyalty\Component\Core\Domain\Exception\InvalidPhotoNameException;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -43,17 +47,152 @@ class SettingsController extends FOSRestController
      * @var SettingsManager
      */
     protected $settingsManager;
+    /**
+     * @var SimpleCommandBus
+     */
+    private $commandBus;
+    /**
+     * @var LogoUploader
+     */
+    private $uploader;
 
     /**
      * SettingsController constructor.
      *
      * @param TranslatorInterface $translator
      * @param SettingsManager     $settingsManager
+     * @param LogoUploader        $uploader
+     * @param SimpleCommandBus    $commandBus
      */
-    public function __construct(TranslatorInterface $translator, SettingsManager $settingsManager)
-    {
+    public function __construct(
+        TranslatorInterface $translator,
+        SettingsManager $settingsManager,
+        LogoUploader $uploader,
+        SimpleCommandBus $commandBus
+    ) {
         $this->translator = $translator;
         $this->settingsManager = $settingsManager;
+        $this->uploader = $uploader;
+        $this->commandBus = $commandBus;
+    }
+
+    /**
+     * Add photo.
+     *
+     * @Route(name="oloy.settings.add_photo", path="/settings/photo/{name}")
+     * @Method("POST")
+     * @Security("is_granted('EDIT_SETTINGS')")
+     * @ApiDoc(
+     *     name="Add named photo",
+     *     section="Settings",
+     *     input={"class" = "OpenLoyalty\Bundle\SettingsBundle\Form\Type\LogoFormType", "name" = "photo"},
+     *     requirements={{"name"="name", "description"="allowed names: logo, small-logo, hero-image, admin-cockpit-logo, client-cockpit-logo-big, client-cockpit-logo-small, client-cockpit-hero-image", "dataType"="string", "required"=true}}
+     * )
+     *
+     * @param Request $request
+     * @param string  $name
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function addPhotoAction(Request $request, string $name): View
+    {
+        $form = $this->get('form.factory')->createNamed('photo', LogoFormType::class);
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            try {
+                $uploadPhotoCommand = new UploadPhoto($name, $form->getData()->getFile());
+                $this->commandBus->dispatch($uploadPhotoCommand);
+            } catch (InvalidPhotoNameException $e) {
+                throw $this->createNotFoundException($e->getMessage(), $e);
+            }
+
+            return $this->view([], Response::HTTP_OK);
+        }
+
+        return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * Remove named photo.
+     *
+     * @Route(name="oloy.settings.remove_photo", path="/settings/photo/{name}")
+     * @Method("DELETE")
+     * @Security("is_granted('EDIT_SETTINGS')")
+     * @ApiDoc(
+     *     name="Delete named photo",
+     *     section="Settings",
+     *     requirements={{"name"="name", "description"="allowed names: logo, small-logo, hero-image, admin-cockpit-logo, client-cockpit-logo-big, client-cockpit-logo-small, client-cockpit-hero-image", "dataType"="string", "required"=true}}
+     * )
+     *
+     * @param string $name
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function removePhotoAction(string $name): View
+    {
+        try {
+            $removePhotoCommand = new RemovePhoto($name);
+            $this->commandBus->dispatch($removePhotoCommand);
+        } catch (InvalidPhotoNameException $e) {
+            throw $this->createNotFoundException($e->getMessage(), $e);
+        }
+
+        return $this->view([], Response::HTTP_OK);
+    }
+
+    /**
+     * Get named photo.
+     *
+     * @Method("GET")
+     * @Route(name="oloy.settings.get_photo", path="/settings/photo/{name}")
+     * @ApiDoc(
+     *     name="Get named photo",
+     *     section="Settings",
+     *     requirements={{"name"="name", "description"="allowed names: logo, small-logo, hero-image, admin-cockpit-logo, client-cockpit-logo-big, client-cockpit-logo-small, client-cockpit-hero-image", "dataType"="string"}},
+     * )
+     * @Route(name="oloy.settings.get_photo_size", path="/settings/photo/{name}/{size}", defaults={"size"=null}, requirements={"size"="\d{1,}x\d{1,}"})
+     * @ApiDoc(
+     *     name="Get named photo",
+     *     section="Settings",
+     *     requirements={
+     *      {"name"="name", "description"="allowed names: logo, small-logo, hero-image, admin-cockpit-logo, client-cockpit-logo-big, client-cockpit-logo-small, client-cockpit-hero-image", "dataType"="string"},
+     *      {"name"="size", "description"="allowed sizes: 192x192, 512x512 available only for names: small-logo", "dataType"="string"}
+     *     }
+     * )
+     *
+     * @param string      $name
+     * @param null|string $size
+     *
+     * @return Response
+     */
+    public function getPhotoAction(string $name, ?string $size = null): Response
+    {
+        $settings = $this->settingsManager->getSettings();
+        $logoEntry = $settings->getEntry($name);
+        $logo = null;
+
+        if (null !== $logoEntry) {
+            $logo = $logoEntry->getValue();
+        }
+        if (null === $logo) {
+            throw $this->createNotFoundException();
+        }
+
+        $content = $this->uploader->get($logo, $size);
+        if (null === $content) {
+            throw $this->createNotFoundException();
+        }
+
+        $response = new Response($content);
+        $response->headers->set('Content-Disposition', 'inline');
+        $response->headers->set('Content-Type', $logo->getMime());
+
+        return $response;
     }
 
     /**
@@ -71,10 +210,13 @@ class SettingsController extends FOSRestController
      * @param Request $request
      *
      * @return View
+     *
+     * @throws InvalidPhotoNameException
+     * @throws \Exception
      */
-    public function addLogoAction(Request $request)
+    public function addLogoAction(Request $request): View
     {
-        return $this->addPhoto($request, LogoUploader::LOGO);
+        return $this->addPhotoAction($request, LogoUploader::LOGO);
     }
 
     /**
@@ -92,10 +234,13 @@ class SettingsController extends FOSRestController
      * @param Request $request
      *
      * @return View
+     *
+     * @throws InvalidPhotoNameException
+     * @throws \Exception
      */
-    public function addSmallLogoAction(Request $request)
+    public function addSmallLogoAction(Request $request): View
     {
-        return $this->addPhoto($request, LogoUploader::SMALL_LOGO);
+        return $this->addPhotoAction($request, LogoUploader::SMALL_LOGO);
     }
 
     /**
@@ -113,10 +258,13 @@ class SettingsController extends FOSRestController
      * @param Request $request
      *
      * @return View
+     *
+     * @throws InvalidPhotoNameException
+     * @throws \Exception
      */
-    public function addHeroImageAction(Request $request)
+    public function addHeroImageAction(Request $request): View
     {
-        return $this->addPhoto($request, LogoUploader::HERO_IMAGE);
+        return $this->addPhotoAction($request, LogoUploader::HERO_IMAGE);
     }
 
     /**
@@ -165,43 +313,6 @@ class SettingsController extends FOSRestController
     }
 
     /**
-     * @param Request $request
-     * @param string  $entryName
-     *
-     * @return View
-     */
-    private function addPhoto(Request $request, string $entryName)
-    {
-        $form = $this->get('form.factory')->createNamed('photo', LogoFormType::class);
-        $form->handleRequest($request);
-
-        if ($form->isValid()) {
-            /** @var UploadedFile $file */
-            $file = $form->getData()->getFile();
-            $uploader = $this->get('oloy.settings.logo_uploader');
-
-            $settingsManager = $this->get('ol.settings.manager');
-            $settings = $settingsManager->getSettings();
-            $logo = $settings->getEntry($entryName);
-            if ($logo) {
-                $uploader->remove($logo->getValue());
-                $settingsManager->removeSettingByKey($entryName);
-            }
-
-            $photo = $uploader->upload($file);
-
-            $settings->addEntry(new FileSettingEntry($entryName, $photo));
-            $settingsManager->save($settings);
-
-            $uploader->onSuccessfulUpload($photo, $entryName);
-
-            return $this->view([], Response::HTTP_OK);
-        }
-
-        return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
-    }
-
-    /**
      * Remove logo.
      *
      * @Route(name="oloy.settings.remove_logo", path="/settings/logo")
@@ -213,10 +324,13 @@ class SettingsController extends FOSRestController
      * )
      *
      * @return View
+     *
+     * @throws InvalidPhotoNameException
+     * @throws \Exception
      */
-    public function removeLogoAction()
+    public function removeLogoAction(): View
     {
-        return $this->removePhoto(LogoUploader::LOGO);
+        return $this->removePhotoAction(LogoUploader::LOGO);
     }
 
     /**
@@ -231,10 +345,13 @@ class SettingsController extends FOSRestController
      * )
      *
      * @return View
+     *
+     * @throws InvalidPhotoNameException
+     * @throws \Exception
      */
-    public function removeSmallLogoAction()
+    public function removeSmallLogoAction(): View
     {
-        return $this->removePhoto(LogoUploader::SMALL_LOGO);
+        return $this->removePhotoAction(LogoUploader::SMALL_LOGO);
     }
 
     /**
@@ -249,10 +366,13 @@ class SettingsController extends FOSRestController
      * )
      *
      * @return View
+     *
+     * @throws InvalidPhotoNameException
+     * @throws \Exception
      */
-    public function removeHeroImageAction()
+    public function removeHeroImageAction(): View
     {
-        return $this->removePhoto(LogoUploader::HERO_IMAGE);
+        return $this->removePhotoAction(LogoUploader::HERO_IMAGE);
     }
 
     /**
@@ -285,26 +405,6 @@ class SettingsController extends FOSRestController
     }
 
     /**
-     * @param string $entryName
-     *
-     * @return View
-     */
-    private function removePhoto(string $entryName)
-    {
-        $settingsManager = $this->get('ol.settings.manager');
-        $settings = $settingsManager->getSettings();
-        $logo = $settings->getEntry($entryName);
-        if ($logo) {
-            $logo = $logo->getValue();
-            $uploader = $this->get('oloy.settings.logo_uploader');
-            $uploader->remove($logo);
-            $settingsManager->removeSettingByKey($entryName);
-        }
-
-        return $this->view([], Response::HTTP_OK);
-    }
-
-    /**
      * Get logo.
      *
      * @Route(name="oloy.settings.get_logo", path="/settings/logo")
@@ -320,9 +420,9 @@ class SettingsController extends FOSRestController
      *
      * @return Response
      */
-    public function getLogoAction(?string $size = null)
+    public function getLogoAction(?string $size = null): Response
     {
-        return $this->getPhoto(LogoUploader::LOGO, $size);
+        return $this->getPhotoAction(LogoUploader::LOGO, $size);
     }
 
     /**
@@ -340,9 +440,9 @@ class SettingsController extends FOSRestController
      *
      * @return Response
      */
-    public function getSmallLogoAction(?string $size = null)
+    public function getSmallLogoAction(?string $size = null): Response
     {
-        return $this->getPhoto(LogoUploader::SMALL_LOGO, $size);
+        return $this->getPhotoAction(LogoUploader::SMALL_LOGO, $size);
     }
 
     /**
@@ -360,9 +460,9 @@ class SettingsController extends FOSRestController
      *
      * @return Response
      */
-    public function getHeroImageAction(?string $size = null)
+    public function getHeroImageAction(?string $size = null): Response
     {
-        return $this->getPhoto(LogoUploader::HERO_IMAGE, $size);
+        return $this->getPhotoAction(LogoUploader::HERO_IMAGE, $size);
     }
 
     /**
@@ -473,38 +573,6 @@ class SettingsController extends FOSRestController
     public function getConditionsUrlAction(ConditionsUploader $conditionsUploader)
     {
         return new JsonResponse(['url' => $conditionsUploader->getUrl()]);
-    }
-
-    /**
-     * @param string      $entryName
-     * @param null|string $size
-     *
-     * @return Response
-     */
-    private function getPhoto(string $entryName, ?string $size = null)
-    {
-        $settingsManager = $this->get('ol.settings.manager');
-        $settings = $settingsManager->getSettings();
-        $logoEntry = $settings->getEntry($entryName);
-        $logo = null;
-
-        if ($logoEntry) {
-            $logo = $logoEntry->getValue();
-        }
-        if (!$logo) {
-            throw $this->createNotFoundException();
-        }
-
-        $content = $this->get('oloy.settings.logo_uploader')->get($logo, $size);
-        if (!$content) {
-            throw $this->createNotFoundException();
-        }
-
-        $response = new Response($content);
-        $response->headers->set('Content-Disposition', 'inline');
-        $response->headers->set('Content-Type', $logo->getMime());
-
-        return $response;
     }
 
     /**

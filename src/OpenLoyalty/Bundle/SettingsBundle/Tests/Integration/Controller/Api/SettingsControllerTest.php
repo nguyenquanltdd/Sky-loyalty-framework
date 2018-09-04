@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\SettingsBundle\Tests\Integration\Controller\Api;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRuleLimit;
+use OpenLoyalty\Bundle\SettingsBundle\Service\LogoUploader;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
@@ -39,85 +40,86 @@ class SettingsControllerTest extends BaseApiTest
         $contentType = $response->headers->get('Content-Type');
 
         $this->assertTrue(mb_strlen($response) > 10, 'Content body less than 10B');
-        $this->assertEquals(200, $statusCode);
+        $this->assertEquals(Response::HTTP_OK, $statusCode);
         $this->assertEquals('text/css; charset=utf-8', $contentType);
     }
 
     /**
      * @test
+     * @dataProvider logoNamesDataProvider
+     *
+     * @param string $name
      */
-    public function it_removes_a_logo()
+    public function it_removes_a_logo(string $name)
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
             'DELETE',
-            '/api/settings/logo'
+            '/api/settings/'.$name
         );
 
         $deleteResponse = $client->getResponse();
 
-        $this->assertEquals(200, $deleteResponse->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $deleteResponse->getStatusCode());
 
         $client->request(
             'GET',
-            '/api/settings/logo'
+            '/api/settings/'.$name
         );
         $checkResponse = $client->getResponse();
-        $this->assertEquals(404, $checkResponse->getStatusCode());
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $checkResponse->getStatusCode());
     }
 
     /**
      * @test
+     * @dataProvider photoNamesDataProvider
+     * @depends it_removes_a_logo
+     *
+     * @param string $name
      */
-    public function it_removes_a_small_logo()
+    public function it_removes_a_photo(string $name)
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
             'DELETE',
-            '/api/settings/small-logo'
+            '/api/settings/photo/'.$name
         );
 
         $deleteResponse = $client->getResponse();
 
-        $this->assertEquals(200, $deleteResponse->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $deleteResponse->getStatusCode());
 
         $client->request(
             'GET',
-            '/api/settings/small-logo'
+            '/api/settings/photo/'.$name
         );
         $checkResponse = $client->getResponse();
-        $this->assertEquals(404, $checkResponse->getStatusCode());
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $checkResponse->getStatusCode());
     }
 
     /**
      * @test
+     * @dataProvider invalidPhotoNamesDataProvider
+     *
+     * @param string $name
      */
-    public function it_removes_a_hero_logo()
+    public function it_returns_404_when_removes_invalid_photo(string $name)
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
             'DELETE',
-            '/api/settings/hero-image'
+            '/api/settings/photo/'.$name
         );
 
         $deleteResponse = $client->getResponse();
 
-        $this->assertEquals(200, $deleteResponse->getStatusCode());
-
-        $client->request(
-            'GET',
-            '/api/settings/hero-image'
-        );
-        $checkResponse = $client->getResponse();
-        $this->assertEquals(404, $checkResponse->getStatusCode());
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $deleteResponse->getStatusCode());
     }
 
     /**
      * @test
      *
-     * @depends it_removes_a_logo
-     * @depends it_removes_a_small_logo
-     * @depends it_removes_a_hero_logo
+     * @depends it_removes_a_photo
      */
     public function it_updates_required_settings_correctly()
     {
@@ -125,7 +127,7 @@ class SettingsControllerTest extends BaseApiTest
 
         $client->request('GET', '/api/settings');
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), 'Cannot get settings');
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Cannot get settings');
         $originalSettings = json_decode($response->getContent(), true);
 
         $requiredSettings = [
@@ -171,20 +173,84 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals('200', $response->getStatusCode(), 'Cannot save required settings');
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Cannot save required settings');
         $saved = json_decode($response->getContent(), true);
         $this->assertEquals(['settings' => $requiredSettings], $saved);
 
         // revert to previous original settings
         $client->request('POST', '/api/settings', $originalSettings);
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), 'Cannot restore original settings');
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Cannot restore original settings');
     }
 
     /**
      * @test
+     * @dataProvider photoNamesDataProvider
+     *
+     * @param string $name
      */
-    public function it_adds_a_new_logo()
+    public function it_adds_a_new_photo(string $name)
+    {
+        $client = $this->createAuthenticatedClient();
+        $filesystem = static::$kernel->getContainer()->get('filesystem');
+        $filesystem->copy(
+            __DIR__.'/../../../../Resources/images/logo/logo.png',
+            __DIR__.'/../../../../Resources/images/logo/test_photo.png'
+        );
+        $uploadedFile = new UploadedFile(__DIR__.'/../../../../Resources/images/logo/test_photo.png', 'test_photo.png');
+
+        $client->request(
+            'POST',
+            '/api/settings/photo/'.$name,
+            [],
+            [
+                'photo' => ['file' => $uploadedFile],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $getClient = $this->createAuthenticatedClient();
+        $getClient->request(
+            'GET',
+            '/api/settings/photo/'.$name
+        );
+        $getResponse = $getClient->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $getResponse->getStatusCode());
+    }
+
+    /**
+     * @test
+     * @dataProvider invalidPhotoNamesDataProvider
+     *
+     * @param string $name
+     */
+    public function it_returns_404_when_adding_invalid_photo(string $name)
+    {
+        $client = $this->createAuthenticatedClient();
+        $uploadedFile = new UploadedFile(__DIR__.'/../../../../Resources/images/logo/logo.png', 'invalid_photo.png');
+
+        $client->request(
+            'POST',
+            '/api/settings/photo/'.$name,
+            [],
+            [
+                'photo' => ['file' => $uploadedFile],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     * @dataProvider logoNamesDataProvider
+     *
+     * @param string $name
+     */
+    public function it_adds_a_new_logo(string $name)
     {
         $client = $this->createAuthenticatedClient();
         $filesystem = static::$kernel->getContainer()->get('filesystem');
@@ -196,7 +262,7 @@ class SettingsControllerTest extends BaseApiTest
 
         $client->request(
             'POST',
-            '/api/settings/logo',
+            '/api/settings/'.$name,
             [],
             [
                 'photo' => ['file' => $uploadedFile],
@@ -204,83 +270,15 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals('200', $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         $getClient = $this->createAuthenticatedClient();
         $getClient->request(
             'GET',
-            '/api/settings/logo'
+            '/api/settings/'.$name
         );
         $getResponse = $getClient->getResponse();
-        $this->assertEquals(200, $getResponse->getStatusCode());
-    }
-
-    /**
-     * @test
-     */
-    public function it_adds_a_new_small_logo()
-    {
-        $client = $this->createAuthenticatedClient();
-        $filesystem = static::$kernel->getContainer()->get('filesystem');
-        $filesystem->copy(
-            __DIR__.'/../../../../Resources/images/logo/logo.png',
-            __DIR__.'/../../../../Resources/images/logo/small_logo.png'
-        );
-        $uploadedFile = new UploadedFile(__DIR__.'/../../../../Resources/images/logo/small_logo.png', 'small_logo.png');
-
-        $client->request(
-            'POST',
-            '/api/settings/small-logo',
-            [],
-            [
-                'photo' => ['file' => $uploadedFile],
-            ]
-        );
-
-        $response = $client->getResponse();
-        $this->assertEquals('200', $response->getStatusCode());
-
-        $getClient = $this->createAuthenticatedClient();
-        $getClient->request(
-            'GET',
-            '/api/settings/small-logo'
-        );
-        $getResponse = $getClient->getResponse();
-        $this->assertEquals(200, $getResponse->getStatusCode());
-    }
-
-    /**
-     * @test
-     */
-    public function it_adds_a_hero_logo()
-    {
-        $client = $this->createAuthenticatedClient();
-        $filesystem = static::$kernel->getContainer()->get('filesystem');
-        $filesystem->copy(
-            __DIR__.'/../../../../Resources/images/logo/logo.png',
-            __DIR__.'/../../../../Resources/images/logo/hero_logo.png'
-        );
-        $uploadedFile = new UploadedFile(__DIR__.'/../../../../Resources/images/logo/hero_logo.png', 'hero_logo.png');
-
-        $client->request(
-            'POST',
-            '/api/settings/hero-image',
-            [],
-            [
-                'photo' => ['file' => $uploadedFile],
-            ]
-        );
-
-        $response = $client->getResponse();
-        $this->assertEquals('200', $response->getStatusCode());
-
-        $getClient = $this->createAuthenticatedClient();
-        $getClient->request(
-            'GET',
-            '/api/settings/hero-image'
-        );
-        $getResponse = $getClient->getResponse();
-        $this->assertEquals(200, $getResponse->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $getResponse->getStatusCode());
     }
 
     /**
@@ -307,6 +305,28 @@ class SettingsControllerTest extends BaseApiTest
 
     /**
      * @test
+     * @dataProvider logoSizeProvider
+     *
+     * @param string $type
+     * @param array  $sizes
+     */
+    public function it_returns_resized_photo(string $type, array $sizes)
+    {
+        $client = $this->createClient();
+
+        foreach ($sizes as $size) {
+            $client->request(
+                'GET',
+                sprintf('/api/settings/photo/%s/%s', $type, $size)
+            );
+
+            $response = $client->getResponse();
+            $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        }
+    }
+
+    /**
+     * @test
      */
     public function it_returns_404_on_not_found_logo()
     {
@@ -319,6 +339,37 @@ class SettingsControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     * @dataProvider photoNamesNotFoundDataProvider
+     *
+     * @param string     $name
+     * @param array|null $sizes
+     * @param bool       $authenticated
+     */
+    public function it_returns_404_on_not_found_photo(string $name, ?array $sizes = null, bool $authenticated = false)
+    {
+        $client = ($authenticated) ? $this->createAuthenticatedClient() : $this->createClient();
+
+        if (!empty($sizes)) {
+            foreach ($sizes as $size) {
+                $client->request(
+                    'GET',
+                    '/api/settings/photo/'.$name.'/'.$size
+                );
+                $response = $client->getResponse();
+                $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+            }
+        } else {
+            $client->request(
+                'GET',
+                '/api/settings/photo/'.$name
+            );
+            $response = $client->getResponse();
+            $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        }
     }
 
     /**
@@ -350,7 +401,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $data = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('settings', $data);
@@ -370,6 +421,26 @@ class SettingsControllerTest extends BaseApiTest
         $heroLogo = $settings['hero-image'];
         $this->assertArrayHasKey('path', $heroLogo);
         $this->assertArrayHasKey('mime', $heroLogo);
+
+        $this->assertArrayHasKey('admin-cockpit-logo', $settings);
+        $adminCockpitLogo = $settings['admin-cockpit-logo'];
+        $this->assertArrayHasKey('path', $adminCockpitLogo);
+        $this->assertArrayHasKey('mime', $adminCockpitLogo);
+
+        $this->assertArrayHasKey('client-cockpit-logo-big', $settings);
+        $clientCockpitLogoBig = $settings['client-cockpit-logo-big'];
+        $this->assertArrayHasKey('path', $clientCockpitLogoBig);
+        $this->assertArrayHasKey('mime', $clientCockpitLogoBig);
+
+        $this->assertArrayHasKey('client-cockpit-logo-small', $settings);
+        $clientCockpitLogoSmall = $settings['client-cockpit-logo-small'];
+        $this->assertArrayHasKey('path', $clientCockpitLogoSmall);
+        $this->assertArrayHasKey('mime', $clientCockpitLogoSmall);
+
+        $this->assertArrayHasKey('client-cockpit-hero-image', $settings);
+        $clientCockpitHeroImage = $settings['client-cockpit-hero-image'];
+        $this->assertArrayHasKey('path', $clientCockpitHeroImage);
+        $this->assertArrayHasKey('mime', $clientCockpitHeroImage);
 
         $this->assertArrayHasKey('levelDowngradeMode', $settings);
 
@@ -410,7 +481,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $data = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('translations', $data);
@@ -437,7 +508,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
     }
 
     /**
@@ -452,7 +523,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $data = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('statuses', $data);
@@ -473,7 +544,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
     }
 
     /**
@@ -488,7 +559,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 
     /**
@@ -503,7 +574,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(['method' => 'email'], $data);
@@ -521,7 +592,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(
@@ -547,7 +618,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         $data = json_decode($response->getContent(), true);
         $this->assertArrayHasKey('choices', $data);
@@ -567,7 +638,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         $data = json_decode($response->getContent(), true);
         $this->assertArrayHasKey('choices', $data);
@@ -587,7 +658,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         $data = json_decode($response->getContent(), true);
         $this->assertArrayHasKey('choices', $data);
@@ -608,7 +679,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $data = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('choices', $data);
@@ -633,7 +704,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $data = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('choices', $data);
@@ -652,7 +723,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(['choices' => ['email', 'sms']], $data);
@@ -670,7 +741,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(['fields' => []], $data);
@@ -688,7 +759,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(
@@ -698,7 +769,7 @@ class SettingsControllerTest extends BaseApiTest
                 '1 month' => EarningRuleLimit::PERIOD_MONTH,
             ],
             ],
-           $data
+            $data
         );
     }
 
@@ -714,7 +785,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(
@@ -739,7 +810,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(
@@ -764,7 +835,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 
     /**
@@ -773,7 +844,65 @@ class SettingsControllerTest extends BaseApiTest
     public function logoSizeProvider(): array
     {
         return [
-            ['small-logo', ['192x192', '512x512']],
+            [LogoUploader::SMALL_LOGO, ['192x192', '512x512']],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function logoNamesDataProvider(): array
+    {
+        return [
+            [LogoUploader::LOGO],
+            [LogoUploader::SMALL_LOGO],
+            [LogoUploader::HERO_IMAGE],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function photoNamesDataProvider(): array
+    {
+        return [
+            [LogoUploader::LOGO],
+            [LogoUploader::SMALL_LOGO],
+            [LogoUploader::HERO_IMAGE],
+            [LogoUploader::CLIENT_COCKPIT_HERO_IMAGE],
+            [LogoUploader::CLIENT_COCKPIT_LOGO_BIG],
+            [LogoUploader::CLIENT_COCKPIT_LOGO_SMALL],
+            [LogoUploader::ADMIN_COCKPIT_LOGO],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function invalidPhotoNamesDataProvider(): array
+    {
+        return [
+            ['logo2'],
+            ['invalid-name'],
+            ['hero-image-small'],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function photoNamesNotFoundDataProvider(): array
+    {
+        return [
+            [LogoUploader::SMALL_LOGO, ['256x256', '1024x800']],
+            [LogoUploader::LOGO, ['192x192', '512x512']],
+            [LogoUploader::HERO_IMAGE, ['192x192', '512x512']],
+            [LogoUploader::CLIENT_COCKPIT_HERO_IMAGE, ['192x192', '512x512']],
+            [LogoUploader::CLIENT_COCKPIT_LOGO_BIG, ['192x192', '512x512']],
+            [LogoUploader::CLIENT_COCKPIT_LOGO_SMALL, ['192x192', '512x512']],
+            [LogoUploader::ADMIN_COCKPIT_LOGO, ['192x192', '512x512']],
+            ['invalid-name', ['192x192', '512x512'], true],
+            ['invalid-name', null, true],
         ];
     }
 }

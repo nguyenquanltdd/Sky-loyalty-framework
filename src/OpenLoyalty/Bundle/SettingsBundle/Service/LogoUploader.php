@@ -31,6 +31,10 @@ class LogoUploader
     const LOGO = 'logo';
     const SMALL_LOGO = 'small-logo';
     const HERO_IMAGE = 'hero-image';
+    const ADMIN_COCKPIT_LOGO = 'admin-cockpit-logo';
+    const CLIENT_COCKPIT_LOGO_BIG = 'client-cockpit-logo-big';
+    const CLIENT_COCKPIT_LOGO_SMALL = 'client-cockpit-logo-small';
+    const CLIENT_COCKPIT_HERO_IMAGE = 'client-cockpit-hero-image';
 
     /**
      * LogoUploader constructor.
@@ -42,6 +46,27 @@ class LogoUploader
     {
         $this->filesystem = $filesystem;
         $this->commandBus = $commandBus;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function isValidName(string $name): bool
+    {
+        return in_array(
+            $name,
+            [
+                self::LOGO,
+                self::SMALL_LOGO,
+                self::HERO_IMAGE,
+                self::ADMIN_COCKPIT_LOGO,
+                self::CLIENT_COCKPIT_LOGO_BIG,
+                self::CLIENT_COCKPIT_LOGO_SMALL,
+                self::CLIENT_COCKPIT_HERO_IMAGE,
+            ]
+        );
     }
 
     /**
