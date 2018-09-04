@@ -17,6 +17,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Form\Type\TranslationsFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Service\ConditionsUploader;
 use OpenLoyalty\Bundle\SettingsBundle\Service\LogoUploader;
+use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\SettingsBundle\Service\TemplateProvider;
 use OpenLoyalty\Bundle\SettingsBundle\Provider\ChoicesProvider;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
@@ -33,6 +34,28 @@ use Symfony\Component\Translation\TranslatorInterface;
  */
 class SettingsController extends FOSRestController
 {
+    /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
+     * @var SettingsManager
+     */
+    protected $settingsManager;
+
+    /**
+     * SettingsController constructor.
+     *
+     * @param TranslatorInterface $translator
+     * @param SettingsManager     $settingsManager
+     */
+    public function __construct(TranslatorInterface $translator, SettingsManager $settingsManager)
+    {
+        $this->translator = $translator;
+        $this->settingsManager = $settingsManager;
+    }
+
     /**
      * Add logo.
      *
@@ -340,6 +363,65 @@ class SettingsController extends FOSRestController
     public function getHeroImageAction(?string $size = null)
     {
         return $this->getPhoto(LogoUploader::HERO_IMAGE, $size);
+    }
+
+    /**
+     * Get manifest file.
+     *
+     * @Route(name="oloy.settings.get_manifest", path="/settings/manifest")
+     * @Method("GET")
+     * @ApiDoc(
+     *     name="Get PWA manifest",
+     *     section="Settings"
+     * )
+     *
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function getManifestAction(Request $request): Response
+    {
+        $settings = $this->settingsManager->getSettings();
+        $program = $settings->getEntry('programName');
+
+        if (null == $program) {
+            $error = [
+                'error' => [
+                    'code' => Response::HTTP_BAD_REQUEST,
+                    'message' => $this->translator->trans('settings.get_manifest.not_found'),
+                ],
+            ];
+
+            return JsonResponse::create($error, Response::HTTP_BAD_REQUEST, [
+                'Content-type', 'application/json',
+            ]);
+        }
+
+        $data = [
+            'name' => $program->getValue(),
+            'short_name' => $program->getValue(),
+            'icons' => [
+                [
+                    'src' => $request->getHost().$this->generateUrl('oloy.settings.get_small_logo'),
+                    'sizes' => '192x192',
+                    'type' => 'image/png',
+                ],
+                [
+                    'src' => $request->getHost().$this->generateUrl('oloy.settings.get_logo'),
+                    'sizes' => '512x512',
+                    'type' => 'image/png',
+                ],
+            ],
+            'start_url' => '/',
+            'display' => 'standalone',
+            'scope' => '/',
+            'background_color' => '#FFFFFF',
+            'theme_color' => '#FFFFFF',
+        ];
+
+        return JsonResponse::create($data, Response::HTTP_OK, [
+            'Content-type', 'application/json',
+        ]);
     }
 
     /**
