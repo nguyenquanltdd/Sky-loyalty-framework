@@ -65,7 +65,7 @@ class PointsTransferDetailsElasticsearchRepository extends OloyElasticsearchRepo
     /**
      * {@inheritdoc}
      */
-    public function findAllActiveAddingTransfersBeforeExpired(\DateTime $dateTime): array
+    public function findAllActiveAddingTransfersBeforeExpired(\DateTimeInterface $dateTime): array
     {
         $filter = [];
         $filter[] = [

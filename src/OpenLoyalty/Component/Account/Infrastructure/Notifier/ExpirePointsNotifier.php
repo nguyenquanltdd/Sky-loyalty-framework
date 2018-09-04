@@ -77,12 +77,7 @@ class ExpirePointsNotifier implements ExpirePointsNotifierInterface
 
         $notificationPackages = array_chunk($notifications, self::REQUEST_PACKAGE_SIZE);
 
-        foreach ($notificationPackages as $package) {
-            $this->commandBus->dispatch(new DispatchWebhook(
-                self::ACCOUNT_EXPIRING_POINTS_REMINDER_GENERATED,
-                $package
-            ));
-        }
+        $this->dispatchWebhookRequest($notificationPackages);
     }
 
     /**
@@ -91,5 +86,18 @@ class ExpirePointsNotifier implements ExpirePointsNotifierInterface
     public function sentNotificationsCount(): int
     {
         return $this->sentNotifications;
+    }
+
+    /**
+     * @param array $notificationPackages
+     */
+    private function dispatchWebhookRequest(array $notificationPackages): void
+    {
+        foreach ($notificationPackages as $package) {
+            $this->commandBus->dispatch(new DispatchWebhook(
+                self::ACCOUNT_EXPIRING_POINTS_REMINDER_GENERATED,
+                $package
+            ));
+        }
     }
 }
