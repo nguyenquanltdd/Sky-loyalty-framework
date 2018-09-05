@@ -287,6 +287,12 @@ Definition
 +======================+================+========================================================+
 | Authorization        | header         | Token received during authentication                   |
 +----------------------+----------------+--------------------------------------------------------+
+| isFeatured           | query          | *(optional)* Filter by featured tag                    |
++----------------------+----------------+--------------------------------------------------------+
+| hasSegment           | query          | *(optional)* 1 to return only campaigns offered        |
+|                      |                | exclusively to some segments, 0 for campaigns          |
+|                      |                | offered only to all segments; omit for all campaigns   |
++----------------------+----------------+--------------------------------------------------------+
 | page                 | query          | *(optional)* Start from page, by default 1             |
 +----------------------+----------------+--------------------------------------------------------+
 | perPage              | query          | *(optional)* Number of items to display per page,      |

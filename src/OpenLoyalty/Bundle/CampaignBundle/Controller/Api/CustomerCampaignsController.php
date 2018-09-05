@@ -154,7 +154,8 @@ class CustomerCampaignsController extends FOSRestController
      *     name="get customer available campaigns list",
      *     section="Customer Campaign",
      *     parameters={
-     *          {"name"="isFeatured", "dataType"="boolean", "required"=false},
+     *          {"name"="isFeatured", "dataType"="boolean", "required"=false, "description"="Filter by featured tag"},
+     *          {"name"="hasSegment", "dataType"="boolean", "required"=false, "description"="Whether campaign is offered exclusively to some segments"},
      *          {"name"="isPublic", "dataType"="boolean", "required"=false},
      *          {"name"="page", "dataType"="integer", "required"=false, "description"="Page number"},
      *          {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
@@ -178,16 +179,19 @@ class CustomerCampaignsController extends FOSRestController
         $categoryIds = $request->query->get('categoryId', []);
 
         $customerSegments = $this->segmentedCustomersRepository
-            ->findBy(['customerId' => $customer->getCustomerId()->__toString()]);
-        $segments = array_map(function (SegmentedCustomers $segmentedCustomers) {
-            return new SegmentId($segmentedCustomers->getSegmentId()->__toString());
-        }, $customerSegments);
+            ->findBy(['customerId' => (string) $customer->getCustomerId()]);
+        $segments = array_map(
+            function (SegmentedCustomers $segmentedCustomers) {
+                return new SegmentId((string) $segmentedCustomers->getSegmentId());
+            },
+            $customerSegments
+        );
 
         try {
             $campaigns = $this->campaignRepository
                 ->getVisibleCampaignsForLevelAndSegment(
                     $segments,
-                    new LevelId($customer->getLevelId()->__toString()),
+                    new LevelId((string) $customer->getLevelId()),
                     $categoryIds,
                     null,
                     null,
@@ -202,17 +206,30 @@ class CustomerCampaignsController extends FOSRestController
             return $this->view($this->translator->trans($exception->getMessage()), Response::HTTP_BAD_REQUEST);
         }
 
+        // filter by segment exclusiveness
+        $mustHaveSegments = $request->query->get('hasSegment', null);
+        if (null !== $mustHaveSegments) {
+            $campaigns = array_filter($campaigns, function (Campaign $campaign) use ($mustHaveSegments) {
+                return $mustHaveSegments ? $campaign->hasSegments() : !$campaign->hasSegments();
+            });
+        }
+
+        // filter by usage left
         $campaigns = array_filter($campaigns, function (Campaign $campaign) use ($customer) {
             $usageLeft = $this->campaignProvider->getUsageLeft($campaign);
             $usageLeftForCustomer = $this->campaignProvider
-                ->getUsageLeftForCustomer($campaign, $customer->getCustomerId()->__toString());
+                ->getUsageLeftForCustomer($campaign, (string) $customer->getCustomerId());
 
             return $usageLeft > 0 && $usageLeftForCustomer > 0;
         });
 
         $view = $this->view(
             [
-                'campaigns' => array_slice($campaigns, ($pagination->getPage() - 1) * $pagination->getPerPage(), $pagination->getPerPage()),
+                'campaigns' => array_slice(
+                    $campaigns,
+                    ($pagination->getPage() - 1) * $pagination->getPerPage(),
+                    $pagination->getPerPage()
+                ),
                 'total' => count($campaigns),
             ],
             Response::HTTP_OK

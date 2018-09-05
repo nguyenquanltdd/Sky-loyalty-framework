@@ -225,7 +225,7 @@ class CustomerCampaignsControllerTest extends BaseApiTest
         $client = $this->createAuthenticatedClient(LoadUserData::TEST_USERNAME, LoadUserData::TEST_PASSWORD, 'customer');
         $client->request(
             'GET',
-            sprintf('/api/customer/campaign/available?sort=%s&direction=%s', $direction, $oppositeDirection)
+            sprintf('/api/customer/campaign/available?sort=%s&direction=%s', $field, $oppositeDirection)
         );
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
@@ -291,6 +291,65 @@ class CustomerCampaignsControllerTest extends BaseApiTest
             ['usageLeft', 'asc', 'desc'],
             ['isPublic', 'asc', 'desc'],
         ];
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_available_campaigns_list_filtered_by_segment_exclusiveness()
+    {
+        // exclusive
+        $client = $this->createAuthenticatedClient(
+            LoadUserData::TEST_USERNAME,
+            LoadUserData::TEST_PASSWORD,
+            'customer'
+        );
+        $client->request('GET', '/api/customer/campaign/available?hasSegment=1');
+        $mustHaveSegmentResponse = $client->getResponse();
+        $mustHaveSegmentData = json_decode($mustHaveSegmentResponse->getContent(), true);
+        $this->assertEquals(200, $mustHaveSegmentResponse->getStatusCode(), 'Response should have status 200');
+
+        $this->assertArrayHasKey('campaigns', $mustHaveSegmentData);
+        $mustHaveSegmentSize = count($mustHaveSegmentData['campaigns']);
+
+        // assert no elements without segment are in response for segment-exclusive campaigns
+        $elementsWithoutSegment = array_filter($mustHaveSegmentData['campaigns'], function ($campaign) {
+            return empty($campaign['segmentNames']);
+        });
+        $this->assertEmpty($elementsWithoutSegment, 'Elements without segment present, asked for segment-exclusive campaigns');
+
+        // non-exclusive
+        $client = $this->createAuthenticatedClient(
+            LoadUserData::TEST_USERNAME,
+            LoadUserData::TEST_PASSWORD,
+            'customer');
+        $client->request('GET', '/api/customer/campaign/available?hasSegment=0');
+        $mustNotHaveSegmentResponse = $client->getResponse();
+        $mustNotHaveSegmentData = json_decode($mustNotHaveSegmentResponse->getContent(), true);
+
+        $this->assertArrayHasKey('campaigns', $mustNotHaveSegmentData);
+        $mustNotHaveSegmentSize = count($mustNotHaveSegmentData['campaigns']);
+
+        // assert no elements with segment are in response for non-exclusive campaigns
+        $elementsWithSegment = array_filter($mustNotHaveSegmentData['campaigns'], function ($campaign) {
+            return !empty($campaign['segmentNames']);
+        });
+        $this->assertEmpty($elementsWithSegment, 'Elements with segments present, asked for non-segment-exclusive campaigns');
+
+        // all campaign data
+        $client = $this->createAuthenticatedClient(
+            LoadUserData::TEST_USERNAME,
+            LoadUserData::TEST_PASSWORD,
+            'customer');
+        $client->request('GET', '/api/customer/campaign/available');
+        $allResponse = $client->getResponse();
+        $allData = json_decode($allResponse->getContent(), true);
+
+        $this->assertArrayHasKey('campaigns', $allData);
+        $allSize = count($allData['campaigns']);
+
+        // assert no data has been lost
+        $this->assertEquals($mustHaveSegmentSize + $mustNotHaveSegmentSize, $allSize);
     }
 
     /**

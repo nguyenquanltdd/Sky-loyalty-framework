@@ -446,7 +446,7 @@ class CampaignControllerTest extends BaseApiTest
         $client = $this->createAuthenticatedClient();
         $client->request(
             'GET',
-            sprintf('/api/campaign?sort=%s&direction=%s', $direction, $oppositeDirection)
+            sprintf('/api/campaign?sort=%s&direction=%s', $field, $oppositeDirection)
         );
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
@@ -591,16 +591,104 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
+    public function it_returns_campaigns_available_to_customer()
+    {
+        static::$kernel->boot();
+        $customerDetails = $this->getCustomerDetails(LoadUserData::USER_USERNAME);
+        $customerId = $customerDetails->getCustomerId();
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            sprintf('/api/admin/customer/%s/campaign/available', $customerId)
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        $this->assertArrayHasKey('campaigns', $data);
+        $this->assertNotEmpty($data['campaigns']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_campaigns_available_to_customer_with_segment_exclusiveness()
+    {
+        static::$kernel->boot();
+        $customerDetails = $this->getCustomerDetails(LoadUserData::USER_USERNAME);
+        $customerId = $customerDetails->getCustomerId();
+
+        // exclusive
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            sprintf('/api/admin/customer/%s/campaign/available?hasSegment=1', $customerId)
+        );
+        $mustHaveSegmentResponse = $client->getResponse();
+        $mustHaveSegmentData = json_decode($mustHaveSegmentResponse->getContent(), true);
+        $this->assertEquals(200, $mustHaveSegmentResponse->getStatusCode(), 'Response should have status 200');
+
+        $this->assertArrayHasKey('campaigns', $mustHaveSegmentData);
+        $mustHaveSegmentSize = count($mustHaveSegmentData['campaigns']);
+
+        // assert no elements without segment are in response for segment-exclusive campaigns
+        $elementsWithoutSegment = array_filter($mustHaveSegmentData['campaigns'], function ($campaign) {
+            return empty($campaign['segments']);
+        });
+        $this->assertEmpty($elementsWithoutSegment, 'Elements without segment present, asked for segment-exclusive campaigns');
+
+        // non-exclusive
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            sprintf('/api/admin/customer/%s/campaign/available?hasSegment=0', $customerId)
+        );
+        $mustNotHaveSegmentResponse = $client->getResponse();
+        $mustNotHaveSegmentData = json_decode($mustNotHaveSegmentResponse->getContent(), true);
+
+        $this->assertArrayHasKey('campaigns', $mustNotHaveSegmentData);
+        $mustNotHaveSegmentSize = count($mustNotHaveSegmentData['campaigns']);
+
+        // assert no elements with segment are in response for non-exclusive campaigns
+        $elementsWithSegment = array_filter($mustNotHaveSegmentData['campaigns'], function ($campaign) {
+            return !empty($campaign['segments']);
+        });
+        $this->assertEmpty($elementsWithSegment, 'Elements with segments present, asked for non-segment-exclusive campaigns');
+
+        // all campaign data for the user
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            sprintf('/api/admin/customer/%s/campaign/available', $customerId)
+        );
+        $allResponse = $client->getResponse();
+        $allData = json_decode($allResponse->getContent(), true);
+
+        $this->assertArrayHasKey('campaigns', $allData);
+        $allSize = count($allData['campaigns']);
+
+        // assert no data has been lost
+        $this->assertEquals($mustHaveSegmentSize + $mustNotHaveSegmentSize, $allSize);
+    }
+
+    /**
+     * @test
+     */
     public function it_allows_to_buy_a_campaign_for_customer()
     {
         static::$kernel->boot();
         $customerDetailsBefore = $this->getCustomerDetails(LoadUserData::USER_USERNAME);
-        $accountBefore = $this->getCustomerAccount(new CustomerId($customerDetailsBefore->getCustomerId()->__toString()));
+        $accountBefore = $this->getCustomerAccount(new CustomerId((string) $customerDetailsBefore->getCustomerId()));
 
         $client = $this->createAuthenticatedClient();
         $client->request(
             'POST',
-            '/api/admin/customer/'.$customerDetailsBefore->getCustomerId()->__toString().'/campaign/'.LoadCampaignData::CAMPAIGN2_ID.'/buy'
+            sprintf(
+                '/api/admin/customer/%s/campaign/%s/buy',
+                (string) $customerDetailsBefore->getCustomerId(),
+                LoadCampaignData::CAMPAIGN2_ID
+            )
         );
 
         $response = $client->getResponse();
@@ -612,7 +700,7 @@ class CampaignControllerTest extends BaseApiTest
         $campaigns = $customerDetails->getCampaignPurchases();
         $found = false;
         foreach ($campaigns as $campaignPurchase) {
-            if ($campaignPurchase->getCampaignId()->__toString() == LoadCampaignData::CAMPAIGN2_ID) {
+            if ((string) $campaignPurchase->getCampaignId() == LoadCampaignData::CAMPAIGN2_ID) {
                 $found = true;
                 break;
             }
@@ -620,11 +708,16 @@ class CampaignControllerTest extends BaseApiTest
 
         $this->assertTrue($found, 'Customer should have campaign purchase with campaign id = '.LoadCampaignData::CAMPAIGN2_ID);
 
-        $accountAfter = $this->getCustomerAccount(new CustomerId($customerDetails->getCustomerId()->__toString()));
+        $accountAfter = $this->getCustomerAccount(new CustomerId((string) $customerDetails->getCustomerId()));
+        $amountBefore = $accountBefore ? $accountBefore->getAvailableAmount() : 0;
+        $amountAfter = $accountAfter ? $accountAfter->getAvailableAmount() : 0;
         $this->assertTrue(
-            ($accountBefore ? $accountBefore->getAvailableAmount() : 0) - 10 == ($accountAfter ? $accountAfter->getAvailableAmount() : 0),
-            'Available points after campaign is bought should be '.(($accountBefore ? $accountBefore->getAvailableAmount() : 0) - 10)
-            .', but it is '.($accountAfter ? $accountAfter->getAvailableAmount() : 0)
+            $amountBefore - 10 === $amountAfter,
+            sprintf(
+                'There should be %s points available after the campaign is bought, but there are %s',
+                $amountBefore - 10,
+                $amountAfter
+            )
         );
     }
 

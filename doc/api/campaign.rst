@@ -599,7 +599,7 @@ Definition
 +---------------+----------------+----------------------------------------------------+
 | format        | query          | *(optional)* Format of descriptions [html].        |
 |               |                | Default is RAW.                                    |
-+-------------------------------------+----------------+------------------------------+
++---------------+----------------+----------------------------------------------------+
 
 Example
 ^^^^^^^
@@ -701,6 +701,13 @@ Definition
 | Authorization                       | header         | Token received during authentication              |
 +-------------------------------------+----------------+---------------------------------------------------+
 | <customer>                          | query          | Customer ID                                       |
++-------------------------------------+----------------+---------------------------------------------------+
+| isFeatured                          | query          | *(optional)* Filter by featured tag               |
++-------------------------------------+----------------+---------------------------------------------------+
+| hasSegment                          | query          | *(optional)* 1 to return only campaigns offered   |
+|                                     |                | exclusively to some segments, 0 for campaigns     |
+|                                     |                | offered only to all segments; omit to return all  |
+|                                     |                | campaigns                                         |
 +-------------------------------------+----------------+---------------------------------------------------+
 | page                                | query          | *(optional)* Start from page, by default 1        |
 +-------------------------------------+----------------+---------------------------------------------------+
@@ -1562,6 +1569,13 @@ Definition
 | Authorization                       | header         | Token received during authentication              |
 +-------------------------------------+----------------+---------------------------------------------------+
 | <customer>                          | query          | Customer ID                                       |
++-------------------------------------+----------------+---------------------------------------------------+
+| isFeatured                          | query          | *(optional)* Filter by featured tag               |
++-------------------------------------+----------------+---------------------------------------------------+
+| hasSegment                          | query          | *(optional)* 1 to return only campaigns offered   |
+|                                     |                | exclusively to some segments, 0 for campaigns     |
+|                                     |                | offered only to all segments; omit to return all  |
+|                                     |                | campaigns                                         |
 +-------------------------------------+----------------+---------------------------------------------------+
 | page                                | query          | *(optional)* Start from page, by default 1        |
 +-------------------------------------+----------------+---------------------------------------------------+
