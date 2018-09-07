@@ -9,6 +9,7 @@ services:
       - '@oloy.user.customer.unique_validator'
       - '@broadway.event_dispatcher'
       - '@oloy.audit.manager'
+      - '@OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider'
     lazy: true
     tags:
       - { name: broadway.command_handler }

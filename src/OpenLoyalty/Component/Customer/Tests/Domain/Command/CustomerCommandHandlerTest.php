@@ -11,6 +11,7 @@ use OpenLoyalty\Bundle\AuditBundle\Service\AuditManagerInterface;
 use OpenLoyalty\Component\Customer\Domain\Command\CustomerCommandHandler;
 use OpenLoyalty\Component\Customer\Domain\CustomerRepository;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
+use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 
 /**
  * Class CustomerCommandHandlerTest.
@@ -29,7 +30,7 @@ abstract class CustomerCommandHandlerTest extends CommandHandlerScenarioTestCase
             $auditManager = $this->getMockBuilder(AuditManagerInterface::class)->getMock();
         }
 
-        return $this->getCustomerCommandHandler($eventStore, $eventBus, $eventDispatcher, $auditManager);
+        return $this->getCustomerCommandHandler($eventStore, $eventBus, $eventDispatcher, $auditManager, null);
     }
 
     public static function getCustomerData()
@@ -64,14 +65,20 @@ abstract class CustomerCommandHandlerTest extends CommandHandlerScenarioTestCase
     }
 
     /**
-     * @param EventStore            $eventStore
-     * @param EventBus              $eventBus
-     * @param EventDispatcher       $eventDispatcher
-     * @param AuditManagerInterface $auditManager
+     * @param EventStore                 $eventStore
+     * @param EventBus                   $eventBus
+     * @param EventDispatcher            $eventDispatcher
+     * @param AuditManagerInterface      $auditManager
+     * @param LevelDowngradeModeProvider $levelDowngradeModeProvider
      *
      * @return \OpenLoyalty\Component\Customer\Domain\Command\CustomerCommandHandler
      */
-    protected function getCustomerCommandHandler(EventStore $eventStore, EventBus $eventBus, EventDispatcher $eventDispatcher, AuditManagerInterface $auditManager = null)
+    protected function getCustomerCommandHandler(
+        EventStore $eventStore,
+        EventBus $eventBus,
+        EventDispatcher $eventDispatcher,
+        AuditManagerInterface $auditManager = null,
+        LevelDowngradeModeProvider $levelDowngradeModeProvider = null)
     {
         $customerDetailsRepository = $this->getMockBuilder('Broadway\ReadModel\Repository')->getMock();
         $customerDetailsRepository->method('findBy')->willReturn([]);
@@ -81,11 +88,18 @@ abstract class CustomerCommandHandlerTest extends CommandHandlerScenarioTestCase
             $auditManager = $this->getMockBuilder(AuditManagerInterface::class)->getMock();
         }
 
+        if (null === $levelDowngradeModeProvider) {
+            $levelDowngradeModeProvider = $this->getMockBuilder(LevelDowngradeModeProvider::class)->getMock();
+            $levelDowngradeModeProvider->method('getBase')->willReturn(LevelDowngradeModeProvider::BASE_ACTIVE_POINTS);
+            $levelDowngradeModeProvider->method('getMode')->willReturn(LevelDowngradeModeProvider::MODE_NONE);
+        }
+
         return new CustomerCommandHandler(
             new CustomerRepository($eventStore, $eventBus),
             $validator,
             $eventDispatcher,
-            $auditManager
+            $auditManager,
+            $levelDowngradeModeProvider
         );
     }
 }

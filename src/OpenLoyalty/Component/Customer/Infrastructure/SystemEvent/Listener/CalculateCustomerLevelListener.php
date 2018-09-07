@@ -160,6 +160,8 @@ class CalculateCustomerLevelListener
             $currentAmount = $account->getAvailableAmount();
         } elseif ($this->levelDowngradeModeProvider->getBase() == LevelDowngradeModeProvider::BASE_EARNED_POINTS) {
             $currentAmount = $account->getEarnedAmountSince($customer->getLastLevelRecalculation() ?: $customer->getCreatedAt());
+        } elseif ($this->levelDowngradeModeProvider->getBase() == LevelDowngradeModeProvider::BASE_EARNED_POINTS_SINCE_LAST_LEVEL_CHANGE) {
+            $currentAmount = $account->getEarnedAmountSince($customer->getLastLevelRecalculation() ?: $customer->getCreatedAt());
         }
 
         if (isset($currentAmount)) {

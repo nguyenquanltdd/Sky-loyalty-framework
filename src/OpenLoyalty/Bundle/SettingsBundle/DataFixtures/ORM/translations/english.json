@@ -1818,6 +1818,7 @@
       "base_prompt": "",
       "active_points": "active points",
       "earned_points": "earned points within last X days",
+      "earned_points_since_last_level_change": "earned points since last level change",
       "after_x_days": "every x number of days",
       "none": "none",
       "automatic": "automatic",

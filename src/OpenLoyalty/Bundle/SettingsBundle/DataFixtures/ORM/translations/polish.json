@@ -1844,6 +1844,7 @@
       "base_prompt": "",
       "active_points": "atkywne punkty",
       "earned_points": "punkty zgromadzone przez ostatnie X dni",
+      "earned_points_since_last_level_change": "punkty zgromadzone od ostatniej zmiany levelu",
       "after_x_days": "co X dni",
       "none": "brak spadku",
       "automatic": "automatycznie",

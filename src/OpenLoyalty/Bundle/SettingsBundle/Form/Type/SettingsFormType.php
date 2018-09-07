@@ -331,6 +331,7 @@ class SettingsFormType extends AbstractType
                 'choices' => [
                     LevelDowngradeModeProvider::BASE_ACTIVE_POINTS,
                     LevelDowngradeModeProvider::BASE_EARNED_POINTS,
+                    LevelDowngradeModeProvider::BASE_EARNED_POINTS_SINCE_LAST_LEVEL_CHANGE,
                 ],
             ])
         );

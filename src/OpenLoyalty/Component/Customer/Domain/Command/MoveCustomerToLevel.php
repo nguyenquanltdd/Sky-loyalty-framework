@@ -34,20 +34,27 @@ class MoveCustomerToLevel extends CustomerCommand
     protected $removeLevelManually = false;
 
     /**
+     * @var \DateTime
+     */
+    protected $dateTime;
+
+    /**
      * MoveCustomerToLevel constructor.
      *
-     * @param CustomerId   $customerId
-     * @param null|LevelId $levelId
-     * @param null|string  $levelName
-     * @param bool         $manually
-     * @param bool         $removeLevelManually
+     * @param CustomerId     $customerId
+     * @param null|LevelId   $levelId
+     * @param null|string    $levelName
+     * @param bool           $manually
+     * @param bool           $removeLevelManually
+     * @param \DateTime|null $dateTime
      */
     public function __construct(
         CustomerId $customerId,
         ?LevelId $levelId = null,
         ?string $levelName = null,
         bool $manually = false,
-        bool $removeLevelManually = false
+        bool $removeLevelManually = false,
+        \DateTime $dateTime = null
     ) {
         parent::__construct($customerId);
 
@@ -55,6 +62,7 @@ class MoveCustomerToLevel extends CustomerCommand
         $this->levelName = $levelName;
         $this->manually = $manually;
         $this->removeLevelManually = $removeLevelManually;
+        $this->dateTime = $dateTime ?: new \DateTime();
     }
 
     /**
@@ -87,5 +95,13 @@ class MoveCustomerToLevel extends CustomerCommand
     public function isRemoveLevelManually(): bool
     {
         return $this->removeLevelManually;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getDateTime(): \DateTime
+    {
+        return $this->dateTime;
     }
 }

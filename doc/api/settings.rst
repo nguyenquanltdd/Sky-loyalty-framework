@@ -407,7 +407,8 @@ Definition
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | settings[levelDowngradeDays]                          | request        | Required when mode is "after_x_days"                                       |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| settings[levelDowngradeBase]                          | request        | active|earned - required when mode is "after_x_days"                       |
+| settings[levelDowngradeBase]                          | request        | active_points | earned_points | earned_points_since_last_level_change      |
+|                                                       |                | required when mode is "after_x_days"                                       |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | settings[customersIdentificationPriority][]           | request        | TO DO                                                                      |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+

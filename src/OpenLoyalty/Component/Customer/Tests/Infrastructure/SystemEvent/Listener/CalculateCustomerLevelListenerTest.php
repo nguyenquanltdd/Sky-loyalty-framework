@@ -48,12 +48,11 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_moves_customer_to_correct_level_after_remove_manually_level()
+    public function it_moves_customer_to_correct_level_after_remove_manually_level(): void
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $level = new Level($levelId, 'test', 10);
-
         /** @var CommandBus|PHPUnit_Framework_MockObject_MockObject $commandBus */
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->once())->method('dispatch')->with(
@@ -64,7 +63,8 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                     $level->getName(),
                     true,
                     true
-                )
+                ),
+                1
             )
         );
 
@@ -92,7 +92,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_moves_customer_to_correct_level_by_transaction()
+    public function it_moves_customer_to_correct_level_by_transaction(): void
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
@@ -108,7 +108,8 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                     $level->getName(),
                     false,
                     false
-                )
+                ),
+                1
             )
         );
 
@@ -151,7 +152,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_does_not_move_customer_level_by_transaction_if_cur_level_is_the_same_like_target()
+    public function it_does_not_move_customer_level_by_transaction_if_cur_level_is_the_same_like_target(): void
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelIdString = '00000000-0000-0000-0000-000000000003';
@@ -227,7 +228,8 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                         $levelName,
                         false,
                         false
-                    )
+                    ),
+                    1
                 )
             );
             $eventDispatcher = $this->getDispatcher();
@@ -270,7 +272,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_moves_customer_to_correct_level_on_registration()
+    public function it_moves_customer_to_correct_level_on_registration(): void
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
@@ -286,7 +288,8 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                     $level->getName(),
                     false,
                     false
-                )
+                ),
+                1
             )
         );
 
@@ -331,7 +334,8 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                     $level->getName(),
                     false,
                     false
-                )
+                ),
+                1
             )
         );
 
@@ -373,7 +377,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_does_not_downgrade_when_no_downgrade_mode()
+    public function it_does_not_downgrade_when_no_downgrade_mode(): void
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
@@ -417,7 +421,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_does_not_downgrade_when_no_downgrade_mode_on_recalculate_event()
+    public function it_does_not_downgrade_when_no_downgrade_mode_on_recalculate_event(): void
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
@@ -458,7 +462,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_downgrade_when_after_x_days_downgrade_mode_on_recalculate_event()
+    public function it_downgrade_when_after_x_days_downgrade_mode_on_recalculate_event(): void
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
@@ -479,7 +483,8 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                     'test',
                     false,
                     false
-                )
+                ),
+                1
             )
         );
 
@@ -521,7 +526,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_downgrade_when_after_x_days_downgrade_mode_on_recalculate_event_using_earned_points()
+    public function it_downgrade_when_after_x_days_downgrade_mode_on_recalculate_event_using_earned_points(): void
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
@@ -542,7 +547,8 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                     'test',
                     false,
                     false
-                )
+                ),
+                1
             )
         );
 
@@ -584,7 +590,71 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_does_not_downgrade_when_automatic_downgrade_mode_and_manually_assigned()
+    public function it_downgrade_when_after_x_days_downgrade_mode_on_recalculate_event_using_earned_points_since_last_level_recalculation(): void
+    {
+        $customerId = '00000000-0000-0000-0000-000000000000';
+        $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
+        $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
+        $level = new Level($levelId, 'test', 10);
+        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 'test2', 15);
+        $customerReward = new Reward('as2', 20, 'as');
+        $reward = new Reward('as', 10, 'as');
+        $level->setReward($reward);
+        $customerLevel->setReward($customerReward);
+
+        $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
+        $commandBus->expects($this->once())->method('dispatch')->with(
+            $this->equalTo(
+                new MoveCustomerToLevel(
+                    new CustomerId($customerId),
+                    new LevelId($levelId->__toString()),
+                    'test',
+                    false,
+                    false
+                ),
+                1
+            )
+        );
+
+        $eventDispatcher = $this->getDispatcher();
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(
+            $this->equalTo(CustomerSystemEvents::CUSTOMER_LEVEL_CHANGED_AUTOMATICALLY),
+            $this->equalTo(
+                [
+                    new CustomerLevelChangedSystemEvent(
+                        new CustomerId($customerId),
+                        new LevelId((string) $levelId),
+                        'test',
+                        false
+                    ),
+                ]
+            )
+        );
+
+        $listener = new CalculateCustomerLevelListener(
+            $this->getLevelIdProvider([$level, $customerLevel]),
+            $this->getCustomerDetailsRepository($customerLevelId),
+            $commandBus,
+            $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
+            $this->getExcludeDeliveryCostsProvider(true),
+            $this->getLevelRepositoryWithArray([
+                $level->getLevelId()->__toString() => $level,
+                $customerLevel->getLevelId()->__toString() => $customerLevel,
+            ]),
+            $eventDispatcher,
+            $this->getCustomerStatusProvider(),
+            $this->getLevelDowngradeModeProvider(LevelDowngradeModeProvider::MODE_X_DAYS, LevelDowngradeModeProvider::BASE_EARNED_POINTS_SINCE_LAST_LEVEL_CHANGE),
+            $this->getAccountDetailsRepository(1000, 11)
+        );
+        $listener->handle(new CustomerRecalculateLevelRequestedSystemEvent(
+            new CustomerId($customerId)
+        ));
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_downgrade_when_automatic_downgrade_mode_and_manually_assigned(): void
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
@@ -628,7 +698,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_does_not_downgrade_when_x_days_downgrade_mode()
+    public function it_does_not_downgrade_when_x_days_downgrade_mode(): void
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
@@ -672,7 +742,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_downgrades_when_automatic_downgrade_mode()
+    public function it_downgrades_when_automatic_downgrade_mode(): void
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
@@ -693,7 +763,8 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
                     'test',
                     false,
                     false
-                )
+                ),
+                1
             )
         );
 
@@ -738,7 +809,7 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_do_not_move_customer_by_points_if_level_is_the_same()
+    public function it_do_not_move_customer_by_points_if_level_is_the_same(): void
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
@@ -1094,9 +1165,9 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    protected function getSampleLevels()
+    protected function getSampleLevels(): array
     {
         $level = [];
         $level[static::LEVEL_WITH_REWARD_10_FROM_0] = new Level(

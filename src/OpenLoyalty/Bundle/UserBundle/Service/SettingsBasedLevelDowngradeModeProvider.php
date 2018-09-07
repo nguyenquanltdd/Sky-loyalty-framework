@@ -67,6 +67,7 @@ class SettingsBasedLevelDowngradeModeProvider implements LevelDowngradeModeProvi
         if (in_array($value, [
             LevelDowngradeModeProvider::BASE_ACTIVE_POINTS,
             LevelDowngradeModeProvider::BASE_EARNED_POINTS,
+            LevelDowngradeModeProvider::BASE_EARNED_POINTS_SINCE_LAST_LEVEL_CHANGE,
         ])) {
             return $value;
         }

@@ -20,6 +20,7 @@ interface LevelDowngradeModeProvider
 
     const BASE_ACTIVE_POINTS = 'active_points';
     const BASE_EARNED_POINTS = 'earned_points';
+    const BASE_EARNED_POINTS_SINCE_LAST_LEVEL_CHANGE = 'earned_points_since_last_level_change';
 
     /**
      * @return string

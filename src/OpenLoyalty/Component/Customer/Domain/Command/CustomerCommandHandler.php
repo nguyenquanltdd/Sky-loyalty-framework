@@ -27,6 +27,7 @@ use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerUpdatedSystemEvent
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\NewsletterSubscriptionSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\TransactionId;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
+use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 
 /**
  * Class CustomerCommandHandler.
@@ -54,23 +55,31 @@ class CustomerCommandHandler extends SimpleCommandHandler
     private $auditManager;
 
     /**
+     * @var LevelDowngradeModeProvider
+     */
+    private $levelDowngradeModeProvider;
+
+    /**
      * CustomerCommandHandler constructor.
      *
-     * @param CustomerRepository      $repository
-     * @param CustomerUniqueValidator $customerUniqueValidator
-     * @param EventDispatcher         $eventDispatcher
-     * @param AuditManagerInterface   $auditManager
+     * @param CustomerRepository         $repository
+     * @param CustomerUniqueValidator    $customerUniqueValidator
+     * @param EventDispatcher            $eventDispatcher
+     * @param AuditManagerInterface      $auditManager
+     * @param LevelDowngradeModeProvider $levelDowngradeModeProvider
      */
     public function __construct(
         CustomerRepository $repository,
         CustomerUniqueValidator $customerUniqueValidator,
         EventDispatcher $eventDispatcher,
-        AuditManagerInterface $auditManager
+        AuditManagerInterface $auditManager,
+        LevelDowngradeModeProvider $levelDowngradeModeProvider
     ) {
         $this->repository = $repository;
         $this->customerUniqueValidator = $customerUniqueValidator;
         $this->eventDispatcher = $eventDispatcher;
         $this->auditManager = $auditManager;
+        $this->levelDowngradeModeProvider = $levelDowngradeModeProvider;
     }
 
     /**
@@ -226,6 +235,10 @@ class CustomerCommandHandler extends SimpleCommandHandler
         /** @var Customer $customer */
         $customer = $this->repository->load($customerId->__toString());
         $customer->addToLevel($command->getLevelId(), $command->isManually(), $command->isRemoveLevelManually());
+        if ($this->levelDowngradeModeProvider->getMode() === LevelDowngradeModeProvider::MODE_X_DAYS
+            && $this->levelDowngradeModeProvider->getBase() === LevelDowngradeModeProvider::BASE_EARNED_POINTS_SINCE_LAST_LEVEL_CHANGE) {
+            $customer->recalculateLevel($command->getDateTime());
+        }
 
         $this->repository->save($customer);
 
