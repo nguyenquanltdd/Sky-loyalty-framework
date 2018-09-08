@@ -11,6 +11,3 @@ jms_serializer:
         Seller:
           namespace_prefix: "OpenLoyalty\\Component\\Seller\\Domain"
           path: "@OpenLoyaltyUserBundle/Resources/config/serializer/Seller"
-
-open_loyalty_user:
-  customer_search_max_results: "%customer_search_max_results%"

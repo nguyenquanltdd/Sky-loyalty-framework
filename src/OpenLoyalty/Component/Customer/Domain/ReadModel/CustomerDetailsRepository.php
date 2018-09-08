@@ -7,6 +7,7 @@ namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
 use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
+use OpenLoyalty\Component\Customer\Domain\Exception\TooManyResultsException;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 
 interface CustomerDetailsRepository extends Repository
@@ -109,6 +110,16 @@ interface CustomerDetailsRepository extends Repository
      * @return CustomerDetails[]
      */
     public function findByAnyCriteria($criteria): array;
+
+    /**
+     * @param array $fields
+     * @param int   $limit
+     *
+     * @return CustomerDetails[]
+     *
+     * @throws TooManyResultsException
+     */
+    public function findCustomersByParameters(array $fields, int $limit): array;
 
     /**
      * @param $from

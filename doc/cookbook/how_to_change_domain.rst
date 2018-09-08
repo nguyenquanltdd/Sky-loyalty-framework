@@ -204,7 +204,6 @@ This content will be used in the deployment file to replace existing files with 
             env(frontend_customer_panel_url): 'http://example.com:8182/'
             loyalty_program_name: OpenLoyalty
             ecommerce_address: 'http://ecommerce.local'
-            customer_search_max_results: 3
             es_max_result_window_size: 2000000
             fallback_frontend_translations_file: english.json
             campaign_photos_adapter: campaign_photos_local
