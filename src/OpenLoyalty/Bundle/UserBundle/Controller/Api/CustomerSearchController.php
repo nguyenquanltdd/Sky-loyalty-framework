@@ -56,9 +56,9 @@ class CustomerSearchController extends FOSRestController
             /** @var SearchCustomer $data */
             $data = $form->getData();
             try {
-                $customers = $customerDetailsRepository->findOneByCriteria(
+                $customers = $customerDetailsRepository->findCustomersByParameters(
                     $data->toCriteriaArray(),
-                    $this->container->getParameter('oloy.user.customerSearchMaxResults')
+                    $this->container->getParameter('es_max_result_window_size')
                 );
             } catch (TooManyResultsException $e) {
                 return $this->view(['error' => 'too many results'], Response::HTTP_BAD_REQUEST);

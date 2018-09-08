@@ -552,6 +552,24 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
     /**
      * {@inheritdoc}
      */
+    public function findCustomersByParameters(array $fields, int $limit): array
+    {
+        if (empty($fields)) {
+            return [];
+        }
+
+        $result = $this->findByParameters($fields, false);
+
+        if (count($result) > $limit) {
+            throw new TooManyResultsException();
+        }
+
+        return $result;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function findByAnyCriteria($criteria): array
     {
         $filter = [];

@@ -5,7 +5,6 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\Form\Type;
 
-use Misd\PhoneNumberBundle\Validator\Constraints\PhoneNumber;
 use OpenLoyalty\Bundle\UserBundle\Model\SearchCustomer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -26,7 +25,6 @@ class CustomerSearchFormType extends AbstractType
         $builder->add('phone', TextType::class, [
             'required' => false,
             'constraints' => [
-                new PhoneNumber(),
                 new Numeric(['type' => 'numeric', 'message' => 'Incorrect phone number format, use +00000000000']),
             ],
         ]);
