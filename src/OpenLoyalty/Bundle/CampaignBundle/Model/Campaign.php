@@ -69,6 +69,7 @@ class Campaign extends BaseCampaign
             'daysValid' => $this->daysValid,
             'transactionPercentageValue' => $this->transactionPercentageValue,
             'featured' => $this->featured,
+            'public' => $this->public,
             'categories' => $this->categories,
         ];
     }

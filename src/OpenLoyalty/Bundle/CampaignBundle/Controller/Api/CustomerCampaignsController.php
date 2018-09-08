@@ -155,6 +155,7 @@ class CustomerCampaignsController extends FOSRestController
      *     section="Customer Campaign",
      *     parameters={
      *          {"name"="isFeatured", "dataType"="boolean", "required"=false},
+     *          {"name"="isPublic", "dataType"="boolean", "required"=false},
      *          {"name"="page", "dataType"="integer", "required"=false, "description"="Page number"},
      *          {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
      *          {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
@@ -194,6 +195,7 @@ class CustomerCampaignsController extends FOSRestController
                     $pagination->getSortDirection(),
                     [
                         'featured' => $request->query->get('isFeatured'),
+                        'isPublic' => $request->query->get('isPublic'),
                     ]
                 );
         } catch (QueryException $exception) {

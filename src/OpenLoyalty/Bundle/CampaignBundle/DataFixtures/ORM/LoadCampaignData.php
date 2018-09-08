@@ -66,6 +66,7 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaign->setActive(true);
         $campaign->setCostInPoints(10);
         $campaign->setLimit(10);
+        $campaign->setPublic(true);
         $campaign->setUnlimited(false);
         $campaign->setLimitPerUser(2);
         $campaign->setLevels([new LevelId(LoadLevelData::LEVEL2_ID)]);
@@ -134,6 +135,7 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaign->setReward(Campaign::REWARD_TYPE_CASHBACK);
         $campaign->setName('cashback');
         $campaign->setActive(true);
+        $campaign->setPublic(true);
         $campaign->setPointValue(10);
         $campaign->setLabels([new Label('type', 'cashback'), new Label('type', 'promotion')]);
         $campaign->setLevels([new LevelId(LoadLevelData::LEVEL2_ID)]);
@@ -192,6 +194,7 @@ class LoadCampaignData extends ContainerAwareFixture
             $randomId = Uuid::uuid();
             $campaign = new Campaign();
             $campaign->setActive($i % 2 == 0);
+            $campaign->setPublic($i % 4 == 0);
             $campaign->setCostInPoints(1);
             $campaign->setLimit(rand(10, 50));
             $campaign->setUnlimited(false);
@@ -226,6 +229,7 @@ class LoadCampaignData extends ContainerAwareFixture
     {
         $campaign = new Campaign();
         $campaign->setActive(true);
+        $campaign->setPublic(true);
         $campaign->setCostInPoints(5);
         $campaign->setLimit(10);
         $campaign->setUnlimited(false);

@@ -110,6 +110,10 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
       type: boolean
       options:
         default: 1
+    public:
+      type: boolean
+      options:
+        default: 0
   embedded:
     campaignActivity:
       class: OpenLoyalty\Component\Campaign\Domain\Model\CampaignActivity

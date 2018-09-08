@@ -159,6 +159,8 @@
     "event_code": "Invitation for the event",
     "featured": "Featured",
     "featured_prompt": "",
+    "public": "Public",
+    "public_prompt": "",
     "free_delivery_code": "Free delivery",
     "gift_code": "Gift",
     "heading": "Reward campaigns",

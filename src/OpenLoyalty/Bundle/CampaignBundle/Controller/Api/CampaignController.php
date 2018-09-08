@@ -597,6 +597,7 @@ class CampaignController extends FOSRestController
      *     section="Campaign",
      *     parameters={
      *          {"name"="active", "dataType"="boolean", "required"=false, "description"="Filter by activity"},
+     *          {"name"="isPublic", "dataType"="boolean", "required"=false, "description"="Filter by public flag"},
      *          {"name"="isFeatured", "dataType"="boolean", "required"=false, "description"="Filter by featured tag"},
      *          {"name"="campaignType", "dataType"="string", "required"=false, "description"="Filter by campaign type"},
      *          {"name"="name", "dataType"="string", "required"=false, "description"="Filter by campaign name"},
@@ -610,6 +611,7 @@ class CampaignController extends FOSRestController
      *
      * @QueryParam(name="labels", nullable=true, description="filter by labels"))
      * @QueryParam(name="active", nullable=true, description="filter by activity"))
+     * @QueryParam(name="isPublic", nullable=true, description="filter by public flag"))
      * @QueryParam(name="isFeatured", nullable=true, description="filter by featured tag"))
      * @QueryParam(name="campaignType", nullable=true, description="filter by campaign type"))
      * @QueryParam(name="name", nullable=true, description="filter by campaign name"))
@@ -810,6 +812,7 @@ class CampaignController extends FOSRestController
      *     name="get campaigns list",
      *     section="Campaign",
      *     parameters={
+     *      {"name"="isPublic", "dataType"="boolean", "required"=false, "description"="Filter by public flag"},
      *      {"name"="page", "dataType"="integer", "required"=false, "description"="Page number"},
      *      {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
      *      {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
@@ -835,9 +838,18 @@ class CampaignController extends FOSRestController
                 $paginator->getPage(),
                 $paginator->getPerPage(),
                 $paginator->getSort(),
-                $paginator->getSortDirection()
+                $paginator->getSortDirection(),
+                [
+                    'isPublic' => $request->query->get('isPublic'),
+                ]
             );
-        $total = $this->campaignRepository->countTotal(true);
+
+        $total = $this->campaignRepository->countTotal(
+            true,
+            [
+                'isPublic' => $request->query->get('isPublic'),
+            ]
+        );
 
         $view = $this->view(
             [
@@ -995,6 +1007,7 @@ class CampaignController extends FOSRestController
      *     section="Campaign",
      *     parameters={
      *          {"name"="isFeatured", "dataType"="boolean", "required"=false, "description"="Filter by featured tag"},
+     *          {"name"="isPublic", "dataType"="boolean", "required"=false, "description"="Filter by public flag"},
      *          {"name"="page", "dataType"="integer", "required"=false, "description"="Page number"},
      *          {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
      *          {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
@@ -1032,6 +1045,7 @@ class CampaignController extends FOSRestController
                 $paginator->getSortDirection(),
                 [
                     'featured' => $request->query->get('isFeatured'),
+                    'isPublic' => $request->query->get('isPublic'),
                 ]
             );
         $campaigns = array_filter($campaigns, function (DomainCampaign $campaign) use ($customer) {
@@ -1454,6 +1468,9 @@ class CampaignController extends FOSRestController
      * @ApiDoc(
      *     name="list only featured campaigns",
      *     section="Campaign",
+     *     parameters={
+     *          {"name"="isPublic", "dataType"="boolean", "required"=false, "description"="Filter by public flag"}
+     *     },
      *     statusCodes={
      *          200="Returned when successful",
      *          400="Returned when data is invalid",
@@ -1475,10 +1492,17 @@ class CampaignController extends FOSRestController
             $paginator->getPage(),
             $paginator->getPerPage(),
             $paginator->getSort(),
-            $paginator->getSortDirection()
+            $paginator->getSortDirection(),
+            [
+                'isPublic' => $request->query->get('isPublic'),
+            ]
         );
 
-        $total = $this->campaignRepository->countFeatured();
+        $total = $this->campaignRepository->countFeatured(
+            [
+                'isPublic' => $request->query->get('isPublic'),
+            ]
+        );
 
         $view = FosView::create(
             [

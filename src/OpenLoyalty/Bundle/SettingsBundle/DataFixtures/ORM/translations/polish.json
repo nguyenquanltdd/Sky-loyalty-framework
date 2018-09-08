@@ -160,6 +160,8 @@
     "event_code": "Zaproszenie na wydarzenie",
     "featured": "Wyróżniona",
     "featured_prompt": "",
+    "public": "Publiczna",
+    "public_prompt": "",
     "free_delivery_code": "Darmowa dostawa",
     "gift_code": "Nagroda rzeczowa",
     "heading": "Katalog nagród",

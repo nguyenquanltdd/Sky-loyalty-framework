@@ -39,10 +39,11 @@ interface CampaignRepository
      * @param int    $perPage
      * @param null   $sortField
      * @param string $direction
+     * @param array  $filters
      *
      * @return array
      */
-    public function findAllVisiblePaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'DESC');
+    public function findAllVisiblePaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'DESC', array $filters = []);
 
     /**
      * @param SegmentId[] $segmentIds
@@ -80,14 +81,15 @@ interface CampaignRepository
     public function getVisibleCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, array $categoryIds = [], $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC', array $filters = []): array;
 
     /**
-     * @param bool $onlyVisible
+     * @param bool  $onlyVisible
+     * @param array $filters
      *
      * @return int
      *
      * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function countTotal($onlyVisible = false);
+    public function countTotal($onlyVisible = false, array $filters = []);
 
     /**
      * @param Campaign $campaign

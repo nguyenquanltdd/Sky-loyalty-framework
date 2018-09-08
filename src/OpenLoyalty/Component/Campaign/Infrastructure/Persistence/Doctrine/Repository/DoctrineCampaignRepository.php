@@ -134,7 +134,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     /**
      * {@inheritdoc}
      */
-    public function findAllVisiblePaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'ASC')
+    public function findAllVisiblePaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'ASC', array $filters = [])
     {
         $qb = $this->createQueryBuilder('c');
 
@@ -143,6 +143,10 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
                 'e.'.$this->validateSort($sortField),
                 $this->validateSortBy($direction)
             );
+        }
+
+        if (array_key_exists('isPublic', $filters) && !is_null($filters['isPublic'])) {
+            $qb->andWhere('c.public = :public')->setParameter('public', $filters['isPublic']);
         }
 
         $qb->andWhere(
@@ -170,12 +174,18 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      * @param int    $perPage
      * @param null   $sortField
      * @param string $direction
+     * @param array  $filters
      *
      * @return array
      */
-    public function findAllFeaturedPaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'ASC'): array
-    {
-        $query = $this->getFeaturedCampaignsQueryBuilder();
+    public function findAllFeaturedPaginated(
+        $page = 1,
+        $perPage = 10,
+        $sortField = null,
+        $direction = 'ASC',
+        array $filters = []
+    ): array {
+        $query = $this->getFeaturedCampaignsQueryBuilder($filters);
 
         if ($sortField) {
             $query->orderBy(sprintf('campaign.%s', $this->validateSort($sortField)), $this->validateSortBy($direction));
@@ -190,12 +200,18 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     }
 
     /**
+     * @param array $filters
+     *
      * @return int
      */
-    public function countFeatured(): int
+    public function countFeatured(array $filters = []): int
     {
         $query = $this->getFeaturedCampaignsQueryBuilder();
         $query->select('count(campaign.campaignId)');
+
+        if (array_key_exists('isPublic', $filters) && !is_null($filters['isPublic'])) {
+            $query->andWhere('campaign.public = :public')->setParameter('public', $filters['isPublic']);
+        }
 
         try {
             return $query->getQuery()->getSingleScalarResult();
@@ -205,9 +221,11 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     }
 
     /**
+     * @param array $filters
+     *
      * @return QueryBuilder
      */
-    protected function getFeaturedCampaignsQueryBuilder(): QueryBuilder
+    protected function getFeaturedCampaignsQueryBuilder(array $filters = []): QueryBuilder
     {
         $query = $this->createQueryBuilder('campaign');
         $query
@@ -219,6 +237,10 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
             ->andWhere('campaign.featured = :featured')
             ->setParameter('featured', true)
         ;
+
+        if (array_key_exists('isPublic', $filters) && !is_null($filters['isPublic'])) {
+            $query->andWhere('campaign.public = :public')->setParameter('public', $filters['isPublic']);
+        }
 
         $query
             ->andWhere(
@@ -239,10 +261,14 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     /**
      * {@inheritdoc}
      */
-    public function countTotal($onlyVisible = false)
+    public function countTotal($onlyVisible = false, array $filters = [])
     {
         $query = $this->createQueryBuilder('e');
         $query->select('count(e.campaignId)');
+
+        if (array_key_exists('isPublic', $filters) && !is_null($filters['isPublic'])) {
+            $query->andWhere('e.public = :public')->setParameter('public', $filters['isPublic']);
+        }
 
         if ($onlyVisible) {
             $query->andWhere(
@@ -330,6 +356,10 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
 
         if (array_key_exists('featured', $filters) && !is_null($filters['featured'])) {
             $qb->andWhere('c.featured = :featured')->setParameter('featured', $filters['featured']);
+        }
+
+        if (array_key_exists('isPublic', $filters) && !is_null($filters['isPublic'])) {
+            $qb->andWhere('c.public = :public')->setParameter('public', $filters['isPublic']);
         }
 
         return $qb->getQuery()->getResult();
@@ -424,6 +454,14 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
                 $qb->andWhere('c.active = :true')->setParameter('true', true);
             } else {
                 $qb->andWhere('c.active = :false')->setParameter('false', false);
+            }
+        }
+
+        if (array_key_exists('isPublic', $params) && !is_null($params['isPublic'])) {
+            if ($params['isPublic']) {
+                $qb->andWhere('c.public = :true')->setParameter('true', true);
+            } else {
+                $qb->andWhere('c.public = :false')->setParameter('false', false);
             }
         }
 

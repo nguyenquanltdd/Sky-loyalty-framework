@@ -190,6 +190,11 @@ class Campaign
     protected $categories = [];
 
     /**
+     * @var bool
+     */
+    protected $public = false;
+
+    /**
      * Campaign constructor.
      *
      * @param CampaignId $campaignId
@@ -324,6 +329,10 @@ class Campaign
 
         if (array_key_exists('featured', $data)) {
             $this->setFeatured($data['featured']);
+        }
+
+        if (array_key_exists('public', $data)) {
+            $this->setPublic($data['public']);
         }
 
         if (array_key_exists('labels', $data)) {
@@ -990,6 +999,22 @@ class Campaign
     public function setFeatured(bool $featured): void
     {
         $this->featured = $featured;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPublic(): bool
+    {
+        return $this->public;
+    }
+
+    /**
+     * @param bool $public
+     */
+    public function setPublic(bool $public): void
+    {
+        $this->public = $public;
     }
 
     /**

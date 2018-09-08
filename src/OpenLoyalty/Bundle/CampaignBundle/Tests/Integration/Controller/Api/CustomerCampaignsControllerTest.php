@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Integration\Controller\Api;
 
 use OpenLoyalty\Bundle\CampaignBundle\DataFixtures\ORM\LoadCampaignData;
@@ -234,9 +237,48 @@ class CustomerCampaignsControllerTest extends BaseApiTest
     }
 
     /**
+     * @test
+     * @dataProvider getCampaignsFilters
+     *
+     * @param array $filters
+     * @param int   $expectedCount
+     */
+    public function it_returns_available_campaigns_filtered(array $filters, int $expectedCount): void
+    {
+        $client = $this->createAuthenticatedClient(LoadUserData::TEST_USERNAME, LoadUserData::TEST_PASSWORD, 'customer');
+        $client->request(
+            'GET',
+            '/api/customer/campaign/available',
+            $filters
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('campaigns', $data);
+        $this->assertArrayHasKey('total', $data);
+        $this->assertCount($expectedCount, $data['campaigns']);
+        $this->assertEquals($expectedCount, $data['total']);
+    }
+
+    /**
      * @return array
      */
-    public function sortParamsProvider()
+    public function getCampaignsFilters(): array
+    {
+        return [
+            [['isPublic' => 1], 1],
+            [['isPublic' => 0], 0],
+            [['isFeatured' => 1], 0],
+            [['isFeatured' => 0], 1],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function sortParamsProvider(): array
     {
         return [
             ['campaignId', 'asc', 'desc'],
@@ -247,6 +289,7 @@ class CustomerCampaignsControllerTest extends BaseApiTest
             ['costInPoints', 'asc', 'desc'],
             ['hasPhoto', 'asc', 'desc'],
             ['usageLeft', 'asc', 'desc'],
+            ['isPublic', 'asc', 'desc'],
         ];
     }
 

@@ -408,12 +408,12 @@ class CampaignControllerTest extends BaseApiTest
     public function getCampaignsFilters()
     {
         return [
-            [['labels' => [['key' => 'key0'], ['value' => 'value0']]], 1],
-            [['labels' => [['key' => 'type']]], 5],
-            [['labels' => [['key' => 'test']]], 0],
-            [['active' => 1], 11],
-            [['active' => 0], 8],
-            [['campaignType' => 'discount_code'], 8],
+            [['isFeatured' => 1, 'isPublic' => 1], 3],
+            [['isFeatured' => 0, 'isPublic' => 0], 4],
+            [['isFeatured' => 1], 12],
+            [['isFeatured' => 0], 7],
+            [['isPublic' => 1], 6],
+            [['isPublic' => 0], 13],
             [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY2_ID]], 2],
             [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID]], 1],
             [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID, LoadCampaignData::CAMPAIGN_CATEGORY2_ID]], 2],
@@ -783,6 +783,103 @@ class CampaignControllerTest extends BaseApiTest
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200');
         $this->assertCount(6, $data['campaigns']);
         $this->assertSame(6, $data['total']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_public_list_of_featured_and_public_campaigns(): void
+    {
+        $client = self::createClient();
+
+        $client->request(Request::METHOD_GET, '/api/campaign/public/featured', ['isPublic' => 1]);
+
+        $response = $client->getResponse();
+
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertCount(3, $data['campaigns']);
+        $this->assertSame(3, $data['total']);
+    }
+
+    /**
+     * @test
+     * @dataProvider getSellerCampaignsFilters
+     *
+     * @param array $filters
+     * @param int   $expectedCount
+     */
+    public function it_gets_seller_campaigns(array $filters, int $expectedCount): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/seller/campaign',
+            $filters
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertArrayHasKey('campaigns', $data);
+        $this->assertArrayHasKey('total', $data);
+        $this->assertCount($expectedCount, $data['campaigns']);
+        $this->assertEquals($expectedCount, $data['total']);
+    }
+
+    /**
+     * @test
+     * @dataProvider getSellerCustomerCampaignsFilters
+     *
+     * @param array $filters
+     * @param int   $expectedCount
+     */
+    public function it_gets_seller_customer_available_campaigns(array $filters, int $expectedCount): void
+    {
+        $client = $this->createAuthenticatedClient(
+            LoadUserData::TEST_SELLER_USERNAME,
+            LoadUserData::TEST_SELLER_PASSWORD,
+            'seller'
+        );
+        $client->request(
+            'GET',
+            '/api/seller/customer/'.LoadUserData::USER2_USER_ID.'/campaign/available',
+            $filters
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertArrayHasKey('campaigns', $data);
+        $this->assertArrayHasKey('total', $data);
+        $this->assertCount($expectedCount, $data['campaigns']);
+        $this->assertEquals($expectedCount, $data['total']);
+    }
+
+    /**
+     * @return array
+     */
+    public function getSellerCustomerCampaignsFilters(): array
+    {
+        return [
+            [['isFeatured' => 1], 0],
+            [['isFeatured' => 0], 1],
+            [['isPublic' => 1], 1],
+            [['isPublic' => 0], 0],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getSellerCampaignsFilters(): array
+    {
+        return [
+            [['isPublic' => 0], 4],
+            [['isPublic' => 1], 5],
+            [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY2_ID]], 9],
+            [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID]], 9],
+            [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID, LoadCampaignData::CAMPAIGN_CATEGORY2_ID]], 9],
+        ];
     }
 
     /**
