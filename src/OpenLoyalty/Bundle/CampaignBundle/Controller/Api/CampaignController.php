@@ -1008,6 +1008,7 @@ class CampaignController extends FOSRestController
      *     parameters={
      *          {"name"="isFeatured", "dataType"="boolean", "required"=false, "description"="Filter by featured tag"},
      *          {"name"="isPublic", "dataType"="boolean", "required"=false, "description"="Filter by public flag"},
+     *          {"name"="hasSegment", "dataType"="boolean", "required"=false, "description"="Whether campaign is offered exclusively to some segments"},
      *          {"name"="page", "dataType"="integer", "required"=false, "description"="Page number"},
      *          {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
      *          {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
@@ -1029,10 +1030,13 @@ class CampaignController extends FOSRestController
 
         $categoryIds = $request->query->get('categoryId', []);
         $customerSegments = $this->segmentedCustomersRepository
-            ->findBy(['customerId' => $customer->getCustomerId()->__toString()]);
-        $segments = array_map(function (SegmentedCustomers $segmentedCustomers) {
-            return new SegmentId($segmentedCustomers->getSegmentId()->__toString());
-        }, $customerSegments);
+            ->findBy(['customerId' => (string) $customer->getCustomerId()]);
+        $segments = array_map(
+            function (SegmentedCustomers $segmentedCustomers) {
+                return new SegmentId((string) $segmentedCustomers->getSegmentId());
+            },
+            $customerSegments
+        );
 
         $campaigns = $this->campaignRepository
             ->getVisibleCampaignsForLevelAndSegment(
@@ -1048,17 +1052,31 @@ class CampaignController extends FOSRestController
                     'isPublic' => $request->query->get('isPublic'),
                 ]
             );
+
+        // filter by segment exclusiveness
+        $mustHaveSegments = $request->query->get('hasSegment', null);
+        if (null !== $mustHaveSegments) {
+            $campaigns = array_filter($campaigns, function (DomainCampaign $campaign) use ($mustHaveSegments) {
+                return $mustHaveSegments ? $campaign->hasSegments() : !$campaign->hasSegments();
+            });
+        }
+
+        // filter by usage left
         $campaigns = array_filter($campaigns, function (DomainCampaign $campaign) use ($customer) {
             $usageLeft = $this->campaignProvider->getUsageLeft($campaign);
             $usageLeftForCustomer = $this->campaignProvider
-                ->getUsageLeftForCustomer($campaign, $customer->getCustomerId()->__toString());
+                ->getUsageLeftForCustomer($campaign, (string) $customer->getCustomerId());
 
             return $usageLeft > 0 && $usageLeftForCustomer > 0;
         });
 
         $view = $this->view(
             [
-                'campaigns' => array_slice($campaigns, ($paginator->getPage() - 1) * $paginator->getPerPage(), $paginator->getPerPage()),
+                'campaigns' => array_slice(
+                    $campaigns,
+                    ($paginator->getPage() - 1) * $paginator->getPerPage(),
+                    $paginator->getPerPage()
+                ),
                 'total' => count($campaigns),
             ],
             Response::HTTP_OK

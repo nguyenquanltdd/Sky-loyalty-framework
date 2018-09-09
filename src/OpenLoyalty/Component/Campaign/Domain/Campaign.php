@@ -500,6 +500,14 @@ class Campaign
     }
 
     /**
+     * @return bool
+     */
+    public function hasSegments()
+    {
+        return !empty($this->segments);
+    }
+
+    /**
      * @return SegmentId[]
      */
     public function getSegments()
