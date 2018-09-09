@@ -30,6 +30,11 @@ use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomersRepository;
 class OloyEarningRuleEvaluator implements EarningRuleApplier
 {
     /**
+     * @var EarningRuleGeoRepository
+     */
+    protected $earningRuleGeoRepository;
+
+    /**
      * @var EarningRuleRepository
      */
     protected $earningRuleRepository;
@@ -80,6 +85,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
      * @param CustomerDetailsRepository            $customerDetailsRepository
      * @param SettingsManager                      $settingsManager
      * @param StoppableProvider                    $stoppableProvider
+     * @param EarningRuleGeoRepository             $earningRuleGeoRepository
      */
     public function __construct(
         EarningRuleRepository $earningRuleRepository,
@@ -89,7 +95,8 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         SegmentedCustomersRepository $segmentedCustomerElasticSearchRepository,
         CustomerDetailsRepository $customerDetailsRepository,
         SettingsManager $settingsManager,
-        StoppableProvider $stoppableProvider
+        StoppableProvider $stoppableProvider,
+        EarningRuleGeoRepository $earningRuleGeoRepository
     ) {
         $this->earningRuleRepository = $earningRuleRepository;
         $this->transactionDetailsRepository = $transactionDetailsRepository;
@@ -99,6 +106,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         $this->invitationDetailsRepository = $invitationDetailsRepository;
         $this->settingsManager = $settingsManager;
         $this->stoppableProvider = $stoppableProvider;
+        $this->earningRuleGeoRepository = $earningRuleGeoRepository;
     }
 
     /**
@@ -142,6 +150,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
             // ignore event rules (supported by call method)
             if ($earningRule instanceof EventEarningRule
                 || $earningRule instanceof CustomEventEarningRule
+                || $earningRule instanceof EarningRuleGeo
                 || $earningRule instanceof ReferralEarningRule
             ) {
                 continue;
@@ -277,7 +286,37 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     }
 
     /**
-     * Return number of points for this custom event.
+     * @param $latitude
+     * @param $longitude
+     *
+     * @return EvaluationResult[]
+     */
+    public function evaluateGeoEvent($latitude, $longitude): array
+    {
+        /** @var EvaluationResult[] $result */
+        $result = [];
+
+        $earningGeoRules = $this->earningRuleGeoRepository->findGeoRules();
+
+        foreach ($earningGeoRules as $earningGeoRule) {
+            /** @var EarningRuleGeo $earningGeoRule */
+            if ($earningGeoRule->isActive()) {
+                $distance = $earningGeoRule->getDistance($latitude, $longitude);
+                if ($earningGeoRule->getRadius() >= $distance) {
+                    $result[] = new EvaluationResult(
+                        (string) $earningGeoRule->getEarningRuleId(),
+                        $earningGeoRule->getPointsAmount(),
+                        $earningGeoRule->getName()
+                    );
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Return numb$eventNameer of points for this custom event.
      *
      * @param string $eventName
      * @param string $customerId
@@ -304,6 +343,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
             null,
             $customerData['pos']
         );
+
         if (!$earningRules) {
             return 0;
         }

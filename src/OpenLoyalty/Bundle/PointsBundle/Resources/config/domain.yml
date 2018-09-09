@@ -69,7 +69,8 @@ services:
       - { name: broadway.event_listener, event: oloy.transaction.customer_first_transaction, method: onFirstTransaction}
       - { name: broadway.event_listener, event: oloy.customer.logged_in, method: onCustomerLogin}
       - { name: broadway.event_listener, event: oloy.customer.newsletter_subscription, method: onNewsletterSubscription }
-      - { name: broadway.event_listener, event: oloy.account.custom_event_occured, method: onCustomEvent }
+      - { name: broadway.event_listener, event: oloy.account.custom_event_occurred, method: onCustomEvent }
+      - { name: broadway.event_listener, event: oloy.account.custom_event_geo_occurred, method: onCustomGeoEvent }
       - { name: broadway.event_listener, event: oloy.invitation.customer_attached, method: onCustomerAttachedToInvitation }
   oloy.account.spend_points_on_campaign_listener:
       class: OpenLoyalty\Component\Account\Infrastructure\Event\Listener\SpendPointsOnCampaignListener

@@ -1399,10 +1399,19 @@
       "multiply_for_product": "Pomnóż zdobyte punkty",
       "points": "Punkty za każdą wydaną złotówkę",
       "product_purchase": "Zakup produktu",
-      "referral": "Zaproszenia do programu"
+      "referral": "Zaproszenia do programu",
+      "geolocation" : "Geolokalizacja"
     },
     "value": "Wartość",
-    "visibility_and_activity": "Dostępność reguły"
+    "visibility_and_activity": "Dostępność reguły",
+    "latitude" : "Szerokość",
+    "latitude_prompt": "",
+    "longitude" : "Długość",
+    "longitude_prompt": "",
+    "radius" :"Promień",
+    "radius_prompt": "w kilometrach od podanego punktu",
+    "points" : "Punkty",
+    "points_prompt": ""
   },
   "front_error": {
     "at_least_one": "Wypełnij przynajmniej jedno pole",

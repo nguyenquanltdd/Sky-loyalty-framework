@@ -26,6 +26,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type as CType;
 
 /**
  * Class EditEarningRuleFormType.
@@ -67,6 +68,7 @@ class EditEarningRuleFormType extends BaseEarningRuleFormType
             ],
             'mapped' => false,
         ]);
+
         $builder->add(
             $builder->create('levels', CollectionType::class, [
                 'entry_type' => TextType::class,
@@ -78,6 +80,7 @@ class EditEarningRuleFormType extends BaseEarningRuleFormType
                 ],
             ])->addModelTransformer(new LevelsDataTransformer())
         );
+
         $builder->add(
             $builder->create('segments', CollectionType::class, [
                 'entry_type' => TextType::class,
@@ -110,7 +113,41 @@ class EditEarningRuleFormType extends BaseEarningRuleFormType
             'format' => DateTimeType::HTML5_FORMAT,
         ]);
 
-        if ($type == EarningRule::TYPE_POINTS) {
+        if ($type == EarningRule::TYPE_GEOLOCATION) {
+            $builder
+                ->add('latitude', NumberType::class, [
+                    'required' => true,
+                    'constraints' => [
+                        new NotBlank(),
+                        new CType([
+                            'type' => 'float',
+                        ]),
+                    ],
+                ])
+                ->add('longitude', NumberType::class, [
+                    'required' => true,
+                    'constraints' => [
+                        new NotBlank(),
+                        new CType([
+                            'type' => 'float',
+                        ]),
+                    ],
+                ])
+                ->add('radius', NumberType::class, [
+                    'required' => true,
+                    'constraints' => [
+                        new NotBlank(),
+                        new CType([
+                            'type' => 'float',
+                        ]),
+                    ],
+                ])
+                ->add('pointsAmount', NumberType::class, [
+                    'scale' => 2,
+                    'required' => true,
+                    'constraints' => [new NotBlank()],
+                ]);
+        } elseif ($type == EarningRule::TYPE_POINTS) {
             $builder
                 ->add('pointValue', NumberType::class, [
                     'scale' => 2,
@@ -221,11 +258,14 @@ class EditEarningRuleFormType extends BaseEarningRuleFormType
         } else {
             throw new InvalidArgumentException('Wrong "type" provided');
         }
+
         if ($this->stoppableProvider->isStoppableByType($type)) {
             $builder->add('lastExecutedRule', CheckboxType::class, ['required' => false]);
         }
+
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
             $data = $event->getData();
+
             if (!isset($data['target'])) {
                 return;
             }
@@ -235,6 +275,7 @@ class EditEarningRuleFormType extends BaseEarningRuleFormType
             } elseif ($target == 'segment') {
                 $data['levels'] = [];
             }
+
             $event->setData($data);
         });
     }

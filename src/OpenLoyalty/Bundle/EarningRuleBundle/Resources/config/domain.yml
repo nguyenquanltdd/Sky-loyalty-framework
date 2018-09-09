@@ -19,6 +19,11 @@ services:
     factory: ['@doctrine.orm.entity_manager', getRepository]
     arguments:
       - 'OpenLoyalty\Component\EarningRule\Domain\EarningRule'
+  oloy.earning_rule.geo_repository:
+    class: OpenLoyalty\Component\EarningRule\Infrastructure\Persistence\Doctrine\Repository\DoctrineEarningRuleGeoRepository
+    factory: ['@doctrine.orm.entity_manager', getRepository]
+    arguments:
+    - 'OpenLoyalty\Component\EarningRule\Domain\EarningRuleGeo'
   oloy.earning_rule.usage_repository:
     class: OpenLoyalty\Component\EarningRule\Infrastructure\Persistence\Doctrine\Repository\DoctrineEarningRuleUsageRepository
     factory: ['@doctrine.orm.entity_manager', getRepository]
@@ -51,6 +56,7 @@ services:
   OpenLoyalty\Component\EarningRule\Domain\OloyEarningRuleEvaluator:
     arguments:
       $earningRuleRepository: '@oloy.earning_rule.repository'
+      $earningRuleGeoRepository: '@oloy.earning_rule.geo_repository'
       $algorithmFactory: '@oloy.earning_rule.algorithm_factory'
       $invitationDetailsRepository: '@oloy.user.read_model.repository.invitation_details'
       $segmentedCustomerElasticSearchRepository: '@oloy.segment.read_model.repository.segmented_customers'

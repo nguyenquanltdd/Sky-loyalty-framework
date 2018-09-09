@@ -11,6 +11,7 @@ OpenLoyalty\Component\EarningRule\Domain\EarningRule:
       multiply_by_product_labels: OpenLoyalty\Component\EarningRule\Domain\MultiplyPointsByProductLabelsEarningRule
       referral: OpenLoyalty\Component\EarningRule\Domain\ReferralEarningRule
       instant_reward: OpenLoyalty\Component\EarningRule\Domain\InstantRewardRule
+      geolocation: OpenLoyalty\Component\EarningRule\Domain\EarningRuleGeo
   properties:
     earningRuleId:
       expose: true

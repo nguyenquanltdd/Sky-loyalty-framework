@@ -27,6 +27,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type as CType;
 
 /**
  * Class CreateEarningRuleFormType.
@@ -65,6 +66,7 @@ class CreateEarningRuleFormType extends BaseEarningRuleFormType
                 'Multiply earned points by labels' => EarningRule::TYPE_MULTIPLY_BY_PRODUCT_LABELS,
                 'Referral' => EarningRule::TYPE_REFERRAL,
                 'Instant Reward' => InstantRewardRule::TYPE_INSTANT_REWARD,
+                'Geolocation' => EarningRule::TYPE_GEOLOCATION,
             ],
         ]);
 
@@ -73,9 +75,8 @@ class CreateEarningRuleFormType extends BaseEarningRuleFormType
                 'required' => true,
                 'constraints' => [new NotBlank()],
             ])
-            ->add('description', TextareaType::class, [
-                'required' => true,
-                'constraints' => [new NotBlank()],
+            ->add('description', TextareaType::class, ['required' => true,
+              'constraints' => [new NotBlank()],
             ])
             ->add('target', ChoiceType::class, [
                 'required' => false,
@@ -137,6 +138,7 @@ class CreateEarningRuleFormType extends BaseEarningRuleFormType
     public function configureFieldsBasedOnType(FormEvent $event)
     {
         $data = $event->getData();
+
         $form = $event->getForm();
         if (!isset($data['type'])) {
             $form->get('type')->addError(new FormError((new NotBlank())->message));
@@ -144,7 +146,41 @@ class CreateEarningRuleFormType extends BaseEarningRuleFormType
             return;
         }
         $type = $data['type'];
-        if ($type == EarningRule::TYPE_POINTS) {
+        if ($type == EarningRule::TYPE_GEOLOCATION) {
+            $form
+                ->add('latitude', NumberType::class, [
+                    'required' => true,
+                    'constraints' => [
+                        new NotBlank(),
+                        new CType([
+                            'type' => 'numeric',
+                        ]),
+                    ],
+                ])
+                ->add('longitude', NumberType::class, [
+                    'required' => true,
+                    'constraints' => [
+                        new NotBlank(),
+                        new CType([
+                            'type' => 'numeric',
+                        ]),
+                    ],
+                ])
+                ->add('radius', NumberType::class, [
+                    'required' => true,
+                    'constraints' => [
+                        new NotBlank(),
+                        new CType([
+                            'type' => 'numeric',
+                        ]),
+                    ],
+                ])
+                ->add('pointsAmount', NumberType::class, [
+                    'scale' => 2,
+                    'required' => true,
+                    'constraints' => [new NotBlank()],
+                ]);
+        } elseif ($type == EarningRule::TYPE_POINTS) {
             $form
                 ->add('pointValue', NumberType::class, [
                     'scale' => 2,

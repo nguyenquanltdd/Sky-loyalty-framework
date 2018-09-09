@@ -103,6 +103,50 @@ class EarningRuleControllerTest extends BaseApiTest
     /**
      * @test
      */
+    public function it_run_geo_rule()
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            'api/earningRule/geolocation/customer/00000000-0000-474c-b092-b0dd880c07e2',
+            [
+               'earningRule' => [
+                   'latitude' => 50.013992,
+                   'longitude' => 15.046411,
+               ],
+            ]
+        );
+        $response = $client->getResponse();
+
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('points', $data);
+        $this->assertEquals(2, $data['points']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_run_geo_rule_while_outside_radius()
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            'api/earningRule/geolocation/customer/00000000-0000-474c-b092-b0dd880c07e2',
+            [
+                'earningRule' => [
+                    'latitude' => 4.013992,
+                    'longitude' => 5.046411,
+                ],
+            ]
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 200');
+    }
+
+    /**
+     * @test
+     */
     public function it_creates_purchase_product_rule()
     {
         $client = $this->createAuthenticatedClient();
@@ -197,6 +241,7 @@ class EarningRuleControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
+
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('earningRuleId', $data);
         /** @var PointsEarningRule $rule */

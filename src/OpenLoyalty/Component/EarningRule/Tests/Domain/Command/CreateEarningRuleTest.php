@@ -4,6 +4,7 @@ namespace OpenLoyalty\Component\EarningRule\Tests\Domain\Command;
 
 use OpenLoyalty\Component\EarningRule\Domain\Command\CreateEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRule;
+use OpenLoyalty\Component\EarningRule\Domain\EarningRuleGeo;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleId;
 use OpenLoyalty\Component\EarningRule\Domain\EventEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\InstantRewardRule;
@@ -15,6 +16,30 @@ use OpenLoyalty\Component\EarningRule\Domain\ProductPurchaseEarningRule;
  */
 class CreateEarningRuleTest extends EarningRuleCommandHandlerAbstract
 {
+    /**
+     * @test
+     */
+    public function it_creates_new_geo_earning_rule()
+    {
+        $handler = $this->createCommandHandler();
+        $ruleId = new EarningRuleId('00000000-0000-0000-0000-000000000000');
+
+        $command = new CreateEarningRule($ruleId, EarningRule::TYPE_GEOLOCATION, [
+            'name' => 'test',
+            'description' => 'desc',
+            'startAt' => (new \DateTime())->getTimestamp(),
+            'endAt' => (new \DateTime('+1 month'))->getTimestamp(),
+            'radius' => 100.00,
+            'latitude' => 10.23,
+            'longitude' => 123.99,
+            'pointsAmount' => 89.00,
+        ]);
+        $handler->handle($command);
+        $rule = $this->inMemoryRepository->byId($ruleId);
+        $this->assertNotNull($rule);
+        $this->assertInstanceOf(EarningRuleGeo::class, $rule);
+    }
+
     /**
      * @test
      */
