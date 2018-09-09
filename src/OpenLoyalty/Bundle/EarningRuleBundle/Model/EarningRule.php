@@ -111,6 +111,21 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
      */
     protected $rewardCampaignId;
 
+    /**
+     * @var float|null
+     */
+    protected $latitude;
+
+    /**
+     * @var float|null
+     */
+    protected $longitude;
+
+    /**
+     * @var float|null
+     */
+    protected $radius;
+
     public function __construct()
     {
     }
@@ -174,7 +189,6 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
 
         $data = [
             'name' => $this->getName(),
-            'description' => $this->getDescription(),
             'levels' => $this->levels,
             'segments' => $this->segments,
             'pos' => $this->pos,
@@ -198,6 +212,10 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
             'rewardType' => $this->rewardType,
             'rewardCampaignId' => (string) $this->rewardCampaignId,
             'lastExecutedRule' => $this->lastExecutedRule,
+            'latitude' => $this->latitude,
+            'longitude' => $this->longitude,
+            'radius' => $this->radius,
+            'description' => $this->description,
         ];
         if ($this->limit && $this->type == self::TYPE_CUSTOM_EVENT) {
             $data['limit'] = [
@@ -511,7 +529,7 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
     /**
      * @param EarningRuleLimit $limit
      */
-    public function setLimit($limit)
+    public function setLimit(EarningRuleLimit $limit)
     {
         $this->limit = $limit;
     }
@@ -572,5 +590,53 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
     public function setRewardCampaignId(CampaignId $rewardCampaignId = null): void
     {
         $this->rewardCampaignId = $rewardCampaignId;
+    }
+
+    /**
+     * @return float|null
+     */
+    public function getLatitude(): ?float
+    {
+        return $this->latitude;
+    }
+
+    /**
+     * @param float|null $latitude
+     */
+    public function setLatitude(?float $latitude): void
+    {
+        $this->latitude = $latitude;
+    }
+
+    /**
+     * @return float|null
+     */
+    public function getLongitude(): ?float
+    {
+        return $this->longitude;
+    }
+
+    /**
+     * @param float|null $longitude
+     */
+    public function setLongitude(?float $longitude): void
+    {
+        $this->longitude = $longitude;
+    }
+
+    /**
+     * @return float|null
+     */
+    public function getRadius(): ?float
+    {
+        return $this->radius;
+    }
+
+    /**
+     * @param float|null $radius
+     */
+    public function setRadius(?float $radius): void
+    {
+        $this->radius = $radius;
     }
 }

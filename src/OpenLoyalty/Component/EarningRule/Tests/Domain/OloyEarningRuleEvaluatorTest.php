@@ -17,6 +17,7 @@ use OpenLoyalty\Component\EarningRule\Domain\Algorithm\MultiplyPointsByProductLa
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\MultiplyPointsForProductRuleAlgorithm;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\PointsEarningRuleAlgorithm;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\ProductPurchaseEarningRuleAlgorithm;
+use OpenLoyalty\Component\EarningRule\Domain\EarningRuleGeoRepository;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleId;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleRepository;
 use OpenLoyalty\Component\EarningRule\Domain\EventEarningRule;
@@ -32,6 +33,7 @@ use OpenLoyalty\Component\Transaction\Domain\Model\Item;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
+use PHPUnit_Framework_MockObject_MockObject;
 
 /**
  * Class OloyEarningRuleEvaluatorTest.
@@ -514,7 +516,8 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
             $this->getSegmentedCustomersRepository(),
             $this->getCustomerDetailsRepository(),
             $this->getSettingsManager([Status::TYPE_ACTIVE]),
-            $this->getStoppableProvider()
+            $this->getStoppableProvider(),
+            $this->getEarningGeoRuleRepository($rules)
         );
     }
 
@@ -606,6 +609,21 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param array $earningGeoRules
+     *
+     * @return EarningRuleGeoRepository|PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getEarningGeoRuleRepository(array $earningGeoRules)
+    {
+        /** @var EarningRuleRepository|\PHPUnit_Framework_MockObject_MockObject $mock */
+        $mock = $this->createMock(EarningRuleGeoRepository::class);
+        $mock->method('findGeoRules')
+            ->willReturn($earningGeoRules);
+
+        return $mock;
+    }
+
+    /**
      * @param array $earningRules
      *
      * @return EarningRuleRepository
@@ -654,6 +672,9 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
         return $mock;
     }
 
+    /**
+     * @return PHPUnit_Framework_MockObject_MockObject|SegmentedCustomersRepository
+     */
     protected function getSegmentedCustomersRepository()
     {
         $mock = $this->createMock(SegmentedCustomersRepository::class);
@@ -669,6 +690,9 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
         return $mock;
     }
 
+    /**
+     * @return PHPUnit_Framework_MockObject_MockObject|CustomerDetailsRepository
+     */
     protected function getCustomerDetailsRepository()
     {
         $mock = $this->createMock(CustomerDetailsRepository::class);
@@ -684,6 +708,11 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
         return $mock;
     }
 
+    /**
+     * @param array $statuses
+     *
+     * @return PHPUnit_Framework_MockObject_MockObject|SettingsManager
+     */
     protected function getSettingsManager(array $statuses)
     {
         $settingsManager = $this->getMockBuilder(SettingsManager::class)->getMock();
@@ -692,6 +721,9 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
         return $settingsManager;
     }
 
+    /**
+     * @return StoppableProvider
+     */
     protected function getStoppableProvider(): StoppableProvider
     {
         return new StoppableProvider();

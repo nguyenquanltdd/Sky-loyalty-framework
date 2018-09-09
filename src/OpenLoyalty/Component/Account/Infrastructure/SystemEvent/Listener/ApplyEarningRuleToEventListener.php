@@ -14,6 +14,7 @@ use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountCreatedSystemEvent;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\CustomEventOccurredSystemEvent;
+use OpenLoyalty\Component\Account\Domain\SystemEvent\GeoEventOccurredSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerAttachedToInvitationSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerLoggedInSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
@@ -54,6 +55,36 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
     ) {
         parent::__construct($commandBus, $accountDetailsRepository, $uuidGenerator, $earningRuleApplier, $pointsTransfersManager);
         $this->earningRuleLimitValidator = $earningRuleLimitValidator;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function onCustomGeoEvent(GeoEventOccurredSystemEvent $event)
+    {
+        $result = $this->earningRuleApplier->evaluateGeoEvent($event->getLatitude(), $event->getLongitude());
+        $account = $this->getAccountDetails($event->getCustomerId()->__toString());
+        if (!$account) {
+            return;
+        }
+
+        foreach ($result as $evaluationResult) {
+            $this->commandBus->dispatch(
+                new AddPoints(
+                    $account->getAccountId(),
+                    $this->pointsTransferManager->createAddPointsTransferInstance(
+                        new PointsTransferId($this->uuidGenerator->generate()),
+                        $evaluationResult->getPoints(),
+                        null,
+                        false,
+                        null,
+                        $evaluationResult->getName()
+                    )
+                )
+            );
+        }
+
+        $event->setEvaluationResults($result);
     }
 
     /**

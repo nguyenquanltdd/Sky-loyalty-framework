@@ -32,7 +32,7 @@ class CustomEventOccurredSystemEvent
      * CustomEventOccurredSystemEvent constructor.
      *
      * @param CustomerId $customerId
-     * @param string     $eventName
+     * @param            $eventName
      */
     public function __construct(CustomerId $customerId, $eventName)
     {
@@ -41,25 +41,41 @@ class CustomEventOccurredSystemEvent
     }
 
     /**
-     * @return string
-     */
-    public function getEventName()
-    {
-        return $this->eventName;
-    }
-
-    /**
      * @return CustomerId
      */
-    public function getCustomerId()
+    public function getCustomerId(): CustomerId
     {
         return $this->customerId;
     }
 
     /**
+     * @param CustomerId $customerId
+     */
+    public function setCustomerId(CustomerId $customerId): void
+    {
+        $this->customerId = $customerId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEventName(): string
+    {
+        return $this->eventName;
+    }
+
+    /**
+     * @param string $eventName
+     */
+    public function setEventName(string $eventName): void
+    {
+        $this->eventName = $eventName;
+    }
+
+    /**
      * @return EvaluationResult
      */
-    public function getEvaluationResult()
+    public function getEvaluationResult(): EvaluationResult
     {
         return $this->evaluationResult;
     }
@@ -67,7 +83,7 @@ class CustomEventOccurredSystemEvent
     /**
      * @param EvaluationResult $evaluationResult
      */
-    public function setEvaluationResult($evaluationResult)
+    public function setEvaluationResult(EvaluationResult $evaluationResult): void
     {
         $this->evaluationResult = $evaluationResult;
     }

@@ -970,3 +970,40 @@ Exemplary Response
 .. code-block:: text
 
     STATUS: 200 OK
+
+Geolocation
+-------------------------------
+
+This method allows calculating points using geolocation you will need to call the ``/api/earningRule/geolocation/customer/<customer>`` endpoint with the ``POST`` method.
+
+Definition
+^^^^^^^^^^
+
+.. code-block:: text
+
+    POST /api/earningRule/geolocation/customer/<customer>
+
++-------------------------------------+----------------+---------------------------------------------------+
+| Parameter                           | Parameter type | Description                                       |
++=====================================+================+===================================================+
+| Authorization                       | header         | Token received during authentication              |
++-------------------------------------+----------------+---------------------------------------------------+
+| <customer>                          | query          | Customer ID                                       |
++-------------------------------------+----------------+---------------------------------------------------+
+| earningRule[latitude]               | body           | Current customer's latitude                       |
++-------------------------------------+----------------+---------------------------------------------------+
+| earningRule[longitude]              | body           | Current customer's longitude                      |
++-------------------------------------+----------------+---------------------------------------------------+
+
+Exemplary Response
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    STATUS: 200 OK
+
+.. code-block:: json
+
+    {
+      "points": 1
+    }

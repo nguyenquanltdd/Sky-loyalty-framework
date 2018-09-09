@@ -3,7 +3,6 @@
 namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Integration;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
-use OpenLoyalty\Bundle\EarningRuleBundle\DataFixtures\ORM\LoadEarningRuleData;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;
@@ -224,7 +223,7 @@ class ApplyingEarningRulesTest extends BaseApiTest
 
         $result = null;
         foreach ($pointsTransferDetailsList as $pointsTransferDetails) {
-            if ($pointsTransferDetails->getComment() === LoadEarningRuleData::GENERAL_EARNING_RULE_WITH_SEGMENT_NAME) {
+            if ($pointsTransferDetails->getComment() === 'General spending rule with segment') {
                 $result = $pointsTransferDetails;
             }
         }

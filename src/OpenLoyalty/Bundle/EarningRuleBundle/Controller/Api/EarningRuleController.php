@@ -9,7 +9,9 @@ use Broadway\CommandHandling\CommandBus;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
+use FOS\RestBundle\View\View as FosView;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\CreateEarningGeoRuleFormType;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\CreateEarningRuleFormType;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\EarningRulePhotoFormType;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\EditEarningRuleFormType;
@@ -17,6 +19,8 @@ use OpenLoyalty\Bundle\EarningRuleBundle\Service\EarningRulePhotoUploader;
 use OpenLoyalty\Component\Account\Domain\CustomerId;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\CustomEventOccurredSystemEvent;
+use OpenLoyalty\Component\Account\Domain\SystemEvent\GeoEventOccurredSystemEvent;
+use OpenLoyalty\Component\Account\Infrastructure\Model\EvaluationResult;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\EarningRule\Domain\Command\ActivateEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\Command\CreateEarningRule;
@@ -60,9 +64,10 @@ class EarningRuleController extends FOSRestController
      *     }
      * )
      *
-     * @param Request $request
+     * @param Request             $request
+     * @param TranslatorInterface $translator
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function createAction(Request $request, TranslatorInterface $translator)
     {
@@ -115,12 +120,11 @@ class EarningRuleController extends FOSRestController
      * @param Request     $request
      * @param EarningRule $earningRule
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function editAction(Request $request, EarningRule $earningRule, TranslatorInterface $translator)
     {
         $model = BundleEarningRule::createFromDomain($earningRule);
-
         $form = $this->get('form.factory')
             ->createNamed(
                 'earningRule',
@@ -131,7 +135,6 @@ class EarningRuleController extends FOSRestController
                     'method' => 'PUT',
                 ]
             );
-
         /** @var CommandBus $commandBus */
         $commandBus = $this->get('broadway.command_handling.command_bus');
 
@@ -175,7 +178,7 @@ class EarningRuleController extends FOSRestController
      *
      * @param EarningRule $earningRule
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function getAction(EarningRule $earningRule)
     {
@@ -204,7 +207,7 @@ class EarningRuleController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function getListAction(Request $request)
     {
@@ -262,7 +265,7 @@ class EarningRuleController extends FOSRestController
      * @param Request     $request
      * @param EarningRule $earningRule
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function activateEarningAction(Request $request, EarningRule $earningRule)
     {
@@ -303,9 +306,10 @@ class EarningRuleController extends FOSRestController
      * )
      *
      * @param $eventName
-     * @param CustomerDetails $customer
+     * @param CustomerDetails     $customer
+     * @param TranslatorInterface $translator
      *
-     * @return \FOS\RestBundle\View\View
+     * @return FosView
      */
     public function reportCustomEventAction($eventName, CustomerDetails $customer, TranslatorInterface $translator)
     {
@@ -334,6 +338,82 @@ class EarningRuleController extends FOSRestController
             ));
 
         return $this->view(['points' => $event->getEvaluationResult()->getPoints()], Response::HTTP_OK);
+    }
+
+    /**
+     * This method allows calculating points using geolocation<br />
+     * Fields : latitude and longitude should be send as a json array.
+     *
+     * @Route(name="oloy.earning_rule.report_custom_geolocation", path="/earningRule/geolocation/customer/{customer}")
+     * @Method("POST")
+     * @ApiDoc(
+     *     name="report custom event and earn points",
+     *     section="Earning Rule",
+     *     parameters={
+     *      {"name"="earningRule[latitude]", "dataType":"float", "required":true},
+     *      {"name"="earningRule[longitude]", "dataType":"float", "required":true }
+     *     },
+     *     statusCodes={
+     *       200="Returned when successful",
+     *       400="Returned when earning rule for event does not exist or limit was exceeded. Additional info provided in response.",
+     *       404="Returned when customer does not exist"
+     *     })
+     *
+     * @param Request         $request
+     * @param CustomerDetails $customer
+     *
+     * @return View
+     */
+    public function geoLocationAction(Request $request, CustomerDetails $customer)
+    {
+        $translator = $this->get('translator');
+        $form = $this->container->get('form.factory')->createNamed('earningRule', CreateEarningGeoRuleFormType::class);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
+        }
+
+        $data = $form->getData();
+        $event = new GeoEventOccurredSystemEvent(
+            new CustomerId((string) $customer->getCustomerId()),
+            $data->getLatitude(),
+            $data->getLongitude()
+        );
+
+        try {
+            $this->get('broadway.event_dispatcher')->dispatch(
+                AccountSystemEvents::CUSTOM_EVENT_GEO_OCCURRED,
+                [$event]
+            );
+        } catch (EarningRuleLimitExceededException $e) {
+            return $this->view(['error' => $translator->trans('limit exceeded')], Response::HTTP_BAD_REQUEST);
+        }
+
+        if ($event->getEvaluationResults() === null) {
+            return $this->view(['error' => $translator->trans('event does not exist')], Response::HTTP_BAD_REQUEST);
+        }
+
+        $results = $event->getEvaluationResults();
+
+        if (empty($results)) {
+            return $this->view(['error' => $translator->trans('event does not exist')], Response::HTTP_BAD_REQUEST);
+        }
+
+        foreach ($results as $evaluationResult) {
+            $this->get('broadway.command_handling.command_bus')
+                ->dispatch(new UseCustomEventEarningRule(
+                    new EarningRuleId((string) $evaluationResult->getEarningRuleId()),
+                    new UsageSubject((string) $customer->getCustomerId())
+                ));
+        }
+
+        $points = array_reduce($results, function ($points, $evaluationResult) {
+            /* @var EvaluationResult $evaluationResult */
+            return $points += $evaluationResult->getPoints();
+        });
+
+        return $this->view(['points' => $points], Response::HTTP_OK);
     }
 
     /**
