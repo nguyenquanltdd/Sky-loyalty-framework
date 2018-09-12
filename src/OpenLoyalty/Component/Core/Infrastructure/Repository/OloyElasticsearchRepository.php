@@ -269,7 +269,7 @@ class OloyElasticsearchRepository extends ElasticSearchRepository
             ];
         }
 
-        $startPage = null !== $perPage ? null : ($page - 1) * $perPage;
+        $startPage = ($perPage === null ? null : ($page - 1) * $perPage);
 
         return $this->paginatedQuery($query, $startPage, $perPage, $sort);
     }
@@ -321,8 +321,8 @@ class OloyElasticsearchRepository extends ElasticSearchRepository
 
     /**
      * @param array      $query
-     * @param int        $from
-     * @param int        $size
+     * @param int|null   $from
+     * @param int|null   $size
      * @param array|null $sort
      *
      * @return array
