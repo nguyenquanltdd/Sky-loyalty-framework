@@ -77,7 +77,7 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
                     'lastName' => 'Doe',
                     'email' => 'merchant@openloyalty.io',
                     'phone' => $faker->e164PhoneNumber,
-                    'posId' => new PosId(LoadPosData::POS2_ID3),
+                    'posId' => new PosId(LoadPosData::POS3_ID),
                 ]
             )
         );

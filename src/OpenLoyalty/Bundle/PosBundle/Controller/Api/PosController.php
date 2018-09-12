@@ -6,14 +6,18 @@
 namespace OpenLoyalty\Bundle\PosBundle\Controller\Api;
 
 use Broadway\CommandHandling\CommandBus;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\PosBundle\Form\Type\CreatePosFormType;
 use OpenLoyalty\Bundle\PosBundle\Form\Type\EditPosFormType;
 use OpenLoyalty\Bundle\PosBundle\Model\Pos;
 use OpenLoyalty\Component\Pos\Domain\Command\CreatePos;
 use OpenLoyalty\Component\Pos\Domain\Command\UpdatePos;
+use OpenLoyalty\Component\Pos\Domain\Pos as DomainPos;
 use OpenLoyalty\Component\Pos\Domain\PosId;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -44,9 +48,9 @@ class PosController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
-    public function createAction(Request $request)
+    public function createAction(Request $request): View
     {
         $form = $this->get('form.factory')->createNamed('pos', CreatePosFormType::class);
         $uuidGenerator = $this->get('broadway.uuid.generator');
@@ -88,12 +92,12 @@ class PosController extends FOSRestController
      *     }
      * )
      *
-     * @param Request                               $request
-     * @param \OpenLoyalty\Component\Pos\Domain\Pos $pos
+     * @param Request   $request
+     * @param DomainPos $pos
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
-    public function updateAction(Request $request, \OpenLoyalty\Component\Pos\Domain\Pos $pos)
+    public function updateAction(Request $request, DomainPos $pos): View
     {
         $form = $this->get('form.factory')->createNamed('pos', EditPosFormType::class, null, [
             'method' => 'PUT',
@@ -112,7 +116,7 @@ class PosController extends FOSRestController
                 new UpdatePos($pos->getPosId(), $data->toArray())
             );
 
-            return $this->view(['posId' => $pos->getPosId()->__toString()]);
+            return $this->view(['posId' => (string) $pos->getPosId()]);
         }
 
         return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
@@ -130,11 +134,11 @@ class PosController extends FOSRestController
      *     section="POS"
      * )
      *
-     * @param \OpenLoyalty\Component\Pos\Domain\Pos $pos
+     * @param DomainPos $pos
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
-    public function getAction(\OpenLoyalty\Component\Pos\Domain\Pos $pos)
+    public function getAction(DomainPos $pos): View
     {
         return $this->view($pos);
     }
@@ -153,11 +157,11 @@ class PosController extends FOSRestController
      * )
      * @ParamConverter(class="OpenLoyalty\Component\Pos\Domain\Pos", name="pos", options={"identifier":true})
      *
-     * @param \OpenLoyalty\Component\Pos\Domain\Pos $pos
+     * @param DomainPos $pos
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
-    public function getByIdentifierAction(\OpenLoyalty\Component\Pos\Domain\Pos $pos)
+    public function getByIdentifierAction(DomainPos $pos): View
     {
         return $this->view($pos);
     }
@@ -182,9 +186,12 @@ class PosController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
+     *
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
-    public function getListAction(Request $request)
+    public function getListAction(Request $request): View
     {
         $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
 

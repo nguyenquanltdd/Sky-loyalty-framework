@@ -17,9 +17,9 @@ use Symfony\Bridge\Doctrine\Tests\Fixtures\ContainerAwareFixture;
 class LoadPosData extends ContainerAwareFixture implements OrderedFixtureInterface
 {
     const POS_ID = '00000000-0000-474c-1111-b0dd880c07e2';
-    const POS_ID1 = '00000000-0000-474c-1111-b0dd880c07a2';
     const POS2_ID = '00000000-0000-474c-1111-b0dd880c87b2';
-    const POS2_ID3 = '00000000-0000-474c-1111-b0dd880c87c2';
+    const POS3_ID = '00000000-0000-474c-1111-b0dd880c87c2';
+    const POS4_ID = '00000000-0000-474c-1111-b0dd880c07a2';
 
     public function load(ObjectManager $manager)
     {
@@ -32,13 +32,15 @@ class LoadPosData extends ContainerAwareFixture implements OrderedFixtureInterfa
         $commandBus->dispatch(
             new CreatePos(new PosId(static::POS2_ID), $this->getPos2Data())
         );
+
         $commandBus = $this->container->get('broadway.command_handling.command_bus');
         $commandBus->dispatch(
-            new CreatePos(new PosId(static::POS2_ID3), $this->getPos3Data())
+            new CreatePos(new PosId(static::POS3_ID), $this->getPos3Data())
         );
+
         $commandBus = $this->container->get('broadway.command_handling.command_bus');
         $commandBus->dispatch(
-            new CreatePos(new PosId(static::POS_ID1), $this->getPos4Data())
+            new CreatePos(new PosId(static::POS4_ID), $this->getPos4Data())
         );
     }
 

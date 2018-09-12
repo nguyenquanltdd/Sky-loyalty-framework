@@ -73,7 +73,8 @@ class TransactionController extends FOSRestController
      * @param Request      $request
      * @param ParamFetcher $paramFetcher
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
+     *
      * @QueryParam(name="customerData_loyaltyCardNumber", nullable=true, description="loyaltyCardNumber"))
      * @QueryParam(name="documentType", nullable=true, description="documentType"))
      * @QueryParam(name="customerData_name", nullable=true, description="customerName"))
@@ -83,7 +84,7 @@ class TransactionController extends FOSRestController
      * @QueryParam(name="documentNumber", nullable=true, description="transactionId"))
      * @QueryParam(name="posId", nullable=true, description="posId"))
      */
-    public function listAction(Request $request, ParamFetcher $paramFetcher)
+    public function listAction(Request $request, ParamFetcher $paramFetcher): View
     {
         $filterForm = $this->get('form.factory')->createNamed('', LabelsFilterFormType::class, null, ['method' => 'GET']);
         $filterForm->handleRequest($request);
@@ -141,10 +142,11 @@ class TransactionController extends FOSRestController
      * @param ParamFetcher    $paramFetcher
      * @param CustomerDetails $customer
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
+     *
      * @QueryParam(name="documentNumber", nullable=true, description="documentNumber"))
      */
-    public function listCustomerAction(Request $request, ParamFetcher $paramFetcher, CustomerDetails $customer)
+    public function listCustomerAction(Request $request, ParamFetcher $paramFetcher, CustomerDetails $customer): View
     {
         $params = $this->get('oloy.user.param_manager')->stripNulls($paramFetcher->all(), true, false);
         $params['customerId'] = $customer->getCustomerId()->__toString();
@@ -183,9 +185,9 @@ class TransactionController extends FOSRestController
      *
      * @param $documentNumber
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
-    public function listByDocumentNumberAction($documentNumber)
+    public function listByDocumentNumberAction($documentNumber): View
     {
         /** @var TransactionDetailsRepository $repo */
         $repo = $this->get(TransactionDetailsRepository::class);
@@ -218,9 +220,9 @@ class TransactionController extends FOSRestController
      *     section="Transactions",
      * )
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
-    public function getItemLabelsAction()
+    public function getItemLabelsAction(): View
     {
         /** @var TransactionDetailsRepository $repo */
         $repo = $this->get(TransactionDetailsRepository::class);
@@ -245,9 +247,9 @@ class TransactionController extends FOSRestController
      *
      * @param TransactionDetails $transaction
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
-    public function getAction(TransactionDetails $transaction)
+    public function getAction(TransactionDetails $transaction): View
     {
         return $this->view($transaction, 200);
     }
@@ -270,9 +272,11 @@ class TransactionController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
+     *
+     * @throws \Exception
      */
-    public function registerAction(Request $request)
+    public function registerAction(Request $request): View
     {
         $form = $this->get('form.factory')->createNamed('transaction', TransactionFormType::class);
         $form->handleRequest($request);
@@ -331,9 +335,9 @@ class TransactionController extends FOSRestController
      * @param Request                          $request
      * @param EditTransactionLabelsFormHandler $handler
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
-    public function editLabelsAction(Request $request, EditTransactionLabelsFormHandler $handler)
+    public function editLabelsAction(Request $request, EditTransactionLabelsFormHandler $handler): View
     {
         $form = $this->get('form.factory')->createNamed('transaction_labels', EditTransactionLabelsFormType::class);
         $form->handleRequest($request);
@@ -369,9 +373,9 @@ class TransactionController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
-    public function simulateAction(Request $request)
+    public function simulateAction(Request $request): View
     {
         $form = $this->get('form.factory')->createNamed('transaction', TransactionSimulationFormType::class);
         $form->handleRequest($request);
@@ -420,9 +424,9 @@ class TransactionController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
-    public function assignCustomerAction(Request $request)
+    public function assignCustomerAction(Request $request): View
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -473,7 +477,7 @@ class TransactionController extends FOSRestController
      *
      * @return View
      */
-    public function appendLabelsAction(Request $request, AppendLabelsToTransactionFormHandler $handler)
+    public function appendLabelsAction(Request $request, AppendLabelsToTransactionFormHandler $handler): View
     {
         /** @var ManuallyAssignCustomerToTransactionFormType|FormInterface $form */
         $form = $this->get('form.factory')->createNamed('append', AppendLabelsToTransactionFormType::class, null, [
@@ -511,9 +515,14 @@ class TransactionController extends FOSRestController
      * @param ImportFileManager      $importFileManager
      *
      * @return View
+     *
+     * @throws \Exception
      */
-    public function importAction(Request $request, TransactionXmlImporter $importer, ImportFileManager $importFileManager)
-    {
+    public function importAction(
+        Request $request,
+        TransactionXmlImporter $importer,
+        ImportFileManager $importFileManager
+    ): View {
         $form = $this->get('form.factory')->createNamed('file', ImportFileFormType::class);
 
         $form->handleRequest($request);
@@ -540,6 +549,6 @@ class TransactionController extends FOSRestController
         /** @var Repository $repo */
         $repo = $this->get('oloy.user.read_model.repository.seller_details');
 
-        return $repo->find($id->__toString());
+        return $repo->find((string) $id);
     }
 }

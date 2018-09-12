@@ -6,8 +6,10 @@
 namespace OpenLoyalty\Bundle\TransactionBundle\Import;
 
 use Broadway\UuidGenerator\UuidGeneratorInterface;
+use OpenLoyalty\Bundle\PosBundle\Model\Pos;
 use OpenLoyalty\Component\Import\Infrastructure\AbstractXMLImportConverter;
 use OpenLoyalty\Component\Import\Infrastructure\Validator\XmlNodeValidator;
+use OpenLoyalty\Component\Pos\Domain\PosRepository;
 use OpenLoyalty\Component\Transaction\Domain\Command\RegisterTransaction;
 use OpenLoyalty\Component\Transaction\Domain\PosId;
 use OpenLoyalty\Component\Transaction\Domain\TransactionId;
@@ -20,14 +22,19 @@ class TransactionXmlImportConverter extends AbstractXMLImportConverter
     /** @var UuidGeneratorInterface */
     protected $uuidGenerator;
 
+    /** @var PosRepository */
+    protected $posRepository;
+
     /**
      * TransactionXmlImportConverter constructor.
      *
      * @param UuidGeneratorInterface $uuidGenerator
+     * @param PosRepository          $posRepository
      */
-    public function __construct(UuidGeneratorInterface $uuidGenerator)
+    public function __construct(UuidGeneratorInterface $uuidGenerator, PosRepository $posRepository)
     {
         $this->uuidGenerator = $uuidGenerator;
+        $this->posRepository = $posRepository;
     }
 
     /**
@@ -91,12 +98,20 @@ class TransactionXmlImportConverter extends AbstractXMLImportConverter
             ];
         }
 
+        if (isset($element->{'posId'})) {
+            $posId = new PosId((string) $element->{'posId'});
+        } elseif (isset($element->{'posIdentifier'})) {
+            /** @var Pos $pos */
+            $pos = $this->posRepository->oneByIdentifier((string) $element->{'posIdentifier'});
+            $posId = new PosId((string) $pos->getPosId());
+        }
+
         return new RegisterTransaction(
             new TransactionId($this->uuidGenerator->generate()),
             $transactionData,
             $customerData,
             $items,
-            new PosId((string) $element->{'posId'})
+            $posId ?? null
         );
     }
 

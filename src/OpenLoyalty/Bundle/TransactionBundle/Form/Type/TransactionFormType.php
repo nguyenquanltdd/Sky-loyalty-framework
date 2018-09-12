@@ -43,7 +43,7 @@ class TransactionFormType extends AbstractType
     {
         $choices = $this->posRepository->findAll();
         $choices = array_map(function (Pos $pos) {
-            return $pos->getPosId()->__toString();
+            return (string) $pos->getPosId();
         }, $choices);
         $builder->add($this->buildTransactionDataForm($builder));
         $builder->add('revisedDocument', TextType::class, [

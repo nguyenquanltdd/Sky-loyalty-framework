@@ -20,6 +20,7 @@
     "php": ">=7.1",
 
     "ext-json": "*",
+    "ext-simplexml": "*",
 
     "a2lix/translation-form-bundle": "^3.0",
     "beberlei/DoctrineExtensions": "^1.0",

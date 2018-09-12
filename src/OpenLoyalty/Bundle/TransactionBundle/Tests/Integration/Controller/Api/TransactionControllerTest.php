@@ -56,12 +56,62 @@ class TransactionControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
 
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
 
         $this->assertArrayHasKey('items', $data);
         $this->assertCount(2, $data['items']);
         $this->assertArrayHasKey('status', $data['items'][0]);
-        $this->assertTrue($data['items'][0]['status'] == ImportResultItem::SUCCESS);
+        $this->assertTrue($data['items'][0]['status'] === ImportResultItem::SUCCESS);
+    }
+
+    /**
+     * @test
+     */
+    public function it_imports_transactions_with_posidentifier_set()
+    {
+        $xmlContent = file_get_contents(__DIR__.'/../../../Resources/fixtures/import-with-posidentifier.xml');
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/admin/transaction/import',
+            [],
+            [
+                'file' => [
+                    'file' => $this->createUploadedFile($xmlContent, 'import.xml', 'application/xml', UPLOAD_ERR_OK),
+                ],
+            ]
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        $this->assertArrayHasKey('items', $data);
+        $this->assertCount(2, $data['items']);
+        $this->assertArrayHasKey('status', $data['items'][0]);
+
+        foreach ($data['items'] as $key => $item) {
+            $this->assertTrue($item['status'] === ImportResultItem::SUCCESS);
+
+            $client = $this->createAuthenticatedClient();
+            $client->request(
+                'GET',
+                '/api/transaction/'.$item['processImportResult']['object']['transactionId']
+            );
+            $response = $client->getResponse();
+            $data = json_decode($response->getContent(), true);
+
+            $this->assertEquals($this->getExpectedPosIdsWhenUsingIdentifier()[$key], $data['posId']);
+        }
+    }
+
+    public function getExpectedPosIdsWhenUsingIdentifier()
+    {
+        return [
+            LoadPosData::POS_ID,
+            LoadPosData::POS2_ID,
+        ];
     }
 
     /**

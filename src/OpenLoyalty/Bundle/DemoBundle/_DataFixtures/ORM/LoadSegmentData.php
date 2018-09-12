@@ -484,7 +484,7 @@ class LoadSegmentData extends ContainerAwareFixture implements OrderedFixtureInt
                                 'type' => Criterion::TYPE_TRANSACTION_PERCENT_IN_POS,
                                 'criterionId' => '00000000-0000-0000-0000-000000000066',
                                 'percent' => 0.40,
-                                'posId' => LoadPosData::POS2_ID3,
+                                'posId' => LoadPosData::POS3_ID,
                             ],
                         ],
                     ],
