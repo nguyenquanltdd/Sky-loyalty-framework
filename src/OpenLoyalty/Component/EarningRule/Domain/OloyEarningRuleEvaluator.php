@@ -286,12 +286,9 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     }
 
     /**
-     * @param $latitude
-     * @param $longitude
-     *
-     * @return EvaluationResult[]
+     * {@inheritdoc}
      */
-    public function evaluateGeoEvent($latitude, $longitude): array
+    public function evaluateGeoEvent(float $latitude, float $longitude): array
     {
         /** @var EvaluationResult[] $result */
         $result = [];

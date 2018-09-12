@@ -68,10 +68,10 @@ interface EarningRuleApplier
     public function evaluateReferralEvent($eventName, $customerId);
 
     /**
-     * @param $eventName
-     * @param $customerId
+     * @param float $latitude
+     * @param float $longitude
      *
      * @return EvaluationResult[]
      */
-    public function evaluateGeoEvent($eventName, $customerId): array;
+    public function evaluateGeoEvent(float $latitude, float $longitude): array;
 }
