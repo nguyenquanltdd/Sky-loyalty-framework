@@ -16,7 +16,7 @@ class RegisterTransactionTest extends TransactionCommandHandlerTest
     /**
      * @test
      */
-    public function it_registers_new_transaction()
+    public function it_registers_new_transaction(): void
     {
         $transactionId = new TransactionId('00000000-0000-0000-0000-000000000000');
         $transactionData = [
@@ -83,7 +83,7 @@ class RegisterTransactionTest extends TransactionCommandHandlerTest
     /**
      * @test
      */
-    public function it_registers_new_transaction_with_labels()
+    public function it_registers_new_transaction_with_labels(): void
     {
         $transactionId = new TransactionId('00000000-0000-0000-0000-000000000000');
         $transactionData = [
@@ -169,7 +169,7 @@ class RegisterTransactionTest extends TransactionCommandHandlerTest
     /**
      * @test
      */
-    public function it_registers_transaction_with_pos()
+    public function it_registers_transaction_with_pos(): void
     {
         $transactionId = new TransactionId('00000000-0000-0000-0000-000000000000');
         $posId = new PosId('00000000-0000-0000-0000-000000000011');

@@ -35,8 +35,14 @@ class Transaction extends EventSourcedAggregateRoot
      */
     protected $posId;
 
+    /**
+     * @var array
+     */
     protected $excludedDeliverySKUs;
 
+    /**
+     * @var string|null
+     */
     protected $revisedDocument;
 
     /**
@@ -52,6 +58,20 @@ class Transaction extends EventSourcedAggregateRoot
         return $this->transactionId;
     }
 
+    /**
+     * @param TransactionId $transactionId
+     * @param array         $transactionData
+     * @param array         $customerData
+     * @param array         $items
+     * @param PosId|null    $posId
+     * @param array|null    $excludedDeliverySKUs
+     * @param array|null    $excludedLevelSKUs
+     * @param array|null    $excludedLevelCategories
+     * @param string|null   $revisedDocument
+     * @param array         $labels
+     *
+     * @return Transaction
+     */
     public static function createTransaction(
         TransactionId $transactionId,
         array $transactionData,
@@ -61,9 +81,9 @@ class Transaction extends EventSourcedAggregateRoot
         array $excludedDeliverySKUs = null,
         array $excludedLevelSKUs = null,
         array $excludedLevelCategories = null,
-        $revisedCustomer = null,
+        string $revisedDocument = null,
         array $labels = []
-    ) {
+    ): Transaction {
         $transaction = new self();
         $transaction->create(
             $transactionId,
@@ -74,7 +94,7 @@ class Transaction extends EventSourcedAggregateRoot
             $excludedDeliverySKUs,
             $excludedLevelSKUs,
             $excludedLevelCategories,
-            $revisedCustomer,
+            $revisedDocument,
             $labels
         );
 

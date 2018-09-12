@@ -1,8 +1,10 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
+declare(strict_types=1);
+
 namespace OpenLoyalty\Component\Customer\Domain\Command;
 
 use OpenLoyalty\Component\Core\Domain\Model\Identifier;
@@ -10,37 +12,36 @@ use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
-use OpenLoyalty\Component\Customer\Domain\TransactionId;
 
 /**
- * Class BuyCustomerCampaign.
+ * Class ReturnCustomerCampaign.
  */
-class BuyCustomerCampaign extends CustomerCommand
+class ReturnCustomerCampaign extends CustomerCommand
 {
     /**
      * @var CampaignId
      */
-    protected $campaignId;
+    private $campaignId;
 
     /**
      * @var string
      */
-    protected $campaignName;
+    private $campaignName;
 
     /**
      * @var float
      */
-    protected $costInPoints;
+    private $costInPoints;
 
     /**
      * @var Coupon
      */
-    protected $coupon;
+    private $coupon;
 
     /**
      * @var string
      */
-    protected $reward;
+    private $reward;
 
     /**
      * @var string
@@ -58,37 +59,45 @@ class BuyCustomerCampaign extends CustomerCommand
     private $activeTo;
 
     /**
-     * @var Identifier|null
+     * @var Identifier
      */
     private $transactionId;
 
     /**
+     * @var string
+     */
+    private $purchaseId;
+
+    /**
      * BuyCampaign constructor.
      *
-     * @param CustomerId $customerId
-     * @param CampaignId $campaignId
-     * @param $campaignName
-     * @param $costInPoints
-     * @param Coupon $coupon
-     * @param $reward
+     * @param CustomerId      $customerId
+     * @param CampaignId      $campaignId
+     * @param string          $campaignName
+     * @param float           $costInPoints
+     * @param Coupon          $coupon
+     * @param string          $reward
+     * @param Identifier|null $transactionId
+     * @param string          $purchaseId
      * @param string          $status
      * @param \DateTime|null  $activeSince
      * @param \DateTime|null  $activeTo
-     * @param Identifier|null $transactionId
      */
     public function __construct(
         CustomerId $customerId,
         CampaignId $campaignId,
-        $campaignName,
-        $costInPoints,
+        string $campaignName,
+        float $costInPoints,
         Coupon $coupon,
-        $reward,
+        string $reward,
+        Identifier $transactionId,
+        string $purchaseId,
         string $status = CampaignPurchase::STATUS_ACTIVE,
         ?\DateTime $activeSince = null,
-        ?\DateTime $activeTo = null,
-        ?Identifier $transactionId = null
+        ?\DateTime $activeTo = null
     ) {
         parent::__construct($customerId);
+        $this->purchaseId = $purchaseId;
         $this->campaignId = $campaignId;
         $this->campaignName = $campaignName;
         $this->costInPoints = $costInPoints;
@@ -103,7 +112,7 @@ class BuyCustomerCampaign extends CustomerCommand
     /**
      * @return CampaignId
      */
-    public function getCampaignId()
+    public function getCampaignId(): CampaignId
     {
         return $this->campaignId;
     }
@@ -111,7 +120,7 @@ class BuyCustomerCampaign extends CustomerCommand
     /**
      * @return float
      */
-    public function getCostInPoints()
+    public function getCostInPoints(): float
     {
         return $this->costInPoints;
     }
@@ -119,7 +128,7 @@ class BuyCustomerCampaign extends CustomerCommand
     /**
      * @return Coupon
      */
-    public function getCoupon()
+    public function getCoupon(): Coupon
     {
         return $this->coupon;
     }
@@ -127,7 +136,7 @@ class BuyCustomerCampaign extends CustomerCommand
     /**
      * @return string
      */
-    public function getCampaignName()
+    public function getCampaignName(): string
     {
         return $this->campaignName;
     }
@@ -135,7 +144,7 @@ class BuyCustomerCampaign extends CustomerCommand
     /**
      * @return string
      */
-    public function getReward()
+    public function getReward(): string
     {
         return $this->reward;
     }
@@ -167,8 +176,16 @@ class BuyCustomerCampaign extends CustomerCommand
     /**
      * @return null|Identifier
      */
-    public function getTransactionId(): ?Identifier
+    public function getTransactionId(): Identifier
     {
         return $this->transactionId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPurchaseId(): string
+    {
+        return $this->purchaseId;
     }
 }

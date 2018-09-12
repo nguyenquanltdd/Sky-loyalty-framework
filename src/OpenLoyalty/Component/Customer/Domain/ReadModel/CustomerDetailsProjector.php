@@ -12,6 +12,7 @@ use OpenLoyalty\Component\Customer\Domain\Event\CampaignCouponWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignStatusWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
+use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasReturned;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerDetailsWereUpdated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerLevelWasRecalculated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasActivated;
@@ -94,7 +95,7 @@ class CustomerDetailsProjector extends Projector
             }
 
             /** @var Level $level */
-            $level = $this->levelRepository->byId(new LevelId($levelId->__toString()));
+            $level = $this->levelRepository->byId(new LevelId((string) $levelId));
             if ($level) {
                 $levelDetails = new LevelDetails($level->getLevelId());
                 $levelDetails->setName($level->getName());
@@ -314,14 +315,36 @@ class CustomerDetailsProjector extends Projector
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
-        $campaignId = $event->getCampaignId()->__toString();
+        $campaignId = (string) $event->getCampaignId();
         $coupon = $event->getCoupon()->getCode();
+        $transactionId = $event->getTransactionId();
 
         foreach ($readModel->getCampaignPurchases() as $purchase) {
-            if ($purchase->getCampaignId()->__toString() === $campaignId
+            if ((string) $purchase->getCampaignId() === $campaignId
                 && $purchase->getCoupon()->getCode() === $coupon
                 && $event->isUsed() !== $purchase->isUsed()) {
                 $purchase->setUsed($event->isUsed());
+                $purchase->setUsedForTransactionId($transactionId);
+                $this->repository->save($readModel);
+
+                return;
+            }
+        }
+    }
+
+    /**
+     * @param CampaignWasReturned $event
+     */
+    protected function applyCampaignWasReturned(CampaignWasReturned $event): void
+    {
+        /** @var CustomerDetails $readModel */
+        $readModel = $this->getReadModel($event->getCustomerId());
+        $coupon = $event->getCoupon()->getCode();
+        $purchaseId = $event->getPurchaseId();
+
+        foreach ($readModel->getCampaignPurchases() as $purchase) {
+            if ($purchase->getId($event->getCustomerId()) === $purchaseId) {
+                $purchase->setReturnedAmount($purchase->getReturnedAmount() + (float) $coupon);
                 $this->repository->save($readModel);
 
                 return;
@@ -336,13 +359,13 @@ class CustomerDetailsProjector extends Projector
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
-        $campaignId = $event->getCampaignId()->__toString();
+        $campaignId = (string) $event->getCampaignId();
         $coupon = $event->getCoupon()->getCode();
-        $transactionId = $event->getTransactionId() ? $event->getTransactionId()->__toString() : null;
+        $transactionId = $event->getTransactionId() ? (string) $event->getTransactionId() : null;
 
         foreach ($readModel->getCampaignPurchases() as $purchase) {
-            if ($purchase->getCampaignId()->__toString() === $campaignId
-                && ($purchase->getTransactionId() ? $purchase->getTransactionId()->__toString() : null) === $transactionId
+            if ((string) $purchase->getCampaignId() === $campaignId
+                && ($purchase->getTransactionId() ? (string) $purchase->getTransactionId() : null) === $transactionId
                 && $purchase->getCoupon()->getCode() === $coupon) {
                 $purchase->setStatus($event->getStatus());
                 $this->repository->save($readModel);
@@ -392,8 +415,8 @@ class CustomerDetailsProjector extends Projector
      */
     public function applyCustomerWasAssignedToTransaction(CustomerWasAssignedToTransaction $event): void
     {
-        $readModel = $this->getReadModel(new CustomerId($event->getCustomerId()->__toString()));
-        $transaction = $this->transactionDetailsRepository->find($event->getTransactionId()->__toString());
+        $readModel = $this->getReadModel(new CustomerId((string) $event->getCustomerId()));
+        $transaction = $this->transactionDetailsRepository->find((string) $event->getTransactionId());
         if (!$transaction instanceof TransactionDetails) {
             return;
         }
@@ -439,7 +462,7 @@ class CustomerDetailsProjector extends Projector
             $readModel->setTransactionsAmountWithoutDeliveryCosts($readModel->getTransactionsAmountWithoutDeliveryCosts() + $transaction->getGrossValueWithoutDeliveryCosts());
         }
 
-        $readModel->addTransactionId(new TransactionId($event->getTransactionId()->__toString()));
+        $readModel->addTransactionId(new TransactionId((string) $event->getTransactionId()));
         $readModel->setAverageTransactionAmount($readModel->getTransactionsCount() == 0 ? 0 : $readModel->getTransactionsAmount() / $readModel->getTransactionsCount());
         $readModel->setAmountExcludedForLevel($readModel->getAmountExcludedForLevel() + $transaction->getAmountExcludedForLevel());
         if ($transaction->getPurchaseDate() > $readModel->getLastTransactionDate()) {
@@ -456,13 +479,13 @@ class CustomerDetailsProjector extends Projector
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
-        $campaignId = $event->getCampaignId()->__toString();
-        $transactionId = $event->getTransactionId() ? $event->getTransactionId()->__toString() : null;
+        $campaignId = (string) $event->getCampaignId();
+        $transactionId = $event->getTransactionId() ? (string) $event->getTransactionId() : null;
 
         foreach ($readModel->getCampaignPurchases() as $purchase) {
-            if ($purchase->getCampaignId()->__toString() === $campaignId
+            if ((string) $purchase->getCampaignId() === $campaignId
                 && $purchase->getPurchaseAt() == $event->getCreatedAt()
-                && ($purchase->getTransactionId() ? $purchase->getTransactionId()->__toString() : null === $transactionId)) {
+                && ($purchase->getTransactionId() ? (string) $purchase->getTransactionId() : null === $transactionId)) {
                 $purchase->setCoupon($event->getNewCoupon());
                 $this->repository->save($readModel);
 
@@ -478,7 +501,7 @@ class CustomerDetailsProjector extends Projector
      */
     private function getReadModel(CustomerId $userId): CustomerDetails
     {
-        $readModel = $this->repository->find($userId->__toString());
+        $readModel = $this->repository->find((string) $userId);
 
         if (null === $readModel) {
             $readModel = new CustomerDetails($userId);

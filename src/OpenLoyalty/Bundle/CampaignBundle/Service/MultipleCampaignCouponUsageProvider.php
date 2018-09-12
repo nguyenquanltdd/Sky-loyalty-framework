@@ -20,6 +20,7 @@ use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
+use OpenLoyalty\Component\Customer\Domain\TransactionId;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
@@ -79,6 +80,7 @@ class MultipleCampaignCouponUsageProvider
                 $used = boolval($coupon['used']);
                 $campaign = $this->campaignRepository->byId(new CampaignId($coupon['campaignId']));
                 $customer = $this->customerDetailsRepository->find(new CustomerId($coupon['customerId']));
+                $transactionId = isset($coupon['transactionId']) ? new TransactionId($coupon['transactionId']) : null;
                 $coupon = new Coupon($coupon['code']);
 
                 $this->checkFields($used, $customer, $campaign, $coupon, (string) $key);
@@ -96,9 +98,10 @@ class MultipleCampaignCouponUsageProvider
 
             $result[] = new ChangeCampaignUsage(
                 $customer->getCustomerId(),
-                new CustomerCampaignId($campaign->getCampaignId()->__toString()),
+                new CustomerCampaignId((string) $campaign->getCampaignId()),
                 $coupon,
-                $used
+                $used,
+                $transactionId
             );
         }
 
@@ -125,6 +128,7 @@ class MultipleCampaignCouponUsageProvider
             try {
                 $used = boolval($coupon['used']);
                 $campaign = $this->campaignRepository->byId(new CampaignId($coupon['campaignId']));
+                $transactionId = isset($coupon['transactionId']) ? new TransactionId($coupon['transactionId']) : null;
                 $coupon = new Coupon($coupon['code']);
                 $this->checkFields($used, $customer, $campaign, $coupon, $key);
             } catch (AssertionFailedException $exception) {
@@ -133,9 +137,10 @@ class MultipleCampaignCouponUsageProvider
 
             $result[] = new ChangeCampaignUsage(
                 $customer->getCustomerId(),
-                new CustomerCampaignId($campaign->getCampaignId()->__toString()),
+                new CustomerCampaignId((string) $campaign->getCampaignId()),
                 $coupon,
-                $used
+                $used,
+                $transactionId
             );
         }
 
@@ -170,7 +175,7 @@ class MultipleCampaignCouponUsageProvider
             );
         }
         if (count(array_filter($customer->getCampaignPurchases(), function (CampaignPurchase $campaignPurchase) use ($campaign) {
-            return $campaignPurchase->getCampaignId()->__toString() === $campaign->getCampaignId()->__toString() && $campaignPurchase->getStatus() === CampaignPurchase::STATUS_ACTIVE && !$campaignPurchase->isUsed();
+            return (string) $campaignPurchase->getCampaignId() === (string) $campaign->getCampaignId() && $campaignPurchase->getStatus() === CampaignPurchase::STATUS_ACTIVE && !$campaignPurchase->isUsed();
         })) === 0) {
             throw new NoCouponsLeftException();
         }

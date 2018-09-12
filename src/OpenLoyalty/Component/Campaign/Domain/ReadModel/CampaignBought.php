@@ -113,6 +113,16 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
     private $transactionId;
 
     /**
+     * @var TransactionId|null
+     */
+    private $usedForTransactionId;
+
+    /**
+     * @var float
+     */
+    private $returnedAmount = 0;
+
+    /**
      * CampaignBought constructor.
      *
      * @param CampaignId      $campaignId
@@ -201,7 +211,7 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
             $activeTo->setTimestamp($data['activeTo']);
         }
 
-        return new self(
+        $self = new self(
             new CampaignId($data['campaignId']),
             new CustomerId($data['customerId']),
             (new \DateTime())->setTimestamp((int) $data['purchasedAt']),
@@ -221,6 +231,12 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
             $activeTo ?? null,
             isset($data['transactionId']) ? new TransactionId($data['transactionId']) : null
         );
+
+        $usedFor = isset($data['usedForTransactionId']) ? new TransactionId($data['usedForTransactionId']) : null;
+        $self->setUsedForTransactionId($usedFor);
+        $self->setReturnedAmount(isset($data['returnedAmount']) ? $data['returnedAmount'] : 0);
+
+        return $self;
     }
 
     /**
@@ -229,8 +245,8 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
     public function serialize(): array
     {
         return [
-            'campaignId' => $this->campaignId->__toString(),
-            'customerId' => $this->customerId->__toString(),
+            'campaignId' => (string) $this->campaignId,
+            'customerId' => (string) $this->customerId,
             'purchasedAt' => $this->purchasedAt->getTimestamp(),
             'coupon' => $this->coupon->getCode(),
             'campaignType' => $this->campaignType,
@@ -246,7 +262,9 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
             'taxPriceValue' => $this->taxPriceValue,
             'activeSince' => $this->activeSince ? $this->activeSince->getTimestamp() : null,
             'activeTo' => $this->activeTo ? $this->activeTo->getTimestamp() : null,
-            'transactionId' => $this->transactionId ? $this->transactionId->__toString() : null,
+            'transactionId' => $this->transactionId ? (string) $this->transactionId : null,
+            'usedForTransactionId' => $this->usedForTransactionId ? (string) $this->usedForTransactionId : null,
+            'returnedAmount' => $this->returnedAmount ?: 0,
         ];
     }
 
@@ -260,9 +278,9 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
      */
     public static function createId(CampaignId $campaignId, CustomerId $customerId, Coupon $coupon, ?TransactionId $transactionId = null): string
     {
-        $transactionSuffix = $transactionId ? '_'.$transactionId->__toString() : '';
+        $transactionSuffix = $transactionId ? '_'.((string) $transactionId) : '';
 
-        return $campaignId->__toString().'_'.$customerId->__toString().'_'.$coupon->getCode().$transactionSuffix;
+        return ((string) $campaignId).'_'.((string) $customerId).'_'.$coupon->getCode().$transactionSuffix;
     }
 
     /**
@@ -351,5 +369,53 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
     public function isUsed(): bool
     {
         return (is_bool($this->used)) ? $this->used : false;
+    }
+
+    /**
+     * @return null|TransactionId
+     */
+    public function getUsedForTransactionId(): ?TransactionId
+    {
+        return $this->usedForTransactionId;
+    }
+
+    /**
+     * @param null|TransactionId $usedForTransactionId
+     */
+    public function setUsedForTransactionId(?TransactionId $usedForTransactionId): void
+    {
+        $this->usedForTransactionId = $usedForTransactionId;
+    }
+
+    /**
+     * @return float
+     */
+    public function getReturnedAmount(): float
+    {
+        return $this->returnedAmount;
+    }
+
+    /**
+     * @param float $returnedAmount
+     */
+    public function setReturnedAmount(float $returnedAmount): void
+    {
+        $this->returnedAmount = $returnedAmount;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getActiveTo(): ?\DateTime
+    {
+        return $this->activeTo;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getActiveSince(): ?\DateTime
+    {
+        return $this->activeSince;
     }
 }

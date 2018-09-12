@@ -9,6 +9,7 @@ use Broadway\Serializer\Serializable;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Core\Domain\Model\Identifier;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
+use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\TransactionId;
 
 /**
@@ -77,6 +78,16 @@ class CampaignPurchase implements Serializable
     private $transactionId;
 
     /**
+     * @var TransactionId|null
+     */
+    private $usedForTransactionId;
+
+    /**
+     * @var float
+     */
+    private $returnedAmount = 0;
+
+    /**
      * CampaignPurchase constructor.
      *
      * @param \DateTime  $purchaseAt
@@ -109,6 +120,18 @@ class CampaignPurchase implements Serializable
         $this->activeSince = $activeSince;
         $this->activeTo = $activeTo;
         $this->transactionId = $transactionId;
+    }
+
+    /**
+     * @param CustomerId $customerId
+     *
+     * @return string
+     */
+    public function getId(CustomerId $customerId): string
+    {
+        $transactionSuffix = $this->transactionId ? '_'.$this->transactionId->__toString() : '';
+
+        return $this->campaignId->__toString().'_'.$customerId->__toString().'_'.$this->coupon->getCode().$transactionSuffix;
     }
 
     /**
@@ -166,6 +189,9 @@ class CampaignPurchase implements Serializable
             $activeTo ?? null,
             isset($data['transactionId']) ? new TransactionId($data['transactionId']) : null
         );
+        $usedFor = isset($data['usedForTransactionId']) ? new TransactionId($data['usedForTransactionId']) : null;
+        $purchase->setUsedForTransactionId($usedFor);
+        $purchase->setReturnedAmount(isset($data['returnedAmount']) ? $data['returnedAmount'] : 0);
         $purchase->setUsed($data['used']);
 
         return $purchase;
@@ -188,6 +214,8 @@ class CampaignPurchase implements Serializable
             'activeSince' => $this->activeSince ? $this->activeSince->getTimestamp() : null,
             'activeTo' => $this->activeTo ? $this->activeTo->getTimestamp() : null,
             'transactionId' => $this->transactionId ? $this->transactionId->__toString() : null,
+            'usedForTransactionId' => $this->usedForTransactionId ? (string) $this->usedForTransactionId : null,
+            'returnedAmount' => $this->returnedAmount ?: 0,
         ];
     }
 
@@ -301,5 +329,37 @@ class CampaignPurchase implements Serializable
     public function getTransactionId(): ?Identifier
     {
         return $this->transactionId;
+    }
+
+    /**
+     * @return null|TransactionId
+     */
+    public function getUsedForTransactionId(): ?TransactionId
+    {
+        return $this->usedForTransactionId;
+    }
+
+    /**
+     * @param null|TransactionId $usedForTransactionId
+     */
+    public function setUsedForTransactionId(?TransactionId $usedForTransactionId): void
+    {
+        $this->usedForTransactionId = $usedForTransactionId;
+    }
+
+    /**
+     * @return float
+     */
+    public function getReturnedAmount(): float
+    {
+        return $this->returnedAmount;
+    }
+
+    /**
+     * @param float $returnedAmount
+     */
+    public function setReturnedAmount(float $returnedAmount = 0): void
+    {
+        $this->returnedAmount = $returnedAmount;
     }
 }

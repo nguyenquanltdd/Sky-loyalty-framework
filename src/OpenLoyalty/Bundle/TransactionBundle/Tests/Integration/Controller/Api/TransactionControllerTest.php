@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\TransactionBundle\Tests\Integration\Controller\Api;
 
+use OpenLoyalty\Bundle\CampaignBundle\DataFixtures\ORM\LoadCampaignData;
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRule;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
@@ -17,6 +18,7 @@ use OpenLoyalty\Bundle\UserBundle\Status\CustomerStatusProvider;
 use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
+use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Import\Infrastructure\ImportResultItem;
 use OpenLoyalty\Component\Segment\Domain\Model\Criterion;
 use OpenLoyalty\Component\Segment\Domain\Segment;
@@ -107,6 +109,9 @@ class TransactionControllerTest extends BaseApiTest
         }
     }
 
+    /**
+     * @return array
+     */
     public function getExpectedPosIdsWhenUsingIdentifier(): array
     {
         return [
@@ -133,7 +138,10 @@ class TransactionControllerTest extends BaseApiTest
         $this->assertTrue($data['total'] > 0, 'Contains at least one element');
     }
 
-    public function labelsForListProvider()
+    /**
+     * @return array
+     */
+    public function labelsForListProvider(): array
     {
         return [
             [
@@ -192,7 +200,7 @@ class TransactionControllerTest extends BaseApiTest
                 'documentNumber' => '12311',
                 'documentType' => 'sell',
                 'purchaseDate' => '2015-01-01',
-                'purchasePlace' => 'wroclaw',
+                'purchasePlace' => 'New York',
             ],
             'items' => [
                 0 => [
@@ -219,18 +227,18 @@ class TransactionControllerTest extends BaseApiTest
                 ],
             ],
             'customerData' => [
-                'name' => 'Jan Nowak',
+                'name' => 'John Doe',
                 'email' => 'user-temp2@oloy.com',
                 'nip' => 'aaa',
                 'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'not-present-in-system',
                 'address' => [
-                    'street' => 'Bagno',
+                    'street' => 'Oxford Street',
                     'address1' => '12',
-                    'city' => 'Warszawa',
-                    'country' => 'PL',
-                    'province' => 'Mazowieckie',
-                    'postal' => '00-800',
+                    'city' => 'New York',
+                    'country' => 'US',
+                    'province' => 'New York',
+                    'postal' => '10001',
                 ],
             ],
         ];
@@ -257,7 +265,7 @@ class TransactionControllerTest extends BaseApiTest
             'transactionData' => [
                 'documentNumber' => '12322',
                 'purchaseDate' => '2015-01-01',
-                'purchasePlace' => 'wroclaw',
+                'purchasePlace' => 'New York',
             ],
             'items' => [
                 0 => [
@@ -276,7 +284,7 @@ class TransactionControllerTest extends BaseApiTest
                 ],
             ],
             'customerData' => [
-                'name' => 'Jan Nowak',
+                'name' => 'John Doe',
             ],
         ];
 
@@ -303,7 +311,7 @@ class TransactionControllerTest extends BaseApiTest
             'transactionData' => [
                 'documentNumber' => '12333',
                 'purchaseDate' => '2015-01-01',
-                'purchasePlace' => 'wroclaw',
+                'purchasePlace' => 'New York',
                 'documentType' => 'return',
             ],
             'items' => [
@@ -323,7 +331,7 @@ class TransactionControllerTest extends BaseApiTest
                 ],
             ],
             'customerData' => [
-                'name' => 'Jan Nowak',
+                'name' => 'John Doe',
             ],
         ];
 
@@ -353,7 +361,7 @@ class TransactionControllerTest extends BaseApiTest
                 'documentNumber' => '12344',
                 'documentType' => 'sell',
                 'purchaseDate' => '2015-01-01',
-                'purchasePlace' => 'wroclaw',
+                'purchasePlace' => 'New York',
             ],
             'items' => [
                 0 => [
@@ -374,18 +382,18 @@ class TransactionControllerTest extends BaseApiTest
                 ],
             ],
             'customerData' => [
-                'name' => 'Jan Nowak',
+                'name' => 'John Doe',
                 'email' => 'user-temp2@oloy.com',
                 'nip' => 'aaa',
                 'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'not-present-in-system',
                 'address' => [
-                    'street' => 'Bagno',
+                    'street' => 'Oxford Street',
                     'address1' => '12',
-                    'city' => 'Warszawa',
-                    'country' => 'PL',
-                    'province' => 'Mazowieckie',
-                    'postal' => '00-800',
+                    'city' => 'New York',
+                    'country' => 'US',
+                    'province' => 'New York',
+                    'postal' => '10001',
                 ],
             ],
             'pos' => LoadPosData::POS_ID,
@@ -415,7 +423,7 @@ class TransactionControllerTest extends BaseApiTest
                 'documentNumber' => '12355',
                 'documentType' => 'sell',
                 'purchaseDate' => '2015-01-01',
-                'purchasePlace' => 'wroclaw',
+                'purchasePlace' => 'New York',
             ],
             'items' => [
                 0 => [
@@ -436,18 +444,18 @@ class TransactionControllerTest extends BaseApiTest
                 ],
             ],
             'customerData' => [
-                'name' => 'Jan Nowak',
+                'name' => 'John Doe',
                 'email' => 'USER-TEMP@OLOY.COM', // uppercase (should be matched with user-temp@oloy.com)
                 'nip' => 'aaa',
                 'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'not-present-in-system',
                 'address' => [
-                    'street' => 'Bagno',
+                    'street' => 'Oxford Street',
                     'address1' => '12',
-                    'city' => 'Warszawa',
-                    'country' => 'PL',
-                    'province' => 'Mazowieckie',
-                    'postal' => '00-800',
+                    'city' => 'New York',
+                    'country' => 'US',
+                    'province' => 'New York',
+                    'postal' => '10001',
                 ],
             ],
         ];
@@ -467,7 +475,131 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_registers_new_transaction_with_labels(): void
+    public function it_mark_coupon_as_used_for_transaction(): void
+    {
+        $id = LoadTransactionData::TRANSACTION_COUPONS_USED_ID;
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            sprintf('/api/admin/customer/%s/campaign/%s/coupon/%s', LoadUserData::USER_COUPON_RETURN_ID, LoadCampaignData::PERCENTAGE_COUPON_CAMPAIGN_ID, '100'),
+            [
+                'used' => true,
+                'transactionId' => $id,
+            ]
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+    }
+
+    /**
+     * @test
+     * @depends it_mark_coupon_as_used_for_transaction
+     */
+    public function it_restore_coupons(): void
+    {
+        $formData = [
+            'revisedDocument' => '12355-coupons',
+            'transactionData' => [
+                'documentNumber' => '12355-coupons-return',
+                'documentType' => 'return',
+                'purchaseDate' => '2015-01-01',
+                'purchasePlace' => 'New York',
+            ],
+            'items' => [
+                0 => [
+                    'sku' => ['code' => '1123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => -100,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+            ],
+            'customerData' => [
+                'name' => 'John Doe',
+                'email' => LoadUserData::USER_COUPON_RETURN_USERNAME,
+                'nip' => 'aaa',
+                'phone' => self::PHONE_NUMBER,
+                'loyaltyCardNumber' => 'not-present-in-system',
+                'address' => [
+                    'street' => 'Oxford Street',
+                    'address1' => '12',
+                    'city' => 'New York',
+                    'country' => 'US',
+                    'province' => 'New York',
+                    'postal' => '10001',
+                ],
+            ],
+        ];
+        $response = $this->sendCreateTransactionRequest($formData)->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        static::$kernel->boot();
+        $repo = static::$kernel->getContainer()->get(CustomerDetailsRepository::class);
+        /** @var CustomerDetails $details */
+        $details = $repo->find(LoadUserData::USER_COUPON_RETURN_ID);
+        $found = false;
+        foreach ($details->getCampaignPurchases() as $purchase) {
+            if (83.33 === (float) $purchase->getCoupon()->getCode()) {
+                $found = true;
+            }
+        }
+        $this->assertTrue($found);
+
+        $formData = [
+            'revisedDocument' => '12355-coupons',
+            'transactionData' => [
+                'documentNumber' => '12355-coupons-return-2',
+                'documentType' => 'return',
+                'purchaseDate' => '2015-01-01',
+                'purchasePlace' => 'New York',
+            ],
+            'items' => [
+                0 => [
+                    'sku' => ['code' => '123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => -20,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+            ],
+            'customerData' => [
+                'name' => 'John Doe',
+                'email' => LoadUserData::USER_COUPON_RETURN_USERNAME,
+                'nip' => 'aaa',
+                'phone' => self::PHONE_NUMBER,
+                'loyaltyCardNumber' => 'not-present-in-system',
+                'address' => [
+                    'street' => 'Oxford Street',
+                    'address1' => '12',
+                    'city' => 'New York',
+                    'country' => 'US',
+                    'province' => 'New York',
+                    'postal' => '10001',
+                ],
+            ],
+        ];
+        $response = $this->sendCreateTransactionRequest($formData)->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        static::$kernel->boot();
+        $repo = static::$kernel->getContainer()->get(CustomerDetailsRepository::class);
+        /** @var CustomerDetails $details */
+        $details = $repo->find(LoadUserData::USER_COUPON_RETURN_ID);
+        $found = false;
+        foreach ($details->getCampaignPurchases() as $purchase) {
+            if (16.67 === (float) $purchase->getCoupon()->getCode()) {
+                $found = true;
+            }
+        }
+        $this->assertTrue($found);
+    }
+
+    /**
+     * @test
+     */
+    public function it_register_new_transaction_with_labels(): void
     {
         static::bootKernel();
 
@@ -476,7 +608,7 @@ class TransactionControllerTest extends BaseApiTest
                 'documentNumber' => '12366',
                 'documentType' => 'sell',
                 'purchaseDate' => '2015-01-01',
-                'purchasePlace' => 'wroclaw',
+                'purchasePlace' => 'New York',
             ],
             'items' => [
                 0 => [
@@ -500,18 +632,18 @@ class TransactionControllerTest extends BaseApiTest
                 ['key' => 'test label', 'value' => 'some value'],
             ],
             'customerData' => [
-                'name' => 'Jan Nowak',
+                'name' => 'John Doe',
                 'email' => 'test@oloy.com',
                 'nip' => 'aaa',
                 'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'not-present-in-system',
                 'address' => [
-                    'street' => 'Bagno',
+                    'street' => 'Oxford Street',
                     'address1' => '12',
-                    'city' => 'Warszawa',
-                    'country' => 'PL',
-                    'province' => 'Mazowieckie',
-                    'postal' => '00-800',
+                    'city' => 'New York',
+                    'country' => 'US',
+                    'province' => 'New York',
+                    'postal' => '10001',
                 ],
             ],
         ];
@@ -642,7 +774,7 @@ class TransactionControllerTest extends BaseApiTest
                     'city' => 'NY',
                     'country' => 'US',
                     'province' => 'Seattle',
-                    'postal' => '00-800',
+                    'postal' => '10001',
                 ],
             ],
         ];
@@ -656,7 +788,7 @@ class TransactionControllerTest extends BaseApiTest
                 'documentNumber' => '999912377',
                 'documentType' => 'return',
                 'purchaseDate' => (new \DateTime())->format('Y-m-d'),
-                'purchasePlace' => 'wroclaw',
+                'purchasePlace' => 'New York',
             ],
             'items' => [
                 0 => [
@@ -684,7 +816,7 @@ class TransactionControllerTest extends BaseApiTest
                     'city' => 'NY',
                     'country' => 'US',
                     'province' => 'Seattle',
-                    'postal' => '00-800',
+                    'postal' => '10001',
                 ],
             ],
         ];
@@ -777,7 +909,7 @@ class TransactionControllerTest extends BaseApiTest
                     'city' => 'NY',
                     'country' => 'US',
                     'province' => 'Seattle',
-                    'postal' => '00-800',
+                    'postal' => '10001',
                 ],
             ],
         ];
@@ -791,7 +923,7 @@ class TransactionControllerTest extends BaseApiTest
                 'documentNumber' => 'R/11234-return',
                 'documentType' => 'return',
                 'purchaseDate' => (new \DateTime())->format('Y-m-d'),
-                'purchasePlace' => 'wroclaw',
+                'purchasePlace' => 'New York',
             ],
             'items' => [
                 0 => [
@@ -823,7 +955,7 @@ class TransactionControllerTest extends BaseApiTest
                     'city' => 'NY',
                     'country' => 'US',
                     'province' => 'Seattle',
-                    'postal' => '00-800',
+                    'postal' => '10001',
                 ],
             ],
         ];
@@ -904,7 +1036,7 @@ class TransactionControllerTest extends BaseApiTest
                     'city' => 'NY',
                     'country' => 'US',
                     'province' => 'Seattle',
-                    'postal' => '00-800',
+                    'postal' => '10001',
                 ],
             ],
         ];
@@ -918,7 +1050,7 @@ class TransactionControllerTest extends BaseApiTest
                 'documentNumber' => 'R/11235-return',
                 'documentType' => 'return',
                 'purchaseDate' => (new \DateTime())->format('Y-m-d'),
-                'purchasePlace' => 'wroclaw',
+                'purchasePlace' => 'New York',
             ],
             'items' => [
                 0 => [
@@ -950,7 +1082,7 @@ class TransactionControllerTest extends BaseApiTest
                     'city' => 'NY',
                     'country' => 'US',
                     'province' => 'Seattle',
-                    'postal' => '00-800',
+                    'postal' => '10001',
                 ],
             ],
         ];
@@ -998,7 +1130,7 @@ class TransactionControllerTest extends BaseApiTest
                 'documentNumber' => '12399',
                 'documentType' => 'sell',
                 'purchaseDate' => '2015-01-01',
-                'purchasePlace' => 'wroclaw',
+                'purchasePlace' => 'New York',
             ],
             'items' => [
                 0 => [
@@ -1019,18 +1151,18 @@ class TransactionControllerTest extends BaseApiTest
                 ],
             ],
             'customerData' => [
-                'name' => 'Jan Nowak',
+                'name' => 'John Doe',
                 'email' => 'notfound',
                 'nip' => 'aaa',
                 'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => LoadUserData::USER_LOYALTY_CARD_NUMBER,
                 'address' => [
-                    'street' => 'Bagno',
+                    'street' => 'Oxford Street',
                     'address1' => '12',
-                    'city' => 'Warszawa',
-                    'country' => 'PL',
-                    'province' => 'Mazowieckie',
-                    'postal' => '00-800',
+                    'city' => 'New York',
+                    'country' => 'US',
+                    'province' => 'New York',
+                    'postal' => '10001',
                 ],
             ],
         ];
@@ -1063,7 +1195,7 @@ class TransactionControllerTest extends BaseApiTest
                 'documentNumber' => '1234',
                 'documentType' => 'sell',
                 'purchaseDate' => '2015-01-01',
-                'purchasePlace' => 'wroclaw',
+                'purchasePlace' => 'New York',
             ],
             'items' => [
                 0 => [
@@ -1084,18 +1216,18 @@ class TransactionControllerTest extends BaseApiTest
                 ],
             ],
             'customerData' => [
-                'name' => 'Jan Nowak',
+                'name' => 'John Doe',
                 'email' => 'not_existing_email@not.com',
                 'nip' => 'aaa',
                 'phone' => $customer->getPhone(),
                 'loyaltyCardNumber' => 'not_existing',
                 'address' => [
-                    'street' => 'Bagno',
+                    'street' => 'Oxford Street',
                     'address1' => '12',
-                    'city' => 'Warszawa',
-                    'country' => 'PL',
-                    'province' => 'Mazowieckie',
-                    'postal' => '00-800',
+                    'city' => 'New York',
+                    'country' => 'US',
+                    'province' => 'New York',
+                    'postal' => '10001',
                 ],
             ],
         ];
@@ -1123,7 +1255,7 @@ class TransactionControllerTest extends BaseApiTest
                 'documentNumber' => '123111',
                 'documentType' => 'sell',
                 'purchaseDate' => '2015-01-01',
-                'purchasePlace' => 'wroclaw',
+                'purchasePlace' => 'New York',
             ],
             'items' => [
                 0 => [
@@ -1144,18 +1276,18 @@ class TransactionControllerTest extends BaseApiTest
                 ],
             ],
             'customerData' => [
-                'name' => 'Jan Nowak',
+                'name' => 'John Doe',
                 'email' => 'notfound',
                 'nip' => 'aaa',
                 'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'notfound',
                 'address' => [
-                    'street' => 'Bagno',
+                    'street' => 'Oxford Street',
                     'address1' => '12',
-                    'city' => 'Warszawa',
-                    'country' => 'PL',
-                    'province' => 'Mazowieckie',
-                    'postal' => '00-800',
+                    'city' => 'New York',
+                    'country' => 'US',
+                    'province' => 'New York',
+                    'postal' => '10001',
                 ],
             ],
         ];
@@ -1396,7 +1528,7 @@ class TransactionControllerTest extends BaseApiTest
                 'documentNumber' => 'Custom-1234',
                 'documentType' => 'sell',
                 'purchaseDate' => $purchaseDate->format('Y-m-d'),
-                'purchasePlace' => 'wroclaw',
+                'purchasePlace' => 'New York',
             ],
             'items' => [
                 0 => [
@@ -1417,9 +1549,9 @@ class TransactionControllerTest extends BaseApiTest
                     'street' => 'Tori Lane',
                     'address1' => '12',
                     'city' => 'Salt Lake City',
-                    'country' => 'PL',
-                    'province' => 'Mazowieckie',
-                    'postal' => '00-800',
+                    'country' => 'US',
+                    'province' => 'New York',
+                    'postal' => '10001',
                 ],
             ],
         ];
@@ -1551,7 +1683,7 @@ class TransactionControllerTest extends BaseApiTest
                     'documentNumber' => $documentNumber,
                     'documentType' => 'sell',
                     'purchaseDate' => (new \DateTime('+1 day'))->format('Y-m-d'),
-                    'purchasePlace' => 'wroclaw',
+                    'purchasePlace' => 'New York',
                 ],
                 'items' => [
                     0 => [
@@ -1564,18 +1696,18 @@ class TransactionControllerTest extends BaseApiTest
                     ],
                 ],
                 'customerData' => [
-                    'name' => 'Jan Nowak',
+                    'name' => 'John Doe',
                     'email' => 'user-temp@oloy.com',
                     'nip' => 'aaa',
                     'phone' => '+48123123123',
                     'loyaltyCardNumber' => 'not-present-in-system',
                     'address' => [
-                        'street' => 'Bagno',
+                        'street' => 'Oxford Street',
                         'address1' => '12',
-                        'city' => 'Warszawa',
-                        'country' => 'PL',
-                        'province' => 'Mazowieckie',
-                        'postal' => '00-800',
+                        'city' => 'New York',
+                        'country' => 'US',
+                        'province' => 'New York',
+                        'postal' => '10001',
                     ],
                 ],
             ];

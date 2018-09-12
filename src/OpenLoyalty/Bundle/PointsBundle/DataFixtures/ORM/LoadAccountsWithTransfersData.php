@@ -28,6 +28,7 @@ class LoadAccountsWithTransfersData extends ContainerAwareFixture implements Ord
     const ACCOUNT2_ID = 'e82c96cf-32a3-43bd-9034-4df343e5fd92';
     const POINTS_ID = 'e82c96cf-32a3-43bd-9034-4df343e5f111';
     const POINTS22_ID = 'e82c96cf-32a3-43bd-9034-4df343e5f211';
+    const POINTS222_ID = 'e82c96cf-32a3-43bd-9034-4df343e5f222';
     const POINTS2_ID = 'e82c96cf-32a3-43bd-9034-4df343e5f222';
     const POINTS3_ID = 'e82c96cf-32a3-43bd-9034-4df343e5f333';
     const POINTS4_ID = 'e82c96cf-32a3-43bd-9034-4df343e5f433';
@@ -46,6 +47,7 @@ class LoadAccountsWithTransfersData extends ContainerAwareFixture implements Ord
 
         $accountForTransfer1 = $this->getAccountIdByCustomerId(LoadUserData::USER_TRANSFER_2_USER_ID);
         $accountForTransfer2 = $this->getAccountIdByCustomerId(LoadUserData::USER_TRANSFER_3_USER_ID);
+        $accountForCoupons = $this->getAccountIdByCustomerId(LoadUserData::USER_COUPON_RETURN_ID);
 
         $commandBud->dispatch(
             new AddPoints(new AccountId($accountForTransfer1), $pointsTransferManager->createAddPointsTransferInstance(new PointsTransferId(static::POINTS5_ID), 100))
@@ -66,6 +68,9 @@ class LoadAccountsWithTransfersData extends ContainerAwareFixture implements Ord
         );
         $commandBud->dispatch(
             new AddPoints(new AccountId($accountId), $pointsTransferManager->createAddPointsTransferInstance(new PointsTransferId(static::POINTS2_ID), 100, new \DateTime('-3 days')))
+        );
+        $commandBud->dispatch(
+            new AddPoints(new AccountId($accountForCoupons), $pointsTransferManager->createAddPointsTransferInstance(new PointsTransferId(static::POINTS222_ID), 1000, new \DateTime('-3 days')))
         );
         $commandBud->dispatch(
             new SpendPoints(new AccountId($accountId), new SpendPointsTransfer(new PointsTransferId(static::POINTS3_ID), 100, null, false, 'Example comment'))

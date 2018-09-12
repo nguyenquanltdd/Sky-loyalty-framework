@@ -26,6 +26,7 @@ use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerUpdatedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\NewsletterSubscriptionSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\TransactionId;
+use OpenLoyalty\Component\Campaign\Domain\TransactionId as CampaignTransactionId;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
 use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 
@@ -233,7 +234,7 @@ class CustomerCommandHandler extends SimpleCommandHandler
         $customerId = $command->getCustomerId();
 
         /** @var Customer $customer */
-        $customer = $this->repository->load($customerId->__toString());
+        $customer = $this->repository->load((string) $customerId);
         $customer->addToLevel($command->getLevelId(), $command->isManually(), $command->isRemoveLevelManually());
         if ($this->levelDowngradeModeProvider->getMode() === LevelDowngradeModeProvider::MODE_X_DAYS
             && $this->levelDowngradeModeProvider->getBase() === LevelDowngradeModeProvider::BASE_EARNED_POINTS_SINCE_LAST_LEVEL_CHANGE) {
@@ -258,7 +259,7 @@ class CustomerCommandHandler extends SimpleCommandHandler
     {
         $customerId = $command->getCustomerId();
         /** @var Customer $customer */
-        $customer = $this->repository->load($customerId->__toString());
+        $customer = $this->repository->load((string) $customerId);
         $customer->assignPosToCustomer($command->getPosId());
         $this->repository->save($customer);
         $this->eventDispatcher->dispatch(
@@ -274,7 +275,7 @@ class CustomerCommandHandler extends SimpleCommandHandler
     {
         $customerId = $command->getCustomerId();
         /** @var Customer $customer */
-        $customer = $this->repository->load($customerId->__toString());
+        $customer = $this->repository->load((string) $customerId);
         $customer->assignSellerToCustomer($command->getSellerId());
         $this->repository->save($customer);
         $this->eventDispatcher->dispatch(
@@ -290,7 +291,7 @@ class CustomerCommandHandler extends SimpleCommandHandler
     {
         $customerId = $command->getCustomerId();
         /** @var Customer $customer */
-        $customer = $this->repository->load($customerId->__toString());
+        $customer = $this->repository->load((string) $customerId);
         $customer->buyCampaign(
             $command->getCampaignId(),
             $command->getCampaignName(),
@@ -306,14 +307,43 @@ class CustomerCommandHandler extends SimpleCommandHandler
     }
 
     /**
+     * @param ReturnCustomerCampaign $command
+     */
+    public function handleReturnCustomerCampaign(ReturnCustomerCampaign $command)
+    {
+        $customerId = $command->getCustomerId();
+        /** @var Customer $customer */
+        $customer = $this->repository->load((string) $customerId);
+        $customer->buyCampaign(
+            $command->getCampaignId(),
+            $command->getCampaignName(),
+            $command->getCostInPoints(),
+            $command->getCoupon(),
+            $command->getReward(),
+            $command->getStatus(),
+            $command->getActiveSince(),
+            $command->getActiveTo(),
+            new CampaignTransactionId((string) $command->getTransactionId())
+        );
+        $customer->campaignWasReturned($command->getPurchaseId(), $command->getCoupon());
+
+        $this->repository->save($customer);
+    }
+
+    /**
      * @param ChangeCampaignUsage $command
      */
     public function handleChangeCampaignUsage(ChangeCampaignUsage $command)
     {
         $customerId = $command->getCustomerId();
         /** @var Customer $customer */
-        $customer = $this->repository->load($customerId->__toString());
-        $customer->changeCampaignUsage($command->getCampaignId(), $command->getCoupon(), $command->isUsed());
+        $customer = $this->repository->load((string) $customerId);
+        $customer->changeCampaignUsage(
+            $command->getCampaignId(),
+            $command->getCoupon(),
+            $command->isUsed(),
+            $command->getTransactionId()
+        );
         $this->repository->save($customer);
     }
 
@@ -324,7 +354,7 @@ class CustomerCommandHandler extends SimpleCommandHandler
     {
         $customerId = $command->getCustomerId();
         /** @var Customer $customer */
-        $customer = $this->repository->load($customerId->__toString());
+        $customer = $this->repository->load((string) $customerId);
         $customer->activateCampaignBought($command->getCampaignId(), $command->getCoupon(), $command->getTransactionId());
         $this->repository->save($customer);
     }
@@ -336,7 +366,7 @@ class CustomerCommandHandler extends SimpleCommandHandler
     {
         $customerId = $command->getCustomerId();
         /** @var Customer $customer */
-        $customer = $this->repository->load($customerId->__toString());
+        $customer = $this->repository->load((string) $customerId);
         $customer->expireCampaignBought($command->getCampaignId(), $command->getCoupon(), $command->getTransactionId());
         $this->repository->save($customer);
     }
@@ -348,7 +378,7 @@ class CustomerCommandHandler extends SimpleCommandHandler
     {
         $customerId = $command->getCustomerId();
         /** @var Customer $customer */
-        $customer = $this->repository->load($customerId->__toString());
+        $customer = $this->repository->load((string) $customerId);
         $customer->deactivate();
         $this->repository->save($customer);
         $this->eventDispatcher->dispatch(
@@ -364,7 +394,7 @@ class CustomerCommandHandler extends SimpleCommandHandler
     {
         $customerId = $command->getCustomerId();
         /** @var Customer $customer */
-        $customer = $this->repository->load($customerId->__toString());
+        $customer = $this->repository->load((string) $customerId);
         $customer->activate();
         $this->repository->save($customer);
         $this->eventDispatcher->dispatch(
@@ -445,7 +475,7 @@ class CustomerCommandHandler extends SimpleCommandHandler
         $customerId = $command->getCustomerId();
         $date = $command->getDate();
         /** @var Customer $customer */
-        $customer = $this->repository->load($customerId->__toString());
+        $customer = $this->repository->load((string) $customerId);
         $this->eventDispatcher->dispatch(
             CustomerSystemEvents::CUSTOMER_RECALCULATE_LEVEL_REQUESTED,
             [new CustomerRecalculateLevelRequestedSystemEvent($customerId)]

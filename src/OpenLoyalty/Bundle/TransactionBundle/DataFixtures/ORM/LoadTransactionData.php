@@ -23,6 +23,8 @@ use Symfony\Bridge\Doctrine\Tests\Fixtures\ContainerAwareFixture;
 class LoadTransactionData extends ContainerAwareFixture implements FixtureInterface, OrderedFixtureInterface
 {
     const TRANSACTION_ID = '00000000-0000-1111-0000-000000000000';
+    const TRANSACTION_COUPONS_ID = '00000000-0000-1111-0000-000000002121';
+    const TRANSACTION_COUPONS_USED_ID = '00000000-0000-1111-0000-000000002123';
     const TRANSACTION2_ID = '00000000-0000-1111-0000-000000000002';
     const TRANSACTION3_ID = '00000000-0000-1111-0000-000000000003';
     const TRANSACTION4_ID = '00000000-0000-1111-0000-000000000004';
@@ -37,7 +39,7 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
 
         $transactionData = [
             'documentNumber' => '123',
-            'purchasePlace' => 'wroclaw',
+            'purchasePlace' => 'New York',
             'purchaseDate' => (new \DateTime('+1 day'))->getTimestamp(),
             'documentType' => 'sell',
         ];
@@ -73,18 +75,18 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
         /** @var CommandBus $bus */
         $bus = $this->container->get('broadway.command_handling.command_bus');
         $customerData = [
-            'name' => 'Jan Nowak',
+            'name' => 'John Doe',
             'email' => 'ol@oy.com',
             'nip' => 'aaa',
             'phone' => $phoneNumber,
             'loyaltyCardNumber' => '222',
             'address' => [
-                'street' => 'Bagno',
+                'street' => 'Oxford Street',
                 'address1' => '12',
-                'city' => 'Warszawa',
-                'country' => 'PL',
-                'province' => 'Mazowieckie',
-                'postal' => '00-800',
+                'city' => 'New York',
+                'country' => 'US',
+                'province' => 'New York',
+                'postal' => '10001',
             ],
         ];
 
@@ -112,18 +114,18 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
                 new TransactionId(self::TRANSACTION2_ID),
                 $transactionData,
                 [
-                    'name' => 'Jan Nowak',
+                    'name' => 'John Doe',
                     'email' => 'open@oloy.com',
                     'nip' => 'aaa',
                     'phone' => $phoneNumber,
                     'loyaltyCardNumber' => 'sa2222',
                     'address' => [
-                        'street' => 'Bagno',
+                        'street' => 'Oxford Street',
                         'address1' => '12',
-                        'city' => 'Warszawa',
-                        'country' => 'PL',
-                        'province' => 'Mazowieckie',
-                        'postal' => '00-800',
+                        'city' => 'New York',
+                        'country' => 'US',
+                        'province' => 'New York',
+                        'postal' => '10001',
                     ],
                 ],
                 $items,
@@ -144,18 +146,18 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
                 new TransactionId(self::TRANSACTION5_ID),
                 $transactionData,
                 [
-                    'name' => 'Jan Nowak',
+                    'name' => 'John Doe',
                     'email' => 'o@lo.com',
                     'nip' => 'aaa',
                     'phone' => $phoneNumber,
                     'loyaltyCardNumber' => 'sa21as222',
                     'address' => [
-                        'street' => 'Bagno',
+                        'street' => 'Oxford Street',
                         'address1' => '12',
-                        'city' => 'Warszawa',
-                        'country' => 'PL',
-                        'province' => 'Mazowieckie',
-                        'postal' => '00-800',
+                        'city' => 'New York',
+                        'country' => 'US',
+                        'province' => 'New York',
+                        'postal' => '10001',
                     ],
                 ],
                 $items,
@@ -176,18 +178,18 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
                 new TransactionId(self::TRANSACTION3_ID),
                 $transactionData,
                 [
-                    'name' => 'Jan Nowak',
+                    'name' => 'John Doe',
                     'email' => 'user@oloy.com',
                     'nip' => 'aaa',
                     'phone' => $phoneNumber,
                     'loyaltyCardNumber' => 'sa2222',
                     'address' => [
-                        'street' => 'Bagno',
+                        'street' => 'Oxford Street',
                         'address1' => '12',
-                        'city' => 'Warszawa',
-                        'country' => 'PL',
-                        'province' => 'Mazowieckie',
-                        'postal' => '00-800',
+                        'city' => 'New York',
+                        'country' => 'US',
+                        'province' => 'New York',
+                        'postal' => '10001',
                     ],
                 ],
                 $items,
@@ -208,18 +210,18 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
                 new TransactionId(self::TRANSACTION4_ID),
                 $transactionData,
                 [
-                    'name' => 'Jan Nowak',
+                    'name' => 'John Doe',
                     'email' => 'user-temp@oloy.com',
                     'nip' => 'aaa',
                     'phone' => $phoneNumber,
                     'loyaltyCardNumber' => 'sa2222',
                     'address' => [
-                        'street' => 'Bagno',
+                        'street' => 'Oxford Street',
                         'address1' => '12',
-                        'city' => 'Warszawa',
-                        'country' => 'PL',
-                        'province' => 'Mazowieckie',
-                        'postal' => '00-800',
+                        'city' => 'New York',
+                        'country' => 'US',
+                        'province' => 'New York',
+                        'postal' => '10001',
                     ],
                 ],
                 $items
@@ -232,18 +234,18 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
                 new TransactionId(self::TRANSACTION6_ID),
                 $transactionData,
                 [
-                    'name' => 'Jan Nowak',
+                    'name' => 'John Doe',
                     'email' => 'o@lo.com',
                     'nip' => 'aaa',
                     'phone' => '123',
                     'loyaltyCardNumber' => 'sa21as222',
                     'address' => [
-                        'street' => 'Bagno',
+                        'street' => 'Oxford Street',
                         'address1' => '12',
-                        'city' => 'Warszawa',
-                        'country' => 'PL',
-                        'province' => 'Mazowieckie',
-                        'postal' => '00-800',
+                        'city' => 'New York',
+                        'country' => 'US',
+                        'province' => 'New York',
+                        'postal' => '10001',
                     ],
                 ],
                 $items
@@ -256,18 +258,18 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
                 new TransactionId(self::TRANSACTION7_ID),
                 $transactionData,
                 [
-                    'name' => 'Jan Nowak',
+                    'name' => 'John Doe',
                     'email' => LoadUserData::USER_USERNAME,
                     'nip' => 'aaa',
                     'phone' => '123',
                     'loyaltyCardNumber' => 'sa21as222',
                     'address' => [
-                        'street' => 'Bagno',
+                        'street' => 'Oxford Street',
                         'address1' => '12',
-                        'city' => 'Warszawa',
-                        'country' => 'PL',
-                        'province' => 'Mazowieckie',
-                        'postal' => '00-800',
+                        'city' => 'New York',
+                        'country' => 'US',
+                        'province' => 'New York',
+                        'postal' => '10001',
                     ],
                 ],
                 [],
@@ -279,6 +281,120 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
                 [
                     ['key' => 'existing label', 'value' => 'some value'],
                 ]
+            )
+        );
+
+        $transactionData['documentNumber'] = 'coupons-test-transaction';
+        $bus->dispatch(
+            new RegisterTransaction(
+                new TransactionId(self::TRANSACTION_COUPONS_ID),
+                $transactionData,
+                [
+                    'name' => 'John Doe',
+                    'email' => LoadUserData::USER_COUPON_RETURN_USERNAME,
+                    'nip' => 'aaa',
+                    'phone' => '123',
+                    'loyaltyCardNumber' => 'sa21as222',
+                    'address' => [
+                        'street' => 'Oxford Street',
+                        'address1' => '12',
+                        'city' => 'New York',
+                        'country' => 'US',
+                        'province' => 'New York',
+                        'postal' => '10001',
+                    ],
+                ],
+                [
+                    [
+                        'sku' => ['code' => 'SKU1'],
+                        'name' => 'item 1',
+                        'quantity' => 1,
+                        'grossValue' => 1000,
+                        'category' => 'aaa',
+                        'maker' => 'sss',
+                        'labels' => [
+                            [
+                                'key' => 'test',
+                                'value' => 'label',
+                            ],
+                            [
+                                'key' => 'test',
+                                'value' => 'label2',
+                            ],
+                        ],
+                    ],
+                ],
+                null,
+                null,
+                null,
+                null,
+                null,
+                [
+                    ['key' => 'existing label', 'value' => 'some value'],
+                ]
+            )
+        );
+
+        $this->loadTransactionForCouponUsage($bus);
+    }
+
+    /**
+     * @param CommandBus $bus
+     */
+    private function loadTransactionForCouponUsage(CommandBus $bus): void
+    {
+        $transactionData = [
+                'documentNumber' => '12355-coupons',
+                'documentType' => 'sell',
+                'purchaseDate' => (new \DateTime('2015-01-01'))->getTimestamp(),
+                'purchasePlace' => 'New York',
+        ];
+        $items = [
+                0 => [
+                    'sku' => ['code' => '123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 20,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+                1 => [
+                    'sku' => ['code' => '1123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 100,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+            ];
+        $customerData = [
+                'name' => 'John Doe',
+                'email' => LoadUserData::USER_COUPON_RETURN_USERNAME,
+                'nip' => 'aaa',
+                'phone' => '+48123123000',
+                'loyaltyCardNumber' => 'not-present-in-system',
+                'address' => [
+                    'street' => 'Oxford Street',
+                    'address1' => '12',
+                    'city' => 'New York',
+                    'country' => 'US',
+                    'province' => 'New York',
+                    'postal' => '10001',
+                ],
+        ];
+
+        $bus->dispatch(
+            new RegisterTransaction(
+                new TransactionId(self::TRANSACTION_COUPONS_USED_ID),
+                $transactionData,
+                $customerData,
+                $items,
+                null,
+                null,
+                null,
+                null,
+                null,
+                []
             )
         );
     }

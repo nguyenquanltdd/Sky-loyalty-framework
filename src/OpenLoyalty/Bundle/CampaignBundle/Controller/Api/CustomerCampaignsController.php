@@ -47,6 +47,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Translation\TranslatorInterface;
+use OpenLoyalty\Component\Customer\Domain\TransactionId as CustomerTransactionId;
 
 /**
  * Class CustomerCampaignsController.
@@ -401,7 +402,8 @@ class CustomerCampaignsController extends FOSRestController
      *     name="mark coupon as used",
      *     section="Customer Campaign",
      *     parameters={
-     *      {"name"="used", "dataType"="true|false", "required"=true, "description"="True if mark as used, false otherwise"},
+     *      {"name"="used", "dataType"="boolean", "required"=true, "description"="True if mark as used, false otherwise"},
+     *      {"name"="transactionId", "dataType"="string", "required"=false, "description"="Id of transaction in which this coupon was used"},
      *     },
      *     statusCodes={
      *       200="Returned when successful",
@@ -421,6 +423,8 @@ class CustomerCampaignsController extends FOSRestController
     public function campaignCouponUsage(Request $request, Campaign $campaign, $coupon): FosView
     {
         $used = $request->request->get('used', null);
+        $transactionId = $request->request->get('transactionId', null);
+
         if ($used === null) {
             return $this->view(['errors' => 'field "used" is required'], 400);
         }
@@ -459,7 +463,8 @@ class CustomerCampaignsController extends FOSRestController
                 $customer->getCustomerId(),
                 new CustomerCampaignId((string) $campaign->getCampaignId()),
                 new Coupon($coupon),
-                $used
+                $used,
+                $transactionId ? new CustomerTransactionId($transactionId) : null
             )
         );
 
@@ -481,6 +486,7 @@ class CustomerCampaignsController extends FOSRestController
      *          {"name"="coupons[][used]", "dataType"="boolean", "required"=true, "description"="If coupon is used or not"},
      *          {"name"="coupons[][campaignId]", "dataType"="string", "required"=true, "description"="CampaignId value"},
      *          {"name"="coupons[][code]", "dataType"="string", "required"=true, "description"="Coupon code"},
+     *          {"name"="coupons[][transactionId]", "dataType"="string", "required"=false, "description"="Id of transaction in which this coupon was used"},
      *     },
      *     statusCodes={
      *       200="Returned when successful",

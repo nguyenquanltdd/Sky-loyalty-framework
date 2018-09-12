@@ -131,10 +131,10 @@ class TransactionDetailsProjectorTest extends ProjectorScenarioTestCase
         );
 
         $expectedReadModel->setCustomerId($customerId);
-        $expectedReadModel->getCustomerData()->updateEmailAndPhone('test@test.pl', '123');
+        $expectedReadModel->getCustomerData()->updateEmailAndPhone('test@example.com', '123');
 
         $customerDetails = new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId(LoadUserData::USER_USER_ID));
-        $customerDetails->setEmail('test@test.pl');
+        $customerDetails->setEmail('test@example.com');
         $customerDetails->setPhone('123');
         $this->customerDetailsRepository->method('find')->with($this->isType('string'))->willReturn($customerDetails);
 
