@@ -3,7 +3,7 @@
 namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Security;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
-use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
+use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadAdminData;
 
 /**
  * Class RefreshTokenTest.
@@ -20,8 +20,8 @@ class RefreshTokenTest extends BaseApiTest
             'POST',
             '/api/admin/login_check',
             array(
-                '_username' => LoadUserData::ADMIN_USERNAME,
-                '_password' => LoadUserData::ADMIN_PASSWORD,
+                '_username' => LoadAdminData::ADMIN_USERNAME,
+                '_password' => LoadAdminData::ADMIN_PASSWORD,
             )
         );
 

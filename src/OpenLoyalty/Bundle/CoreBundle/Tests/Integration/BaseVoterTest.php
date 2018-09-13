@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\CoreBundle\Tests\Integration;
 
-use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
+use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadAdminData;
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
@@ -26,7 +26,7 @@ abstract class BaseVoterTest extends \PHPUnit_Framework_TestCase
         $admin->method('hasRole')->with($this->isType('string'))->will($this->returnCallback(function ($role) {
             return $role == 'ROLE_ADMIN';
         }));
-        $admin->method('getId')->willReturn(LoadUserData::ADMIN_ID);
+        $admin->method('getId')->willReturn(LoadAdminData::ADMIN_ID);
 
         return new UsernamePasswordToken($admin, '', 'some_empty_string');
     }

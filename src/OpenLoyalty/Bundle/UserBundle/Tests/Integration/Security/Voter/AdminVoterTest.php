@@ -3,7 +3,7 @@
 namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Security\Voter;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
-use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
+use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadAdminData;
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
 use OpenLoyalty\Bundle\UserBundle\Security\Voter\AdminVoter;
 
@@ -30,7 +30,7 @@ class AdminVoterTest extends BaseVoterTest
     protected function getSubjectById($id)
     {
         $admin = $this->getMockBuilder(Admin::class)->disableOriginalConstructor()->getMock();
-        $admin->method('getId')->willReturn(LoadUserData::ADMIN_ID);
+        $admin->method('getId')->willReturn(LoadAdminData::ADMIN_ID);
 
         return $admin;
     }

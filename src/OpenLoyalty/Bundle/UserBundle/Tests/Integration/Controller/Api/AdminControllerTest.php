@@ -6,7 +6,7 @@
 namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Controller\Api;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
-use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
+use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadAdminData;
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -54,7 +54,7 @@ class AdminControllerTest extends BaseApiTest
 
         $client->request(
             'PUT',
-            '/api/admin/data/'.LoadUserData::ADMIN_ID,
+            '/api/admin/data/'.LoadAdminData::ADMIN_ID,
             [
                 'admin' => [
                     'email' => 'test2@example.com',
@@ -68,7 +68,7 @@ class AdminControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
 
-        $admin = $this->getAdminEntity(LoadUserData::ADMIN_ID);
+        $admin = $this->getAdminEntity(LoadAdminData::ADMIN_ID);
         $this->assertInstanceOf(Admin::class, $admin);
         $this->assertEquals('test2@example.com', $admin->getEmail());
         $this->assertEquals('John', $admin->getFirstName());
@@ -87,7 +87,7 @@ class AdminControllerTest extends BaseApiTest
 
         $client->request(
             'PUT',
-            '/api/admin/data/'.LoadUserData::ADMIN_ID,
+            '/api/admin/data/'.LoadAdminData::ADMIN_ID,
             [
                 'admin' => [
                     'isActive' => false,
@@ -196,7 +196,7 @@ class AdminControllerTest extends BaseApiTest
         $this->assertNotEmpty($data['users']);
 
         $admins = array_filter($data['users'], function ($admin) {
-            return $admin['id'] !== LoadUserData::ADMIN_ID;
+            return $admin['id'] !== LoadAdminData::ADMIN_ID;
         });
 
         $admin = reset($admins);

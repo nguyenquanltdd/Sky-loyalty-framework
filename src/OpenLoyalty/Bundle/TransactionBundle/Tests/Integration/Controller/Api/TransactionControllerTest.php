@@ -9,6 +9,7 @@ use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRule;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
 use OpenLoyalty\Bundle\TransactionBundle\DataFixtures\ORM\LoadTransactionData;
+use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadAdminData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Bundle\UserBundle\Status\CustomerStatusProvider;
 use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
@@ -1172,7 +1173,7 @@ class TransactionControllerTest extends BaseApiTest
      */
     public function it_returns_a_transactions_list_with_required_fields()
     {
-        $client = $this->createAuthenticatedClient(LoadUserData::ADMIN_USERNAME, LoadUserData::ADMIN_PASSWORD);
+        $client = $this->createAuthenticatedClient(LoadAdminData::ADMIN_USERNAME, LoadAdminData::ADMIN_PASSWORD);
         $client->request(
             'GET',
             '/api/transaction'
