@@ -231,6 +231,8 @@
     "users_in_campaign": "Użytkownicy przypisani do kampanii ",
     "without_spending_points": "Bez wydawania punktów ",
     "without_spending_points_prompt": "Punkty klienta nie będą używane ",
+    "quantity": "Liczba",
+    "quantity_prompt": "Możesz kupić więcej kuponów na raz",
     "value": "Wartość",
     "value_code": "Rabat kwotowy",
     "visibility": "Widoczność",

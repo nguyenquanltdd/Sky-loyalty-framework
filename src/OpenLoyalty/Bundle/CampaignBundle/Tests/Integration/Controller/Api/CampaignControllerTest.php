@@ -54,7 +54,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_updates_campaign_photo()
+    public function it_updates_campaign_photo(): void
     {
         $imgContent = file_get_contents(__DIR__.'/../../../Resources/test.jpg');
 
@@ -77,7 +77,7 @@ class CampaignControllerTest extends BaseApiTest
      * @test
      * @depends it_updates_campaign_photo
      */
-    public function it_gets_campaign_photo()
+    public function it_gets_campaign_photo(): void
     {
         $fileHash = md5_file(__DIR__.'/../../../Resources/test.jpg');
 
@@ -94,7 +94,7 @@ class CampaignControllerTest extends BaseApiTest
      * @test
      * @depends it_gets_campaign_photo
      */
-    public function it_removes_campaign_photo()
+    public function it_removes_campaign_photo(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -108,7 +108,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_updates_campaign_brand()
+    public function it_updates_campaign_brand(): void
     {
         $imgContent = file_get_contents(__DIR__.'/../../../Resources/test.jpg');
 
@@ -131,7 +131,7 @@ class CampaignControllerTest extends BaseApiTest
      * @test
      * @depends it_updates_campaign_brand
      */
-    public function it_gets_campaign_brand()
+    public function it_gets_campaign_brand(): void
     {
         $fileHash = md5_file(__DIR__.'/../../../Resources/test.jpg');
 
@@ -148,7 +148,7 @@ class CampaignControllerTest extends BaseApiTest
      * @test
      * @depends it_gets_campaign_photo
      */
-    public function it_removes_campaign_brand()
+    public function it_removes_campaign_brand(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -162,7 +162,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_creates_campaign()
+    public function it_creates_campaign(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -220,7 +220,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_creates_single_coupon_campaign()
+    public function it_creates_single_coupon_campaign(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -265,7 +265,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_updates_campaign()
+    public function it_updates_campaign(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -322,7 +322,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_validates_from()
+    public function it_validates_from(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -360,7 +360,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_campaigns_list()
+    public function it_returns_campaigns_list(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -382,7 +382,7 @@ class CampaignControllerTest extends BaseApiTest
      * @param array $filters
      * @param int   $expectedCount
      */
-    public function it_filters_campaigns_list(array $filters, int $expectedCount)
+    public function it_filters_campaigns_list(array $filters, int $expectedCount): void
     {
         $client = $this->createAuthenticatedClient();
         $filters['perPage'] = 1000;
@@ -405,7 +405,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @return array
      */
-    public function getCampaignsFilters()
+    public function getCampaignsFilters(): array
     {
         return [
             [['isFeatured' => 1, 'isPublic' => 1], 3],
@@ -425,7 +425,7 @@ class CampaignControllerTest extends BaseApiTest
      * @test
      * @dataProvider sortParamsProvider
      */
-    public function it_returns_campaigns_list_sorted($field, $direction, $oppositeDirection)
+    public function it_returns_campaigns_list_sorted($field, $direction, $oppositeDirection): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -460,7 +460,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_bought_campaigns_list()
+    public function it_returns_bought_campaigns_list(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -476,7 +476,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_bought_campaigns_list_filtered_by_future_date_from()
+    public function it_returns_bought_campaigns_list_filtered_by_future_date_from(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -494,7 +494,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_campaign()
+    public function it_returns_campaign(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -563,7 +563,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_campaign_using_html_format()
+    public function it_returns_campaign_using_html_format(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -675,7 +675,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allows_to_buy_a_campaign_for_customer()
+    public function it_allows_to_buy_a_campaign_for_customer(): void
     {
         static::$kernel->boot();
         $customerDetailsBefore = $this->getCustomerDetails(LoadUserData::USER_USERNAME);
@@ -694,7 +694,8 @@ class CampaignControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $this->assertArrayHasKey('coupon', $data);
+        $this->assertArrayHasKey('coupons', $data);
+        $this->assertTrue(count($data['coupons']) == 1);
         $customerDetails = $this->getCustomerDetails(LoadUserData::USER_USERNAME);
         $this->assertInstanceOf(CustomerDetails::class, $customerDetails);
         $campaigns = $customerDetails->getCampaignPurchases();
@@ -724,7 +725,28 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_active_campaigns_list()
+    public function it_not_allows_to_buy_a_campaign_for_customer_when_not_enough_points_and_quantity_more_than_one(): void
+    {
+        static::$kernel->boot();
+        $customerDetailsBefore = $this->getCustomerDetails(LoadUserData::USER_USERNAME);
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/admin/customer/'.$customerDetailsBefore->getCustomerId()->__toString().'/campaign/'.LoadCampaignData::CAMPAIGN2_ID.'/buy',
+            [
+                'quantity' => 100,
+            ]
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 400');
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_active_campaigns_list(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -740,7 +762,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_csv_response_when_exports_bought_data()
+    public function it_returns_csv_response_when_exports_bought_data(): void
     {
         $filenamePrefix = static::$kernel->getContainer()->getParameter('oloy.campaign.bought.export.filename_prefix');
         $expectedHeaderData = sprintf('attachment; filename="%s', $filenamePrefix);
@@ -757,7 +779,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_change_coupon_to_used()
+    public function it_change_coupon_to_used(): void
     {
         $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
         $couponCode = Uuid::uuid4()->toString();
@@ -809,7 +831,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_change_multiple_coupons_to_used()
+    public function it_change_multiple_coupons_to_used(): void
     {
         $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
         $couponCode = Uuid::uuid4()->toString();
@@ -990,7 +1012,7 @@ class CampaignControllerTest extends BaseApiTest
      *
      * @return CustomerDetails
      */
-    protected function getCustomerDetails($email)
+    protected function getCustomerDetails($email): CustomerDetails
     {
         $customerDetails = $this->customerDetailsRepository->findBy(['email' => $email]);
         /** @var CustomerDetails $customerDetails */
@@ -1004,12 +1026,12 @@ class CampaignControllerTest extends BaseApiTest
      *
      * @return AccountDetails|null
      */
-    protected function getCustomerAccount(CustomerId $customerId)
+    protected function getCustomerAccount(CustomerId $customerId): ?AccountDetails
     {
         $accountDetailsRepository = static::$kernel->getContainer()->get('oloy.points.account.repository.account_details');
         $accounts = $accountDetailsRepository->findBy(['customerId' => $customerId->__toString()]);
         if (count($accounts) == 0) {
-            return;
+            return null;
         }
 
         return reset($accounts);

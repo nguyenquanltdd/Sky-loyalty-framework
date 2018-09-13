@@ -40,7 +40,7 @@ class CouponCodeProvider
      *
      * @throws CampaignLimitException
      */
-    public function getCoupon(Campaign $campaign, float $transactionValue): Coupon
+    public function getCoupon(Campaign $campaign, float $transactionValue = 0): Coupon
     {
         if ($campaign->getReward() === Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE) {
             $couponPercentage = $campaign->getTransactionPercentageValue();

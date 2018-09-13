@@ -545,6 +545,10 @@ Definition
 +----------------------+----------------+--------------------------------------------------------+
 | campaign             | request        | Campaign UUID                                          |
 +----------------------+----------------+--------------------------------------------------------+
+| quantity             | query          | *(optional)* default 1 - number                        |
+|                      |                | of coupons to buy (not valid for                       |
+|                      |                | cashback and percentage_discount_code)                 |
++----------------------+----------------+--------------------------------------------------------+
 
 Example
 ^^^^^^^
@@ -577,9 +581,9 @@ Exemplary Response
 .. code-block:: json
 
     {
-      "coupon": {
+      "coupons": [{
         "code": "123"
-      }
+      }]
     }
 
 Exemplary Error Response

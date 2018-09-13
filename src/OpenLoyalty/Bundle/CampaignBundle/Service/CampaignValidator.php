@@ -55,26 +55,31 @@ class CampaignValidator
         $this->settingsManager = $settingsManager;
     }
 
-    public function validateCampaignLimits(Campaign $campaign, CustomerId $customerId)
+    public function validateCampaignLimits(Campaign $campaign, CustomerId $customerId, int $quantity = 1): void
     {
         if ($campaign->isPercentageDiscountCode()) {
             return;
         }
+        if ($campaign->isCashback()) {
+            $quantity = 1;
+        }
         $countUsageForCampaign = $this->couponUsageRepository->countUsageForCampaign($campaign->getCampaignId());
+        $neededUsageForCampaign = $countUsageForCampaign + $quantity;
 
         if ($campaign->isUnlimited()) {
-            if (!$campaign->isSingleCoupon() && $countUsageForCampaign >= count($campaign->getCoupons())) {
+            if (!$campaign->isSingleCoupon() && $neededUsageForCampaign > count($campaign->getCoupons())) {
                 throw new NoCouponsLeftException();
             }
         } else {
-            if ($countUsageForCampaign >= $campaign->getLimit()) {
+            if ($neededUsageForCampaign > $campaign->getLimit()) {
                 throw new CampaignLimitExceededException();
             }
             $countUsageForCampaignAndCustomer = $this->couponUsageRepository->countUsageForCampaignAndCustomer(
                 $campaign->getCampaignId(),
                 $customerId
             );
-            if ($countUsageForCampaignAndCustomer >= $campaign->getLimitPerUser()) {
+            $neededUsageForCampaignAndCustomer = $countUsageForCampaignAndCustomer + $quantity;
+            if ($neededUsageForCampaignAndCustomer > $campaign->getLimitPerUser()) {
                 throw new CampaignLimitPerCustomerExceededException();
             }
         }
@@ -87,15 +92,26 @@ class CampaignValidator
         }
     }
 
-    public function checkIfCustomerHasEnoughPoints(Campaign $campaign, CustomerId $customerId)
+    /**
+     * @param Campaign   $campaign
+     * @param CustomerId $customerId
+     * @param int        $quantity
+     *
+     * @throws NotEnoughPointsException
+     */
+    public function checkIfCustomerHasEnoughPoints(Campaign $campaign, CustomerId $customerId, int $quantity = 1): void
     {
+        if ($campaign->isCashback() || $campaign->isPercentageDiscountCode()) {
+            $quantity = 1;
+        }
         $accounts = $this->accountDetailsRepository->findBy(['customerId' => $customerId->__toString()]);
         if (count($accounts) == 0) {
             throw new NotEnoughPointsException();
         }
         /** @var AccountDetails $account */
         $account = reset($accounts);
-        if ($account->getAvailableAmount() < $campaign->getCostInPoints()) {
+        $availableAmount = $account->getAvailableAmount();
+        if ($availableAmount < ($campaign->getCostInPoints() * $quantity)) {
             throw new NotEnoughPointsException();
         }
     }
