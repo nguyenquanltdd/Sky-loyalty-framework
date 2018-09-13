@@ -823,15 +823,23 @@ Definition
 
     POST /api/admin/customer/<customer>/campaign/<campaign>/buy
 
-+---------------+----------------+--------------------------------------+
-| Parameter     | Parameter type | Description                          |
-+===============+================+======================================+
-| Authorization | header         | Token received during authentication |
-+---------------+----------------+--------------------------------------+
-| <customer>    | query          | Customer ID                          |
-+---------------+----------------+--------------------------------------+
-| <campaign>    | query          | Campaign ID                          |
-+---------------+----------------+--------------------------------------+
++---------------+----------------+---------------------------------------+
+| Parameter     | Parameter type | Description                           |
++===============+================+=======================================+
+| Authorization | header         | Token received during authentication  |
++---------------+----------------+---------------------------------------+
+| <customer>    | query          | Customer ID                           |
++---------------+----------------+---------------------------------------+
+| <campaign>    | query          | Campaign ID                           |
++---------------+----------------+---------------------------------------+
+| withoutPoints | query          | *(optional)* true|false - if set to   |
+|               |                | true, customer points will not        |
+|               |                | be used                               |
++---------------+----------------+---------------------------------------+
+| quantity      | query          | *(optional)* default 1 - number       |
+|               |                | of coupons to buy (not valid for      |
+|               |                | cashback and percentage_discount_code)|
++---------------+----------------+---------------------------------------+
 
 Example
 ^^^^^^^
@@ -872,9 +880,9 @@ Exemplary Response
 .. code-block:: json
 
     {
-      "coupon": {
+      "coupons": [{
         "code": "123"
-      }
+      }]
     }
 
 Check campaign visibility for the customers
@@ -1690,15 +1698,19 @@ Definition
 
     POST /api/seller/customer/<customer>/campaign/<campaign>/buy
 
-+---------------+----------------+--------------------------------------+
-| Parameter     | Parameter type | Description                          |
-+===============+================+======================================+
-| Authorization | header         | Token received during authentication |
-+---------------+----------------+--------------------------------------+
-| <customer>    | query          | Customer ID                          |
-+---------------+----------------+--------------------------------------+
-| <campaign>    | query          | Campaign ID                          |
-+---------------+----------------+--------------------------------------+
++---------------+----------------+---------------------------------------+
+| Parameter     | Parameter type | Description                           |
++===============+================+=======================================+
+| Authorization | header         | Token received during authentication  |
++---------------+----------------+---------------------------------------+
+| <customer>    | query          | Customer ID                           |
++---------------+----------------+---------------------------------------+
+| <campaign>    | query          | Campaign ID                           |
++---------------+----------------+---------------------------------------+
+| quantity      | query          | *(optional)* default 1 - number       |
+|               |                | of coupons to buy (not valid for      |
+|               |                | cashback and percentage_discount_code)|
++---------------+----------------+---------------------------------------+
 
 Example
 ^^^^^^^
@@ -1743,7 +1755,7 @@ Exemplary Response
 .. code-block:: json
 
     {
-      "coupon": {
+      "coupons": [{
         "code": "123"
-      }
+      }]
     }

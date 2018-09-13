@@ -46,7 +46,7 @@ class CustomerCampaignsControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allows_to_buy_a_campaign()
+    public function it_allows_to_buy_a_campaign(): void
     {
         static::bootKernel();
         $customerDetailsBefore = $this->getCustomerDetails(LoadUserData::USER_USERNAME);
@@ -61,7 +61,8 @@ class CustomerCampaignsControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $this->assertArrayHasKey('coupon', $data);
+        $this->assertArrayHasKey('coupons', $data);
+        $this->assertTrue(count($data['coupons']) == 1);
         $customerDetails = $this->getCustomerDetails(LoadUserData::USER_USERNAME);
         $this->assertInstanceOf(CustomerDetails::class, $customerDetails);
         $campaigns = $customerDetails->getCampaignPurchases();
@@ -81,6 +82,26 @@ class CustomerCampaignsControllerTest extends BaseApiTest
             'Available points after campaign is bought should be '.(($accountBefore ? $accountBefore->getAvailableAmount() : 0) - 10)
             .', but it is '.($accountAfter ? $accountAfter->getAvailableAmount() : 0)
         );
+    }
+
+    /**
+     * @test
+     */
+    public function it_not_allows_to_buy_a_campaign_for_customer_when_not_enough_points_and_quantity_more_than_one(): void
+    {
+        static::bootKernel();
+
+        $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
+        $client->request(
+            'POST',
+            '/api/customer/campaign/'.LoadCampaignData::CAMPAIGN_ID.'/buy',
+            [
+                'quantity' => 100,
+            ]
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 400');
     }
 
     /**
@@ -108,7 +129,8 @@ class CustomerCampaignsControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $this->assertArrayHasKey('coupon', $data);
+        $this->assertArrayHasKey('coupons', $data);
+        $this->assertTrue(count($data['coupons']) == 1);
         $customerDetails = $this->getCustomerDetails(LoadUserData::USER_USERNAME);
         $this->assertInstanceOf(CustomerDetails::class, $customerDetails);
         $campaigns = $customerDetails->getCampaignPurchases();
@@ -174,7 +196,7 @@ class CustomerCampaignsControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_serialized_response_with_proper_fields_and_includes_details()
+    public function it_returns_serialized_response_with_proper_fields_and_includes_details(): void
     {
         static::bootKernel();
         $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
@@ -202,7 +224,7 @@ class CustomerCampaignsControllerTest extends BaseApiTest
      * @test
      * @dataProvider sortParamsProvider
      */
-    public function it_returns_available_campaigns_list_sorted($field, $direction, $oppositeDirection)
+    public function it_returns_available_campaigns_list_sorted($field, $direction, $oppositeDirection): void
     {
         $client = $this->createAuthenticatedClient(LoadUserData::TEST_USERNAME, LoadUserData::TEST_PASSWORD, 'customer');
         $client->request(
@@ -357,12 +379,12 @@ class CustomerCampaignsControllerTest extends BaseApiTest
      *
      * @return AccountDetails|null
      */
-    protected function getCustomerAccount(CustomerId $customerId)
+    protected function getCustomerAccount(CustomerId $customerId): AccountDetails
     {
         $accountDetailsRepository = static::$kernel->getContainer()->get('oloy.points.account.repository.account_details');
         $accounts = $accountDetailsRepository->findBy(['customerId' => $customerId->__toString()]);
         if (count($accounts) == 0) {
-            return;
+            return null;
         }
 
         return reset($accounts);
@@ -373,7 +395,7 @@ class CustomerCampaignsControllerTest extends BaseApiTest
      *
      * @return CustomerDetails
      */
-    protected function getCustomerDetails($email)
+    protected function getCustomerDetails($email): CustomerDetails
     {
         $customerDetails = $this->customerDetailsRepository->findBy(['email' => $email]);
         /** @var CustomerDetails $customerDetails */
@@ -385,7 +407,7 @@ class CustomerCampaignsControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_change_customer_coupon_to_used()
+    public function it_change_customer_coupon_to_used(): void
     {
         $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
         $couponCode = Uuid::uuid4()->toString();
@@ -488,7 +510,7 @@ class CustomerCampaignsControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_change_multiple_customer_coupons_to_used()
+    public function it_change_multiple_customer_coupons_to_used(): void
     {
         $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
         $couponCode = Uuid::uuid4()->toString();

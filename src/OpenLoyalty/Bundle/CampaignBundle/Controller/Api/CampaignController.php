@@ -53,7 +53,6 @@ use OpenLoyalty\Component\Campaign\Domain\Command\UpdateCampaign;
 use OpenLoyalty\Component\Campaign\Domain\Coupon\CouponCodeProvider;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\LevelId;
-use OpenLoyalty\Component\Campaign\Domain\Model\Coupon as CampaignCoupon;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\ActiveCampaigns;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignShortInfo;
@@ -1112,12 +1111,13 @@ class CampaignController extends FOSRestController
      *
      * @View(serializerGroups={"admin", "Default"})
      *
+     * @param Request         $request
      * @param DomainCampaign  $campaign
      * @param CustomerDetails $customer
      *
      * @return FosView
      */
-    public function buyCampaign(DomainCampaign $campaign, CustomerDetails $customer): FosView
+    public function buyCampaign(Request $request, DomainCampaign $campaign, CustomerDetails $customer): FosView
     {
         if (!$this->campaignValidator->isCampaignActive($campaign) ||
             !$this->campaignValidator->isCampaignVisible($campaign)
@@ -1125,53 +1125,47 @@ class CampaignController extends FOSRestController
             throw $this->createNotFoundException();
         }
 
+        $quantity = 1;
+        if (!$campaign->isPercentageDiscountCode() && !$campaign->isCashback()) {
+            $quantity = $request->get('quantity', 1);
+        }
+
+        $coupons = [];
         try {
             $this->campaignValidator->validateCampaignLimits(
                 $campaign,
-                new CustomerId($customer->getCustomerId()->__toString())
+                new CustomerId($customer->getCustomerId()->__toString()),
+                $quantity
             );
-        } catch (CampaignLimitException $e) {
-            return $this->view(['error' => $this->translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
-        }
-
-        try {
             $this->campaignValidator->checkIfCustomerStatusIsAllowed($customer->getStatus());
-        } catch (NotAllowedException $e) {
-            return $this->view(['error' => $this->translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
-        }
-
-        try {
             $this->campaignValidator->checkIfCustomerHasEnoughPoints(
                 $campaign,
-                new CustomerId($customer->getCustomerId()->__toString())
+                new CustomerId($customer->getCustomerId()->__toString()),
+                $quantity
             );
-        } catch (NotEnoughPointsException $e) {
+
+            for ($i = 0; $i < $quantity; ++$i) {
+                $coupon = $this->couponCodeProvider->getCoupon($campaign);
+                $this->commandBus->dispatch(
+                    new BuyCampaign(
+                        $campaign->getCampaignId(),
+                        new CustomerId($customer->getId()),
+                        $coupon
+                    )
+                );
+
+                $this->customerEmailProvider->customerBoughtCampaign(
+                    $customer,
+                    $campaign,
+                    $coupon
+                );
+                $coupons[] = $coupon;
+            }
+
+            return $this->view(['coupons' => $coupons]);
+        } catch (CampaignLimitException | NoCouponsLeftException | NotEnoughPointsException | NotAllowedException $e) {
             return $this->view(['error' => $this->translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
         }
-
-        $freeCoupons = $this->campaignProvider->getFreeCoupons($campaign);
-        if (!$campaign->isSingleCoupon() && count($freeCoupons) == 0) {
-            return $this->view(['error' => $this->translator->trans('campaign.no_coupons_left')], Response::HTTP_BAD_REQUEST);
-        } elseif ($campaign->isSingleCoupon()) {
-            $freeCoupons = $this->campaignProvider->getAllCoupons($campaign);
-        }
-        $coupon = new CampaignCoupon(reset($freeCoupons));
-
-        $this->commandBus->dispatch(
-            new BuyCampaign(
-                $campaign->getCampaignId(),
-                new CustomerId($customer->getId()),
-                $coupon
-            )
-        );
-
-        $this->customerEmailProvider->customerBoughtCampaign(
-            $customer,
-            $campaign,
-            $coupon
-        );
-
-        return $this->view(['coupon' => $coupon]);
     }
 
     /**
@@ -1185,7 +1179,8 @@ class CampaignController extends FOSRestController
      *     name="buy campaign for customer",
      *     section="Campaign",
      *     parameters={
-     *      {"name"="withoutPoints", "dataType"="boolean", "required"=false}
+     *      {"name"="withoutPoints", "dataType"="boolean", "required"=false},
+     *      {"name"="quantity", "dataType"="integer", "required"=false}
      *     },
      *     statusCodes={
      *       200="Returned when successful",
@@ -1216,7 +1211,11 @@ class CampaignController extends FOSRestController
         if (!$this->campaignValidator->isCampaignActive($campaign)) {
             throw $this->createNotFoundException();
         }
-
+        $quantity = 1;
+        if (!$campaign->isPercentageDiscountCode() && !$campaign->isCashback()) {
+            $quantity = $request->get('quantity', 1);
+        }
+        $coupons = [];
         try {
             if ($transactionId) {
                 $transaction = $this->transactionDetailsRepository->find($transactionId);
@@ -1234,37 +1233,42 @@ class CampaignController extends FOSRestController
 
             $this->campaignValidator->validateCampaignLimits(
                 $campaign,
-                new CustomerId($customer->getCustomerId()->__toString())
+                new CustomerId($customer->getCustomerId()->__toString()),
+                $quantity
             );
             $this->campaignValidator->checkIfCustomerStatusIsAllowed($customer->getStatus());
             if (!$withoutPoints) {
                 $this->campaignValidator->checkIfCustomerHasEnoughPoints(
                     $campaign,
-                    new CustomerId($customer->getCustomerId()->__toString())
+                    new CustomerId($customer->getCustomerId()->__toString()),
+                    $quantity
                 );
             }
-            $coupon = $this->couponCodeProvider->getCoupon($campaign, $transactionValue ?? 0);
-        } catch (CampaignLimitException | NotAllowedException | NotEnoughPointsException $e) {
+
+            for ($i = 0; $i < $quantity; ++$i) {
+                $coupon = $this->couponCodeProvider->getCoupon($campaign, $transactionValue ?? 0);
+                $this->commandBus->dispatch(
+                    new BuyCampaign(
+                        $campaign->getCampaignId(),
+                        new CustomerId($customer->getId()),
+                        $coupon,
+                        $withoutPoints === true ? 0 : $campaign->getCostInPoints(),
+                        $transactionId ? new TransactionId($transactionId) : null
+                    )
+                );
+
+                $this->customerEmailProvider->customerBoughtCampaign(
+                    $customer,
+                    $campaign,
+                    $coupon
+                );
+                $coupons[] = $coupon;
+            }
+        } catch (CampaignLimitException | NotAllowedException | NotEnoughPointsException | NoCouponsLeftException $e) {
             return $this->view(['error' => $this->translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
         }
 
-        $this->commandBus->dispatch(
-            new BuyCampaign(
-                $campaign->getCampaignId(),
-                new CustomerId($customer->getId()),
-                $coupon,
-                $withoutPoints === true ? 0 : $campaign->getCostInPoints(),
-                $transactionId ? new TransactionId($transactionId) : null
-            )
-        );
-
-        $this->customerEmailProvider->customerBoughtCampaign(
-            $customer,
-            $campaign,
-            $coupon
-        );
-
-        return $this->view(['coupon' => $coupon]);
+        return $this->view(['coupons' => $coupons]);
     }
 
     /**

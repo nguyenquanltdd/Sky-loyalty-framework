@@ -57,6 +57,7 @@ services:
     arguments:
       $earningRuleRepository: '@oloy.earning_rule.repository'
       $earningRuleGeoRepository: '@oloy.earning_rule.geo_repository'
+      $transactionDetailsRepository: '@OpenLoyalty\Component\Transaction\Infrastructure\Repository\TransactionDetailsElasticsearchRepository'
       $algorithmFactory: '@oloy.earning_rule.algorithm_factory'
       $invitationDetailsRepository: '@oloy.user.read_model.repository.invitation_details'
       $segmentedCustomerElasticSearchRepository: '@oloy.segment.read_model.repository.segmented_customers'

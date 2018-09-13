@@ -228,6 +228,8 @@
     "users_in_campaign": "Users in campaign ",
     "without_spending_points": "Without spending points ",
     "without_spending_points_prompt": "Users points will not be used ",
+    "quantity": "Quantity",
+    "quantity_prompt": "You can buy more coupons at once",
     "value": "Value",
     "value code": "Value code",
     "value_code": "Value code",
