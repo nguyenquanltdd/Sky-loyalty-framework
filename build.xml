@@ -6,7 +6,7 @@
     <target name="none">
         <echo>By default I do nothing! Add -l to see all available tasks</echo>
     </target>
-    <target name="migrate">
+    <target name="migrate" description="Migrate database schema" depends="generate-jwt-keys">
         <property name="env" value="prod" />
         <exec command="bin/console doctrine:schema:update --env=${env} -n --force" checkreturn="true" passthru="true"/>
         <exec command="bin/console oloy:user:projections:index:create --drop-old -n --env=${env}" checkreturn="true" passthru="true"/>
