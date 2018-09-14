@@ -8,6 +8,7 @@ namespace OpenLoyalty\Bundle\PointsBundle\Tests\Integration\Controller\Api;
 use Broadway\ReadModel\Repository;
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\PointsBundle\DataFixtures\ORM\LoadAccountsWithTransfersData;
+use OpenLoyalty\Bundle\TransactionBundle\DataFixtures\ORM\LoadTransactionData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider;
 use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
@@ -61,7 +62,7 @@ class PointsTransferControllerTest extends BaseApiTest
         $client = $this->createAuthenticatedClient();
         $client->request(
             'GET',
-            '/api/points/transfer'
+            '/api/points/transfer?perPage=100'
         );
 
         $response = $client->getResponse();
@@ -70,6 +71,93 @@ class PointsTransferControllerTest extends BaseApiTest
 
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertGreaterThanOrEqual(4, count($data['transfers']));
+
+        $transfers = array_filter($data['transfers'], function ($transfer) {
+            return isset($transfer['transactionId']) && LoadTransactionData::TRANSACTION3_ID == $transfer['transactionId']['transactionId'];
+        });
+
+        $transfer = reset($transfers);
+
+        $this->assertArrayHasKey('transaction', $transfer);
+        $this->assertArrayHasKey('grossValue', $transfer['transaction']);
+        $this->assertArrayHasKey('items', $transfer['transaction']);
+        $this->assertArrayHasKey('sku', $transfer['transaction']['items'][0]);
+        $this->assertArrayHasKey('name', $transfer['transaction']['items'][0]);
+        $this->assertArrayHasKey('quantity', $transfer['transaction']['items'][0]);
+        $this->assertArrayHasKey('grossValue', $transfer['transaction']['items'][0]);
+        $this->assertArrayHasKey('category', $transfer['transaction']['items'][0]);
+        $this->assertArrayHasKey('maker', $transfer['transaction']['items'][0]);
+        $this->assertArrayHasKey('labels', $transfer['transaction']['items'][0]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_fetches_customer_transfer(): void
+    {
+        $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
+        $client->request(
+            'GET',
+            '/api/customer/points/transfer'
+        );
+
+        $response = $client->getResponse();
+
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        $transfers = array_filter($data['transfers'], function ($transfer) {
+            return isset($transfer['transactionId']) && LoadTransactionData::TRANSACTION3_ID == $transfer['transactionId']['transactionId'];
+        });
+
+        $transfer = reset($transfers);
+
+        $this->assertArrayHasKey('transaction', $transfer);
+        $this->assertArrayHasKey('grossValue', $transfer['transaction']);
+        $this->assertArrayHasKey('items', $transfer['transaction']);
+        $this->assertArrayHasKey('sku', $transfer['transaction']['items'][0]);
+        $this->assertArrayHasKey('name', $transfer['transaction']['items'][0]);
+        $this->assertArrayHasKey('quantity', $transfer['transaction']['items'][0]);
+        $this->assertArrayHasKey('grossValue', $transfer['transaction']['items'][0]);
+        $this->assertArrayHasKey('category', $transfer['transaction']['items'][0]);
+        $this->assertArrayHasKey('maker', $transfer['transaction']['items'][0]);
+        $this->assertArrayHasKey('labels', $transfer['transaction']['items'][0]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_fetches_seller_transfer(): void
+    {
+        $client = $this->createAuthenticatedClient(LoadUserData::TEST_SELLER_USERNAME, LoadUserData::TEST_SELLER_PASSWORD, 'seller');
+        $client->request(
+            'GET',
+            '/api/seller/points/transfer?perPage=50'
+        );
+
+        $response = $client->getResponse();
+
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        $transfers = array_filter($data['transfers'], function ($transfer) {
+            return isset($transfer['transactionId']) && LoadTransactionData::TRANSACTION3_ID == $transfer['transactionId']['transactionId'];
+        });
+
+        $transfer = reset($transfers);
+
+        $this->assertArrayHasKey('transaction', $transfer);
+        $this->assertArrayHasKey('grossValue', $transfer['transaction']);
+        $this->assertArrayHasKey('items', $transfer['transaction']);
+        $this->assertArrayHasKey('sku', $transfer['transaction']['items'][0]);
+        $this->assertArrayHasKey('name', $transfer['transaction']['items'][0]);
+        $this->assertArrayHasKey('quantity', $transfer['transaction']['items'][0]);
+        $this->assertArrayHasKey('grossValue', $transfer['transaction']['items'][0]);
+        $this->assertArrayHasKey('category', $transfer['transaction']['items'][0]);
+        $this->assertArrayHasKey('maker', $transfer['transaction']['items'][0]);
+        $this->assertArrayHasKey('labels', $transfer['transaction']['items'][0]);
     }
 
     /**

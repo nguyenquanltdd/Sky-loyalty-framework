@@ -10,6 +10,7 @@ use JMS\Serializer\EventDispatcher\ObjectEvent;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;
 use OpenLoyalty\Component\Pos\Domain\Pos;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
+use OpenLoyalty\Component\Transaction\Domain\Model\Item;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 
@@ -72,8 +73,15 @@ class PointsTransferSerializationListener implements EventSubscriberInterface
                 $transaction = $this->transactionDetailsRepository->find($transfer->getTransactionId()->__toString());
                 if ($transaction instanceof TransactionDetails) {
                     $event->getVisitor()->setData('transactionDocumentNumber', $transaction->getDocumentNumber());
+                    $event->getVisitor()->setData('transaction', [
+                        'grossValue' => $transaction->getGrossValue(),
+                        'items' => array_map(function (Item $item) {
+                            return $item->serialize();
+                        }, $transaction->getItems()),
+                    ]);
                 }
             }
+
             if ($transfer->getRevisedTransactionId()) {
                 $transaction = $this->transactionDetailsRepository->find($transfer->getRevisedTransactionId()->__toString());
                 if ($transaction instanceof TransactionDetails) {
