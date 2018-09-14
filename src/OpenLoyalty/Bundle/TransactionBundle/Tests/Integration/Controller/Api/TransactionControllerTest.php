@@ -375,7 +375,7 @@ class TransactionControllerTest extends BaseApiTest
             ],
             'customerData' => [
                 'name' => 'Jan Nowak',
-                'email' => 'user-temp@oloy.com',
+                'email' => 'USER-TEMP@OLOY.COM', // uppercase (should be matched with user-temp@oloy.com)
                 'nip' => 'aaa',
                 'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'not-present-in-system',
@@ -1367,16 +1367,19 @@ class TransactionControllerTest extends BaseApiTest
     }
 
     /**
-     * @dataProvider getDuplicatedNumberTransactionData
      * @test
-     *
-     * @param array $transactionData
      */
-    public function it_blocks_trasaction_with_duplicated_document_number(array $transactionData)
+    public function it_blocks_transaction_with_duplicated_document_number(): void
     {
+        $transactionData = $this->getDuplicatedNumberTransactionData('duplicatedDocumentNumberABC');
         $response = $this->sendCreateTransactionRequest($transactionData)->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
 
+        $transactionData = $this->getDuplicatedNumberTransactionData('duplicatedDocumentNumberABC');
+        $response = $this->sendCreateTransactionRequest($transactionData)->getResponse();
+        $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 400');
+
+        $transactionData = $this->getDuplicatedNumberTransactionData('DUPlicateddocumentNumberabc');
         $response = $this->sendCreateTransactionRequest($transactionData)->getResponse();
         $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 400');
     }
@@ -1401,46 +1404,45 @@ class TransactionControllerTest extends BaseApiTest
     }
 
     /**
+     * @param string $documentNumber
+     *
      * @return array
      */
-    public function getDuplicatedNumberTransactionData(): array
+    public function getDuplicatedNumberTransactionData(string $documentNumber): array
     {
-        return [
+        return
             [
-                [
-                    'transactionData' => [
-                        'documentNumber' => '431234',
-                        'documentType' => 'sell',
-                        'purchaseDate' => (new \DateTime('+1 day'))->format('Y-m-d'),
-                        'purchasePlace' => 'wroclaw',
-                    ],
-                    'items' => [
-                        0 => [
-                            'sku' => ['code' => '12113'],
-                            'name' => 'sku',
-                            'quantity' => 1,
-                            'grossValue' => 3,
-                            'category' => 'test',
-                            'maker' => 'company',
-                        ],
-                    ],
-                    'customerData' => [
-                        'name' => 'Jan Nowak',
-                        'email' => 'user-temp@oloy.com',
-                        'nip' => 'aaa',
-                        'phone' => '+48123123123',
-                        'loyaltyCardNumber' => 'not-present-in-system',
-                        'address' => [
-                            'street' => 'Bagno',
-                            'address1' => '12',
-                            'city' => 'Warszawa',
-                            'country' => 'PL',
-                            'province' => 'Mazowieckie',
-                            'postal' => '00-800',
-                        ],
+                'transactionData' => [
+                    'documentNumber' => 'aaaddddd',
+                    'documentType' => 'sell',
+                    'purchaseDate' => (new \DateTime('+1 day'))->format('Y-m-d'),
+                    'purchasePlace' => 'wroclaw',
+                ],
+                'items' => [
+                    0 => [
+                        'sku' => ['code' => '12113'],
+                        'name' => 'sku',
+                        'quantity' => 1,
+                        'grossValue' => 3,
+                        'category' => 'test',
+                        'maker' => 'company',
                     ],
                 ],
-            ],
-        ];
+                'customerData' => [
+                    'name' => 'Jan Nowak',
+                    'email' => 'user-temp@oloy.com',
+                    'nip' => 'aaa',
+                    'phone' => '+48123123123',
+                    'loyaltyCardNumber' => 'not-present-in-system',
+                    'address' => [
+                        'street' => 'Bagno',
+                        'address1' => '12',
+                        'city' => 'Warszawa',
+                        'country' => 'PL',
+                        'province' => 'Mazowieckie',
+                        'postal' => '00-800',
+                    ],
+                ],
+            ];
     }
 }

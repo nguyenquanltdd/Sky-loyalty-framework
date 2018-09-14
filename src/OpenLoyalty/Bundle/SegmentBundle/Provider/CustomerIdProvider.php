@@ -48,17 +48,17 @@ class CustomerIdProvider
                 return $customerDetails->getId();
             }
 
-            $customerDetails = $this->customerDetailsRepository->findOneByCriteria(['email' => $value], 1);
+            $customerDetails = $this->customerDetailsRepository->findOneByCriteria(['email' => strtolower($value)], 1);
             if (!empty($customerDetails)) {
                 return $customerDetails[0]->getId();
             }
 
-            $customerDetails = $this->customerDetailsRepository->findOneByCriteria(['phone' => $value], 1);
+            $customerDetails = $this->customerDetailsRepository->findOneByCriteria(['phone' => strtolower($value)], 1);
             if (!empty($customerDetails)) {
                 return $customerDetails[0]->getId();
             }
 
-            $customerDetails = $this->customerDetailsRepository->findOneByCriteria(['loyaltyCardNumber' => $value], 1);
+            $customerDetails = $this->customerDetailsRepository->findOneByCriteria(['loyaltyCardNumber' => strtolower($value)], 1);
             if (!empty($customerDetails)) {
                 return $customerDetails[0]->getId();
             }

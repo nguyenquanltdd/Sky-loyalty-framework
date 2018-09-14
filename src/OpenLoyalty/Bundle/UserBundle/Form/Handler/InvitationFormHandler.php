@@ -94,7 +94,7 @@ class InvitationFormHandler
 
     protected function doNotCreateInvitation(CustomerDetails $currentCustomer, $recipientEmail)
     {
-        if (count($this->customerDetailsRepository->findOneByCriteria(['email' => $recipientEmail], 1)) > 0) {
+        if (count($this->customerDetailsRepository->findOneByCriteria(['email' => strtolower($recipientEmail)], 1)) > 0) {
             return true;
         }
 
