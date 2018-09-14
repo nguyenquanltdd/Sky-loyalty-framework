@@ -53,5 +53,12 @@ It deletes all indexes in ElasticSearch and creates a new one.
 
 It recreates all data from event store to ElasticSearch, so the read model is up-to-date.
 
+If you don't want to focus on details you can use phing task to upgrade Open Loyalty:
+
+.. code-block:: bash
+
+    $ phing migrate
+
+
 Now you should have all required updates to run a new version in Open Loyalty.
 Sometimes we release a new version with BC breaks so please look at the ``UPGRADE-..md`` files.

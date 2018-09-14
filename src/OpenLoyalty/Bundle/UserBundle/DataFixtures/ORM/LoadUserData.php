@@ -11,7 +11,6 @@ use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
-use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
 use OpenLoyalty\Bundle\UserBundle\Entity\Status;
@@ -106,23 +105,6 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
      */
     public function load(ObjectManager $manager)
     {
-        $user = new Admin(self::ADMIN_ID);
-        $user->setPlainPassword(static::ADMIN_PASSWORD);
-        $user->setEmail('admin@oloy.com');
-        $password = $this->container->get('security.password_encoder')
-            ->encodePassword($user, $user->getPlainPassword());
-
-        $user->addRole($this->getReference('role_admin'));
-        $user->setUsername($this::ADMIN_USERNAME);
-        $user->setPassword($password);
-        $user->setIsActive(true);
-
-        $manager->persist($user);
-
-        $this->addReference('user-admin', $user);
-
-        $manager->flush();
-
         $this->loadCustomersData($manager);
         $this->loadForTransferData($manager);
         $this->loadSeller($manager);
@@ -473,6 +455,6 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
      */
     public function getOrder()
     {
-        return 1;
+        return 2;
     }
 }

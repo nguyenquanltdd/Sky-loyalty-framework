@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Security;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
+use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadAdminData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider;
 
@@ -68,8 +69,8 @@ class LoginTest extends BaseApiTest
             'POST',
             '/api/admin/login_check',
             array(
-                '_username' => LoadUserData::ADMIN_USERNAME,
-                '_password' => LoadUserData::ADMIN_PASSWORD,
+                '_username' => LoadAdminData::ADMIN_USERNAME,
+                '_password' => LoadAdminData::ADMIN_PASSWORD,
             )
         );
 
@@ -138,7 +139,7 @@ class LoginTest extends BaseApiTest
     public function userProvider()
     {
         return [
-            [LoadUserData::ADMIN_USERNAME, LoadUserData::ADMIN_PASSWORD, 'admin'],
+            [LoadAdminData::ADMIN_USERNAME, LoadAdminData::ADMIN_PASSWORD, 'admin'],
             [LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer'],
             ['+48234234000', LoadUserData::USER_PASSWORD, 'customer'],
             [LoadUserData::TEST_SELLER_ID, 'open', 'seller'],

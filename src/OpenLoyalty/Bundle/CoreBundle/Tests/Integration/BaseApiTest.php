@@ -2,7 +2,7 @@
 
 namespace OpenLoyalty\Bundle\CoreBundle\Tests\Integration;
 
-use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
+use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadAdminData;
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -13,7 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  */
 abstract class BaseApiTest extends WebTestCase
 {
-    protected function createAuthenticatedClient($username = LoadUserData::ADMIN_USERNAME, $password = LoadUserData::ADMIN_PASSWORD, $type = 'admin')
+    protected function createAuthenticatedClient($username = LoadAdminData::ADMIN_USERNAME, $password = LoadAdminData::ADMIN_PASSWORD, $type = 'admin')
     {
         $client = static::createClient();
         $client->request(

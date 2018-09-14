@@ -55,6 +55,6 @@ class LoadInvitationData extends AbstractFixture implements FixtureInterface, Co
      */
     public function getOrder()
     {
-        return 2;
+        return 3;
     }
 }

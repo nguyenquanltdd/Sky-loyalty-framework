@@ -57,8 +57,13 @@ Initialize Open Loyalty, load testing data and run unit & integration tests and 
 
     $ phing ci-setup-test
 
+Initialize Open Loyalty and load only required data
 
-Initialize Open Loyalty and load initial data
+.. code-block:: bash
+
+    $ phing basic-setup
+
+Initialize Open Loyalty and load test data
 
 .. code-block:: bash
 
