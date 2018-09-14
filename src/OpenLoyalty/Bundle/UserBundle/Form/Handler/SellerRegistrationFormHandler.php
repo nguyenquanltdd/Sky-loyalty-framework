@@ -71,7 +71,7 @@ class SellerRegistrationFormHandler
 
         $command = new RegisterSeller($sellerId, $sellerData);
 
-        $email = $sellerData['email'];
+        $email = strtolower($sellerData['email']);
 
         if ($this->userManager->isSellerExist($email)) {
             $form->get('email')->addError(new FormError('This email is already taken'));

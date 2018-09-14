@@ -102,7 +102,7 @@ class RegisterCustomerManager
     {
         $email = null;
         if (isset($customerData['email'])) {
-            $email = $customerData['email'];
+            $email = strtolower($customerData['email']);
             if ($this->userManager->isCustomerExist($email)) {
                 throw new EmailAlreadyExistsException();
             }

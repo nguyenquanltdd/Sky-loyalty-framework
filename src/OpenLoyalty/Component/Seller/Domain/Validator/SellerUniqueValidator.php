@@ -32,7 +32,7 @@ class SellerUniqueValidator
 
     public function validateEmailUnique($email, SellerId $sellerId = null)
     {
-        $sellers = $this->sellerDetailsRepository->findBy(['email' => $email]);
+        $sellers = $this->sellerDetailsRepository->findBy(['email' => strtolower($email)]);
         if ($sellerId) {
             /** @var SellerDetails $seller */
             foreach ($sellers as $key => $seller) {

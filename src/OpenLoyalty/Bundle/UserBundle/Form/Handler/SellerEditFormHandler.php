@@ -59,7 +59,7 @@ class SellerEditFormHandler
         $sellerData = $form->getData();
 
         if (!empty($sellerData['email'])) {
-            $email = $sellerData['email'];
+            $email = strtolower($sellerData['email']);
 
             if ($this->isUserExistAndIsDifferentThanEdited($sellerId->__toString(), $email)) {
                 $form->get('email')->addError(new FormError($this->translator->trans('This email is already taken')));

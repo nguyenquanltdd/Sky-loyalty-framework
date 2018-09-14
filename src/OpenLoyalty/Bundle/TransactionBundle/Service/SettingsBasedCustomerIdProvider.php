@@ -65,7 +65,7 @@ class SettingsBasedCustomerIdProvider implements CustomerIdProvider
             }
             $customers = $this->customerDetailsRepository->findBy(
                 [
-                    $field['field'] => $customerData[$field['field']],
+                    $field['field'] => strtolower($customerData[$field['field']]),
                 ]
             );
             if (count($customers) == 0) {

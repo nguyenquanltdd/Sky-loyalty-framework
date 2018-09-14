@@ -60,7 +60,7 @@ class DoctrineAdminRepository extends EntityRepository implements AdminRepositor
     public function isEmailExist($email, $excludedId = null)
     {
         $qb = $this->createQueryBuilder('u');
-        $qb->andWhere('u.email = :email')->setParameter('email', $email);
+        $qb->andWhere('u.email = :email')->setParameter('email', strtolower($email));
         if ($excludedId) {
             $qb->andWhere('u.id != :id')->setParameter('id', $excludedId);
         }

@@ -69,7 +69,7 @@ class AdminHandler implements CommandHandler
 
         $admin = $this->userManager->createNewAdmin($command->getAdminId());
         $admin->setApiKey($command->getApiKey());
-        $admin->setEmail($command->getEmail());
+        $admin->setEmail(strtolower($command->getEmail()));
         $admin->setFirstName($command->getFirstName());
         $admin->setLastName($command->getLastName());
         $admin->setPhone($command->getPhone());
@@ -94,7 +94,7 @@ class AdminHandler implements CommandHandler
         $admin = $this->adminRepository->findById($command->getAdminId()->__toString());
 
         $admin->setApiKey($command->getApiKey());
-        $admin->setEmail($command->getEmail());
+        $admin->setEmail(strtolower($command->getEmail()));
         $admin->setFirstName($command->getFirstName());
         $admin->setLastName($command->getLastName());
         $admin->setPhone($command->getPhone());
@@ -118,7 +118,7 @@ class AdminHandler implements CommandHandler
 
         $admin = $this->adminRepository->findById($command->getAdminId()->__toString());
 
-        $admin->setEmail($command->getEmail());
+        $admin->setEmail(strtolower($command->getEmail()));
         $admin->setFirstName($command->getFirstName());
         $admin->setLastName($command->getLastName());
         $admin->setPhone($command->getPhone());

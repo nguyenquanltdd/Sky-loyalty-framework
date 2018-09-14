@@ -85,8 +85,9 @@ class CustomerEditFormHandler
         $email = null;
         $customerData = $form->getData();
         if (isset($customerData['email']) && !empty($customerData['email'])) {
-            $email = $customerData['email'];
+            $email = strtolower($customerData['email']);
             $emailExists = false;
+
             if ($this->isUserExistAndIsDifferentThanEdited((string) $customerId, $email)) {
                 $emailExists = $this->translator->trans('This email is already taken');
             }

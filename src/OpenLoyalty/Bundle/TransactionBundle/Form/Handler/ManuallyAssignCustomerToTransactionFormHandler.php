@@ -96,7 +96,7 @@ class ManuallyAssignCustomerToTransactionFormHandler
 
         $documentNumber = $data->getTransactionDocumentNumber();
 
-        $transactions = $this->transactionDetailsRepository->findBy(['documentNumber' => $documentNumber]);
+        $transactions = $this->transactionDetailsRepository->findBy(['documentNumberRaw' => $documentNumber]);
         if (count($transactions) == 0) {
             $form->get('transactionDocumentNumber')->addError(new FormError('No such transaction'));
 

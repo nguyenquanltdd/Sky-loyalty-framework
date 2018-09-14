@@ -94,13 +94,13 @@ class UserManager
     public function isCustomerExist($email)
     {
         return $this->em->getRepository('OpenLoyaltyUserBundle:Customer')
-            ->findOneBy(['email' => $email]) ? true : false;
+            ->findOneBy(['email' => strtolower($email)]) ? true : false;
     }
 
     public function isSellerExist($email)
     {
         return $this->em->getRepository('OpenLoyaltyUserBundle:Seller')
-            ->findOneBy(['email' => $email]) ? true : false;
+            ->findOneBy(['email' => strtolower($email)]) ? true : false;
     }
 
     /**

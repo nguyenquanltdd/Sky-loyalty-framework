@@ -34,7 +34,7 @@ class CustomerUniqueValidator
 
     public function validateEmailUnique($email, CustomerId $customerId = null)
     {
-        $customers = $this->customerDetailsRepository->findBy(['email' => $email]);
+        $customers = $this->customerDetailsRepository->findBy(['email' => strtolower($email)]);
         if ($customerId) {
             /** @var CustomerDetails $customer */
             foreach ($customers as $key => $customer) {
