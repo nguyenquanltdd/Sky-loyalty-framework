@@ -24,6 +24,7 @@ use OpenLoyalty\Component\Customer\Domain\Exception\LoyaltyCardNumberAlreadyExis
 use OpenLoyalty\Component\Customer\Domain\Exception\PhoneAlreadyExistsException;
 use OpenLoyalty\Component\Customer\Domain\LevelId;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class RegisterCustomerManager.
@@ -56,6 +57,11 @@ class RegisterCustomerManager
     protected $entityManager;
 
     /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
      * RegisterCustomerManager constructor.
      *
      * @param UserManager             $userManager
@@ -63,14 +69,22 @@ class RegisterCustomerManager
      * @param CommandBus              $commandBus
      * @param Repository              $customerRepository
      * @param EntityManager           $entityManager
+     * @param TranslatorInterface     $translator
      */
-    public function __construct(UserManager $userManager, CustomerUniqueValidator $customerUniqueValidator, CommandBus $commandBus, Repository $customerRepository, EntityManager $entityManager)
-    {
+    public function __construct(
+        UserManager $userManager,
+        CustomerUniqueValidator $customerUniqueValidator,
+        CommandBus $commandBus,
+        Repository $customerRepository,
+        EntityManager $entityManager,
+        TranslatorInterface $translator
+    ) {
         $this->userManager = $userManager;
         $this->customerUniqueValidator = $customerUniqueValidator;
         $this->commandBus = $commandBus;
         $this->customerRepository = $customerRepository;
         $this->entityManager = $entityManager;
+        $this->translator = $translator;
     }
 
     /**
@@ -86,14 +100,11 @@ class RegisterCustomerManager
      */
     public function register(CustomerId $customerId, array $customerData, ?string $plainPassword = null): Customer
     {
-        if (!isset($customerData['email'])) {
-            throw new \InvalidArgumentException('email key does not exist in customerData');
-        }
-        $email = $customerData['email'];
-
-        if ($email) {
+        $email = null;
+        if (isset($customerData['email'])) {
+            $email = $customerData['email'];
             if ($this->userManager->isCustomerExist($email)) {
-                throw new EmailAlreadyExistsException('This email is already taken');
+                throw new EmailAlreadyExistsException();
             }
             $this->customerUniqueValidator->validateEmailUnique($email, $customerId);
         }

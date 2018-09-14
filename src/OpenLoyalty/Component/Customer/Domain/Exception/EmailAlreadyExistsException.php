@@ -5,10 +5,28 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\Exception;
 
+use OpenLoyalty\Component\Core\Domain\Exception\Translatable;
+
 /**
  * Class EmailAlreadyExistsException.
  */
-class EmailAlreadyExistsException extends CustomerValidationException
+class EmailAlreadyExistsException extends CustomerValidationException implements Translatable
 {
-    protected $message = 'customer with such email already exists';
+    protected $message = 'Customer with such email already exists';
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMessageKey(): string
+    {
+        return 'customer.registration.email_exists';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMessageParams(): array
+    {
+        return [];
+    }
 }

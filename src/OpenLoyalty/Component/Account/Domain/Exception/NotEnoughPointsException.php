@@ -17,7 +17,7 @@ class NotEnoughPointsException extends \InvalidArgumentException implements Tran
     /**
      * {@inheritdoc}
      */
-    public function getMessageKey()
+    public function getMessageKey(): string
     {
         return 'account.points_transfer.not_enough_points';
     }
@@ -25,7 +25,7 @@ class NotEnoughPointsException extends \InvalidArgumentException implements Tran
     /**
      * {@inheritdoc}
      */
-    public function getMessageParams()
+    public function getMessageParams(): array
     {
         return [];
     }

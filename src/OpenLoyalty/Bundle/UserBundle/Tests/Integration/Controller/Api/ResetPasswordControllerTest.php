@@ -73,7 +73,7 @@ class ResetPasswordControllerTest extends BaseApiTest
             'POST',
             '/api/customer/password/reset/request',
             [
-                'username' => '123123123',
+                'username' => 'non_exist_user_name',
             ]
         );
 

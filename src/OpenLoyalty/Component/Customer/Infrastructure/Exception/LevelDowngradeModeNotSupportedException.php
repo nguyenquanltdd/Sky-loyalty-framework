@@ -12,7 +12,7 @@ class LevelDowngradeModeNotSupportedException extends \Exception implements Tran
     /**
      * {@inheritdoc}
      */
-    public function getMessageKey()
+    public function getMessageKey(): string
     {
         return 'customer.level.downgrade_mode.not_supported';
     }
@@ -20,7 +20,7 @@ class LevelDowngradeModeNotSupportedException extends \Exception implements Tran
     /**
      * {@inheritdoc}
      */
-    public function getMessageParams()
+    public function getMessageParams(): array
     {
         return [];
     }

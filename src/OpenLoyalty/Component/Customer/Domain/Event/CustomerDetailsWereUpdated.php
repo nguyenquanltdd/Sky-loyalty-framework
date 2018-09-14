@@ -55,10 +55,15 @@ class CustomerDetailsWereUpdated extends CustomerEvent
             $data['birthDate'] = $data['birthDate']->getTimestamp();
         }
 
-        return array_merge(parent::serialize(), array(
-            'customerData' => $data,
-            'updatedAt' => $this->updateAt ? $this->updateAt->getTimestamp() : null,
-        ));
+        $serialized = array_merge(
+            parent::serialize(),
+            [
+                'customerData' => $data,
+                'updatedAt' => $this->updateAt ? $this->updateAt->getTimestamp() : null,
+            ]
+        );
+
+        return $serialized;
     }
 
     /**

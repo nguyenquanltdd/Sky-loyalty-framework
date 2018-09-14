@@ -10,6 +10,22 @@
                 <source>customer.level.downgrade_mode.not_available_when_tier_assignment_type_is_not_points</source>
                 <target>Przeliczenie poziomu niedostępne jeśli poziomy są przydzielane na podstawie trasnakcji.</target>
             </trans-unit>
+            <trans-unit id="customer.registration.invalid_phone_number">
+                <source>customer.registration.invalid_phone_number</source>
+                <target>Podany numer telefonu ma nieprawidłowy format, użyj: 00000000000.</target>
+            </trans-unit>
+            <trans-unit id="customer.registration.email_exists">
+                <source>customer.registration.email_exists</source>
+                <target>Podany adres e-mail jest już użyty.</target>
+            </trans-unit>
+            <trans-unit id="customer.registration.loyalty_card_number_exists">
+                <source>customer.registration.loyalty_card_number_exists</source>
+                <target>Podany numer karty lojalnościowej jest już użyty.</target>
+            </trans-unit>
+            <trans-unit id="customer.registration.phone_number_exists">
+                <source>customer.registration.phone_number_exists</source>
+                <target>Podany numer telefonu jest już użyty.</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

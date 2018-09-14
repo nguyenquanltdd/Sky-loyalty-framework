@@ -207,15 +207,13 @@ class CustomerController extends FOSRestController
      *
      * @return View
      */
-    public function getCustomerAction(CustomerDetails $customer)
+    public function getCustomerAction(CustomerDetails $customer): View
     {
-        $view = $this->view(
-            $customer,
-            200
-        );
+        $view = $this->view($customer, Response::HTTP_OK);
         /** @var SegmentedCustomersRepository $repo */
         $repo = $this->get('oloy.segment.read_model.repository.segmented_customers');
-        $segments = $repo->findBy(['customerId' => $customer->getCustomerId()->__toString()]);
+        $segments = $repo->findBy(['customerId' => (string) $customer->getCustomerId()]);
+
         $serializer = $this->get('serializer');
         $segments = array_map(
             function (SegmentedCustomers $segment) use ($serializer) {
@@ -223,7 +221,6 @@ class CustomerController extends FOSRestController
             },
             $segments
         );
-
         $auditManager = $this->container->get('oloy.audit.manager');
         $auditManager->auditCustomerEvent(AuditManagerInterface::VIEW_CUSTOMER_EVENT_TYPE, $customer->getCustomerId());
 
@@ -348,6 +345,7 @@ class CustomerController extends FOSRestController
      *
      * @param Request                 $request
      * @param RegisterCustomerManager $registerCustomerManager
+     * @param UuidGeneratorInterface  $uuidGenerator
      *
      * @return View
      * @Route(name="oloy.customer.admin_register_customer", path="/admin/customer/register")
@@ -552,6 +550,8 @@ class CustomerController extends FOSRestController
      *       400="Returned when form contains errors",
      *     }
      * )
+     *
+     * @throws \Exception
      */
     public function editCustomerAction(
         Request $request,
@@ -571,7 +571,6 @@ class CustomerController extends FOSRestController
         if (!$this->isGranted('ROLE_SELLER') && !$loggedUser instanceof Seller) {
             $options['includeSellerId'] = true;
         }
-
         $form = $this->get('form.factory')->createNamed(
             'customer',
             CustomerEditFormType::class,

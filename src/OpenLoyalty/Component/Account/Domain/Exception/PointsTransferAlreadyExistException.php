@@ -23,7 +23,7 @@ class PointsTransferAlreadyExistException extends \InvalidArgumentException impl
     /**
      * {@inheritdoc}
      */
-    public function getMessageKey()
+    public function getMessageKey(): string
     {
         return 'account.points_transfer.already_exists';
     }
@@ -31,7 +31,7 @@ class PointsTransferAlreadyExistException extends \InvalidArgumentException impl
     /**
      * {@inheritdoc}
      */
-    public function getMessageParams()
+    public function getMessageParams(): array
     {
         return [
             '%id%' => $this->id,

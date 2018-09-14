@@ -177,15 +177,46 @@ class CustomerDetailsProjectorTest extends ProjectorScenarioTestCase
     /**
      * @test
      */
-    public function it_creates_a_read_model_on_register()
+    public function it_creates_a_read_model_on_register(): void
     {
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000000');
 
-        $this->scenario->given(array())
+        $this->scenario->given([])
             ->when(new CustomerWasRegistered($customerId, CustomerCommandHandlerTest::getCustomerData()))
-            ->then(array(
-                $this->createBaseReadModel($customerId, CustomerCommandHandlerTest::getCustomerData()),
-            ));
+            ->then(
+                [
+                    $this->createBaseReadModel($customerId, CustomerCommandHandlerTest::getCustomerData()),
+                ]
+            );
+    }
+
+    /**
+     * @test
+     */
+    public function it_create_read_model_on_customer_registered_event_with_empty_phone_number(): void
+    {
+        $customerId = new CustomerId('00000000-0000-0000-0000-000000000000');
+
+        $customerData = [
+            'firstName' => 'John',
+            'lastName' => 'Doe',
+            'phone' => '',
+            'birthDate' => 653011200,
+            'createdAt' => 1470646394,
+            'updatedAt' => 1470646394,
+            'email' => 'customer@example.com',
+            'status' => [
+                'type' => 'new',
+            ],
+        ];
+        $this->scenario
+            ->given([])
+            ->when(new CustomerWasRegistered($customerId, $customerData))
+            ->then(
+                [
+                    $this->createBaseReadModel($customerId, $customerData),
+                ]
+            );
     }
 
     /**
@@ -298,9 +329,15 @@ class CustomerDetailsProjectorTest extends ProjectorScenarioTestCase
             ));
     }
 
+    /**
+     * @param CustomerId $customerId
+     * @param array      $data
+     *
+     * @return CustomerDetails
+     */
     private function createBaseReadModel(CustomerId $customerId, array $data)
     {
-        $data['id'] = $customerId->__toString();
+        $data['id'] = (string) $customerId;
         unset($data['loyaltyCardNumber']);
         unset($data['company']);
         unset($data['address']);
@@ -308,9 +345,15 @@ class CustomerDetailsProjectorTest extends ProjectorScenarioTestCase
         return CustomerDetails::deserialize($data);
     }
 
-    private function createReadModel(CustomerId $customerId, array $data)
+    /**
+     * @param CustomerId $customerId
+     * @param array      $data
+     *
+     * @return CustomerDetails
+     */
+    private function createReadModel(CustomerId $customerId, array $data): CustomerDetails
     {
-        $data['id'] = $customerId->__toString();
+        $data['id'] = (string) $customerId;
 
         return CustomerDetails::deserialize($data);
     }

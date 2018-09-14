@@ -234,9 +234,7 @@ class CustomerDetails implements SerializableReadModel
     }
 
     /**
-     * @param array $data
-     *
-     * @return mixed The object instance
+     * {@inheritdoc}
      */
     public static function deserialize(array $data)
     {
@@ -244,13 +242,19 @@ class CustomerDetails implements SerializableReadModel
         $customer = new self(new CustomerId($data['id']));
         $customer->setFirstName($data['firstName']);
         $customer->setLastName($data['lastName']);
+
         if (isset($data['phone'])) {
             $customer->setPhone($data['phone']);
         }
+
         if (!empty($data['gender'])) {
             $customer->setGender(new Gender($data['gender']));
         }
-        $customer->setEmail($data['email']);
+
+        if (isset($data['email'])) {
+            $customer->setEmail($data['email']);
+        }
+
         if (!empty($data['birthDate'])) {
             if ($data['birthDate'] instanceof \DateTime) {
                 $birthDate = $data['birthDate'];

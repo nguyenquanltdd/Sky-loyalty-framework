@@ -14,6 +14,7 @@ use OpenLoyalty\Component\Seller\Domain\Exception\EmailAlreadyExistsException;
 use OpenLoyalty\Component\Seller\Domain\SellerId;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class SellerRegistrationFormHandler.
@@ -36,20 +37,28 @@ class SellerRegistrationFormHandler
     protected $em;
 
     /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
      * SellerRegistrationFormHandler constructor.
      *
-     * @param CommandBus    $commandBus
-     * @param UserManager   $userManager
-     * @param EntityManager $em
+     * @param CommandBus          $commandBus
+     * @param UserManager         $userManager
+     * @param EntityManager       $em
+     * @param TranslatorInterface $translator
      */
     public function __construct(
         CommandBus $commandBus,
         UserManager $userManager,
-        EntityManager $em
+        EntityManager $em,
+        TranslatorInterface $translator
     ) {
         $this->commandBus = $commandBus;
         $this->userManager = $userManager;
         $this->em = $em;
+        $this->translator = $translator;
     }
 
     public function onSuccess(SellerId $sellerId, FormInterface $form)

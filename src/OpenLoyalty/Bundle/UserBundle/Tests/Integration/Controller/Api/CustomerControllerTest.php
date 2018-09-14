@@ -538,6 +538,88 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
+    public function it_allows_to_save_edited_customer_details_with_empty_phone_number(): void
+    {
+        $userId = '22222222-0000-474c-b092-b0dd880c07e2';
+        $client = $this->createAuthenticatedClient();
+        $customerData = [
+            'email' => 'user-3@oloy.com',
+            'birthDate' => '1998-02-02',
+            'phone' => '',
+            'firstName' => 'Jane',
+            'lastName' => 'Done',
+            'gender' => 'male',
+            'address' => ['street' => 'Street'],
+            'agreement1' => true,
+        ];
+
+        $apiPath = sprintf('/api/customer/%s', $userId);
+        $client->request(
+            'PUT',
+            $apiPath,
+            [
+                'customer' => $customerData,
+            ]
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        self::$kernel->boot();
+
+        $client = $this->createAuthenticatedClient();
+        $client->request('GET', $apiPath);
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertEmpty($data['phone']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_allow_update_phone_number_without_plus(): void
+    {
+        $userId = '22222222-0000-474c-b092-b0dd880c07e2';
+        $client = $this->createAuthenticatedClient();
+        $customerData = [
+            'email' => 'user-3@oloy.com',
+            'birthDate' => '1998-02-02',
+            'phone' => '123123123',
+            'firstName' => 'Jane',
+            'lastName' => 'Done',
+            'gender' => 'male',
+            'address' => ['street' => 'Street'],
+            'agreement1' => true,
+        ];
+
+        $apiPath = sprintf('/api/customer/%s', $userId);
+        $client->request(
+            'PUT',
+            $apiPath,
+            [
+                'customer' => $customerData,
+            ]
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        self::$kernel->boot();
+
+        $client = $this->createAuthenticatedClient();
+        $client->request('GET', $apiPath);
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertSame('123123123', $data['phone']);
+    }
+
+    /**
+     * @test
+     */
     public function it_allows_to_edit_customer_details_with_seller_assignment()
     {
         $client = $this->createAuthenticatedClient();
@@ -874,7 +956,8 @@ class CustomerControllerTest extends BaseApiTest
     public function it_do_not_add_points_after_2nd_attempt_to_newsletter_subscription()
     {
         $client = $this->createAuthenticatedClient();
-        $customerId = LoadUserData::TEST_USER_ID;
+
+        $customerId = '00000000-0000-474c-b092-b0dd880c07e2';
         $points = $this->getCustomerPoints($client, $customerId);
 
         //Test newsletter subscribe flag
@@ -938,9 +1021,9 @@ class CustomerControllerTest extends BaseApiTest
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertTrue(
             count($data['customers']) == $counter,
-            'Expected records '.$counter.' but found '.count($data['customers'])
+            sprintf('Expected records "%d" for field "%s" but found "%d"', $counter, $field, count($data['customers']))
         );
-        $this->assertEquals($counter, $data['total'], 'Expected total = '.$counter.' but found '.$data['total']);
+        $this->assertEquals($counter, $data['total'], sprintf('Expected total "%d" but found "%d"', $counter, $data['total']));
 
         foreach ($data['customers'] as $customer) {
             $this->assertTrue(
@@ -967,9 +1050,9 @@ class CustomerControllerTest extends BaseApiTest
             ['lastName', 'Doe', 11],
             ['lastName', 'Doe1', 1],
             ['lastName', 'Smith', 2],
-            ['phone', '48', 6],
+            ['phone', '48', 5],
             ['phone', '645', 2],
-            ['email', '@', 17],
+            ['email', '@', 18],
             ['email', 'user-1', 1],
             ['loyaltyCardNumber', '000000', 3],
             ['transactionsAmount', '3', 0],
@@ -980,7 +1063,7 @@ class CustomerControllerTest extends BaseApiTest
             ['averageTransactionAmount', '7.5', 0],
             ['transactionsCount', '4', 0],
             ['transactionsCount', '2', 0],
-            ['transactionsCount', '0', 12],
+            ['transactionsCount', '0', 13],
         ];
     }
 
@@ -1004,12 +1087,18 @@ class CustomerControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
+        $customerCount = count($data['customers']);
+
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertTrue(
-            count($data['customers']) == $counter,
-            'Expected records '.$counter.' but found '.count($data['customers'])
+            $customerCount == $counter,
+            sprintf('Expected records "%d" for field "%s" but found "%d"', $counter, $field, $customerCount)
         );
-        $this->assertEquals($counter, $data['total'], 'Expected total = '.$counter.' but found '.$data['total']);
+        $this->assertEquals(
+            $counter,
+            $data['total'],
+            sprintf('Expected total = "%d" for field "%s" but found "%d"', $counter, $field, $data['total'])
+        );
 
         foreach ($data['customers'] as $customer) {
             $this->assertTrue(
@@ -1038,7 +1127,7 @@ class CustomerControllerTest extends BaseApiTest
             ['lastName', 'Doe1', 1],
             ['lastName', '1', 0],
             ['phone', '48', 0],
-            ['phone', '+48123123123', 1],
+            ['phone', '+48456456000', 1],
             ['email', '@', 0],
             ['email', 'user-1', 0],
             ['loyaltyCardNumber', '000000', 1],
@@ -1050,7 +1139,7 @@ class CustomerControllerTest extends BaseApiTest
             ['averageTransactionAmount', '7.5', 0],
             ['transactionsCount', '4', 0],
             ['transactionsCount', '2', 0],
-            ['transactionsCount', '0', 12],
+            ['transactionsCount', '0', 13],
         ];
     }
 
@@ -1079,9 +1168,9 @@ class CustomerControllerTest extends BaseApiTest
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertTrue(
             count($data['customers']) == $counter,
-            'Expected records '.$counter.' but found '.count($data['customers'])
+            sprintf('Expected records "%d" for field "%s" but found "%d"', $counter, $field, count($data['customers']))
         );
-        $this->assertEquals($counter, $data['total'], 'Expected total = '.$counter.' but found '.$data['total']);
+        $this->assertEquals($counter, $data['total'], sprintf('Expected total = "%d" for field "%s" but found "%d"', $counter, $field, $data['total']));
 
         foreach ($data['customers'] as $customer) {
             $result = false;
@@ -1232,7 +1321,7 @@ class CustomerControllerTest extends BaseApiTest
         return [
             ['emailOrPhone', 'user-1', 1, ['email', 'phone']],
             ['emailOrPhone', 'user-1@oloy.com', 1, ['email', 'phone']],
-            ['emailOrPhone', '+48', 6, ['email', 'phone']],
+            ['emailOrPhone', '+48', 5, ['email', 'phone']],
             ['emailOrPhone', '645', 2, ['email', 'phone']],
         ];
     }

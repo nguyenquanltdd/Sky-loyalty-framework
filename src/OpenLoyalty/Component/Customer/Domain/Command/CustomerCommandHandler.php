@@ -143,6 +143,9 @@ class CustomerCommandHandler extends SimpleCommandHandler
 
     /**
      * @param UpdateCustomerDetails $command
+     *
+     * @throws \OpenLoyalty\Component\Customer\Domain\Exception\EmailAlreadyExistsException
+     * @throws \OpenLoyalty\Component\Customer\Domain\Exception\PhoneAlreadyExistsException
      */
     public function handleUpdateCustomerDetails(UpdateCustomerDetails $command)
     {

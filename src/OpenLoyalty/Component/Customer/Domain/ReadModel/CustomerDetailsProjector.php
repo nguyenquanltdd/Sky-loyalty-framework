@@ -123,10 +123,15 @@ class CustomerDetailsProjector extends Projector
         $data = $readModel->resolveOptions($data);
         $readModel->setFirstName($data['firstName']);
         $readModel->setLastName($data['lastName']);
-        if (!empty($data['phone'])) {
+
+        if (isset($data['phone'])) {
             $readModel->setPhone($data['phone']);
         }
-        $readModel->setEmail($data['email']);
+
+        if (isset($data['email'])) {
+            $readModel->setEmail($data['email']);
+        }
+
         if (!empty($data['gender'])) {
             $readModel->setGender(new Gender($data['gender']));
         }

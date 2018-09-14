@@ -103,10 +103,26 @@ class UserManager
             ->findOneBy(['email' => $email]) ? true : false;
     }
 
-    public function createNewCustomer(CustomerId $customerId, $email, $password = null, $phone = null)
-    {
+    /**
+     * @param CustomerId  $customerId
+     * @param null|string $email
+     * @param null|string $password
+     * @param null|string $phone
+     *
+     * @return Customer
+     *
+     * @throws \Exception
+     */
+    public function createNewCustomer(
+        CustomerId $customerId,
+        ?string $email = null,
+        ?string $password = null,
+        ?string $phone = null
+    ) {
         $user = new Customer($customerId);
-        $user->setEmail($email);
+        if (null !== $email) {
+            $user->setEmail($email);
+        }
         $sendTemporaryPassword = false;
 
         if (!$password) {

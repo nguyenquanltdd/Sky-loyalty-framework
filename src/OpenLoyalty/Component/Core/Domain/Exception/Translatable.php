@@ -10,10 +10,10 @@ interface Translatable extends \Throwable
     /**
      * @return string
      */
-    public function getMessageKey();
+    public function getMessageKey(): string;
 
     /**
      * @return array
      */
-    public function getMessageParams();
+    public function getMessageParams(): array;
 }

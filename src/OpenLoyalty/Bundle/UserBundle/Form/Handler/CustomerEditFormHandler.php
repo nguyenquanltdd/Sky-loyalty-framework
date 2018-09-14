@@ -58,6 +58,7 @@ class CustomerEditFormHandler
      * @param UserManager             $userManager
      * @param EntityManager           $em
      * @param CustomerUniqueValidator $customerUniqueValidator
+     * @param TranslatorInterface     $translator
      */
     public function __construct(
         CommandBus $commandBus,
@@ -73,32 +74,46 @@ class CustomerEditFormHandler
         $this->translator = $translator;
     }
 
-    public function onSuccess(CustomerId $customerId, FormInterface $form)
+    /**
+     * @param CustomerId    $customerId
+     * @param FormInterface $form
+     *
+     * @return bool
+     */
+    public function onSuccess(CustomerId $customerId, FormInterface $form): bool
     {
+        $email = null;
         $customerData = $form->getData();
-        if (!empty($customerData['email'])) {
+        if (isset($customerData['email']) && !empty($customerData['email'])) {
             $email = $customerData['email'];
-
             $emailExists = false;
-            if ($this->isUserExistAndIsDifferentThanEdited($customerId->__toString(), $email)) {
+            if ($this->isUserExistAndIsDifferentThanEdited((string) $customerId, $email)) {
                 $emailExists = $this->translator->trans('This email is already taken');
             }
             try {
                 $this->customerUniqueValidator->validateEmailUnique($email, $customerId);
             } catch (EmailAlreadyExistsException $e) {
-                $emailExists = $this->translator->trans($e->getMessage());
+                $emailExists = $this->translator->trans($e->getMessageKey(), $e->getMessageParams());
             }
             if ($emailExists) {
                 $form->get('email')->addError(new FormError($emailExists));
             }
         }
+
         if (isset($customerData['phone']) && $customerData['phone']) {
             try {
                 $this->customerUniqueValidator->validatePhoneUnique($customerData['phone'], $customerId);
             } catch (PhoneAlreadyExistsException $e) {
-                $form->get('phone')->addError(new FormError($this->translator->trans($e->getMessage())));
+                $form->get('phone')->addError(
+                    new FormError($this->translator->trans($e->getMessageKey(), $e->getMessageParams()))
+                );
             }
         }
+
+        if (null === $customerData['phone']) {
+            $customerData['phone'] = '';
+        }
+
         if (isset($customerData['loyaltyCardNumber'])) {
             try {
                 $this->customerUniqueValidator->validateLoyaltyCardNumberUnique(
@@ -106,12 +121,14 @@ class CustomerEditFormHandler
                     $customerId
                 );
             } catch (LoyaltyCardNumberAlreadyExistsException $e) {
-                $form->get('loyaltyCardNumber')->addError(new FormError($this->translator->trans($e->getMessage())));
+                $form->get('loyaltyCardNumber')->addError(
+                    new FormError($this->translator->trans($e->getMessageKey(), $e->getMessageParams()))
+                );
             }
         }
 
         if ($form->getErrors(true)->count() > 0) {
-            return $form->getErrors();
+            return false;
         }
 
         if (!$customerData['company']['name'] && !$customerData['company']['nip']) {
@@ -119,7 +136,6 @@ class CustomerEditFormHandler
         }
 
         $labels = [];
-
         /** @var Label $label */
         foreach ($form->get('labels')->getData() as $label) {
             $labels[] = $label->serialize();
@@ -130,20 +146,19 @@ class CustomerEditFormHandler
         $command = new UpdateCustomerDetails($customerId, $customerData);
         $this->commandBus->dispatch($command);
 
+        $addressData = [];
         if (isset($customerData['address'])) {
             $addressData = $customerData['address'];
-        } else {
-            $addressData = [];
         }
 
         $updateAddressCommand = new UpdateCustomerAddress($customerId, $addressData);
         $this->commandBus->dispatch($updateAddressCommand);
 
+        $company = [];
         if (isset($customerData['company'])) {
             $company = $customerData['company'];
-        } else {
-            $company = [];
         }
+
         $updateCompanyDataCommand = new UpdateCustomerCompanyDetails($customerId, $company);
         $this->commandBus->dispatch($updateCompanyDataCommand);
 
@@ -163,7 +178,13 @@ class CustomerEditFormHandler
         return true;
     }
 
-    private function isUserExistAndIsDifferentThanEdited($id, $email)
+    /**
+     * @param string $id
+     * @param string $email
+     *
+     * @return bool
+     */
+    private function isUserExistAndIsDifferentThanEdited(string $id, string $email): bool
     {
         $qb = $this->em->createQueryBuilder()->select('u')->from('OpenLoyaltyUserBundle:Customer', 'u');
         $qb->andWhere('u.email = :email')->setParameter('email', $email);

@@ -21,6 +21,8 @@ use OpenLoyalty\Component\Customer\Domain\Exception\LoyaltyCardNumberAlreadyExis
 use OpenLoyalty\Component\Customer\Domain\Exception\PhoneAlreadyExistsException;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
+use PHPUnit_Framework_MockObject_MockObject;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class RegisterCustomerManagerTest.
@@ -36,8 +38,8 @@ class RegisterCustomerManagerTest extends \PHPUnit_Framework_TestCase
      */
     protected function getRegisterCustomerManagerInstance(
         ?UserManager $userManagerMock = null,
-                                                          ?CustomerUniqueValidator $customerUniqueValidator = null,
-                                                          ?CommandBus $commandBus = null
+        ?CustomerUniqueValidator $customerUniqueValidator = null,
+        ?CommandBus $commandBus = null
     ): RegisterCustomerManager {
         $userManagerMock = $userManagerMock
             ?? $this->getMockBuilder(UserManager::class)->disableOriginalConstructor()->getMock();
@@ -50,28 +52,24 @@ class RegisterCustomerManagerTest extends \PHPUnit_Framework_TestCase
         $commandBus = $commandBus
             ?? $this->getMockBuilder(CommandBus::class)->disableOriginalConstructor()->getMock();
 
-        $customerRepostory = $this->getMockBuilder(CustomerDetailsRepository::class)
+        /** @var CustomerDetailsRepository|PHPUnit_Framework_MockObject_MockObject $customerRepository */
+        $customerRepository = $this->getMockBuilder(CustomerDetailsRepository::class)
             ->disableOriginalConstructor()->getMock();
 
+        /** @var EntityManager|PHPUnit_Framework_MockObject_MockObject $entityManager */
         $entityManager = $this->getMockBuilder(EntityManager::class)->disableOriginalConstructor()->getMock();
+
+        /** @var TranslatorInterface|PHPUnit_Framework_MockObject_MockObject $translator */
+        $translator = $this->getMockBuilder(TranslatorInterface::class)->disableOriginalConstructor()->getMock();
 
         return new RegisterCustomerManager(
             $userManagerMock,
             $customerUniqueValidator,
             $commandBus,
-            $customerRepostory,
-            $entityManager
+            $customerRepository,
+            $entityManager,
+            $translator
         );
-    }
-
-    /**
-     * @test
-     * @expectedException \InvalidArgumentException
-     */
-    public function it_throws_exception_when_customer_data_does_not_contain_email()
-    {
-        $customerManager = $this->getRegisterCustomerManagerInstance();
-        $customerManager->register(new CustomerId(LoadUserData::TEST_USER_ID), []);
     }
 
     /**

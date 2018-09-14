@@ -79,6 +79,7 @@ class CustomerRegistrationFormHandler
      * @param CustomerUniqueValidator $customerUniqueValidator
      * @param ActionTokenManager      $actionTokenManager
      * @param RegisterCustomerManager $registerCustomerManager
+     * @param TranslatorInterface     $translator
      */
     public function __construct(
         CommandBus $commandBus,
@@ -129,11 +130,17 @@ class CustomerRegistrationFormHandler
         try {
             return $this->registerCustomerManager->register($customerId, $customerData, $password);
         } catch (EmailAlreadyExistsException $ex) {
-            $form->get('email')->addError(new FormError($this->translator->trans($ex->getMessage())));
+            $form->get('email')->addError(
+                new FormError($this->translator->trans($ex->getMessageKey(), $ex->getMessageParams()))
+            );
         } catch (LoyaltyCardNumberAlreadyExistsException $ex) {
-            $form->get('loyaltyCardNumber')->addError(new FormError($this->translator->trans($ex->getMessage())));
+            $form->get('loyaltyCardNumber')->addError(
+                new FormError($this->translator->trans($ex->getMessageKey(), $ex->getMessageParams()))
+            );
         } catch (PhoneAlreadyExistsException $ex) {
-            $form->get('phone')->addError(new FormError($this->translator->trans($ex->getMessage())));
+            $form->get('phone')->addError(
+                new FormError($this->translator->trans($ex->getMessageKey(), $ex->getMessageParams()))
+            );
         }
 
         return;

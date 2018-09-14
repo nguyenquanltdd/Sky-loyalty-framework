@@ -340,7 +340,9 @@ class Customer extends EventSourcedAggregateRoot
         if (isset($data['gender'])) {
             $this->setGender(new Gender($data['gender']));
         }
-        $this->setEmail($data['email']);
+        if (isset($data['email'])) {
+            $this->setEmail($data['email']);
+        }
         if (isset($data['birthDate'])) {
             $this->setBirthDate($data['birthDate']);
         }
@@ -495,35 +497,34 @@ class Customer extends EventSourcedAggregateRoot
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
 
     /**
-     * @param string $email
+     * @param string|null $email
      */
-    public function setEmail(string $email): void
+    public function setEmail(?string $email): void
     {
         $this->email = $email;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getPhone(): string
+    public function getPhone(): ?string
     {
         return $this->phone;
     }
 
     /**
-     * @param string $phone
+     * @param string|null $phone
      */
-    public function setPhone(string $phone): void
+    public function setPhone(?string $phone): void
     {
-        Assert::notEmpty($phone);
         $this->phone = $phone;
     }
 

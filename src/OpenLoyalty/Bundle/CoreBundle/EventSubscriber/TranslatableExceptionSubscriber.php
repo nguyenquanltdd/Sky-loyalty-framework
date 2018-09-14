@@ -5,9 +5,9 @@
  */
 namespace OpenLoyalty\Bundle\CoreBundle\EventSubscriber;
 
-use OpenLoyalty\Bundle\CoreBundle\Exception\TranslatedException;
 use OpenLoyalty\Component\Core\Domain\Exception\Translatable;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -47,15 +47,14 @@ class TranslatableExceptionSubscriber implements EventSubscriberInterface
     /**
      * @param GetResponseForExceptionEvent $event
      */
-    public function translateException(GetResponseForExceptionEvent $event)
+    public function translateException(GetResponseForExceptionEvent $event): void
     {
         $exception = $event->getException();
         if (!$exception instanceof Translatable) {
             return;
         }
 
-        $message = $this->translator->trans($exception->getMessageKey(), $exception->getMessageParams(), 'exception');
-        $translated = new TranslatedException($message, $exception);
-        $event->setException($translated);
+        $message = $this->translator->trans($exception->getMessageKey(), $exception->getMessageParams());
+        $event->setResponse(new Response($message, Response::HTTP_BAD_REQUEST));
     }
 }

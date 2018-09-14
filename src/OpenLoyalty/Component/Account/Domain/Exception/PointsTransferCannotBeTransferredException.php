@@ -31,7 +31,7 @@ class PointsTransferCannotBeTransferredException extends \Exception implements T
     /**
      * {@inheritdoc}
      */
-    public function getMessageKey()
+    public function getMessageKey(): string
     {
         return 'account.points_transfer.cannot_be_transferred';
     }
@@ -39,7 +39,7 @@ class PointsTransferCannotBeTransferredException extends \Exception implements T
     /**
      * {@inheritdoc}
      */
-    public function getMessageParams()
+    public function getMessageParams(): array
     {
         return [
             '%id%' => $this->id,

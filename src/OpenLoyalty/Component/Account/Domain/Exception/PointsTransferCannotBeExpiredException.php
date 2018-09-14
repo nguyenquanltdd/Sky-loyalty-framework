@@ -23,7 +23,7 @@ class PointsTransferCannotBeExpiredException extends \InvalidArgumentException i
     /**
      * {@inheritdoc}
      */
-    public function getMessageKey()
+    public function getMessageKey(): string
     {
         return 'account.points_transfer.cannot_be_expired';
     }
@@ -31,7 +31,7 @@ class PointsTransferCannotBeExpiredException extends \InvalidArgumentException i
     /**
      * {@inheritdoc}
      */
-    public function getMessageParams()
+    public function getMessageParams(): array
     {
         return [
             '%id%' => $this->id,

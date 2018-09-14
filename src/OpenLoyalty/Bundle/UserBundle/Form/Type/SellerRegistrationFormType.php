@@ -6,7 +6,6 @@
 namespace OpenLoyalty\Bundle\UserBundle\Form\Type;
 
 use Broadway\ReadModel\Repository;
-use Misd\PhoneNumberBundle\Validator\Constraints\PhoneNumber;
 use OpenLoyalty\Component\Pos\Domain\Pos;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
 use Symfony\Component\Form\AbstractType;
@@ -94,7 +93,6 @@ class SellerRegistrationFormType extends AbstractType
                 'label' => 'Phone',
                 'required' => false,
                 'constraints' => [
-                    new PhoneNumber(),
                     new Numeric(['type' => 'numeric', 'message' => 'Incorrect phone number format, use +00000000000']),
                 ],
             ]

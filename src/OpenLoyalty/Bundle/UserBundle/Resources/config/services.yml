@@ -13,6 +13,8 @@ services:
     autowire: true
     autoconfigure: true
 
+  Symfony\Component\Translation\TranslationInterface: '@translator'
+
   OpenLoyalty\Bundle\UserBundle\Controller\:
       resource: '../../Controller'
       tags: ['controller.service_arguments']
@@ -62,11 +64,13 @@ services:
     class: OpenLoyalty\Bundle\UserBundle\Form\Type\PasswordResetFormType
     tags:
       - { name: form.type }
-  oloy.user.form_type.customer_registration:
-    class: OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerRegistrationFormType
-    arguments: ['@oloy.level.repository', '@oloy.pos.repository', '@oloy.user.read_model.repository.seller_details']
+
+  OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerRegistrationFormType:
+    arguments:
+      $sellerRepository: '@oloy.user.read_model.repository.seller_details'
     tags:
       - { name: form.type }
+
   oloy.user.form_type.customer_self_registration:
     class: OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerSelfRegistrationFormType
     tags:

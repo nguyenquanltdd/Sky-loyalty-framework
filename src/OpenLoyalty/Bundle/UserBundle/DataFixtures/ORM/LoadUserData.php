@@ -53,6 +53,11 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
     const USER2_PASSWORD = 'loyalty';
     const USER2_PHONE_NUMBER = '+48456457000';
 
+    const USER3_USER_ID = '22222222-0000-474c-b092-b0dd880c07e2';
+    const USER3_USERNAME = 'user-3@oloy.com';
+    const USER3_PASSWORD = 'loyalty';
+    const USER3_PHONE_NUMBER = '+48123456789';
+
     const TEST_USER_ID = '00000000-0000-474c-b092-b0dd880c07e2';
     const TEST_USERNAME = 'user-temp@oloy.com';
     const TEST_PASSWORD = 'loyalty';
@@ -282,18 +287,43 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
         $user->setEmail($this::USER2_USERNAME);
         $manager->persist($user);
         $this->addReference('user-2', $user);
+        // USER3
+        $customerId = new CustomerId(self::USER3_USER_ID);
+        $command = new RegisterCustomer(
+            $customerId,
+            $this->getDefaultCustomerData('Jane', 'Fonda', self::USER3_USERNAME, self::USER3_PHONE_NUMBER)
+        );
+
+        $bus->dispatch($command);
+        $bus->dispatch(new ActivateCustomer($customerId));
+        $bus->dispatch(new AssignPosToCustomer($customerId, new \OpenLoyalty\Component\Customer\Domain\PosId(LoadPosData::POS_ID)));
+
+        $user = new Customer($customerId);
+        $user->setPlainPassword(self::USER3_PASSWORD);
+        $user->setPhone($command->getCustomerData()['phone']);
+
+        $password = $this->container->get('security.password_encoder')
+            ->encodePassword($user, $user->getPlainPassword());
+
+        $user->addRole($this->getReference('role_participant'));
+        $user->setPassword($password);
+        $user->setIsActive(true);
+        $user->setStatus(Status::typeActiveNoCard());
+
+        $user->setEmail(self::USER3_USERNAME);
+        $manager->persist($user);
 
         // USER_TEST
         $customerId = new CustomerId(self::TEST_USER_ID);
-        $command = new RegisterCustomer($customerId, $this->getDefaultCustomerData('Jane', 'Doe', $this::TEST_USERNAME, $this::TEST_USER_PHONE_NUMBER));
+        $command = new RegisterCustomer($customerId, $this->getDefaultCustomerData('Jane', 'Doe', self::TEST_USERNAME, self::TEST_USER_PHONE_NUMBER));
         $bus->dispatch($command);
         $bus->dispatch(new UpdateCustomerAddress($customerId, [
-            'street' => 'Bagno',
+            'street' => 'Street',
             'address1' => '1',
             'postal' => '00-000',
-            'city' => 'Warszawa',
-            'province' => 'Mazowieckie',
-            'country' => 'PL',
+            'city' => 'London',
+            'province' => 'province',
+            'country' => 'UK',
         ]));
         $bus->dispatch(new UpdateCustomerLoyaltyCardNumber($customerId, '0000'));
         $bus->dispatch(new MoveCustomerToLevel(
