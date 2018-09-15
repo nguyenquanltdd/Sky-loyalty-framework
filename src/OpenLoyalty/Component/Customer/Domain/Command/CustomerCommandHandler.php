@@ -11,6 +11,9 @@ use OpenLoyalty\Bundle\AuditBundle\Service\AuditManagerInterface;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\Customer;
 use OpenLoyalty\Component\Customer\Domain\CustomerRepository;
+use OpenLoyalty\Component\Customer\Domain\Exception\EmailAlreadyExistsException;
+use OpenLoyalty\Component\Customer\Domain\Exception\LoyaltyCardNumberAlreadyExistsException;
+use OpenLoyalty\Component\Customer\Domain\Exception\PhoneAlreadyExistsException;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerActivatedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerAgreementsUpdatedSystemEvent;
@@ -72,6 +75,9 @@ class CustomerCommandHandler extends SimpleCommandHandler
 
     /**
      * @param RegisterCustomer $command
+     *
+     * @throws EmailAlreadyExistsException
+     * @throws PhoneAlreadyExistsException
      */
     public function handleRegisterCustomer(RegisterCustomer $command)
     {
@@ -126,6 +132,8 @@ class CustomerCommandHandler extends SimpleCommandHandler
 
     /**
      * @param UpdateCustomerLoyaltyCardNumber $command
+     *
+     * @throws LoyaltyCardNumberAlreadyExistsException
      */
     public function handleUpdateCustomerLoyaltyCardNumber(UpdateCustomerLoyaltyCardNumber $command)
     {
@@ -144,8 +152,8 @@ class CustomerCommandHandler extends SimpleCommandHandler
     /**
      * @param UpdateCustomerDetails $command
      *
-     * @throws \OpenLoyalty\Component\Customer\Domain\Exception\EmailAlreadyExistsException
-     * @throws \OpenLoyalty\Component\Customer\Domain\Exception\PhoneAlreadyExistsException
+     * @throws EmailAlreadyExistsException
+     * @throws PhoneAlreadyExistsException
      */
     public function handleUpdateCustomerDetails(UpdateCustomerDetails $command)
     {
@@ -158,7 +166,7 @@ class CustomerCommandHandler extends SimpleCommandHandler
             $this->customerUniqueValidator->validatePhoneUnique($customerData['phone'], $customerId);
         }
         /** @var Customer $customer */
-        $customer = $this->repository->load($customerId->__toString());
+        $customer = $this->repository->load((string) $customerId);
         $oldAgreements = [
             'agreement1' => $customer->isAgreement1(),
             'agreement2' => $customer->isAgreement2(),
@@ -190,7 +198,11 @@ class CustomerCommandHandler extends SimpleCommandHandler
         }
 
         if (count($newAgreements) > 0) {
-            $this->auditManager->auditCustomerEvent(AuditManagerInterface::AGREEMENTS_UPDATED_CUSTOMER_EVENT_TYPE, $customerId, $newAgreements);
+            $this->auditManager->auditCustomerEvent(
+                AuditManagerInterface::AGREEMENTS_UPDATED_CUSTOMER_EVENT_TYPE,
+                $customerId,
+                $newAgreements
+            );
 
             $this->eventDispatcher->dispatch(
                 CustomerSystemEvents::CUSTOMER_AGREEMENTS_UPDATED,

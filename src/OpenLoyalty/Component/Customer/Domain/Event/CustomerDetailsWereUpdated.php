@@ -51,7 +51,7 @@ class CustomerDetailsWereUpdated extends CustomerEvent
     public function serialize(): array
     {
         $data = $this->customerData;
-        if ($data['birthDate'] instanceof \DateTime) {
+        if (isset($data['birthDate']) && $data['birthDate'] instanceof \DateTime) {
             $data['birthDate'] = $data['birthDate']->getTimestamp();
         }
 
@@ -73,7 +73,7 @@ class CustomerDetailsWereUpdated extends CustomerEvent
     {
         $id = $data['customerId'];
         $data = $data['customerData'];
-        if (is_numeric($data['birthDate'])) {
+        if (isset($data['birthDate']) && is_numeric($data['birthDate'])) {
             $tmp = new \DateTime();
             $tmp->setTimestamp($data['birthDate']);
             $data['birthDate'] = $tmp;

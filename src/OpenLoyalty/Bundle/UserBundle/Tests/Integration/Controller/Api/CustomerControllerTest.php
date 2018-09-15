@@ -20,7 +20,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allows_to_set_customer_level_manually()
+    public function it_allows_to_set_customer_level_manually(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -42,7 +42,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allows_to_remove_customer_manually_level()
+    public function it_allows_to_remove_customer_level_manually(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -60,9 +60,9 @@ class CustomerControllerTest extends BaseApiTest
 
     /**
      * @test
-     * @depends it_allows_to_remove_customer_manually_level
+     * @depends it_allows_to_remove_customer_level_manually
      */
-    public function it_does_not_allow_to_remove_manually_level_when_is_not_manually_assigned()
+    public function it_does_not_allow_removing_level_manually_when_it_is_not_manually_assigned(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -81,7 +81,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allows_to_register_new_customer()
+    public function it_allows_to_register_new_customer(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -119,7 +119,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allows_to_register_new_customer_with_labels()
+    public function it_allows_to_register_new_customer_with_labels(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -178,7 +178,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allows_to_register_new_customer_by_seller()
+    public function it_allows_to_register_new_customer_by_seller(): void
     {
         $client = $this->createAuthenticatedClient('john@doe.com', 'open', 'seller');
         $client->request(
@@ -216,7 +216,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allows_to_register_new_customer_by_himself()
+    public function it_allows_to_register_new_customer_by_himself(): void
     {
         $client = static::createClient();
 
@@ -255,7 +255,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allows_to_register_new_customer_with_only_required_data_and_some_data_in_address()
+    public function it_allows_to_register_new_customer_with_only_required_data_and_some_data_in_address(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -286,7 +286,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_properly_validates_address()
+    public function it_properly_validates_address(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -319,7 +319,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allows_to_register_new_customer_without_certain_fields()
+    public function it_allows_to_register_new_customer_without_certain_fields(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -345,7 +345,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_does_not_allow_to_register_new_customer_with_the_same_email()
+    public function it_does_not_allow_to_register_new_customer_with_the_same_email(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -379,7 +379,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_does_not_allow_to_register_new_customer_with_the_same_loyalty_card_number()
+    public function it_does_not_allow_to_register_new_customer_with_the_same_loyalty_card_number(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -413,7 +413,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_does_not_allow_to_register_new_customer_with_the_same_phone()
+    public function it_does_not_allow_to_register_new_customer_with_the_same_phone(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -447,19 +447,26 @@ class CustomerControllerTest extends BaseApiTest
 
     /**
      * @test
+     *
+     * @dataProvider getCustomersData
+     *
+     * @param array $customerData
      */
-    public function it_allows_to_edit_customer_details()
+    public function it_allows_to_edit_customer_details(array $customerData): void
     {
+        // get current client's data
         $client = $this->createAuthenticatedClient();
-        $customerData = CustomerCommandHandlerTest::getCustomerData();
-        $tmp = new \DateTime();
-        $tmp->setTimestamp($customerData['birthDate']);
-        $customerData['birthDate'] = $tmp->format('Y-m-d');
-        unset($customerData['createdAt']);
-        unset($customerData['updatedAt']);
-        unset($customerData['status']);
-        $customerData['firstName'] = 'Jane';
-        $customerData['address']['street'] = 'Prosta';
+        $client->request(
+            'GET',
+            '/api/customer/'.LoadUserData::TEST_USER_ID
+        );
+
+        $response = $client->getResponse();
+        $currentClientData = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Get response should have status 200');
+
+        // test edit endpoint
+        $client = $this->createAuthenticatedClient();
         $client->request(
             'PUT',
             '/api/customer/'.LoadUserData::TEST_USER_ID,
@@ -469,30 +476,42 @@ class CustomerControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertEquals(200, $response->getStatusCode(), 'Edit response should have status 200');
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals($customerData['firstName'], $data['firstName']);
-        $this->assertEquals($customerData['address']['street'], $data['address']['street']);
 
-        self::$kernel->boot();
+        $newClientData = array_merge($currentClientData, $customerData);
 
-        $client = $this->createAuthenticatedClient();
-        $client->request(
-            'GET',
-            '/api/customer/'.LoadUserData::TEST_USER_ID
-        );
+        // updatedAt is not needed, segments may be added later
+        unset($newClientData['updatedAt'], $data['updatedAt'], $newClientData['segments']);
+        $this->assertEquals($newClientData, $data);
+    }
 
-        $response = $client->getResponse();
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $this->assertEquals($customerData['firstName'], $data['firstName']);
-        $this->assertEquals($customerData['address']['street'], $data['address']['street']);
+    /**
+     * @return array
+     */
+    public function getCustomersData(): array
+    {
+        return [
+            [['firstName' => 'Jane']],
+            [['lastName' => 'de Novo']],
+            [['email' => 'jane.de.novo@test.example', 'phone' => '+443340000000']],
+            [[
+                'address' => [
+                    'city' => 'London',
+                    'street' => 'Baker St',
+                ],
+                'company' => [
+                    'name' => 'X',
+                    'nip' => '0000000000',
+                ],
+            ]],
+        ];
     }
 
     /**
      * @test
      */
-    public function it_allows_to_edit_customer_level()
+    public function it_allows_to_edit_customer_level(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -620,7 +639,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allows_to_edit_customer_details_with_seller_assignment()
+    public function it_allows_to_edit_customer_details_with_seller_assignment(): void
     {
         $client = $this->createAuthenticatedClient();
         $customerData = CustomerCommandHandlerTest::getCustomerData();
@@ -664,7 +683,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allows_to_remove_customer_company()
+    public function it_allows_to_remove_customer_company(): void
     {
         $customerData = CustomerCommandHandlerTest::getCustomerData();
         $tmp = new \DateTime();
@@ -704,7 +723,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allows_to_get_customer_details()
+    public function it_allows_to_get_customer_details(): void
     {
         self::$kernel->boot();
         $user = self::$kernel->getContainer()->get('doctrine.orm.entity_manager')
@@ -727,7 +746,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allows_to_get_customers_list()
+    public function it_allows_to_get_customers_list(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -742,7 +761,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allows_to_assign_pos_to_customer()
+    public function it_allows_to_assign_pos_to_customer(): void
     {
         $client = $this->createAuthenticatedClient();
         $posId = new PosId('00000000-0000-0000-0000-000000000011');
@@ -776,7 +795,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_add_points_to_customer_after_register_on_agreement2_checked()
+    public function it_adds_points_to_customer_after_registration_on_agreement2_checked(): void
     {
         $client = $this->createAuthenticatedClient();
 
@@ -809,7 +828,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_add_points_to_customer_after_self_register_customer_activation_on_agreement2_checked()
+    public function it_adds_points_to_customer_after_self_registered_customer_activation_on_agreement2_checked(): void
     {
         $client = $this->createAuthenticatedClient();
         $customerEmail = 'marketing_self@doe.com';
@@ -861,7 +880,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function if_add_points_to_customer_after_account_edit_and_agreement2_check()
+    public function it_adds_points_to_customer_after_account_edit_and_agreement2_is_checked(): void
     {
         $client = $this->createAuthenticatedClient();
         $customerId = LoadUserData::TEST_USER_ID;
@@ -908,9 +927,9 @@ class CustomerControllerTest extends BaseApiTest
 
     /**
      * @test
-     * @depends if_add_points_to_customer_after_account_edit_and_agreement2_check
+     * @depends it_adds_points_to_customer_after_account_edit_and_agreement2_is_checked
      */
-    public function it_dont_add_points_after_customer_send_false_agreement2()
+    public function it_does_not_add_points_after_customer_sets_agreement2_to_false(): void
     {
         $client = $this->createAuthenticatedClient();
         $customerId = LoadUserData::TEST_USER_ID;
@@ -953,7 +972,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_do_not_add_points_after_2nd_attempt_to_newsletter_subscription()
+    public function it_does_not_add_points_after_2nd_attempt_to_subscribe_to_newsletter(): void
     {
         $client = $this->createAuthenticatedClient();
 
@@ -1007,8 +1026,11 @@ class CustomerControllerTest extends BaseApiTest
      * @param string $phrase
      * @param int    $counter
      */
-    public function it_allows_to_get_customers_list_filtered_by_partial_phrase($field, $phrase, $counter)
-    {
+    public function it_allows_to_get_customers_list_filtered_by_partial_phrase(
+        string $field,
+        string $phrase,
+        int $counter
+    ): void {
         $client = $this->createAuthenticatedClient();
         $client->request(
             'GET',
@@ -1040,7 +1062,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @return array
      */
-    public function getPartialPhrases()
+    public function getPartialPhrases(): array
     {
         return [
             ['firstName', 'Jo', 12],
@@ -1050,7 +1072,7 @@ class CustomerControllerTest extends BaseApiTest
             ['lastName', 'Doe', 11],
             ['lastName', 'Doe1', 1],
             ['lastName', 'Smith', 2],
-            ['phone', '48', 5],
+            ['phone', '48', 6],
             ['phone', '645', 2],
             ['email', '@', 18],
             ['email', 'user-1', 1],
@@ -1076,8 +1098,11 @@ class CustomerControllerTest extends BaseApiTest
      * @param string $phrase
      * @param int    $counter
      */
-    public function it_allows_to_get_customers_list_filtered_by_strict_phrase($field, $phrase, $counter)
-    {
+    public function it_allows_to_get_customers_list_filtered_by_strict_phrase(
+        string $field,
+        string $phrase,
+        int $counter
+    ): void {
         $client = $this->createAuthenticatedClient();
         $client->request(
             'GET',
@@ -1115,7 +1140,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @return array
      */
-    public function getStrictPhrases()
+    public function getStrictPhrases(): array
     {
         return [
             ['firstName', 'John', 9],
@@ -1154,8 +1179,13 @@ class CustomerControllerTest extends BaseApiTest
      * @param array|null $columns
      * @param bool       $strict
      */
-    public function it_allows_to_get_customers_list_filtered_by_email_or_phone($field, $phrase, $counter, array $columns = null, $strict = false)
-    {
+    public function it_allows_to_get_customers_list_filtered_by_email_or_phone(
+        string $field,
+        string $phrase,
+        int $counter,
+        array $columns = null,
+        bool $strict = false
+    ): void {
         $client = $this->createAuthenticatedClient();
         $client->request(
             'GET',
@@ -1193,7 +1223,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_imports_customers()
+    public function it_imports_customers(): void
     {
         $xmlContent = file_get_contents(__DIR__.'/import.xml');
 
@@ -1286,7 +1316,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_receives_a_customer_status()
+    public function it_receives_a_customer_status(): void
     {
         $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
         $client->request(
@@ -1316,12 +1346,12 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @return array
      */
-    public function getEmailOrPhone()
+    public function getEmailOrPhone(): array
     {
         return [
             ['emailOrPhone', 'user-1', 1, ['email', 'phone']],
             ['emailOrPhone', 'user-1@oloy.com', 1, ['email', 'phone']],
-            ['emailOrPhone', '+48', 5, ['email', 'phone']],
+            ['emailOrPhone', '+48', 6, ['email', 'phone']],
             ['emailOrPhone', '645', 2, ['email', 'phone']],
         ];
     }

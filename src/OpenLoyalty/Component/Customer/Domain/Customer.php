@@ -388,7 +388,7 @@ class Customer extends EventSourcedAggregateRoot
         if (!empty($data['status'])) {
             $this->setStatus(Status::fromData($data['status']));
         }
-        if (array_key_exists('email', $data)) {
+        if (isset($data['email'])) {
             $this->setEmail($data['email']);
         }
         if (!empty($data['birthDate'])) {

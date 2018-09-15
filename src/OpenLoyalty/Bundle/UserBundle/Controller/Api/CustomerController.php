@@ -15,6 +15,8 @@ use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use OpenLoyalty\Bundle\ActivationCodeBundle\Exception\SmsSendException;
+use OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActionTokenManager;
 use OpenLoyalty\Bundle\AuditBundle\Service\AuditManagerInterface;
 use OpenLoyalty\Bundle\ImportBundle\Form\Type\ImportFileFormType;
 use OpenLoyalty\Bundle\ImportBundle\Service\ImportFileManager;
@@ -71,15 +73,33 @@ class CustomerController extends FOSRestController
     private $levelRepository;
 
     /**
+     * @var CustomerDetailsRepository
+     */
+    private $customerDetailsRepository;
+
+    /**
+     * @var ActionTokenManager
+     */
+    private $actionTokenManager;
+
+    /**
      * CustomerController constructor.
      *
-     * @param CommandBus              $commandBus
-     * @param DoctrineLevelRepository $levelRepository
+     * @param CommandBus                $commandBus
+     * @param DoctrineLevelRepository   $levelRepository
+     * @param CustomerDetailsRepository $customerDetailsRepository
+     * @param ActionTokenManager        $actionTokenManager
      */
-    public function __construct(CommandBus $commandBus, DoctrineLevelRepository $levelRepository)
-    {
+    public function __construct(
+        CommandBus $commandBus,
+        DoctrineLevelRepository $levelRepository,
+        CustomerDetailsRepository $customerDetailsRepository,
+        ActionTokenManager $actionTokenManager
+    ) {
         $this->commandBus = $commandBus;
         $this->levelRepository = $levelRepository;
+        $this->customerDetailsRepository = $customerDetailsRepository;
+        $this->actionTokenManager = $actionTokenManager;
     }
 
     /**
@@ -120,7 +140,7 @@ class CustomerController extends FOSRestController
      * @QueryParam(name="hoursFromLastUpdate", nullable=true, description="hoursFromLastUpdate"))
      * @QueryParam(name="manuallyAssignedLevel", nullable=true, description="manuallyAssignedLevel"))
      */
-    public function listAction(Request $request, ParamFetcher $paramFetcher)
+    public function listAction(Request $request, ParamFetcher $paramFetcher): View
     {
         $types = [
             'transactionsAmount' => 'number',
@@ -246,14 +266,12 @@ class CustomerController extends FOSRestController
      *
      * @return View
      */
-    public function getCustomersRegistrationsDailyAction()
+    public function getCustomersRegistrationsDailyAction(): View
     {
-        /** @var CustomerDetailsRepository $repo */
-        $repo = $this->get('oloy.user.read_model.repository.customer_details');
         $date = new \DateTime();
         $date->setTime(0, 0, 0);
         $date->modify('-30 days');
-        $customers = $repo->findByParameters(
+        $customers = $this->customerDetailsRepository->findByParameters(
             [
                 'createdAt' => [
                     'type' => 'range',
@@ -332,7 +350,7 @@ class CustomerController extends FOSRestController
      *
      * @return View
      */
-    public function getCustomerStatusAction(CustomerDetails $customer)
+    public function getCustomerStatusAction(CustomerDetails $customer): View
     {
         return $this->view(
             $this->get('oloy.customer_status_provider')->getStatus($customer->getCustomerId()),
@@ -465,7 +483,7 @@ class CustomerController extends FOSRestController
     }
 
     /**
-     * Method allow to register by myself.
+     * Method allows the customers to register by themselves.
      *
      * @param Request $request
      * @Route(name="oloy.customer.self_register_customer", path="/customer/self_register")
@@ -482,8 +500,10 @@ class CustomerController extends FOSRestController
      * )
      *
      * @return View
+     *
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function selfRegisterAction(Request $request)
+    public function selfRegisterAction(Request $request): View
     {
         $accountActivationMethod = $this->get('oloy.action_token_manager')->getCurrentMethod();
         $form = $this->get('form.factory')->createNamed(
@@ -559,7 +579,7 @@ class CustomerController extends FOSRestController
         RegisterCustomerManager $registerCustomerManager
     ): View {
         $loggedUser = $this->getUser();
-        $accountActivationMethod = $this->get('oloy.action_token_manager')->getCurrentMethod();
+        $accountActivationMethod = $this->actionTokenManager->getCurrentMethod();
 
         $options = [
             'method' => 'PUT',
@@ -578,19 +598,18 @@ class CustomerController extends FOSRestController
             $options
         );
 
-        $form->handleRequest($request);
+        $form->submit($request->request->all()['customer'] ?? [], false);
 
         if ($form->isValid()) {
-            $ret = $this->get('oloy.user.form_handler.customer_edit')->onSuccess($customer->getCustomerId(), $form);
+            $ret = $this->get('oloy.user.form_handler.customer_edit')
+                ->onSuccess($customer->getCustomerId(), $form);
 
             if ($ret !== true) {
                 return $this->view($ret, Response::HTTP_BAD_REQUEST);
             }
 
-            /** @var CustomerDetailsRepository $repo */
-            $repo = $this->get('oloy.user.read_model.repository.customer_details');
             /** @var CustomerDetails $customer */
-            $customer = $repo->find($customer->getCustomerId()->__toString());
+            $customer = $this->customerDetailsRepository->find($customer->getId());
 
             $levelId = $form->get('levelId')->getData();
             $posId = $form->get('posId')->getData();
@@ -626,14 +645,14 @@ class CustomerController extends FOSRestController
 
             if ($customer->isAgreement2()) {
                 $em = $this->getDoctrine()->getManager();
-                $user = $em->getRepository('OpenLoyaltyUserBundle:Customer')->findOneBy(['id' => $customer->getId()]);
+                $user = $em->getRepository('OpenLoyaltyUserBundle:Customer')->find($customer->getId());
                 $registerCustomerManager->dispatchNewsletterSubscriptionEvent($user, $customer->getCustomerId());
             }
 
             // as we may move to other level or change sellerId we need to refresh customer data
             // and return latest customer state
             /** @var CustomerDetails $customer */
-            $customer = $repo->find($customer->getCustomerId()->__toString());
+            $customer = $this->customerDetailsRepository->find($customer->getId());
 
             return $this->view($customer);
         }
@@ -644,10 +663,6 @@ class CustomerController extends FOSRestController
     /**
      * Method allows to assign level to customer.
      *
-     * @param Request         $request
-     * @param CustomerDetails $customer
-     *
-     * @return View
      * @Route(name="oloy.customer.add_customer_to_level", path="/customer/{customer}/level")
      * @Method("POST")
      * @Security("is_granted('ASSIGN_CUSTOMER_LEVEL', customer)")
@@ -661,8 +676,13 @@ class CustomerController extends FOSRestController
      *          400="Returned when levelId is not provided or customer does not exist",
      *     }
      * )
+     *
+     * @param Request         $request
+     * @param CustomerDetails $customer
+     *
+     * @return View
      */
-    public function addCustomerToLevelAction(Request $request, CustomerDetails $customer)
+    public function addCustomerToLevelAction(Request $request, CustomerDetails $customer): View
     {
         $levelId = $request->request->get('levelId');
 
@@ -674,7 +694,12 @@ class CustomerController extends FOSRestController
         $level = $this->levelRepository->byId(new LevelId($levelId));
 
         $this->commandBus->dispatch(
-            new MoveCustomerToLevel($customer->getCustomerId(), new CustomerLevelId($levelId), $level->getName(), true)
+            new MoveCustomerToLevel(
+                $customer->getCustomerId(),
+                new CustomerLevelId($levelId),
+                $level->getName(),
+                true
+            )
         );
 
         return $this->view([]);
@@ -683,10 +708,6 @@ class CustomerController extends FOSRestController
     /**
      * Method allows to assign POS to customer.
      *
-     * @param Request         $request
-     * @param CustomerDetails $customer
-     *
-     * @return View
      * @Route(name="oloy.customer.assign_pos", path="/customer/{customer}/pos")
      * @Route(name="oloy.customer.seller.assign_pos", path="/seller/customer/{customer}/pos")
      * @Method("POST")
@@ -701,8 +722,13 @@ class CustomerController extends FOSRestController
      *       400="Returned when posId is not provided or customer does not exist",
      *     }
      * )
+     *
+     * @param Request         $request
+     * @param CustomerDetails $customer
+     *
+     * @return View
      */
-    public function assignPosToCustomerAction(Request $request, CustomerDetails $customer)
+    public function assignPosToCustomerAction(Request $request, CustomerDetails $customer): View
     {
         $posId = $request->request->get('posId');
         if (!$posId) {
@@ -733,13 +759,13 @@ class CustomerController extends FOSRestController
      *
      * @return View
      */
-    public function deactivateCustomerAction(CustomerDetails $customer)
+    public function deactivateCustomerAction(CustomerDetails $customer): View
     {
         $this->commandBus->dispatch(
             new DeactivateCustomer($customer->getCustomerId())
         );
 
-        $user = $this->getDoctrine()->getManager()->find(Customer::class, $customer->getCustomerId()->__toString());
+        $user = $this->getDoctrine()->getManager()->find(Customer::class, $customer->getId());
         if ($user instanceof User) {
             $user->setIsActive(false);
             $this->get('oloy.user.user_manager')->updateUser($user);
@@ -769,13 +795,13 @@ class CustomerController extends FOSRestController
      *
      * @return View
      */
-    public function activateCustomerAction(CustomerDetails $customer)
+    public function activateCustomerAction(CustomerDetails $customer): View
     {
         $this->commandBus->dispatch(
             new ActivateCustomer($customer->getCustomerId())
         );
 
-        $user = $this->getDoctrine()->getManager()->find(Customer::class, $customer->getCustomerId()->__toString());
+        $user = $this->getDoctrine()->getManager()->find(Customer::class, $customer->getId());
         if ($user instanceof User) {
             $user->setIsActive(true);
             $this->get('oloy.user.user_manager')->updateUser($user);
@@ -805,8 +831,10 @@ class CustomerController extends FOSRestController
      * @param CustomerDetails $customer
      *
      * @return View
+     *
+     * @throws SmsSendException
      */
-    public function sendSmsCodeCustomerAction(CustomerDetails $customer)
+    public function sendSmsCodeCustomerAction(CustomerDetails $customer): View
     {
         $user = $this->getDoctrine()->getManager()->find(Customer::class, $customer->getCustomerId()->__toString());
         if ($user instanceof Customer && $user->isNew()) {
@@ -831,9 +859,13 @@ class CustomerController extends FOSRestController
      *     section="Customer"
      * )
      *
+     * @param Request $request
+     *
      * @return View
+     *
+     * @throws SmsSendException
      */
-    public function resendSmsCodeToCustomerByPhoneAction(Request $request)
+    public function resendSmsCodeToCustomerByPhoneAction(Request $request): View
     {
         $phone = $request->request->get('phone');
         if (!$phone) {
@@ -870,7 +902,7 @@ class CustomerController extends FOSRestController
      *
      * @return View
      */
-    public function activateAccountAction($token, RegisterCustomerManager $registerCustomerManager)
+    public function activateAccountAction($token, RegisterCustomerManager $registerCustomerManager): View
     {
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('OpenLoyaltyUserBundle:Customer')->findOneBy(['actionToken' => $token]);
@@ -899,8 +931,10 @@ class CustomerController extends FOSRestController
      * @param RegisterCustomerManager $registerCustomerManager
      *
      * @return View
+     *
+     * @throws \Doctrine\ORM\ORMException
      */
-    public function activateSmsAccountAction($token, RegisterCustomerManager $registerCustomerManager)
+    public function activateSmsAccountAction($token, RegisterCustomerManager $registerCustomerManager): View
     {
         $code = $this->get('oloy.activation_code_manager')->findValidCode($token, Customer::class);
         if (null === $code) {
@@ -920,18 +954,23 @@ class CustomerController extends FOSRestController
     }
 
     /**
-     * @param SellerId $id
+     * @param SellerId $sellerId
      *
      * @return SellerDetails|null
      */
-    protected function getSellerDetails(SellerId $id)
+    protected function getSellerDetails(SellerId $sellerId): ?SellerDetails
     {
         /** @var Repository $repo */
         $repo = $this->get('oloy.user.read_model.repository.seller_details');
 
-        return $repo->find($id->__toString());
+        return $repo->find((string) $sellerId);
     }
 
+    /**
+     * @param User $loggedUser
+     * @param      $customerId
+     * @param User $user
+     */
     protected function handleSellerWasACreator(User $loggedUser, $customerId, User $user)
     {
         $sellerDetails = $this->getSellerDetails(new SellerId($loggedUser->getId()));
@@ -946,10 +985,6 @@ class CustomerController extends FOSRestController
     /**
      * Method allows to remove customer from manually assigned level.
      *
-     * @param Request         $request
-     * @param CustomerDetails $customer
-     *
-     * @return View
      * @Route(name="oloy.customer.remove_customer_from_manually_assigned_level",
      *     path="/customer/{customer}/remove-manually-level")
      * @Method("POST")
@@ -963,8 +998,13 @@ class CustomerController extends FOSRestController
      *       400="Returned when customer is not assigned to level manually",
      *     }
      * )
+     *
+     * @param Request         $request
+     * @param CustomerDetails $customer
+     *
+     * @return View
      */
-    public function removeCustomerFromManuallyAssignedLevelAction(Request $request, CustomerDetails $customer)
+    public function removeCustomerFromManuallyAssignedLevelAction(Request $request, CustomerDetails $customer): View
     {
         $manuallyAssignedLevelId = $customer->getManuallyAssignedLevelId();
         if (!$manuallyAssignedLevelId) {
@@ -998,9 +1038,14 @@ class CustomerController extends FOSRestController
      * @param ImportFileManager   $importFileManager
      *
      * @return View
+     *
+     * @throws \Exception
      */
-    public function importAction(Request $request, CustomerXmlImporter $importer, ImportFileManager $importFileManager)
-    {
+    public function importAction(
+        Request $request,
+        CustomerXmlImporter $importer,
+        ImportFileManager $importFileManager
+    ): View {
         $form = $this->get('form.factory')->createNamed('file', ImportFileFormType::class);
 
         $form->handleRequest($request);

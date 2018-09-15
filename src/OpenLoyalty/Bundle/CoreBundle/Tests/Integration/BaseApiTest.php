@@ -101,7 +101,7 @@ abstract class BaseApiTest extends WebTestCase
     protected function getCustomerEntity($customerId)
     {
         $customer = static::$kernel->getContainer()->get('doctrine.orm.entity_manager')
-            ->getRepository('OpenLoyaltyUserBundle:Customer')->findOneBy(['id' => $customerId]);
+            ->getRepository('OpenLoyaltyUserBundle:Customer')->find($customerId);
 
         return $customer;
     }
@@ -114,7 +114,7 @@ abstract class BaseApiTest extends WebTestCase
     protected function getAdminEntity(string $adminId)
     {
         $admin = static::$kernel->getContainer()->get('doctrine.orm.entity_manager')
-            ->getRepository('OpenLoyaltyUserBundle:Admin')->findOneBy(['id' => $adminId]);
+            ->getRepository('OpenLoyaltyUserBundle:Admin')->find($adminId);
 
         return $admin;
     }

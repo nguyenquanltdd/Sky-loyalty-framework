@@ -432,7 +432,7 @@ Exemplary Response
 Update a campaign
 -----------------
 
-To fully update a campaign user you will need to call the ``/api/campaign/<campaign>`` endpoint with the ``PUT`` method.
+To fully update a campaign you will need to call the ``/api/campaign/<campaign>`` endpoint with the ``PUT`` method.
 
 Definition
 ^^^^^^^^^^

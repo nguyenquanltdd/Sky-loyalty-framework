@@ -265,8 +265,7 @@ class CustomerRegistrationFormType extends AbstractType
         if ($options['includePosId'] && $this->posRepository) {
             $posChoices = array_map(function (Pos $pos) {
                 return (string) $pos->getPosId();
-            }, $this->posRepository->findAll()
-            );
+            }, $this->posRepository->findAll());
 
             $builder->add(
                 'posId',

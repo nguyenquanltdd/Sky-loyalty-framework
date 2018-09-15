@@ -714,6 +714,225 @@ Exemplary Response
       "errors": []
     }
 
+Update a customer
+---------------------
+
+To update an existing customer you need to call the ``/api/customer/<customer>`` endpoint with the ``PUT`` method.
+
+.. note::
+
+    The fields you omit will not be affected. The fields you include and leave empty will have their current values removed.
+    Eg. ``customer[email]=&customer[loyaltyCardNumber]=000012`` will set loyaltyCardNumber, erase email and leave all other fields unaffected.
+
+.. note::
+
+    All simple fields can be updated separately, but compound fields (address, company) must be updated whole.
+    Attempt to update only one of the address' fields will result in deleting other parts of the address.
+    Attempt to update only name or nip will result in error code 500.
+
+Definition
+^^^^^^^^^^
+
+.. code-block:: text
+
+    PUT /api/customer/{customer}
+
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| Parameter                          | Parameter type |  Description                                                                                  |
++====================================+================+===============================================================================================+
+| Authorization                      | header         |  Token received during authentication                                                         |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| <customer>                         | query          |  Customer ID                                                                                  |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[firstName]                | request        |  *(optional)* First name                                                                      |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[lastName]                 | request        |  *(optional)* Last name                                                                       |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[gender]                   | request        |  *(optional)* Gender. Possible values ``male``, ``female``                                    |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[email]                    | request        |  *(optional)* *(unique)* E-mail address                                                       |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[phone]                    | request        |  *(optional)* A phone number *(unique)*                                                       |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[birthDate]                | request        |  *(optional)* Birth date in format YYYY-MM-DD HH:mm, for example ``2017-10-05``               |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[createdAt]                | request        |  *(optional)* Created at in format YYYY-MM-DD HH:mm:ss, for example ``2017-01-01 14:15:16``.  |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[address][street]          | request        |  *(optional)* Street name                                                                     |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[address][address1]        | request        |  *(optional)* Building number                                                                 |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[address][address2]        | request        |  *(optional)* Flat/Unit name                                                                  |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[address][postal]          | request        |  *(optional)* Post code                                                                       |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[address][city]            | request        |  *(optional)* City name                                                                       |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[address][province]        | request        |  *(optional)* Province name                                                                   |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[address][country]         | request        |  *(optional)* Country name                                                                    |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[company][name]            | request        |  *(optional)* Company name                                                                    |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[company][nip]             | request        |  *(optional)* Tax ID                                                                          |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[loyaltyCardNumber]        | request        |  *(optional)* Loyalty card number *(unique)*                                                  |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[labels]                   | request        |  *(optional)* Labels in format: name1:value1;name2:value2                                     |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[agreement1]               | request        |  *(optional)* First agreement. Set 1 if true, otherwise 0                                     |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[agreement2]               | request        |  *(optional)* Second agreement. Set 1 if true, otherwise 0                                    |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[agreement3]               | request        |  *(optional)* Third agreement. Set 1 if true, otherwise 0                                     |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[referral_customer_email]  | request        |  *(optional)* Referral customer e-mail address.                                               |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+
+Example
+^^^^^^^
+
+.. code-block:: bash
+
+    curl http://localhost:8181/api/customer/e0eb0355-8aaa-4fb1-8159-f58e81b7a25c \
+        -X "PUT" \
+        -H "Accept: application/json" \
+        -H "Content-type: application/x-www-form-urlencoded" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
+        -d "customer[email]=john4@example.com" \
+        -d "customer[phone]=" \
+        -d "customer[agreement2]=1"
+
+.. note::
+
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
+
+Exemplary Response
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    STATUS: 200 OK
+
+.. code-block:: json
+
+
+    {
+        "customerId": "e0eb0355-8aaa-4fb1-8159-f58e81b7a25c",
+        "active": true,
+        "firstName": "John",
+        "lastName": "Kowalski",
+        "gender": "male",
+        "email": "john4@example.com",
+        "birthDate": "1990-09-11T02:00:00+0200",
+        "address": {},
+        "createdAt": "2016-08-08T10:53:14+0200",
+        "levelId": "000096cf-32a3-43bd-9034-4df343e5fd93",
+        "agreement1": true,
+        "agreement2": true,
+        "agreement3": false,
+        "status": {
+            "availableTypes": [
+                "new",
+                "active",
+                "blocked",
+                "deleted"
+            ],
+            "availableStates": [
+                "no-card",
+                "card-sent",
+                "with-card"
+            ],
+            "type": "active",
+            "state": "no-card"
+        },
+        "updatedAt": "2020-02-12T12:11:12+0200",
+        "campaignPurchases": [],
+        "transactionsCount": 0,
+        "transactionsAmount": 0,
+        "transactionsAmountWithoutDeliveryCosts": 0,
+        "amountExcludedForLevel": 0,
+        "averageTransactionAmount": 0,
+        "labels": [],
+        "level": {
+            "levelId": {
+                "id": "000096cf-32a3-43bd-9034-4df343e5fd93"
+            },
+            "name": "level0"
+        },
+        "currency": "eur",
+        "levelPercent": "14.00%"
+    }
+
+.. code-block:: bash
+
+    curl http://localhost:8181/api/customer/e0eb0355-8aaa-4fb1-8159-f58e81b7a25c \
+        -X "PUT" \
+        -H "Accept: application/json" \
+        -H "Content-type: application/x-www-form-urlencoded" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
+        -d "customer[phone]=+440000000"
+
+.. note::
+
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
+
+Exemplary Response
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    STATUS: 400 Bad Request
+
+.. code-block:: json
+
+    {
+        "form": {
+            "children": {
+                "firstName": {},
+                "lastName": {},
+                "gender": {},
+                "email": {},
+                "phone": {
+                    "errors": [
+                        "This value is not a valid phone number."
+                    ]
+                },
+                "birthDate": {},
+                "createdAt": {},
+                "address": {
+                    "children": {
+                        "street": {},
+                        "address1": {},
+                        "address2": {},
+                        "postal": {},
+                        "city": {},
+                        "province": {},
+                        "country": {}
+                    }
+                },
+                "company": {
+                    "children": {
+                        "name": {},
+                        "nip": {}
+                    }
+                },
+                "loyaltyCardNumber": {},
+                "labels": {},
+                "agreement1": {},
+                "agreement2": {},
+                "agreement3": {},
+                "referral_customer_email": {},
+                "levelId": {},
+                "posId": {},
+                "sellerId": {}
+            }
+        },
+        "errors": []
+    }
+
 Customer registrations in last 30 days
 --------------------------------------
 
