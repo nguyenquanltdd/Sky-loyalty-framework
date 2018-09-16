@@ -9,6 +9,7 @@ use Broadway\CommandHandling\CommandBus;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsRepository;
 use OpenLoyalty\Component\Account\Infrastructure\Notifier\ExpirePointsNotifier;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class ExpirePointsNotifierTest.
@@ -21,7 +22,10 @@ class ExpirePointsNotifierTest extends \PHPUnit_Framework_TestCase
     public function it_dispatches_webhook_dispatch_command(): void
     {
         /** @var CommandBus|\PHPUnit_Framework_MockObject_MockObject $commandBusMock */
-        $commandBusMock = $this->getMockBuilder(CommandBus::class)->getMock();
+        $commandBusMock = $this->getMockForAbstractClass(CommandBus::class);
+
+        /** @var LoggerInterface|\PHPUnit_Framework_MockObject_MockObject $commandBusMock */
+        $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class);
 
         /** @var PointsTransferDetails|\PHPUnit_Framework_MockObject_MockObject $pointTransferMock */
         $pointTransferMock = $this
@@ -39,18 +43,14 @@ class ExpirePointsNotifierTest extends \PHPUnit_Framework_TestCase
         $pointTransferMock->method('getExpiresAt')->willReturn(new \DateTime());
 
         /** @var PointsTransferDetailsRepository|\PHPUnit_Framework_MockObject_MockObject $pointTransfersRepositoryMock */
-        $pointTransfersRepositoryMock = $this
-            ->getMockBuilder(PointsTransferDetailsRepository::class)
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
+        $pointTransfersRepositoryMock = $this->getMockForAbstractClass(PointsTransferDetailsRepository::class);
         $pointTransfersRepositoryMock
             ->method('findAllActiveAddingTransfersBeforeExpired')
             ->willReturn([$pointTransferMock])
         ;
 
-        $expirePointsNotifier = new ExpirePointsNotifier($commandBusMock, $pointTransfersRepositoryMock);
-        $expirePointsNotifier->sendNotificationsForPointsExpiringBefore(new \DateTime('now'));
+        $expirePointsNotifier = new ExpirePointsNotifier($commandBusMock, $pointTransfersRepositoryMock, $loggerMock);
+        $expirePointsNotifier->sendNotificationsForPointsExpiringAfter(new \DateTime('now'));
 
         $this->assertEquals(1, $expirePointsNotifier->sentNotificationsCount());
     }

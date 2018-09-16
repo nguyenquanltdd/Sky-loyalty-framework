@@ -1,16 +1,16 @@
 services:
   _defaults:
-      autoconfigure: true
-      autowire: true
-      public: false
+    autoconfigure: true
+    autowire: true
+    public: false
 
   OpenLoyalty\Bundle\PointsBundle\Controller\:
-      resource: '../../Controller'
-      tags: ['controller.service_arguments']
+    resource: '../../Controller'
+    tags: ['controller.service_arguments']
 
   OpenLoyalty\Bundle\PointsBundle\Command\SendExpirePointsNotifications:
-      tags:
-          - { name: console.command }
+    tags:
+      - { name: console.command }
 
   OpenLoyalty\Bundle\PointsBundle\Form\DataTransformer\CustomerDataTransformer: ~
   OpenLoyalty\Bundle\PointsBundle\Form\Type\TransferPointsFormType:
@@ -43,12 +43,11 @@ services:
       - { name: form.type }
 
   OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager:
-      #alias: 'oloy.account.points_transfers_manager'
-      public: true
-      arguments:
-          $commandBus: '@broadway.command_handling.command_bus'
-          $pointsTransferDetailsRepository: '@oloy.points.account.repository.points_transfer_details'
-          $settingsManager: '@OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManager'
+    public: true
+    arguments:
+      $commandBus: '@broadway.command_handling.command_bus'
+      $pointsTransferDetailsRepository: '@oloy.points.account.repository.points_transfer_details'
+      $settingsManager: '@OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManager'
 
   oloy.account.points_transfers.serialization_listener:
       class: OpenLoyalty\Bundle\PointsBundle\Event\Listener\PointsTransferSerializationListener

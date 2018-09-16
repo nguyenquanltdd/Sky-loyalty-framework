@@ -84,3 +84,6 @@ services:
   OpenLoyalty\Component\Campaign\Domain\Command\CampaignCategoryCommandHandler:
     tags:
       - { name: broadway.command_handler }
+
+  OpenLoyalty\Component\Campaign\Infrastructure\Notifier\ExpireCouponsNotifierInterface:
+    class: OpenLoyalty\Component\Campaign\Infrastructure\Notifier\ExpireCouponsNotifier

@@ -206,13 +206,20 @@ class SettingsFormType extends AbstractType
                 ])
         );
         $builder->add(
-            $builder
-                ->create('expirePointsNotificationDays', SettingsIntegerType::class, [
-                    'required' => false,
-                    'constraints' => [
-                        new Optional(),
-                    ],
-                ])
+            $builder->create('expirePointsNotificationDays', SettingsIntegerType::class, [
+                'required' => false,
+                'constraints' => [
+                    new Optional(),
+                ],
+            ])
+        );
+        $builder->add(
+            $builder->create('expireCouponsNotificationDays', SettingsIntegerType::class, [
+                'required' => false,
+                'constraints' => [
+                    new Optional(),
+                ],
+            ])
         );
         $builder->add($builder->create('allTimeNotLocked', SettingsCheckboxType::class, ['required' => false]));
         $builder->add(

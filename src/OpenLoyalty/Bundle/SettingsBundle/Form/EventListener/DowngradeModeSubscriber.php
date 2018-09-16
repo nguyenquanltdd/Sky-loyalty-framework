@@ -75,7 +75,9 @@ class DowngradeModeSubscriber implements EventSubscriberInterface
     private function getTranslatedError(string $message, array $params = []): FormError
     {
         return new FormError(
-            $message, $message, $params
+            $message,
+            $message,
+            $params
         );
     }
 }

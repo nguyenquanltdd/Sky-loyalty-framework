@@ -378,9 +378,15 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      *
      * @throws \Doctrine\ORM\ORMException
      */
-    protected function getCampaignsForLevelAndSegmentQueryBuilder(array $segmentIds = [], LevelId $levelId = null,
-        array $categoryIds = [], $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC'): QueryBuilder
-    {
+    protected function getCampaignsForLevelAndSegmentQueryBuilder(
+        array $segmentIds = [],
+        LevelId $levelId = null,
+        array $categoryIds = [],
+        $page = 1,
+        $perPage = 10,
+        $sortField = null,
+        $direction = 'ASC'
+    ): QueryBuilder {
         $this->getEntityManager()->getConfiguration()->addCustomStringFunction('cast', Cast::class);
         $qb = $this->createQueryBuilder('c');
         $qb->andWhere('c.active = :true')->setParameter('true', true);

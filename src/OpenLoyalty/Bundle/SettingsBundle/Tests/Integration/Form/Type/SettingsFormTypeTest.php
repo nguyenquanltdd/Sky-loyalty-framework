@@ -66,6 +66,7 @@ class SettingsFormTypeTest extends TypeTestCase
     protected $integerEntries = [
         'pointsDaysActive' => 10,
         'expirePointsNotificationDays' => 10,
+        'expireCouponsNotificationDays' => 10,
         'levelDowngradeDays' => 0,
     ];
 
@@ -239,6 +240,10 @@ class SettingsFormTypeTest extends TypeTestCase
         $object->addEntry($entry);
 
         $entry = new IntegerSettingEntry('expirePointsNotificationDays');
+        $entry->setValue(10);
+        $object->addEntry($entry);
+
+        $entry = new IntegerSettingEntry('expireCouponsNotificationDays');
         $entry->setValue(10);
         $object->addEntry($entry);
 

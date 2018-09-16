@@ -137,28 +137,36 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         $filter[] = [
             'bool' => [
                 'must' => [
-                    ['missing' => [
-                        'field' => 'lastLevelRecalculation',
-                    ]],
-                    ['range' => [
-                        'createdAt' => [
-                            'lte' => $date->getTimestamp(),
+                    [
+                        'missing' => [
+                            'field' => 'lastLevelRecalculation',
                         ],
-                    ]],
+                    ],
+                    [
+                        'range' => [
+                            'createdAt' => [
+                                'lte' => $date->getTimestamp(),
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];
         $filter[] = [
             'bool' => [
                 'must' => [
-                    ['exists' => [
-                        'field' => 'lastLevelRecalculation',
-                    ]],
-                    ['range' => [
-                        'lastLevelRecalculation' => [
-                            'lte' => $date->getTimestamp(),
+                    [
+                        'exists' => [
+                            'field' => 'lastLevelRecalculation',
                         ],
-                    ]],
+                    ],
+                    [
+                        'range' => [
+                            'lastLevelRecalculation' => [
+                                'lte' => $date->getTimestamp(),
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -386,11 +394,11 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
     }
 
     /**
-     * @return CustomerDetails[]
+     * {@inheritdoc}
      */
     public function findCustomersWithPurchasesToExpire(): array
     {
-        $query = array(
+        $query = [
             'index' => $this->index,
             'body' => [
                 'query' => [
@@ -422,7 +430,60 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
                     ],
                 ],
             ],
-        );
+        ];
+
+        return $this->searchAndDeserializeHits($query);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findCustomersWithPurchasesExpiringAfter(\DateTimeInterface $dateTime): array
+    {
+        $activeDateFrom = new \DateTimeImmutable($dateTime->format('Y-m-d'));
+        $activeDateTo = $activeDateFrom->add(new \DateInterval('P1D'));
+
+        $query = [
+            'index' => $this->index,
+            'body' => [
+                'query' => [
+                    'nested' => [
+                        'path' => 'campaignPurchases',
+                        'query' => [
+                            'bool' => [
+                                'must' => [
+                                    [
+                                        'match' => [
+                                            'campaignPurchases.status' => CampaignPurchase::STATUS_ACTIVE,
+                                        ],
+                                    ],
+                                    [
+                                        'range' => [
+                                            'campaignPurchases.activeTo' => [
+                                                'gte' => $activeDateFrom->getTimestamp(),
+                                                'lte' => $activeDateTo->getTimestamp(),
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                                'must_not' => [
+                                    [
+                                        'match' => [
+                                            'campaignPurchases.used' => true,
+                                        ],
+                                    ],
+                                ],
+                                'filter' => [
+                                    'exists' => [
+                                        'field' => 'campaignPurchases.activeTo',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
 
         return $this->searchAndDeserializeHits($query);
     }
@@ -432,13 +493,13 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
      */
     public function countPurchasesByCustomerId(CustomerId $customerId, $showCashback = false)
     {
-        $query = array(
+        $query = [
             'ids' => [
                 'values' => [
                     $customerId->__toString(),
                 ],
             ],
-        );
+        ];
 
         $query = array(
             'index' => $this->index,
@@ -609,26 +670,33 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
      */
     public function findAllWithAverageTransactionAmountBetween($from, $to, $onlyActive = true)
     {
-        $filter = [['range' => [
-            'averageTransactionAmount' => [
-                'gte' => floatval($from),
-                'lte' => floatval($to),
+        $filter = [
+            [
+                'range' => [
+                    'averageTransactionAmount' => [
+                        'gte' => floatval($from),
+                        'lte' => floatval($to),
+                    ],
+                ],
             ],
-        ]]];
+        ];
+
         if ($onlyActive) {
-            $filter[] = ['term' => [
-                'active' => true,
-            ]];
+            $filter[] = [
+                'term' => [
+                    'active' => true,
+                ],
+            ];
         }
 
-        $query = array(
-            'filtered' => array(
-                'query' => array(
-                    'match_all' => array(),
-                ),
+        $query = [
+            'filtered' => [
+                'query' => [
+                    'match_all' => [],
+                ],
                 'filter' => ['and' => $filter],
-            ),
-        );
+            ],
+        ];
 
         return $this->query($query);
     }
@@ -761,15 +829,17 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
             ]];
         }
 
-        $query = array(
-            'bool' => array(
-                'must' => [[
-                    'bool' => [
-                        'should' => $filter,
+        $query = [
+            'bool' => [
+                'must' => [
+                    [
+                        'bool' => [
+                            'should' => $filter,
+                        ],
                     ],
-                ]],
-            ),
-        );
+                ],
+            ],
+        ];
 
         if (null !== $active) {
             $query['bool']['must'][]['term'] = ['active' => $active];

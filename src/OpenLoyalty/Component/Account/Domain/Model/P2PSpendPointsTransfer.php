@@ -44,8 +44,16 @@ class P2PSpendPointsTransfer extends SpendPointsTransfer
         ?TransactionId $revisedTransactionId = null
     ) {
         $this->receiverId = $receiverId;
-        parent::__construct($id, $value, $createdAt, $canceled, $comment, $issuer, $transactionId,
-            $revisedTransactionId);
+        parent::__construct(
+            $id,
+            $value,
+            $createdAt,
+            $canceled,
+            $comment,
+            $issuer,
+            $transactionId,
+            $revisedTransactionId
+        );
     }
 
     /**

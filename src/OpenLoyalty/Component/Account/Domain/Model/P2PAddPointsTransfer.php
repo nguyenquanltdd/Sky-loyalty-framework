@@ -48,8 +48,17 @@ class P2PAddPointsTransfer extends AddPointsTransfer
         ?string $comment = null,
         string $issuer = self::ISSUER_SYSTEM
     ) {
-        parent::__construct($id, $value, $validityDuration, $lockDaysDuration, $createdAt, $canceled, $transactionId,
-            $comment, $issuer);
+        parent::__construct(
+            $id,
+            $value,
+            $validityDuration,
+            $lockDaysDuration,
+            $createdAt,
+            $canceled,
+            $transactionId,
+            $comment,
+            $issuer
+        );
         $this->senderId = $senderId;
     }
 

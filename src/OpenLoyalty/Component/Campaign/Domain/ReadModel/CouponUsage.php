@@ -19,6 +19,7 @@ class CouponUsage implements SerializableReadModel
      * @var int
      */
     protected $usage;
+
     /**
      * @var CampaignId
      */
@@ -84,13 +85,18 @@ class CouponUsage implements SerializableReadModel
      */
     public function getId(): string
     {
-        return $this->campaignId->__toString().'_'.$this->customerId->__toString().'_'.$this->coupon->getCode();
+        return sprintf(
+            '%s_%s_%s',
+            $this->campaignId->__toString(),
+            $this->customerId->__toString(),
+            $this->coupon->getCode()
+        );
     }
 
     /**
      * @return CampaignId
      */
-    public function getCampaignId()
+    public function getCampaignId(): CampaignId
     {
         return $this->campaignId;
     }
@@ -98,7 +104,7 @@ class CouponUsage implements SerializableReadModel
     /**
      * @return CustomerId
      */
-    public function getCustomerId()
+    public function getCustomerId(): CustomerId
     {
         return $this->customerId;
     }
@@ -106,7 +112,7 @@ class CouponUsage implements SerializableReadModel
     /**
      * @return Coupon
      */
-    public function getCoupon()
+    public function getCoupon(): Coupon
     {
         return $this->coupon;
     }
