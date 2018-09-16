@@ -13,7 +13,7 @@ interface ExpirePointsNotifierInterface
     /**
      * @param \DateTimeInterface $dateTime
      */
-    public function sendNotificationsForPointsExpiringBefore(\DateTimeInterface $dateTime): void;
+    public function sendNotificationsForPointsExpiringAfter(\DateTimeInterface $dateTime): void;
 
     /**
      * @return int

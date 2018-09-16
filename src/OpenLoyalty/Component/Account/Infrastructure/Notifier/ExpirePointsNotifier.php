@@ -3,12 +3,16 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
+
+declare(strict_types=1);
+
 namespace OpenLoyalty\Component\Account\Infrastructure\Notifier;
 
 use Broadway\CommandHandling\CommandBus;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsRepository;
 use OpenLoyalty\Component\Webhook\Domain\Command\DispatchWebhook;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class ExpirePointsNotifier.
@@ -17,7 +21,7 @@ class ExpirePointsNotifier implements ExpirePointsNotifierInterface
 {
     private const REQUEST_PACKAGE_SIZE = 1000;
 
-    private const ACCOUNT_EXPIRING_POINTS_REMINDER_GENERATED = 'account.expiring_points_reminder_generated';
+    private const NOTIFICATION_TYPE = 'account.expiring_points_reminder_generated';
 
     /**
      * @var int
@@ -35,21 +39,29 @@ class ExpirePointsNotifier implements ExpirePointsNotifierInterface
     private $pointsTransferDetailsRepository;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @param CommandBus                      $commandBus
      * @param PointsTransferDetailsRepository $pointsTransferDetailsRepository
+     * @param LoggerInterface                 $logger
      */
     public function __construct(
         CommandBus $commandBus,
-        PointsTransferDetailsRepository $pointsTransferDetailsRepository
+        PointsTransferDetailsRepository $pointsTransferDetailsRepository,
+        LoggerInterface $logger
     ) {
         $this->commandBus = $commandBus;
         $this->pointsTransferDetailsRepository = $pointsTransferDetailsRepository;
+        $this->logger = $logger;
     }
 
     /**
-     * @param \DateTimeInterface $dateTime
+     * {@inheritdoc}
      */
-    public function sendNotificationsForPointsExpiringBefore(\DateTimeInterface $dateTime): void
+    public function sendNotificationsForPointsExpiringAfter(\DateTimeInterface $dateTime): void
     {
         $pointTransfers = $this->pointsTransferDetailsRepository->findAllActiveAddingTransfersBeforeExpired($dateTime);
 
@@ -81,7 +93,7 @@ class ExpirePointsNotifier implements ExpirePointsNotifierInterface
     }
 
     /**
-     * @return int
+     * {@inheritdoc}
      */
     public function sentNotificationsCount(): int
     {
@@ -94,10 +106,11 @@ class ExpirePointsNotifier implements ExpirePointsNotifierInterface
     private function dispatchWebhookRequest(array $notificationPackages): void
     {
         foreach ($notificationPackages as $package) {
-            $this->commandBus->dispatch(new DispatchWebhook(
-                self::ACCOUNT_EXPIRING_POINTS_REMINDER_GENERATED,
-                $package
-            ));
+            try {
+                $this->commandBus->dispatch(new DispatchWebhook(self::NOTIFICATION_TYPE, $package));
+            } catch (\Exception $exception) {
+                $this->logger->error(sprintf('Cannot dispatch webhook %s', self::NOTIFICATION_TYPE));
+            }
         }
     }
 }

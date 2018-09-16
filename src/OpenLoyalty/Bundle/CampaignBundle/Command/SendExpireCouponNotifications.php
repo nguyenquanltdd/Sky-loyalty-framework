@@ -3,10 +3,13 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Bundle\PointsBundle\Command;
+
+declare(strict_types=1);
+
+namespace OpenLoyalty\Bundle\CampaignBundle\Command;
 
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
-use OpenLoyalty\Component\Account\Infrastructure\Notifier\ExpirePointsNotifierInterface;
+use OpenLoyalty\Component\Campaign\Infrastructure\Notifier\ExpireCouponsNotifierInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,13 +18,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 /**
- * Class SendExpirePointsNotifications.
+ * Class SendExpireCouponNotifications.
  */
-class SendExpirePointsNotifications extends Command
+class SendExpireCouponNotifications extends Command
 {
-    private const COMMAND_ID = 'send-expire-points-notifications';
+    private const COMMAND_ID = 'send-expire-coupons-notifications';
 
-    private const COMMAND_NAME = 'oloy:points:notify:expiration';
+    private const COMMAND_NAME = 'oloy:coupons:notify:expiration';
 
     /**
      * @var int
@@ -34,9 +37,9 @@ class SendExpirePointsNotifications extends Command
     private $io;
 
     /**
-     * @var ExpirePointsNotifierInterface
+     * @var ExpireCouponsNotifierInterface
      */
-    private $expirePointsNotifier;
+    private $expireCouponsNotifier;
 
     /**
      * @var SettingsManager
@@ -44,14 +47,14 @@ class SendExpirePointsNotifications extends Command
     private $settingsManager;
 
     /**
-     * SendExpirePointsNotifications constructor.
+     * SendExpireCouponNotifications constructor.
      *
-     * @param ExpirePointsNotifierInterface $expirePointsNotifier
-     * @param SettingsManager               $settingsManager
+     * @param ExpireCouponsNotifierInterface $expireCouponsNotifier
+     * @param SettingsManager                $settingsManager
      */
-    public function __construct(ExpirePointsNotifierInterface $expirePointsNotifier, SettingsManager $settingsManager)
+    public function __construct(ExpireCouponsNotifierInterface $expireCouponsNotifier, SettingsManager $settingsManager)
     {
-        $this->expirePointsNotifier = $expirePointsNotifier;
+        $this->expireCouponsNotifier = $expireCouponsNotifier;
         $this->settingsManager = $settingsManager;
 
         parent::__construct(self::COMMAND_NAME);
@@ -63,7 +66,7 @@ class SendExpirePointsNotifications extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription('Send expire points notification to the users')
+            ->setDescription('Send notifications to users about expiring copons')
             ->addArgument('days-to-expire', InputArgument::OPTIONAL, 'Number of days to expire points')
         ;
     }
@@ -103,22 +106,23 @@ class SendExpirePointsNotifications extends Command
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $stopwatch = new Stopwatch();
         $stopwatch->start(self::COMMAND_ID);
 
-        try {
-            $expireDate = new \DateTime(sprintf('+%d days', $this->daysToExpire));
+        $expireDate = new \DateTime(sprintf('+%d days', $this->daysToExpire));
 
-            $this->expirePointsNotifier->sendNotificationsForPointsExpiringAfter($expireDate);
+        try {
+            $this->expireCouponsNotifier->sendNotificationsForCouponsExpiringAfter($expireDate);
 
             $this->io->success(sprintf(
-                'Successfully sent %d notifications about expiring points!',
-                $this->expirePointsNotifier->sentNotificationsCount()
+                'Successfully sent %d notification(s) about %d expiring coupons!',
+                $this->expireCouponsNotifier->sentNotificationsCount(),
+                $this->expireCouponsNotifier->notificationsCount()
             ));
         } catch (\Exception $exception) {
-            $this->io->error($exception->getMessage());
+            $this->io->error('Something went wrong');
         }
 
         $event = $stopwatch->stop(self::COMMAND_ID);
@@ -126,7 +130,7 @@ class SendExpirePointsNotifications extends Command
         if ($output->isVerbose()) {
             $this->io->comment(sprintf(
                 'Sent requests with webhooks: %d / Elapsed time: %.2f ms / Consumed memory: %.2f MB',
-                $this->expirePointsNotifier->sentNotificationsCount(),
+                $this->expireCouponsNotifier->sentNotificationsCount(),
                 $event->getDuration(),
                 $event->getMemory() / (1024 ** 2)
             ));

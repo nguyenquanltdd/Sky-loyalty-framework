@@ -44,8 +44,11 @@ class SetCouponsAsExpiredCommand extends Command
      * @param CommandBus                $commandBus
      * @param LoggerInterface           $logger
      */
-    public function __construct(CustomerDetailsRepository $customerDetailsRepository, CommandBus $commandBus, LoggerInterface $logger)
-    {
+    public function __construct(
+        CustomerDetailsRepository $customerDetailsRepository,
+        CommandBus $commandBus,
+        LoggerInterface $logger
+    ) {
         $this->customerDetailsRepository = $customerDetailsRepository;
         $this->commandBus = $commandBus;
         $this->logger = $logger;
@@ -56,17 +59,19 @@ class SetCouponsAsExpiredCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
-        $this->setName('oloy:coupons:set_expired');
-        $this->setDescription('Sets all coupons (campaign bought) which are valid for specific time as expired');
-        $this->addOption('progress-bar', null, InputOption::VALUE_NONE, 'Show progress bar');
+        $this
+            ->setName('oloy:coupons:set_expired')
+            ->setDescription('Sets all coupons (campaign bought) which are valid for specific time as expired')
+            ->addOption('progress-bar', null, InputOption::VALUE_NONE, 'Show progress bar')
+        ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function run(InputInterface $input, OutputInterface $output)
+    public function run(InputInterface $input, OutputInterface $output): void
     {
         $customers = $this->customerDetailsRepository->findCustomersWithPurchasesToExpire();
         $progressBarActive = $input->getOption('progress-bar');

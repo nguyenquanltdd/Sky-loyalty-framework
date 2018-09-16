@@ -344,7 +344,8 @@ class CustomerCampaignsControllerTest extends BaseApiTest
         $client = $this->createAuthenticatedClient(
             LoadUserData::TEST_USERNAME,
             LoadUserData::TEST_PASSWORD,
-            'customer');
+            'customer'
+        );
         $client->request('GET', '/api/customer/campaign/available?hasSegment=0');
         $mustNotHaveSegmentResponse = $client->getResponse();
         $mustNotHaveSegmentData = json_decode($mustNotHaveSegmentResponse->getContent(), true);
@@ -362,7 +363,8 @@ class CustomerCampaignsControllerTest extends BaseApiTest
         $client = $this->createAuthenticatedClient(
             LoadUserData::TEST_USERNAME,
             LoadUserData::TEST_PASSWORD,
-            'customer');
+            'customer'
+        );
         $client->request('GET', '/api/customer/campaign/available');
         $allResponse = $client->getResponse();
         $allData = json_decode($allResponse->getContent(), true);

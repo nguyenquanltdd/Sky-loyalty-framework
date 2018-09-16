@@ -38,12 +38,14 @@ class UpdateBoughtCampaignCouponTest extends CustomerCommandHandlerTest
                 new CustomerWasRegistered($customerId, CustomerCommandHandlerTest::getCustomerData()),
                 new CampaignWasBoughtByCustomer($customerId, $campaignId, 'test', 99, $coupon, Campaign::REWARD_TYPE_DISCOUNT_CODE),
             ])
-            ->when(new UpdateBoughtCampaignCouponCommand(
+            ->when(
+                new UpdateBoughtCampaignCouponCommand(
                     $customerId->__toString(),
                     $campaignId->__toString(),
                     $transactionId->__toString(),
                     $createdAt,
-                    $newCoupon->getCode())
+                    $newCoupon->getCode()
+            )
             )
             ->then([
                 new CampaignCouponWasChanged(
