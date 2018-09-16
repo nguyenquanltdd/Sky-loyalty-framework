@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\UserBundle\Form\Type;
 
 use OpenLoyalty\Bundle\UserBundle\Validator\Constraint\CustomerLabel;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
+use OpenLoyalty\Component\Customer\Domain\Model\Gender;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
 use OpenLoyalty\Component\Pos\Domain\Pos;
@@ -107,9 +108,11 @@ class CustomerRegistrationFormType extends AbstractType
             [
                 'label' => 'Gender',
                 'required' => false,
+                'empty_data' => Gender::NOT_DISCLOSED,
                 'choices' => [
-                    'male' => 'male',
-                    'female' => 'female',
+                    Gender::MALE => Gender::MALE,
+                    Gender::FEMALE => Gender::FEMALE,
+                    Gender::NOT_DISCLOSED => Gender::NOT_DISCLOSED,
                 ],
             ]
         );

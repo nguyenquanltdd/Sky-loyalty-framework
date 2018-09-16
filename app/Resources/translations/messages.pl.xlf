@@ -115,8 +115,8 @@
                 <target>Wysyłka sms nieudana:</target>
             </trans-unit>
             <trans-unit id="29">
-                <source>Gender should be male or female</source>
-                <target>Poprawna płeć to mężczyzna lub kobieta</target>
+                <source>account.gender.should_be_male_female_not_disclosed</source>
+                <target>Poprawna płeć to mężczyzna lub kobieta lub nie ujawniona</target>
             </trans-unit>
             <trans-unit id="30">
                 <source>Already assigned to user</source>

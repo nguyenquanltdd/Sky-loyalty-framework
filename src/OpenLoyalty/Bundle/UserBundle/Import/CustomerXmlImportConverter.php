@@ -48,7 +48,7 @@ class CustomerXmlImportConverter extends AbstractXMLImportConverter
                 'gender' => [
                     'required' => true,
                     'format' => XmlNodeValidator::VALID_CONST_FORMAT,
-                    'values' => [Gender::MALE, Gender::FEMALE],
+                    'values' => [Gender::MALE, Gender::FEMALE, Gender::NOT_DISCLOSED],
                 ],
                 'levelId' => [
                     'format' => XmlNodeValidator::UUID_FORMAT,

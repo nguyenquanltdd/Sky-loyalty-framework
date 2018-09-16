@@ -12,50 +12,63 @@ class Gender
 {
     const MALE = 'male';
     const FEMALE = 'female';
+    const NOT_DISCLOSED = 'not_disclosed';
 
     /**
      * @var string
      */
     protected $type;
 
-    public static function male()
+    /**
+     * Gender constructor.
+     *
+     * @param string $type
+     */
+    public function __construct(string $type)
     {
-        return new self(static::MALE);
-    }
-
-    public static function female()
-    {
-        return new self(static::FEMALE);
-    }
-
-    public function __construct($type)
-    {
-        if ($type != static::MALE && $type != static::FEMALE) {
-            throw new \InvalidArgumentException('Gender should be male or female');
+        if (!in_array($type, [self::MALE, self::FEMALE, self::NOT_DISCLOSED])) {
+            throw new \InvalidArgumentException('account.gender.should_be_male_female_not_disclosed');
         }
 
         $this->type = $type;
     }
 
-    public function __toString()
+    /**
+     * @return bool
+     */
+    public function isMale(): bool
     {
-        return $this->type;
+        return $this->type == self::MALE;
     }
 
-    public function isMale()
+    /**
+     * @return bool
+     */
+    public function isFemale(): bool
     {
-        return $this->type == static::MALE;
+        return $this->type == self::FEMALE;
     }
 
-    public function isFemale()
+    /**
+     * @return bool
+     */
+    public function isNotDisclosed(): bool
     {
-        return $this->type == static::FEMALE;
+        return $this->type == self::NOT_DISCLOSED;
     }
 
     /**
      * @return string
      */
-    public function getType()
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
     {
         return $this->type;
     }

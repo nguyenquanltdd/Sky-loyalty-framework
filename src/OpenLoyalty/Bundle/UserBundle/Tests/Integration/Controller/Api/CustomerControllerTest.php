@@ -119,6 +119,104 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
+    public function it_set_default_gender_on_customer_registration(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/customer/register',
+            [
+                'customer' => [
+                    'firstName' => 'John',
+                    'lastName' => 'Doe',
+                    'email' => 'john.doe4@example.com',
+                    'agreement1' => true,
+                ],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('customerId', $data);
+        $this->assertArrayHasKey('email', $data);
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/customer/'.$data['customerId']
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('gender', $data);
+        $this->assertEquals('not_disclosed', $data['gender']);
+    }
+
+    /**
+     * @test
+     * @dataProvider emailAndGenderDataProvider
+     *
+     * @param string $email
+     * @param string $gender
+     */
+    public function it_allows_to_register_new_customer_with_email_and_gender(string $email, string $gender): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/customer/register',
+            [
+                'customer' => [
+                    'firstName' => 'John',
+                    'lastName' => 'Doe',
+                    'email' => $email,
+                    'gender' => $gender,
+                    'agreement1' => true,
+                ],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('customerId', $data);
+        $this->assertArrayHasKey('email', $data);
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/customer/'.$data['customerId']
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('gender', $data);
+        $this->assertEquals($email, $data['email']);
+        $this->assertEquals($gender, $data['gender']);
+    }
+
+    /**
+     * @return array
+     */
+    public function emailAndGenderDataProvider(): array
+    {
+        return [
+            ['john.doe1@example.com', 'male'],
+            ['john.doe2@example.com', 'female'],
+            ['john.doe3@example.com', 'not_disclosed'],
+        ];
+    }
+
+    /**
+     * @test
+     */
     public function it_allows_to_register_new_customer_with_labels(): void
     {
         $client = $this->createAuthenticatedClient();
@@ -1065,16 +1163,16 @@ class CustomerControllerTest extends BaseApiTest
     public function getPartialPhrases(): array
     {
         return [
-            ['firstName', 'Jo', 12],
+            ['firstName', 'Jo', 16],
             ['firstName', 'Marks', 1],
             ['firstName', '1', 1],
             ['firstName', 'John1', 1],
-            ['lastName', 'Doe', 11],
+            ['lastName', 'Doe', 15],
             ['lastName', 'Doe1', 1],
             ['lastName', 'Smith', 2],
             ['phone', '48', 6],
             ['phone', '645', 2],
-            ['email', '@', 18],
+            ['email', '@', 22],
             ['email', 'user-1', 1],
             ['loyaltyCardNumber', '000000', 3],
             ['transactionsAmount', '3', 0],
@@ -1085,7 +1183,7 @@ class CustomerControllerTest extends BaseApiTest
             ['averageTransactionAmount', '7.5', 0],
             ['transactionsCount', '4', 0],
             ['transactionsCount', '2', 0],
-            ['transactionsCount', '0', 13],
+            ['transactionsCount', '0', 17],
         ];
     }
 
@@ -1143,11 +1241,11 @@ class CustomerControllerTest extends BaseApiTest
     public function getStrictPhrases(): array
     {
         return [
-            ['firstName', 'John', 9],
+            ['firstName', 'John', 13],
             ['firstName', 'John Marks', 1],
             ['firstName', '1', 0],
             ['firstName', 'John1', 1],
-            ['lastName', 'Doe', 9],
+            ['lastName', 'Doe', 13],
             ['lastName', 'Doe Smith', 1],
             ['lastName', 'Doe1', 1],
             ['lastName', '1', 0],
@@ -1164,7 +1262,7 @@ class CustomerControllerTest extends BaseApiTest
             ['averageTransactionAmount', '7.5', 0],
             ['transactionsCount', '4', 0],
             ['transactionsCount', '2', 0],
-            ['transactionsCount', '0', 13],
+            ['transactionsCount', '0', 17],
         ];
     }
 

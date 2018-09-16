@@ -115,8 +115,8 @@
                 <target>Send sms failed:</target>
             </trans-unit>
             <trans-unit id="29">
-                <source>Gender should be male or female</source>
-                <target>Gender should be male or female</target>
+                <source>account.gender.should_be_male_female_not_disclosed</source>
+                <target>Gender should be male or female or not disclosed</target>
             </trans-unit>
             <trans-unit id="30">
                 <source>Already assigned to user</source>

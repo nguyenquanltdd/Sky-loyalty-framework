@@ -145,7 +145,7 @@ class LoadCustomersAndTransactionsData extends AbstractFixture implements Fixtur
      */
     public function getCustomerData(Generator $faker, $christmas = false)
     {
-        $gender = ['male', 'female'];
+        $gender = ['male', 'female', 'not_disclosed'];
 
         if (!$christmas) {
             $registrationDate = $faker->dateTimeBetween('-30 days');
