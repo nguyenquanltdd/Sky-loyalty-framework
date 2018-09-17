@@ -992,6 +992,7 @@ class CustomerControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $customerData = json_decode($response->getContent(), true);
+
         $this->assertEquals(false, $customerData['agreement2'], 'Agreement2 should be false');
 
         //Test newsletter subscribe flag

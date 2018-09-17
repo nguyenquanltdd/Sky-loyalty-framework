@@ -36,7 +36,6 @@ class SettingsFormTypeTest extends TypeTestCase
 {
     protected $stringEntries = [
         'currency' => 'pln',
-        'defaultFrontendTranslations' => 'english.json',
         'timezone' => 'Europe/Berlin',
         'programName' => 'test',
         'programConditionsUrl' => 'url',
@@ -131,7 +130,7 @@ class SettingsFormTypeTest extends TypeTestCase
         );
 
         $this->translationProvider->method('getAvailableTranslationsList')->willReturn([
-            new TranslationsEntry('english.json'),
+            new TranslationsEntry('en'),
         ]);
 
         $this->settingsManager = $this->getMockForAbstractClass(SettingsManager::class);

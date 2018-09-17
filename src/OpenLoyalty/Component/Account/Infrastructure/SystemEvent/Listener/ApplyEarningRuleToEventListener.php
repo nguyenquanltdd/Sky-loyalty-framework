@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Component\Account\Infrastructure\SystemEvent\Listener;
@@ -107,17 +107,14 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
         }
 
         $this->commandBus->dispatch(
-            new AddPoints(
-                $account->getAccountId(),
-                $this->pointsTransferManager->createAddPointsTransferInstance(
-                    new PointsTransferId($this->uuidGenerator->generate()),
-                    $result->getPoints(),
-                    null,
-                    false,
-                    null,
-                    $result->getName()
-                )
-            )
+            new AddPoints($account->getAccountId(), $this->pointsTransferManager->createAddPointsTransferInstance(
+                new PointsTransferId($this->uuidGenerator->generate()),
+                $result->getPoints(),
+                null,
+                false,
+                null,
+                $result->getName()
+            ))
         );
         $event->setEvaluationResult($result);
     }

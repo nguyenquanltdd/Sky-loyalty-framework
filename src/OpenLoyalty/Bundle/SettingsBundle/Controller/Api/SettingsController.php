@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\SettingsBundle\Controller\Api;
@@ -15,12 +15,12 @@ use OpenLoyalty\Bundle\SettingsBundle\Form\Type\ConditionsFileType;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\LogoFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\SettingsFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\TranslationsFormType;
-use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Service\ConditionsUploader;
 use OpenLoyalty\Bundle\SettingsBundle\Service\LogoUploader;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\SettingsBundle\Service\TemplateProvider;
 use OpenLoyalty\Bundle\SettingsBundle\Provider\ChoicesProvider;
+use OpenLoyalty\Bundle\SettingsBundle\Service\TranslationsProvider;
 use OpenLoyalty\Component\Core\Domain\Command\RemovePhoto;
 use OpenLoyalty\Component\Core\Domain\Command\UploadPhoto;
 use OpenLoyalty\Component\Core\Domain\Exception\InvalidPhotoNameException;
@@ -47,31 +47,41 @@ class SettingsController extends FOSRestController
      * @var SettingsManager
      */
     protected $settingsManager;
+
     /**
      * @var SimpleCommandBus
      */
     private $commandBus;
+
     /**
      * @var LogoUploader
      */
     private $uploader;
 
     /**
+     * @var TranslationsProvider
+     */
+    protected $translationsProvider;
+
+    /**
      * SettingsController constructor.
      *
-     * @param TranslatorInterface $translator
-     * @param SettingsManager     $settingsManager
-     * @param LogoUploader        $uploader
-     * @param SimpleCommandBus    $commandBus
+     * @param TranslatorInterface  $translator
+     * @param SettingsManager      $settingsManager
+     * @param TranslationsProvider $translationsProvider
+     * @param LogoUploader         $uploader
+     * @param SimpleCommandBus     $commandBus
      */
     public function __construct(
         TranslatorInterface $translator,
         SettingsManager $settingsManager,
+        TranslationsProvider $translationsProvider,
         LogoUploader $uploader,
         SimpleCommandBus $commandBus
     ) {
         $this->translator = $translator;
         $this->settingsManager = $settingsManager;
+        $this->translationsProvider = $translationsProvider;
         $this->uploader = $uploader;
         $this->commandBus = $commandBus;
     }
@@ -635,7 +645,7 @@ class SettingsController extends FOSRestController
 
         return $this->view([
             'settings' => $settingsManager->getSettings()->toArray(),
-        ], 200);
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -650,11 +660,9 @@ class SettingsController extends FOSRestController
      *
      * @return Response
      */
-    public function translationsAction()
+    public function translationsAction(): Response
     {
-        $translationsProvider = $this->get('ol.settings.translations');
-
-        return new Response($translationsProvider->getCurrentTranslations()->getContent(), Response::HTTP_OK, [
+        return new Response($this->translationsProvider->getCurrentTranslations()->getContent(), Response::HTTP_OK, [
             'Content-Type' => 'application/json',
         ]);
     }
@@ -672,16 +680,16 @@ class SettingsController extends FOSRestController
      *
      * @return View
      */
-    public function listTranslationsAction()
+    public function listTranslationsAction(): View
     {
-        $translations = $this->get('ol.settings.translations')->getAvailableTranslationsList();
+        $translations = $this->translationsProvider->getAvailableTranslationsList();
 
         return $this->view(
             [
                 'translations' => $translations,
                 'total' => count($translations),
             ],
-            200
+            Response::HTTP_OK
         );
     }
 
@@ -707,60 +715,88 @@ class SettingsController extends FOSRestController
                 'statuses' => $statuses,
                 'total' => count($statuses),
             ],
-            200
+            Response::HTTP_OK
         );
     }
 
     /**
      * Method will return translations<br/> You must provide translation key, available keys can be obtained by /admin/translations endpoint.
      *
-     * @Route(name="oloy.settings.translations_get", path="/admin/translations/{key}")
+     * @Route(name="oloy.settings.translations_get", path="/admin/translations/{code}")
      * @Method("GET")
      * @Security("is_granted('EDIT_SETTINGS')")
      * @ApiDoc(
-     *     name="Get single translation by key",
+     *     name="Get single translation by code",
      *     section="Settings"
      * )
      *
-     * @param string              $key
-     * @param TranslatorInterface $translator
+     * @param string $code
+     *
+     * @return View
+     *
+     * @internal param $code
+     */
+    public function getTranslationByCodeAction(string $code): View
+    {
+        try {
+            $translationsEntry = $this->translationsProvider->getTranslationsByKey($code);
+        } catch (\Exception $e) {
+            throw $this->createNotFoundException($this->translator->trans($e->getMessage()), $e);
+        }
+
+        return $this->view($translationsEntry, Response::HTTP_OK);
+    }
+
+    /**
+     * Method will remove translations<br/> You must provide translation key, available keys can be obtained by /admin/translations endpoint.
+     *
+     * @Route(name="oloy.settings.translations_remove", path="/admin/translations/{code}")
+     * @Method("DELETE")
+     * @Security("is_granted('EDIT_SETTINGS')")
+     * @ApiDoc(
+     *     name="Remove single translation by code",
+     *     section="Settings"
+     * )
+     *
+     * @param string $code
      *
      * @return View
      */
-    public function getTranslationByKeyAction($key, TranslatorInterface $translator)
+    public function removeTranslationByCodeAction(string $code): View
     {
-        try {
-            $translationsEntry = $this->get('ol.settings.translations')->getTranslationsByKey($key);
-        } catch (\Exception $e) {
-            throw $this->createNotFoundException($translator->trans($e->getMessage()), $e);
+        if (!$this->translationsProvider->hasTranslation($code)) {
+            throw $this->createNotFoundException();
         }
 
-        return $this->view($translationsEntry, 200);
+        $this->translationsProvider->remove($code);
+
+        return $this->view([], Response::HTTP_OK);
     }
 
     /**
      * Method allows to update specific translations.
      *
-     * @Route(name="oloy.settings.translations_update", path="/admin/translations/{key}")
+     * @Route(name="oloy.settings.translations_update", path="/admin/translations/{code}")
      * @Method("PUT")
      * @Security("is_granted('EDIT_SETTINGS')")
      * @ApiDoc(
-     *     name="Update single translation by key",
+     *     name="Update single translation by code",
      *     section="Settings"
      * )
      *
      * @param Request $request
-     * @param $key
+     * @param string  $code
      *
      * @return View
      */
-    public function updateTranslationByKeyAction(Request $request, $key)
+    public function updateTranslationByCodeAction(Request $request, string $code): View
     {
-        $provider = $this->get('ol.settings.translations');
-        if (!$provider->hasTranslation($key)) {
+        if (!$this->translationsProvider->hasTranslation($code)) {
             throw $this->createNotFoundException();
         }
-        $entry = new TranslationsEntry($key);
+        $entry = $this->translationsProvider->getTranslationsByKey($code);
+        $wasDefault = $entry->isDefault();
+
         $form = $this->get('form.factory')->createNamed('translation', TranslationsFormType::class, $entry, [
             'method' => 'PUT',
             'validation_groups' => ['edit', 'Default'],
@@ -768,7 +804,11 @@ class SettingsController extends FOSRestController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $provider->save($entry, $key);
+            if ($wasDefault && !$entry->isDefault()) {
+                return $this->view(['error' => $this->translator->trans('Some default language is required')], Response::HTTP_BAD_REQUEST);
+            }
+
+            $this->translationsProvider->update($entry);
 
             return $this->view($entry, Response::HTTP_OK);
         }
@@ -796,15 +836,14 @@ class SettingsController extends FOSRestController
      *
      * @return View
      */
-    public function createTranslationAction(Request $request)
+    public function createTranslationAction(Request $request): View
     {
-        $provider = $this->get('ol.settings.translations');
         $form = $this->get('form.factory')->createNamed('translation', TranslationsFormType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entry = $form->getData();
-            $provider->save($entry);
+            $this->translationsProvider->create($entry);
 
             return $this->view($entry, Response::HTTP_OK);
         }

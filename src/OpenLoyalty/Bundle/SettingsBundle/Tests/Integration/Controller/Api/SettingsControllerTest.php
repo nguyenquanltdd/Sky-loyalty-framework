@@ -28,7 +28,48 @@ class SettingsControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_css()
+    public function it_creates_new_translations(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $translationData = [
+            'name' => 'Germany',
+            'code' => 'de',
+            'order' => 0,
+            'default' => false,
+            'content' => json_encode(['key' => 'value']),
+        ];
+
+        $client->request(
+            'POST',
+            '/api/admin/translations',
+            ['translation' => $translationData]
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals('200', $response->getStatusCode(), 'Cannot create new translation');
+        $responseData = json_decode($response->getContent(), true);
+        $this->assertEquals('de', $responseData['code']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_removes_translations(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'DELETE',
+            '/api/admin/translations/de'
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals('200', $response->getStatusCode(), 'Cannot remove translation');
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_css(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -132,7 +173,6 @@ class SettingsControllerTest extends BaseApiTest
 
         $requiredSettings = [
             'currency' => 'pln',
-            'defaultFrontendTranslations' => 'english.json',
             'customerStatusesEarning' => [Status::TYPE_ACTIVE],
             'customerStatusesSpending' => [Status::TYPE_ACTIVE],
             'accountActivationMethod' => AccountActivationMethod::METHOD_EMAIL,
@@ -465,7 +505,6 @@ class SettingsControllerTest extends BaseApiTest
         $this->assertArrayHasKey('programPointsSingular', $settings);
         $this->assertArrayHasKey('programPointsPlural', $settings);
         $this->assertArrayHasKey('tierAssignType', $settings);
-        $this->assertArrayHasKey('defaultFrontendTranslations', $settings);
         $this->assertArrayHasKey('accountActivationMethod', $settings);
         $this->assertArrayHasKey('accentColor', $settings);
         $this->assertArrayHasKey('cssTemplate', $settings);
@@ -474,7 +513,7 @@ class SettingsControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_translations_list_for_an_administrator()
+    public function it_returns_translations_list_for_an_administrator(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -488,13 +527,13 @@ class SettingsControllerTest extends BaseApiTest
 
         $this->assertArrayHasKey('translations', $data);
         $this->assertArrayHasKey('total', $data);
-        $this->assertEquals($data['total'], 2);
+        $this->assertEquals(2, $data['total']);
 
         $translation = reset($data['translations']);
         $this->assertArrayHasKey('name', $translation);
-        $this->assertEquals('english', $translation['name']);
-        $this->assertArrayHasKey('key', $translation);
-        $this->assertEquals('english.json', $translation['key']);
+        $this->assertEquals('English', $translation['name']);
+        $this->assertArrayHasKey('code', $translation);
+        $this->assertEquals('en', $translation['code']);
         $this->assertArrayHasKey('updatedAt', $translation);
     }
 
@@ -537,12 +576,12 @@ class SettingsControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_translation_file_by_key()
+    public function it_returns_translation_file_by_key(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
             'GET',
-            '/api/admin/translations/english.json'
+            '/api/admin/translations/en'
         );
 
         $response = $client->getResponse();
@@ -552,7 +591,7 @@ class SettingsControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_exception_if_translation_file_does_not_exists()
+    public function it_returns_exception_if_translation_file_does_not_exists(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -672,7 +711,7 @@ class SettingsControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_available_frontend_translations()
+    public function it_returns_available_frontend_translations(): void
     {
         $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
         $client->request(
@@ -688,9 +727,9 @@ class SettingsControllerTest extends BaseApiTest
 
         $translation = reset($data['choices']);
         $this->assertArrayHasKey('name', $translation);
-        $this->assertEquals('english', $translation['name']);
-        $this->assertArrayHasKey('key', $translation);
-        $this->assertEquals('english.json', $translation['key']);
+        $this->assertEquals('English', $translation['name']);
+        $this->assertArrayHasKey('code', $translation);
+        $this->assertEquals('en', $translation['code']);
         $this->assertArrayHasKey('updatedAt', $translation);
     }
 

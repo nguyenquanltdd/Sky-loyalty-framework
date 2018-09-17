@@ -170,7 +170,6 @@ class CampaignControllerTest extends BaseApiTest
             '/api/campaign',
             [
                 'campaign' => [
-                    'name' => 'test',
                     'reward' => Campaign::REWARD_TYPE_GIFT_CODE,
                     'levels' => [LoadLevelData::LEVEL2_ID],
                     'segments' => [],
@@ -179,7 +178,6 @@ class CampaignControllerTest extends BaseApiTest
                     'limitPerUser' => 2,
                     'coupons' => ['123'],
                     'costInPoints' => 12,
-                    'brandDescription' => '_test_brand_desc_',
                     'campaignActivity' => [
                         'allTimeActive' => false,
                         'activeFrom' => (new \DateTime('2016-01-01'))->format('Y-m-d H:i'),
@@ -195,6 +193,16 @@ class CampaignControllerTest extends BaseApiTest
                     'labels' => 'key0:value0;key1:value1',
                     'taxPriceValue' => 99.95,
                     'tax' => 23,
+                    'translations' => [
+                        'en' => [
+                            'name' => 'test',
+                            'shortDescription' => 'short description',
+                        ],
+                        'pl' => [
+                            'name' => 'test PL',
+                            'shortDescription' => 'krótki opis PL',
+                        ],
+                    ],
                 ],
             ]
         );
@@ -207,7 +215,6 @@ class CampaignControllerTest extends BaseApiTest
         $this->assertInstanceOf(Campaign::class, $campaign);
         $this->assertEquals(99.95, $campaign->getTaxPriceValue());
         $this->assertEquals(23, $campaign->getTax());
-        $this->assertEquals('_test_brand_desc_', $campaign->getBrandDescription());
         $this->assertInternalType('array', $campaign->getLabels());
         $this->assertCount(2, $campaign->getLabels());
         foreach ($campaign->getLabels() as $key => $label) {
@@ -228,7 +235,6 @@ class CampaignControllerTest extends BaseApiTest
             '/api/campaign',
             [
                 'campaign' => [
-                    'name' => 'test_single_coupon',
                     'reward' => Campaign::REWARD_TYPE_GIFT_CODE,
                     'levels' => [LoadLevelData::LEVEL2_ID],
                     'segments' => [],
@@ -249,6 +255,16 @@ class CampaignControllerTest extends BaseApiTest
                         'allTimeVisible' => false,
                         'visibleFrom' => (new \DateTime('2016-02-01'))->format('Y-m-d H:i'),
                         'visibleTo' => (new \DateTime('2037-02-11'))->format('Y-m-d H:i'),
+                    ],
+                    'translations' => [
+                        'en' => [
+                            'name' => 'test_single_coupon',
+                            'shortDescription' => 'short description',
+                        ],
+                        'pl' => [
+                            'name' => 'test_single_coupon_PL',
+                            'shortDescription' => 'krótki opis PL',
+                        ],
                     ],
                 ],
             ]
@@ -273,7 +289,6 @@ class CampaignControllerTest extends BaseApiTest
             '/api/campaign/'.LoadCampaignData::CAMPAIGN2_ID,
             [
                 'campaign' => [
-                    'name' => 'test',
                     'reward' => Campaign::REWARD_TYPE_GIFT_CODE,
                     'levels' => [LoadLevelData::LEVEL2_ID],
                     'segments' => [],
@@ -298,6 +313,16 @@ class CampaignControllerTest extends BaseApiTest
                     ],
                     'taxPriceValue' => 300.95,
                     'tax' => 23,
+                    'translations' => [
+                        'en' => [
+                            'name' => 'test',
+                            'shortDescription' => 'short description',
+                        ],
+                        'pl' => [
+                            'name' => 'test PL',
+                            'shortDescription' => 'krótki opis PL',
+                        ],
+                    ],
                 ],
             ]
         );
@@ -317,6 +342,10 @@ class CampaignControllerTest extends BaseApiTest
         $this->assertInstanceOf(Label::class, $label);
         $this->assertEquals('type', $label->getKey());
         $this->assertEquals('promotion', $label->getValue());
+        $this->assertEquals('test', $campaign->getName());
+        $this->assertEquals('short description', $campaign->getShortDescription());
+        $this->assertEquals('test PL', $campaign->translate('pl')->getName());
+        $this->assertEquals('krótki opis PL', $campaign->translate('pl')->getShortDescription());
     }
 
     /**
@@ -418,6 +447,9 @@ class CampaignControllerTest extends BaseApiTest
             [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID]], 1],
             [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID, LoadCampaignData::CAMPAIGN_CATEGORY2_ID]], 2],
             [['categoryId' => ['not-exist-sid']], 0],
+            [['name' => 'cashback'], 1],
+            [['name' => 'zwrot gotówki'], 0],
+            [['name' => 'test'], 3],
         ];
     }
 
@@ -549,15 +581,23 @@ class CampaignControllerTest extends BaseApiTest
         $this->assertArrayHasKey('key', $data['labels'][0]);
         $this->assertArrayHasKey('value', $data['labels'][0]);
 
-        $this->assertArrayHasKey('brandDescription', $data);
-        $this->assertArrayHasKey('shortDescription', $data);
-        $this->assertArrayHasKey('conditionsDescription', $data);
-        $this->assertArrayHasKey('usageInstruction', $data);
-
-        $this->assertEquals('_branddescription_', $data['brandDescription']);
-        $this->assertEquals('_shortdescription_', $data['shortDescription']);
-        $this->assertEquals('_conditionsdescription_', $data['conditionsDescription']);
-        $this->assertEquals('_usageinstruction_', $data['usageInstruction']);
+        //translations
+        //en
+        $this->assertCount(2, $data['translations']);
+        $this->assertArrayHasKey('name', $data['translations'][0]);
+        $this->assertArrayHasKey('shortDescription', $data['translations'][0]);
+        $this->assertArrayHasKey('locale', $data['translations'][0]);
+        $this->assertEquals('Test configured campaign', $data['translations'][0]['name']);
+        $this->assertEquals('Some _Campaign_ short description', $data['translations'][0]['shortDescription']);
+        $this->assertEquals('Some _Brand_ description', $data['translations'][0]['brandDescription']);
+        $this->assertEquals('en', $data['translations'][0]['locale']);
+        //pl
+        $this->assertArrayHasKey('name', $data['translations'][1]);
+        $this->assertArrayHasKey('shortDescription', $data['translations'][1]);
+        $this->assertArrayHasKey('locale', $data['translations'][1]);
+        $this->assertEquals('Skonfigurowana testowa kampania', $data['translations'][1]['name']);
+        $this->assertEquals('Opis skonfigurowanej kampanii testowej', $data['translations'][1]['shortDescription']);
+        $this->assertEquals('pl', $data['translations'][1]['locale']);
     }
 
     /**
@@ -582,10 +622,10 @@ class CampaignControllerTest extends BaseApiTest
         $this->assertArrayHasKey('conditionsDescription', $data);
         $this->assertArrayHasKey('usageInstruction', $data);
 
-        $this->assertEquals('<em>branddescription</em>', $data['brandDescription']);
-        $this->assertEquals('<em>shortdescription</em>', $data['shortDescription']);
-        $this->assertEquals('<em>conditionsdescription</em>', $data['conditionsDescription']);
-        $this->assertEquals('<em>usageinstruction</em>', $data['usageInstruction']);
+        $this->assertEquals('Some <em>Brand</em> description', $data['brandDescription']);
+        $this->assertEquals('Some <em>Campaign</em> short description', $data['shortDescription']);
+        $this->assertEquals('Some <em>Campaign</em> condition description', $data['conditionsDescription']);
+        $this->assertEquals('How to use coupon in this <em>campaign</em>', $data['usageInstruction']);
     }
 
     /**

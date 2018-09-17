@@ -23,7 +23,7 @@ class CreateLevel extends LevelCommand
      */
     public function __construct(LevelId $levelId, $levelData)
     {
-        Assert::notEmpty($levelData['name']);
+        Assert::notEmpty($levelData['translations']);
         Assert::greaterOrEqualThan($levelData['conditionValue'], 0);
         Assert::notEmpty($levelData['reward']);
 

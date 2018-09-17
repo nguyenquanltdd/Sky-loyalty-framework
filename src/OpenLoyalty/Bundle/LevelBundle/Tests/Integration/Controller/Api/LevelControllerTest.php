@@ -35,13 +35,21 @@ class LevelControllerTest extends BaseApiTest
             '/api/level/create',
             [
                 'level' => [
-                    'name' => 'test level',
-                    'description' => 'test level',
                     'conditionValue' => 15,
                     'reward' => [
                         'name' => 'new reward',
                         'value' => 15,
                         'code' => 'xyz',
+                    ],
+                    'translations' => [
+                        'en' => [
+                            'name' => 'test level',
+                            'description' => 'test level',
+                        ],
+                        'pl' => [
+                            'name' => 'test level pl',
+                            'description' => 'test level pl',
+                        ],
                     ],
                 ],
             ]
@@ -75,6 +83,17 @@ class LevelControllerTest extends BaseApiTest
         $this->assertArrayHasKey('hasPhoto', $data);
         $this->assertInternalType('bool', $data['hasPhoto']);
         $this->assertEquals($level->getLevelId()->__toString(), $data['id']);
+
+        //translations
+        //en
+        $this->assertCount(2, $data['translations']);
+        $this->assertArrayHasKey('name', $data['translations'][0]);
+        $this->assertArrayHasKey('description', $data['translations'][0]);
+        $this->assertArrayHasKey('locale', $data['translations'][0]);
+        //pl
+        $this->assertArrayHasKey('name', $data['translations'][1]);
+        $this->assertArrayHasKey('description', $data['translations'][1]);
+        $this->assertArrayHasKey('locale', $data['translations'][1]);
     }
 
     /**
@@ -88,13 +107,21 @@ class LevelControllerTest extends BaseApiTest
             '/api/level/create',
             [
                 'level' => [
-                    'name' => 'test level',
-                    'description' => 'test level',
                     'conditionValue' => 15,
                     'reward' => [
                         'name' => 'new reward',
                         'value' => 15,
                         'code' => 'xyz',
+                    ],
+                    'translations' => [
+                        'en' => [
+                            'name' => 'test level',
+                            'description' => 'test level',
+                        ],
+                        'pl' => [
+                            'name' => 'test level PL',
+                            'description' => 'test level PL',
+                        ],
                     ],
                 ],
             ]
@@ -128,8 +155,6 @@ class LevelControllerTest extends BaseApiTest
             '/api/level/create',
             [
                 'level' => [
-                    'name' => 'test level',
-                    'description' => 'test level',
                     'conditionValue' => 15,
                     'reward' => [
                         'name' => 'new reward',
@@ -152,6 +177,16 @@ class LevelControllerTest extends BaseApiTest
                             'startAt' => '2016-09-10',
                             'endAt' => '2016-11-10',
                             'active' => false,
+                        ],
+                    ],
+                    'translations' => [
+                        'en' => [
+                            'name' => 'test level',
+                            'description' => 'test level',
+                        ],
+                        'pl' => [
+                            'name' => 'test level pl',
+                            'description' => 'test level pl',
                         ],
                     ],
                 ],
@@ -202,13 +237,21 @@ class LevelControllerTest extends BaseApiTest
             '/api/level/'.LoadLevelData::LEVEL_ID,
             [
                 'level' => [
-                    'name' => 'updated level name',
-                    'description' => 'test level',
                     'conditionValue' => 0.15,
                     'reward' => [
                         'name' => 'new reward',
                         'value' => 15,
                         'code' => 'xyz',
+                    ],
+                    'translations' => [
+                        'en' => [
+                            'name' => 'updated level name EN',
+                            'description' => 'updated level desc EN',
+                        ],
+                        'pl' => [
+                            'name' => 'updated level name PL',
+                            'description' => 'updated level desc PL',
+                        ],
                     ],
                 ],
             ]
@@ -219,7 +262,7 @@ class LevelControllerTest extends BaseApiTest
         $this->assertArrayHasKey('id', $data);
         $this->assertEquals(LoadLevelData::LEVEL_ID, $data['id']);
         $level = $this->getLevel(LoadLevelData::LEVEL_ID);
-        $this->assertEquals('updated level name', $level->getName(), 'Name should be now "updated level name"');
+        $this->assertEquals('updated level name EN', $level->getName(), 'Name should be now "updated level name"');
     }
 
     /**
@@ -234,8 +277,6 @@ class LevelControllerTest extends BaseApiTest
             '/api/level/'.LoadLevelData::LEVEL2_ID,
             [
                 'level' => [
-                    'name' => 'updated level name',
-                    'description' => 'test level',
                     'conditionValue' => 0.15,
                     'reward' => [
                         'name' => 'new reward - edited',
@@ -250,6 +291,16 @@ class LevelControllerTest extends BaseApiTest
                             'startAt' => '2016-10-10',
                             'endAt' => '2016-11-10',
                             'active' => true,
+                        ],
+                    ],
+                    'translations' => [
+                        'en' => [
+                            'name' => 'updated level name',
+                            'description' => 'updated level desc',
+                        ],
+                        'pl' => [
+                            'name' => 'updated level name PL',
+                            'description' => 'updated level desc PL',
                         ],
                     ],
                 ],
@@ -282,13 +333,21 @@ class LevelControllerTest extends BaseApiTest
             '/api/level/'.LoadLevelData::LEVEL_ID,
             [
                 'level' => [
-                    'name' => 'updated level name',
-                    'description' => 'test level',
                     'conditionValue' => 0.15,
                     'reward' => [
                         'name' => 'new reward - edited',
                         'value' => 2,
                         'code' => 'xyz',
+                    ],
+                    'translations' => [
+                        'en' => [
+                            'name' => 'updated level name',
+                            'description' => 'updated level desc',
+                        ],
+                        'pl' => [
+                            'name' => 'updated level name PL',
+                            'description' => 'updated level desc PL',
+                        ],
                     ],
                 ],
             ]
@@ -315,7 +374,11 @@ class LevelControllerTest extends BaseApiTest
             '/api/level/create',
             [
                 'level' => [
-                    'description' => 'test level',
+                    'translations' => [
+                        'en' => [
+                            'description' => 'updated level desc',
+                        ],
+                    ],
                 ],
             ]
         );
@@ -323,7 +386,8 @@ class LevelControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 400');
-        $this->assertTrue(count($data['form']['children']['name']['errors']) > 0, 'There should be an error on name field');
+        $this->assertTrue(count($data['form']['children']['translations']['children']['en']['children']['name']['errors']) > 0,
+        'There should bean error on name field');
     }
 
     /**

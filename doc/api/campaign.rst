@@ -19,71 +19,73 @@ Definition
 
     POST /api/campaign
 
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| Parameter                                      | Parameter type |  Description                                                               |
-+================================================+================+============================================================================+
-| Authorization                                  | header         | Token received during authentication                                       |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[reward]                               | request        |  Campaign type. Possible types:                                            |
-|                                                |                |  discount_code, free_delivery_code, gift_code, event_code, value_code.     |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[name]                                 | request        |  Campaign name.                                                            |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[shortDescription]                     | request        |  *(optional)* A short description.                                         |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[conditionsDescription]                | request        |  *(optional)* A description of required conditions to apply.               |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[usageInstruction]                     | request        |  A short information about how to use coupons.                             |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[active]                               | request        |  Set 1 if active, otherwise 0                                              |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[categories]                           | request        | *(optional)* Array of category IDs.                                        |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[costInPoints]                         | request        |  How many points it costs                                                  |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[target]                               | request        |  Set ``level`` to choose target from defined levels.                       |
-|                                                |                |  Set ``segment`` to choose target from defined segments                    |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[levels]                               | request        |  Array of level IDs. *(required only if ``target=level``)*                 |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[segments]                             | request        |  Array of segment IDs. *(required only if ``target=segment``)*             |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[labels]                               | request        | *(optional)* Informational labels in format "key:value;key1:value1"        |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[unlimited]                            | request        |  Set 1 if unlimited, otherwise 0                                           |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[singleCoupon]                         | request        |  Set 1 if single coupon, otherwise 0                                       |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[limit]                                | request        |  Global campaign usage limit. *(required only if ``unlimited=0``)*         |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[limitPerUser]                         | request        |  Customer campaign usage limit. *(required only if ``unlimited=0``)*       |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[coupons]                              | request        |  Array of coupon codes.                                                    |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[daysInactive]                         | request        |  Number of days, while coupon will not be active after purchase            |
-|                                                |                |  0 means "active immediately"                                              |
-|                                                |                |  Required for all rewards besides cashback                                 |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[daysValid]                            | request        |  Number of days, while coupon will be valid, after activation              |
-|                                                |                |  0 means "valid forever"                                                   |
-|                                                |                |  Required for all rewards besides cashback                                 |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[campaignVisibility][allTimeVisible]   | request        |  Set 1 if always visible, otherwise 0                                      |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[campaignVisibility][visibleFrom]      | request        |  Campaign visible from YYYY-MM-DD HH:mm, for example ``2017-10-05 10:59``. |
-|                                                |                |  *(required only if ``allTimeVisible=0``)*                                 |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[campaignVisibility][visibleTo]        | request        |  Campaign visible to YYYY-MM-DD HH:mm, for example ``2017-10-05 10:59``.   |
-|                                                |                |  *(required only if ``allTimeVisible=0``)*                                 |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[campaignActivity][allTimeActive]      | request        |  Set 1 if always active, otherwise 0                                       |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[campaignActivity][activeFrom]         | request        |  Campaign active from YYYY-MM-DD HH:mm, for example ``2017-10-05 10:59``.  |
-|                                                |                |  *(required only if ``allTimeActive=0``)*                                  |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[campaignActivity][activeTo]           | request        |  Campaign visible to YYYY-MM-DD HH:mm, for example ``2017-10-05 10:59``.   |
-|                                                |                |  *(required only if ``allTimeVisible=0``)*                                 |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| Parameter                                         | Parameter type |  Description                                                                 |
++===================================================+================+============================================================================+
+| Authorization                                     | header         | Token received during authentication                                         |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[reward]                                  | request        |  Campaign type. Possible types:                                              |
+|                                                   |                |  discount_code, free_delivery_code, gift_code, event_code, value_code.       |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[translations][en][name]                  | request        |  Campaign name in given locale.                                              |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[translations][en][shortDescription]      | request        |  *(optional)* A short description in given locale.                           |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[translations][en][conditionsDescription] | request        |  *(optional)* A description of required conditions to apply in given locale. |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[translations][en][usageInstruction]      | request        |  *(optional)* A short information about how to use coupons in given locale.  |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[translations][en][brandDescription]      | request        |  *(optional)* A short information about brand in given locale.               |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[active]                                  | request        |  Set 1 if active, otherwise 0                                                |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[categories]                              | request        | *(optional)* Array of category IDs.                                          |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[costInPoints]                            | request        |  How many points it costs                                                    |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[target]                                  | request        |  Set ``level`` to choose target from defined levels.                         |
+|                                                   |                |  Set ``segment`` to choose target from defined segments                      |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[levels]                                  | request        |  Array of level IDs. *(required only if ``target=level``)*                   |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[segments]                                | request        |  Array of segment IDs. *(required only if ``target=segment``)*               |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[labels]                                  | request        | *(optional)* Informational labels in format "key:value;key1:value1"          |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[unlimited]                               | request        |  Set 1 if unlimited, otherwise 0                                             |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[singleCoupon]                            | request        |  Set 1 if single coupon, otherwise 0                                         |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[limit]                                   | request        |  Global campaign usage limit. *(required only if ``unlimited=0``)*           |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[limitPerUser]                            | request        |  Customer campaign usage limit. *(required only if ``unlimited=0``)*         |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[coupons]                                 | request        |  Array of coupon codes.                                                      |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[campaignVisibility][allTimeVisible]      | request        |  Set 1 if always visible, otherwise 0                                        |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[campaignVisibility][visibleFrom]         | request        |  Campaign visible from YYYY-MM-DD HH:mm, for example ``2017-10-05 10:59``.   |
+|                                                   |                |  *(required only if ``allTimeVisible=0``)*                                   |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[campaignVisibility][visibleTo]           | request        |  Campaign visible to YYYY-MM-DD HH:mm, for example ``2017-10-05 10:59``.     |
+|                                                   |                |  *(required only if ``allTimeVisible=0``)*                                   |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[campaignActivity][allTimeActive]         | request        |  Set 1 if always active, otherwise 0                                         |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[campaignActivity][activeFrom]            | request        |  Campaign active from YYYY-MM-DD HH:mm, for example ``2017-10-05 10:59``.    |
+|                                                   |                |  *(required only if ``allTimeActive=0``)*                                    |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[campaignActivity][activeTo]              | request        |  Campaign visible to YYYY-MM-DD HH:mm, for example ``2017-10-05 10:59``.     |
+|                                                   |                |  *(required only if ``allTimeVisible=0``)*                                   |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[daysInactive]                            | request        |  Number of days, while coupon will not be active after purchase              |
+|                                                   |                |  0 means "active immediately"                                                |
+|                                                   |                |  Required for all rewards besides cashback                                   |
++---------------------------------------------------+----------------+-------------------------------------------------------------------------------+
+| campaign[daysValid]                               | request        |  Number of days, while coupon will be valid, after activation                |
+|                                                   |                |  0 means "valid forever"                                                     |
+|                                                   |                |  Required for all rewards besides cashback                                   |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
 
 Example
 ^^^^^^^
@@ -95,11 +97,12 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
-        -d "campaign[reward]=discount_code" \
-        -d "campaign[name]=Discount+Code+Campaign" \
-        -d "campaign[shortDescription]=A+short+description+of+discount+code+campaign" \
-        -d "campaign[conditionsDescription]=Discount+code+for+registration" \
-        -d "campaign[usageInstruction]=Use+discount+code+as+you+like" \
+        -d "campaign[translations][en][reward]=discount_code" \
+        -d "campaign[translations][en][name]=Discount+Code+Campaign" \
+        -d "campaign[translations][en][shortDescription]=A+short+description+of+discount+code+campaign" \
+        -d "campaign[translations][en][conditionsDescription]=Discount+code+for+registration" \
+        -d "campaign[translations][en][usageInstruction]=Use+discount+code+as+you+like" \
+        -d "campaign[translations][en][brandDescription]=Some+brand+description" \
         -d "campaign[active]=1" \
         -d "campaign[costInPoints]=100" \
         -d "campaign[target]=level" \
@@ -177,10 +180,32 @@ Exemplary Response
       "form": {
         "children": {
           "reward": {},
-          "name": {},
-          "shortDescription": {},
-          "conditionsDescription": {},
-          "usageInstruction": {},
+          "translations": {
+              "children": {
+                  "en": {
+                      "children": {
+                          "name": {
+                              "errors": [
+                                  "This value should not be blank."
+                              ]
+                          },
+                          "shortDescription": {},
+                          "conditionsDescription": {},
+                          "usageInstruction": {},
+                          "brandDescription": {}
+                      }
+                  },
+                  "pl": {
+                      "children": {
+                          "name": {},
+                          "shortDescription": {},
+                          "conditionsDescription": {},
+                          "usageInstruction": {},
+                          "brandDescription": {}
+                      }
+                  }
+              }
+          },
           "active": {},
           "costInPoints": {},
           "target": {},
@@ -223,6 +248,7 @@ Definition
 .. code-block:: text
 
     GET /api/campaign
+    GET /api/v1/<locale>/campaign
 
 +-------------------------------------+----------------+----------------------------------------------------+
 | Parameter                           | Parameter type | Description                                        |
@@ -270,6 +296,10 @@ Example
 
     In below example you can get all Reward Campaigns that have label with key and value. You can
     filter only by label's key or value if you want and specify as many condition as you want.
+
+.. note::
+
+    Translatable fields (name, short description etc.) are returned in given locale.
 
 .. code-block:: bash
 
@@ -335,7 +365,24 @@ Exemplary Response
           "usageLeft": 1,
           "visibleForCustomersCount": 0,
           "usersWhoUsedThisCampaignCount": 0,
-          "hasPhoto": false
+          "hasPhoto": false,
+          "translations": [
+              {
+                  "name": "Promotion campaign",
+                  "shortDescription": "_Campaign_ short description",
+                  "conditionsDescription": "Some conditions description",
+                  "usageInstruction": "Usage of coupon instruction",
+                  "brandDescription": "Brand description",
+                  "id": 32,
+                  "locale": "en"
+              },
+              {
+                  "name": "Promocyjna kampania",
+                  "shortDescription": "Opis promocyjnej kampanii",
+                  "id": 33,
+                  "locale": "pl"
+              }
+          ]
         },
         {
           "levels": [
@@ -379,7 +426,24 @@ Exemplary Response
           "usageLeft": 1,
           "visibleForCustomersCount": 0,
           "usersWhoUsedThisCampaignCount": 0,
-          "hasPhoto": false
+          "hasPhoto": false,
+          "translations": [
+              {
+                  "name": "tests",
+                  "shortDescription": "_shortdescription_",
+                  "conditionsDescription": "_conditionsdescription_",
+                  "usageInstruction": "_usageinstruction_",
+                  "brandDescription": "_branddescription_",
+                  "id": 32,
+                  "locale": "en"
+              },
+              {
+                  "name": "tests_pl",
+                  "shortDescription": "short desc test pl",
+                  "id": 33,
+                  "locale": "pl"
+              }
+          ]
         },
         {
           "levels": [
@@ -423,7 +487,24 @@ Exemplary Response
           "usageLeft": 2,
           "visibleForCustomersCount": 0,
           "usersWhoUsedThisCampaignCount": 0,
-          "hasPhoto": false
+          "hasPhoto": false,
+          "translations": [
+              {
+                  "name": "tests",
+                  "shortDescription": "_shortdescription_",
+                  "conditionsDescription": "_conditionsdescription_",
+                  "usageInstruction": "_usageinstruction_",
+                  "brandDescription": "_branddescription_",
+                  "id": 32,
+                  "locale": "en"
+              },
+              {
+                  "name": "tests_pl",
+                  "shortDescription": "short desc test pl",
+                  "id": 33,
+                  "locale": "pl"
+              }
+          ]
         }
       ],
       "total": 3
@@ -441,74 +522,75 @@ Definition
 
     PUT /api/campaign/<campaign>
 
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| Parameter                                      | Parameter type |  Description                                                               |
-+================================================+================+============================================================================+
-| Authorization                                  | header         | Token received during authentication                                       |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| <campaign>                                     | query          |  Campaign ID                                                               |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[reward]                               | request        |  Campaign type. Possible types:                                            |
-|                                                |                |  discount_code, free_delivery_code, gift_code, event_code, value_code.     |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[name]                                 | request        |  Campaign name.                                                            |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[shortDescription]                     | request        |  *(optional)* A short description.                                         |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[conditionsDescription]                | request        |  *(optional)* A description of required conditions to apply.               |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[usageInstruction]                     | request        |  A short information about how to use coupons.                             |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[active]                               | request        |  Set 1 if active, otherwise 0                                              |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[costInPoints]                         | request        |  How many points it costs                                                  |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[target]                               | request        |  Set ``level`` to choose target from defined levels.                       |
-|                                                |                |  Set ``segment`` to choose target from defined segments                    |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[labels]                               | request        | *(optional)* Informational labels in format "key:value;key1:value1"        |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[categories]                           | request        | *(optional)* Array of category IDs.                                        |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[levels]                               | request        |  Array of level IDs. *(required only if ``target=level``)*                 |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[segments]                             | request        |  Array of segment IDs. *(required only if ``target=segment``)*             |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[unlimited]                            | request        |  Set 1 if unlimited, otherwise 0                                           |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[singleCoupon]                         | request        |  Set 1 if single coupon, otherwise 0                                       |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[limit]                                | request        |  Global campaign usage limit. *(required only if ``unlimited=0``)*         |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[limitPerUser]                         | request        |  Customer campaign usage limit. *(required only if ``unlimited=0``)*       |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[coupons]                              | request        |  Array of coupon codes.                                                    |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[daysInactive]                         | request        |  Number of days, while coupon will not be active after purchase            |
-|                                                |                |  0 means "active immediately"                                              |
-|                                                |                |  Required for all rewards besides cashback                                 |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[daysValid]                            | request        |  Number of days, while coupon will be valid, after activation              |
-|                                                |                |  0 means "valid forever"                                                   |
-|                                                |                |  Required for all rewards besides cashback                                 |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[campaignVisibility][allTimeVisible]   | request        |  Set 1 if always visible, otherwise 0                                      |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[campaignVisibility][visibleFrom]      | request        |  Campaign visible from YYYY-MM-DD HH:mm, for example ``2017-10-05 10:59``. |
-|                                                |                |  *(required only if ``allTimeVisible=0``)*                                 |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[campaignVisibility][visibleTo]        | request        |  Campaign visible to YYYY-MM-DD HH:mm, for example ``2017-10-05 10:59``.   |
-|                                                |                |  *(required only if ``allTimeVisible=0``)*                                 |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[campaignActivity][allTimeActive]      | request        |  Set 1 if always active, otherwise 0                                       |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[campaignActivity][activeFrom]         | request        |  Campaign active from YYYY-MM-DD HH:mm, for example ``2017-10-05 10:59``.  |
-|                                                |                |  *(required only if ``allTimeActive=0``)*                                  |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| campaign[campaignActivity][activeTo]           | request        |  Campaign visible to YYYY-MM-DD HH:mm, for example ``2017-10-05 10:59``.   |
-|                                                |                |  *(required only if ``allTimeVisible=0``)*                                 |
-+------------------------------------------------+----------------+----------------------------------------------------------------------------+
-
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| Parameter                                         | Parameter type |  Description                                                                 |
++===================================================+================+==============================================================================+
+| Authorization                                     | header         | Token received during authentication                                         |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| <campaign>                                        | query          |  Campaign ID                                                                 |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[reward]                                  | request        |  Campaign type. Possible types:                                              |
+|                                                   |                |  discount_code, free_delivery_code, gift_code, event_code, value_code.       |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[translations][en][name]                  | request        |  Campaign name in given locale.                                              |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[translations][en][shortDescription]      | request        |  *(optional)* A short description in given locale.                           |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[translations][en][conditionsDescription] | request        |  *(optional)* A description of required conditions to apply in given locale. |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[translations][en][usageInstruction]      | request        |  *(optional)* A short information about how to use coupons in given locale.  |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[translations][en][brandDescription]      | request        |  *(optional)* A short information about brand in given locale.               |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[active]                                  | request        |  Set 1 if active, otherwise 0                                                |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[costInPoints]                            | request        |  How many points it costs                                                    |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[target]                                  | request        |  Set ``level`` to choose target from defined levels.                         |
+|                                                   |                |  Set ``segment`` to choose target from defined segments                      |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[categories]                              | request        | *(optional)* Array of category IDs.                                          |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[labels]                                  | request        | *(optional)* Informational labels in format "key:value;key1:value1"          |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[levels]                                  | request        |  Array of level IDs. *(required only if ``target=level``)*                   |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[segments]                                | request        |  Array of segment IDs. *(required only if ``target=segment``)*               |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[unlimited]                               | request        |  Set 1 if unlimited, otherwise 0                                             |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[singleCoupon]                            | request        |  Set 1 if single coupon, otherwise 0                                         |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[limit]                                   | request        |  Global campaign usage limit. *(required only if ``unlimited=0``)*           |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[limitPerUser]                            | request        |  Customer campaign usage limit. *(required only if ``unlimited=0``)*         |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[coupons]                                 | request        |  Array of coupon codes.                                                      |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[campaignVisibility][allTimeVisible]      | request        |  Set 1 if always visible, otherwise 0                                        |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[campaignVisibility][visibleFrom]         | request        |  Campaign visible from YYYY-MM-DD HH:mm, for example ``2017-10-05 10:59``.   |
+|                                                   |                |  *(required only if ``allTimeVisible=0``)*                                   |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[campaignVisibility][visibleTo]           | request        |  Campaign visible to YYYY-MM-DD HH:mm, for example ``2017-10-05 10:59``.     |
+|                                                   |                |  *(required only if ``allTimeVisible=0``)*                                   |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[campaignActivity][allTimeActive]         | request        |  Set 1 if always active, otherwise 0                                         |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[campaignActivity][activeFrom]            | request        |  Campaign active from YYYY-MM-DD HH:mm, for example ``2017-10-05 10:59``.    |
+|                                                   |                |  *(required only if ``allTimeActive=0``)*                                    |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[campaignActivity][activeTo]              | request        |  Campaign visible to YYYY-MM-DD HH:mm, for example ``2017-10-05 10:59``.     |
+|                                                   |                |  *(required only if ``allTimeVisible=0``)*                                   |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[daysInactive]                            | request        |  Number of days, while coupon will not be active after purchase              |
+|                                                   |                |  0 means "active immediately"                                                |
+|                                                   |                |  Required for all rewards besides cashback                                   |
++------------------------------------------------+----------------+---------------------------------------------------------------------------------+
+| campaign[daysValid]                               | request        |  Number of days, while coupon will be valid, after activation                |
+|                                                   |                |  0 means "valid forever"                                                     |
+|                                                   |                |  Required for all rewards besides cashback                                   |
++------------------------------------------------+----------------+---------------------------------------------------------------------------------+
 Example
 ^^^^^^^
 
@@ -522,10 +604,12 @@ Example
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
         -d "campaign[reward]=discount_code" \
-        -d "campaign[name]=Discount+Code+Campaign 1" \
-        -d "campaign[shortDescription]=A+short+description+of+discount+code+campaign" \
-        -d "campaign[conditionsDescription]=Discount+code+for+registration" \
-        -d "campaign[usageInstruction]=Use+discount+code+as+you+like" \
+        -d "campaign[translations][en][reward]=discount_code" \
+        -d "campaign[translations][en][name]=Discount+Code+Campaign" \
+        -d "campaign[translations][en][shortDescription]=A+short+description+of+discount+code+campaign" \
+        -d "campaign[translations][en][conditionsDescription]=Discount+code+for+registration" \
+        -d "campaign[translations][en][usageInstruction]=Use+discount+code+as+you+like" \
+        -d "campaign[translations][en][brandDescription]=Some+brand+description" \
         -d "campaign[active]=1" \
         -d "campaign[costInPoints]=100" \
         -d "campaign[target]=level" \
@@ -589,6 +673,7 @@ Definition
 .. code-block:: text
 
     GET /api/campaign/<campaign>
+    GET /api/v1/<locale>/campaign/<campaign>
 
 +---------------+----------------+----------------------------------------------------+
 | Parameter     | Parameter type | Description                                        |
@@ -617,6 +702,10 @@ To see the details of the admin user with ``campaign = 3062c881-93f3-496b-9669-4
 
     The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
+
+.. note::
+
+    Translatable fields (name, short description etc.) are returned in given locale.
 
 .. note::
 
@@ -680,7 +769,21 @@ Exemplary Response
       "usageLeft": 2,
       "visibleForCustomersCount": 0,
       "usersWhoUsedThisCampaignCount": 0,
-      "hasPhoto": false
+      "hasPhoto": false,
+      "translations": [
+          {
+              "name": "Discount Code Campaign 1",
+              "shortDescription": "A short description of discount code campaign",
+              "id": 65,
+              "locale": "en"
+          },
+          {
+              "name": "Discount Code Campaign 1 in polish",
+              "shortDescription": "A short description of discount code campaign in polish",
+              "id": 66,
+              "locale": "pl"
+          }
+      ]
     }
 
 Get available campaign for a customer

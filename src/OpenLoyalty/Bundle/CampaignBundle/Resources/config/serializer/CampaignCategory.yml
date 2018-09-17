@@ -3,3 +3,12 @@ OpenLoyalty\Component\Campaign\Domain\CampaignCategory:
     campaignCategoryId:
       expose: true
       inline: true
+    newTranslations:
+      exclude: true
+    currentLocale:
+      exclude: true
+    defaultLocale:
+      exclude: true
+  virtual_properties:
+    getName:
+      serialized_name: name

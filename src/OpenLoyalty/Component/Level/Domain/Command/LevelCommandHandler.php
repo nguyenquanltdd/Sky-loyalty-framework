@@ -9,6 +9,7 @@ use Broadway\CommandHandling\SimpleCommandHandler;
 use Doctrine\ORM\OptimisticLockException;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
+use OpenLoyalty\Component\Level\Domain\LevelTranslation;
 use OpenLoyalty\Component\Level\Domain\Model\Reward;
 use OpenLoyalty\Component\Level\Domain\SpecialReward;
 use OpenLoyalty\Component\Level\Domain\SpecialRewardId;
@@ -57,13 +58,38 @@ class LevelCommandHandler extends SimpleCommandHandler
         $this->levelRepository->save($level);
     }
 
+    /**
+     * @param Level $level
+     * @param array $data
+     */
+    protected function assignLevelTranslations(Level $level, array $data): void
+    {
+        if (!array_key_exists('translations', $data)) {
+            return;
+        }
+
+        foreach ($data['translations'] as $locale => $transData) {
+            if (array_key_exists('name', $transData)) {
+                $level->translate($locale, false)->setName($transData['name']);
+            }
+            if (array_key_exists('description', $transData)) {
+                $level->translate($locale, false)->setDescription($transData['description']);
+            }
+        }
+        /** @var LevelTranslation $translation */
+        foreach ($level->getTranslations() as $translation) {
+            if (!isset($data['translations'][$translation->getLocale()])) {
+                $level->removeTranslation($translation);
+            }
+        }
+    }
+
     public function handleCreateLevel(CreateLevel $command)
     {
         $data = $command->getLevelData();
-        $level = new Level($command->getLevelId(), $data['name'], $data['conditionValue']);
-        if (isset($data['description'])) {
-            $level->setDescription($data['description']);
-        }
+        $level = new Level($command->getLevelId(), $data['conditionValue']);
+        $this->assignLevelTranslations($level, $data);
+
         if (isset($data['minOrder'])) {
             $level->setMinOrder($data['minOrder']);
         }
@@ -95,8 +121,8 @@ class LevelCommandHandler extends SimpleCommandHandler
         /** @var Level $level */
         $level = $this->levelRepository->byId($command->getLevelId());
         $data = $command->getLevelData();
-        $level->setName(isset($data['name']) ? $data['name'] : null);
-        $level->setDescription(isset($data['description']) ? $data['description'] : null);
+        $this->assignLevelTranslations($level, $data);
+
         $level->setConditionValue(isset($data['conditionValue']) ? $data['conditionValue'] : null);
         $rewardData = $data['reward'];
         $level->setReward(new Reward($rewardData['name'], $rewardData['value'], $rewardData['code']));

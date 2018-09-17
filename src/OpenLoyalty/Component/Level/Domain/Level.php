@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Component\Level\Domain;
 
+use OpenLoyalty\Bundle\TranslationBundle\Model\FallbackTranslatable;
 use OpenLoyalty\Component\Level\Domain\Model\LevelPhoto;
 use OpenLoyalty\Component\Level\Domain\Model\Reward;
 use Assert\Assertion as Assert;
@@ -14,20 +15,12 @@ use Assert\Assertion as Assert;
  */
 class Level
 {
+    use FallbackTranslatable;
+
     /**
      * @var LevelId
      */
     protected $levelId;
-
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var string
-     */
-    protected $description;
 
     /**
      * @var bool
@@ -68,20 +61,17 @@ class Level
      * Level constructor.
      *
      * @param LevelId $levelId
-     * @param string  $name
-     * @param         $conditionValue
-     * @param string  $description
+     * @param $conditionValue
+     *
+     * @throws \Assert\AssertionFailedException
      */
-    public function __construct(LevelId $levelId, $name, $conditionValue, $description = null)
+    public function __construct(LevelId $levelId, $conditionValue)
     {
         Assert::notEmpty($levelId);
-        Assert::notEmpty($name);
         Assert::greaterOrEqualThan($conditionValue, 0);
 
         $this->levelId = $levelId;
-        $this->name = $name;
         $this->conditionValue = $conditionValue;
-        $this->description = $description;
     }
 
     /**
@@ -98,39 +88,6 @@ class Level
     public function getIdAsString(): string
     {
         return $this->levelId->__toString();
-    }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param string $name
-     */
-    public function setName($name)
-    {
-        Assert::notEmpty($name);
-        $this->name = $name;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDescription()
-    {
-        return $this->description;
-    }
-
-    /**
-     * @param string $description
-     */
-    public function setDescription($description)
-    {
-        $this->description = $description;
     }
 
     /**
@@ -265,5 +222,37 @@ class Level
     public function hasLevelPhoto(): bool
     {
         return $this->photo instanceof LevelPhoto && $this->photo->getPath();
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getName(): ?string
+    {
+        return $this->translateFieldFallback(null, 'name')->getName();
+    }
+
+    /**
+     * @param null|string $name
+     */
+    public function setName(?string $name)
+    {
+        $this->translate(null, false)->setName($name);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getDescription(): ?string
+    {
+        return $this->translateFieldFallback(null, 'description')->getDescription();
+    }
+
+    /**
+     * @param null|string $description
+     */
+    public function setDescription(?string $description)
+    {
+        $this->translate(null, false)->setDescription($description);
     }
 }

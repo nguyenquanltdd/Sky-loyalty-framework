@@ -5,48 +5,52 @@
  */
 namespace OpenLoyalty\Bundle\SettingsBundle\Service;
 
+use OpenLoyalty\Component\Translation\Domain\Language;
+use OpenLoyalty\Component\Translation\Domain\LanguageRepository;
+
 /**
  * Class LocaleProvider.
  */
 class LocaleProvider implements LocaleProviderInterface
 {
     /**
-     * @var GeneralSettingsManagerInterface
-     */
-    private $settings;
-
-    /**
      * @var string
      */
     private $defaultLocale;
 
     /**
-     * @var array
+     * @var LanguageRepository
      */
-    private $localeMap = [];
+    protected $languageRepository;
 
     /**
-     * LocaleProvider constructor.
+     * A2lixLocaleProvider constructor.
      *
-     * @param GeneralSettingsManagerInterface $manager
-     * @param string                          $defaultLocale
-     * @param array                           $localeMap
+     * @param string             $defaultLocale
+     * @param LanguageRepository $languageRepository
      */
-    public function __construct(GeneralSettingsManagerInterface $manager, string $defaultLocale, array $localeMap)
+    public function __construct(string $defaultLocale, LanguageRepository $languageRepository)
     {
-        $this->settings = $manager;
         $this->defaultLocale = $defaultLocale;
-        $this->localeMap = $localeMap;
+        $this->languageRepository = $languageRepository;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getLocale(): string
+    public function getCurrentLocale(): string
     {
-        $language = $this->settings->getLanguage();
+        return $this->getConfigurationDefaultLocale();
+    }
 
-        return $this->mapLanguageToLocale($language);
+    /**
+     * {@inheritdoc}
+     */
+    public function getConfigurationDefaultLocale(): string
+    {
+        $default = $this->languageRepository->getDefault();
+
+        return $default ? $default->getCode() : $this->getDefaultLocale();
     }
 
     /**
@@ -58,16 +62,18 @@ class LocaleProvider implements LocaleProviderInterface
     }
 
     /**
-     * @param string $language
-     *
-     * @return string
+     * {@inheritdoc}
      */
-    private function mapLanguageToLocale(string $language): string
+    public function getAvailableLocales(): array
     {
-        if (!isset($this->localeMap[$language])) {
-            return $this->defaultLocale;
-        }
+        $languages = $this->languageRepository->findAll();
+        $locales = array_map(
+            function (Language $language) {
+                return $language->getCode();
+            },
+            $languages
+        );
 
-        return $this->localeMap[$language]['locale'] ?? $this->getDefaultLocale();
+        return $locales;
     }
 }

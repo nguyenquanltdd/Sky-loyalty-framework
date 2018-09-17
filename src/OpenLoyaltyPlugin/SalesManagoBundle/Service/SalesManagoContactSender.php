@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyaltyPlugin\SalesManagoBundle\Service;
@@ -89,6 +89,7 @@ abstract class SalesManagoContactSender
     protected function createClient()
     {
         $isActive = $this->settings->getSettingByKey('marketingVendorsValue');
+
         if ($isActive && $isActive->getValue() === Config::KEY) {
             $config = $this->settings->getSettingByKey(Config::KEY);
 

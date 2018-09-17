@@ -98,21 +98,17 @@ Exemplary Response
 .. code-block:: json
 
     {
-      "translations": [
-        {
-          "name": "english",
-          "key": "english.json",
-          "updatedAt": "2018-02-19T11:59:27+0100"
-        },
-        {
-          "name": "german",
-          "key": "german.json",
-          "updatedAt": "2018-02-26T12:43:01+0100"
-        }
-      ],
-      "total": 2
+        "translations": [
+            {
+                "code": "en",
+                "name": "English",
+                "default": true,
+                "order": 0,
+                "updatedAt": "2018-07-24T10:25:13+0200"
+            }
+        ],
+        "total": 1
     }
-
 
 Create new translations
 -----------------------
@@ -134,6 +130,12 @@ Definition
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | translation[name]                              | query          | Translation name                                                           |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| translation[code]                              | query          | Translation code                                                           |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| translation[default]                           | query          | Is this translation default                                                |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| translation[order]                             | query          | Translation order                                                          |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | translation[content]                           | query          | Translation content                                                        |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 
@@ -148,7 +150,10 @@ Example
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
         -d "translation[name]=english123" \
-        -d "translation[content]={+++++\"key.confirmation.title\":+{+++++++++\"description\":+\"{variable}+Title+for+that+dialog\",+++++++++\"message\":+\"Hello\"+++++}+}"
+        -d "translation[code]=en" \
+        -d "translation[default]=1" \
+        -d "translation[order]=0" \
+        -d "translation[content]={\"key.confirmation.title\":{\"description\":\"{variable}+Title+for+that+dialog\",\"message\":+\"Hello\"}}"
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -160,14 +165,16 @@ Exemplary Response
 .. code-block:: json
 
     {
-      "name": "english123",
-      "key": "english123.json",
-      "content": "{     \"key.confirmation.title\": {         \"description\": \"{variable} Title for that dialog\",         \"message\": \"Hello\"     } }"
+        "code": "en",
+        "name": "english123",
+        "default": true,
+        "order": 0,
+        "content": "{\"key.confirmation.title\": \"description\"}"
     }
 
 
-Get translations based on the key
----------------------------------
+Get translations based on the code
+----------------------------------
 
 To retrieve a paginated list of translations you will need to call the ``/api/admin/translations/<key>`` endpoint with the ``GET`` method.
 
@@ -177,14 +184,14 @@ Definition
 
 .. code-block:: text
 
-    GET /api/admin/translations/<key>
+    GET /api/admin/translations/<code>
 
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | Parameter                                      | Parameter type |  Description                                                               |
 +================================================+================+============================================================================+
 | Authorization                                  | header         | Token received during authentication                                       |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| <key>                                          | query          | Translation key                                                            |
+| <code>                                         | query          | Translation code                                                           |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 
 Example
@@ -192,7 +199,7 @@ Example
 
 .. code-block:: bash
 
-    curl http://localhost:8181/api/admin/translations/english.json \
+    curl http://localhost:8181/api/admin/translations/en \
         -X "GET" \
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
@@ -208,17 +215,20 @@ Exemplary Response
 .. code-block:: json
 
     {
-      "name": "english",
-      "key": "english.json",
-      "content": "{   \"global\": {     \"configuration\": \"Configuration\",       \"emails\": \"Transaction emails\",     \"static_content\": {       \"benefits\": {         \"title\": \"My benefits\",         \"content\": \"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget tincidunt est. Sed fringilla dapibus venenatis.\"       },       \"connect_online_stores\": {         \"title\": \"Match witch eCommerce\",         \"content\": \"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget tincidunt est. Sed fringilla dapibus venenatis.\"       },       \"contact\": {         \"title\": \"Contact\",         \"content\": \"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget tincidunt est. Sed fringilla dapibus venenatis.\"       },       \"faq\": {         \"title\": \"FAQ\",         \"content\": \"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget tincidunt est. Sed fringilla dapibus venenatis.\"       },       \"how_to_earn\": {         \"title\": \"How to earn points?\",         \"content\": \"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget tincidunt est. Sed fringilla dapibus venenatis.\"       },       \"rules\": {         \"title\": \"Terms and conditions\",         \"content\": \"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget tincidunt est. Sed fringilla dapibus venenatis.\"       },       \"visit_offline\": {         \"title\": \"Visit offline stores\",         \"content\": \"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget tincidunt est. Sed fringilla dapibus venenatis.\"       },       \"match_with_ecommerce\": {         \"title\": \"Match with eCommerce\",         \"content\": \"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget tincidunt est. Sed fringilla dapibus venenatis.\"       }     }   },     \"customer_earning_rules\": {       \"custom_event\": \"Custom event\",       \"points\": \"Each {{pointsValue}}{{currency}} = 1 point\",       \"product_purchase\": \"Additional points for purchase of {{sku}}\",       \"title\": \"How to earn points?\",       \"table\": {         \"name\": \"How?\",         \"type\": \"Type\",         \"description\": \"Description\",         \"points\": \"Points\",         \"start_at\": \"Start at\",         \"end_at\": \"End at\"       }     },     \"customer_nav\": {       \"logo1\": \"Loyalty\",       \"logo2\": \"Program\",       \"copyrights\": \"\",       \"home\": \"Home\",       \"my_rewards\": \"My rewards\",       \"earning_points\": \"My points\",       \"my_transactions\": \"My transactions\",       \"match_with_ecommerce\": \"Match with eCommerce\",       \"my_profile\": \"My profile\"     },     \"customer_campaign\": {       \"more_information\": {         \"button\": \"Click here for more info\"       },       \"coupon_used\": \"This coupon has been used\",       \"not_enough_points\": \"Not enough points\",       \"will_be_active_dates\": \"This reward campaign will be active from {{from}} to {{to}}\",       \"will_be_active_all_time\": \"This campaign will be active all time\",       \"will_be_active_soon\": \"Not active yet\",       \"list\": \"My rewards\",       \"bought_list\": \"My redeemed rewards\",       \"points\": \"Points\",       \"redeem\": \"Redeem reward\",       \"footer\": \"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget tincidunt est. Sed fringilla dapibus venenatis.\",       \"no_rewards\": \"There are no available rewards\",       \"no_bought_rewards\": \"There are no redeemed rewards\",       \"all_time_Active\": \"All time active\",       \"see_bought\": \"See rewards you have already redeemed\",       \"reward_congratulations\": \"Congratulations!\",       \"reward_ready\": \"Your reward is ready to receive.\",       \"reward_code\": \"CODE OF REWARD\",       \"active_points\": \"Redeem new rewards, you can use <b>{{points}}</b> active points\",       \"reward_footer\": \"Instruction for reward, lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget tincidunt est. Sed fringilla dapibus venenatis.\",       \"no_desc\": \"Reward description is not set\",       \"no_name\": \"No name of reward campaign\",       \"used_confirmation\": \"Confirm reward usage\",       \"used_confirmation_description\": \"Please confirm reward usage\",       \"singleCoupon_prompt\": \"To redeem customers will be able to use the same coupon\"     },     \"customer_transaction\": {       \"customer_loyalty_card_number\": \"Loyalty card number\",       \"customer_phone_number\": \"Phone number\",       \"empty_transactions\": \"There is no transactions to display\",       \"list\": \"Transactions list\",       \"id\": \"Transaction ID\",       \"document_number\": \"Document number\",       \"document_type\": \"Document type\",       \"revised_document\": \"Revised document\",       \"purchase_date\": \"Purchase date\",       \"purchase_place\": \"POS\",       \"actions\": \"Actions\",       \"details\": \"Transaction details\",       \"customer_name\": \"Customer name\",       \"phone\": \"Phone\",       \"email\": \"E-mail\",       \"loyaltyCardNumber\": \"Loyalty card number\",       \"city\": \"City\",       \"state\": \"State\",       \"street\": \"Street\",       \"building_name\": \"Building name\",       \"unit_name\": \"Flat/Unit name\",       \"postal_code\": \"Postal code\",       \"country\": \"Country\",       \"item_details\": \"Item details\",       \"name\": \"Name\",       \"quantity\": \"Quantity\",       \"sku\": \"SKU\",       \"category\": \"Category\",       \"gross\": \"Gross value\",       \"labels\": \"Labels\",       \"maker\": \"Brand\",       \"link_modal\": \"Match customer with transaction\",       \"customer_email\": \"E-mail\",       \"customer_id\": \"Customer ID\",       \"transaction_document_number\": \"Document number\",       \"customer_email_prompt\": \"Find customer by e-mail\",       \"transaction_document_number_prompt\": \"Find transaction by document number\",       \"customer_id_prompt\": \"Put customer unique ID\",       \"link\": \"Match with customer\",       \"heading\": \"Transactions\",       \"transaction_id\": \"Transaction id\",       \"points_earned\": \"Points earned\",       \"pos_name\": \"POS name\",       \"sum\": \"SUM\",       \"amount\": \"Amount\",       \"document_types\": {         \"return\": \"Return\",         \"sell\": \"Sell\",         \"both\": \"Both\"       }     },     \"Your password must be at least 8 characters long.\": \"Your password must be at least 8 characters long\",     \"Your password must include both upper and lower case letters.\": \"Your password must include both upper and lower case letters\",     \"Your password must include at least one number.\": \"Your password must include at least one number\",     \"Your password must contain at least one special character.\": \"Your password must contain at least one special character\",     \"Your password must include at least one letter.\": \"Your password must include at least one letter\",     \"Ta wartość nie powinna być pusta.\": \"This value should not be empty\",     \"Plik nie mógł zostać odnaleziony.\": \"File could not be found\",     \"Ten plik nie jest obrazem.\": \"This file is not image\",     \"customer with such phone already exists\": \"Customer with such phone already exists\",     \"customer with such loyalty card number already exists\": \"Customer with such loyalty card number already exists\",     \"Bad credentials\": \"Bad credentials\"   }",
-      "updatedAt": "2018-02-26T12:43:01+0100"
+        "name": "english",
+        "code": "en",
+        "default": true,
+        "order": 0,
+        "content": "{\"key.confirmation.title\": \"description\"}"
+        "updatedAt": "2018-02-26T12:43:01+0100"
     }
 
 
-Update translations based on the key
-------------------------------------
+Update translations based on the code
+-------------------------------------
 
-To update specific translations you will need to call the ``/api/admin/translations/<key>`` endpoint with the ``PUT`` method.
+To update specific translations you will need to call the ``/api/admin/translations/<code>`` endpoint with the ``PUT``
+method.
 
 
 Definition
@@ -226,16 +236,20 @@ Definition
 
 .. code-block:: text
 
-    PUT /api/admin/translations/<key>
+    PUT /api/admin/translations/<code>
 
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | Parameter                                      | Parameter type |  Description                                                               |
 +================================================+================+============================================================================+
 | Authorization                                  | header         | Token received during authentication                                       |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| <key>                                          | query          | Translation key                                                            |
+| translation[name]                              | query          | Translation name                                                           |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| content                                        | query          | Translation content                                                        |
+| translation[default]                           | query          | Is this translation default                                                |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| translation[order]                             | query          | Translation order                                                          |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| translation[content]                           | query          | Translation content                                                        |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 
 
@@ -244,7 +258,7 @@ Example
 
 .. code-block:: bash
 
-    curl http://localhost:8181/api/admin/translations/english.json \
+    curl http://localhost:8181/api/admin/translations/en \
         -X "PUT" \
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
@@ -260,9 +274,61 @@ Exemplary Response
     STATUS: 200 OK
 
 .. code-block:: json
-    ??????????????!!!!!!!_TO_DO_!!!!!!!??????????
+
+    {
+        "name": "english",
+        "code": "en",
+        "default": true,
+        "order": 0,
+        "content": "{\"key.confirmation.title\": \"description\"}"
+        "updatedAt": "2018-02-26T12:43:01+0100"
+    }
+
+Remove translations based on the code
+-------------------------------------
+
+To remove specific translations you will need to call the ``/api/admin/translations/<code>`` endpoint with the
+``DELETE`` method.
 
 
+Definition
+^^^^^^^^^^
+
+.. code-block:: text
+
+    DELETE /api/admin/translations/<code>
+
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| Parameter                                      | Parameter type |  Description                                                               |
++================================================+================+============================================================================+
+| Authorization                                  | header         | Token received during authentication                                       |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| translation[code]                              | query          | Translation code                                                           |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+
+Example
+^^^^^^^
+
+.. code-block:: bash
+
+    curl http://localhost:8181/api/admin/translations/en \
+        -X "DELETE" \
+        -H "Accept: application/json" \
+        -H "Content-type: application/x-www-form-urlencoded" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
+
+
+
+Exemplary Response
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    STATUS: 200 OK
+
+.. code-block:: json
+
+    {}
 
 
 Get all system settings
@@ -325,7 +391,6 @@ Exemplary Response
         "programPointsSingular": "Point",
         "programPointsPlural": "Points",
         "tierAssignType": "transactions",
-        "defaultFrontendTranslations": "english.json",
         "excludedDeliverySKUs": [],
         "excludedLevelSKUs": [],
         "allTimeActive": false,
@@ -370,8 +435,6 @@ Definition
 | Authorization                                         | header         | Token received during authentication                                       |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | settings[currency]                                    | request        | Currency: {"PLN":"pln","USD":"usd","EUR":"eur"}                            |
-+-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| settings[defaultFrontendTranslations]                 | request        | Language                                                                   |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | settings[customerStatusesEarning][]                   | request        | Options:    "new","active","blocked","deleted"                                |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
@@ -453,7 +516,6 @@ Example
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
         -d "settings[currency]=PLN" \
-        -d "settings[defaultFrontendTranslations]=english.json" \
         -d "settings[customerStatusesEarning][0]=active" \
         -d "settings[customerStatusesSpending][0]=active" \
         -d "settings[timezone]=Europe/Warsaw" \
@@ -1295,7 +1357,7 @@ Exemplary Response
         "save": "Save",
         "yes": "Yes",
         "no": "No",
-        "admin_footer": "2016 Open Loyalty",
+        "admin_footer": "2018 Open Loyalty",
         "true": "True",
         "false": "False",
         "edit": "Edit",

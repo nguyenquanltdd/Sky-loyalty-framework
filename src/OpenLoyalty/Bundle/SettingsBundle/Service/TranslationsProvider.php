@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\SettingsBundle\Service;
@@ -17,34 +17,44 @@ interface TranslationsProvider
     /**
      * @return TranslationsEntry
      */
-    public function getCurrentTranslations();
+    public function getCurrentTranslations(): TranslationsEntry;
 
     /**
-     * @param string $key
+     * @param string $code
      *
      * @return TranslationsEntry
      */
-    public function getTranslationsByKey($key);
+    public function getTranslationsByKey(string $code): TranslationsEntry;
 
     /**
-     * @return array
+     * @return TranslationsEntry[]
      */
-    public function getAvailableTranslationsList();
+    public function getAvailableTranslationsList(): array;
 
     /**
-     * @param $key
+     * @param string $code
      *
      * @return bool
      */
-    public function hasTranslation($key);
+    public function hasTranslation(string $code): bool;
 
     /**
      * @param TranslationsEntry $entry
-     * @param null              $key
-     * @param bool              $overwrite
      *
      * @throws AlreadyExistException
      * @throws NotExistException
      */
-    public function save(TranslationsEntry $entry, $key = null, $overwrite = true);
+    public function update(TranslationsEntry $entry): void;
+
+    /**
+     * @param TranslationsEntry $entry
+     *
+     * @throws AlreadyExistException
+     */
+    public function create(TranslationsEntry $entry): void;
+
+    /**
+     * @param string $code
+     */
+    public function remove(string $code): void;
 }

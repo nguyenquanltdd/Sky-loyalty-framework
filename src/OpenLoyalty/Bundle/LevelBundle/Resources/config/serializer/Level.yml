@@ -7,13 +7,21 @@ OpenLoyalty\Component\Level\Domain\Level:
       inline: true
     photo:
       exclude: true
-    name:
-      groups: ['Default', 'customer']
-    description:
-      groups: ['Default', 'customer']
     conditionValue:
       groups: ['Default', 'customer']
+    newTranslations:
+      exclude: true
+    currentLocale:
+      exclude: true
+    defaultLocale:
+      exclude: true
   virtual_properties:
+    getName:
+      serialized_name: name
+      groups: ['Default', 'customer']
+    getDescription:
+      serialized_name: description
+      groups: ['Default', 'customer']
     hasLevelPhoto:
       serialized_name: hasPhoto
       type: boolean

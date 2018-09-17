@@ -25,8 +25,6 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
     public function load(ObjectManager $manager)
     {
         $level0 = [
-            'name' => 'Bronze',
-            'description' => 'Starting level',
             'conditionValue' => 0,
             'minOrder' => 100,
             'reward' => [
@@ -45,21 +43,37 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
                     'id' => 'e82c96cf-32a3-43bd-9034-4da343e5fd00',
                 ],
             ],
+            'translations' => [
+                'en' => [
+                    'name' => 'Bronze',
+                    'description' => 'Starting level',
+                ],
+                'pl' => [
+                    'name' => 'Brązowy',
+                    'description' => 'Poziom początkowy',
+                ],
+            ],
         ];
         $level = [
-            'name' => 'VIP',
-            'description' => 'Customers who spend more than 5000 EUR',
             'conditionValue' => 5000,
             'reward' => [
                 'name' => '20% off for every purchase and additional reward',
                 'value' => 0.30,
                 'code' => '45678',
             ],
+            'translations' => [
+                'en' => [
+                    'name' => 'VIP',
+                    'description' => 'Customers who spend more than 5000 EUR',
+                ],
+                'pl' => [
+                    'name' => 'VIP',
+                    'description' => 'Klienci którzy zrobili zakupy za więcej niż 5000 EUR',
+                ],
+            ],
         ];
 
         $level2 = [
-            'name' => 'Gold',
-            'description' => 'Customers who spend more than 1500 EUR',
             'conditionValue' => 1500,
             'reward' => [
                 'name' => '15% off for every purchase',
@@ -86,6 +100,16 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
                     'id' => 'e82c96cf-32a3-43bd-9034-4da343e5ff10',
                 ],
             ],
+            'translations' => [
+                'en' => [
+                    'name' => 'Gold',
+                    'description' => 'Customers who spend more than 1500 EUR',
+                ],
+                'pl' => [
+                    'name' => 'Złoty',
+                    'description' => 'Klienci którzy zrobili zakupy za więcej niż 1500 EUR',
+                ],
+            ],
         ];
 
         $level3 = [
@@ -96,6 +120,16 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
                 'name' => '10% off for every purchase',
                 'value' => 0.10,
                 'code' => '23456',
+            ],
+            'translations' => [
+                'en' => [
+                    'name' => 'Silver',
+                    'description' => 'Customers who spend more than 400 EUR',
+                ],
+                'pl' => [
+                    'name' => 'Srebrny',
+                    'description' => 'Klienci którzy zrobili zakupy za więcej niż 400 EUR',
+                ],
             ],
         ];
 

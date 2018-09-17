@@ -12,5 +12,6 @@ Architecture
         cockpits
         fixtures
         events
+        translations
 
 .. include:: /developer/architecture/map.rst.inc

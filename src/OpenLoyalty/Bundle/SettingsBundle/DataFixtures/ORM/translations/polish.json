@@ -68,7 +68,13 @@
       "list": "Dostępne wersje językowe",
       "name": "Nazwa",
       "name_prompt": "",
-      "updated_at": "Zaktualizowano w dniu"
+      "updated_at": "Zaktualizowano w dniu",
+      "order": "Kolejność",
+      "order_prompt": "",
+      "default": "Domyślny",
+      "default_prompt": "",
+      "code": "Kod (locale)",
+      "code_prompt": ""
     }
   },
   "admin_edit": {
@@ -239,6 +245,9 @@
     "visible_from": "Widoczna Od",
     "visible_from_prompt": "",
     "visible_to": "Widoczna Do",
+    "visible_to_prompt": "",
+    "brand_description": "Opis marki",
+    "brand_description_prompt": "",
     "visible_to_prompt": "",
     "coupon_active_since": "Kupon aktywny od",
     "coupon_active_to": "Kupon aktywny do",

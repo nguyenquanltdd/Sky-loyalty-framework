@@ -67,7 +67,15 @@
       "list": "Translations list",
       "name": "Name",
       "name_prompt": "",
-      "updated_at": "Updated at"
+      "updated_at": "Updated at",
+      "code": "Code (locale)",
+      "code_prompt": "",
+      "order": "Order",
+      "order_prompt": "",
+      "default": "Default",
+      "default_prompt": "",
+      "delete_confirmation": "Do you want to remove this Translation?",
+      "delete_confirmation_description": "This translation will be removed permanently"
     }
   },
   "admin_edit": {
@@ -539,7 +547,7 @@
       "link": {
         "cookie_policy": "<a href='https://test.web.cloud.openloyalty.io/terms-conditions'>Terms and conditions</a>"
       },
-      "copyright_text": "© 2018 HP Partner Program. All rights reserved."
+      "copyright_text": "© 2018 Open Loyalty. All rights reserved."
     },
     "customer": {
       "navigation": {
@@ -2209,6 +2217,10 @@
     },
     "get_translations": {
       "error": "Error"
+    },
+    "delete_translations": {
+      "success": "Transaction has been deleted",
+      "error": "Transaction hasn't been deleted"
     },
     "import": {
       "error": "Import process failed",

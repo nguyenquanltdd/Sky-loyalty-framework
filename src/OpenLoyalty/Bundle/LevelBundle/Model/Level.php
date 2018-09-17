@@ -1,15 +1,20 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\LevelBundle\Model;
+
+use OpenLoyalty\Component\Level\Domain\LevelTranslation;
 
 /**
  * Class Level.
  */
 class Level extends \OpenLoyalty\Component\Level\Domain\Level
 {
+    /**
+     * Level constructor.
+     */
     public function __construct()
     {
     }
@@ -35,11 +40,26 @@ class Level extends \OpenLoyalty\Component\Level\Domain\Level
         $this->reward = $reward;
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
+        $this->mergeNewTranslations();
+
         $specialRewards = array_map(function (SpecialReward $specialReward) {
             return $specialReward->toArray();
         }, $this->getSpecialRewards());
+
+        $translations = array_map(
+            function (LevelTranslation $level): array {
+                return [
+                    'name' => $level->getName(),
+                    'description' => $level->getDescription(),
+                ];
+            },
+            $this->getTranslations()->toArray()
+        );
 
         return [
             'name' => $this->getName(),
@@ -49,6 +69,7 @@ class Level extends \OpenLoyalty\Component\Level\Domain\Level
             'reward' => $this->getReward()->toArray(),
             'specialRewards' => $specialRewards,
             'minOrder' => $this->getMinOrder(),
+            'translations' => $translations,
         ];
     }
 }

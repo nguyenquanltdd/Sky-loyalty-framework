@@ -7,7 +7,6 @@ namespace OpenLoyalty\Bundle\SettingsBundle\DataFixtures\ORM;
 
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
-use Gaufrette\Filesystem;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\BooleanSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\FileSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\IntegerSettingEntry;
@@ -21,6 +20,8 @@ use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
+use OpenLoyalty\Component\Translation\Domain\Command\CreateLanguage;
+use OpenLoyalty\Component\Translation\Domain\LanguageId;
 use Symfony\Bridge\Doctrine\Tests\Fixtures\ContainerAwareFixture;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Finder;
@@ -32,6 +33,24 @@ use Symfony\Component\HttpKernel\Kernel;
  */
 class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureInterface
 {
+    /**
+     * @var array
+     */
+    private $languageMap = [
+        'english.json' => [
+            'code' => 'en',
+            'name' => 'English',
+            'default' => true,
+            'order' => 0,
+        ],
+        'polish.json' => [
+            'code' => 'pl',
+            'name' => 'Polski',
+            'default' => false,
+            'order' => 1,
+        ],
+    ];
+
     /**
      * Load data fixtures with the passed EntityManager.
      *
@@ -146,10 +165,6 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
         $priority->setValue($priorities);
         $settings->addEntry($priority);
 
-        $defaultFrontendTranslations = new StringSettingEntry('defaultFrontendTranslations');
-        $defaultFrontendTranslations->setValue('english.json');
-        $settings->addEntry($defaultFrontendTranslations);
-
         $accountActivationMethod = new StringSettingEntry('accountActivationMethod');
         $accountActivationMethod->setValue(AccountActivationMethod::METHOD_EMAIL);
         $settings->addEntry($accountActivationMethod);
@@ -166,8 +181,8 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
      */
     protected function loadDefaultTranslations(): void
     {
-        /** @var Filesystem $fileSystem */
-        $fileSystem = $this->getContainer()->get('ol.settings.frontend_translations_filesystem');
+        $commandBus = $this->container->get('broadway.command_handling.command_bus');
+        $uuidGenerator = $this->container->get('broadway.uuid.generator');
 
         /** @var Kernel $kernel */
         $kernel = $this->getContainer()->get('kernel');
@@ -178,7 +193,22 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
 
         /** @var SplFileInfo $file */
         foreach ($finder as $file) {
-            $fileSystem->write($file->getFilename(), $file->getContents(), true);
+            $fileName = $file->getFilename();
+
+            if (array_key_exists($fileName, $this->languageMap)) {
+                $languageData = $this->languageMap[$fileName];
+
+                $commandBus->dispatch(new CreateLanguage(
+                    new LanguageId($uuidGenerator->generate()),
+                    [
+                        'code' => $languageData['code'],
+                        'name' => $languageData['name'],
+                        'order' => $languageData['order'],
+                        'default' => $languageData['default'],
+                        'translations' => $file->getContents(),
+                    ]
+                ));
+            }
         }
     }
 

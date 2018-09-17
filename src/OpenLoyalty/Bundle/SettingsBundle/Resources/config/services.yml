@@ -11,6 +11,7 @@ services:
 
     OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManagerInterface: '@OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManager'
     OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager: '@OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManager'
+    OpenLoyalty\Bundle\SettingsBundle\Service\TranslationsProvider: '@OpenLoyalty\Bundle\SettingsBundle\Service\DoctrineTranslationsManager'
 
     OpenLoyalty\Bundle\SettingsBundle\Provider\:
         resource: '../../Provider/*'
@@ -30,10 +31,10 @@ services:
         resource: '../../Validator/Constraints/*'
         tags: ['validator.constraint_validator']
 
-    OpenLoyalty\Bundle\SettingsBundle\Service\FileBasedTranslationsProvider:
+    OpenLoyalty\Bundle\SettingsBundle\Service\DoctrineTranslationsManager:
         arguments:
-            $filesystem: '@ol.settings.frontend_translations_filesystem'
-            $fallbackFile: '%fallback_frontend_translations_file%'
+            $commandBus: '@broadway.command_handling.command_bus'
+            $uuidGenerator: '@broadway.uuid.generator'
 
     OpenLoyalty\Bundle\SettingsBundle\Service\ConditionsUploader:
         arguments: ['@oloy.settings.uploads_filesystem', '%frontend_customer_panel_url%']
@@ -45,8 +46,6 @@ services:
         scope: prototype
         arguments:
             $defaultLocale: '%locale%'
-            $localeMap: '%oloy.locale.mapping%'
-
 
     ol.settings.frontend_translations_filesystem:
         class:     Gaufrette\Filesystem
@@ -63,6 +62,21 @@ services:
         class:     Gaufrette\Filesystem
         factory:   ['@knp_gaufrette.filesystem_map', get]
         arguments: ['uploads']
+
+    OpenLoyalty\Component\Translation\Infrastructure\Persistence\Doctrine\Repository\DoctrineLanguageRepository:
+        factory: ['@doctrine.orm.entity_manager', getRepository]
+        arguments:
+          - 'OpenLoyalty\Component\Translation\Domain\Language'
+
+    OpenLoyalty\Component\Translation\Domain\Command\LanguageCommandHandler:
+        tags:
+          - { name: broadway.command_handler }
+
+    OpenLoyalty\Bundle\SettingsBundle\Command\MigrateTranslationCommand:
+        arguments:
+            $filesystem: '@ol.settings.frontend_translations_filesystem'
+        tags:
+          - { name: 'console.command', command: 'oloy:translation:migrate2database' }
 
     OpenLoyalty\Component\Core\Domain\Command\LogoCommandHandler:
       lazy: true
@@ -83,4 +97,3 @@ services:
       tags:
         - { name: broadway.event_listener, method: onChange, event: !php/const:OpenLoyalty\Component\Core\Domain\SystemEvent\LogoSystemEvents::RESIZED_LOGO_EVENT }
 
-    OpenLoyalty\Bundle\SettingsBundle\EventSubscriber\RequestListener: ~

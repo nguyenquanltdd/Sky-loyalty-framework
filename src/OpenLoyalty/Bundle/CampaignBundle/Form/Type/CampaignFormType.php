@@ -1,10 +1,12 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\CampaignBundle\Form\Type;
 
+use A2lix\TranslationFormBundle\Form\Type\TranslationsType;
+use A2lix\TranslationFormBundle\Locale\LocaleProviderInterface;
 use OpenLoyalty\Bundle\CampaignBundle\Form\DataTransformer\CategoriesDataTransformer;
 use OpenLoyalty\Bundle\CampaignBundle\Form\DataTransformer\CouponsDataTransformer;
 use OpenLoyalty\Bundle\CampaignBundle\Form\DataTransformer\LevelsDataTransformer;
@@ -38,6 +40,21 @@ use Symfony\Component\Validator\Constraints\Valid;
 class CampaignFormType extends AbstractType
 {
     /**
+     * @var LocaleProviderInterface
+     */
+    protected $localeProvider;
+
+    /**
+     * CampaignFormType constructor.
+     *
+     * @param LocaleProviderInterface $localeProvider
+     */
+    public function __construct(LocaleProviderInterface $localeProvider)
+    {
+        $this->localeProvider = $localeProvider;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -52,6 +69,30 @@ class CampaignFormType extends AbstractType
             Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE,
         ];
 
+        $builder->add('translations', TranslationsType::class, [
+            'required' => true,
+            'fields' => [
+                'name' => [
+                    'field_type' => TextType::class,
+                    'locale_options' => [
+                        $this->localeProvider->getDefaultLocale() => ['constraints' => [new NotBlank()]],
+                    ],
+                ],
+                'shortDescription' => [
+                    'field_type' => TextareaType::class,
+                ],
+                'usageInstruction' => [
+                    'field_type' => TextareaType::class,
+                ],
+                'conditionsDescription' => [
+                    'field_type' => TextareaType::class,
+                ],
+                'brandDescription' => [
+                    'field_type' => TextareaType::class,
+                ],
+            ],
+        ]);
+
         $builder->add($builder->create('coupons', CollectionType::class, [
             'entry_type' => TextType::class,
             'allow_add' => true,
@@ -64,19 +105,9 @@ class CampaignFormType extends AbstractType
             'required' => true,
             'constraints' => [new NotBlank()],
         ]);
-        $builder->add('name', TextType::class, [
-            'required' => true,
-            'constraints' => [new NotBlank()],
-        ]);
-        $builder->add('shortDescription', TextareaType::class, [
-            'required' => false,
-        ]);
         $builder->add('moreInformationLink', TextareaType::class, [
             'required' => false,
             'constraints' => [new Url()],
-        ]);
-        $builder->add('conditionsDescription', TextareaType::class, [
-            'required' => false,
         ]);
         $builder->add(
             $builder->create('categories', CollectionType::class, [
@@ -105,14 +136,6 @@ class CampaignFormType extends AbstractType
             'scale' => 2,
             'required' => false,
             'constraints' => [new Optional(), new GreaterThan(['value' => 0]), new LessThan(['value' => 999999999])],
-        ]);
-
-        $builder->add('usageInstruction', TextareaType::class, [
-            'required' => false,
-        ]);
-
-        $builder->add('brandDescription', TextareaType::class, [
-            'required' => false,
         ]);
 
         $builder->add('active', CheckboxType::class, [
@@ -170,6 +193,7 @@ class CampaignFormType extends AbstractType
     {
         $data = $event->getData();
         $form = $event->getForm();
+
         if (isset($data['reward']) && $data['reward'] !== Campaign::REWARD_TYPE_CASHBACK) {
             $this->addValidityFields($form);
         }

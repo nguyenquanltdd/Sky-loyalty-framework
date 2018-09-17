@@ -22,12 +22,12 @@ class UpdateCampaignTest extends CampaignCommandHandlerTest
         $campaignId = new CampaignId('00000000-0000-0000-0000-000000000000');
         $campaign = new Campaign($campaignId);
         $campaign->setName('not updated');
+        $campaign->setShortDescription('not updated');
         $this->campaigns[] = $campaign;
 
         $handler = $this->createCommandHandler();
 
         $command = new UpdateCampaign($campaignId, [
-            'name' => 'test',
             'reward' => Campaign::REWARD_TYPE_GIFT_CODE,
             'levels' => [new LevelId('00000000-0000-0000-0000-000000000000')],
             'segments' => [],
@@ -51,12 +51,19 @@ class UpdateCampaignTest extends CampaignCommandHandlerTest
             'rewardValue' => 99.95,
             'taxPriceValue' => 100.50,
             'tax' => 23,
+            'translations' => [
+                'en' => [
+                    'name' => 'test',
+                    'shortDescription' => 'short desc',
+                ],
+            ],
         ]);
         $handler->handle($command);
         $campaign = $this->inMemoryRepository->byId($campaignId);
         $this->assertNotNull($campaign);
         $this->assertInstanceOf(Campaign::class, $campaign);
         $this->assertEquals('test', $campaign->getName());
+        $this->assertEquals('short desc', $campaign->getShortDescription());
         $this->assertEquals(99.95, $campaign->getRewardValue());
         $this->assertEquals(100.50, $campaign->getTaxPriceValue());
         $this->assertEquals(23, $campaign->getTax());

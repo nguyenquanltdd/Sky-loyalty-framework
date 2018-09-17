@@ -1,10 +1,12 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\LevelBundle\Form\Type;
 
+use A2lix\TranslationFormBundle\Form\Type\TranslationsType;
+use A2lix\TranslationFormBundle\Locale\LocaleProviderInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -20,12 +22,40 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class LevelFormType extends AbstractType
 {
+    /**
+     * @var LocaleProviderInterface
+     */
+    protected $localeProvider;
+
+    /**
+     * LevelFormType constructor.
+     *
+     * @param LocaleProviderInterface $localeProvider
+     */
+    public function __construct(LocaleProviderInterface $localeProvider)
+    {
+        $this->localeProvider = $localeProvider;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name', TextType::class, [
+            ->add('translations', TranslationsType::class, [
                 'required' => true,
-                'constraints' => [new NotBlank()],
+                'fields' => [
+                    'name' => [
+                        'field_type' => TextType::class,
+                        'locale_options' => [
+                            $this->localeProvider->getDefaultLocale() => ['constraints' => [new NotBlank()]],
+                        ],
+                    ],
+                    'description' => [
+                        'field_type' => TextareaType::class,
+                    ],
+                ],
             ])
             ->add('active', CheckboxType::class, [
                 'required' => false,
@@ -35,9 +65,6 @@ class LevelFormType extends AbstractType
                 'constraints' => [new NotBlank()],
             ])
             ->add('minOrder', NumberType::class, [
-                'required' => false,
-            ])
-            ->add('description', TextareaType::class, [
                 'required' => false,
             ])
             ->add('reward', RewardFormType::class)

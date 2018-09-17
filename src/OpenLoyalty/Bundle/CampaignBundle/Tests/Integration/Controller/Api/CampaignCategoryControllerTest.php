@@ -42,9 +42,16 @@ class CampaignCategoryControllerTest extends BaseApiTest
             '/api/campaignCategory',
             [
                 'campaign_category' => [
-                    'name' => 'Campaign category A',
                     'active' => 1,
                     'sortOrder' => 0,
+                    'translations' => [
+                        'en' => [
+                            'name' => 'Campaign category A EN',
+                        ],
+                        'pl' => [
+                            'name' => 'Campaign category A PL',
+                        ],
+                    ],
                 ],
             ]
         );
@@ -56,7 +63,7 @@ class CampaignCategoryControllerTest extends BaseApiTest
 
         $campaignCategory = $this->campaignCategoryRepository->byId(new CampaignCategoryId($data['campaignCategoryId']));
         $this->assertInstanceOf(CampaignCategory::class, $campaignCategory);
-        $this->assertEquals('Campaign category A', $campaignCategory->getName());
+        $this->assertEquals('Campaign category A EN', $campaignCategory->getName());
         $this->assertEquals(true, $campaignCategory->isActive());
         $this->assertEquals(0, $campaignCategory->getSortOrder());
     }
@@ -72,9 +79,16 @@ class CampaignCategoryControllerTest extends BaseApiTest
             '/api/campaignCategory/'.LoadCampaignData::CAMPAIGN_CATEGORY1_ID,
             [
                 'campaign_category' => [
-                    'name' => 'Campaign category A modified',
                     'active' => 1,
                     'sortOrder' => 0,
+                    'translations' => [
+                        'en' => [
+                            'name' => 'Campaign category A EN modified',
+                        ],
+                        'pl' => [
+                            'name' => 'Campaign category A PL modified',
+                        ],
+                    ],
                 ],
             ]
         );
@@ -86,7 +100,7 @@ class CampaignCategoryControllerTest extends BaseApiTest
 
         $campaignCategory = $this->campaignCategoryRepository->byId(new CampaignCategoryId($data['campaignCategoryId']));
         $this->assertInstanceOf(CampaignCategory::class, $campaignCategory);
-        $this->assertEquals('Campaign category A modified', $campaignCategory->getName());
+        $this->assertEquals('Campaign category A EN modified', $campaignCategory->getName());
         $this->assertEquals(true, $campaignCategory->isActive());
         $this->assertEquals(0, $campaignCategory->getSortOrder());
     }

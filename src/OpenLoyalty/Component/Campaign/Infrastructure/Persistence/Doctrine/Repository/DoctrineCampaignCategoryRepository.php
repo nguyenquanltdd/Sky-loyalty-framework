@@ -44,6 +44,7 @@ class DoctrineCampaignCategoryRepository extends EntityRepository implements Cam
     public function save(CampaignCategory $campaignCategory): void
     {
         $this->getEntityManager()->persist($campaignCategory);
+        $campaignCategory->mergeNewTranslations();
         $this->getEntityManager()->flush();
     }
 
@@ -128,8 +129,11 @@ class DoctrineCampaignCategoryRepository extends EntityRepository implements Cam
         }
 
         if (array_key_exists('name', $params) && !is_null($params['name'])) {
-            $qb->andWhere($qb->expr()->like('c.name', ':name'))
-                ->setParameter('name', '%'.urldecode($params['name']).'%');
+            $qb->join('c.translations', 't');
+            $qb->andWhere($qb->expr()->like('t.name', ':name'))
+                ->setParameter('name', '%'.urldecode($params['name']).'%')
+                ->andWhere('t.locale = :locale')
+                ->setParameter('locale', $params['_locale']);
         }
 
         return $qb;

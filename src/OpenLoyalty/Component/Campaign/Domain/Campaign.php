@@ -1,10 +1,11 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Component\Campaign\Domain;
 
+use OpenLoyalty\Bundle\TranslationBundle\Model\FallbackTranslatable;
 use OpenLoyalty\Component\Campaign\Domain\Model\CampaignActivity;
 use OpenLoyalty\Component\Campaign\Domain\Model\CampaignPhoto;
 use OpenLoyalty\Component\Campaign\Domain\Model\CampaignFile;
@@ -18,6 +19,8 @@ use Assert\Assertion as Assert;
  */
 class Campaign
 {
+    use FallbackTranslatable;
+
     const REWARD_TYPE_DISCOUNT_CODE = 'discount_code';
     const REWARD_TYPE_VALUE_CODE = 'value_code';
     const REWARD_TYPE_FREE_DELIVERY_CODE = 'free_delivery_code';
@@ -42,16 +45,6 @@ class Campaign
     /**
      * @var string
      */
-    protected $name;
-
-    /**
-     * @var string
-     */
-    protected $shortDescription;
-
-    /**
-     * @var string
-     */
     protected $moreInformationLink;
 
     /**
@@ -63,11 +56,6 @@ class Campaign
      * @var CampaignFile|null
      */
     protected $brandIcon;
-
-    /**
-     * @var string
-     */
-    protected $conditionsDescription;
 
     /**
      * @var bool
@@ -130,11 +118,6 @@ class Campaign
     protected $campaignVisibility;
 
     /**
-     * @var string
-     */
-    protected $usageInstruction;
-
-    /**
      * @var CampaignPhoto
      */
     protected $campaignPhoto;
@@ -158,11 +141,6 @@ class Campaign
      * @var Label[]
      */
     protected $labels = [];
-
-    /**
-     * @var string|null
-     */
-    protected $brandDescription;
 
     /**
      * @var int
@@ -197,10 +175,10 @@ class Campaign
     /**
      * Campaign constructor.
      *
-     * @param CampaignId $campaignId
-     * @param array      $data
+     * @param CampaignId|null $campaignId
+     * @param array           $data
      */
-    public function __construct(CampaignId $campaignId, array $data = [])
+    public function __construct(CampaignId $campaignId = null, array $data = [])
     {
         $this->campaignId = $campaignId;
         $this->setFromArray($data);
@@ -215,24 +193,12 @@ class Campaign
             $this->reward = $data['reward'];
         }
 
-        if (isset($data['name'])) {
-            $this->name = $data['name'];
-        }
-
-        if (isset($data['shortDescription'])) {
-            $this->shortDescription = $data['shortDescription'];
-        }
-
         if (isset($data['moreInformationLink'])) {
             $this->moreInformationLink = $data['moreInformationLink'];
         }
 
         if (isset($data['brandName'])) {
             $this->brandName = $data['brandName'];
-        }
-
-        if (isset($data['conditionsDescription'])) {
-            $this->conditionsDescription = $data['conditionsDescription'];
         }
 
         if (isset($data['active'])) {
@@ -307,14 +273,6 @@ class Campaign
             );
         }
 
-        if (isset($data['usageInstruction'])) {
-            $this->setUsageInstruction($data['usageInstruction']);
-        }
-
-        if (array_key_exists('brandDescription', $data)) {
-            $this->setBrandDescription($data['brandDescription']);
-        }
-
         if (array_key_exists('rewardValue', $data)) {
             $this->setRewardValue($data['rewardValue']);
         }
@@ -345,6 +303,32 @@ class Campaign
             }
             $this->labels = $labels;
         }
+
+        if (array_key_exists('translations', $data)) {
+            foreach ($data['translations'] as $locale => $transData) {
+                if (array_key_exists('name', $transData)) {
+                    $this->translate($locale, false)->setName($transData['name']);
+                }
+                if (array_key_exists('shortDescription', $transData)) {
+                    $this->translate($locale, false)->setShortDescription($transData['shortDescription']);
+                }
+                if (array_key_exists('conditionsDescription', $transData)) {
+                    $this->translate($locale, false)->setConditionsDescription($transData['conditionsDescription']);
+                }
+                if (array_key_exists('usageInstruction', $transData)) {
+                    $this->translate($locale, false)->setUsageInstruction($transData['usageInstruction']);
+                }
+                if (array_key_exists('brandDescription', $transData)) {
+                    $this->translate($locale, false)->setBrandDescription($transData['brandDescription']);
+                }
+            }
+            /** @var CampaignTranslation $translation */
+            foreach ($this->getTranslations() as $translation) {
+                if (!isset($data['translations'][$translation->getLocale()])) {
+                    $this->removeTranslation($translation);
+                }
+            }
+        }
     }
 
     /**
@@ -374,38 +358,6 @@ class Campaign
     /**
      * @return string
      */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param string $name
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * @return string
-     */
-    public function getShortDescription()
-    {
-        return $this->shortDescription;
-    }
-
-    /**
-     * @param string $shortDescription
-     */
-    public function setShortDescription($shortDescription)
-    {
-        $this->shortDescription = $shortDescription;
-    }
-
-    /**
-     * @return string
-     */
     public function getMoreInformationLink()
     {
         return $this->moreInformationLink;
@@ -417,22 +369,6 @@ class Campaign
     public function setMoreInformationLink($moreInformationLink)
     {
         $this->moreInformationLink = $moreInformationLink;
-    }
-
-    /**
-     * @return string
-     */
-    public function getConditionsDescription()
-    {
-        return $this->conditionsDescription;
-    }
-
-    /**
-     * @param string $conditionsDescription
-     */
-    public function setConditionsDescription($conditionsDescription)
-    {
-        $this->conditionsDescription = $conditionsDescription;
     }
 
     /**
@@ -627,22 +563,6 @@ class Campaign
         $this->campaignVisibility = $campaignVisibility;
     }
 
-    /**
-     * @return string
-     */
-    public function getUsageInstruction()
-    {
-        return $this->usageInstruction;
-    }
-
-    /**
-     * @param string $usageInstruction
-     */
-    public function setUsageInstruction($usageInstruction)
-    {
-        $this->usageInstruction = $usageInstruction;
-    }
-
     public static function validateRequiredData(array $data)
     {
         Assert::keyIsset($data, 'reward');
@@ -656,7 +576,6 @@ class Campaign
             self::REWARD_TYPE_CASHBACK,
             self::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE,
         ]);
-        Assert::keyIsset($data, 'name');
         Assert::keyIsset($data, 'levels');
         Assert::isArray($data['levels']);
         Assert::allIsInstanceOf($data['levels'], LevelId::class);
@@ -932,17 +851,81 @@ class Campaign
     /**
      * @return string|null
      */
+    public function getName(): ?string
+    {
+        return $this->translateFieldFallback(null, 'name')->getName();
+    }
+
+    /**
+     * @param null|string $name
+     */
+    public function setName(?string $name)
+    {
+        $this->translate(null, false)->setName($name);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getShortDescription(): ?string
+    {
+        return $this->translateFieldFallback(null, 'shortDescription')->getShortDescription();
+    }
+
+    /**
+     * @param null|string $shortDescription
+     */
+    public function setShortDescription(?string $shortDescription): void
+    {
+        $this->translate(null, false)->setShortDescription($shortDescription);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getConditionsDescription(): ?string
+    {
+        return $this->translateFieldFallback(null, 'conditionsDescription')->getConditionsDescription();
+    }
+
+    /**
+     * @param null|string $conditionsDescription
+     */
+    public function setConditionsDescription(?string $conditionsDescription): void
+    {
+        $this->translate(null, false)->setConditionsDescription($conditionsDescription);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getUsageInstruction(): ?string
+    {
+        return $this->translateFieldFallback(null, 'usageInstruction')->getUsageInstruction();
+    }
+
+    /**
+     * @param null|string $usageInstruction
+     */
+    public function setUsageInstruction(?string $usageInstruction): void
+    {
+        $this->translate(null, false)->setUsageInstruction($usageInstruction);
+    }
+
+    /**
+     * @return string|null
+     */
     public function getBrandDescription(): ?string
     {
-        return $this->brandDescription;
+        return $this->translateFieldFallback(null, 'brandDescription')->getBrandDescription();
     }
 
     /**
      * @param string|null $brandDescription
      */
-    public function setBrandDescription(?string $brandDescription)
+    public function setBrandDescription(?string $brandDescription): void
     {
-        $this->brandDescription = $brandDescription;
+        $this->translate(null, false)->setBrandDescription($brandDescription);
     }
 
     /**

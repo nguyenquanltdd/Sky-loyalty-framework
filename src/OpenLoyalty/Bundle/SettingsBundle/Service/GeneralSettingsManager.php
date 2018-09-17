@@ -59,14 +59,6 @@ class GeneralSettingsManager extends DoctrineSettingsManager implements GeneralS
     /**
      * {@inheritdoc}
      */
-    public function getLanguage(): string
-    {
-        return $this->getSettingByKey('defaultFrontendTranslations')->getValue();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getProgramName(): string
     {
         return $this->getSettingByKey('programName')->getValue();

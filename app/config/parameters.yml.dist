@@ -42,7 +42,6 @@ parameters:
     ecommerce_address: http://ecommerce.local
 
     es_max_result_window_size: 2000000
-    fallback_frontend_translations_file: english.json
 
     campaign_photos_adapter: campaign_photos_local
     campaign_photos_adapter_env: CAMPAIGN_PHOTOS_ADAPTER

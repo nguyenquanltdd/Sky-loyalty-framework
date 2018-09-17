@@ -24,7 +24,7 @@ class LevelTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->levelObject = new Level(new LevelId(self::LEVEL_ID), 'name', 2);
+        $this->levelObject = new Level(new LevelId(self::LEVEL_ID), 2);
 
         $levelPhoto = new LevelPhoto();
         $levelPhoto->setPath('some/path/to/photo.png');

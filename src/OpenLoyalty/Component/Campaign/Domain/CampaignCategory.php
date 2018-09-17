@@ -6,21 +6,19 @@
 namespace OpenLoyalty\Component\Campaign\Domain;
 
 use Assert\Assertion as Assert;
+use OpenLoyalty\Bundle\TranslationBundle\Model\FallbackTranslatable;
 
 /**
  * Class CampaignCategory.
  */
 class CampaignCategory
 {
+    use FallbackTranslatable;
+
     /**
      * @var CampaignCategoryId
      */
     protected $campaignCategoryId;
-
-    /**
-     * @var string|null
-     */
-    protected $name;
 
     /**
      * @var bool
@@ -49,16 +47,26 @@ class CampaignCategory
      */
     public function setFromArray(array $data): void
     {
-        if (isset($data['name'])) {
-            $this->name = $data['name'];
-        }
-
         if (isset($data['sortOrder'])) {
             $this->sortOrder = $data['sortOrder'];
         }
 
         if (isset($data['active'])) {
             $this->active = $data['active'];
+        }
+
+        if (array_key_exists('translations', $data)) {
+            foreach ($data['translations'] as $locale => $transData) {
+                if (array_key_exists('name', $transData)) {
+                    $this->translate($locale, false)->setName($transData['name']);
+                }
+            }
+            /** @var CampaignTranslation $translation */
+            foreach ($this->getTranslations() as $translation) {
+                if (!isset($data['translations'][$translation->getLocale()])) {
+                    $this->removeTranslation($translation);
+                }
+            }
         }
     }
 
@@ -70,7 +78,6 @@ class CampaignCategory
     public static function validateRequiredData(array $data): void
     {
         Assert::keyIsset($data, 'name');
-        Assert::string($data['name']);
         Assert::keyIsset($data, 'sortOrder');
         Assert::integer($data['sortOrder']);
     }
@@ -96,15 +103,15 @@ class CampaignCategory
      */
     public function getName(): ?string
     {
-        return $this->name;
+        return $this->translateFieldFallback(null, 'name')->getName();
     }
 
     /**
-     * @param string $name
+     * @param null|string $name
      */
-    public function setName(string $name): void
+    public function setName(?string $name)
     {
-        $this->name = $name;
+        $this->translate(null, false)->setName($name);
     }
 
     /**

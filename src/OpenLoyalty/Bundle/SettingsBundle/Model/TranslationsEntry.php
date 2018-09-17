@@ -1,32 +1,37 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\SettingsBundle\Model;
 
-use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 use OpenLoyalty\Bundle\SettingsBundle\Validator\Constraints as AppAssert;
 
 /**
  * Class TranslationsEntry.
- *
- * @AppAssert\NotUsedKey(groups={"edit"})
- * @AppAssert\UniqueKey()
  */
 class TranslationsEntry
 {
     /**
      * @var string
      */
-    private $key;
+    private $code = null;
 
     /**
      * @var string
-     * @JMS\Exclude()
      */
-    private $previousKey;
+    private $name = null;
+
+    /**
+     * @var bool
+     */
+    private $default = false;
+
+    /**
+     * @var int
+     */
+    private $order = 0;
 
     /**
      * @var string
@@ -41,34 +46,95 @@ class TranslationsEntry
      */
     private $updatedAt = null;
 
-    public function __construct($key = null, $content = null, \DateTime $updatedAt = null)
+    /**
+     * TranslationsEntry constructor.
+     *
+     * @param string|null $code
+     * @param string|null $name
+     * @param string|null $content
+     * @param \DateTime   $updatedAt
+     * @param int         $order
+     * @param bool        $default
+     */
+    public function __construct(string $code = null, string $name = null, string $content = null,
+                                \DateTime $updatedAt = null, int $order = 0, bool $default = false)
     {
-        $this->key = $key;
-        $this->previousKey = $key;
+        $this->code = $code;
+        $this->name = $name;
         $this->content = $content;
         $this->updatedAt = $updatedAt;
+        $this->order = $order;
+        $this->default = $default;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getKey()
+    public function getCode(): ?string
     {
-        return $this->key;
+        return $this->code;
     }
 
     /**
-     * @param string $key
+     * @param string $code
      */
-    public function setKey($key)
+    public function setCode(string $code)
     {
-        $this->key = $key;
+        $this->code = $code;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getContent()
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName(string $name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDefault(): bool
+    {
+        return $this->default;
+    }
+
+    /**
+     * @param bool $default
+     */
+    public function setDefault(bool $default)
+    {
+        $this->default = $default;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getOrder(): ?int
+    {
+        return $this->order;
+    }
+
+    /**
+     * @param int $order
+     */
+    public function setOrder(?int $order)
+    {
+        $this->order = $order;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getContent(): ?string
     {
         return $this->content;
     }
@@ -76,32 +142,15 @@ class TranslationsEntry
     /**
      * @param string $content
      */
-    public function setContent($content)
+    public function setContent(string $content)
     {
         $this->content = $content;
     }
 
     /**
-     * @return string
-     * @JMS\VirtualProperty()
-     */
-    public function getName()
-    {
-        return str_replace('.json', '', $this->key);
-    }
-
-    /**
-     * @param string $name
-     */
-    public function setName($name)
-    {
-        $this->key = $name.'.json';
-    }
-
-    /**
      * @return \DateTime
      */
-    public function getUpdatedAt()
+    public function getUpdatedAt(): \DateTime
     {
         return $this->updatedAt;
     }
@@ -109,24 +158,8 @@ class TranslationsEntry
     /**
      * @param \DateTime $updatedAt
      */
-    public function setUpdatedAt($updatedAt)
+    public function setUpdatedAt(\DateTime $updatedAt)
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPreviousKey()
-    {
-        return $this->previousKey;
-    }
-
-    /**
-     * @param string $previousKey
-     */
-    public function setPreviousKey($previousKey)
-    {
-        $this->previousKey = $previousKey;
     }
 }

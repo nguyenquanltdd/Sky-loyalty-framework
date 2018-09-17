@@ -1,3 +1,8 @@
+doctrine:
+  dbal:
+    types:
+      language_id: OpenLoyalty\Component\Translation\Infrastructure\Persistence\Doctrine\Type\LanguageIdDoctrineType
+
 open_loyalty_settings:
   mapping:
     small-logo:

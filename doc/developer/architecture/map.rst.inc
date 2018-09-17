@@ -6,3 +6,4 @@
 * :doc:`/developer/architecture/cockpits`
 * :doc:`/developer/architecture/fixtures`
 * :doc:`/developer/architecture/events`
+* :doc:`/developer/architecture/translations`

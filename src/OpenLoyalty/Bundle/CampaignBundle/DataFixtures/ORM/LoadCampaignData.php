@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\CampaignBundle\DataFixtures\ORM;
@@ -73,11 +73,13 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaign->setSegments([new SegmentId(LoadSegmentData::SEGMENT2_ID)]);
         $campaign->setCoupons([new Coupon('123')]);
         $campaign->setReward(Campaign::REWARD_TYPE_DISCOUNT_CODE);
-        $campaign->setName('tests');
-        $campaign->setBrandDescription('_branddescription_');
-        $campaign->setShortDescription('_shortdescription_');
-        $campaign->setConditionsDescription('_conditionsdescription_');
-        $campaign->setUsageInstruction('_usageinstruction_');
+        $campaign->setName('Test configured campaign');
+        $campaign->setBrandDescription('Some _Brand_ description');
+        $campaign->setShortDescription('Some _Campaign_ short description');
+        $campaign->setConditionsDescription('Some _Campaign_ condition description');
+        $campaign->setUsageInstruction('How to use coupon in this _campaign_');
+        $campaign->translate('pl')->setName('Skonfigurowana testowa kampania');
+        $campaign->translate('pl')->setShortDescription('Opis skonfigurowanej kampanii testowej');
         $campaign->setLabels([new Label('type', 'promotion')]);
         $campaign->setDaysInactive(0);
         $campaign->setDaysValid(0);
@@ -111,7 +113,8 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaign->setSegments([new SegmentId(LoadSegmentData::SEGMENT2_ID)]);
         $campaign->setCoupons([new Coupon('123'), new Coupon('1233'), new Coupon('1234')]);
         $campaign->setReward(Campaign::REWARD_TYPE_DISCOUNT_CODE);
-        $campaign->setName('for test');
+        $campaign->setName('Test reward campaign');
+        $campaign->translate('pl')->setName('Testowa kampania z nagrodą');
         $campaign->setLabels([new Label('type', 'test')]);
         $campaign->setDaysInactive(0);
         $campaign->setDaysValid(0);
@@ -134,6 +137,7 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaign = new Campaign();
         $campaign->setReward(Campaign::REWARD_TYPE_CASHBACK);
         $campaign->setName('cashback');
+        $campaign->translate('pl')->setName('zwrot gotówki');
         $campaign->setActive(true);
         $campaign->setPublic(true);
         $campaign->setPointValue(10);
@@ -203,6 +207,7 @@ class LoadCampaignData extends ContainerAwareFixture
             $campaign->setCoupons([new Coupon(rand(100, 1000))]);
             $campaign->setReward($i % 2 == 0 ? Campaign::REWARD_TYPE_DISCOUNT_CODE : Campaign::REWARD_TYPE_FREE_DELIVERY_CODE);
             $campaign->setName(sprintf('%s', $i));
+            $campaign->translate('pl')->setName(sprintf('%s pl', $i));
             $campaign->setDaysInactive(0);
             $campaign->setDaysValid(0);
             $campaignActivity = new CampaignActivity();

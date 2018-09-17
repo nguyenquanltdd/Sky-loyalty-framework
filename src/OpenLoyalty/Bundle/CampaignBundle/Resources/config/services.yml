@@ -1,24 +1,17 @@
 services:
+
   _defaults:
     autowire: true
     autoconfigure: true
 
   OpenLoyalty\Bundle\CampaignBundle\Controller\Api\:
-      resource: '../../Controller/Api/*'
-      tags: ['controller.service_arguments']
+    resource: '../../Controller/Api/*'
+    tags: ['controller.service_arguments']
 
   Broadway\CommandHandling\CommandBus: '@broadway.command_handling.command_bus'
   Symfony\Component\Translation\TranslationInterface: '@translator'
   OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomersRepository: '@oloy.segment.read_model.repository.segmented_customers'
 
-  oloy.campaign.form_type.campaign:
-    class: OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignFormType
-    tags:
-      - { name: form.type }
-  oloy.campaign.form_type.edit_campaign:
-    class: OpenLoyalty\Bundle\CampaignBundle\Form\Type\EditCampaignFormType
-    tags:
-      - { name: form.type }
   oloy.campaign.form_type.campaign_activity:
     class: OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignActivityFormType
     tags:
@@ -119,3 +112,19 @@ services:
   OpenLoyalty\Bundle\CampaignBundle\ParamConverter\CampaignCategoryParamConverter:
     tags:
       - { name: request.param_converter, priority: 2, converter: campaign_category_converter }
+
+  OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignFormType:
+    tags:
+    - { name: form.type }
+
+  OpenLoyalty\Bundle\CampaignBundle\Form\Type\EditCampaignFormType:
+    tags:
+    - { name: form.type }
+
+  OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignCategoryFormType:
+    tags:
+    - { name: form.type }
+
+  OpenLoyalty\Bundle\CampaignBundle\Form\Type\EditCampaignCategoryFormType:
+    tags:
+    - { name: form.type }

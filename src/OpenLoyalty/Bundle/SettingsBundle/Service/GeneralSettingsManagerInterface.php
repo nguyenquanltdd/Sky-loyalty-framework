@@ -23,11 +23,6 @@ interface GeneralSettingsManagerInterface
     /**
      * @return string
      */
-    public function getLanguage(): string;
-
-    /**
-     * @return string
-     */
     public function getProgramName(): string;
 
     /**

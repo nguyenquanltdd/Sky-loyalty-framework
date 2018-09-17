@@ -2,6 +2,9 @@
 
 namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Integration\Form\Type;
 
+use A2lix\TranslationFormBundle\Form\EventListener\TranslationsListener;
+use A2lix\TranslationFormBundle\Form\Type\TranslationsType;
+use A2lix\TranslationFormBundle\Locale\LocaleProviderInterface;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignActivityFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignVisibilityFormType;
@@ -39,14 +42,25 @@ class CampaignFormTypeTest extends TypeTestCase
         parent::setUp();
     }
 
+    /**
+     * @return array
+     */
     protected function getExtensions()
     {
-        $type = new CampaignFormType();
+        $translationListener = $this->getMockBuilder(TranslationsListener::class)
+            ->disableOriginalConstructor()->getMock();
+        $localeProvider = $this->getMockBuilder(LocaleProviderInterface::class)
+            ->disableOriginalConstructor()->getMock();
 
-        return array(
-            new PreloadedExtension(array($type, new CampaignActivityFormType(), new CampaignVisibilityFormType()), array()),
+        return [
+            new PreloadedExtension([
+                new CampaignFormType($localeProvider),
+                new CampaignActivityFormType(),
+                new CampaignVisibilityFormType(),
+                new TranslationsType($translationListener, $localeProvider),
+            ], []),
             new ValidatorExtension($this->validator),
-        );
+        ];
     }
 
     /**
@@ -96,6 +110,7 @@ class CampaignFormTypeTest extends TypeTestCase
                 'visibleFrom' => (new \DateTime('2016-02-01'))->format('Y-m-d H:i'),
                 'visibleTo' => (new \DateTime('2037-02-11'))->format('Y-m-d H:i'),
             ],
+            'translations' => [],
         ];
     }
 }

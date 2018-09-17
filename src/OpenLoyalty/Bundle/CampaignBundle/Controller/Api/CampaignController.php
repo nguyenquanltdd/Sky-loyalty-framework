@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\CampaignBundle\Controller\Api;
@@ -631,6 +631,7 @@ class CampaignController extends FOSRestController
         $paginator = $this->paginator->handleFromRequest($request);
 
         $params = $this->paramFetcher->all();
+        $params['_locale'] = $request->getLocale();
 
         $campaigns = $this->campaignRepository
             ->findByParametersPaginated(
@@ -1500,7 +1501,7 @@ class CampaignController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"Public"})
+     * @View(serializerGroups={"list", "Default"})
      *
      * @param Request $request
      *
@@ -1535,7 +1536,7 @@ class CampaignController extends FOSRestController
         );
 
         $context = new Context();
-        $context->setGroups(['Public', 'list']);
+
         $context->setAttribute(
             FOSContextProvider::OUTPUT_FORMAT_ATTRIBUTE_NAME,
             $request->get('format')

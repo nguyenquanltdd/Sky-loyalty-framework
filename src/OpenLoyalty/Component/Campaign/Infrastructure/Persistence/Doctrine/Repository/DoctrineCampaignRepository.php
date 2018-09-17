@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Repository;
@@ -50,6 +50,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     public function save(Campaign $campaign)
     {
         $this->getEntityManager()->persist($campaign);
+        $campaign->mergeNewTranslations();
         $this->getEntityManager()->flush();
     }
 
@@ -480,16 +481,15 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
         }
 
         if (array_key_exists('campaignType', $params) && !is_null($params['campaignType'])) {
-            if ($params['campaignType']) {
-                $qb->andWhere('c.reward = :campaignType')->setParameter('campaignType', $params['campaignType']);
-            }
+            $qb->andWhere('c.reward = :campaignType')->setParameter('campaignType', $params['campaignType']);
         }
 
         if (array_key_exists('name', $params) && !is_null($params['name'])) {
-            if ($params['name']) {
-                $qb->andWhere($qb->expr()->like('c.name', ':name'))
-                    ->setParameter('name', '%'.urldecode($params['name']).'%');
-            }
+            $qb->join('c.translations', 't');
+            $qb->andWhere($qb->expr()->like('t.name', ':name'))
+                ->setParameter('name', '%'.urldecode($params['name']).'%')
+                ->andWhere('t.locale = :locale')
+                ->setParameter('locale', $params['_locale']);
         }
 
         if (array_key_exists('categoryId', $params) && is_array($params['categoryId'])) {

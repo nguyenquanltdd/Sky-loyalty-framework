@@ -26,14 +26,6 @@ services:
         alias: OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManager
         deprecated: The "%service_id%" service is deprecated since 2.8.0
 
-    ol.settings.translations.file_based:
-        alias: OpenLoyalty\Bundle\SettingsBundle\Service\FileBasedTranslationsProvider
-        deprecated: The "%service_id%" service is deprecated since 2.8.0
-
-    ol.settings.translations:
-        alias: ol.settings.translations.file_based
-        deprecated: The "%service_id%" service is deprecated since 2.8.0
-
     ol.settings.validator.not_used_key:
         alias: OpenLoyalty\Bundle\SettingsBundle\Validator\Constraints\NotUsedKeyValidator
         deprecated: The "%service_id%" service is deprecated since 2.8.0

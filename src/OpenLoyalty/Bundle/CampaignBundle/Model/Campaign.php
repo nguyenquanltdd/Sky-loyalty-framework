@@ -1,11 +1,12 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\CampaignBundle\Model;
 
 use OpenLoyalty\Component\Campaign\Domain\Campaign as BaseCampaign;
+use OpenLoyalty\Component\Campaign\Domain\CampaignTranslation;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -27,8 +28,10 @@ class Campaign extends BaseCampaign
     /**
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
+        $this->mergeNewTranslations();
+
         $labels = array_map(
             function ($label) {
                 if (!$label instanceof Label) {
@@ -40,11 +43,21 @@ class Campaign extends BaseCampaign
             $this->labels
         );
 
+        $translations = array_map(
+            function (CampaignTranslation $campaign): array {
+                return [
+                    'name' => $campaign->getName(),
+                    'shortDescription' => $campaign->getShortDescription(),
+                    'conditionsDescription' => $campaign->getConditionsDescription(),
+                    'usageInstruction' => $campaign->getUsageInstruction(),
+                    'brandDescription' => $campaign->getBrandDescription(),
+                ];
+            },
+            $this->getTranslations()->toArray()
+        );
+
         return [
             'reward' => $this->reward,
-            'name' => $this->name,
-            'shortDescription' => $this->shortDescription,
-            'conditionsDescription' => $this->conditionsDescription,
             'moreInformationLink' => $this->moreInformationLink,
             'active' => $this->active,
             'costInPoints' => $this->costInPoints,
@@ -58,13 +71,12 @@ class Campaign extends BaseCampaign
             'coupons' => $this->coupons,
             'campaignActivity' => $this->campaignActivity ? $this->campaignActivity->toArray() : null,
             'campaignVisibility' => $this->campaignVisibility ? $this->campaignVisibility->toArray() : null,
-            'usageInstruction' => $this->usageInstruction,
-            'brandDescription' => $this->brandDescription,
-            'brandName' => $this->brandName,
             'rewardValue' => $this->rewardValue,
             'tax' => $this->tax,
             'taxPriceValue' => $this->taxPriceValue,
             'labels' => $labels,
+            'translations' => $translations,
+            'brandName' => $this->brandName,
             'daysInactive' => $this->daysInactive,
             'daysValid' => $this->daysValid,
             'transactionPercentageValue' => $this->transactionPercentageValue,

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\CampaignBundle\Event\Listener;
@@ -33,8 +33,6 @@ use PhpOption\None;
  */
 class CampaignSerializationListener implements EventSubscriberInterface
 {
-    public const PUBLIC_VISIBILITY = 'Public';
-
     /**
      * @var CampaignValidator
      */
@@ -143,11 +141,6 @@ class CampaignSerializationListener implements EventSubscriberInterface
         }
 
         $this->serializeSegments($event, $campaign);
-
-        if (in_array(self::PUBLIC_VISIBILITY, (array) $context->attributes->get('groups')->get())) {
-            return;
-        }
-
         $this->serializeLevelNames($event, $campaign);
 
         if (!$this->campaignValidator->isCampaignActive($campaign)) {

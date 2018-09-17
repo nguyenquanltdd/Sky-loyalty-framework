@@ -1,9 +1,9 @@
 OpenLoyalty\Component\Campaign\Domain\Campaign:
   properties:
     name:
-      groups: ['admin', 'Public']
+      expose: true
     shortDescription:
-      groups: ['admin', 'Public']
+      expose: true
     campaignId:
       expose: true
       inline: true
@@ -23,7 +23,23 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
       exclude: true
     brandIcon:
       exclude: true
+    newTranslations:
+      exclude: true
+    currentLocale:
+      exclude: true
+    defaultLocale:
+      exclude: true
   virtual_properties:
+    getName:
+      serialized_name: name
+    getShortDescription:
+      serialized_name: shortDescription
+    getConditionsDescription:
+      serialized_name: conditionsDescription
+    getUsageInstruction:
+      serialized_name: usageInstruction
+    getBrandDescription:
+      serialized_name: brandDescription
     getFlatLevels:
       serialized_name: levels
       type: array

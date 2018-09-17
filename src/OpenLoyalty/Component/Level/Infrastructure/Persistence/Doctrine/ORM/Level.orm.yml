@@ -5,13 +5,8 @@ OpenLoyalty\Component\Level\Domain\Level:
   id:
     levelId:
       type: level_id
-      column: level_id
+      column: id
   fields:
-    name:
-      type: string
-    description:
-      type: text
-      nullable: true
     conditionValue:
       type: decimal
       precision: 14

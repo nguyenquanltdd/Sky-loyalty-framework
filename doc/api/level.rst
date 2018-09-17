@@ -15,6 +15,7 @@ Definition
 .. code-block:: text
 
     GET /api/level
+    GET /api/v1/<locale>/level
 
 +----------------------+----------------+--------------------------------------------------------+
 | Parameter            | Parameter type |  Description                                           |
@@ -44,6 +45,11 @@ Example
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
 
+.. note::
+
+    Translatable fields (name, description etc.) are returned in given locale.
+
+
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
 
@@ -57,23 +63,37 @@ Exemplary Response
       "levels": [
         {
           "id": "000096cf-32a3-43bd-9034-4df343e5fd93",
-          "name": "level0",
-          "description": "example level",
+          "name": "Bronze",
+          "description": "Bronze level description",
           "active": true,
           "conditionValue": 0,
           "reward": {
           "name": "test reward",
           "value": 0.14,
           "code": "abc",
-          "hasPhoto": false
+          "hasPhoto": false,
+          "translations": [
+              {
+                  "name": "Bronze",
+                  "description": "Bronze level description",
+                  "id": 16,
+                  "locale": "en"
+              },
+              {
+                  "name": "Brązowy",
+                  "description": "Opis poziomu brązowego",
+                  "id": 17,
+                  "locale": "pl"
+              }
+          ]
         },
       "specialRewards": [],
       "customersCount": 4
     },
         {
           "id": "e82c96cf-32a3-43bd-9034-4df343e5fd94",
-          "name": "level1",
-          "description": "example level",
+          "name": "Silver",
+          "description": "Example silver level",
           "active": true,
           "conditionValue": 20,
           "hasPhoto": false,
@@ -83,7 +103,21 @@ Exemplary Response
             "code": "abc"
           },
           "specialRewards": [],
-          "customersCount": 2
+          "customersCount": 2,
+          "translations": [
+              {
+                  "name": "Silver",
+                  "description": "Example silver level",
+                  "id": 16,
+                  "locale": "en"
+              },
+              {
+                  "name": "Srebrny",
+                  "description": "Przykładowy poziom srebrny",
+                  "id": 17,
+                  "locale": "pl"
+              }
+          ]
         }
       ],
       "total": 2
@@ -107,11 +141,11 @@ Definition
 +================================================+================+============================================================================+
 | Authorization                                  | header         | Token received during authentication                                       |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| level[name]                                    | request        |  Level name                                                                |
+| level[translations][en][name]                  | request        |  Level name in given locale.                                               |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | level[active]                                  | request        |  *(optional)* Set 1 if active, otherwise 0                                 |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| level[description]                             | request        |  *(optional)* Level description                                            |
+| level[translations][en][description]           | request        |  *(optional)* Level description in given locale.                           |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | level[conditionValue]                          | request        |  Condition value                                                           |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
@@ -148,11 +182,11 @@ Example
         -H "Accept: application/json" \
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
-        -d "level[name]=level4" \
+        -d "level[translations][en][name]=Silver" \
         -d "level[active]=1" \
         -d "level[conditionValue]=4" \
         -d "level[minOrder]=1" \
-        -d "level[description]=level4description" \
+        -d "level[translations][en][description]=Silver+description" \
         -d "level[reward][name]=reward4name" \
         -d "level[reward][value]=4" \
         -d "level[reward][code]=4" \
@@ -192,6 +226,7 @@ Definition
 .. code-block:: text
 
     GET /api/level/<level>
+    GET /api/v1/<locale>/level/<level>
 
 +---------------+----------------+--------------------------------------+
 | Parameter     | Parameter type | Description                          |
@@ -224,8 +259,8 @@ Exemplary Response
 
     {
       "id": "000096cf-32a3-43bd-9034-4df343e5fd93",
-      "name": "level0",
-      "description": "example level",
+      "name": "Gold",
+      "description": "Gold level description",
       "active": true,
       "conditionValue": 0,
       "reward": {
@@ -234,7 +269,21 @@ Exemplary Response
         "code": "abc"
       },
       "specialRewards": [],
-      "customersCount": 4
+      "customersCount": 4,
+      "translations": [
+          {
+              "name": "Gold",
+              "description": "Gold level description",
+              "id": 16,
+              "locale": "en"
+          },
+          {
+              "name": "Złoty",
+              "description": "Opis poziomu złotego",
+              "id": 17,
+              "locale": "pl"
+          }
+      ]
     }
 
 
@@ -257,11 +306,11 @@ Definition
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | <level>                                        | query          |  Level ID                                                                  |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| level[name]                                    | request        |  Level name                                                                |
+| level[translations][en][name]                  | request        |  Level name in given locale.                                               |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | level[active]                                  | request        |  *(optional)* Set 1 if active, otherwise 0                                 |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| level[description]                             | request        |  *(optional)* Level description                                            |
+| level[translations][en][description]           | request        |  *(optional)* Level description in given locale                            |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | level[conditionValue]                          | request        |  Condition value                                                           |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
@@ -299,15 +348,15 @@ To see the details of the admin user with ``level = c343a12d-b4dd-4dee-b2cd-d6fe
         -H "Accept:\ application/json" \
         -H "Content-type:\ application/x-www-form-urlencoded" \
         -H "Authorization:\ Bearer\ eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
-        -d "level[name]=level3xyz" \
+        -d "level[translations][en][name]=Gold" \
         -d "level[active]=1" \
         -d "level[conditionValue]=3" \
         -d "level[minOrder]=3" \
-        -d "level[description]=level3xyzdescription" \
+        -d "level[translations][en][description]=gold-level-description" \
         -d "level[reward][name]=reward3xyzname" \
         -d "level[reward][value]=3" \
         -d "level[reward][code]=3" \
-        -d "level[specialRewards][0][name]=specialreward3xyzname" \
+        -d "level[specialRewards][0][name]=special-reward-for-customer" \
         -d "level[specialRewards][0][value]=3" \
         -d "level[specialRewards][0][code]=3" \
         -d "level[specialRewards][0][active]=1" \
@@ -507,8 +556,8 @@ Exemplary Response
       "levels": [
         {
           "id": "000096cf-32a3-43bd-9034-4df343e5fd94",
-          "name": "level2",
-          "description": "example level",
+          "name": "Gold",
+          "description": "Gold level description",
           "active": true,
           "conditionValue": 200,
           "hasPhoto": false,
@@ -543,8 +592,8 @@ Exemplary Response
         },
         {
           "id": "e82c96cf-32a3-43bd-9034-4df343e5fd94",
-          "name": "level1",
-          "description": "example level",
+          "name": "Silver",
+          "description": "Silver level description",
           "active": true,
           "conditionValue": 20,
           "hasPhoto": false,
@@ -607,8 +656,8 @@ Exemplary Response
 
     {
       "id": "000096cf-32a3-43bd-9034-4df343e5fd94",
-      "name": "level2",
-      "description": "example level",
+      "name": "Gold",
+      "description": "Gold level description",
       "active": true,
       "conditionValue": 200,
       "hasPhoto": false,

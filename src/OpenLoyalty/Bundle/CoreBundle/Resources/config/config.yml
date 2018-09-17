@@ -17,6 +17,7 @@ imports:
   - { resource: "@OpenLoyaltyUtilityBundle/Resources/config/config.yml"}
   - { resource: "@OpenLoyaltyImportBundle/Resources/config/config.yml"}
 
+
 doctrine:
     dbal:
         types:

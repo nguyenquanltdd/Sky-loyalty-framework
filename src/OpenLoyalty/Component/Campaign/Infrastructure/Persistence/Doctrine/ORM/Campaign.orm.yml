@@ -5,32 +5,14 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
   id:
     campaignId:
       type: campaign_id
-      column: campaign_id
+      column: id
   fields:
     reward:
       type: string
-    name:
-      type: string
-    shortDescription:
-      type: text
-      nullable: true
-      column: short_description
     moreInformationLink:
       type: text
       nullable: true
       column: more_information_link
-    conditionsDescription:
-      type: text
-      nullable: true
-      column: conditions_description
-    usageInstruction:
-      type: text
-      nullable: true
-      column: usage_instruction
-    brandDescription:
-      type: text
-      nullable: true
-      column: brand_description
     active:
       type: boolean
       options:

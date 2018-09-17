@@ -60,6 +60,7 @@ class DoctrineLevelRepository extends EntityRepository implements LevelRepositor
     public function save(Level $level)
     {
         $this->getEntityManager()->persist($level);
+        $level->mergeNewTranslations();
         $this->getEntityManager()->flush();
     }
 

@@ -64,7 +64,10 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
         /** @var CampaignRepository|PHPUnit_Framework_MockObject_MockObject $campaignRepository */
         $campaignRepository = $this->getMockBuilder(CampaignRepository::class)->getMock();
         $campaignRepository->method('byId')->willReturn(
-            new Campaign(new CampaignId('11111111-0000-0000-0000-000000000000'), ['reward' => 'Reward', 'name' => 'campaignName'])
+            new Campaign(
+                new CampaignId('11111111-0000-0000-0000-000000000000'),
+                ['reward' => 'Reward', 'translations' => ['en' => ['name' => 'campaignName']]]
+            )
         );
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000000');
         $this->customer = Customer::registerCustomer($customerId, $this->getCustomerData());

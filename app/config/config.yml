@@ -131,3 +131,9 @@ monolog:
             # log *all* messages (debug is lowest level)
             level: debug
             channels: [plugins]
+
+knp_doctrine_behaviors:
+    translatable: true
+
+a2lix_translation_form:
+    locale_provider: OpenLoyalty\Bundle\TranslationBundle\Provider\A2lixLocaleProvider

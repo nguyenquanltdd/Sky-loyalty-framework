@@ -52,7 +52,9 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
-        $level = new Level($levelId, 'test', 10);
+        $level = new Level($levelId, 10);
+        $level->setName('test');
+
         /** @var CommandBus|PHPUnit_Framework_MockObject_MockObject $commandBus */
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $commandBus->expects($this->once())->method('dispatch')->with(
@@ -96,7 +98,8 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
-        $level = new Level($levelId, 'test', 10);
+        $level = new Level($levelId, 10);
+        $level->setName('test');
 
         /** @var CommandBus|PHPUnit_Framework_MockObject_MockObject $commandBus */
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
@@ -157,7 +160,8 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelIdString = '00000000-0000-0000-0000-000000000003';
         $levelId = new LevelLevelId($levelIdString);
-        $level = new Level($levelId, 'test', 10);
+        $level = new Level($levelId, 10);
+        $level->setName('test');
         $level->setReward(new Reward('level_0_reward', 10, 'level'));
 
         /** @var CommandBus|PHPUnit_Framework_MockObject_MockObject $commandBus */
@@ -276,7 +280,8 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
-        $level = new Level($levelId, 'test', 0);
+        $level = new Level($levelId, 0);
+        $level->setName('test');
 
         /** @var CommandBus|PHPUnit_Framework_MockObject_MockObject $commandBus */
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
@@ -322,7 +327,8 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
-        $level = new Level($levelId, 'test', 10);
+        $level = new Level($levelId, 10);
+        $level->setName('test');
 
         /** @var CommandBus|PHPUnit_Framework_MockObject_MockObject $commandBus */
         $commandBus = $this->getMockBuilder(CommandBus::class)->getMock();
@@ -382,8 +388,10 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
-        $level = new Level($levelId, 'test', 10);
-        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 'test2', 15);
+        $level = new Level($levelId, 10);
+        $level->setName('test');
+        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 15);
+        $customerLevel->setName('test2');
         $customerReward = new Reward('as2', 20, 'as');
         $reward = new Reward('as', 10, 'as');
         $level->setReward($reward);
@@ -426,8 +434,10 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
-        $level = new Level($levelId, 'test', 10);
-        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 'test2', 15);
+        $level = new Level($levelId, 10);
+        $level->setName('test');
+        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 15);
+        $customerLevel->setName('test2');
         $customerReward = new Reward('as2', 20, 'as');
         $reward = new Reward('as', 10, 'as');
         $level->setReward($reward);
@@ -467,8 +477,10 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
-        $level = new Level($levelId, 'test', 10);
-        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 'test2', 15);
+        $level = new Level($levelId, 10);
+        $level->setName('test');
+        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 15);
+        $customerLevel->setName('test2');
         $customerReward = new Reward('as2', 20, 'as');
         $reward = new Reward('as', 10, 'as');
         $level->setReward($reward);
@@ -531,8 +543,10 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
-        $level = new Level($levelId, 'test', 10);
-        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 'test2', 15);
+        $level = new Level($levelId, 10);
+        $level->setName('test');
+        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 15);
+        $customerLevel->setName('test2');
         $customerReward = new Reward('as2', 20, 'as');
         $reward = new Reward('as', 10, 'as');
         $level->setReward($reward);
@@ -595,8 +609,10 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
-        $level = new Level($levelId, 'test', 10);
-        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 'test2', 15);
+        $level = new Level($levelId, 10);
+        $level->setName('test');
+        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 15);
+        $customerLevel->setName('test2');
         $customerReward = new Reward('as2', 20, 'as');
         $reward = new Reward('as', 10, 'as');
         $level->setReward($reward);
@@ -659,8 +675,10 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
-        $level = new Level($levelId, 'test', 10);
-        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 'test2', 15);
+        $level = new Level($levelId, 10);
+        $level->setName('test');
+        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 15);
+        $customerLevel->setName('test2');
         $customerReward = new Reward('as2', 20, 'as');
         $reward = new Reward('as', 10, 'as');
         $level->setReward($reward);
@@ -703,8 +721,10 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
-        $level = new Level($levelId, 'test', 10);
-        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 'test2', 15);
+        $level = new Level($levelId, 10);
+        $level->setName('test');
+        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 15);
+        $customerLevel->setName('test2');
         $customerReward = new Reward('as2', 20, 'as');
         $reward = new Reward('as', 10, 'as');
         $level->setReward($reward);
@@ -747,8 +767,10 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
         $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
-        $level = new Level($levelId, 'test', 10);
-        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 'test2', 15);
+        $level = new Level($levelId, 10);
+        $level->setName('test');
+        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 15);
+        $customerLevel->setName('test2');
         $customerReward = new Reward('as2', 20, 'as');
         $reward = new Reward('as', 10, 'as');
         $level->setReward($reward);
@@ -813,7 +835,8 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
     {
         $customerId = '00000000-0000-0000-0000-000000000000';
         $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
-        $level = new Level($levelId, 'test', 10);
+        $level = new Level($levelId, 10);
+        $level->setName('test');
         $reward = new Reward('as', 10, 'as');
         $level->setReward($reward);
 
@@ -1032,7 +1055,8 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
             $level = $givenLevel;
         } else {
             $levelId = new LevelLevelId('00000000-0000-0000-0000-000000000003');
-            $level = new Level($levelId, 'test', 20);
+            $level = new Level($levelId, 20);
+            $level->setName('test');
         }
 
         $mock
@@ -1166,29 +1190,31 @@ class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @return array
+     *
+     * @throws \Assert\AssertionFailedException
      */
     protected function getSampleLevels(): array
     {
         $level = [];
         $level[static::LEVEL_WITH_REWARD_10_FROM_0] = new Level(
             new LevelLevelId(static::LEVEL_WITH_REWARD_10_FROM_0),
-            'level_0',
             0
         );
+        $level[static::LEVEL_WITH_REWARD_10_FROM_0]->setName('level_0');
         $level[static::LEVEL_WITH_REWARD_10_FROM_0]->setReward(new Reward('level_0_reward', 10, 'level'));
 
         $level[static::LEVEL_WITH_REWARD_200_FROM_20] = new Level(
             new LevelLevelId(static::LEVEL_WITH_REWARD_200_FROM_20),
-            'level_1',
             20
         );
+        $level[static::LEVEL_WITH_REWARD_200_FROM_20]->setName('level_1');
         $level[static::LEVEL_WITH_REWARD_200_FROM_20]->setReward(new Reward('level_1_reward', 200, 'level'));
 
         $level[static::LEVEL_WITH_REWARD_300_FROM_30] = new Level(
             new LevelLevelId(static::LEVEL_WITH_REWARD_300_FROM_30),
-            'level_2',
             30
         );
+        $level[static::LEVEL_WITH_REWARD_300_FROM_30]->setName('level_2');
         $level[static::LEVEL_WITH_REWARD_300_FROM_30]->setReward(new Reward('level_2_reward', 300, 'level'));
 
         return $level;

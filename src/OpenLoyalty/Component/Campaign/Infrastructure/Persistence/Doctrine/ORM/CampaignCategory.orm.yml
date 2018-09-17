@@ -7,9 +7,6 @@ OpenLoyalty\Component\Campaign\Domain\CampaignCategory:
       type: campaign_category_id
       column: id
   fields:
-    name:
-      type: string
-      nullable: true
     active:
       type: boolean
       options:

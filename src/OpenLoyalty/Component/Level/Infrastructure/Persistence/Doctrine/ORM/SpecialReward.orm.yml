@@ -28,6 +28,6 @@ OpenLoyalty\Component\Level\Domain\SpecialReward:
       joinColumn:
         name: level_id
         onDelete: "SET NULL"
-        referencedColumnName: level_id
+        referencedColumnName: id
 
 

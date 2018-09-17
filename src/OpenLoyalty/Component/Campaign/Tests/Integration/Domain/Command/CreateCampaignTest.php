@@ -23,7 +23,6 @@ class CreateCampaignTest extends CampaignCommandHandlerTest
         $campaignId = new CampaignId('00000000-0000-0000-0000-000000000000');
 
         $command = new CreateCampaign($campaignId, [
-            'name' => 'test',
             'reward' => Campaign::REWARD_TYPE_GIFT_CODE,
             'levels' => [new LevelId('00000000-0000-0000-0000-000000000000')],
             'segments' => [],
@@ -46,6 +45,12 @@ class CreateCampaignTest extends CampaignCommandHandlerTest
             ],
             'taxPriceValue' => 99.95,
             'tax' => 23,
+            'translations' => [
+                'en' => [
+                    'name' => 'test',
+                    'shortDescription' => 'short desc',
+                ],
+            ],
         ]);
         $handler->handle($command);
         $campaign = $this->inMemoryRepository->byId($campaignId);

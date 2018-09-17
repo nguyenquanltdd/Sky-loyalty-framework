@@ -15,7 +15,6 @@ use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\DowngradeModeSubscriber
 use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\ExcludeDeliveryCostSubscriber;
 use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\MarketingVendorSubscriber;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
-use OpenLoyalty\Bundle\SettingsBundle\Model\TranslationsEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Provider\AvailableCustomerStatusesChoices;
 use OpenLoyalty\Bundle\SettingsBundle\Provider\AvailableMarketingVendors;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
@@ -106,8 +105,6 @@ class SettingsFormType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $translations = $this->translationsProvider->getAvailableTranslationsList();
-
         $builder->add(
             $builder
                 ->create('currency', SettingsChoicesType::class, [
@@ -119,20 +116,7 @@ class SettingsFormType extends AbstractType
                     'constraints' => [new NotEmptyValue()],
                 ])
         );
-        $builder->add(
-            $builder
-                ->create('defaultFrontendTranslations', SettingsChoicesType::class, [
-                    'choices' => array_combine(
-                        array_map(function (TranslationsEntry $entry) {
-                            return $entry->getName();
-                        }, $translations),
-                        array_map(function (TranslationsEntry $entry) {
-                            return $entry->getKey();
-                        }, $translations)
-                    ),
-                    'constraints' => [new NotEmptyValue()],
-                ])
-        );
+
         $builder->add(
             $builder
                 ->create('customerStatusesEarning', SettingsChoicesType::class, [

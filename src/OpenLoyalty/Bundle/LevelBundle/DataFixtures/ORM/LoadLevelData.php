@@ -30,29 +30,43 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
     public function load(ObjectManager $manager)
     {
         $level0 = [
-            'name' => self::LEVEL_NAME,
-            'description' => 'example level',
             'conditionValue' => 0,
             'reward' => [
                 'name' => 'test reward',
                 'value' => 0.14,
                 'code' => 'abc',
             ],
+            'translations' => [
+                'en' => [
+                    'name' => self::LEVEL_NAME,
+                    'description' => 'example level',
+                ],
+                'pl' => [
+                    'name' => 'poziom0',
+                    'description' => 'przykładowy poziom',
+                ],
+            ],
         ];
 
         $level1 = [
-            'name' => self::LEVEL2_NAME,
-            'description' => 'example level',
             'conditionValue' => 20,
             'reward' => [
                 'name' => 'test reward',
                 'value' => 0.15,
                 'code' => 'abc',
             ],
+            'translations' => [
+                'en' => [
+                    'name' => self::LEVEL2_NAME,
+                    'description' => 'example level',
+                ],
+                'pl' => [
+                    'name' => 'poziom1',
+                    'description' => 'przykładowy poziom',
+                ],
+            ],
         ];
         $level2 = [
-            'name' => self::LEVEL3_NAME,
-            'description' => 'example level',
             'conditionValue' => 200,
             'reward' => [
                 'name' => 'test reward',
@@ -79,15 +93,33 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
                     'id' => 'e82c96cf-32a3-43bd-9034-4df343e50094',
                 ],
             ],
+            'translations' => [
+                'en' => [
+                    'name' => self::LEVEL3_NAME,
+                    'description' => 'example level',
+                ],
+                'pl' => [
+                    'name' => 'poziom2',
+                    'description' => 'przykładowy poziom',
+                ],
+            ],
         ];
         $level4 = [
-            'name' => self::LEVEL4_NAME,
-            'description' => 'Level4',
             'conditionValue' => 999,
             'reward' => [
                 'name' => 'Level 4 reward',
                 'value' => 0.00,
                 'code' => 'level4',
+            ],
+            'translations' => [
+                'en' => [
+                    'name' => self::LEVEL4_NAME,
+                    'description' => 'example level 4',
+                ],
+                'pl' => [
+                    'name' => 'poziom2',
+                    'description' => 'przykładowy poziom',
+                ],
             ],
         ];
 

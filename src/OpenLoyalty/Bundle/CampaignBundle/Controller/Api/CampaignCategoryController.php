@@ -154,6 +154,7 @@ class CampaignCategoryController extends FOSRestController
     {
         $pagination = $this->paginator->handleFromRequest($request);
         $params = $paramFetcher->all();
+        $params['_locale'] = $request->getLocale();
 
         $campaigns = $this->campaignCategoryRepository
             ->findByParametersPaginated(
