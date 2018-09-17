@@ -9,14 +9,14 @@ declare(strict_types=1);
 namespace OpenLoyalty\Component\Account\Infrastructure\Notifier;
 
 /**
- * Interface NotificationInterface.
+ * Interface ExpireLevelNotifierInterface.
  */
-interface ExpirePointsNotifierInterface
+interface ExpireLevelNotifierInterface
 {
     /**
      * @param \DateTimeInterface $dateTime
      */
-    public function sendNotificationsForPointsExpiringAt(\DateTimeInterface $dateTime): void;
+    public function sendNotificationsForLevelsExpiringAt(\DateTimeInterface $dateTime): void;
 
     /**
      * @return int

@@ -8,8 +8,9 @@ namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasMovedToLevel;
-use OpenLoyalty\Component\Customer\Domain\LevelId;
+use OpenLoyalty\Component\Customer\Domain\LevelId as CustomerLevelId;
 use OpenLoyalty\Component\Level\Domain\Level;
+use OpenLoyalty\Component\Level\Domain\LevelId;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
 
 /**
@@ -67,7 +68,7 @@ class CustomersBelongingToOneLevelProjector extends Projector
                 $oldReadModel->removeCustomer($customer);
                 $this->customersBelongingToOneLevelRepository->save($oldReadModel);
                 /** @var Level $level */
-                $level = $this->levelRepository->byId(new \OpenLoyalty\Component\Level\Domain\LevelId($oldReadModel->getLevelId()->__toString()));
+                $level = $this->levelRepository->byId(new LevelId($oldReadModel->getLevelId()->__toString()));
                 if ($level) {
                     $level->setCustomersCount(count($oldReadModel->getCustomers()));
                     $this->levelRepository->save($level);
@@ -77,13 +78,20 @@ class CustomersBelongingToOneLevelProjector extends Projector
 
         if ($levelId) {
             $readModel = $this->getReadModel($levelId);
+
+            if (null === $readModel) {
+                return;
+            }
+
             $readModel->addCustomer($customer);
+
             $this->customersBelongingToOneLevelRepository->save($readModel);
 
             /** @var Level $level */
-            $level = $this->levelRepository->byId(new \OpenLoyalty\Component\Level\Domain\LevelId($readModel->getLevelId()->__toString()));
+            $level = $this->levelRepository->byId(new LevelId($readModel->getLevelId()->__toString()));
             if ($level) {
                 $level->setCustomersCount(count($readModel->getCustomers()));
+
                 $this->levelRepository->save($level);
             }
         }
@@ -92,14 +100,14 @@ class CustomersBelongingToOneLevelProjector extends Projector
     }
 
     /**
-     * @param LevelId $levelId
-     * @param bool    $createIfNull
+     * @param CustomerLevelId $levelId
+     * @param bool            $createIfNull
      *
      * @return null|CustomersBelongingToOneLevel
      */
-    private function getReadModel(LevelId $levelId, $createIfNull = true): ?CustomersBelongingToOneLevel
+    private function getReadModel(CustomerLevelId $levelId, bool $createIfNull = true): ?CustomersBelongingToOneLevel
     {
-        $readModel = $this->customersBelongingToOneLevelRepository->find($levelId->__toString());
+        $readModel = $this->customersBelongingToOneLevelRepository->find((string) $levelId);
 
         if (null === $readModel && $createIfNull) {
             $readModel = new CustomersBelongingToOneLevel($levelId);

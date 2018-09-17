@@ -67,9 +67,9 @@ class ExpireCouponsNotifier implements ExpireCouponsNotifierInterface
     /**
      * {@inheritdoc}
      */
-    public function sendNotificationsForCouponsExpiringAfter(\DateTimeInterface $dateTime): void
+    public function sendNotificationsForCouponsExpiringAt(\DateTimeInterface $dateTime): void
     {
-        $customers = $this->customerDetailsRepository->findCustomersWithPurchasesExpiringAfter($dateTime);
+        $customers = $this->customerDetailsRepository->findCustomersWithPurchasesExpiringAt($dateTime);
 
         $activeDateFrom = new \DateTimeImmutable($dateTime->format('Y-m-d'));
         $activeDateTo = $activeDateFrom->add(new \DateInterval('P1D'));

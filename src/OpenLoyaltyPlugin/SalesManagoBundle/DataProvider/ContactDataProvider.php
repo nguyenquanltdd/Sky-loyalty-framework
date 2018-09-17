@@ -113,19 +113,20 @@ class ContactDataProvider implements DataProviderInterface
      *
      * @return array
      */
-    public function createCustomerDetails($levelId, $customerId)
+    public function createCustomerDetails($levelId, $customerId): array
     {
-        $level = $this->levelRepository->byId(
-            new LevelId($levelId)
-        );
+        $level = $this->levelRepository->byId(new LevelId($levelId));
+
         $additionalData['levelId'] = $level->getName();
         $additionalData['levelDiscount'] = round((float) $level->getReward()->getValue() * 100).'%';
+
         $details = $this->customerStatusProvider->getStatus($customerId);
         if ($details->getTransactionsAmountToNextLevel() !== null) {
             $additionalData['transactionsAmountToNextLevel'] = $details->getTransactionsAmountToNextLevel();
         } else {
             $additionalData['transactionsAmountToNextLevel'] = 0;
         }
+
         $additionalData['clv'] = $details->getTransactionsAmount();
         $additionalData['avo'] = $details->getAverageTransactionsAmount();
         $additionalData['customer_orders'] = $details->getTransactionsCount();

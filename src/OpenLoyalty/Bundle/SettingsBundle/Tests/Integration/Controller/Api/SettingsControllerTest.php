@@ -457,6 +457,8 @@ class SettingsControllerTest extends BaseApiTest
         $this->assertArrayHasKey('returns', $settings);
         $this->assertArrayHasKey('pointsDaysActive', $settings);
         $this->assertArrayHasKey('expirePointsNotificationDays', $settings);
+        $this->assertArrayHasKey('expireCouponsNotificationDays', $settings);
+        $this->assertArrayHasKey('expireLevelsNotificationDays', $settings);
         $this->assertArrayHasKey('currency', $settings);
         $this->assertArrayHasKey('timezone', $settings);
         $this->assertArrayHasKey('programName', $settings);

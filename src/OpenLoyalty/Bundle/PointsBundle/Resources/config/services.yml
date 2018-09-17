@@ -1,3 +1,4 @@
+imports:
 services:
   _defaults:
     autoconfigure: true
@@ -7,10 +8,6 @@ services:
   OpenLoyalty\Bundle\PointsBundle\Controller\:
     resource: '../../Controller'
     tags: ['controller.service_arguments']
-
-  OpenLoyalty\Bundle\PointsBundle\Command\SendExpirePointsNotifications:
-    tags:
-      - { name: console.command }
 
   OpenLoyalty\Bundle\PointsBundle\Form\DataTransformer\CustomerDataTransformer: ~
   OpenLoyalty\Bundle\PointsBundle\Form\Type\TransferPointsFormType:

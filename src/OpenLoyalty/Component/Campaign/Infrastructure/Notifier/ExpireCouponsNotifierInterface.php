@@ -16,7 +16,7 @@ interface ExpireCouponsNotifierInterface
     /**
      * @param \DateTimeInterface $dateTime
      */
-    public function sendNotificationsForCouponsExpiringAfter(\DateTimeInterface $dateTime): void;
+    public function sendNotificationsForCouponsExpiringAt(\DateTimeInterface $dateTime): void;
 
     /**
      * @return int

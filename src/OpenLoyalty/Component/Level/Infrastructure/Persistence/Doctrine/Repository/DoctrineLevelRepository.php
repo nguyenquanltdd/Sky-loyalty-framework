@@ -156,4 +156,20 @@ class DoctrineLevelRepository extends EntityRepository implements LevelRepositor
 
         return $qb->getQuery()->getOneOrNullResult();
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findPreviousLevelByConditionValueWithTheBiggestReward($conditionValue, $currentLevelValue)
+    {
+        $qb = $this->createQueryBuilder('l');
+        $qb->andWhere('l.conditionValue >= :condVal')->setParameter('condVal', $conditionValue);
+        $qb->andWhere('l.active = :true')->setParameter('true', true);
+        $qb->andWhere('l.conditionValue < :currentValue')->setParameter('currentValue', $currentLevelValue);
+        $qb->orderBy('l.conditionValue', 'ASC');
+        $qb->addOrderBy('l.reward.value', 'DESC');
+        $qb->setMaxResults(1);
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
 }

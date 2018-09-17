@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace OpenLoyalty\Component\Campaign\Tests\Infrastructure\Infrastructure\Notifier;
+namespace OpenLoyalty\Component\Campaign\Tests\Unit\Infrastructure\Notifier;
 
 use Broadway\CommandHandling\CommandBus;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
@@ -48,6 +48,7 @@ class ExpireCouponsNotifierTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     *
      * @dataProvider getCampaignBoughtWithCouponsExpirationDateDataProvider
      *
      * @param array $couponsWillExpireIn
@@ -65,13 +66,15 @@ class ExpireCouponsNotifierTest extends \PHPUnit_Framework_TestCase
             $couponMock = $this
                 ->getMockBuilder(Coupon::class)
                 ->disableOriginalConstructor()
-                ->getMock();
+                ->getMock()
+            ;
             $couponMock->method('getCode')->willReturn('super-code');
 
             $campaignPurchaseMock = $this
                 ->getMockBuilder(CampaignPurchase::class)
                 ->disableOriginalConstructor()
-                ->getMock();
+                ->getMock()
+            ;
             $campaignPurchaseMock->method('getActiveTo')->willReturn(new \DateTime('+'.$coupon['days'].' days'));
             $campaignPurchaseMock->method('getStatus')->willReturn('active');
             $campaignPurchaseMock->method('getCoupon')->willReturn($couponMock);
@@ -92,8 +95,32 @@ class ExpireCouponsNotifierTest extends \PHPUnit_Framework_TestCase
         $customerDetailsMock->method('getCampaignPurchases')->willReturn($campaignPurchaseMocks);
 
         $this->customerDetailsRepositoryMock
-            ->method('findCustomersWithPurchasesExpiringAfter')
+            ->method('findCustomersWithPurchasesExpiringAt')
             ->willReturn([$customerDetailsMock])
+        ;
+
+        $willExpireInFiveDays = new \DateTime('now');
+        $willExpireInFiveDays->add(new \DateInterval('P5D'));
+
+        $expirePointsNotifier = new ExpireCouponsNotifier(
+            $this->commandBusMock,
+            $this->customerDetailsRepositoryMock,
+            $this->loggerMock
+        );
+        $expirePointsNotifier->sendNotificationsForCouponsExpiringAt($willExpireInFiveDays);
+
+        $this->assertEquals($expectedNotificationsCount, $expirePointsNotifier->notificationsCount());
+        $this->assertEquals($expectedSentNotificationsCount, $expirePointsNotifier->sentNotificationsCount());
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_dispatch_webhook_command_when_there_are_no_expiring_coupons(): void
+    {
+        $this->customerDetailsRepositoryMock
+            ->method('findCustomersWithPurchasesExpiringAt')
+            ->willReturn([])
         ;
 
         $expirePointsNotifier = new ExpireCouponsNotifier(
@@ -101,12 +128,10 @@ class ExpireCouponsNotifierTest extends \PHPUnit_Framework_TestCase
             $this->customerDetailsRepositoryMock,
             $this->loggerMock
         );
-        $willExpireInFiveDays = new \DateTime('now');
-        $willExpireInFiveDays->add(new \DateInterval('P5D'));
-        $expirePointsNotifier->sendNotificationsForCouponsExpiringAfter($willExpireInFiveDays);
+        $expirePointsNotifier->sendNotificationsForCouponsExpiringAt(new \DateTime('now'));
 
-        $this->assertEquals($expectedNotificationsCount, $expirePointsNotifier->notificationsCount());
-        $this->assertEquals($expectedSentNotificationsCount, $expirePointsNotifier->sentNotificationsCount());
+        $this->assertEquals(0, $expirePointsNotifier->sentNotificationsCount());
+        $this->assertEquals(0, $expirePointsNotifier->notificationsCount());
     }
 
     /**
@@ -119,26 +144,5 @@ class ExpireCouponsNotifierTest extends \PHPUnit_Framework_TestCase
             [[['days' => 6], ['days' => 7], ['days' => 8]], 0, 0],
             [[['days' => 5], ['days' => 5], ['days' => 3]], 2, 1],
         ];
-    }
-
-    /**
-     * @test
-     */
-    public function it_does_not_dispatch_webhook_command_when_there_are_no_expiring_coupons(): void
-    {
-        $this->customerDetailsRepositoryMock
-            ->method('findCustomersWithPurchasesExpiringAfter')
-            ->willReturn([])
-        ;
-
-        $expirePointsNotifier = new ExpireCouponsNotifier(
-            $this->commandBusMock,
-            $this->customerDetailsRepositoryMock,
-            $this->loggerMock
-        );
-        $expirePointsNotifier->sendNotificationsForCouponsExpiringAfter(new \DateTime('now'));
-
-        $this->assertEquals(0, $expirePointsNotifier->sentNotificationsCount());
-        $this->assertEquals(0, $expirePointsNotifier->notificationsCount());
     }
 }

@@ -67,6 +67,9 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
         $expireCouponsNotificationDays = new IntegerSettingEntry('expireCouponsNotificationDays', 10);
         $settings->addEntry($expireCouponsNotificationDays);
 
+        $expireLevelsNotificationDays = new IntegerSettingEntry('expireLevelsNotificationDays', 10);
+        $settings->addEntry($expireLevelsNotificationDays);
+
         $allTimeNotLocked = new BooleanSettingEntry('allTimeNotLocked', true);
         $settings->addEntry($allTimeNotLocked);
 

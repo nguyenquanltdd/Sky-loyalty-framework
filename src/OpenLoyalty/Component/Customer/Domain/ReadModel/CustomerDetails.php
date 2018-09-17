@@ -731,7 +731,7 @@ class CustomerDetails implements SerializableReadModel
     /**
      * @return \DateTime
      */
-    public function getUpdatedAt()
+    public function getUpdatedAt(): \DateTime
     {
         return $this->updatedAt;
     }
@@ -739,7 +739,7 @@ class CustomerDetails implements SerializableReadModel
     /**
      * @param \DateTime $updatedAt
      */
-    public function setUpdatedAt($updatedAt)
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }
@@ -747,7 +747,7 @@ class CustomerDetails implements SerializableReadModel
     /**
      * @return Status
      */
-    public function getStatus()
+    public function getStatus(): Status
     {
         return $this->status;
     }
@@ -755,7 +755,7 @@ class CustomerDetails implements SerializableReadModel
     /**
      * @param Status $status
      */
-    public function setStatus(Status $status)
+    public function setStatus(Status $status): void
     {
         $this->status = $status;
     }
@@ -763,7 +763,7 @@ class CustomerDetails implements SerializableReadModel
     /**
      * @return bool
      */
-    public function isActive()
+    public function isActive(): bool
     {
         return $this->active;
     }
@@ -908,7 +908,7 @@ class CustomerDetails implements SerializableReadModel
     }
 
     /**
-     * @return \OpenLoyalty\Component\Customer\Domain\TransactionId[]
+     * @return TransactionId[]
      */
     public function getTransactionIds()
     {
@@ -916,7 +916,7 @@ class CustomerDetails implements SerializableReadModel
     }
 
     /**
-     * @param \OpenLoyalty\Component\Customer\Domain\TransactionId[] $transactionIds
+     * @param TransactionId[] $transactionIds
      */
     public function setTransactionIds($transactionIds)
     {

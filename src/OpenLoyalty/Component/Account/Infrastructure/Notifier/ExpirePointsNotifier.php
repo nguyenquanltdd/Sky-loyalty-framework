@@ -21,7 +21,7 @@ class ExpirePointsNotifier implements ExpirePointsNotifierInterface
 {
     private const REQUEST_PACKAGE_SIZE = 1000;
 
-    private const NOTIFICATION_TYPE = 'account.expiring_points_reminder_generated';
+    private const NOTIFICATION_TYPE = 'account.expiring_points_notification';
 
     /**
      * @var int
@@ -61,9 +61,9 @@ class ExpirePointsNotifier implements ExpirePointsNotifierInterface
     /**
      * {@inheritdoc}
      */
-    public function sendNotificationsForPointsExpiringAfter(\DateTimeInterface $dateTime): void
+    public function sendNotificationsForPointsExpiringAt(\DateTimeInterface $dateTime): void
     {
-        $pointTransfers = $this->pointsTransferDetailsRepository->findAllActiveAddingTransfersBeforeExpired($dateTime);
+        $pointTransfers = $this->pointsTransferDetailsRepository->findAllActiveAddingTransfersExpiredAt($dateTime);
 
         $notifications = [];
 
@@ -73,16 +73,7 @@ class ExpirePointsNotifier implements ExpirePointsNotifierInterface
                 continue;
             }
 
-            $notifications[] = [
-                'customerId' => (string) $pointTransfer->getCustomerId(),
-                'customerEmail' => $pointTransfer->getCustomerEmail(),
-                'customerPhone' => $pointTransfer->getCustomerPhone(),
-                'customerLoyaltyCardNumber' => $pointTransfer->getCustomerLoyaltyCardNumber(),
-                'customerFirstName' => $pointTransfer->getCustomerFirstName(),
-                'customerLastName' => $pointTransfer->getCustomerLastName(),
-                'points' => $pointTransfer->getValue(),
-                'pointsWillExpire' => $pointTransfer->getExpiresAt()->format(\DateTime::ATOM),
-            ];
+            $notifications[] = $this->buildNotificationBody($pointTransfer);
 
             ++$this->sentNotifications;
         }
@@ -112,5 +103,24 @@ class ExpirePointsNotifier implements ExpirePointsNotifierInterface
                 $this->logger->error(sprintf('Cannot dispatch webhook %s', self::NOTIFICATION_TYPE));
             }
         }
+    }
+
+    /**
+     * @param PointsTransferDetails $pointsTransferDetails
+     *
+     * @return array
+     */
+    private function buildNotificationBody(PointsTransferDetails $pointsTransferDetails): array
+    {
+        return [
+            'customerId' => (string) $pointsTransferDetails->getCustomerId(),
+            'customerEmail' => $pointsTransferDetails->getCustomerEmail(),
+            'customerPhone' => $pointsTransferDetails->getCustomerPhone(),
+            'customerLoyaltyCardNumber' => $pointsTransferDetails->getCustomerLoyaltyCardNumber(),
+            'customerFirstName' => $pointsTransferDetails->getCustomerFirstName(),
+            'customerLastName' => $pointsTransferDetails->getCustomerLastName(),
+            'points' => $pointsTransferDetails->getValue(),
+            'pointsWillExpire' => $pointsTransferDetails->getExpiresAt()->format(\DateTime::ATOM),
+        ];
     }
 }

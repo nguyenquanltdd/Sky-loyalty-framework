@@ -8,17 +8,17 @@ namespace OpenLoyalty\Bundle\UserBundle\Status;
 use Broadway\ReadModel\Repository;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\UserBundle\Model\CustomerStatus;
-use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
+use OpenLoyalty\Component\Account\Infrastructure\Provider\AccountDetailsProviderInterface;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
-use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Customer\Infrastructure\Exception\LevelDowngradeModeNotSupportedException;
-use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
-use OpenLoyalty\Component\Level\Domain\Level;
-use OpenLoyalty\Component\Level\Domain\LevelRepository;
 use OpenLoyalty\Component\Customer\Infrastructure\ExcludeDeliveryCostsProvider;
+use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
+use OpenLoyalty\Component\Customer\Infrastructure\Provider\CustomerDetailsProviderInterface;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
+use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelId;
+use OpenLoyalty\Component\Level\Domain\LevelRepository;
 
 /**
  * Class CustomerStatusProvider.
@@ -28,65 +28,73 @@ class CustomerStatusProvider
     /**
      * @var Repository
      */
-    protected $accountDetailsRepository;
+    private $accountDetailsRepository;
 
     /**
      * @var LevelRepository
      */
-    protected $levelRepository;
+    private $levelRepository;
 
     /**
-     * @var CustomerDetailsRepository
+     * @var CustomerDetailsProviderInterface
      */
-    protected $customerDetailsRepository;
+    private $customerDetailsProvider;
 
     /**
      * @var TierAssignTypeProvider
      */
-    protected $tierAssignTypeProvider;
+    private $tierAssignTypeProvider;
 
     /**
      * @var ExcludeDeliveryCostsProvider
      */
-    protected $excludeDeliveryCostProvider;
+    private $excludeDeliveryCostProvider;
 
     /**
      * @var SettingsManager
      */
-    protected $settingsManager;
+    private $settingsManager;
 
     /**
      * @var LevelDowngradeModeProvider
      */
-    protected $levelDowngradeModeProvider;
+    private $levelDowngradeModeProvider;
+
+    /**
+     * @var AccountDetailsProviderInterface
+     */
+    private $accountDetailsProvider;
 
     /**
      * CustomerStatusProvider constructor.
      *
-     * @param Repository                   $accountDetailsRepository
-     * @param LevelRepository              $levelRepository
-     * @param CustomerDetailsRepository    $customerDetailsRepository
-     * @param TierAssignTypeProvider       $tierAssignTypeProvider
-     * @param ExcludeDeliveryCostsProvider $excludeDeliveryCostProvider
-     * @param SettingsManager              $settingsManager
-     * @param LevelDowngradeModeProvider   $downgradeModeProvider
+     * @param Repository                       $accountDetailsRepository
+     * @param LevelRepository                  $levelRepository
+     * @param CustomerDetailsProviderInterface $customerDetailsProvider
+     * @param TierAssignTypeProvider           $tierAssignTypeProvider
+     * @param ExcludeDeliveryCostsProvider     $excludeDeliveryCostProvider
+     * @param SettingsManager                  $settingsManager
+     * @param LevelDowngradeModeProvider       $downgradeModeProvider
+     * @param AccountDetailsProviderInterface  $accountDetailsProvider
      */
     public function __construct(
         Repository $accountDetailsRepository,
         LevelRepository $levelRepository,
-        CustomerDetailsRepository $customerDetailsRepository,
+        CustomerDetailsProviderInterface $customerDetailsProvider,
         TierAssignTypeProvider $tierAssignTypeProvider,
         ExcludeDeliveryCostsProvider $excludeDeliveryCostProvider,
         SettingsManager $settingsManager,
-        LevelDowngradeModeProvider $downgradeModeProvider
+        LevelDowngradeModeProvider $downgradeModeProvider,
+        AccountDetailsProviderInterface $accountDetailsProvider
     ) {
         $this->accountDetailsRepository = $accountDetailsRepository;
         $this->levelRepository = $levelRepository;
-        $this->customerDetailsRepository = $customerDetailsRepository;
+        $this->customerDetailsProvider = $customerDetailsProvider;
         $this->tierAssignTypeProvider = $tierAssignTypeProvider;
         $this->excludeDeliveryCostProvider = $excludeDeliveryCostProvider;
         $this->settingsManager = $settingsManager;
         $this->levelDowngradeModeProvider = $downgradeModeProvider;
+        $this->accountDetailsProvider = $accountDetailsProvider;
     }
 
     /**
@@ -94,12 +102,12 @@ class CustomerStatusProvider
      *
      * @return CustomerStatus
      */
-    public function getStatus(CustomerId $customerId)
+    public function getStatus(CustomerId $customerId): CustomerStatus
     {
         $status = new CustomerStatus($customerId);
         $status->setCurrency($this->getCurrency());
 
-        $customer = $this->getCustomerDetails($customerId);
+        $customer = $this->customerDetailsProvider->getCustomerDetailsByCustomerId($customerId);
         if (!$customer) {
             return $status;
         }
@@ -107,11 +115,10 @@ class CustomerStatusProvider
         $status->setFirstName($customer->getFirstName());
         $status->setLastName($customer->getLastName());
 
-        $accountDetails = $this->getAccountDetails($customerId);
+        $accountDetails = $this->accountDetailsProvider->getAccountDetailsByCustomerId($customerId);
+
         /** @var Level $level */
-        $level = $customer->getLevelId() ?
-            $this->levelRepository->byId(new LevelId($customer->getLevelId()->__toString()))
-            : null;
+        $level = $customer->getLevelId() ? $this->levelRepository->byId(new LevelId((string) $customer->getLevelId())) : null;
 
         $nextLevel = null;
         $conditionValue = 0;
@@ -202,12 +209,12 @@ class CustomerStatusProvider
      * @param Level           $nextLevel
      * @param                 $currentPoints
      */
-    protected function applyNextLevelRequirements(
+    private function applyNextLevelRequirements(
         CustomerDetails $customer,
         CustomerStatus $status,
         Level $nextLevel,
         $currentPoints
-    ) {
+    ): void {
         $tierAssignType = $this->tierAssignTypeProvider->getType();
 
         if ($tierAssignType == TierAssignTypeProvider::TYPE_POINTS) {
@@ -224,37 +231,9 @@ class CustomerStatusProvider
     }
 
     /**
-     * @param CustomerId $customerId
-     *
-     * @return null|AccountDetails
+     * @return string
      */
-    protected function getAccountDetails(CustomerId $customerId)
-    {
-        $accounts = $this->accountDetailsRepository->findBy(['customerId' => $customerId->__toString()]);
-        if (count($accounts) == 0) {
-            return;
-        }
-        /** @var AccountDetails $account */
-        $account = reset($accounts);
-
-        if (!$account instanceof AccountDetails) {
-            return;
-        }
-
-        return $account;
-    }
-
-    /**
-     * @param CustomerId $customerId
-     *
-     * @return CustomerDetails
-     */
-    protected function getCustomerDetails(CustomerId $customerId)
-    {
-        return $this->customerDetailsRepository->find($customerId->__toString());
-    }
-
-    protected function getCurrency()
+    private function getCurrency(): string
     {
         $currency = $this->settingsManager->getSettingByKey('currency');
         if ($currency) {
@@ -270,7 +249,10 @@ class CustomerStatusProvider
     private function displayDowngradeModeXDaysStats(): bool
     {
         try {
-            return $this->tierAssignTypeProvider->getType() == TierAssignTypeProvider::TYPE_POINTS && $this->levelDowngradeModeProvider->getMode() === LevelDowngradeModeProvider::MODE_X_DAYS;
+            return
+                $this->tierAssignTypeProvider->getType() == TierAssignTypeProvider::TYPE_POINTS &&
+                $this->levelDowngradeModeProvider->getMode() === LevelDowngradeModeProvider::MODE_X_DAYS
+            ;
         } catch (LevelDowngradeModeNotSupportedException $e) {
             return false;
         }

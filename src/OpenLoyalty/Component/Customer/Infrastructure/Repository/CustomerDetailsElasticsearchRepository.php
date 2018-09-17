@@ -171,15 +171,15 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
             ],
         ];
 
-        $query = array(
-            'bool' => array(
+        $query = [
+            'bool' => [
                 'must' => [
                     ['bool' => [
                         'should' => $filter,
                     ]],
                 ],
-            ),
-        );
+            ],
+        ];
 
         return $this->query($query);
     }
@@ -199,15 +199,15 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
             ]];
         }
 
-        $query = array(
-            'bool' => array(
+        $query = [
+            'bool' => [
                 'must' => [
                     ['bool' => [
                         'should' => $filter,
                     ]],
                 ],
-            ),
-        );
+            ],
+        ];
 
         if ($onlyActive) {
             $query['bool']['must'][] = ['term' => ['active' => true]];
@@ -270,25 +270,26 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
             $innerHits['sort'] = $sort;
         }
 
-        $query = array(
+        $query = [
             'ids' => [
                 'values' => [
                     $customerId->__toString(),
                 ],
             ],
-        );
+        ];
 
-        $query = array(
+        $query = [
             'index' => $this->index,
-            'body' => array(
+            'body' => [
                 'query' => $query,
                 'inner_hits' => [
                     'nested_campaign_purchases' => [
                         'path' => ['campaignPurchases' => $innerHits],
                     ],
                 ],
-            ),
-        );
+            ],
+        ];
+
         try {
             $result = $this->client->search($query);
         } catch (Missing404Exception $e) {
@@ -338,12 +339,11 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         }, $purchases);
 
         /** @var CustomerDetails $result */
-        $result = $this->serializer->deserialize(
-            array(
-                'class' => $result['hits']['hits'][0]['_type'],
-                'payload' => $data,
-            )
-        );
+        $result = $this->serializer->deserialize([
+            'class' => $result['hits']['hits'][0]['_type'],
+            'payload' => $data,
+        ]);
+
         if (!$result || $result == null) {
             return [];
         }
@@ -438,7 +438,7 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
     /**
      * {@inheritdoc}
      */
-    public function findCustomersWithPurchasesExpiringAfter(\DateTimeInterface $dateTime): array
+    public function findCustomersWithPurchasesExpiringAt(\DateTimeInterface $dateTime): array
     {
         $activeDateFrom = new \DateTimeImmutable($dateTime->format('Y-m-d'));
         $activeDateTo = $activeDateFrom->add(new \DateInterval('P1D'));

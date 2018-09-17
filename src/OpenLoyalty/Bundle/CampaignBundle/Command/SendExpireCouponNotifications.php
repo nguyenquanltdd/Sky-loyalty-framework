@@ -114,7 +114,7 @@ class SendExpireCouponNotifications extends Command
         $expireDate = new \DateTime(sprintf('+%d days', $this->daysToExpire));
 
         try {
-            $this->expireCouponsNotifier->sendNotificationsForCouponsExpiringAfter($expireDate);
+            $this->expireCouponsNotifier->sendNotificationsForCouponsExpiringAt($expireDate);
 
             $this->io->success(sprintf(
                 'Successfully sent %d notification(s) about %d expiring coupons!',

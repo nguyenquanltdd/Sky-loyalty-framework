@@ -93,7 +93,7 @@ interface CustomerDetailsRepository extends Repository
      *
      * @return CustomerDetails[]
      */
-    public function findCustomersWithPurchasesExpiringAfter(\DateTimeInterface $dateTime): array;
+    public function findCustomersWithPurchasesExpiringAt(\DateTimeInterface $dateTime): array;
 
     /**
      * @param CustomerId $customerId

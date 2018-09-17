@@ -92,4 +92,14 @@ interface LevelRepository
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function findNextLevelByConditionValueWithTheBiggestReward($conditionValue, $currentLevelValue);
+
+    /**
+     * @param $conditionValue
+     * @param $currentLevelValue
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function findPreviousLevelByConditionValueWithTheBiggestReward($conditionValue, $currentLevelValue);
 }

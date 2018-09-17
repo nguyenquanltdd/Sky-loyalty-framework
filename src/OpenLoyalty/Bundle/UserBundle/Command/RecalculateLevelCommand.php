@@ -9,6 +9,7 @@ use Broadway\CommandHandling\CommandBus;
 use OpenLoyalty\Bundle\UserBundle\Service\AccountDetailsProviderInterface;
 use OpenLoyalty\Component\Account\Domain\Command\ResetPoints;
 use OpenLoyalty\Component\Customer\Domain\Command\RecalculateCustomerLevel;
+use OpenLoyalty\Component\Customer\Domain\Customer;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Customer\Infrastructure\Exception\LevelDowngradeModeNotSupportedException;
@@ -18,6 +19,7 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
@@ -26,24 +28,29 @@ use Symfony\Component\Translation\TranslatorInterface;
 class RecalculateLevelCommand extends ContainerAwareCommand
 {
     /**
+     * @var SymfonyStyle
+     */
+    private $io;
+
+    /**
      * @var CustomerDetailsRepository
      */
-    protected $customerDetailsRepository;
+    private $customerDetailsRepository;
 
     /**
      * @var LevelDowngradeModeProvider
      */
-    protected $levelDowngradeModeProvider;
+    private $levelDowngradeModeProvider;
 
     /**
      * @var CommandBus
      */
-    protected $commandBus;
+    private $commandBus;
 
     /**
      * @var AccountDetailsProviderInterface
      */
-    protected $accountDetailsProvider;
+    private $accountDetailsProvider;
 
     /**
      * @var TranslatorInterface
@@ -55,9 +62,24 @@ class RecalculateLevelCommand extends ContainerAwareCommand
      */
     private $tierAssignTypeProvider;
 
-    protected function initialize(InputInterface $input, OutputInterface $output)
+    /**
+     * {@inheritdoc}
+     */
+    protected function configure(): void
     {
-        parent::initialize($input, $output);
+        $this
+            ->setName('oloy:user:level:recalculate')
+            ->setDescription('Recalculate user level based on settings, eg. every 365 days')
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function initialize(InputInterface $input, OutputInterface $output): void
+    {
+        $this->io = new SymfonyStyle($input, $output);
+
         $this->customerDetailsRepository = $this->getContainer()->get('oloy.user.read_model.repository.customer_details');
         $this->levelDowngradeModeProvider = $this->getContainer()->get(LevelDowngradeModeProvider::class);
         $this->commandBus = $this->getContainer()->get('broadway.command_handling.command_bus');
@@ -69,17 +91,7 @@ class RecalculateLevelCommand extends ContainerAwareCommand
     /**
      * {@inheritdoc}
      */
-    protected function configure()
-    {
-        $this
-            ->setName('oloy:user:level:recalculate')
-            ->setDescription('Recalculate user level based on settings, eg. every 365 days');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function interact(InputInterface $input, OutputInterface $output): void
     {
         if ($this->tierAssignTypeProvider->getType() !== TierAssignTypeProvider::TYPE_POINTS) {
             $output->writeln(
@@ -88,43 +100,52 @@ class RecalculateLevelCommand extends ContainerAwareCommand
 
             return;
         }
+
         try {
             $mode = $this->levelDowngradeModeProvider->getMode();
-        } catch (LevelDowngradeModeNotSupportedException $e) {
-            $output->writeln(
-                $this->translator->trans('customer.level.downgrade_mode.not_supported')
-            );
+        } catch (LevelDowngradeModeNotSupportedException $exception) {
+            $output->writeln($this->translator->trans('customer.level.downgrade_mode.not_supported'));
 
             return;
         }
 
         if ($mode !== LevelDowngradeModeProvider::MODE_X_DAYS) {
-            $output->writeln(
-                $this->translator->trans('customer.level.downgrade_mode.not_supported')
-            );
+            $output->writeln($this->translator->trans('customer.level.downgrade_mode.not_supported'));
 
             return;
         }
+    }
 
+    /**
+     * {@inheritdoc}
+     */
+    protected function execute(InputInterface $input, OutputInterface $output): void
+    {
         $days = $this->levelDowngradeModeProvider->getDays();
         $resetPoints = $this->levelDowngradeModeProvider->getBase() === LevelDowngradeModeProvider::BASE_ACTIVE_POINTS
             && $this->levelDowngradeModeProvider->isResettingPointsEnabled();
         $date = new \DateTime();
 
         $customers = $this->customerDetailsRepository->findAllForLevelRecalculation($date, $days);
+
         $progress = new ProgressBar($output, count($customers));
+
         $step = 1;
         foreach ($customers as $customer) {
-            $account = $this->accountDetailsProvider->getAccountByCustomer(
-                $this->accountDetailsProvider->getCustomerById(new CustomerId($customer->getId()))
-            );
+            /** @var Customer $customer */
+            $accountCustomer = $this->accountDetailsProvider->getCustomerById(new CustomerId($customer->getId()));
+
+            $account = $this->accountDetailsProvider->getAccountByCustomer($accountCustomer);
+
             $this->commandBus->dispatch(new RecalculateCustomerLevel($customer->getCustomerId(), $date));
+
             $progress->setProgress($step);
             ++$step;
             if ($resetPoints) {
                 $this->commandBus->dispatch(new ResetPoints($account->getAccountId(), $date));
             }
         }
+
         $progress->finish();
     }
 }

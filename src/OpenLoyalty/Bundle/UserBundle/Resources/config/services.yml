@@ -8,6 +8,9 @@ parameters:
     - { template: 'OpenLoyaltyUserBundle:email:new_level.html.twig', subject: '{{ program_name }} - new level', variables: ['program_name', 'level_name', 'level_discount', 'ecommerce_address'] }
     - { template: 'OpenLoyaltyUserBundle:email:invitation.html.twig', subject: 'Invitation', variables: ['referrerName', 'url'] }
 
+imports:
+    - { resource: services/*.yml }
+
 services:
     _defaults:
         autowire: true
@@ -194,11 +197,12 @@ services:
         arguments:
             - '@oloy.points.account.repository.account_details'
             - '@oloy.level.repository'
-            - '@oloy.user.read_model.repository.customer_details'
+            - '@OpenLoyalty\Component\Customer\Infrastructure\Provider\CustomerDetailsProviderInterface'
             - '@oloy.user.tier_assign_type_provider'
             - '@oloy.user.exclude_delivery_costs_provider'
             - '@ol.settings.manager'
             - '@OpenLoyalty\Bundle\UserBundle\Service\SettingsBasedLevelDowngradeModeProvider'
+            - '@OpenLoyalty\Component\Account\Infrastructure\Provider\AccountDetailsProviderInterface'
 
     oloy.user.param_converter.customer:
         class: OpenLoyalty\Bundle\UserBundle\ParamConverter\CustomerDetailsParamConverter
@@ -292,7 +296,3 @@ services:
         autowire: true
         arguments:
             - '%master_api_key%'
-
-    OpenLoyalty\Bundle\CampaignBundle\Command\SendExpireCouponNotifications:
-        tags:
-            - { name: 'console.command' }

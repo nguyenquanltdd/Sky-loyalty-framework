@@ -3,6 +3,9 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
+
+declare(strict_types=1);
+
 namespace OpenLoyalty\Bundle\PointsBundle\Command;
 
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
@@ -111,7 +114,7 @@ class SendExpirePointsNotifications extends Command
         try {
             $expireDate = new \DateTime(sprintf('+%d days', $this->daysToExpire));
 
-            $this->expirePointsNotifier->sendNotificationsForPointsExpiringAfter($expireDate);
+            $this->expirePointsNotifier->sendNotificationsForPointsExpiringAt($expireDate);
 
             $this->io->success(sprintf(
                 'Successfully sent %d notifications about expiring points!',

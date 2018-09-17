@@ -58,7 +58,7 @@ class AccountDetailsProvider implements AccountDetailsProviderInterface
      */
     public function getAccountByCustomer(Customer $customer): AccountDetails
     {
-        $account = $this->validateAccount($this->accountRepository->findBy(['customerId' => $customer->getId()->__toString()]));
+        $account = $this->validateAccount($this->accountRepository->findBy(['customerId' => (string) $customer->getId()]));
 
         return $account;
     }
@@ -68,7 +68,7 @@ class AccountDetailsProvider implements AccountDetailsProviderInterface
      *
      * @return AccountDetails
      */
-    private function validateAccount(iterable $account)
+    private function validateAccount(iterable $account): AccountDetails
     {
         if (count($account) == 0) {
             throw new Exception('Account does not exist.');

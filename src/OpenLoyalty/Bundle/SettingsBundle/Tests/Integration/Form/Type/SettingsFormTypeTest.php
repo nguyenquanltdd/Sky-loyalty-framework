@@ -26,6 +26,8 @@ use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\PreloadedExtension;
 use Symfony\Component\Form\Test\TypeTestCase;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Mapping\ClassMetadata;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class SettingsFormTypeTest.
@@ -67,6 +69,7 @@ class SettingsFormTypeTest extends TypeTestCase
         'pointsDaysActive' => 10,
         'expirePointsNotificationDays' => 10,
         'expireCouponsNotificationDays' => 10,
+        'expireLevelsNotificationDays' => 10,
         'levelDowngradeDays' => 0,
     ];
 
@@ -99,24 +102,23 @@ class SettingsFormTypeTest extends TypeTestCase
      */
     protected function setUp(): void
     {
-        $this->translationProvider = $this
-            ->getMockBuilder(TranslationsProvider::class)
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
+        $this->translationProvider = $this->getMockForAbstractClass(TranslationsProvider::class);
 
         $this->marketingVendorsProvider = $this->getMockBuilder(AvailableMarketingVendors::class)->getMock();
-        $this->marketingVendorsProvider->method('getChoices')->willReturn(
-            ['choices' => [
+        $this->marketingVendorsProvider->method('getChoices')->willReturn([
+            'choices' => [
                 AvailableMarketingVendors::NONE => [
                     'name' => 'Disabled',
                     'config' => [],
                 ],
-            ]]
-        );
+            ],
+        ]);
 
-        $this->availableCustomerStatusesChoices = $this->getMockBuilder(AvailableCustomerStatusesChoices::class)
-            ->disableOriginalConstructor()->getMock();
+        $this->availableCustomerStatusesChoices = $this
+            ->getMockBuilder(AvailableCustomerStatusesChoices::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
         $this->availableCustomerStatusesChoices->method('getChoices')->willReturn(
             ['choices' => ['new', 'active', 'blocked', 'deleted']]
         );
@@ -132,22 +134,24 @@ class SettingsFormTypeTest extends TypeTestCase
             new TranslationsEntry('english.json'),
         ]);
 
-        $this->settingsManager = $this->getMockBuilder(SettingsManager::class)->getMock();
+        $this->settingsManager = $this->getMockForAbstractClass(SettingsManager::class);
         $this->settingsManager->method('getSettingByKey')->willReturn(null);
-        $this->validator = $this->getMockBuilder(
-            'Symfony\Component\Validator\Validator\ValidatorInterface'
-        )->getMock();
+
+        $this->validator = $this->getMockForAbstractClass(ValidatorInterface::class);
         $this->validator
             ->method('validate')
-            ->will($this->returnValue(new ConstraintViolationList()));
-        $metadata = $this->getMockBuilder('Symfony\Component\Validator\Mapping\ClassMetadata')
-                    ->disableOriginalConstructor()->getMock();
+            ->will($this->returnValue(new ConstraintViolationList()))
+        ;
+
+        $metadata = $this
+            ->getMockBuilder(ClassMetadata::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
         $metadata->method('addConstraint')->willReturn(true);
         $metadata->method('addPropertyConstraint')->willReturn(true);
 
-        $this->validator->method('getMetadataFor')->willReturn(
-            $metadata
-        );
+        $this->validator->method('getMetadataFor')->willReturn($metadata);
 
         parent::setUp();
     }
@@ -244,6 +248,10 @@ class SettingsFormTypeTest extends TypeTestCase
         $object->addEntry($entry);
 
         $entry = new IntegerSettingEntry('expireCouponsNotificationDays');
+        $entry->setValue(10);
+        $object->addEntry($entry);
+
+        $entry = new IntegerSettingEntry('expireLevelsNotificationDays');
         $entry->setValue(10);
         $object->addEntry($entry);
 
