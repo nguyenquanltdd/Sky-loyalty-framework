@@ -212,10 +212,11 @@ class CampaignFormType extends AbstractType
         if (isset($data['reward']) && $data['reward'] !== Campaign::REWARD_TYPE_CASHBACK && $data['reward'] !== Campaign::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE) {
             $this->addValidityFields($form);
         }
+
         if (isset($data['reward']) && $data['reward'] === Campaign::REWARD_TYPE_CASHBACK) {
             $form->add('pointValue', NumberType::class, [
                 'scale' => 2,
-                'required' => false,
+                'required' => true,
                 'constraints' => [new NotBlank()],
             ]);
         } elseif (isset($data['reward']) && $data['reward'] === Campaign::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE) {
@@ -238,7 +239,7 @@ class CampaignFormType extends AbstractType
         } else {
             $form->add('costInPoints', NumberType::class, [
                 'scale' => 2,
-                'required' => false,
+                'required' => true,
                 'constraints' => [new NotBlank()],
             ]);
             $form->add('unlimited', CheckboxType::class, [
@@ -262,9 +263,9 @@ class CampaignFormType extends AbstractType
             return;
         }
         $target = $data['target'];
-        if ($target == 'level') {
+        if ($target === 'level') {
             $data['segments'] = [];
-        } elseif ($target == 'segment') {
+        } elseif ($target === 'segment') {
             $data['levels'] = [];
         }
         $event->setData($data);

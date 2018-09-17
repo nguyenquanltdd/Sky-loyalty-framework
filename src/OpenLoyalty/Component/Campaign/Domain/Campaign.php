@@ -69,14 +69,18 @@ class Campaign
     protected $active = false;
 
     /**
+     * Cost of campaign reward – 0 for free or greater.
+     *
      * @var float
      */
-    protected $costInPoints = 0; // 0 (free) or greater
+    protected $costInPoints = 0;
 
     /**
+     * Cashback point value.
+     *
      * @var float
      */
-    protected $pointValue; // cashback
+    protected $pointValue;
 
     /**
      * @var LevelId[]

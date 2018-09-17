@@ -6,6 +6,8 @@
 namespace OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\QueryBuilder;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
@@ -91,7 +93,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      *
      * @return array
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public function findByParametersPaginated(
         array $params,
@@ -120,9 +122,9 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      *
      * @return int
      *
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     * @throws \Doctrine\ORM\ORMException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
+     * @throws ORMException
      */
     public function countFindByParameters(array $params)
     {
@@ -293,6 +295,8 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
 
     /**
      * {@inheritdoc}
+     *
+     * @throws ORMException
      */
     public function getActiveCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, array $categoryIds = [], $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC'): array
     {
@@ -312,6 +316,8 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
 
     /**
      * {@inheritdoc}
+     *
+     * @throws ORMException
      */
     public function getActiveCashbackCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null): array
     {
@@ -332,6 +338,8 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
 
     /**
      * {@inheritdoc}
+     *
+     * @throws ORMException
      */
     public function getVisibleCampaignsForLevelAndSegment(
         array $segmentIds = [],
@@ -375,9 +383,9 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      * @param null         $sortField
      * @param string       $direction
      *
-     * @return \Doctrine\ORM\QueryBuilder
+     * @return QueryBuilder
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     protected function getCampaignsForLevelAndSegmentQueryBuilder(
         array $segmentIds = [],
@@ -427,9 +435,9 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     /**
      * @param array $params
      *
-     * @return \Doctrine\ORM\QueryBuilder
+     * @return QueryBuilder
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     protected function getCampaignsByParamsQueryBuilder(array $params): QueryBuilder
     {
