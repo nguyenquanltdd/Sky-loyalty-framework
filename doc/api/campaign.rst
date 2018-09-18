@@ -248,7 +248,6 @@ Definition
 .. code-block:: text
 
     GET /api/campaign
-    GET /api/v1/<locale>/campaign
 
 +-------------------------------------+----------------+----------------------------------------------------+
 | Parameter                           | Parameter type | Description                                        |
@@ -673,7 +672,6 @@ Definition
 .. code-block:: text
 
     GET /api/campaign/<campaign>
-    GET /api/v1/<locale>/campaign/<campaign>
 
 +---------------+----------------+----------------------------------------------------+
 | Parameter     | Parameter type | Description                                        |

@@ -15,7 +15,6 @@ Definition
 .. code-block:: text
 
     GET /api/level
-    GET /api/v1/<locale>/level
 
 +----------------------+----------------+--------------------------------------------------------+
 | Parameter            | Parameter type |  Description                                           |
@@ -226,7 +225,6 @@ Definition
 .. code-block:: text
 
     GET /api/level/<level>
-    GET /api/v1/<locale>/level/<level>
 
 +---------------+----------------+--------------------------------------+
 | Parameter     | Parameter type | Description                          |

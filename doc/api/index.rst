@@ -10,6 +10,7 @@ The REST API Reference
    analytics
    audit
    campaign
+   campaign_category
    customer
    customer_campaign
    customer_earning_rule
