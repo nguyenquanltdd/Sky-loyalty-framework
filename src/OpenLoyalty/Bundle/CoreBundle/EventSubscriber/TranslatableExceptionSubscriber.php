@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\CoreBundle\EventSubscriber;
 
 use OpenLoyalty\Component\Core\Domain\Exception\Translatable;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -55,6 +56,6 @@ class TranslatableExceptionSubscriber implements EventSubscriberInterface
         }
 
         $message = $this->translator->trans($exception->getMessageKey(), $exception->getMessageParams());
-        $event->setResponse(new Response($message, Response::HTTP_BAD_REQUEST));
+        $event->setResponse(new JsonResponse($message, Response::HTTP_BAD_REQUEST));
     }
 }
