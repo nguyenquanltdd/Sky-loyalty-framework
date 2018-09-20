@@ -5,13 +5,20 @@
  */
 namespace OpenLoyalty\Component\EarningRule\Domain;
 
+use OpenLoyalty\Component\Core\Domain\Model\Identifier;
+
 /**
  * Interface EarningRuleGeoRepository.
  */
 interface EarningRuleGeoRepository
 {
     /**
+     * @param array                  $segmentIds
+     * @param null                   $levelId
+     * @param \DateTime|null         $date
+     * @param string|null|Identifier $posId
+     *
      * @return array
      */
-    public function findGeoRules(): array;
+    public function findGeoRules(array $segmentIds = [], $levelId = null, \DateTime $date = null, $posId = null): array;
 }
