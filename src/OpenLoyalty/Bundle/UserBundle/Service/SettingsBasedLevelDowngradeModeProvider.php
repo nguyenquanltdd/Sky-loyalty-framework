@@ -85,7 +85,7 @@ class SettingsBasedLevelDowngradeModeProvider implements LevelDowngradeModeProvi
             return self::DEFAULT_DAYS;
         }
 
-        return  $days->getValue();
+        return $days->getValue() ?? self::DEFAULT_DAYS;
     }
 
     /**
