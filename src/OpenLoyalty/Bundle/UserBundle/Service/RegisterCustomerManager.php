@@ -101,7 +101,7 @@ class RegisterCustomerManager
     public function register(CustomerId $customerId, array $customerData, ?string $plainPassword = null): Customer
     {
         $email = null;
-        if (isset($customerData['email'])) {
+        if (isset($customerData['email']) && !empty($customerData['email'])) {
             $email = strtolower($customerData['email']);
             if ($this->userManager->isCustomerExist($email)) {
                 throw new EmailAlreadyExistsException();
