@@ -22,7 +22,7 @@ Then use another command to setup database, Elasticsearch and load some demo dat
 
 .. code-block:: bash
 
-    $ docker-compose exec php phing setup
+    $ docker-compose -f docker/docker-compose.yml --user=www-data exec php phing setup
 
 Before you start using Open Loyalty you need to define hosts in your local environment.
 Add host ``openloyalty.localhost`` as ``127.0.0.1`` in your system configuration file.
