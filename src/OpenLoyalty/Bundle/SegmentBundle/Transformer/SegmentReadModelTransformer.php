@@ -26,6 +26,8 @@ class SegmentReadModelTransformer
 
     /**
      * SegmentReadModelTransformer constructor.
+     *
+     * @param CustomerDetailsProviderInterface $customerDetailsProvider
      */
     public function __construct(CustomerDetailsProviderInterface $customerDetailsProvider)
     {
@@ -45,7 +47,7 @@ class SegmentReadModelTransformer
             $criteria = [];
             /** @var DomainCriterion $domainCriterion */
             foreach ($domainSegmentPart->getCriteria() as $domainCriterion) {
-                $criterionId = $domainCriterion->getCriterionId()->__toString();
+                $criterionId = (string) $domainCriterion->getCriterionId();
                 $type = $domainCriterion->getType();
                 $data = $domainCriterion->getDataAsArray();
                 if ($type === Criterion::TYPE_CUSTOMER_LIST) {
@@ -57,7 +59,7 @@ class SegmentReadModelTransformer
         }
 
         return new ReadModelSegment(
-            $domainSegment->getSegmentId()->__toString(),
+            (string) $domainSegment->getSegmentId(),
             $domainSegment->getName(),
             $domainSegment->getDescription(),
             $domainSegment->isActive(),

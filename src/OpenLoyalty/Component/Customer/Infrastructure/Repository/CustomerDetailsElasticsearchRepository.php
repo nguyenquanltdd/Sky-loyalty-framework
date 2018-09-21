@@ -96,14 +96,14 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
     /**
      * {@inheritdoc}
      */
-    public function findByBirthdayAnniversary(\DateTime $from, \DateTime $to, $onlyActive = true)
+    public function findByBirthdayAnniversary(\DateTime $from, \DateTime $to, $onlyActive = true): array
     {
         $filter = [];
         foreach ($this->getTimestamps($from, $to) as $period) {
             $filter[] = ['range' => [
                 'birthDate' => [
                     'gte' => $period['from'],
-                    'lte' => $period['to'],
+                    'lt' => $period['to'],
                 ],
             ]];
         }
@@ -187,14 +187,14 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
     /**
      * {@inheritdoc}
      */
-    public function findByCreationAnniversary(\DateTime $from, \DateTime $to, $onlyActive = true)
+    public function findByCreationAnniversary(\DateTime $from, \DateTime $to, $onlyActive = true): array
     {
         $filter = [];
         foreach ($this->getTimestamps($from, $to) as $period) {
             $filter[] = ['range' => [
                 'createdAt' => [
                     'gte' => $period['from'],
-                    'lte' => $period['to'],
+                    'lt' => $period['to'],
                 ],
             ]];
         }
@@ -226,7 +226,7 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         $sortField = null,
         $direction = 'DESC',
         $showCashback = false
-    ) {
+    ): array {
         if ($sortField) {
             $sort = [
                 'campaignPurchases.'.$sortField => [
@@ -491,12 +491,12 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
     /**
      * {@inheritdoc}
      */
-    public function countPurchasesByCustomerId(CustomerId $customerId, $showCashback = false)
+    public function countPurchasesByCustomerId(CustomerId $customerId, $showCashback = false): int
     {
         $query = [
             'ids' => [
                 'values' => [
-                    $customerId->__toString(),
+                    (string) $customerId,
                 ],
             ],
         ];
@@ -550,15 +550,21 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         return $result['aggregations']['campaign_purchases']['campaign_purchases_count']['value'];
     }
 
-    protected function getTimestamps(\DateTime $from, \DateTime $to)
+    /**
+     * @param \DateTime $from
+     * @param \DateTime $to
+     *
+     * @return array An array of timestamp ranges, closed from the left, open from the right: [from, to)
+     */
+    protected function getTimestamps(\DateTime $from, \DateTime $to): array
     {
         $date = clone $from;
         $now = clone $to;
         $date->setTime(0, 0, 0);
-        $now->setTime(23, 59, 59);
+        $now->setTime(0, 0, 0);
         $timestamps = [];
         $timestamps[] = ['from' => $date->getTimestamp(), 'to' => $now->getTimestamp()];
-        for ($i = 0; $i < 100; ++$i) {
+        for ($i = 0; $i < 120; ++$i) {
             $date->modify('-1 year');
             $now->modify('-1 year');
             $timestamps[] = [
@@ -573,7 +579,7 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
     /**
      * {@inheritdoc}
      */
-    public function findOneByCriteria($criteria, $limit)
+    public function findOneByCriteria($criteria, $limit): array
     {
         $filter = [];
         foreach ($criteria as $key => $value) {
@@ -702,7 +708,7 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
     /**
      * {@inheritdoc}
      */
-    public function findAllWithAverageTransactionAmountBetween($from, $to, $onlyActive = true)
+    public function findAllWithAverageTransactionAmountBetween($from, $to, $onlyActive = true): array
     {
         $filter = [
             [
@@ -738,7 +744,7 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
     /**
      * {@inheritdoc}
      */
-    public function findAllWithTransactionAmountBetween($from, $to, $onlyActive = true)
+    public function findAllWithTransactionAmountBetween($from, $to, $onlyActive = true): array
     {
         $filter = [['range' => [
             'transactionsAmount' => [
@@ -767,7 +773,7 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
     /**
      * {@inheritdoc}
      */
-    public function findAllWithTransactionCountBetween($from, $to, $onlyActive = true)
+    public function findAllWithTransactionCountBetween($from, $to, $onlyActive = true): array
     {
         $filter = [['range' => [
             'transactionsCount' => [
@@ -796,7 +802,7 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
     /**
      * {@inheritdoc}
      */
-    public function sumAllByField($fieldName)
+    public function sumAllByField($fieldName): float
     {
         $allowedFields = [
             'transactionsCount',
@@ -843,7 +849,7 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
     /**
      * {@inheritdoc}
      */
-    public function findByLabels(array $labels, $active = null)
+    public function findByLabels(array $labels, $active = null): array
     {
         if (count($labels) == 0) {
             return [];
@@ -885,7 +891,7 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
     /**
      * {@inheritdoc}
      */
-    public function findWithLabels(array $labels, $active = null)
+    public function findWithLabels(array $labels, $active = null): array
     {
         if (count($labels) == 0) {
             return [];
