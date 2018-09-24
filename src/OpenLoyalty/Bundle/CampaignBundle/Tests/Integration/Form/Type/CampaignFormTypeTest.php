@@ -47,8 +47,9 @@ class CampaignFormTypeTest extends TypeTestCase
      */
     protected function getExtensions()
     {
-        $translationListener = $this->getMockBuilder(TranslationsListener::class)
-            ->disableOriginalConstructor()->getMock();
+        $translationListener = $this->getMockBuilder(TranslationsListener::class)->setMethods([
+            'preSetData', 'submit', 'getFieldsOptions', 'getTranslationClass',
+        ])->disableOriginalConstructor()->getMock();
         $localeProvider = $this->getMockBuilder(LocaleProviderInterface::class)
             ->disableOriginalConstructor()->getMock();
 
@@ -91,7 +92,6 @@ class CampaignFormTypeTest extends TypeTestCase
     protected function getMainData()
     {
         return [
-            'name' => 'test',
             'reward' => Campaign::REWARD_TYPE_GIFT_CODE,
             'levels' => [LoadLevelData::LEVEL2_ID],
             'segments' => [],
