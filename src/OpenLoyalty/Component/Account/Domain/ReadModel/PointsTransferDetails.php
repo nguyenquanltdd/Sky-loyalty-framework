@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Component\Account\Domain\ReadModel;
 
+use Assert\AssertionFailedException;
 use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Model\PointsTransfer;
@@ -150,7 +151,7 @@ class PointsTransferDetails implements SerializableReadModel
      */
     public function getId(): string
     {
-        return $this->pointsTransferId->__toString();
+        return (string) $this->pointsTransferId;
     }
 
     /**
@@ -165,6 +166,8 @@ class PointsTransferDetails implements SerializableReadModel
      * @param array $data
      *
      * @return mixed The object instance
+     *
+     * @throws AssertionFailedException
      */
     public static function deserialize(array $data)
     {
@@ -221,9 +224,9 @@ class PointsTransferDetails implements SerializableReadModel
     public function serialize(): array
     {
         $data = [
-            'id' => $this->pointsTransferId->__toString(),
-            'customerId' => $this->customerId->__toString(),
-            'accountId' => $this->accountId->__toString(),
+            'id' => (string) $this->pointsTransferId,
+            'customerId' => (string) $this->customerId,
+            'accountId' => (string) $this->accountId,
             'customerFirstName' => $this->customerFirstName,
             'customerLastName' => $this->customerLastName,
             'customerPhone' => $this->customerPhone,
@@ -235,13 +238,13 @@ class PointsTransferDetails implements SerializableReadModel
             'expiresAt' => $this->expiresAt->getTimestamp(),
             'lockedUntil' => null !== $this->lockedUntil ? $this->lockedUntil->getTimestamp() : null,
             'state' => $this->state,
-            'transactionId' => $this->transactionId ? $this->transactionId->__toString() : null,
-            'revisedTransactionId' => $this->revisedTransactionId ? $this->revisedTransactionId->__toString() : null,
+            'transactionId' => $this->transactionId ? (string) $this->transactionId : null,
+            'revisedTransactionId' => $this->revisedTransactionId ? (string) $this->revisedTransactionId : null,
             'comment' => $this->comment,
             'posIdentifier' => $this->posIdentifier,
             'issuer' => $this->issuer,
-            'senderId' => $this->senderId ? $this->senderId->__toString() : null,
-            'receiverId' => $this->receiverId ? $this->receiverId->__toString() : null,
+            'senderId' => $this->senderId ? (string) $this->senderId : null,
+            'receiverId' => $this->receiverId ? (string) $this->receiverId : null,
         ];
 
         return $data;
@@ -346,7 +349,7 @@ class PointsTransferDetails implements SerializableReadModel
     /**
      * @param string $customerFirstName
      */
-    public function setCustomerFirstName($customerFirstName)
+    public function setCustomerFirstName($customerFirstName): void
     {
         $this->customerFirstName = $customerFirstName;
     }
@@ -354,7 +357,7 @@ class PointsTransferDetails implements SerializableReadModel
     /**
      * @param string $customerLastName
      */
-    public function setCustomerLastName($customerLastName)
+    public function setCustomerLastName($customerLastName): void
     {
         $this->customerLastName = $customerLastName;
     }
@@ -362,7 +365,7 @@ class PointsTransferDetails implements SerializableReadModel
     /**
      * @param string $customerEmail
      */
-    public function setCustomerEmail($customerEmail)
+    public function setCustomerEmail($customerEmail): void
     {
         $this->customerEmail = $customerEmail;
     }
@@ -370,7 +373,7 @@ class PointsTransferDetails implements SerializableReadModel
     /**
      * @param string $customerPhone
      */
-    public function setCustomerPhone($customerPhone)
+    public function setCustomerPhone($customerPhone): void
     {
         $this->customerPhone = $customerPhone;
     }
@@ -378,7 +381,7 @@ class PointsTransferDetails implements SerializableReadModel
     /**
      * @param \DateTime $createdAt
      */
-    public function setCreatedAt($createdAt)
+    public function setCreatedAt($createdAt): void
     {
         $this->createdAt = $createdAt;
     }
@@ -386,7 +389,7 @@ class PointsTransferDetails implements SerializableReadModel
     /**
      * @param \DateTime $expiresAt
      */
-    public function setExpiresAt($expiresAt)
+    public function setExpiresAt($expiresAt): void
     {
         $this->expiresAt = $expiresAt;
     }
@@ -402,7 +405,7 @@ class PointsTransferDetails implements SerializableReadModel
     /**
      * @param float $value
      */
-    public function setValue($value)
+    public function setValue($value): void
     {
         $this->value = $value;
     }
@@ -410,7 +413,7 @@ class PointsTransferDetails implements SerializableReadModel
     /**
      * @param string $state
      */
-    public function setState($state)
+    public function setState($state): void
     {
         $this->state = $state;
     }
@@ -418,7 +421,7 @@ class PointsTransferDetails implements SerializableReadModel
     /**
      * @param string $type
      */
-    public function setType($type)
+    public function setType($type): void
     {
         $this->type = $type;
     }
@@ -434,7 +437,7 @@ class PointsTransferDetails implements SerializableReadModel
     /**
      * @param TransactionId $transactionId
      */
-    public function setTransactionId($transactionId)
+    public function setTransactionId($transactionId): void
     {
         $this->transactionId = $transactionId;
     }
@@ -450,7 +453,7 @@ class PointsTransferDetails implements SerializableReadModel
     /**
      * @param string $comment
      */
-    public function setComment($comment)
+    public function setComment($comment): void
     {
         $this->comment = $comment;
     }
@@ -466,7 +469,7 @@ class PointsTransferDetails implements SerializableReadModel
     /**
      * @param string $customerLoyaltyCardNumber
      */
-    public function setCustomerLoyaltyCardNumber($customerLoyaltyCardNumber)
+    public function setCustomerLoyaltyCardNumber($customerLoyaltyCardNumber): void
     {
         $this->customerLoyaltyCardNumber = $customerLoyaltyCardNumber;
     }
@@ -482,7 +485,7 @@ class PointsTransferDetails implements SerializableReadModel
     /**
      * @param string $posIdentifier
      */
-    public function setPosIdentifier($posIdentifier)
+    public function setPosIdentifier($posIdentifier): void
     {
         $this->posIdentifier = $posIdentifier;
     }
@@ -498,7 +501,7 @@ class PointsTransferDetails implements SerializableReadModel
     /**
      * @param mixed $issuer
      */
-    public function setIssuer($issuer)
+    public function setIssuer($issuer): void
     {
         $this->issuer = $issuer;
     }
@@ -514,7 +517,7 @@ class PointsTransferDetails implements SerializableReadModel
     /**
      * @param TransactionId $revisedTransactionId
      */
-    public function setRevisedTransactionId($revisedTransactionId)
+    public function setRevisedTransactionId($revisedTransactionId): void
     {
         $this->revisedTransactionId = $revisedTransactionId;
     }

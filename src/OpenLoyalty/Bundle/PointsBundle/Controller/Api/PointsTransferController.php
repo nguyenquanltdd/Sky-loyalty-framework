@@ -170,8 +170,8 @@ class PointsTransferController extends FOSRestController
      * @QueryParam(name="customerPhone", requirements="[a-zA-Z0-9\-]+", nullable=true, description="phone"))
      * @QueryParam(name="customerEmail", nullable=true, description="email"))
      * @QueryParam(name="customerId", nullable=true, description="customerId"))
-     * @QueryParam(name="state", map=true, requirements="(adding|spending|canceled|active|expired|pending)", nullable=true, description="state"))
-     * @QueryParam(name="type", nullable=true, requirements="[a-zA-Z0-9\-_]+", description="type"))
+     * @QueryParam(name="state", map=true, requirements="(canceled|active|expired|pending)", nullable=true, description="state"))
+     * @QueryParam(name="type", nullable=true, requirements="(adding|spending|p2p_adding|p2p_spending)", description="type"))
      * @QueryParam(name="willExpireTill", nullable=true, description="willExpireTill"))
      *
      * @ApiDoc(
@@ -436,6 +436,8 @@ class PointsTransferController extends FOSRestController
      * @param Request $request
      *
      * @return FosView
+     *
+     * @throws \Exception
      */
     public function importAction(Request $request)
     {
