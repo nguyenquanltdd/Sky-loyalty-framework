@@ -113,3 +113,5 @@ services:
       - [setProcessor, ['@OpenLoyalty\Bundle\TransactionBundle\Import\TransactionImportProcessor']]
       - [setXmlStreamer, ['@OpenLoyalty\Bundle\TransactionBundle\Import\TransactionNodeStreamer']]
       - [setConverter, ['@OpenLoyalty\Bundle\TransactionBundle\Import\TransactionXmlImportConverter']]
+
+  OpenLoyalty\Bundle\TransactionBundle\Command\TransactionImportCommand: ~

@@ -8,6 +8,8 @@ namespace OpenLoyalty\Component\Campaign\Domain\Command;
 use Broadway\CommandHandling\CommandBus;
 use Broadway\CommandHandling\SimpleCommandHandler;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\CampaignLimitException;
+use OpenLoyalty\Bundle\CampaignBundle\Exception\NotEnoughPointsException;
+use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\Coupon\CouponCodeProvider;
@@ -36,20 +38,28 @@ class InstantRewardHandler extends SimpleCommandHandler
     private $couponCodeProvider;
 
     /**
+     * @var CampaignValidator
+     */
+    private $campaignValidator;
+
+    /**
      * InstantRewardHandler constructor.
      *
      * @param CampaignRepository $campaignRepository
      * @param CommandBus         $commandBus
      * @param CouponCodeProvider $couponCodeProvider
+     * @param CampaignValidator  $campaignValidator
      */
     public function __construct(
         CampaignRepository $campaignRepository,
         CommandBus $commandBus,
-        CouponCodeProvider $couponCodeProvider
+        CouponCodeProvider $couponCodeProvider,
+        CampaignValidator $campaignValidator
     ) {
         $this->campaignRepository = $campaignRepository;
         $this->commandBus = $commandBus;
         $this->couponCodeProvider = $couponCodeProvider;
+        $this->campaignValidator = $campaignValidator;
     }
 
     /**
@@ -59,8 +69,15 @@ class InstantRewardHandler extends SimpleCommandHandler
     {
         $campaign = $this->campaignRepository->byId(new CampaignId($command->getCampaignId()));
         try {
+            $this->campaignValidator->checkIfCustomerHasEnoughPoints(
+                $campaign,
+                new CustomerId((string) $command->getCustomerId())
+            );
+
             $coupon = $this->couponCodeProvider->getCoupon($campaign, $command->getTransactionValue());
         } catch (CampaignLimitException $e) {
+            return;
+        } catch (NotEnoughPointsException $e) {
             return;
         }
 

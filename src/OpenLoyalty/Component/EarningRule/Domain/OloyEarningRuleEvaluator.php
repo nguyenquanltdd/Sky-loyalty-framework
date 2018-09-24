@@ -288,12 +288,23 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     /**
      * {@inheritdoc}
      */
-    public function evaluateGeoEvent(float $latitude, float $longitude): array
+    public function evaluateGeoEvent(float $latitude, float $longitude, string $customerId): array
     {
         /** @var EvaluationResult[] $result */
         $result = [];
 
-        $earningGeoRules = $this->earningRuleGeoRepository->findGeoRules();
+        /** @var array $customerData */
+        $customerData = $this->getCustomerDetails($customerId);
+        if (null !== $customerData['status'] && !in_array($customerData['status'], $this->getCustomerEarningStatuses())) {
+            return $result;
+        }
+
+        $earningGeoRules = $this->earningRuleGeoRepository->findGeoRules(
+            $customerData['segments'],
+            $customerData['level'],
+            null,
+            $customerData['pos']
+        );
 
         foreach ($earningGeoRules as $earningGeoRule) {
             /** @var EarningRuleGeo $earningGeoRule */
@@ -313,7 +324,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     }
 
     /**
-     * Return numb$eventNameer of points for this custom event.
+     * Return number of points for this custom event.
      *
      * @param string $eventName
      * @param string $customerId

@@ -15,6 +15,22 @@ use OpenLoyalty\Component\Import\Infrastructure\FileImporter;
 class PointsTransferImportCommand extends AbstractFileImportCommand
 {
     /**
+     * @var PointsTransferXmlImporter
+     */
+    private $importer;
+
+    /**
+     * PointsTransferImportCommand constructor.
+     *
+     * @param PointsTransferXmlImporter $importer
+     */
+    public function __construct(PointsTransferXmlImporter $importer)
+    {
+        $this->importer = $importer;
+        parent::__construct();
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function configure()
@@ -31,6 +47,6 @@ class PointsTransferImportCommand extends AbstractFileImportCommand
      */
     protected function getImporter(): FileImporter
     {
-        return $this->container->get(PointsTransferXmlImporter::class);
+        return $this->importer;
     }
 }

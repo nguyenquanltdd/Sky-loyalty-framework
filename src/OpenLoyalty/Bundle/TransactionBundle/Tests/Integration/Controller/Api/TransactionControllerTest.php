@@ -40,7 +40,7 @@ class TransactionControllerTest extends BaseApiTest
      */
     public function it_imports_transactions()
     {
-        $xmlContent = file_get_contents(__DIR__.'/import.xml');
+        $xmlContent = file_get_contents(__DIR__.'/../../../Resources/fixtures/import.xml');
 
         $client = $this->createAuthenticatedClient();
         $client->request(

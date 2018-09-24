@@ -13,6 +13,8 @@ interface XMLImportConverter
     /**
      * @param \SimpleXMLElement $element
      *
+     * @throws ImportConvertException
+     *
      * @return mixed
      */
     public function convert(\SimpleXMLElement $element);

@@ -13,12 +13,18 @@ use OpenLoyalty\Component\EarningRule\Domain\EarningRuleGeoRepository;
  */
 class DoctrineEarningRuleGeoRepository extends EntityRepository implements EarningRuleGeoRepository
 {
+    use DoctrineEarningRuleRepositoryTrait;
+
     /**
      * {@inheritdoc}
      */
-    public function findGeoRules(): array
-    {
-        $qb = $this->createQueryBuilder('e');
+    public function findGeoRules(
+        array $segmentIds = [],
+        $levelId = null,
+        \DateTime $date = null,
+        $posId = null
+    ): array {
+        $qb = $this->getEarningRulesForLevelAndSegmentQueryBuilder($segmentIds, $levelId, $date, $posId);
 
         return $qb->getQuery()->getResult();
     }

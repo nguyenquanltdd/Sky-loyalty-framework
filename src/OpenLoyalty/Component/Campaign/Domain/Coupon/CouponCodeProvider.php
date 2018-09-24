@@ -33,12 +33,14 @@ class CouponCodeProvider
     }
 
     /**
-     * @param Campaign   $campaign
-     * @param float|null $transactionValue
+     * @param Campaign $campaign
+     * @param float    $transactionValue
      *
      * @return Coupon
      *
      * @throws CampaignLimitException
+     * @throws NoCouponsLeftException
+     * @throws TooLowCouponValueException
      */
     public function getCoupon(Campaign $campaign, float $transactionValue = 0): Coupon
     {

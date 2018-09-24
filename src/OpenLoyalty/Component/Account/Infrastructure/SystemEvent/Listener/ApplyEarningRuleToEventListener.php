@@ -15,6 +15,7 @@ use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountCreatedSystemEvent;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\CustomEventOccurredSystemEvent;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\GeoEventOccurredSystemEvent;
+use OpenLoyalty\Component\Account\Infrastructure\Exception\EarningRuleLimitExceededException;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerAttachedToInvitationSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerLoggedInSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
@@ -62,8 +63,12 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
      */
     public function onCustomGeoEvent(GeoEventOccurredSystemEvent $event)
     {
-        $result = $this->earningRuleApplier->evaluateGeoEvent($event->getLatitude(), $event->getLongitude());
-        $account = $this->getAccountDetails($event->getCustomerId()->__toString());
+        $result = $this->earningRuleApplier->evaluateGeoEvent(
+            $event->getLatitude(),
+            $event->getLongitude(),
+            (string) $event->getCustomerId()
+        );
+        $account = $this->getAccountDetails((string) $event->getCustomerId());
         if (!$account) {
             return;
         }
@@ -90,7 +95,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
     /**
      * @param CustomEventOccurredSystemEvent $event
      *
-     * @throws \OpenLoyalty\Component\Account\Infrastructure\Exception\EarningRuleLimitExceededException
+     * @throws EarningRuleLimitExceededException
      */
     public function onCustomEvent(CustomEventOccurredSystemEvent $event)
     {
