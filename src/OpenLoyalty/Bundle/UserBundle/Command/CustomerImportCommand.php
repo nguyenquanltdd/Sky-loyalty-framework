@@ -15,6 +15,22 @@ use OpenLoyalty\Component\Import\Infrastructure\FileImporter;
 class CustomerImportCommand extends AbstractFileImportCommand
 {
     /**
+     * @var CustomerXmlImporter
+     */
+    private $importer;
+
+    /**
+     * CustomerImportCommand constructor.
+     *
+     * @param CustomerXmlImporter $importer
+     */
+    public function __construct(CustomerXmlImporter $importer)
+    {
+        $this->importer = $importer;
+        parent::__construct();
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function configure()
@@ -31,6 +47,6 @@ class CustomerImportCommand extends AbstractFileImportCommand
      */
     protected function getImporter(): FileImporter
     {
-        return $this->container->get(CustomerXmlImporter::class);
+        return $this->importer;
     }
 }

@@ -15,6 +15,22 @@ use OpenLoyalty\Component\Import\Infrastructure\FileImporter;
 class TransactionImportCommand extends AbstractFileImportCommand
 {
     /**
+     * @var TransactionXmlImporter
+     */
+    private $importer;
+
+    /**
+     * TransactionImportCommand constructor.
+     *
+     * @param TransactionXmlImporter $importer
+     */
+    public function __construct(TransactionXmlImporter $importer)
+    {
+        $this->importer = $importer;
+        parent::__construct();
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function configure()
@@ -31,6 +47,6 @@ class TransactionImportCommand extends AbstractFileImportCommand
      */
     protected function getImporter(): FileImporter
     {
-        return $this->container->get(TransactionXmlImporter::class);
+        return $this->importer;
     }
 }

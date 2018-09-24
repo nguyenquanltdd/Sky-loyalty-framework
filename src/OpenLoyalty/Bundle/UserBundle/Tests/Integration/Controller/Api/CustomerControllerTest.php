@@ -1163,16 +1163,16 @@ class CustomerControllerTest extends BaseApiTest
     public function getPartialPhrases(): array
     {
         return [
-            ['firstName', 'Jo', 16],
+            ['firstName', 'Jo', 17],
             ['firstName', 'Marks', 1],
             ['firstName', '1', 1],
             ['firstName', 'John1', 1],
-            ['lastName', 'Doe', 15],
+            ['lastName', 'Doe', 16],
             ['lastName', 'Doe1', 1],
             ['lastName', 'Smith', 2],
-            ['phone', '48', 6],
+            ['phone', '48', 7],
             ['phone', '645', 2],
-            ['email', '@', 22],
+            ['email', '@', 23],
             ['email', 'user-1', 1],
             ['loyaltyCardNumber', '000000', 3],
             ['transactionsAmount', '3', 0],
@@ -1183,7 +1183,7 @@ class CustomerControllerTest extends BaseApiTest
             ['averageTransactionAmount', '7.5', 0],
             ['transactionsCount', '4', 0],
             ['transactionsCount', '2', 0],
-            ['transactionsCount', '0', 17],
+            ['transactionsCount', '0', 18],
         ];
     }
 
@@ -1245,7 +1245,7 @@ class CustomerControllerTest extends BaseApiTest
             ['firstName', 'John Marks', 1],
             ['firstName', '1', 0],
             ['firstName', 'John1', 1],
-            ['lastName', 'Doe', 13],
+            ['lastName', 'Doe', 14],
             ['lastName', 'Doe Smith', 1],
             ['lastName', 'Doe1', 1],
             ['lastName', '1', 0],
@@ -1262,7 +1262,7 @@ class CustomerControllerTest extends BaseApiTest
             ['averageTransactionAmount', '7.5', 0],
             ['transactionsCount', '4', 0],
             ['transactionsCount', '2', 0],
-            ['transactionsCount', '0', 17],
+            ['transactionsCount', '0', 18],
         ];
     }
 
@@ -1323,7 +1323,7 @@ class CustomerControllerTest extends BaseApiTest
      */
     public function it_imports_customers(): void
     {
-        $xmlContent = file_get_contents(__DIR__.'/import.xml');
+        $xmlContent = file_get_contents(__DIR__.'/../../../Resources/fixtures/import.xml');
 
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -1449,7 +1449,7 @@ class CustomerControllerTest extends BaseApiTest
         return [
             ['emailOrPhone', 'user-1', 1, ['email', 'phone']],
             ['emailOrPhone', 'user-1@oloy.com', 1, ['email', 'phone']],
-            ['emailOrPhone', '+48', 6, ['email', 'phone']],
+            ['emailOrPhone', '+48', 7, ['email', 'phone']],
             ['emailOrPhone', '645', 2, ['email', 'phone']],
         ];
     }

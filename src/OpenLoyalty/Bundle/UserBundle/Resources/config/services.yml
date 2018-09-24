@@ -296,3 +296,5 @@ services:
         autowire: true
         arguments:
             - '%master_api_key%'
+
+    OpenLoyalty\Bundle\UserBundle\Command\CustomerImportCommand: ~

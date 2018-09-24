@@ -1,11 +1,10 @@
 <?php
 /**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\PointsBundle\Import;
 
-use Broadway\ReadModel\Repository;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager;
 use OpenLoyalty\Component\Account\Domain\AccountId;
@@ -17,55 +16,71 @@ use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;
 use OpenLoyalty\Component\Import\Infrastructure\AbstractXMLImportConverter;
+use OpenLoyalty\Component\Import\Infrastructure\ImportConvertException;
 use OpenLoyalty\Component\Import\Infrastructure\Validator\XmlNodeValidator;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class PointsTransferXmlImportConverter.
  */
 class PointsTransferXmlImportConverter extends AbstractXMLImportConverter
 {
-    /** @var UuidGeneratorInterface */
+    /**
+     * @var UuidGeneratorInterface
+     */
     protected $uuidGenerator;
 
-    /** @var Repository */
-    protected $accountRepository;
-
-    /** @var PointsTransfersManager */
+    /**
+     * @var PointsTransfersManager
+     */
     protected $pointsTransfersManager;
+
+    /**
+     * @var AccountProviderInterface
+     */
+    protected $accountProvider;
+
+    /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
 
     /**
      * PointsTransferXmlImportConverter constructor.
      *
-     * @param UuidGeneratorInterface $uuidGenerator
-     * @param Repository             $accountRepository
-     * @param PointsTransfersManager $manager
+     * @param UuidGeneratorInterface   $uuidGenerator
+     * @param PointsTransfersManager   $pointsTransfersManager
+     * @param AccountProviderInterface $accountProvider
+     * @param TranslatorInterface      $translator
      */
-    public function __construct(
-        UuidGeneratorInterface $uuidGenerator,
-        Repository $accountRepository,
-        PointsTransfersManager $manager
-    ) {
+    public function __construct(UuidGeneratorInterface $uuidGenerator, PointsTransfersManager $pointsTransfersManager,
+                                AccountProviderInterface $accountProvider, TranslatorInterface $translator)
+    {
         $this->uuidGenerator = $uuidGenerator;
-        $this->accountRepository = $accountRepository;
-        $this->pointsTransfersManager = $manager;
+        $this->pointsTransfersManager = $pointsTransfersManager;
+        $this->accountProvider = $accountProvider;
+        $this->translator = $translator;
     }
 
     /**
-     * @param $customerId
+     * @param string $customerId
+     * @param string $email
+     * @param string $phone
+     * @param string $loyaltyNumber
      *
      * @return AccountDetails
      *
      * @throws \Exception
      */
-    protected function getAccountBy($customerId): AccountDetails
+    protected function getAccount(string $customerId, string $email, string $phone, string $loyaltyNumber): AccountDetails
     {
-        $accounts = $this->accountRepository->findBy(['customerId' => $customerId]);
+        $account = $this->accountProvider->provideOne($customerId, $email, $phone, $loyaltyNumber);
 
-        if (count($accounts) == 0) {
-            throw new \Exception('Account does not exist for given customer');
+        if (!$account) {
+            throw new \Exception('Account does not exist for given data');
         }
 
-        return reset($accounts);
+        return $account;
     }
 
     /**
@@ -77,14 +92,23 @@ class PointsTransferXmlImportConverter extends AbstractXMLImportConverter
             $element,
             [
                 'points' => ['format' => XmlNodeValidator::INTEGER_FORMAT, 'required' => true],
-                'customerId' => ['required' => true],
                 'type' => ['required' => true],
                 'validityDuration' => ['required' => true],
             ]
         );
 
+        if (!$element->{'customerId'} && !$element->{'customerEmail'} && !$element->{'customerPhoneNumber'} && !$element->{'customerLoyaltyCardNumber'}) {
+            throw new ImportConvertException($this->translator->trans('At least one node should be defined '
+                .'(customerId, customerEmail, customerLoyaltyCardNumber, customerPhoneNumber)'));
+        }
+
         $transferType = (string) $element->{'type'};
-        $account = $this->getAccountBy((string) $element->{'customerId'});
+        $account = $this->getAccount(
+            (string) $element->{'customerId'},
+            (string) $element->{'customerEmail'},
+            (string) $element->{'customerPhoneNumber'},
+            (string) $element->{'customerLoyaltyCardNumber'}
+        );
         $pointsTransferId = new PointsTransferId($this->uuidGenerator->generate());
 
         switch ($transferType) {
@@ -126,7 +150,7 @@ class PointsTransferXmlImportConverter extends AbstractXMLImportConverter
     {
         return sprintf(
             '%s/(%s %s)',
-            (string) $element->{'customerId'},
+            (string) ($element->{'customerId'} ?? $element->{'customerEmail'} ?? $element->{'customerPhoneNumber'} ?? $element->{'customerLoyaltyCardNumber'}),
             (string) $element->{'type'},
             (string) $element->{'points'}
         );
