@@ -64,6 +64,11 @@ class SettingsController extends FOSRestController
     protected $translationsProvider;
 
     /**
+     * @var TemplateProvider
+     */
+    protected $templateProvider;
+
+    /**
      * SettingsController constructor.
      *
      * @param TranslatorInterface  $translator
@@ -71,19 +76,22 @@ class SettingsController extends FOSRestController
      * @param TranslationsProvider $translationsProvider
      * @param LogoUploader         $uploader
      * @param SimpleCommandBus     $commandBus
+     * @param TemplateProvider     $templateProvider
      */
     public function __construct(
         TranslatorInterface $translator,
         SettingsManager $settingsManager,
         TranslationsProvider $translationsProvider,
         LogoUploader $uploader,
-        SimpleCommandBus $commandBus
+        SimpleCommandBus $commandBus,
+        TemplateProvider $templateProvider
     ) {
         $this->translator = $translator;
         $this->settingsManager = $settingsManager;
         $this->translationsProvider = $translationsProvider;
         $this->uploader = $uploader;
         $this->commandBus = $commandBus;
+        $this->templateProvider = $templateProvider;
     }
 
     /**
@@ -905,17 +913,10 @@ class SettingsController extends FOSRestController
      *     section="Settings"
      * )
      *
-     * @param TemplateProvider $templateProvider
-     *
-     * @return Response
+     * @return JsonResponse
      */
-    public function cssAction(TemplateProvider $templateProvider)
+    public function cssAction()
     {
-        $response = new Response();
-        $response->setStatusCode(Response::HTTP_OK);
-        $response->headers->set('Content-Type', 'text/css; charset=utf-8');
-        $response->setContent($templateProvider->getCssContent());
-
-        return $response;
+        return new JsonResponse($this->templateProvider->getJsonContent(), Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 }
