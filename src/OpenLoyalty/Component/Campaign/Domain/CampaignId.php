@@ -22,6 +22,8 @@ class CampaignId implements Identifier
      * CampaignId constructor.
      *
      * @param string $campaignId
+     *
+     * @throws \Assert\AssertionFailedException
      */
     public function __construct($campaignId)
     {

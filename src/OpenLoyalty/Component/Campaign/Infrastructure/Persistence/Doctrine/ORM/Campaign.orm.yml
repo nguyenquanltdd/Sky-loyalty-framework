@@ -101,8 +101,14 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
       class: OpenLoyalty\Component\Campaign\Domain\Model\CampaignActivity
     campaignVisibility:
       class: OpenLoyalty\Component\Campaign\Domain\Model\CampaignVisibility
-    campaignPhoto:
-      class: OpenLoyalty\Component\Campaign\Domain\Model\CampaignPhoto
     brandIcon:
       class: OpenLoyalty\Component\Campaign\Domain\Model\CampaignBrandIcon
 
+  oneToMany:
+    photos:
+      targetEntity: OpenLoyalty\Component\Campaign\Domain\Entity\CampaignPhoto
+      mappedBy: campaign
+      fetch: EAGER
+      cascade: ["persist", "remove"]
+      orphanRemoval: true
+      onDelete: CASCADE

@@ -5,9 +5,10 @@
  */
 namespace OpenLoyalty\Component\Campaign\Domain;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use OpenLoyalty\Component\Campaign\Domain\Entity\CampaignPhoto;
 use OpenLoyalty\Bundle\TranslationBundle\Model\FallbackTranslatable;
 use OpenLoyalty\Component\Campaign\Domain\Model\CampaignActivity;
-use OpenLoyalty\Component\Campaign\Domain\Model\CampaignPhoto;
 use OpenLoyalty\Component\Campaign\Domain\Model\CampaignFile;
 use OpenLoyalty\Component\Campaign\Domain\Model\CampaignVisibility;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
@@ -118,9 +119,9 @@ class Campaign
     protected $campaignVisibility;
 
     /**
-     * @var CampaignPhoto
+     * @var string
      */
-    protected $campaignPhoto;
+    protected $usageInstruction;
 
     /**
      * @var float
@@ -168,6 +169,11 @@ class Campaign
     protected $categories = [];
 
     /**
+     * @var CampaignPhoto[]
+     */
+    protected $photos = [];
+
+    /**
      * @var bool
      */
     protected $public = false;
@@ -182,6 +188,7 @@ class Campaign
     {
         $this->campaignId = $campaignId;
         $this->setFromArray($data);
+        $this->photos = new ArrayCollection();
     }
 
     /**
@@ -563,7 +570,12 @@ class Campaign
         $this->campaignVisibility = $campaignVisibility;
     }
 
-    public static function validateRequiredData(array $data)
+    /**
+     * @param array $data
+     *
+     * @throws \Assert\AssertionFailedException
+     */
+    public static function validateRequiredData(array $data): void
     {
         Assert::keyIsset($data, 'reward');
         Assert::string($data['reward']);
@@ -689,22 +701,6 @@ class Campaign
     }
 
     /**
-     * @return CampaignPhoto
-     */
-    public function getCampaignPhoto()
-    {
-        return $this->campaignPhoto;
-    }
-
-    /**
-     * @param CampaignPhoto $campaignPhoto
-     */
-    public function setCampaignPhoto($campaignPhoto)
-    {
-        $this->campaignPhoto = $campaignPhoto;
-    }
-
-    /**
      * @return float
      */
     public function getPointValue()
@@ -824,14 +820,6 @@ class Campaign
     public function setLabels(array $labels)
     {
         $this->labels = $labels;
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasCampaignPhoto(): bool
-    {
-        return $this->campaignPhoto instanceof CampaignPhoto && $this->campaignPhoto->getPath();
     }
 
     /**
@@ -974,6 +962,14 @@ class Campaign
     public function setTransactionPercentageValue(int $transactionPercentageValue): void
     {
         $this->transactionPercentageValue = $transactionPercentageValue;
+    }
+
+    /**
+     * @return CampaignPhoto[]
+     */
+    public function getPhotos(): array
+    {
+        return $this->photos;
     }
 
     /**

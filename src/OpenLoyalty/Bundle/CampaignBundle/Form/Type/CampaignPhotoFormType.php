@@ -5,11 +5,11 @@
  */
 namespace OpenLoyalty\Bundle\CampaignBundle\Form\Type;
 
-use OpenLoyalty\Bundle\CampaignBundle\Model\CampaignPhoto;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
+use OpenLoyalty\Bundle\CampaignBundle\Validator\Constraints;
 
 /**
  * Class CampaignPhotoFormType.
@@ -19,20 +19,23 @@ class CampaignPhotoFormType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('file', FileType::class, [
-            'required' => true,
-        ]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults([
-            'data_class' => CampaignPhoto::class,
-        ]);
+        $builder->add(
+            'file',
+            FileType::class,
+            [
+                'required' => true,
+                'constraints' => [
+                    new Assert\NotBlank(),
+                    new Constraints\Image(
+                        [
+                            'mimeTypes' => ['image/png', 'image/gif', 'image/jpeg', 'image/jpg'],
+                            'maxSize' => '2M',
+                        ]
+                    ),
+                ],
+            ]
+        );
     }
 }

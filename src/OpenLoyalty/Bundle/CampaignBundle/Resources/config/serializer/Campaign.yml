@@ -56,9 +56,6 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
       serialized_name: coupons
       type: array
       groups: ['admin']
-    hasCampaignPhoto:
-      serialized_name: hasPhoto
-      type: boolean
     getBrandIcon:
       serialized_name: brandIcon
       type: boolean

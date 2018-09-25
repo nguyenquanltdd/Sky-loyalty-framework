@@ -1,6 +1,4 @@
 <?php
-
-declare(strict_types=1);
 /**
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.

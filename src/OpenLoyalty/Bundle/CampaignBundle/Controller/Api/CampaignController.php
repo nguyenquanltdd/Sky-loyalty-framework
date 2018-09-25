@@ -24,12 +24,10 @@ use OpenLoyalty\Bundle\CampaignBundle\Exception\NotAllowedException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotEnoughPointsException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\TransactionRequiredException;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignFormType;
-use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignPhotoFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\EditCampaignFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignBrandIconFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Model\Campaign;
 use OpenLoyalty\Bundle\CampaignBundle\ResponseModel\CouponUsageResponse;
-use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignPhotoUploader;
 use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider;
 use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator;
 use OpenLoyalty\Bundle\CampaignBundle\Service\MultipleCampaignCouponUsageProvider;
@@ -46,9 +44,7 @@ use OpenLoyalty\Component\Campaign\Domain\Command\BuyCampaign;
 use OpenLoyalty\Component\Campaign\Domain\Command\ChangeCampaignState;
 use OpenLoyalty\Component\Campaign\Domain\Command\CreateCampaign;
 use OpenLoyalty\Component\Campaign\Domain\Command\RemoveCampaignBrandIcon;
-use OpenLoyalty\Component\Campaign\Domain\Command\RemoveCampaignPhoto;
 use OpenLoyalty\Component\Campaign\Domain\Command\SetCampaignBrandIcon;
-use OpenLoyalty\Component\Campaign\Domain\Command\SetCampaignPhoto;
 use OpenLoyalty\Component\Campaign\Domain\Command\UpdateCampaign;
 use OpenLoyalty\Component\Campaign\Domain\Coupon\CouponCodeProvider;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
@@ -139,11 +135,6 @@ class CampaignController extends FOSRestController
     private $uuidGenerator;
 
     /**
-     * @var CampaignPhotoUploader
-     */
-    private $campaignPhotoUploader;
-
-    /**
      * @var Paginator
      */
     private $paginator;
@@ -208,7 +199,6 @@ class CampaignController extends FOSRestController
      * @param CouponCodeProvider                    $couponCodeProvider
      * @param TransactionDetailsRepository          $transactionDetailsRepository
      * @param CampaignBrandIconUploader             $campaignBrandIconUploader
-     * @param CampaignPhotoUploader                 $campaignPhotoUploader
      * @param ParamFetcher                          $paramFetcher
      * @param CampaignBoughtElasticsearchRepository $campaignBoughtRepository
      * @param EsParamManager                        $paramManager
@@ -231,7 +221,6 @@ class CampaignController extends FOSRestController
         CouponCodeProvider $couponCodeProvider,
         TransactionDetailsRepository $transactionDetailsRepository,
         CampaignBrandIconUploader $campaignBrandIconUploader,
-        CampaignPhotoUploader $campaignPhotoUploader,
         ParamFetcher $paramFetcher,
         CampaignBoughtElasticsearchRepository $campaignBoughtRepository,
         EsParamManager $paramManager,
@@ -254,7 +243,6 @@ class CampaignController extends FOSRestController
         $this->transactionDetailsRepository = $transactionDetailsRepository;
         $this->campaignBoughtRepository = $campaignBoughtRepository;
         $this->campaignBrandIconUploader = $campaignBrandIconUploader;
-        $this->campaignPhotoUploader = $campaignPhotoUploader;
         $this->paramFetcher = $paramFetcher;
         $this->paramManager = $paramManager;
         $this->csvGenerator = $csvGenerator;
@@ -346,44 +334,6 @@ class CampaignController extends FOSRestController
     }
 
     /**
-     * Add photo to campaign.
-     *
-     * @Route(name="oloy.campaign.add_photo", path="/campaign/{campaign}/photo")
-     * @Method("POST")
-     * @Security("is_granted('EDIT', campaign)")
-     * @ApiDoc(
-     *     name="Add photo to Campaign",
-     *     section="Campaign",
-     *     input={"class" = "OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignPhotoFormType", "name" = "photo"}
-     * )
-     *
-     * @View(serializerGroups={"admin", "Default"})
-     *
-     * @param Request        $request
-     * @param DomainCampaign $campaign
-     *
-     * @return FosView
-     */
-    public function addPhotoAction(Request $request, DomainCampaign $campaign): FosView
-    {
-        $form = $this->formFactory->createNamed('photo', CampaignPhotoFormType::class);
-        $form->handleRequest($request);
-
-        if ($form->isValid()) {
-            /** @var UploadedFile $file */
-            $file = $form->getData()->getFile();
-            $this->campaignPhotoUploader->remove($campaign->getCampaignPhoto());
-            $photo = $this->campaignPhotoUploader->upload($file);
-            $command = new SetCampaignPhoto($campaign->getCampaignId(), $photo);
-            $this->commandBus->dispatch($command);
-
-            return $this->view([], Response::HTTP_OK);
-        }
-
-        return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
-    }
-
-    /**
      * Remove brand icon from campaign.
      *
      * @Route(name="oloy.campaign.remove_brand_icon", path="/campaign/{campaign}/brand_icon")
@@ -455,56 +405,6 @@ class CampaignController extends FOSRestController
         $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
 
         return $response;
-    }
-
-    /**
-     * Remove photo from campaign.
-     *
-     * @Route(name="oloy.campaign.remove_photo", path="/campaign/{campaign}/photo")
-     * @Method("DELETE")
-     * @Security("is_granted('EDIT', campaign)")
-     * @ApiDoc(
-     *     name="Delete photo from Campaign",
-     *     section="Campaign"
-     * )
-     *
-     * @View(serializerGroups={"admin", "Default"})
-     *
-     * @param DomainCampaign $campaign
-     *
-     * @return FosView
-     */
-    public function removePhotoAction(DomainCampaign $campaign): FosView
-    {
-        $this->campaignPhotoUploader->remove($campaign->getCampaignPhoto());
-
-        $command = new RemoveCampaignPhoto($campaign->getCampaignId());
-        $this->commandBus->dispatch($command);
-
-        return $this->view([], Response::HTTP_OK);
-    }
-
-    /**
-     * Get campaign photo.
-     *
-     * @Route(name="oloy.campaign.get_photo", path="/campaign/{campaign}/photo")
-     * @Method("GET")
-     * @ApiDoc(
-     *     name="Get campaign photo",
-     *     section="Campaign"
-     * )
-     *
-     * @View(serializerGroups={"admin", "Default"})
-     *
-     * @param DomainCampaign $campaign
-     *
-     * @return Response
-     */
-    public function getPhotoAction(DomainCampaign $campaign): Response
-    {
-        $photo = $campaign->getCampaignPhoto();
-
-        return $this->getCampaignFileResponse($this->campaignPhotoUploader, $photo);
     }
 
     /**

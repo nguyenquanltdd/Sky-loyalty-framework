@@ -105,10 +105,12 @@ class CampaignFormType extends AbstractType
             'required' => true,
             'constraints' => [new NotBlank()],
         ]);
+
         $builder->add('moreInformationLink', TextareaType::class, [
             'required' => false,
             'constraints' => [new Url()],
         ]);
+
         $builder->add(
             $builder->create('categories', CollectionType::class, [
                 'entry_type' => TextType::class,
@@ -117,6 +119,7 @@ class CampaignFormType extends AbstractType
                 'error_bubbling' => false,
             ])->addModelTransformer(new CategoriesDataTransformer())
         );
+
         $builder->add('brandName', TextType::class, [
             'required' => false,
         ]);
@@ -184,6 +187,11 @@ class CampaignFormType extends AbstractType
         ]);
 
         $builder->addEventListener(FormEvents::PRE_SUBMIT, [$this, 'adjustCampaignForm']);
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+            $data = $event->getData();
+            unset($data['photos']);
+            $event->setData($data);
+        });
     }
 
     /**

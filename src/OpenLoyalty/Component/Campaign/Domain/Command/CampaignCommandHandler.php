@@ -58,24 +58,6 @@ class CampaignCommandHandler extends SimpleCommandHandler
         $this->campaignRepository->save($campaign);
     }
 
-    public function handleSetCampaignPhoto(SetCampaignPhoto $command)
-    {
-        /** @var Campaign $campaign */
-        $campaign = $this->campaignRepository->byId($command->getCampaignId());
-        $campaign->setCampaignPhoto($command->getCampaignPhoto());
-
-        $this->campaignRepository->save($campaign);
-    }
-
-    public function handleRemoveCampaignPhoto(RemoveCampaignPhoto $command)
-    {
-        /** @var Campaign $campaign */
-        $campaign = $this->campaignRepository->byId($command->getCampaignId());
-        $campaign->setCampaignPhoto(null);
-
-        $this->campaignRepository->save($campaign);
-    }
-
     /**
      * @param SetCampaignBrandIcon $command
      *

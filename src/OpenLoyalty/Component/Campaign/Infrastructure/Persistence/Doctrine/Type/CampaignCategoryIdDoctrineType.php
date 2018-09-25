@@ -12,7 +12,7 @@ use Ramsey\Uuid\Doctrine\UuidType;
 /**
  * Class CampaignCategoryIdDoctrineType.
  */
-final class CampaignCategoryIdDoctrineType extends UuidType
+class CampaignCategoryIdDoctrineType extends UuidType
 {
     /**
      * Type name.

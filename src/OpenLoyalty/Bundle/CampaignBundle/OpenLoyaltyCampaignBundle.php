@@ -32,7 +32,9 @@ class OpenLoyaltyCampaignBundle extends Bundle
     public function buildMappingCompilerPass()
     {
         return DoctrineOrmMappingsPass::createYamlMappingDriver(
-            [__DIR__.'/../../Component/Campaign/Infrastructure/Persistence/Doctrine/ORM' => 'OpenLoyalty\Component\Campaign\Domain'],
+            [
+                __DIR__.'/../../Component/Campaign/Infrastructure/Persistence/Doctrine/ORM' => 'OpenLoyalty\Component\Campaign\Domain',
+            ],
             [],
             false,
             ['OpenLoyaltyCampaign' => 'OpenLoyalty\Component\Campaign\Domain']

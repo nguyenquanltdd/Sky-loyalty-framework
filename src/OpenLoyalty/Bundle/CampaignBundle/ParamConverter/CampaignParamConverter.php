@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\CampaignBundle\ParamConverter;
 
+use Assert\InvalidArgumentException;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
@@ -21,7 +22,7 @@ class CampaignParamConverter implements ParamConverterInterface
     /**
      * @var CampaignRepository
      */
-    protected $repository;
+    private $repository;
 
     /**
      * CampaignParamConverter constructor.
@@ -40,16 +41,23 @@ class CampaignParamConverter implements ParamConverterInterface
      * @param ParamConverter $configuration Contains the name, class and options of the object
      *
      * @return bool True if the object has been successfully set, else false
+     *
+     * @throws \Assert\AssertionFailedException
      */
     public function apply(Request $request, ParamConverter $configuration)
     {
         $name = $configuration->getName();
 
-        if (null === $request->attributes->get($name, false)) {
+        $value = $request->attributes->get($name, false);
+        if (null === $value) {
             $configuration->setIsOptional(true);
         }
-        $value = $request->attributes->get($name);
-        $object = $this->repository->byId(new CampaignId($value));
+
+        try {
+            $object = $this->repository->byId(new CampaignId($value));
+        } catch (InvalidArgumentException $exception) {
+            throw new NotFoundHttpException(sprintf('%s object not found.', $configuration->getClass()));
+        }
 
         if (null === $object && false === $configuration->isOptional()) {
             throw new NotFoundHttpException(sprintf('%s object not found.', $configuration->getClass()));

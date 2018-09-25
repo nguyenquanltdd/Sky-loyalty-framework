@@ -2,6 +2,7 @@ doctrine:
     dbal:
         types:
             campaign_id: OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Type\CampaignIdDoctrineType
+            photo_id: OpenLoyalty\Component\Campaign\Infrastructure\Doctrine\Type\PhotoIdDoctrineType
             campaign_levels_json_array: OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Type\CampaignLevelsJsonArrayDoctrineType
             campaign_segments_json_array: OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Type\CampaignSegmentsJsonArrayDoctrineType
             campaign_coupons_json_array: OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Type\CampaignCouponsJsonArrayDoctrineType

@@ -3,6 +3,8 @@
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
+declare(strict_types=1);
+
 namespace OpenLoyalty\Component\Campaign\Infrastructure\Repository;
 
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository;
@@ -11,7 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 /**
  * Class CampaignBoughtElasticsearchRepositoryTest.
  */
-class CampaignBoughtElasticsearchRepositoryTest extends KernelTestCase
+final class CampaignBoughtElasticsearchRepositoryTest extends KernelTestCase
 {
     /**
      * @var CampaignBoughtElasticsearchRepository

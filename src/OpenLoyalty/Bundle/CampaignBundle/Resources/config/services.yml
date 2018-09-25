@@ -62,12 +62,10 @@ services:
       - { name: jms_serializer.event_subscriber }
 
   oloy.campaign.photos_filesystem:
+    public: true
     class:     Gaufrette\Filesystem
     factory:   ['@knp_gaufrette.filesystem_map', get]
     arguments: ['campaign_photos']
-
-  OpenLoyalty\Bundle\CampaignBundle\Service\CampaignPhotoUploader:
-    arguments: ["@oloy.campaign.photos_filesystem"]
 
   OpenLoyalty\Bundle\CampaignBundle\Service\CampaignBrandIconUploader:
     arguments: ["@oloy.campaign.photos_filesystem"]

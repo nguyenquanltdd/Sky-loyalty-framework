@@ -54,60 +54,6 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_updates_campaign_photo(): void
-    {
-        $imgContent = file_get_contents(__DIR__.'/../../../Resources/test.jpg');
-
-        $client = $this->createAuthenticatedClient();
-        $client->request(
-            'POST',
-            '/api/campaign/'.LoadCampaignData::CAMPAIGN2_ID.'/photo',
-            [],
-            [
-                'photo' => [
-                    'file' => $this->createUploadedFile($imgContent, 'test.jpg', 'image/jpeg', UPLOAD_ERR_OK),
-                ],
-            ]
-        );
-        $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-    }
-
-    /**
-     * @test
-     * @depends it_updates_campaign_photo
-     */
-    public function it_gets_campaign_photo(): void
-    {
-        $fileHash = md5_file(__DIR__.'/../../../Resources/test.jpg');
-
-        $client = $this->createAuthenticatedClient();
-        $client->request(
-            'GET',
-            '/api/campaign/'.LoadCampaignData::CAMPAIGN2_ID.'/photo'
-        );
-        $response = $client->getResponse();
-        $this->assertEquals($fileHash, md5($response->getContent()), 'File has not been uploaded correctly.');
-    }
-
-    /**
-     * @test
-     * @depends it_gets_campaign_photo
-     */
-    public function it_removes_campaign_photo(): void
-    {
-        $client = $this->createAuthenticatedClient();
-        $client->request(
-            'DELETE',
-            '/api/campaign/'.LoadCampaignData::CAMPAIGN2_ID.'/photo'
-        );
-        $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-    }
-
-    /**
-     * @test
-     */
     public function it_updates_campaign_brand(): void
     {
         $imgContent = file_get_contents(__DIR__.'/../../../Resources/test.jpg');
@@ -146,7 +92,6 @@ class CampaignControllerTest extends BaseApiTest
 
     /**
      * @test
-     * @depends it_gets_campaign_photo
      */
     public function it_removes_campaign_brand(): void
     {
@@ -537,8 +482,6 @@ class CampaignControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('campaignId', $data);
-        $this->assertArrayHasKey('hasPhoto', $data);
-        $this->assertInternalType('bool', $data['hasPhoto']);
         $this->assertArrayHasKey('levels', $data);
         $this->assertInternalType('array', $data['levels']);
         $this->assertArrayHasKey('segments', $data);

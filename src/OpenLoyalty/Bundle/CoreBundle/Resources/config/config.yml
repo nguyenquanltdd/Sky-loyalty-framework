@@ -40,6 +40,10 @@ knp_gaufrette:
       local:
         directory: "%kernel.root_dir%/uploads/"
         create:     true
+    logo_photos_local:
+      local:
+        directory: "%kernel.root_dir%/uploads/"
+        create:     true
     campaign_files_local:
       local:
         directory: "%kernel.root_dir%/uploads/"
@@ -63,7 +67,7 @@ knp_gaufrette:
       adapter: "%oloy.campaign.photos_adapter%"
       alias: campaign_brand_icon_filesystem
     logo:
-      adapter: "campaign_photos_local"
+      adapter: "logo_photos_local"
       alias: logo_filesystem
     import:
       adapter: "import_file_local"

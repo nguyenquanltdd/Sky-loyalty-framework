@@ -6,10 +6,6 @@ services:
         alias: OpenLoyalty\Bundle\PaginationBundle\Service\Paginator
         deprecated: The "%service_id%" service is deprecated since 2.8.0
 
-    oloy.campaign.photo_uploader:
-        alias: OpenLoyalty\Bundle\CampaignBundle\Service\CampaignPhotoUploader
-        deprecated: The "%service_id%" service is deprecated since 2.8.0
-
     ol.settings.form_type.settings:
         alias: OpenLoyalty\Bundle\SettingsBundle\Form\Type\SettingsFormType
         deprecated: The "%service_id%" service is deprecated since 2.8.0
