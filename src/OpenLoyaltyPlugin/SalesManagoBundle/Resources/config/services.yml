@@ -26,18 +26,21 @@ services:
         tags: ['ol.settings.marketing.vendors.config']
 
     OpenLoyaltyPlugin\SalesManagoBundle\Service\SalesManagoContactSegmentTagsSender:
+        lazy: true
         arguments:
             $dataProvider: '@OpenLoyaltyPlugin\SalesManagoBundle\DataProvider\TagsDataProvider'
         tags:
             - { name: monolog.logger, channel: plugins }
 
     OpenLoyaltyPlugin\SalesManagoBundle\Service\SalesManagoContactTransactionSender:
+        lazy: true
         arguments:
             $dataProvider: '@OpenLoyaltyPlugin\SalesManagoBundle\DataProvider\TransactionsDataProvider'
         tags:
             - { name: monolog.logger, channel: plugins }
 
     OpenLoyaltyPlugin\SalesManagoBundle\Service\SalesManagoContactUpdateSender:
+        lazy: true
         arguments:
             $dataProvider: '@OpenLoyaltyPlugin\SalesManagoBundle\DataProvider\ContactDataProvider'
         tags:
