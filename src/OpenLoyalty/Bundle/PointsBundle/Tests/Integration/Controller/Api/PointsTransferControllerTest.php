@@ -190,6 +190,28 @@ class PointsTransferControllerTest extends BaseApiTest
     /**
      * @test
      */
+    public function it_returns_exception_when_invalid_customer_uuid(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/points/transfer/add',
+            [
+                'transfer' => [
+                    'customer' => 'not_existing_uuid',
+                    'points' => 100,
+                    'validityDuration' => 50,
+                ],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 400');
+    }
+
+    /**
+     * @test
+     */
     public function it_adds_points(): void
     {
         $client = $this->createAuthenticatedClient();
@@ -204,9 +226,7 @@ class PointsTransferControllerTest extends BaseApiTest
                 ],
             ]
         );
-
         $response = $client->getResponse();
-
         $data = json_decode($response->getContent(), true);
 
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
