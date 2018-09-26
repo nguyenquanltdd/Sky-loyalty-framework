@@ -1392,7 +1392,7 @@
       "points": "General spending rule",
       "product_purchase": "Product purchase",
       "referral": "Customer Referral",
-      "geolocation" : "Geolocation",
+      "geolocation" : "Getlocation",
       "qrcode": "Qrcode"
     },
     "value": "Value",
