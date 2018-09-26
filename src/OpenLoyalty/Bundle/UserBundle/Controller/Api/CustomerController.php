@@ -375,10 +375,15 @@ class CustomerController extends FOSRestController
      * @ApiDoc(
      *     name="Register Customer",
      *     section="Customer",
-     *     input={"class" = "OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerRegistrationFormType", "name" =
-     *     "customer"}, statusCodes={
-     *       200="Returned when successful",
-     *       400="Returned when form contains errors",
+     *     input={"class" = "OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerRegistrationFormType",
+     *         "name" = "customer"},
+     *     parameters={
+     *         {"name"="customer[labels]", "dataType"="string|array", "required"=false,
+     *             "description"="String of labels in form of key:val;key:val or an array of labels, each being an array having 'key' and 'value' key."}
+     *     },
+     *     statusCodes={
+     *         200="Returned when successful",
+     *         400="Returned when form contains errors",
      *     }
      * )
      */
@@ -565,9 +570,13 @@ class CustomerController extends FOSRestController
      *     name="Edit Customer",
      *     section="Customer",
      *     input={"class" = "OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerEditFormType", "name" = "customer"},
+     *     parameters={
+     *         {"name"="customer[labels]", "dataType"="string|array", "required"=false,
+     *             "description"="String of labels in form of key:val;key:val or an array of labels, each being an array having 'key' and 'value' key."}
+     *     },
      *     statusCodes={
-     *       200="Returned when successful",
-     *       400="Returned when form contains errors",
+     *         200="Returned when successful",
+     *         400="Returned when form contains errors",
      *     }
      * )
      *

@@ -13,58 +13,46 @@ use Symfony\Component\Form\DataTransformerInterface;
  */
 class LabelsDataTransformer implements DataTransformerInterface
 {
-    /**
-     * @var string
-     */
-    protected $delimiter = ';';
-
-    /**
-     * @var string
-     */
-    protected $labelDelimiter = ':';
+    const ENTRIES_DELIMITER = ';';
+    const KEY_VALUE_DELIMITER = ':';
 
     /**
      * {@inheritdoc}
      */
-    public function transform($value)
+    public function transform($value): ?string
     {
         if ($value == null) {
-            return;
+            return null;
         }
+
         if (!is_array($value)) {
             throw new \InvalidArgumentException();
         }
-        $values = array_map(function (Label $label) {
-            return $label->getKey().$this->labelDelimiter.$label->getValue();
+
+        $values = array_map(function (Label $label): string {
+            return $label->getKey().self::KEY_VALUE_DELIMITER.$label->getValue();
         }, $value);
 
-        return implode($this->delimiter, $values);
+        return implode(self::ENTRIES_DELIMITER, $values);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function reverseTransform($value)
+    public function reverseTransform($values): array
     {
-        $values = explode($this->delimiter, $value);
+        $values = explode(self::ENTRIES_DELIMITER, $values);
+
         $transformed = array_map(function ($code) {
-            if (!$code) {
-                return;
+            if (!$code || !is_string($code) || strpos($code, self::KEY_VALUE_DELIMITER) === false) {
+                return null;
             }
 
-            $value = explode($this->labelDelimiter, $code);
+            [$key, $value] = explode(self::KEY_VALUE_DELIMITER, $code, 2);
 
-            return new Label($value[0], $value[1]);
+            return new Label($key, $value);
         }, $values);
 
-        $transformed = array_filter($transformed, function ($element) {
-            if ($element == null) {
-                return false;
-            }
-
-            return true;
-        });
-
-        return $transformed;
+        return array_filter($transformed);
     }
 }

@@ -40,16 +40,16 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
 .. note::
 
-    The *customer = 1bbafb37-b51b-47c5-b3e4-e0a2d028e655* id is an exemplary value. Your value can be different.
-    Check in the list of all customers if you are not sure which id should be used.
+    The *customer = 1bbafb37-b51b-47c5-b3e4-e0a2d028e655* id is an example value. Your value can be different.
+    Check the list of all customers if you are not sure which id should be used.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -92,16 +92,16 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
 .. note::
 
-    The *customer = 1bbafb37-b51b-47c5-b3e4-e0a2d028e655* id is an exemplary value. Your value can be different.
-    Check in the list of all customers if you are not sure which id should be used.
+    The *customer = 1bbafb37-b51b-47c5-b3e4-e0a2d028e655* id is an example value. Your value can be different.
+    Check the list of all customers if you are not sure which id should be used.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -144,16 +144,16 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
 .. note::
 
-    The *customer = 1bbafb37-b51b-47c5-b3e4-e0a2d028e655* id is an exemplary value. Your value can be different.
-    Check in the list of all customers if you are not sure which id should be used.
+    The *customer = 1bbafb37-b51b-47c5-b3e4-e0a2d028e655* id is an example value. Your value can be different.
+    Check the list of all customers if you are not sure which id should be used.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -256,11 +256,11 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -337,11 +337,11 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -433,11 +433,11 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -483,16 +483,16 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
 .. note::
 
-    The *token = abcde* is an exemplary value. Your value can be different.
+    The *token = abcde* is an example value. Your value can be different.
     The value can be checked in the database, table ``ol_user``, field ``action_token``.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -505,7 +505,7 @@ Exemplary Response
 Create a new customer
 ---------------------
 
-To create a new customer you will need to call the ``/api/customer/register`` endpoint with the ``POST`` method.
+To create a new customer you need to call the ``/api/customer/register`` endpoint with the ``POST`` method.
 
 .. note::
 
@@ -559,6 +559,8 @@ Definition
 +------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
 | customer[loyaltyCardNumber]        | request        |  *(optional)* Loyalty card number *(unique)*                                                  |
 +------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
+| customer[labels]                   | request        | *(optional)* String of labels in form of ``key1:val1;key2:val2``.                             |
++------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
 | customer[agreement1]               | request        |  First agreement. Set 1 if true, otherwise 0                                                  |
 +------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
 | customer[agreement2]               | request        |  *(optional)* Second agreement. Set 1 if true, otherwise 0                                    |
@@ -586,11 +588,11 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -632,11 +634,11 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -662,11 +664,11 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -778,7 +780,7 @@ Definition
 +------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
 | customer[loyaltyCardNumber]        | request        |  *(optional)* Loyalty card number *(unique)*                                                  |
 +------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
-| customer[labels]                   | request        |  *(optional)* Labels in format: name1:value1;name2:value2                                     |
+| customer[labels]                   | request        | *(optional)* String of labels in form of ``key1:val1;key2:val2``.                             |
 +------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
 | customer[agreement1]               | request        |  *(optional)* First agreement. Set 1 if true, otherwise 0                                     |
 +------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
@@ -805,11 +807,11 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -876,11 +878,11 @@ Exemplary Response
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -965,11 +967,11 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 

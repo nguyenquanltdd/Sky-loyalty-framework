@@ -31,6 +31,14 @@ class CustomerEditFormType extends AbstractType
     {
         $fieldNames = ['firstName', 'lastName', 'agreement1'];
 
+        if ($builder->has('email')) {
+            $fieldNames[] = 'email';
+        }
+
+        if ($builder->has('phone')) {
+            $fieldNames[] = 'phone';
+        }
+
         // remove required and NotBlank constraints
         foreach ($fieldNames as $fieldName) {
             $field = $builder->get($fieldName);

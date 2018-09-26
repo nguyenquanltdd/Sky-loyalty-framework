@@ -609,6 +609,16 @@ class CustomerControllerTest extends BaseApiTest
 
         $newClientData = array_merge($currentClientData, $customerData);
 
+        if (!is_array($newClientData['labels'])) {
+            $unprocessedLabels = explode(';', $newClientData['labels']);
+            $newClientData['labels'] = [];
+
+            foreach ($unprocessedLabels as $unprocessedLabel) {
+                [$labelKey, $labelValue] = explode(':', $unprocessedLabel);
+                $newClientData['labels'][] = ['key' => $labelKey, 'value' => $labelValue];
+            }
+        }
+
         // updatedAt is not needed, segments may be added later
         unset($newClientData['updatedAt'], $data['updatedAt'], $newClientData['segments']);
         $this->assertEquals($newClientData, $data);
@@ -620,6 +630,7 @@ class CustomerControllerTest extends BaseApiTest
     public function getCustomersData(): array
     {
         return [
+            [['labels' => 'test:testvalue;test2:test2value']],
             [['firstName' => 'Jane']],
             [['lastName' => 'de Novo']],
             [['email' => 'jane.de.novo@test.example', 'phone' => '+443340000000']],
@@ -726,7 +737,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allow_update_phone_number_without_plus(): void
+    public function it_allows_to_update_phone_number_without_plus(): void
     {
         $userId = '22222222-0000-474c-b092-b0dd880c07e2';
         $client = $this->createAuthenticatedClient();
