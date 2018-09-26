@@ -112,6 +112,7 @@ class SettingsFormType extends AbstractType
                         'PLN' => 'pln',
                         'USD' => 'usd',
                         'EUR' => 'eur',
+                        'HKD' => 'hkd',
                     ],
                     'constraints' => [new NotEmptyValue()],
                 ])
