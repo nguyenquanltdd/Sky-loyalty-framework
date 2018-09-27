@@ -5,6 +5,7 @@ namespace OpenLoyalty\Component\Customer\Tests\Domain\Validator;
 use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
+use OpenLoyalty\Component\Customer\Domain\Specification\CustomerPhoneSpecificationInterface;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
 
 /**
@@ -16,6 +17,11 @@ class CustomerUniqueValidatorTest extends \PHPUnit_Framework_TestCase
      * @var Repository
      */
     protected $customerDetailsRepository;
+
+    /**
+     * @var CustomerPhoneSpecificationInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $customerSpecification;
 
     public function setUp()
     {
@@ -65,33 +71,36 @@ class CustomerUniqueValidatorTest extends \PHPUnit_Framework_TestCase
 
                 return [];
             }));
+
+        $this->customerSpecification = $this->createMock(CustomerPhoneSpecificationInterface::class);
+        $this->customerSpecification->method('isSatisfiedBy')->willReturn(true);
     }
 
     /**
      * @test
      * @expectedException \OpenLoyalty\Component\Customer\Domain\Exception\EmailAlreadyExistsException
      */
-    public function it_throws_exception_when_email_is_not_unique()
+    public function it_throws_exception_when_email_is_not_unique(): void
     {
-        $validator = new CustomerUniqueValidator($this->customerDetailsRepository);
+        $validator = new CustomerUniqueValidator($this->customerDetailsRepository, $this->customerSpecification);
         $validator->validateEmailUnique('a@a.com');
     }
 
     /**
      * @test
      */
-    public function it_not_throwing_exception_when_email_belongs_to_user()
+    public function it_not_throwing_exception_when_email_belongs_to_user(): void
     {
-        $validator = new CustomerUniqueValidator($this->customerDetailsRepository);
+        $validator = new CustomerUniqueValidator($this->customerDetailsRepository, $this->customerSpecification);
         $validator->validateEmailUnique('a@a.com', new CustomerId('00000000-0000-0000-0000-000000000011'));
     }
 
     /**
      * @test
      */
-    public function it_not_throwing_exception_when_email_is_unique()
+    public function it_not_throwing_exception_when_email_is_unique(): void
     {
-        $validator = new CustomerUniqueValidator($this->customerDetailsRepository);
+        $validator = new CustomerUniqueValidator($this->customerDetailsRepository, $this->customerSpecification);
         $validator->validateEmailUnique('a2@a.com');
     }
 
@@ -99,27 +108,27 @@ class CustomerUniqueValidatorTest extends \PHPUnit_Framework_TestCase
      * @test
      * @expectedException \OpenLoyalty\Component\Customer\Domain\Exception\LoyaltyCardNumberAlreadyExistsException
      */
-    public function it_throws_exception_when_card_number_is_not_unique()
+    public function it_throws_exception_when_card_number_is_not_unique(): void
     {
-        $validator = new CustomerUniqueValidator($this->customerDetailsRepository);
+        $validator = new CustomerUniqueValidator($this->customerDetailsRepository, $this->customerSpecification);
         $validator->validateLoyaltyCardNumberUnique('3', new CustomerId('00000000-0000-0000-0000-000000000011'));
     }
 
     /**
      * @test
      */
-    public function it_not_throwing_exception_when_card_number_belongs_to_user()
+    public function it_not_throwing_exception_when_card_number_belongs_to_user(): void
     {
-        $validator = new CustomerUniqueValidator($this->customerDetailsRepository);
+        $validator = new CustomerUniqueValidator($this->customerDetailsRepository, $this->customerSpecification);
         $validator->validateLoyaltyCardNumberUnique('1', new CustomerId('00000000-0000-0000-0000-000000000011'));
     }
 
     /**
      * @test
      */
-    public function it_not_throwing_exception_when_card_is_unique()
+    public function it_not_throwing_exception_when_card_is_unique(): void
     {
-        $validator = new CustomerUniqueValidator($this->customerDetailsRepository);
+        $validator = new CustomerUniqueValidator($this->customerDetailsRepository, $this->customerSpecification);
         $validator->validateLoyaltyCardNumberUnique('11', new CustomerId('00000000-0000-0000-0000-000000000011'));
     }
 }

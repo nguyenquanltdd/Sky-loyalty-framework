@@ -7,9 +7,11 @@ use Broadway\CommandHandling\Testing\CommandHandlerScenarioTestCase;
 use Broadway\EventDispatcher\EventDispatcher;
 use Broadway\EventHandling\EventBus;
 use Broadway\EventStore\EventStore;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Bundle\AuditBundle\Service\AuditManagerInterface;
 use OpenLoyalty\Component\Customer\Domain\Command\CustomerCommandHandler;
 use OpenLoyalty\Component\Customer\Domain\CustomerRepository;
+use OpenLoyalty\Component\Customer\Domain\Specification\CustomerPhoneSpecificationInterface;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
 use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 
@@ -80,9 +82,15 @@ abstract class CustomerCommandHandlerTest extends CommandHandlerScenarioTestCase
         AuditManagerInterface $auditManager = null,
         LevelDowngradeModeProvider $levelDowngradeModeProvider = null)
     {
-        $customerDetailsRepository = $this->getMockBuilder('Broadway\ReadModel\Repository')->getMock();
+        /** @var Repository|\PHPUnit_Framework_MockObject_MockObject $customerDetailsRepository */
+        $customerDetailsRepository = $this->getMockBuilder(Repository::class)->getMock();
         $customerDetailsRepository->method('findBy')->willReturn([]);
-        $validator = new CustomerUniqueValidator($customerDetailsRepository);
+
+        /** @var CustomerPhoneSpecificationInterface|\PHPUnit_Framework_MockObject_MockObject $customerSpecification */
+        $customerSpecification = $this->createMock(CustomerPhoneSpecificationInterface::class);
+        $customerSpecification->method('isSatisfiedBy')->willReturn(true);
+
+        $validator = new CustomerUniqueValidator($customerDetailsRepository, $customerSpecification);
 
         if (null === $auditManager) {
             $auditManager = $this->getMockBuilder(AuditManagerInterface::class)->getMock();
