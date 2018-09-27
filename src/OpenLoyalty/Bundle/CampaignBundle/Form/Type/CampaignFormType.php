@@ -6,12 +6,12 @@
 namespace OpenLoyalty\Bundle\CampaignBundle\Form\Type;
 
 use A2lix\TranslationFormBundle\Form\Type\TranslationsType;
-use A2lix\TranslationFormBundle\Locale\LocaleProviderInterface;
 use OpenLoyalty\Bundle\CampaignBundle\Form\DataTransformer\CategoriesDataTransformer;
 use OpenLoyalty\Bundle\CampaignBundle\Form\DataTransformer\CouponsDataTransformer;
 use OpenLoyalty\Bundle\CampaignBundle\Form\DataTransformer\LevelsDataTransformer;
 use OpenLoyalty\Bundle\CampaignBundle\Form\DataTransformer\SegmentsDataTransformer;
 use OpenLoyalty\Bundle\CampaignBundle\Model\Campaign;
+use OpenLoyalty\Bundle\SettingsBundle\Service\LocaleProviderInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -75,7 +75,7 @@ class CampaignFormType extends AbstractType
                 'name' => [
                     'field_type' => TextType::class,
                     'locale_options' => [
-                        $this->localeProvider->getDefaultLocale() => ['constraints' => [new NotBlank()]],
+                        $this->localeProvider->getConfigurationDefaultLocale() => ['constraints' => [new NotBlank()]],
                     ],
                 ],
                 'shortDescription' => [
