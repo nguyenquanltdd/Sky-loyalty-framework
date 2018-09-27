@@ -83,6 +83,8 @@ class Campaign extends BaseCampaign
             'featured' => $this->featured,
             'public' => $this->public,
             'categories' => $this->categories,
+            'connectType' => $this->connectType,
+            'earningRuleId' => $this->earningRuleId,
         ];
     }
 
@@ -97,6 +99,10 @@ class Campaign extends BaseCampaign
         }
 
         if ($this->reward === self::REWARD_TYPE_CASHBACK || $this->reward === self::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE) {
+            return;
+        }
+
+        if ($this->reward === self::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE) {
             return;
         }
 
@@ -128,6 +134,10 @@ class Campaign extends BaseCampaign
     public function validateCoupons(ExecutionContextInterface $context)
     {
         if ($this->reward === self::REWARD_TYPE_CASHBACK || $this->reward === self::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE) {
+            return;
+        }
+
+        if ($this->reward === self::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE) {
             return;
         }
 

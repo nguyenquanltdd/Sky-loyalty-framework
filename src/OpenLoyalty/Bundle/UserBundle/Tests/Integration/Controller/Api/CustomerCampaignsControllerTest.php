@@ -43,8 +43,8 @@ class CustomerCampaignsControllerTest extends BaseApiTest
     {
         return [
             [['isFeatured' => 1], 0],
-            [['isFeatured' => 0], 1],
-            [['isPublic' => 1], 1],
+            [['isFeatured' => 0], 2],
+            [['isPublic' => 1], 2],
             [['isPublic' => 0], 0],
         ];
     }

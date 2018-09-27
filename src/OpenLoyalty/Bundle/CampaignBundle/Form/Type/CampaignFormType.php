@@ -67,6 +67,7 @@ class CampaignFormType extends AbstractType
             Campaign::REWARD_TYPE_VALUE_CODE,
             Campaign::REWARD_TYPE_CASHBACK,
             Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE,
+            Campaign::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE,
         ];
 
         $builder->add('translations', TranslationsType::class, [
@@ -199,10 +200,16 @@ class CampaignFormType extends AbstractType
      */
     public function adjustCampaignForm(FormEvent $event): void
     {
+        $connectTypes = [
+            Campaign::CONNECT_TYPE_NONE,
+            Campaign::CONNECT_TYPE_QRCODE_EARNING_RULE,
+            Campaign::CONNECT_TYPE_GEOLOCATION_EARNING_RULE,
+        ];
+
         $data = $event->getData();
         $form = $event->getForm();
 
-        if (isset($data['reward']) && $data['reward'] !== Campaign::REWARD_TYPE_CASHBACK) {
+        if (isset($data['reward']) && $data['reward'] !== Campaign::REWARD_TYPE_CASHBACK && $data['reward'] !== Campaign::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE) {
             $this->addValidityFields($form);
         }
         if (isset($data['reward']) && $data['reward'] === Campaign::REWARD_TYPE_CASHBACK) {
@@ -210,6 +217,21 @@ class CampaignFormType extends AbstractType
                 'scale' => 2,
                 'required' => false,
                 'constraints' => [new NotBlank()],
+            ]);
+        } elseif (isset($data['reward']) && $data['reward'] === Campaign::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE) {
+            $form->add('connectType', ChoiceType::class, [
+                'choices' => array_combine($connectTypes, $connectTypes),
+                'required' => true,
+                'constraints' => [new NotBlank()],
+            ]);
+            if (isset($data['connectType']) && $data['connectType'] !== Campaign::CONNECT_TYPE_NONE) {
+                $form->add('earningRuleId', TextType::class, [
+                    'required' => true,
+                    'constraints' => [new NotBlank()],
+                ]);
+            }
+            $form->add('campaignVisibility', CampaignVisibilityFormType::class, [
+                'constraints' => [new Valid()],
             ]);
         } elseif (isset($data['reward']) && $data['reward'] === Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE) {
             $this->addPercentageDiscountCodeSpecificFields($form);

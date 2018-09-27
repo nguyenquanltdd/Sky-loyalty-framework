@@ -6,6 +6,8 @@
 namespace OpenLoyalty\Component\EarningRule\Infrastructure\Persistence\Doctrine\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\QueryBuilder;
 use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortByFilter;
 use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortFilter;
 use OpenLoyalty\Component\EarningRule\Domain\CustomEventEarningRule;
@@ -77,6 +79,61 @@ class DoctrineEarningRuleRepository extends EntityRepository implements EarningR
         $qb->setFirstResult(($page - 1) * $perPage);
 
         return $returnQb ? $qb : $qb->getQuery()->getResult();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findByParametersPaginated(array $params, $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC', $returnQb = false)
+    {
+        $qb = $this->getByParamsQueryBuilder($params);
+
+        if ($sortField) {
+            $qb->orderBy(
+                'e.'.$this->validateSort($sortField),
+                $this->validateSortBy($direction)
+            );
+        }
+
+        $qb->setMaxResults($perPage);
+        $qb->setFirstResult(($page - 1) * $perPage);
+
+        return $returnQb ? $qb : $qb->getQuery()->getResult();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findByParameters(array $params, $sortField = null, $direction = 'ASC', $returnQb = false)
+    {
+        $qb = $this->getByParamsQueryBuilder($params);
+
+        if ($sortField) {
+            $qb->orderBy(
+                'e.'.$this->validateSort($sortField),
+                $this->validateSortBy($direction)
+            );
+        }
+
+        return $returnQb ? $qb : $qb->getQuery()->getResult();
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return QueryBuilder
+     */
+    public function countFindByParameters(array $params): QueryBuilder
+    {
+        $qb = $this->getByParamsQueryBuilder($params);
+
+        try {
+            $qb->select('count(e.earningRuleId)');
+
+            return $qb;
+        } catch (ORMException $ex) {
+            return 0;
+        }
     }
 
     /**
@@ -195,5 +252,24 @@ class DoctrineEarningRuleRepository extends EntityRepository implements EarningR
         $qb = $this->getEarningRulesForLevelAndSegmentQueryBuilder($segmentIds, $levelId, $date, $posId);
 
         return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return QueryBuilder
+     */
+    protected function getByParamsQueryBuilder(array $params): QueryBuilder
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder()->select('e');
+
+        if (array_key_exists('type', $params) && !is_null($params['type'])) {
+            $qb = $this->getEntityManager()->createQueryBuilder()->select('e');
+            $qb->select('e')->from(EarningRule::TYPE_MAP[$params['type']], 'e');
+        } else {
+            $qb->select('e')->from(EarningRule::class, 'e');
+        }
+
+        return $qb;
     }
 }

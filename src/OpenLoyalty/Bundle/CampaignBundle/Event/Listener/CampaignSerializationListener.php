@@ -20,6 +20,9 @@ use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignUsageRepository;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CouponUsage;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CouponUsageRepository;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
+use OpenLoyalty\Component\EarningRule\Domain\EarningRule;
+use OpenLoyalty\Component\EarningRule\Domain\EarningRuleId;
+use OpenLoyalty\Component\EarningRule\Domain\EarningRuleRepository;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelId;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
@@ -79,6 +82,11 @@ class CampaignSerializationListener implements EventSubscriberInterface
     protected $contextMarkDownFormatter;
 
     /**
+     * @var EarningRuleRepository
+     */
+    protected $earningRuleRepository;
+
+    /**
      * CampaignSerializationListener constructor.
      *
      * @param CampaignValidator          $campaignValidator
@@ -90,6 +98,7 @@ class CampaignSerializationListener implements EventSubscriberInterface
      * @param CustomerStatusProvider     $customerStatusProvider
      * @param ContextMarkDownFormatter   $contextMarkDownFormatter
      * @param CampaignCategoryRepository $categoryRepository
+     * @param EarningRuleRepository      $earningRuleRepository
      */
     public function __construct(
         CampaignValidator $campaignValidator,
@@ -100,7 +109,8 @@ class CampaignSerializationListener implements EventSubscriberInterface
         CampaignUsageRepository $campaignUsageRepository,
         CustomerStatusProvider $customerStatusProvider,
         ContextMarkDownFormatter $contextMarkDownFormatter,
-        CampaignCategoryRepository $categoryRepository
+        CampaignCategoryRepository $categoryRepository,
+        EarningRuleRepository $earningRuleRepository
     ) {
         $this->campaignValidator = $campaignValidator;
         $this->segmentRepository = $segmentRepository;
@@ -111,6 +121,7 @@ class CampaignSerializationListener implements EventSubscriberInterface
         $this->customerStatusProvider = $customerStatusProvider;
         $this->contextMarkDownFormatter = $contextMarkDownFormatter;
         $this->categoryRepository = $categoryRepository;
+        $this->earningRuleRepository = $earningRuleRepository;
     }
 
     /**
@@ -140,6 +151,7 @@ class CampaignSerializationListener implements EventSubscriberInterface
             return;
         }
 
+        $this->serializeEarningRule($event, $campaign);
         $this->serializeSegments($event, $campaign);
         $this->serializeLevelNames($event, $campaign);
 
@@ -254,5 +266,23 @@ class CampaignSerializationListener implements EventSubscriberInterface
         }
 
         return count($users);
+    }
+
+    /**
+     * @param ObjectEvent $event
+     * @param Campaign    $campaign
+     */
+    private function serializeEarningRule(ObjectEvent $event, Campaign $campaign): void
+    {
+        if ($campaign->getEarningRuleId()) {
+            $earningRuleId = new EarningRuleId($campaign->getEarningRuleId());
+            $earningRule = $this->earningRuleRepository->byId($earningRuleId);
+
+            $data['type'] = array_flip(EarningRule::TYPE_MAP)[get_class($earningRule)];
+            $data['name'] = $earningRule->getName();
+            $data['pointsAmount'] = $earningRule->getPointsAmount();
+
+            $event->getVisitor()->addData('earningRule', $data);
+        }
     }
 }

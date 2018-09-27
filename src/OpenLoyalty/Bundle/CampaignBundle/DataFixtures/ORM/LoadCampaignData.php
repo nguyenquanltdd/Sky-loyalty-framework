@@ -11,6 +11,7 @@ use OpenLoyalty\Bundle\CampaignBundle\Model\Campaign;
 use OpenLoyalty\Bundle\CampaignBundle\Model\CampaignActivity;
 use OpenLoyalty\Bundle\CampaignBundle\Model\CampaignCategory;
 use OpenLoyalty\Bundle\CampaignBundle\Model\CampaignVisibility;
+use OpenLoyalty\Bundle\EarningRuleBundle\DataFixtures\ORM\LoadEarningRuleData;
 use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
 use OpenLoyalty\Bundle\SegmentBundle\DataFixtures\ORM\LoadSegmentData;
 use OpenLoyalty\Component\Campaign\Domain\CampaignCategoryId;
@@ -33,6 +34,7 @@ class LoadCampaignData extends ContainerAwareFixture
     const CAMPAIGN3_ID = '000096cf-32a3-43bd-9034-4df343e5fd91';
     const PERCENTAGE_COUPON_CAMPAIGN_ID = '000096cf-32a3-43bd-9034-4df343e5fd94';
     const INACTIVE_CAMPAIGN_ID = '000096cf-32a3-43bd-9034-4df343e5fd11';
+    const CUSTOM_CAMPAIGN_ID = '000096cf-32a3-43bd-9034-4df343e5fd12';
 
     const CAMPAIGN_CATEGORY1_ID = '000096cf-32a3-43bd-9034-4df343e5fd99';
     const CAMPAIGN_CATEGORY2_ID = '000096cf-32a3-43bd-9034-4df343e5fd98';
@@ -184,7 +186,10 @@ class LoadCampaignData extends ContainerAwareFixture
             ->dispatch(
                 new CreateCampaign(new CampaignId(self::INACTIVE_CAMPAIGN_ID), $this->getInactiveCampaignData()->toArray())
             );
-
+        $this->container->get('broadway.command_handling.command_bus')
+            ->dispatch(
+                new CreateCampaign(new CampaignId(self::CUSTOM_CAMPAIGN_ID), $this->getCustomCampaignData()->toArray())
+            );
         $this->loadRandomActiveCampaigns();
     }
 
@@ -258,6 +263,37 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaignActivity->setAllTimeActive(true);
         $campaign->setCampaignActivity($campaignActivity);
         $campaignVisibility = new CampaignVisibility();
+        $campaignVisibility->setAllTimeVisible(true);
+        $campaign->setCampaignVisibility($campaignVisibility);
+
+        return $campaign;
+    }
+
+    /**
+     * @return Campaign
+     */
+    protected function getCustomCampaignData(): Campaign
+    {
+        $campaign = new Campaign();
+        $campaign->setActive(true);
+        $campaign->setPublic(true);
+        $campaign->setUnlimited(true);
+        $campaign->setLevels(
+            [
+                new LevelId(LoadLevelData::LEVEL2_ID),
+                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL3_ID),
+                new LevelId(LoadLevelData::LEVEL4_ID),
+            ]
+        );
+        $campaign->setReward(Campaign::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE);
+        $campaign->setName('GEO custom campaign');
+        $campaignActivity = new CampaignActivity();
+        $campaignActivity->setAllTimeActive(true);
+        $campaign->setCampaignActivity($campaignActivity);
+        $campaignVisibility = new CampaignVisibility();
+        $campaign->setConnectType(Campaign::CONNECT_TYPE_GEOLOCATION_EARNING_RULE);
+        $campaign->setEarningRuleId(LoadEarningRuleData::GEO_RULE_ID);
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
 

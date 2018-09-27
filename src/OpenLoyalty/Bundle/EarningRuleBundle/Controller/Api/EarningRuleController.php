@@ -6,8 +6,10 @@
 namespace OpenLoyalty\Bundle\EarningRuleBundle\Controller\Api;
 
 use Broadway\CommandHandling\CommandBus;
+use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\View\View as FosView;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
@@ -204,27 +206,45 @@ class EarningRuleController extends FOSRestController
      *      {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
      *      {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
      *      {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
+     *      {"name"="type", "dataType"="string", "required"=false, "description"="Filter by type"},
+     *      {"name"="paginated", "dataType"="boolean", "required"=false, "description"="Enable paginated function - default true"},
      *     }
      * )
      *
-     * @param Request $request
+     * @QueryParam(name="type", nullable=true, description="Filter by type"))
+     * @QueryParam(name="paginated", nullable=true, description="Enable paginated function - default true")
+     *
+     * @param Request      $request
+     * @param ParamFetcher $paramFetcher
      *
      * @return FosView
      */
-    public function getListAction(Request $request)
+    public function getListAction(Request $request, ParamFetcher $paramFetcher)
     {
         $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
+        $params = $paramFetcher->all();
 
         $earningRuleRepository = $this->get('oloy.earning_rule.repository');
-        $rulesQb = $earningRuleRepository
-            ->findAllPaginated(
-                $pagination->getPage(),
-                $pagination->getPerPage(),
-                $pagination->getSort(),
-                $pagination->getSortDirection(),
-                true
+        if ($params['paginated'] == false) {
+            $rulesQb = $earningRuleRepository
+                ->findByParameters(
+                    $params,
+                    $pagination->getSort(),
+                    $pagination->getSortDirection(),
+                    true
             );
-        $totalQb = $earningRuleRepository->countTotal(true);
+        } else {
+            $rulesQb = $earningRuleRepository
+                ->findByParametersPaginated(
+                    $params,
+                    $pagination->getPage(),
+                    $pagination->getPerPage(),
+                    $pagination->getSort(),
+                    $pagination->getSortDirection(),
+                    true
+            );
+        }
+        $totalQb = $earningRuleRepository->countFindByParameters($params);
 
         if ($request->query->has('active')) {
             $active = $request->get('active', null);
@@ -242,7 +262,7 @@ class EarningRuleController extends FOSRestController
                 'earningRules' => $rulesQb->getQuery()->getResult(),
                 'total' => $totalQb->getQuery()->getSingleScalarResult(),
             ],
-            200
+            Response::HTTP_OK
         );
     }
 

@@ -133,6 +133,13 @@
       "all": "All"
     },
     "cashback": "Cashback",
+    "connect_type": {
+      "heading": "Connect type",
+      "none": "None",
+      "qrcode_earning_rule": "QRCode earning rule",
+      "geolocation_earning_rule": "Geolocation earning rule"
+    },
+    "connect_type_prompt": "",
     "conditions_description": "Condition description",
     "conditions_description_prompt": "",
     "cost_in_points": "Cost in points",
@@ -146,6 +153,7 @@
     "coupons_upload": "Upload coupons",
     "coupons_upload_prompt": "",
     "current_points_amount": "Customer active points amount",
+    "custom_campaign_code": "Custom campaign",
     "customer_email": "Customer e-mail",
     "customer_email_or_phone": "E-mail or phone",
     "customer_email_or_phone_prompt": "Find customer by e-mail or phone",
@@ -162,6 +170,9 @@
     "delivered": "Delivered/used",
     "details_heading": "Campaign details",
     "discount_code": "Discount code",
+    "earning_rule": "Earning rule",
+    "earning_rule_prompt": "",
+    "earning_rule_points_amount": "Earning rule points amount",
     "edit": "Edit reward campaign",
     "edit_heading": "Edit reward campaign",
     "event_code": "Invitation for the event",
