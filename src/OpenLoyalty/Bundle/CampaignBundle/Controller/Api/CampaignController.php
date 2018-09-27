@@ -304,7 +304,7 @@ class CampaignController extends FOSRestController
      * @ApiDoc(
      *     name="Add brand icon to Campaign",
      *     section="Campaign",
-     *     input={"class" = "OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignBrandIconFormType", "name" = "icon"}
+     *     input={"class" = "OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignBrandIconFormType", "name" = "brand_icon"}
      * )
      *
      * @View(serializerGroups={"admin", "Default"})
