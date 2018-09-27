@@ -9,6 +9,7 @@ use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
 use OpenLoyalty\Component\Customer\Tests\Domain\Command\CustomerCommandHandlerTest;
 use OpenLoyalty\Component\Customer\Domain\PosId;
 use OpenLoyalty\Component\Import\Infrastructure\ImportResultItem;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class CustomerControllerTest.
@@ -114,6 +115,35 @@ class CustomerControllerTest extends BaseApiTest
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('customerId', $data);
         $this->assertArrayHasKey('email', $data);
+    }
+
+    /**
+     * @test
+     */
+    public function it_not_allows_to_register_new_customer_with_existing_phone_number(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $defaultCustomerData = [
+            'firstName' => 'John',
+            'lastName' => 'Doe',
+            'email' => 'john@doe.com',
+            'gender' => 'male',
+            'birthDate' => '1990-01-01',
+            'phone' => '48234234000',
+            'agreement1' => true,
+            'agreement2' => true,
+        ];
+        $client->request(
+            'POST',
+            '/api/customer/register',
+            $defaultCustomerData = [
+                'customer' => $defaultCustomerData,
+            ]
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
     /**
@@ -737,6 +767,64 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
+    public function it_allow_to_update_customer_with_his_same_phone_number(): void
+    {
+        $userId = '22222222-0000-474c-b092-b0dd880c07e2';
+        $client = $this->createAuthenticatedClient();
+        $customerData = [
+            'email' => 'user-3@oloy.com',
+            'birthDate' => '1998-02-02',
+            'phone' => '48123456789',
+            'firstName' => 'Jane',
+            'lastName' => 'Done',
+            'gender' => 'male',
+            'agreement1' => true,
+        ];
+
+        $client->request(
+            'PUT',
+            sprintf('/api/customer/%s', $userId),
+            [
+                'customer' => $customerData,
+            ]
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function it_not_allow_to_update_customer_with_existing_phone_number_to_other_customer(): void
+    {
+        $userId = '22222222-0000-474c-b092-b0dd880c07e2';
+        $client = $this->createAuthenticatedClient();
+        $customerData = [
+            'email' => 'user-3@oloy.com',
+            'birthDate' => '1998-02-02',
+            'phone' => '+48456457000',
+            'firstName' => 'Jane',
+            'lastName' => 'Done',
+            'gender' => 'male',
+            'agreement1' => true,
+        ];
+
+        $client->request(
+            'PUT',
+            sprintf('/api/customer/%s', $userId),
+            [
+                'customer' => $customerData,
+            ]
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
     public function it_allows_to_edit_customer_details_with_seller_assignment(): void
     {
         $client = $this->createAuthenticatedClient();
@@ -1171,7 +1259,7 @@ class CustomerControllerTest extends BaseApiTest
             ['lastName', 'Doe', 15],
             ['lastName', 'Doe1', 1],
             ['lastName', 'Smith', 2],
-            ['phone', '48', 6],
+            ['phone', '48', 7],
             ['phone', '645', 2],
             ['email', '@', 22],
             ['email', 'user-1', 1],

@@ -404,6 +404,7 @@ class CustomerDetails implements SerializableReadModel
 
         return [
             'id' => $this->getId(),
+            'customerId' => (string) $this->customerId,
             'firstName' => $this->getFirstName(),
             'lastName' => $this->getLastName(),
             'gender' => $this->getGender() ? $this->getGender()->getType() : null,
@@ -415,10 +416,10 @@ class CustomerDetails implements SerializableReadModel
             'address' => $this->getAddress() ? $this->getAddress()->serialize() : null,
             'company' => $this->getCompany() ? $this->getCompany()->serialize() : null,
             'loyaltyCardNumber' => $this->getLoyaltyCardNumber(),
-            'levelId' => $this->getLevelId() ? $this->getLevelId()->__toString() : null,
-            'manuallyAssignedLevelId' => $this->getManuallyAssignedLevelId() ? $this->getManuallyAssignedLevelId()->__toString() : null,
-            'posId' => $this->getPosId() ? $this->getPosId()->__toString() : null,
-            'sellerId' => $this->getSellerId() ? $this->getSellerId()->__toString() : null,
+            'levelId' => $this->getLevelId() ? (string) $this->getLevelId() : null,
+            'manuallyAssignedLevelId' => $this->getManuallyAssignedLevelId() ? (string) $this->getManuallyAssignedLevelId() : null,
+            'posId' => $this->getPosId() ? (string) $this->getPosId() : null,
+            'sellerId' => $this->getSellerId() ? (string) $this->getSellerId() : null,
             'agreement1' => $this->agreement1,
             'agreement2' => $this->agreement2,
             'agreement3' => $this->agreement3,
@@ -435,7 +436,7 @@ class CustomerDetails implements SerializableReadModel
             'labels' => $labels,
             'level' => $this->getLevel() ? $this->getLevel()->serialize() : null,
             'transactionIds' => array_map(function (TransactionId $transactionId) {
-                return $transactionId->__toString();
+                return (string) $transactionId;
             }, $this->transactionIds),
         ];
     }

@@ -668,6 +668,40 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
     /**
      * {@inheritdoc}
      */
+    public function findOneByPhone(string $phoneNumber, ?string $customerId = null): array
+    {
+        $query = [
+            'bool' => [
+                'should' => [
+                    [
+                        'term' => ['phone' => $phoneNumber],
+                    ],
+                    [
+                        'term' => ['phone' => '+'.$phoneNumber],
+                    ],
+                ],
+                'minimum_should_match' => 1,
+            ],
+        ];
+        if (null !== $customerId) {
+            $mustNot['bool'] = [
+                'must_not' => [
+                    'term' => [
+                        'customerId' => $customerId,
+                    ],
+                ],
+            ];
+            $query = array_merge_recursive($query, $mustNot);
+        }
+
+        $result = $this->query($query);
+
+        return $result;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function findAllWithAverageTransactionAmountBetween($from, $to, $onlyActive = true)
     {
         $filter = [

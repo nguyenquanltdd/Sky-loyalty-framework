@@ -184,4 +184,12 @@ interface CustomerDetailsRepository extends Repository
      * @return CustomerDetails[]
      */
     public function findByIds(array $customerIds): array;
+
+    /**
+     * @param string      $phoneNumber
+     * @param string|null $customerId
+     *
+     * @return array
+     */
+    public function findOneByPhone(string $phoneNumber, ?string $customerId = null): array;
 }

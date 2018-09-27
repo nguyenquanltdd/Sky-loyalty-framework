@@ -193,3 +193,9 @@ services:
 
     OpenLoyalty\Component\Customer\Infrastructure\Provider\CustomerDetailsProviderInterface:
         class: OpenLoyalty\Component\Customer\Infrastructure\Provider\CustomerDetailsProvider
+
+    OpenLoyalty\Component\Customer\Domain\Specification\CustomerPhoneSpecificationInterface: '@OpenLoyalty\Component\Customer\Domain\Specification\CustomerPhoneIsUnique'
+
+    OpenLoyalty\Component\Customer\Domain\Specification\CustomerPhoneIsUnique:
+        arguments:
+            - '@OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository'
