@@ -6,6 +6,10 @@ services:
         autowire: true
         autoconfigure: true
 
+    OpenLoyalty\Bundle\PointsBundle\Validator\Constraints\CustomerValidator:
+        arguments:
+            $customerDetailsRepository: '@oloy.user.read_model.repository.customer_details'
+
     oloy.points.account.command_handler:
         class: OpenLoyalty\Component\Account\Domain\Command\AccountCommandHandler
         arguments:
