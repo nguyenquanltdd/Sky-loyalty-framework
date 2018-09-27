@@ -29,6 +29,19 @@ class TemplateProvider
     }
 
     /**
+     * @return array
+     */
+    public function getJsonContent(): array
+    {
+        $context = $this->settingsManager->getSettingByKey('cssJsonTemplate');
+        if (!empty($context)) {
+            return $context->getValue();
+        }
+
+        return [];
+    }
+
+    /**
      * @return string
      */
     public function getCssContent()

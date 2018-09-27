@@ -165,6 +165,13 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
         $priority->setValue($priorities);
         $settings->addEntry($priority);
 
+        $cssJsonTemplate = new JsonSettingEntry('cssJsonTemplate');
+        $cssJsonTemplate->setValue([
+            'accent_color' => 'rgba( 255,166,90, 1)',
+            'template_css' => '.c-accent { color: rgb(20,19,19) !important }; .hvc-accent:hover { color: rgb(20,19,19) }',
+        ]);
+        $settings->addEntry($cssJsonTemplate);
+
         $accountActivationMethod = new StringSettingEntry('accountActivationMethod');
         $accountActivationMethod->setValue(AccountActivationMethod::METHOD_EMAIL);
         $settings->addEntry($accountActivationMethod);
