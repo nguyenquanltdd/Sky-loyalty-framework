@@ -126,6 +126,11 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
      */
     protected $radius;
 
+    /**
+     * @var string|null
+     */
+    protected $code;
+
     public function __construct()
     {
     }
@@ -215,9 +220,10 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
             'radius' => $this->radius,
+            'code' => $this->code,
             'description' => $this->description,
         ];
-        if ($this->limit && $this->type == self::TYPE_CUSTOM_EVENT) {
+        if ($this->limit && ($this->type == self::TYPE_CUSTOM_EVENT || $this->type == self::TYPE_QRCODE)) {
             $data['limit'] = [
                 'period' => $this->limit->getPeriod(),
                 'active' => $this->limit->isActive(),
@@ -638,5 +644,21 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
     public function setRadius(?float $radius): void
     {
         $this->radius = $radius;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    /**
+     * @param string|null $code
+     */
+    public function setCode(?string $code): void
+    {
+        $this->code = $code;
     }
 }

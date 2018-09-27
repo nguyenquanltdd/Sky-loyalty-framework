@@ -1306,6 +1306,8 @@
     "all_time_active": "Cały czas dostępna",
     "all_time_active_prompt": "",
     "basic_info": "Podstawowe Informacje",
+    "code": "Code",
+    "code_prompt": "",
     "custom_event_name": "Nazwa zdarzenia",
     "custom_event_name_prompt": "",
     "custom_event_usage": "Użycie",
@@ -1415,7 +1417,8 @@
       "points": "Punkty za każdą wydaną złotówkę",
       "product_purchase": "Zakup produktu",
       "referral": "Zaproszenia do programu",
-      "geolocation" : "Geolokalizacja"
+      "geolocation" : "Geolokalizacja",
+      "qrcode": "Qrcode"
     },
     "value": "Wartość",
     "visibility_and_activity": "Dostępność reguły",

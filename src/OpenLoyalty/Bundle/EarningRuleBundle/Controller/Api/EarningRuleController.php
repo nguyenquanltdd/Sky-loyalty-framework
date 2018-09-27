@@ -12,6 +12,7 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\View\View as FosView;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\CreateEarningGeoRuleFormType;
+use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\CreateEarningQrcodeRuleFormType;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\CreateEarningRuleFormType;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\EarningRulePhotoFormType;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\EditEarningRuleFormType;
@@ -20,6 +21,7 @@ use OpenLoyalty\Component\Account\Domain\CustomerId;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\CustomEventOccurredSystemEvent;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\GeoEventOccurredSystemEvent;
+use OpenLoyalty\Component\Account\Domain\SystemEvent\QrcodeEventOccurredSystemEvent;
 use OpenLoyalty\Component\Account\Infrastructure\Model\EvaluationResult;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\EarningRule\Domain\Command\ActivateEarningRule;
@@ -384,6 +386,81 @@ class EarningRuleController extends FOSRestController
         try {
             $this->get('broadway.event_dispatcher')->dispatch(
                 AccountSystemEvents::CUSTOM_EVENT_GEO_OCCURRED,
+                [$event]
+            );
+        } catch (EarningRuleLimitExceededException $e) {
+            return $this->view(['error' => $translator->trans('limit exceeded')], Response::HTTP_BAD_REQUEST);
+        }
+
+        if ($event->getEvaluationResults() === null) {
+            return $this->view(['error' => $translator->trans('event does not exist')], Response::HTTP_BAD_REQUEST);
+        }
+
+        $results = $event->getEvaluationResults();
+
+        if (empty($results)) {
+            return $this->view(['error' => $translator->trans('event does not exist')], Response::HTTP_BAD_REQUEST);
+        }
+
+        foreach ($results as $evaluationResult) {
+            $this->get('broadway.command_handling.command_bus')
+                ->dispatch(new UseCustomEventEarningRule(
+                    new EarningRuleId((string) $evaluationResult->getEarningRuleId()),
+                    new UsageSubject((string) $customer->getCustomerId())
+                ));
+        }
+
+        $points = array_reduce($results, function ($points, $evaluationResult) {
+            /* @var EvaluationResult $evaluationResult */
+            return $points += $evaluationResult->getPoints();
+        });
+
+        return $this->view(['points' => $points], Response::HTTP_OK);
+    }
+
+    /**
+     * This method allows calculating points using qrcode<br />.
+     *
+     * @Route(name="oloy.earning_rule.report_custom_qrcode", path="/earningRule/qrcode/customer/{customer}")
+     * @Method("POST")
+     * @ApiDoc(
+     *     name="report custom event and earn points",
+     *     section="Earning Rule",
+     *     parameters={
+     *      {"name"="earningRule[code]", "dataType":"string", "required":true},
+     *      {"name"="earningRule[earningRuleId]", "dataType":"string", "required":false},
+     *     },
+     *     statusCodes={
+     *       200="Returned when successful",
+     *       400="Returned when earning rule for event does not exist or limit was exceeded. Additional info provided in response.",
+     *       404="Returned when customer does not exist"
+     *     })
+     *
+     * @param Request         $request
+     * @param CustomerDetails $customer
+     *
+     * @return View
+     */
+    public function qrcodeAction(Request $request, CustomerDetails $customer)
+    {
+        $translator = $this->get('translator');
+        $form = $this->container->get('form.factory')->createNamed('earningRule', CreateEarningQrcodeRuleFormType::class);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
+        }
+
+        $data = $form->getData();
+        $event = new QrcodeEventOccurredSystemEvent(
+            new CustomerId((string) $customer->getCustomerId()),
+            $data->getCode(),
+            $data->getEarningRuleId()
+        );
+
+        try {
+            $this->get('broadway.event_dispatcher')->dispatch(
+                AccountSystemEvents::CUSTOM_EVENT_QRCODE_OCCURRED,
                 [$event]
             );
         } catch (EarningRuleLimitExceededException $e) {

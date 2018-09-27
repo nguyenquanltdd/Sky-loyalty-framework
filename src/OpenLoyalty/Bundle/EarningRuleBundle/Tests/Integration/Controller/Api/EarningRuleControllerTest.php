@@ -103,6 +103,29 @@ class EarningRuleControllerTest extends BaseApiTest
     /**
      * @test
      */
+    public function it_run_qr_code_rule(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/earningRule/qrcode/customer/00000000-0000-474c-b092-b0dd880c07e2',
+            [
+                'earningRule' => [
+                    'code' => 'qrcodeabcd',
+                    'earningRuleId' => 'e378c813-2116-448a-b125-564cef15f932',
+                ],
+            ]
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame(10, $data['points']);
+    }
+
+    /**
+     * @test
+     */
     public function it_run_geo_rule()
     {
         $client = $this->createAuthenticatedClient();

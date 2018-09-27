@@ -30,6 +30,11 @@ use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomersRepository;
 class OloyEarningRuleEvaluator implements EarningRuleApplier
 {
     /**
+     * @var EarningRuleQrcodeRepository
+     */
+    protected $earningRuleQrcodeRepository;
+
+    /**
      * @var EarningRuleGeoRepository
      */
     protected $earningRuleGeoRepository;
@@ -86,6 +91,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
      * @param SettingsManager                      $settingsManager
      * @param StoppableProvider                    $stoppableProvider
      * @param EarningRuleGeoRepository             $earningRuleGeoRepository
+     * @param EarningRuleQrcodeRepository          $earningRuleQrcodeRepository
      */
     public function __construct(
         EarningRuleRepository $earningRuleRepository,
@@ -96,7 +102,8 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         CustomerDetailsRepository $customerDetailsRepository,
         SettingsManager $settingsManager,
         StoppableProvider $stoppableProvider,
-        EarningRuleGeoRepository $earningRuleGeoRepository
+        EarningRuleGeoRepository $earningRuleGeoRepository,
+        EarningRuleQrcodeRepository $earningRuleQrcodeRepository
     ) {
         $this->earningRuleRepository = $earningRuleRepository;
         $this->transactionDetailsRepository = $transactionDetailsRepository;
@@ -107,6 +114,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         $this->settingsManager = $settingsManager;
         $this->stoppableProvider = $stoppableProvider;
         $this->earningRuleGeoRepository = $earningRuleGeoRepository;
+        $this->earningRuleQrcodeRepository = $earningRuleQrcodeRepository;
     }
 
     /**
@@ -151,6 +159,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
             if ($earningRule instanceof EventEarningRule
                 || $earningRule instanceof CustomEventEarningRule
                 || $earningRule instanceof EarningRuleGeo
+                || $earningRule instanceof EarningRuleQrcode
                 || $earningRule instanceof ReferralEarningRule
             ) {
                 continue;
@@ -421,6 +430,36 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         }
 
         return $results;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function evaluateQrcodeEvent(string $code, ?string $earningRuleId): array
+    {
+        /** @var EvaluationResult[] $result */
+        $result = [];
+
+        $earningQrcodeRules = $this->earningRuleQrcodeRepository->findQrcodeRules();
+
+        foreach ($earningQrcodeRules as $earningQrcodeRule) {
+            /** @var EarningRuleQrcode $earningQrcodeRule */
+            if ($earningQrcodeRule->isActive()) {
+                if ($earningRuleId && $earningQrcodeRule->getEarningRuleId() != $earningRuleId) {
+                    continue;
+                }
+
+                if ($earningQrcodeRule->getCode() == $code) {
+                    $result[] = new EvaluationResult(
+                        (string) $earningQrcodeRule->getEarningRuleId(),
+                        $earningQrcodeRule->getPointsAmount(),
+                        $earningQrcodeRule->getName()
+                    );
+                }
+            }
+        }
+
+        return $result;
     }
 
     /**

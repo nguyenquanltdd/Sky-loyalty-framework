@@ -29,6 +29,7 @@ use OpenLoyalty\Component\EarningRule\Domain\LevelId;
  */
 class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterface, OrderedFixtureInterface
 {
+    const QR_CODE_RULE_ID = 'e378c813-2116-448a-b125-564cef15f932';
     const GEO_RULE_ID = '00000001-0000-474c-b092-b0dd880c07e9';
     const EVENT_RULE_ID = '00000000-0000-474c-b092-b0dd880c07e3';
     const EVENT_RULE_ID_CUSTOMER_LOGGED_IN = '00000000-0000-474c-b092-b0dd880c07e9';
@@ -179,6 +180,22 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
                 'longitude' => 15,
                 'radius' => 4.00,
                 'pointsAmount' => 2,
+            ],
+        ],
+        self::QR_CODE_RULE_ID => [
+            'type' => EarningRule::TYPE_QRCODE,
+            'data' => [
+                'code' => 'qrcodeabcd',
+                'active' => 1,
+                'name' => 'Qr Code earning rule',
+                'allTimeActive' => true,
+                'pointsAmount' => 10,
+                'target' => 'level',
+                'levels' => [
+                    0 => LoadLevelData::LEVEL_ID,
+                    1 => LoadLevelData::LEVEL2_ID,
+                    2 => LoadLevelData::LEVEL3_ID,
+                ],
             ],
         ],
         self::GENERAL_EARNING_RULE_WITH_SEGMENT_ID => [

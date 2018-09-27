@@ -24,11 +24,13 @@ services:
     factory: ['@doctrine.orm.entity_manager', getRepository]
     arguments:
     - 'OpenLoyalty\Component\EarningRule\Domain\EarningRuleGeo'
+
   oloy.earning_rule.usage_repository:
     class: OpenLoyalty\Component\EarningRule\Infrastructure\Persistence\Doctrine\Repository\DoctrineEarningRuleUsageRepository
     factory: ['@doctrine.orm.entity_manager', getRepository]
     arguments:
       - 'OpenLoyalty\Component\EarningRule\Domain\EarningRuleUsage'
+
   oloy.earning_rule.algorithm.points_earning:
     class: OpenLoyalty\Component\EarningRule\Domain\Algorithm\PointsEarningRuleAlgorithm
     tags:
@@ -52,7 +54,14 @@ services:
       - "@broadway.command_handling.command_bus"
     tags:
       - { name: oloy.earning_rule.algorithm, alias: InstantRewardRule }
+
   OpenLoyalty\Component\EarningRule\Domain\Strategy\InstantRewardEarningRuleStrategy: ~
+
+  OpenLoyalty\Component\EarningRule\Infrastructure\Persistence\Doctrine\Repository\DoctrineEarningRuleQrcodeRepository:
+    factory: ['@doctrine.orm.entity_manager', getRepository]
+    arguments:
+      - 'OpenLoyalty\Component\EarningRule\Domain\EarningRuleQrcode'
+
   OpenLoyalty\Component\EarningRule\Domain\OloyEarningRuleEvaluator:
     arguments:
       $earningRuleRepository: '@oloy.earning_rule.repository'
@@ -64,6 +73,8 @@ services:
       $customerDetailsRepository: '@oloy.user.read_model.repository.customer_details'
       $settingsManager: '@ol.settings.manager'
       $stoppableProvider: '@OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableProvider'
+      $earningRuleQrcodeRepository: '@OpenLoyalty\Component\EarningRule\Infrastructure\Persistence\Doctrine\Repository\DoctrineEarningRuleQrcodeRepository'
+
   OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableProvider: ~
   OpenLoyalty\Component\EarningRule\Domain\Returns\RefundAlgorithmProvider:
     arguments:

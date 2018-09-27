@@ -75,4 +75,12 @@ interface EarningRuleApplier
      * @return EvaluationResult[]
      */
     public function evaluateGeoEvent(float $latitude, float $longitude, string $customerId): array;
+
+    /**
+     * @param string      $code
+     * @param string|null $earningRuleId
+     *
+     * @return EvaluationResult[]
+     */
+    public function evaluateQrcodeEvent(string $code, ?string $earningRuleId): array;
 }

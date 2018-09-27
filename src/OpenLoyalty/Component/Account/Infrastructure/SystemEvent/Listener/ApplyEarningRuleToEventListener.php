@@ -25,6 +25,7 @@ use OpenLoyalty\Component\Transaction\Domain\SystemEvent\CustomerFirstTransactio
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
 use OpenLoyalty\Component\Account\Infrastructure\EarningRuleApplier;
 use OpenLoyalty\Component\Account\Infrastructure\EarningRuleLimitValidator;
+use OpenLoyalty\Component\Account\Domain\SystemEvent\QrcodeEventOccurredSystemEvent;
 
 /**
  * Class ApplyEarningRuleToEventListener.
@@ -87,6 +88,58 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
                     )
                 )
             );
+        }
+
+        $event->setEvaluationResults($result);
+    }
+
+    /**
+     * @param QrcodeEventOccurredSystemEvent $event
+     *
+     * @throws \OpenLoyalty\Component\Account\Infrastructure\Exception\EarningRuleLimitExceededException
+     */
+    public function onCustomQrcodeEvent(QrcodeEventOccurredSystemEvent $event)
+    {
+        $result = [];
+        $evaluationResultList = $this->earningRuleApplier->evaluateQrcodeEvent($event->getCode(), $event->getEarningRuleId());
+        $account = $this->getAccountDetails($event->getCustomerId()->__toString());
+
+        if (!$account) {
+            return;
+        }
+
+        foreach ($evaluationResultList as $evaluationResult) {
+            $pass = true;
+
+            if ($this->earningRuleLimitValidator) {
+                try {
+                    $this->earningRuleLimitValidator->validate($evaluationResult->getEarningRuleId(), $event->getCustomerId());
+                    $pass = true;
+                } catch (\Exception $e) {
+                    $pass = false;
+                }
+            }
+
+            if ($pass) {
+                $result[] = $evaluationResult;
+                $this->commandBus->dispatch(
+                    new AddPoints(
+                        $account->getAccountId(),
+                        $this->pointsTransferManager->createAddPointsTransferInstance(
+                            new PointsTransferId($this->uuidGenerator->generate()),
+                            $evaluationResult->getPoints(),
+                            null,
+                            false,
+                            null,
+                            $evaluationResult->getName()
+                        )
+                    )
+                );
+            }
+        }
+
+        if (count($result) == 0 && count($evaluationResultList) > 0) {
+            throw new EarningRuleLimitExceededException();
         }
 
         $event->setEvaluationResults($result);

@@ -67,6 +67,7 @@ class CreateEarningRuleFormType extends BaseEarningRuleFormType
                 'Referral' => EarningRule::TYPE_REFERRAL,
                 'Instant Reward' => InstantRewardRule::TYPE_INSTANT_REWARD,
                 'Geolocation' => EarningRule::TYPE_GEOLOCATION,
+                'Qrcode' => EarningRule::TYPE_QRCODE,
             ],
         ]);
 
@@ -146,7 +147,19 @@ class CreateEarningRuleFormType extends BaseEarningRuleFormType
             return;
         }
         $type = $data['type'];
-        if ($type == EarningRule::TYPE_GEOLOCATION) {
+        if ($type == EarningRule::TYPE_QRCODE) {
+            $form
+                ->add('code', TextType::class, [
+                    'required' => true,
+                    'constraints' => [new NotBlank()],
+                ])
+                ->add('pointsAmount', NumberType::class, [
+                    'scale' => 2,
+                    'required' => true,
+                    'constraints' => [new NotBlank()],
+                ])
+                ->add('limit', EarningRuleLimitFormType::class);
+        } elseif ($type == EarningRule::TYPE_GEOLOCATION) {
             $form
                 ->add('latitude', NumberType::class, [
                     'required' => true,

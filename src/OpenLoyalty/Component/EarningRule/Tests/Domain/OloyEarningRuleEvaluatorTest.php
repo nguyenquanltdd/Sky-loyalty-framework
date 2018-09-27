@@ -19,6 +19,7 @@ use OpenLoyalty\Component\EarningRule\Domain\Algorithm\PointsEarningRuleAlgorith
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\ProductPurchaseEarningRuleAlgorithm;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleGeoRepository;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleId;
+use OpenLoyalty\Component\EarningRule\Domain\EarningRuleQrcodeRepository;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleRepository;
 use OpenLoyalty\Component\EarningRule\Domain\EventEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\MultiplyPointsByProductLabelsEarningRule;
@@ -517,7 +518,8 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
             $this->getCustomerDetailsRepository(),
             $this->getSettingsManager([Status::TYPE_ACTIVE]),
             $this->getStoppableProvider(),
-            $this->getEarningGeoRuleRepository($rules)
+            $this->getEarningGeoRuleRepository($rules),
+            $this->getEarningQrcodeRuleRepository($rules)
         );
     }
 
@@ -619,6 +621,21 @@ class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
         $mock = $this->createMock(EarningRuleGeoRepository::class);
         $mock->method('findGeoRules')
             ->willReturn($earningGeoRules);
+
+        return $mock;
+    }
+
+    /**
+     * @param array $earningQrcodeRules
+     *
+     * @return EarningRuleQrcodeRepository|PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getEarningQrcodeRuleRepository(array $earningQrcodeRules)
+    {
+        /** @var EarningRuleRepository|\PHPUnit_Framework_MockObject_MockObject $mock */
+        $mock = $this->createMock(EarningRuleQrcodeRepository::class);
+        $mock->method('findQrcodeRules')
+            ->willReturn($earningQrcodeRules);
 
         return $mock;
     }

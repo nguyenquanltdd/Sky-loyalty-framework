@@ -85,6 +85,7 @@ services:
             - { name: broadway.event_listener, event: oloy.account.custom_event_occurred, method: onCustomEvent }
             - { name: broadway.event_listener, event: oloy.account.custom_event_geo_occurred, method: onCustomGeoEvent }
             - { name: broadway.event_listener, event: oloy.invitation.customer_attached, method: onCustomerAttachedToInvitation }
+            - { name: broadway.event_listener, event: oloy.account.custom_event_qrcode_occurred, method: onCustomQrcodeEvent }
 
     oloy.account.spend_points_on_campaign_listener:
         class: OpenLoyalty\Component\Account\Infrastructure\Event\Listener\SpendPointsOnCampaignListener

@@ -23,6 +23,7 @@ abstract class EarningRule
     const TYPE_REFERRAL = 'referral';
     const TYPE_INSTANT_REWARD = 'instant_reward';
     const TYPE_GEOLOCATION = 'geolocation';
+    const TYPE_QRCODE = 'qrcode';
 
     const TYPE_MAP = [
         self::TYPE_EVENT => EventEarningRule::class,
@@ -34,6 +35,7 @@ abstract class EarningRule
         self::TYPE_REFERRAL => ReferralEarningRule::class,
         self::TYPE_INSTANT_REWARD => InstantRewardRule::class,
         self::TYPE_GEOLOCATION => EarningRuleGeo::class,
+        self::TYPE_QRCODE => EarningRuleQrcode::class,
     ];
 
     /**

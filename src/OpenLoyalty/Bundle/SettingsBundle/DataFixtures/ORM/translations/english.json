@@ -1282,6 +1282,8 @@
     "all_time_active": "All time active",
     "all_time_active_prompt": "",
     "basic_info": "Basic Information",
+    "code": "Code",
+    "code_prompt": "",
     "custom_event_name": "Custom Event name",
     "custom_event_name_prompt": "",
     "custom_event_usage": "Usage",
@@ -1390,7 +1392,8 @@
       "points": "General spending rule",
       "product_purchase": "Product purchase",
       "referral": "Customer Referral",
-      "geolocation" : "Getlocation"
+      "geolocation" : "Getlocation",
+      "qrcode": "Qrcode" 
     },
     "value": "Value",
     "visibility_and_activity": "Activity of rule",

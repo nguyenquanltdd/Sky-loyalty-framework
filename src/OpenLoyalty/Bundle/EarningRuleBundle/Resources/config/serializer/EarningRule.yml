@@ -12,6 +12,7 @@ OpenLoyalty\Component\EarningRule\Domain\EarningRule:
       referral: OpenLoyalty\Component\EarningRule\Domain\ReferralEarningRule
       instant_reward: OpenLoyalty\Component\EarningRule\Domain\InstantRewardRule
       geolocation: OpenLoyalty\Component\EarningRule\Domain\EarningRuleGeo
+      qrcode: OpenLoyalty\Component\EarningRule\Domain\EarningRuleQrcode
   properties:
     earningRuleId:
       expose: true

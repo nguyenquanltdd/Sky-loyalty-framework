@@ -113,7 +113,19 @@ class EditEarningRuleFormType extends BaseEarningRuleFormType
             'format' => DateTimeType::HTML5_FORMAT,
         ]);
 
-        if ($type == EarningRule::TYPE_GEOLOCATION) {
+        if ($type == EarningRule::TYPE_QRCODE) {
+            $builder
+                ->add('code', TextType::class, [
+                    'required' => true,
+                    'constraints' => [new NotBlank()],
+                ])
+                ->add('pointsAmount', NumberType::class, [
+                    'scale' => 2,
+                    'required' => true,
+                    'constraints' => [new NotBlank()],
+                ])
+                ->add('limit', EarningRuleLimitFormType::class);
+        } elseif ($type == EarningRule::TYPE_GEOLOCATION) {
             $builder
                 ->add('latitude', NumberType::class, [
                     'required' => true,
