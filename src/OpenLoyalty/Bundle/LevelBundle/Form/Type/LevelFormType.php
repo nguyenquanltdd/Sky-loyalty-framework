@@ -6,7 +6,7 @@
 namespace OpenLoyalty\Bundle\LevelBundle\Form\Type;
 
 use A2lix\TranslationFormBundle\Form\Type\TranslationsType;
-use A2lix\TranslationFormBundle\Locale\LocaleProviderInterface;
+use OpenLoyalty\Bundle\SettingsBundle\Service\LocaleProviderInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -49,7 +49,7 @@ class LevelFormType extends AbstractType
                     'name' => [
                         'field_type' => TextType::class,
                         'locale_options' => [
-                            $this->localeProvider->getDefaultLocale() => ['constraints' => [new NotBlank()]],
+                            $this->localeProvider->getConfigurationDefaultLocale() => ['constraints' => [new NotBlank()]],
                         ],
                     ],
                     'description' => [

@@ -54,7 +54,7 @@ class CampaignCategoryFormType extends AbstractType
                     'name' => [
                         'field_type' => TextType::class,
                         'locale_options' => [
-                            $this->localeProvider->getDefaultLocale() => ['constraints' => [new NotBlank()]],
+                            $this->localeProvider->getConfigurationDefaultLocale() => ['constraints' => [new NotBlank()]],
                         ],
                     ],
                 ],

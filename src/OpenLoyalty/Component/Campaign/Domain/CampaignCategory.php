@@ -77,7 +77,6 @@ class CampaignCategory
      */
     public static function validateRequiredData(array $data): void
     {
-        Assert::keyIsset($data, 'name');
         Assert::keyIsset($data, 'sortOrder');
         Assert::integer($data['sortOrder']);
     }

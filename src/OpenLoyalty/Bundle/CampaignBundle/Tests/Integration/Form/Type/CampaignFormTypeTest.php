@@ -4,12 +4,13 @@ namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Integration\Form\Type;
 
 use A2lix\TranslationFormBundle\Form\EventListener\TranslationsListener;
 use A2lix\TranslationFormBundle\Form\Type\TranslationsType;
-use A2lix\TranslationFormBundle\Locale\LocaleProviderInterface;
+use A2lix\TranslationFormBundle\Locale\LocaleProviderInterface as A2lixLocaleProviderInterface;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignActivityFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignVisibilityFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Model\Campaign;
 use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
+use OpenLoyalty\Bundle\SettingsBundle\Service\LocaleProviderInterface;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\PreloadedExtension;
 use Symfony\Component\Form\Test\TypeTestCase;
@@ -50,7 +51,11 @@ class CampaignFormTypeTest extends TypeTestCase
         $translationListener = $this->getMockBuilder(TranslationsListener::class)->setMethods([
             'preSetData', 'submit', 'getFieldsOptions', 'getTranslationClass',
         ])->disableOriginalConstructor()->getMock();
+
         $localeProvider = $this->getMockBuilder(LocaleProviderInterface::class)
+            ->disableOriginalConstructor()->getMock();
+
+        $a2lixLocaleProvider = $this->getMockBuilder(A2lixLocaleProviderInterface::class)
             ->disableOriginalConstructor()->getMock();
 
         return [
@@ -58,7 +63,7 @@ class CampaignFormTypeTest extends TypeTestCase
                 new CampaignFormType($localeProvider),
                 new CampaignActivityFormType(),
                 new CampaignVisibilityFormType(),
-                new TranslationsType($translationListener, $localeProvider),
+                new TranslationsType($translationListener, $a2lixLocaleProvider),
             ], []),
             new ValidatorExtension($this->validator),
         ];
