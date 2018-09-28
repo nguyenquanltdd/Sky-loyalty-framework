@@ -963,6 +963,10 @@ class CampaignController extends FOSRestController
 
         // filter by usage left
         $campaigns = array_filter($campaigns, function (DomainCampaign $campaign) use ($customer) {
+            if ($campaign->getReward() == Campaign::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE) {
+                // Custom campaign not have to check usage left
+                return true;
+            }
             $usageLeft = $this->campaignProvider->getUsageLeft($campaign);
             $usageLeftForCustomer = $this->campaignProvider
                 ->getUsageLeftForCustomer($campaign, (string) $customer->getCustomerId());

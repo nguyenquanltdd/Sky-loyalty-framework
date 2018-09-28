@@ -132,6 +132,13 @@
       "all": "Wszystkie"
     },
     "cashback": "Cashback",
+    "connect_type": {
+      "heading": "Rodzaj relacji",
+      "none": "Brak",
+      "qrcode_earning_rule": "Reguła QRCode",
+      "geolocation_earning_rule": "Reguła Geolocation"
+    },
+    "connect_type_prompt": "",
     "conditions_description": "Warunki otrzymania nagrody",
     "coditions_description_prompt": "",
     "cost_in_points": "Koszt w punktach",
@@ -145,6 +152,7 @@
     "coupons_upload": "Import z pliku",
     "coupons_upload_prompt": "",
     "current_points_amount": "Aktywne punkty klienta",
+    "custom_campaign_code": "Niestandardowa reguła",
     "customer_email": "E-mail klienta",
     "customer_email_or_phone": "E-mail lub telefon",
     "customer_email_or_phone_prompt": "Znajdź klienta za pomocą adresu e-mail lub telefonu",
@@ -160,6 +168,9 @@
     "date_to": "Do",
     "delivered": "Odebrane/Wykorzystane",
     "details_heading": "Szczegóły nagrody",
+    "earning_rule": "Reguły nagradzania",
+    "earning_rule_prompt": "",
+    "earning_rule_points_amount": "Wartość punktowa dla reguły",
     "discount_code": "Rabat procentowy",
     "edit": "Edytuj nagrodę",
     "edit_heading": "Edytuj nagrodę",

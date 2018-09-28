@@ -29,9 +29,14 @@ class Campaign
     const REWARD_TYPE_EVENT_CODE = 'event_code';
     const REWARD_TYPE_CASHBACK = 'cashback';
     const REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE = 'percentage_discount_code';
+    const CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE = 'custom_campaign_code';
 
     const MIN_TRANSACTION_PERCENTAGE_VALUE = 0;
     const MAX_TRANSACTION_PERCENTAGE_VALUE = 100;
+
+    const CONNECT_TYPE_NONE = 'none';
+    const CONNECT_TYPE_QRCODE_EARNING_RULE = 'qrcode';
+    const CONNECT_TYPE_GEOLOCATION_EARNING_RULE = 'geolocation';
 
     /**
      * @var CampaignId
@@ -179,6 +184,16 @@ class Campaign
     protected $public = false;
 
     /**
+     * @var string|null
+     */
+    protected $connectType;
+
+    /**
+     * @var string|null
+     */
+    protected $earningRuleId;
+
+    /**
      * Campaign constructor.
      *
      * @param CampaignId|null $campaignId
@@ -212,7 +227,21 @@ class Campaign
             $this->active = $data['active'];
         }
 
-        if ($this->reward !== self::REWARD_TYPE_CASHBACK) {
+        if ($this->reward === self::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE) {
+            if (isset($data['connectType'])) {
+                $this->connectType = $data['connectType'];
+            }
+            if (isset($data['earningRuleId'])) {
+                $this->earningRuleId = $data['earningRuleId'];
+            } else {
+                $this->earningRuleId = null;
+            }
+        } else {
+            $this->connectType = null;
+            $this->earningRuleId = null;
+        }
+
+        if ($this->reward !== self::REWARD_TYPE_CASHBACK && $this->reward !== self::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE) {
             if (array_key_exists('daysInactive', $data)) {
                 $this->setDaysInactive($data['daysInactive']);
             }
@@ -587,6 +616,7 @@ class Campaign
             self::REWARD_TYPE_VALUE_CODE,
             self::REWARD_TYPE_CASHBACK,
             self::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE,
+            self::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE,
         ]);
         Assert::keyIsset($data, 'levels');
         Assert::isArray($data['levels']);
@@ -596,7 +626,7 @@ class Campaign
         Assert::allIsInstanceOf($data['segments'], SegmentId::class);
         Assert::true(count($data['segments']) > 0 || count($data['levels']) > 0, 'There must be at least one level or one segment');
 
-        if (!in_array($data['reward'], [self::REWARD_TYPE_CASHBACK, self::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE], true)) {
+        if (!in_array($data['reward'], [self::REWARD_TYPE_CASHBACK, self::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE, self::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE], true)) {
             if (!isset($data['unlimited']) || !$data['unlimited']) {
                 Assert::keyIsset($data, 'limit');
                 Assert::greaterOrEqualThan($data['limit'], 1);
@@ -610,7 +640,7 @@ class Campaign
             CampaignVisibility::validateRequiredData($data['campaignVisibility']);
         }
 
-        if ($data['reward'] !== self::REWARD_TYPE_CASHBACK) {
+        if ($data['reward'] !== self::REWARD_TYPE_CASHBACK && $data['reward'] !== self::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE) {
             Assert::notBlank($data['daysInactive']);
             Assert::notBlank($data['daysValid']);
         }
@@ -623,6 +653,13 @@ class Campaign
             Assert::notBlank($data['transactionPercentageValue']);
             Assert::greaterOrEqualThan($data['transactionPercentageValue'], self::MIN_TRANSACTION_PERCENTAGE_VALUE);
             Assert::lessThan($data['transactionPercentageValue'], self::MAX_TRANSACTION_PERCENTAGE_VALUE);
+        }
+
+        if ($data['reward'] === self::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE) {
+            Assert::notBlank($data['connectType']);
+            if ($data['connectType'] !== 'none') {
+                Assert::keyIsset($data, 'earningRuleId');
+            }
         }
 
         Assert::keyIsset($data, 'campaignActivity');
@@ -1018,5 +1055,37 @@ class Campaign
     public function setCategories(array $categories): void
     {
         $this->categories = $categories;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getConnectType(): ?string
+    {
+        return $this->connectType;
+    }
+
+    /**
+     * @param string|null $connectType
+     */
+    public function setConnectType(?string $connectType)
+    {
+        $this->connectType = $connectType;
+    }
+
+    /**
+     * @return EarningRuleId|null
+     */
+    public function getEarningRuleId(): ?string
+    {
+        return $this->earningRuleId;
+    }
+
+    /**
+     * @param string $earningRuleId|null
+     */
+    public function setEarningRuleId(?string $earningRuleId)
+    {
+        $this->earningRuleId = $earningRuleId;
     }
 }

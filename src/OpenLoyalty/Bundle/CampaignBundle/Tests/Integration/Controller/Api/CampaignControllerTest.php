@@ -4,6 +4,7 @@ namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Integration\Controller\Api;
 
 use OpenLoyalty\Bundle\CampaignBundle\DataFixtures\ORM\LoadCampaignData;
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
+use OpenLoyalty\Bundle\EarningRuleBundle\DataFixtures\ORM\LoadEarningRuleData;
 use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
@@ -18,6 +19,7 @@ use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
+use OpenLoyalty\Component\EarningRule\Domain\EarningRule;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -385,8 +387,8 @@ class CampaignControllerTest extends BaseApiTest
             [['isFeatured' => 1, 'isPublic' => 1], 3],
             [['isFeatured' => 0, 'isPublic' => 0], 4],
             [['isFeatured' => 1], 12],
-            [['isFeatured' => 0], 7],
-            [['isPublic' => 1], 6],
+            [['isFeatured' => 0], 8],
+            [['isPublic' => 1], 7],
             [['isPublic' => 0], 13],
             [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY2_ID]], 2],
             [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID]], 1],
@@ -541,6 +543,33 @@ class CampaignControllerTest extends BaseApiTest
         $this->assertEquals('Skonfigurowana testowa kampania', $data['translations'][1]['name']);
         $this->assertEquals('Opis skonfigurowanej kampanii testowej', $data['translations'][1]['shortDescription']);
         $this->assertEquals('pl', $data['translations'][1]['locale']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_custom_campaign(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            sprintf('/api/campaign/%s', LoadCampaignData::CUSTOM_CAMPAIGN_ID)
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('campaignId', $data);
+        $this->assertArrayHasKey('connectType', $data);
+        $this->assertEquals(Campaign::CONNECT_TYPE_GEOLOCATION_EARNING_RULE, $data['connectType']);
+        $this->assertArrayHasKey('earningRuleId', $data);
+        $this->assertEquals(LoadEarningRuleData::GEO_RULE_ID, $data['earningRuleId']);
+        $this->assertArrayHasKey('earningRule', $data);
+        $this->assertArrayHasKey('type', $data['earningRule']);
+        $this->assertEquals(EarningRule::TYPE_GEOLOCATION, $data['earningRule']['type']);
+        $this->assertArrayHasKey('name', $data['earningRule']);
+        $this->assertEquals('Geo location test rule', $data['earningRule']['name']);
+        $this->assertArrayHasKey('pointsAmount', $data['earningRule']);
+        $this->assertEquals(2, $data['earningRule']['pointsAmount']);
     }
 
     /**
@@ -960,8 +989,8 @@ class CampaignControllerTest extends BaseApiTest
     {
         return [
             [['isFeatured' => 1], 0],
-            [['isFeatured' => 0], 1],
-            [['isPublic' => 1], 1],
+            [['isFeatured' => 0], 2],
+            [['isPublic' => 1], 2],
             [['isPublic' => 0], 0],
         ];
     }
@@ -973,10 +1002,10 @@ class CampaignControllerTest extends BaseApiTest
     {
         return [
             [['isPublic' => 0], 4],
-            [['isPublic' => 1], 5],
-            [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY2_ID]], 9],
-            [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID]], 9],
-            [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID, LoadCampaignData::CAMPAIGN_CATEGORY2_ID]], 9],
+            [['isPublic' => 1], 6],
+            [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY2_ID]], 10],
+            [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID]], 10],
+            [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID, LoadCampaignData::CAMPAIGN_CATEGORY2_ID]], 10],
         ];
     }
 

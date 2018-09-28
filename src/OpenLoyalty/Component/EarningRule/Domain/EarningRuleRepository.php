@@ -101,12 +101,49 @@ interface EarningRuleRepository
     public function findAllPaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'DESC');
 
     /**
+     * @param array  $params
+     * @param int    $page
+     * @param int    $perPage
+     * @param null   $sortField
+     * @param string $direction
+     *
+     * @return array|\Doctrine\ORM\QueryBuilder
+     */
+    public function findByParametersPaginated(
+        array $params,
+        $page = 1,
+        $perPage = 10,
+        $sortField = null,
+        $direction = 'DESC'
+    );
+
+    /**
+     * @param array  $params
+     * @param null   $sortField
+     * @param string $direction
+     *
+     * @return array|\Doctrine\ORM\QueryBuilder
+     */
+    public function findByParameters(
+        array $params,
+        $sortField = null,
+        $direction = 'DESC'
+    );
+
+    /**
      * @return \Doctrine\ORM\QueryBuilder|mixed
      *
      * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function countTotal();
+
+    /**
+     * @param array $params
+     *
+     * @return array|\Doctrine\ORM\QueryBuilder
+     */
+    public function countFindByParameters(array $params);
 
     /**
      * @param EarningRule $earningRule

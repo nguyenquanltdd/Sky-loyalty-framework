@@ -96,6 +96,14 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
       type: boolean
       options:
         default: 0
+    connectType:
+      type: string
+      nullable: true
+      column: connect_type
+    earningRuleId:
+      type: guid
+      nullable: true
+      column: earning_rule_id
   embedded:
     campaignActivity:
       class: OpenLoyalty\Component\Campaign\Domain\Model\CampaignActivity
