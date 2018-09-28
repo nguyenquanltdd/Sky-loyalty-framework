@@ -1259,7 +1259,7 @@ class CustomerControllerTest extends BaseApiTest
             ['lastName', 'Doe', 16],
             ['lastName', 'Doe1', 1],
             ['lastName', 'Smith', 2],
-            ['phone', '48', 7],
+            ['phone', '48', 8],
             ['phone', '645', 2],
             ['email', '@', 23],
             ['email', 'user-1', 1],
