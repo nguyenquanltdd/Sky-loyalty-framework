@@ -40,7 +40,7 @@
             </trans-unit>
             <trans-unit id="campaign.not_enough_points">
                 <source>campaign.not_enough_points</source>
-                <target>Not enought points</target>
+                <target>Not enough points</target>
             </trans-unit>
             <trans-unit id="campaign.limit_per_customer_exceeded">
                 <source>campaign.limit_per_customer_exceeded</source>
