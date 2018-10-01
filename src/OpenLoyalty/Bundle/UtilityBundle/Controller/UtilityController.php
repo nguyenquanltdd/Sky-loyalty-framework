@@ -44,7 +44,7 @@ class UtilityController extends FOSRestController
         $formatter = $this->get('oloy.utility.customer.details.csv.formatter');
         $customerDetails = $formatter->getFormattedSegmentUsers($segment);
         /** @var StreamedResponse $response */
-        $response = $this->createStream($this->getCsvMap(), $customerDetails, $segment->getName());
+        $response = $this->createStream($formatter->getSegmentUsersCsvMap(), $customerDetails, $segment->getName());
 
         return $response;
     }
@@ -70,36 +70,15 @@ class UtilityController extends FOSRestController
         $formatter = $this->get('oloy.utility.customer.details.csv.formatter');
         $customerDetails = $formatter->getFormattedLevelUsers($level);
         /** @var StreamedResponse $response */
-        $response = $this->createStream($this->getCsvMap(), $customerDetails, $level->getName());
+        $response = $this->createStream($formatter->getLevelUsersCsvMap(), $customerDetails, $level->getName());
 
         return $response;
     }
 
     /**
-     * @return array
-     */
-    protected function getCsvMap()
-    {
-        return [
-            'Customer id',
-            'First name',
-            'Last name',
-            'E-mail address',
-            'Gender',
-            'Telephone',
-            'Loyalty card number',
-            'Birthdate',
-            'Created at',
-            'Legal agreement',
-            'Marketing agreement',
-            'Data processing agreement',
-        ];
-    }
-
-    /**
-     * @param array           $map
-     * @param CustomerDetails $customerDetails
-     * @param string          $baseFilename
+     * @param array  $map
+     * @param array  $customerDetails
+     * @param string $baseFilename
      *
      * @return StreamedResponse
      */

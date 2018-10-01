@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Component\Account\Domain\ReadModel;
 
+use Assert\AssertionFailedException;
 use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
@@ -70,6 +71,8 @@ class AccountDetails implements SerializableReadModel
      * @param array $data
      *
      * @return mixed The object instance
+     *
+     * @throws AssertionFailedException
      */
     public static function deserialize(array $data)
     {

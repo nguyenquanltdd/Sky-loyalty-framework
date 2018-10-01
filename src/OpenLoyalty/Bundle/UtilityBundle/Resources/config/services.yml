@@ -2,7 +2,7 @@ services:
 
   oloy.utility.customer.details.csv.formatter:
     class: OpenLoyalty\Bundle\UtilityBundle\Service\CustomerDetailsCsvFormatter
+    autowire: true
     arguments:
-      - '@oloy.segment.read_model.repository.segmented_customers'
-      - '@oloy.user.read_model.repository.customer_details'
-      - '@oloy.user.read_model.repository.customers_belonging_to_one_level'
+      $segmentedCustomersRepository: '@oloy.segment.read_model.repository.segmented_customers'
+      $levelCustomersRepository: '@oloy.user.read_model.repository.customers_belonging_to_one_level'
