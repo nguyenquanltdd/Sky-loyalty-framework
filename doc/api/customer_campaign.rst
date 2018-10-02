@@ -50,16 +50,16 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
 .. note::
 
-    The *customer = 00000000-0000-474c-b092-b0dd880c07e1* id is an exemplary value. Your value can be different.
+    The *customer = 00000000-0000-474c-b092-b0dd880c07e1* id is an example value. Your value can be different.
     Check in the list of all customers if you are not sure which id should be used.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -72,8 +72,8 @@ Exemplary Response
       "total": 0
     }
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -114,16 +114,16 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
 .. note::
 
-    The *customer = 00000000-0000-474c-b092-b0dd880c07e1* id is an exemplary value. Your value can be different.
+    The *customer = 00000000-0000-474c-b092-b0dd880c07e1* id is an example value. Your value can be different.
     Check in the list of all customers if you are not sure which id should be used.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -188,7 +188,7 @@ Exemplary Response
 Mark specific coupon as used / not used by a customer
 -----------------------------------------------------
 
-To mark a specific coupon as used / nor used call ``/api/admin/customer/{customer}/campaign/{campaign}/coupon/{coupon}`` endpoint with the ``POST`` method.
+To mark a specific coupon as used / not used call ``/api/admin/customer/{customer}/campaign/{campaign}/coupon/{coupon}`` endpoint with the ``POST`` method.
 
 Definition
 ^^^^^^^^^^
@@ -204,7 +204,7 @@ Definition
 +----------------------+----------------+--------------------------------------------------------+
 | customer             | request        | Customer UUID                                          |
 +----------------------+----------------+--------------------------------------------------------+
-| campaign             | request        | Campaign UUI                                           |
+| campaign             | request        | Campaign UUID                                          |
 +----------------------+----------------+--------------------------------------------------------+
 | coupon               | request        | Coupon UUID                                            |
 +----------------------+----------------+--------------------------------------------------------+
@@ -225,26 +225,26 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
 .. note::
 
-    The *customer = 00000000-0000-474c-b092-b0dd880c07e1* id is an exemplary value. Your value can be different.
+    The *customer = 00000000-0000-474c-b092-b0dd880c07e1* id is an example value. Your value can be different.
     Check in the list of all customers if you are not sure which id should be used.
 
 .. note::
 
-    The *campaign = 000096cf-32a3-43bd-9034-4df343e5fd93* id is an exemplary value. Your value can be different.
+    The *campaign = 000096cf-32a3-43bd-9034-4df343e5fd93* id is an example value. Your value can be different.
     Check in the list of all campaigns if you are not sure which id should be used.
 
 .. note::
 
-    The *coupon = 123* id is an exemplary value. Your value can be different.
+    The *coupon = 123* id is an example value. Your value can be different.
     Check in the list of all customer's coupons if you are not sure which id should be used.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -256,8 +256,8 @@ Exemplary Response
       "used": "1"
     }
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -273,7 +273,7 @@ Exemplary Response
 Get all campaigns available for logged in customer
 --------------------------------------------------
 
-To get all campaign available for logged in customer use ``/api/customer/campaign/available`` endpoint with the ``POST`` method.
+To get all campaign available for logged in customer use ``/api/customer/campaign/available`` endpoint with the ``GET`` method.
 
 Definition
 ^^^^^^^^^^
@@ -286,6 +286,9 @@ Definition
 | Parameter            | Parameter type |  Description                                           |
 +======================+================+========================================================+
 | Authorization        | header         | Token received during authentication                   |
++----------------------+----------------+--------------------------------------------------------+
+| isPublic             | query          | *(optional)* Filter by whether the campaign is public  |
+|                      |                | or hidden; omit for all campaigns.                     |
 +----------------------+----------------+--------------------------------------------------------+
 | isFeatured           | query          | *(optional)* Filter by featured tag                    |
 +----------------------+----------------+--------------------------------------------------------+
@@ -304,7 +307,7 @@ Definition
 | direction            | query          | *(optional)* Direction of sorting [ASC, DESC],         |
 |                      |                | by default = ASC                                       |
 +----------------------+----------------+--------------------------------------------------------+
-| categoryId[]         | query          | *(optional)* Array of category Ids                     |
+| categoryId[]         | query          | *(optional)* Array of category UUIDs to filter by.     |
 +----------------------+----------------+--------------------------------------------------------+
 
 Example
@@ -320,7 +323,7 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
 .. warning::
@@ -328,8 +331,8 @@ Example
     Calling this endpoint is meaningful only when you call it with authorization token that belongs to the logged in customer.
     Otherwise it will return ``403 Forbidden`` error response.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -417,7 +420,7 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
 .. warning::
@@ -425,8 +428,8 @@ Example
     Calling this endpoint is meaningful only when you call it with authorization token that belongs to the logged in customer.
     Otherwise it will return ``403 Forbidden`` error response.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -465,7 +468,7 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
 .. warning::
@@ -473,8 +476,8 @@ Example
     Calling this endpoint is meaningful only when you call it with authorization token that belongs to the logged in customer.
     Otherwise it will return ``403 Forbidden`` error response.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -563,7 +566,7 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
 .. warning::
@@ -571,8 +574,8 @@ Example
     Calling this endpoint is meaningful only when you call it with authorization token that belongs to the logged in customer.
     Otherwise it will return ``403 Forbidden`` error response.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -586,8 +589,8 @@ Exemplary Response
       }]
     }
 
-Exemplary Error Response
-^^^^^^^^^^^^^^^^^^^^^^^^
+Example Error Response
+^^^^^^^^^^^^^^^^^^^^^^
 
 If there is no more coupons left, you'll receive follow responses.
 
@@ -601,8 +604,8 @@ If there is no more coupons left, you'll receive follow responses.
       "error": "No coupons left"
     }
 
-Exemplary Error Response
-^^^^^^^^^^^^^^^^^^^^^^^^
+Example Error Response
+^^^^^^^^^^^^^^^^^^^^^^
 
 If you don't have enough points to buy a reward, you'll receive follow responses.
 
@@ -665,7 +668,7 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
 .. warning::
@@ -675,16 +678,16 @@ Example
 
 .. note::
 
-    The *campaign = 000096cf-32a3-43bd-9034-4df343e5fd93* id is an exemplary value. Your value can be different.
+    The *campaign = 000096cf-32a3-43bd-9034-4df343e5fd93* id is an example value. Your value can be different.
     Check in the list of all campaigns if you are not sure which id should be used.
 
 .. note::
 
-    The *coupon = 123* id is an exemplary value. Your value can be different.
+    The *coupon = 123* id is an example value. Your value can be different.
     Check in the list of all customer's coupons if you are not sure which id should be used.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -696,8 +699,8 @@ Exemplary Response
       "used": "1"
     }
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -773,12 +776,12 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
 .. note::
 
-    The *customer = 00000000-0000-474c-b092-b0dd880c07e1* id is an exemplary value. Your value can be different.
+    The *customer = 00000000-0000-474c-b092-b0dd880c07e1* id is an example value. Your value can be different.
     Check in the list of all customers if you are not sure which id should be used.
 
 .. note::
@@ -789,8 +792,8 @@ Example
 
     As a seller you will receive less amount of information about campaign than an administrator.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -803,8 +806,8 @@ Exemplary Response
       "total": 0
     }
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -846,12 +849,12 @@ Example
 
 .. note::
 
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an exemplary value.
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
     Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
 
 .. note::
 
-    The *customer = 00000000-0000-474c-b092-b0dd880c07e1* id is an exemplary value. Your value can be different.
+    The *customer = 00000000-0000-474c-b092-b0dd880c07e1* id is an example value. Your value can be different.
     Check in the list of all customers if you are not sure which id should be used.
 
 .. note::
@@ -862,8 +865,8 @@ Example
 
     As a seller you will receive less amount of information about campaign than an administrator.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 

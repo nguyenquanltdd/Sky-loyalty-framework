@@ -737,7 +737,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_not_allows_to_buy_a_campaign_for_customer_when_not_enough_points_and_quantity_more_than_one(): void
+    public function it_does_not_allow_to_buy_a_campaign_for_customer_when_not_enough_points_and_quantity_more_than_one(): void
     {
         static::$kernel->boot();
         $customerDetailsBefore = $this->getCustomerDetails(LoadUserData::USER_USERNAME);
@@ -791,7 +791,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_change_coupon_to_used(): void
+    public function it_changes_coupon_to_used(): void
     {
         $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
         $couponCode = Uuid::uuid4()->toString();
@@ -843,7 +843,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_change_multiple_coupons_to_used(): void
+    public function it_changes_multiple_coupons_to_used(): void
     {
         $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
         $couponCode = Uuid::uuid4()->toString();

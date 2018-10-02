@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\CampaignBundle\Controller\Api;
 
 use Broadway\CommandHandling\CommandBus;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
+use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\Route;
@@ -65,6 +66,7 @@ use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomers;
 use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomersRepository;
+use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -445,7 +447,7 @@ class CampaignController extends FOSRestController
 
             $this->commandBus->dispatch(new UpdateCampaign($campaign->getCampaignId(), $data->toArray()));
 
-            return $this->viewHandler->handle(FosView::create(['campaignId' => $campaign->getCampaignId()->__toString()]));
+            return $this->viewHandler->handle(FosView::create(['campaignId' => (string) $campaign->getCampaignId()]));
         }
 
         return $this->viewHandler->handle(FosView::create($form->getErrors(), Response::HTTP_BAD_REQUEST));
@@ -481,7 +483,7 @@ class CampaignController extends FOSRestController
             new ChangeCampaignState($campaign->getCampaignId(), $campaign->isActive())
         );
 
-        return $this->view(['campaignId' => $campaign->getCampaignId()->__toString()]);
+        return $this->view(['campaignId' => (string) $campaign->getCampaignId()]);
     }
 
     /**
@@ -495,16 +497,11 @@ class CampaignController extends FOSRestController
      *     name="get campaigns list",
      *     section="Campaign",
      *     parameters={
-     *          {"name"="active", "dataType"="boolean", "required"=false, "description"="Filter by activity"},
-     *          {"name"="isPublic", "dataType"="boolean", "required"=false, "description"="Filter by public flag"},
-     *          {"name"="isFeatured", "dataType"="boolean", "required"=false, "description"="Filter by featured tag"},
-     *          {"name"="campaignType", "dataType"="string", "required"=false, "description"="Filter by campaign type"},
-     *          {"name"="name", "dataType"="string", "required"=false, "description"="Filter by campaign name"},
      *          {"name"="page", "dataType"="integer", "required"=false, "description"="Page number"},
      *          {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
      *          {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
      *          {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
-     *          {"name"="categoryId[]", "dataType"="string", "required"=false, "description"="Filter by categories"},
+     *          {"name"="format", "dataType"="html|raw", "required"=false, "description"="If set to html, the descriptions will be in HTML format. Omit for raw output."},
      *     }
      * )
      *
@@ -514,7 +511,7 @@ class CampaignController extends FOSRestController
      * @QueryParam(name="isFeatured", nullable=true, description="filter by featured tag"))
      * @QueryParam(name="campaignType", nullable=true, description="filter by campaign type"))
      * @QueryParam(name="name", nullable=true, description="filter by campaign name"))
-     * @QueryParam(name="categoryId", nullable=true, description="filter by categories"))
+     * @QueryParam(name="categoryId", map=true, nullable=true, description="filter by categories"))
      *
      * @View(serializerGroups={"admin", "Default"})
      *
@@ -779,7 +776,10 @@ class CampaignController extends FOSRestController
      *
      * @ApiDoc(
      *     name="Get active campaigns",
-     *     section="Campaign"
+     *     section="Campaign",
+     *     parameters={
+     *          {"name"="format", "dataType"="html|raw", "required"=false, "description"="If set to html, the descriptions will be in HTML format. Omit for raw output."},
+     *     }
      * )
      *
      * @param Request $request
@@ -826,7 +826,10 @@ class CampaignController extends FOSRestController
      * @Security("is_granted('VIEW', campaign)")
      * @ApiDoc(
      *     name="get campaign details",
-     *     section="Campaign"
+     *     section="Campaign",
+     *     parameters={
+     *          {"name"="format", "dataType"="html|raw", "required"=false, "description"="If set to html, the descriptions will be in HTML format. Omit for raw output."},
+     *     }
      * )
      *
      * @View(serializerGroups={"admin", "Default"})
@@ -862,6 +865,7 @@ class CampaignController extends FOSRestController
      *      {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
      *      {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
      *      {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
+     *      {"name"="format", "dataType"="html|raw", "required"=false, "description"="If set to html, the descriptions will be in HTML format. Omit for raw output."},
      *     }
      * )
      *
@@ -914,6 +918,7 @@ class CampaignController extends FOSRestController
      *          {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
      *          {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
      *          {"name"="categoryId[]", "dataType"="string", "required"=false, "description"="Filter by categories"},
+     *          {"name"="format", "dataType"="html|raw", "required"=false, "description"="If set to html, the descriptions will be in HTML format. Omit for raw output."},
      *     }
      * )
      *
@@ -923,6 +928,8 @@ class CampaignController extends FOSRestController
      * @param CustomerDetails $customer
      *
      * @return FosView
+     *
+     * @throws ORMException
      */
     public function availableCampaigns(Request $request, CustomerDetails $customer): FosView
     {
@@ -930,7 +937,7 @@ class CampaignController extends FOSRestController
 
         $categoryIds = $request->query->get('categoryId', []);
         $customerSegments = $this->segmentedCustomersRepository
-            ->findBy(['customerId' => (string) $customer->getCustomerId()]);
+            ->findBy(['customerId' => $customer->getId()]);
         $segments = array_map(
             function (SegmentedCustomers $segmentedCustomers) {
                 return new SegmentId((string) $segmentedCustomers->getSegmentId());
@@ -941,7 +948,7 @@ class CampaignController extends FOSRestController
         $campaigns = $this->campaignRepository
             ->getVisibleCampaignsForLevelAndSegment(
                 $segments,
-                $customer->getLevelId() ? new LevelId($customer->getLevelId()->__toString()) : null,
+                $customer->getLevelId() ? new LevelId((string) $customer->getLevelId()) : null,
                 $categoryIds,
                 null,
                 null,
@@ -969,7 +976,7 @@ class CampaignController extends FOSRestController
             }
             $usageLeft = $this->campaignProvider->getUsageLeft($campaign);
             $usageLeftForCustomer = $this->campaignProvider
-                ->getUsageLeftForCustomer($campaign, (string) $customer->getCustomerId());
+                ->getUsageLeftForCustomer($campaign, $customer->getId());
 
             return $usageLeft > 0 && $usageLeftForCustomer > 0;
         });
@@ -988,7 +995,7 @@ class CampaignController extends FOSRestController
 
         $context = new Context();
         $context->setGroups(['Default']);
-        $context->setAttribute('customerId', $customer->getCustomerId()->__toString());
+        $context->setAttribute('customerId', $customer->getId());
         $context->setAttribute(
             FOSContextProvider::OUTPUT_FORMAT_ATTRIBUTE_NAME,
             $request->get('format')
@@ -1039,13 +1046,13 @@ class CampaignController extends FOSRestController
         try {
             $this->campaignValidator->validateCampaignLimits(
                 $campaign,
-                new CustomerId($customer->getCustomerId()->__toString()),
+                new CustomerId($customer->getId()),
                 $quantity
             );
             $this->campaignValidator->checkIfCustomerStatusIsAllowed($customer->getStatus());
             $this->campaignValidator->checkIfCustomerHasEnoughPoints(
                 $campaign,
-                new CustomerId($customer->getCustomerId()->__toString()),
+                new CustomerId($customer->getId()),
                 $quantity
             );
 
@@ -1123,10 +1130,11 @@ class CampaignController extends FOSRestController
         $coupons = [];
         try {
             if ($transactionId) {
+                /** @var TransactionDetails $transaction */
                 $transaction = $this->transactionDetailsRepository->find($transactionId);
                 if ($transaction) {
                     $transactionValue = $transaction->getGrossValue();
-                    if ($transaction->getCustomerId()->__toString() != $customer->getId()) {
+                    if ((string) $transaction->getCustomerId() !== $customer->getId()) {
                         throw new InvalidTransactionException();
                     }
                 }
@@ -1138,14 +1146,14 @@ class CampaignController extends FOSRestController
 
             $this->campaignValidator->validateCampaignLimits(
                 $campaign,
-                new CustomerId($customer->getCustomerId()->__toString()),
+                new CustomerId($customer->getId()),
                 $quantity
             );
             $this->campaignValidator->checkIfCustomerStatusIsAllowed($customer->getStatus());
             if (!$withoutPoints) {
                 $this->campaignValidator->checkIfCustomerHasEnoughPoints(
                     $campaign,
-                    new CustomerId($customer->getCustomerId()->__toString()),
+                    new CustomerId($customer->getId()),
                     $quantity
                 );
             }
@@ -1229,7 +1237,11 @@ class CampaignController extends FOSRestController
 
         if ($request->get('includeDetails', false)) {
             $campaigns = array_map(function (CampaignPurchase $campaignPurchase) {
-                $campaignPurchase->setCampaign($this->campaignRepository->byId(new CampaignId($campaignPurchase->getCampaignId()->__toString())));
+                $campaignPurchase->setCampaign(
+                    $this->campaignRepository->byId(
+                        new CampaignId((string) $campaignPurchase->getCampaignId())
+                    )
+                );
 
                 return $campaignPurchase;
             }, $campaigns);
@@ -1311,7 +1323,7 @@ class CampaignController extends FOSRestController
         $this->commandBus->dispatch(
             new ChangeCampaignUsage(
                 $customer->getCustomerId(),
-                new CustomerCampaignId($campaign->getCampaignId()->__toString()),
+                new CustomerCampaignId((string) $campaign->getCampaignId()),
                 new Coupon($coupon),
                 $used
             )
@@ -1377,8 +1389,8 @@ class CampaignController extends FOSRestController
             $result[] = new CouponUsageResponse(
                 $command->getCoupon()->getCode(),
                 $command->isUsed(),
-                $command->getCampaignId()->__toString(),
-                $command->getCustomerId()->__toString()
+                (string) $command->getCampaignId(),
+                (string) $command->getCustomerId()
             );
         }
 
@@ -1396,7 +1408,12 @@ class CampaignController extends FOSRestController
      *     name="list only featured campaigns",
      *     section="Campaign",
      *     parameters={
-     *          {"name"="isPublic", "dataType"="boolean", "required"=false, "description"="Filter by public flag"}
+     *          {"name"="isPublic", "dataType"="boolean", "required"=false, "description"="Filter by public flag"},
+     *          {"name"="page", "dataType"="integer", "required"=false, "description"="Page number"},
+     *          {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
+     *          {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
+     *          {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
+     *          {"name"="format", "dataType"="html|raw", "required"=false, "description"="If set to html, the descriptions will be in HTML format. Omit for raw output."},
      *     },
      *     statusCodes={
      *          200="Returned when successful",

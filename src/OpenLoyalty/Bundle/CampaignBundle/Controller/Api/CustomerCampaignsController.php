@@ -6,7 +6,7 @@
 namespace OpenLoyalty\Bundle\CampaignBundle\Controller\Api;
 
 use Broadway\CommandHandling\CommandBus;
-use Doctrine\ORM\Query\QueryException;
+use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -210,7 +210,7 @@ class CustomerCampaignsController extends FOSRestController
                         'isPublic' => $request->query->get('isPublic'),
                     ]
                 );
-        } catch (QueryException $exception) {
+        } catch (ORMException $exception) {
             return $this->view($this->translator->trans($exception->getMessage()), Response::HTTP_BAD_REQUEST);
         }
 
@@ -245,7 +245,7 @@ class CustomerCampaignsController extends FOSRestController
 
         $context = new Context();
         $context->setGroups(['Default']);
-        $context->setAttribute('customerId', $customer->getCustomerId()->__toString());
+        $context->setAttribute('customerId', $customer->getId());
 
         $view->setContext($context);
 
@@ -301,7 +301,7 @@ class CustomerCampaignsController extends FOSRestController
 
         if ($request->get('includeDetails', false)) {
             $campaigns = array_map(function (CampaignPurchase $campaignPurchase) {
-                $campaignPurchase->setCampaign($this->campaignRepository->byId(new CampaignId($campaignPurchase->getCampaignId()->__toString())));
+                $campaignPurchase->setCampaign($this->campaignRepository->byId(new CampaignId((string) $campaignPurchase->getCampaignId())));
 
                 return $campaignPurchase;
             }, $campaigns);
@@ -355,13 +355,13 @@ class CustomerCampaignsController extends FOSRestController
         try {
             $this->campaignValidator->validateCampaignLimits(
                 $campaign,
-                new CustomerId($customer->getCustomerId()->__toString()),
+                new CustomerId($customer->getId()),
                 $quantity
             );
             $this->campaignValidator->checkIfCustomerStatusIsAllowed($customer->getStatus());
             $this->campaignValidator->checkIfCustomerHasEnoughPoints(
                 $campaign,
-                new CustomerId($customer->getCustomerId()->__toString()),
+                new CustomerId($customer->getId()),
                 $quantity
             );
 
@@ -457,7 +457,7 @@ class CustomerCampaignsController extends FOSRestController
         $this->commandBus->dispatch(
             new ChangeCampaignUsage(
                 $customer->getCustomerId(),
-                new CustomerCampaignId($campaign->getCampaignId()->__toString()),
+                new CustomerCampaignId((string) $campaign->getCampaignId()),
                 new Coupon($coupon),
                 $used
             )
@@ -521,8 +521,8 @@ class CustomerCampaignsController extends FOSRestController
             $result[] = new CouponUsageResponse(
                 $command->getCoupon()->getCode(),
                 $command->isUsed(),
-                $command->getCampaignId()->__toString(),
-                $command->getCustomerId()->__toString()
+                (string) $command->getCampaignId(),
+                (string) $command->getCustomerId()
             );
         }
 
@@ -536,7 +536,7 @@ class CustomerCampaignsController extends FOSRestController
     {
         /** @var User $user */
         $user = $this->getUser();
-        $customer = $this->get('oloy.user.read_model.repository.customer_details')->find($user->getId());
+        $customer = $this->customerDetailsRepository->find($user->getId());
         if (!$customer instanceof CustomerDetails) {
             throw $this->createNotFoundException();
         }
