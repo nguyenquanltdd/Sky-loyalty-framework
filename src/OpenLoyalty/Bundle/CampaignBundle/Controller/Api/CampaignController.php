@@ -1157,7 +1157,7 @@ class CampaignController extends FOSRestController
                         $campaign->getCampaignId(),
                         new CustomerId($customer->getId()),
                         $coupon,
-                        $withoutPoints === true ? 0 : $campaign->getCostInPoints(),
+                        ((bool) $withoutPoints === true) ? 0 : $campaign->getCostInPoints(),
                         $transactionId ? new TransactionId($transactionId) : null
                     )
                 );
