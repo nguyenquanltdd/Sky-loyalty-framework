@@ -30,12 +30,41 @@ class EmailProvider
 
     /** @var OloyMailer */
     protected $mailer;
+
+    /**
+     * @var string
+     */
     protected $emailFromName;
+
+    /**
+     * @var string
+     */
     protected $emailFromAddress;
+
+    /**
+     * @var string
+     */
     protected $passwordResetUrl;
+
+    /**
+     * @var string
+     */
     protected $loyaltyProgramName;
+
+    /**
+     * @var string
+     */
     protected $ecommerceAddress;
+
+    /**
+     * @var string
+     */
     protected $customerPanelUrl;
+
+    /**
+     * @var string
+     */
+    protected $invitationUrl;
 
     /**
      * EmailProvider constructor.
@@ -49,12 +78,13 @@ class EmailProvider
         $this->messageFactory = $messageFactory;
         $this->mailer = $mailer;
         $this->parameters = $parameters;
-        $this->emailFromName = isset($parameters['from_name']) ? $parameters['from_name'] : '';
-        $this->emailFromAddress = isset($parameters['from_address']) ? $parameters['from_address'] : '';
-        $this->passwordResetUrl = isset($parameters['password_reset_url']) ? $parameters['password_reset_url'] : '';
-        $this->loyaltyProgramName = isset($parameters['loyalty_program_name']) ? $parameters['loyalty_program_name'] : '';
-        $this->ecommerceAddress = isset($parameters['ecommerce_address']) ? $parameters['ecommerce_address'] : '';
-        $this->customerPanelUrl = isset($parameters['customer_panel_url']) ? $parameters['customer_panel_url'] : '';
+        $this->emailFromName = $parameters['from_name'] ?? '';
+        $this->emailFromAddress = $parameters['from_address'] ?? '';
+        $this->passwordResetUrl = $parameters['password_reset_url'] ?? '';
+        $this->loyaltyProgramName = $parameters['loyalty_program_name'] ?? '';
+        $this->ecommerceAddress = $parameters['ecommerce_address'] ?? '';
+        $this->customerPanelUrl = $parameters['customer_panel_url'] ?? '';
+        $this->invitationUrl = $parameters['frontend_invitation_url'] ?? '';
     }
 
     /**
@@ -103,7 +133,12 @@ class EmailProvider
         );
     }
 
-    public function invitationEmail(InvitationDetails $invitationDetails)
+    /**
+     * @param InvitationDetails $invitationDetails
+     *
+     * @return bool
+     */
+    public function invitationEmail(InvitationDetails $invitationDetails): bool
     {
         return $this->sendMessage(
             'Invitation',
@@ -111,7 +146,7 @@ class EmailProvider
             'OpenLoyaltyUserBundle:email:invitation.html.twig',
             [
                 'referrerName' => $invitationDetails->getReferrerName(),
-                'url' => $this->customerPanelUrl.'#!/customer/panel/customer/registration/'.$invitationDetails->getToken(),
+                'url' => $this->customerPanelUrl.$this->invitationUrl.$invitationDetails->getToken(),
             ]
         );
     }

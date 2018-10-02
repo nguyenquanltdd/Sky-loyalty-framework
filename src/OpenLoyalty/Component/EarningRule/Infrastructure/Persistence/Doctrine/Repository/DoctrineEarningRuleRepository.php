@@ -216,7 +216,7 @@ class DoctrineEarningRuleRepository extends EntityRepository implements EarningR
     ) {
         $qb = $this->getEarningRulesForLevelAndSegmentQueryBuilder($segmentIds, $levelId, $date, $posId);
 
-        $qb->add('from', ReferralEarningRule::class.'e');
+        $qb->add('from', ReferralEarningRule::class.' e');
         $qb->andWhere('e.eventName = :eventName')->setParameter('eventName', $eventName);
 
         return $qb->getQuery()->getResult();
