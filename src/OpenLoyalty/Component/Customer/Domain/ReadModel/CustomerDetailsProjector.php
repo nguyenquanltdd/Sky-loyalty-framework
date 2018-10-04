@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
-use Broadway\ReadModel\Projector;
+use OpenLoyalty\Component\Core\Infrastructure\Projector\Projector;
 use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignCouponWasChanged;

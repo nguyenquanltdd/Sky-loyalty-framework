@@ -5,8 +5,8 @@
  */
 namespace OpenLoyalty\Component\Account\Domain\ReadModel;
 
-use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\Repository;
+use OpenLoyalty\Component\Core\Infrastructure\Projector\Projector;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Event\AccountWasCreated;
 use OpenLoyalty\Component\Account\Domain\Event\PointsHasBeenReset;

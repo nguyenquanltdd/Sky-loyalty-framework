@@ -11,13 +11,17 @@ use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 use OpenLoyalty\Component\Campaign\Domain\TransactionId;
 use OpenLoyalty\Component\Core\Domain\Model\Identifier;
+use OpenLoyalty\Component\Core\Domain\ReadModel\Versionable;
+use OpenLoyalty\Component\Core\Domain\ReadModel\VersionableReadModel;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 
 /**
  * Class CampaignUsage.
  */
-class CampaignBought implements SerializableReadModel
+class CampaignBought implements SerializableReadModel, VersionableReadModel
 {
+    use Versionable;
+
     /**
      * @var CampaignId
      */

@@ -6,14 +6,18 @@
 namespace OpenLoyalty\Component\Seller\Domain\ReadModel;
 
 use Broadway\ReadModel\SerializableReadModel;
+use OpenLoyalty\Component\Core\Domain\ReadModel\Versionable;
+use OpenLoyalty\Component\Core\Domain\ReadModel\VersionableReadModel;
 use OpenLoyalty\Component\Seller\Domain\PosId;
 use OpenLoyalty\Component\Seller\Domain\SellerId;
 
 /**
  * Class SellerDetails.
  */
-class SellerDetails implements SerializableReadModel
+class SellerDetails implements SerializableReadModel, VersionableReadModel
 {
+    use Versionable;
+
     /**
      * @var SellerId
      */

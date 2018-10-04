@@ -1,8 +1,11 @@
 <?php
-
+/**
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
-use Broadway\ReadModel\Projector;
+use OpenLoyalty\Component\Core\Infrastructure\Projector\Projector;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasAttachedToInvitation;
 use OpenLoyalty\Component\Customer\Domain\Event\InvitationWasCreated;
 use OpenLoyalty\Component\Customer\Domain\Event\PurchaseWasMadeForThisInvitation;

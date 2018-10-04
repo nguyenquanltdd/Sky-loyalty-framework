@@ -9,12 +9,16 @@ use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
+use OpenLoyalty\Component\Core\Domain\ReadModel\Versionable;
+use OpenLoyalty\Component\Core\Domain\ReadModel\VersionableReadModel;
 
 /**
  * Class CouponUsage.
  */
-class CouponUsage implements SerializableReadModel
+class CouponUsage implements SerializableReadModel, VersionableReadModel
 {
+    use Versionable;
+
     /**
      * @var int
      */

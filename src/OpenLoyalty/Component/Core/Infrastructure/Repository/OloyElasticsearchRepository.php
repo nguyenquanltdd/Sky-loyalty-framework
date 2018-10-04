@@ -9,7 +9,10 @@ use Broadway\ReadModel\ElasticSearch\ElasticSearchRepository;
 use Broadway\Serializer\Serializer;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
+use OpenLoyalty\Component\Core\Domain\ReadModel\VersionableReadModel;
 use Webmozart\Assert\Assert;
+use Assert\Assertion;
+use Broadway\ReadModel\Identifiable;
 
 /**
  * Class OloyElasticsearchRepository.
@@ -61,6 +64,94 @@ class OloyElasticsearchRepository extends ElasticSearchRepository
         $this->index = $index;
         $this->class = $class;
         $this->notAnalyzedFields = $notAnalyzedFields;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function save(Identifiable $data)
+    {
+        Assertion::isInstanceOf($data, $this->class);
+
+        $serializedReadModel = $this->serializer->serialize($data);
+
+        $params = [
+            'index' => $this->index,
+            'type' => $serializedReadModel['class'],
+            'id' => $data->getId(),
+            'body' => $serializedReadModel['payload'],
+            'refresh' => true,
+        ];
+
+        if ($data instanceof VersionableReadModel) {
+            $params['version'] = $serializedReadModel['version'];
+        }
+
+        $this->client->index($params);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function find($id)
+    {
+        $params = [
+            'index' => $this->index,
+            'type' => $this->class,
+            'id' => $id,
+        ];
+
+        try {
+            $result = $this->client->get($params);
+        } catch (Missing404Exception $e) {
+            return null;
+        }
+
+        return $this->deserializeHit($result);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findBy(array $fields): array
+    {
+        if (empty($fields)) {
+            return [];
+        }
+
+        return $this->query($this->buildFindByQuery($fields));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findAll(): array
+    {
+        return $this->query($this->buildFindAllQuery());
+    }
+
+    /**
+     * @return array
+     */
+    private function buildFindAllQuery(): array
+    {
+        return [
+            'match_all' => new \stdClass(),
+        ];
+    }
+
+    /**
+     * @param array $fields
+     *
+     * @return array
+     */
+    private function buildFindByQuery(array $fields): array
+    {
+        return [
+            'bool' => [
+                'must' => $this->buildFilter($fields),
+            ],
+        ];
     }
 
     /**
@@ -444,12 +535,16 @@ class OloyElasticsearchRepository extends ElasticSearchRepository
      */
     private function deserializeHit(array $hit)
     {
-        return $this->serializer->deserialize(
-            [
-                'class' => $hit['_type'],
-                'payload' => $hit['_source'],
-            ]
-        );
+        $data = [
+            'class' => $hit['_type'],
+            'payload' => $hit['_source'],
+        ];
+
+        if (array_key_exists('_version', $hit)) {
+            $data['version'] = $hit['_version'];
+        }
+
+        return $this->serializer->deserialize($data);
     }
 
     /**
