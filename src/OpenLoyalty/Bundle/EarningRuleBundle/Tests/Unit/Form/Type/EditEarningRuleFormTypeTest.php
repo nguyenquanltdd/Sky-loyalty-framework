@@ -11,6 +11,7 @@ use OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableProvider;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\PreloadedExtension;
 use Symfony\Component\Form\Test\TypeTestCase;
+use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
@@ -42,8 +43,11 @@ class EditEarningRuleFormTypeTest extends TypeTestCase
 
     protected function getExtensions()
     {
+        $translaction = $this->getMockBuilder(TranslatorInterface::class)->getMock();
+
         $type = new EditEarningRuleFormType(
-            new StoppableProvider()
+            new StoppableProvider(),
+            $translaction
         );
 
         return array(

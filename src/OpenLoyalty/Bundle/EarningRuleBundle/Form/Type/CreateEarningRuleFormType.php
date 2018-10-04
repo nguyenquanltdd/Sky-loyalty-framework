@@ -9,6 +9,7 @@ use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\PosDataTransformer
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRule;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\LevelsDataTransformer;
 use OpenLoyalty\Bundle\EarningRuleBundle\Form\DataTransformer\SegmentsDataTransformer;
+use OpenLoyalty\Bundle\EarningRuleBundle\Validator\Constraints\GeoType;
 use OpenLoyalty\Component\EarningRule\Domain\PointsEarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\InstantRewardRule;
 use OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableProvider;
@@ -27,7 +28,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Type as CType;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class CreateEarningRuleFormType.
@@ -40,13 +44,20 @@ class CreateEarningRuleFormType extends BaseEarningRuleFormType
     private $stoppableProvider;
 
     /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
      * CreateEarningRuleFormType constructor.
      *
-     * @param StoppableProvider $stoppableProvider
+     * @param StoppableProvider   $stoppableProvider
+     * @param TranslatorInterface $translator
      */
-    public function __construct(StoppableProvider $stoppableProvider)
+    public function __construct(StoppableProvider $stoppableProvider, TranslatorInterface $translator)
     {
         $this->stoppableProvider = $stoppableProvider;
+        $this->translator = $translator;
     }
 
     /**
@@ -161,37 +172,35 @@ class CreateEarningRuleFormType extends BaseEarningRuleFormType
                 ->add('limit', EarningRuleLimitFormType::class);
         } elseif ($type == EarningRule::TYPE_GEOLOCATION) {
             $form
-                ->add('latitude', NumberType::class, [
+                ->add('latitude', TextType::class, [
                     'required' => true,
                     'constraints' => [
-                        new NotBlank(),
-                        new CType([
-                            'type' => 'numeric',
-                        ]),
+                        new GeoType(),
                     ],
                 ])
-                ->add('longitude', NumberType::class, [
+                ->add('longitude', TextType::class, [
                     'required' => true,
                     'constraints' => [
-                        new NotBlank(),
-                        new CType([
-                            'type' => 'numeric',
-                        ]),
+                        new GeoType(),
                     ],
                 ])
                 ->add('radius', NumberType::class, [
                     'required' => true,
                     'constraints' => [
-                        new NotBlank(),
+                        new NotNull(['message' => $this->translator->trans('earning_rule.geo_rule.constraints_radius')]),
                         new CType([
                             'type' => 'numeric',
                         ]),
+                        new Range(['min' => 1]),
                     ],
                 ])
                 ->add('pointsAmount', NumberType::class, [
                     'scale' => 2,
                     'required' => true,
-                    'constraints' => [new NotBlank()],
+                    'constraints' => [
+                        new NotNull(['message' => $this->translator->trans('earning_rule.geo_rule.constraints_points')]),
+                        new Range(['min' => 1]),
+                    ],
                 ]);
         } elseif ($type == EarningRule::TYPE_POINTS) {
             $form

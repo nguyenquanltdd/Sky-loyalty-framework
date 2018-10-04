@@ -4,6 +4,11 @@ services:
     autoconfigure: true
     public: false
 
+
+  OpenLoyalty\Bundle\EarningRuleBundle\Validator\Constraints\GeoTypeValidator:
+    arguments:
+      - "@translator"
+
   OpenLoyalty\Bundle\EarningRuleBundle\Controller\Api\:
           resource: '../../Controller/Api'
           tags: ['controller.service_arguments']

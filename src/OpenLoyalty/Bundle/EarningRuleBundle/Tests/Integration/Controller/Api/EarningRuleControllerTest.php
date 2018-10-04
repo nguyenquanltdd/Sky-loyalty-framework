@@ -69,6 +69,47 @@ class EarningRuleControllerTest extends BaseApiTest
     /**
      * @test
      */
+    public function test_try_creates_geo_rule_with_fault_results()
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/earningRule',
+            [
+                'earningRule' => array_merge($this->getMainData(), [
+                    'name' => 'Geo rule for UnitTest',
+                    'type' => EarningRule::TYPE_GEOLOCATION,
+                    'latitude' => 'geo-latitude',
+                    'longitude' => 51.11,
+                    'radius' => '50',
+                    'pointsAmount' => 12,
+                    'levels' => [
+                        self::LEVEL_ID,
+                    ],
+                    'pos' => [
+                        self::POS_ID,
+                    ],
+                ]),
+            ]
+        );
+        $response = $client->getResponse();
+        $content = json_decode($response->getContent(), true);
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertArrayHasKey('form', $content, 'Response should return form key');
+        $content = $content['form']['children'];
+
+        $key = 'latitude';
+        foreach (array_keys($content) as $item) {
+            if ($item === $key) {
+                $this->assertArrayHasKey('errors', $content[$key]);
+                $this->assertEquals(1, count($content[$key]['errors']));
+            }
+        }
+    }
+
+    /**
+     * @test
+     */
     public function it_creates_event_rule_with_assign_to_pos()
     {
         $client = $this->createAuthenticatedClient();

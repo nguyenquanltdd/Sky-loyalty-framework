@@ -6,6 +6,18 @@
                 <source>earning_rule.points_rule.labels_inclusion_type.choice_not_valid</source>
                 <target>To nie jest prawidłowa wartość</target>
             </trans-unit>
+            <trans-unit id="earning_rule.geo_rule.constraints.coordinates_field">
+               <source>earning_rule.geo_rule.constraints.coordinates_field</source>
+               <target>Ta wartość nie może być pusta i powinna byc numeryczna</target>
+            </trans-unit>
+            <trans-unit id="earning_rule.geo_rule.constraints_radius">
+               <source>earning_rule.geo_rule.constraints_radius</source>
+               <target>Ta wartość nie może być pusta i powinna wynosić 1 lub więcej</target>
+            </trans-unit>
+            <trans-unit id="earning_rule.geo_rule.constraints_points">
+               <source>earning_rule.geo_rule.constraints_points</source>
+               <target>Ta wartość nie może być pusta i powinna wynosić 1 lub więcej</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

@@ -607,10 +607,11 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
     }
 
     /**
-     * @param float|null $latitude
+     * @param string|null $latitude
      */
-    public function setLatitude(?float $latitude): void
+    public function setLatitude(?string $latitude): void
     {
+        $latitude = str_replace(',', '.', $latitude);
         $this->latitude = $latitude;
     }
 
@@ -623,10 +624,11 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
     }
 
     /**
-     * @param float|null $longitude
+     * @param string|null $longitude
      */
-    public function setLongitude(?float $longitude): void
+    public function setLongitude(?string $longitude): void
     {
+        $longitude = str_replace(',', '.', $longitude);
         $this->longitude = $longitude;
     }
 

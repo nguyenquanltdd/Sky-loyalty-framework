@@ -12,6 +12,7 @@ use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\PreloadedExtension;
 use Symfony\Component\Form\Test\TypeTestCase;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class CreateEarningRuleFormTypeTest.
@@ -42,8 +43,10 @@ class CreateEarningRuleFormTypeTest extends TypeTestCase
 
     protected function getExtensions()
     {
+        $translator = $this->getMockBuilder(TranslatorInterface::class)->getMock();
         $type = new CreateEarningRuleFormType(
-            new StoppableProvider()
+            new StoppableProvider(),
+            $translator
         );
 
         return array(
