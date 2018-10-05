@@ -44,32 +44,27 @@ class MigrateTranslationCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('oloy:translation:migrate2database');
         $this->setDescription('Migrate translation files (located in app/Resources/frontend_translations) to database');
         $this->addArgument('filename', InputArgument::REQUIRED, 'Translations file name');
         $this->addArgument('code', InputArgument::REQUIRED, 'Translation code which will be used in database');
         $this->addOption('force');
+        $this->addOption('setAsDefault');
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function interact(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         if (!$input->getOption('force')) {
             $output->writeln('<comment>Nothing to do. Run this command with force parameter.</comment>');
 
             return;
         }
-    }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
         $filename = $input->getArgument('filename');
         $code = $input->getArgument('code');
 
@@ -85,8 +80,9 @@ class MigrateTranslationCommand extends Command
             return;
         }
 
+        $setAsDefault = !empty($input->getOption('setAsDefault'));
         $content = $this->filesystem->get($filename)->getContent();
-        $translationEntry = new TranslationsEntry($code, sprintf('%s (%s)', $code, $filename), $content);
+        $translationEntry = new TranslationsEntry($code, sprintf('%s (%s)', $code, $filename), $content, null, 0, $setAsDefault);
         $this->translationProvider->create($translationEntry);
 
         $output->writeln('<info>Translation has been migrated to database successfully. Go to settings and set it as default.</info>');
