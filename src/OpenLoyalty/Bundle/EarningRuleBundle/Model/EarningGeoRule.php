@@ -21,6 +21,11 @@ class EarningGeoRule
     protected $longitude;
 
     /**
+     * @var string|null
+     */
+    protected $earningRuleId;
+
+    /**
      * @return float|null
      */
     public function getLongitude(): ?float
@@ -50,5 +55,21 @@ class EarningGeoRule
     public function setLatitude(float $latitude)
     {
         $this->latitude = $latitude;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getEarningRuleId(): ?string
+    {
+        return $this->earningRuleId;
+    }
+
+    /**
+     * @param $earningRuleId
+     */
+    public function setEarningRuleId(?string $earningRuleId)
+    {
+        $this->earningRuleId = $earningRuleId;
     }
 }

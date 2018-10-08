@@ -6,12 +6,14 @@
 namespace OpenLoyalty\Bundle\EarningRuleBundle\Form\Type;
 
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningGeoRule;
+use OpenLoyalty\Bundle\EarningRuleBundle\Validator\Constraints\EarningRuleExist;
 
 /**
  * Class CreateEarningReoRuleFormType.
@@ -40,6 +42,12 @@ class CreateEarningGeoRuleFormType extends AbstractType
                     new Type([
                         'type' => 'numeric',
                     ]),
+                ],
+            ])
+            ->add('earningRuleId', TextType::class, [
+                'required' => false,
+                'constraints' => [
+                    new EarningRuleExist(),
                 ],
             ]);
     }

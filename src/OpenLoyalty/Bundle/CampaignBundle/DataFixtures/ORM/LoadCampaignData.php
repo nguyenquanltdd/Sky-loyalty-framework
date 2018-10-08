@@ -140,11 +140,10 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaign->setReward(Campaign::REWARD_TYPE_CASHBACK);
         $campaign->setName('cashback');
         $campaign->translate('pl')->setName('zwrot gotówki');
-        $campaign->setActive(true);
+        $campaign->setActive(false);
         $campaign->setPublic(true);
         $campaign->setPointValue(10);
         $campaign->setLabels([new Label('type', 'cashback'), new Label('type', 'promotion')]);
-        $campaign->setLevels([new LevelId(LoadLevelData::LEVEL2_ID)]);
         $campaign->setSegments([new SegmentId(LoadSegmentData::SEGMENT2_ID)]);
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(true);
@@ -152,6 +151,11 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaignVisibility = new CampaignVisibility();
         $campaignVisibility->setAllTimeVisible(true);
         $campaign->setCampaignVisibility($campaignVisibility);
+        $campaign->setLevels(
+            [
+                new LevelId(LoadLevelData::LEVEL2_ID),
+            ]
+        );
 
         $this->container->get('broadway.command_handling.command_bus')
                         ->dispatch(

@@ -373,7 +373,8 @@ class EarningRuleController extends FOSRestController
      *     section="Earning Rule",
      *     parameters={
      *      {"name"="earningRule[latitude]", "dataType":"float", "required":true},
-     *      {"name"="earningRule[longitude]", "dataType":"float", "required":true }
+     *      {"name"="earningRule[longitude]", "dataType":"float", "required":true },
+     *      {"name"="earningRule[earningRuleId]", "dataType":"string", "required":false},
      *     },
      *     statusCodes={
      *       200="Returned when successful",
@@ -393,6 +394,9 @@ class EarningRuleController extends FOSRestController
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
+            $blad = $form->getErrors();
+            $ziom = 1;
+
             return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
         }
 
@@ -400,7 +404,8 @@ class EarningRuleController extends FOSRestController
         $event = new GeoEventOccurredSystemEvent(
             new CustomerId((string) $customer->getCustomerId()),
             $data->getLatitude(),
-            $data->getLongitude()
+            $data->getLongitude(),
+            $data->getEarningRuleId()
         );
 
         try {

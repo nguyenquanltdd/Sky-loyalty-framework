@@ -67,7 +67,8 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
         $result = $this->earningRuleApplier->evaluateGeoEvent(
             $event->getLatitude(),
             $event->getLongitude(),
-            (string) $event->getCustomerId()
+            (string) $event->getCustomerId(),
+            $event->getEarningRuleId()
         );
         $account = $this->getAccountDetails((string) $event->getCustomerId());
         if (!$account) {

@@ -29,16 +29,23 @@ class GeoEventOccurredSystemEvent extends CustomEventOccurredSystemEvent
     protected $longitude;
 
     /**
+     * @var string
+     */
+    protected $earningRuleId;
+
+    /**
      * {@inheritdoc}
      *
-     * @param float $latitude
-     * @param float $longitude
+     * @param float  $latitude
+     * @param float  $longitude
+     * @param string $earningRuleId
      */
-    public function __construct(CustomerId $customerId, $latitude = null, $longitude = null)
+    public function __construct(CustomerId $customerId, float $latitude = null, float $longitude = null, string $earningRuleId = null)
     {
         parent::__construct($customerId, '');
         $this->latitude = $latitude;
         $this->longitude = $longitude;
+        $this->earningRuleId = $earningRuleId;
     }
 
     /**
@@ -87,5 +94,21 @@ class GeoEventOccurredSystemEvent extends CustomEventOccurredSystemEvent
     public function setLongitude(float $longitude): void
     {
         $this->longitude = $longitude;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getEarningRuleId(): ?string
+    {
+        return $this->earningRuleId;
+    }
+
+    /**
+     * @param string|null $earningRuleId
+     */
+    public function setEarningRuleId(?string $earningRuleId): void
+    {
+        $this->earningRuleId = $earningRuleId;
     }
 }

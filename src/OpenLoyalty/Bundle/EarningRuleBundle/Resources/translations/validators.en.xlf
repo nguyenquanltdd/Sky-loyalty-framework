@@ -18,6 +18,10 @@
                <source>earning_rule.geo_rule.constraints_points</source>
                <target>This value should not be null and should be 1 or more</target>
             </trans-unit>
+             <trans-unit id="earningRule_geo_entity_not_exist">
+                <source>earningRule_geo_entity_not_exist</source>
+                <target>This earningRule does not exist</target>
+             </trans-unit>
         </body>
     </file>
 </xliff>

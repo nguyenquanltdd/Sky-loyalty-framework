@@ -297,7 +297,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     /**
      * {@inheritdoc}
      */
-    public function evaluateGeoEvent(float $latitude, float $longitude, string $customerId): array
+    public function evaluateGeoEvent(float $latitude, float $longitude, string $customerId, ?string $earningRuleId): array
     {
         /** @var EvaluationResult[] $result */
         $result = [];
@@ -305,6 +305,20 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         /** @var array $customerData */
         $customerData = $this->getCustomerDetails($customerId);
         if (null !== $customerData['status'] && !in_array($customerData['status'], $this->getCustomerEarningStatuses())) {
+            return $result;
+        }
+
+        if ($earningRuleId !== null) {
+            $earningGeoRule = $this->earningRuleGeoRepository->byId(new EarningRuleId($earningRuleId));
+            $distance = $earningGeoRule->getDistance($latitude, $longitude);
+            if ($earningGeoRule->getRadius() >= $distance) {
+                $result[] = new EvaluationResult(
+                    (string) $earningGeoRule->getEarningRuleId(),
+                    $earningGeoRule->getPointsAmount(),
+                    $earningGeoRule->getName()
+                );
+            }
+
             return $result;
         }
 

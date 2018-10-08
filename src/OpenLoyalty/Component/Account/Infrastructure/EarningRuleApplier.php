@@ -74,7 +74,7 @@ interface EarningRuleApplier
      *
      * @return EvaluationResult[]
      */
-    public function evaluateGeoEvent(float $latitude, float $longitude, string $customerId): array;
+    public function evaluateGeoEvent(float $latitude, float $longitude, string $customerId, ?string $cos): array;
 
     /**
      * @param string      $code

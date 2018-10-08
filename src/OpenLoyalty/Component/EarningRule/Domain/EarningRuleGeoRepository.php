@@ -21,4 +21,11 @@ interface EarningRuleGeoRepository
      * @return array
      */
     public function findGeoRules(array $segmentIds = [], $levelId = null, \DateTime $date = null, $posId = null): array;
+
+    /**
+     * @param EarningRuleId $earningRuleId
+     *
+     * @return null|EarningRuleGeo
+     */
+    public function byId(EarningRuleId $earningRuleId): ?EarningRuleGeo;
 }

@@ -7,6 +7,8 @@ namespace OpenLoyalty\Component\EarningRule\Infrastructure\Persistence\Doctrine\
 
 use Doctrine\ORM\EntityRepository;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleGeoRepository;
+use OpenLoyalty\Component\EarningRule\Domain\EarningRuleGeo;
+use OpenLoyalty\Component\EarningRule\Domain\EarningRuleId;
 
 /**
  * Class DoctrineEarningRuleGeoRepository.
@@ -27,5 +29,13 @@ class DoctrineEarningRuleGeoRepository extends EntityRepository implements Earni
         $qb = $this->getEarningRulesForLevelAndSegmentQueryBuilder($segmentIds, $levelId, $date, $posId);
 
         return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function byId(EarningRuleId $earningRuleId): ?EarningRuleGeo
+    {
+        return parent::find($earningRuleId);
     }
 }

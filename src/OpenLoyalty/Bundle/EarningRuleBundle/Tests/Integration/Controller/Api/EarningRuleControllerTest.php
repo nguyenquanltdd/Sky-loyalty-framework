@@ -167,7 +167,32 @@ class EarningRuleControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_run_geo_rule()
+    public function it_runs_geo_rule_with_earning_rule_id(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            'api/earningRule/geolocation/customer/00000000-0000-474c-b092-b0dd880c07e2',
+            [
+                'earningRule' => [
+                    'latitude' => 50.013992,
+                    'longitude' => 15.046411,
+                    'earningRuleId' => '00000001-0000-474c-b092-b0dd880c07e9',
+                ],
+            ]
+        );
+        $response = $client->getResponse();
+
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('points', $data);
+        $this->assertEquals(2, $data['points']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_run_geo_rule(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
