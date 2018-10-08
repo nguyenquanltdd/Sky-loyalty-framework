@@ -6,8 +6,8 @@
 namespace OpenLoyalty\Component\Campaign\Domain\ReadModel;
 
 use Broadway\EventDispatcher\EventDispatcher;
-use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\Repository;
+use OpenLoyalty\Component\Core\Infrastructure\Projector\Projector;
 use OpenLoyalty\Bundle\CampaignBundle\Model\Campaign;
 use OpenLoyalty\Bundle\UserBundle\Service\AccountDetailsProviderInterface;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;

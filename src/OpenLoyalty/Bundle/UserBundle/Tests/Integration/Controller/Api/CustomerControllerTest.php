@@ -610,7 +610,13 @@ class CustomerControllerTest extends BaseApiTest
         $newClientData = array_merge($currentClientData, $customerData);
 
         // updatedAt is not needed, segments may be added later
-        unset($newClientData['updatedAt'], $data['updatedAt'], $newClientData['segments']);
+        unset(
+            $newClientData['updatedAt'],
+            $newClientData['version'],
+            $data['updatedAt'],
+            $newClientData['segments'],
+            $data['version']
+        );
         $this->assertEquals($newClientData, $data);
     }
 

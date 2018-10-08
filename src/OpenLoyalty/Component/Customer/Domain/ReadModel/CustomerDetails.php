@@ -7,6 +7,8 @@ namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
 use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
+use OpenLoyalty\Component\Core\Domain\ReadModel\Versionable;
+use OpenLoyalty\Component\Core\Domain\ReadModel\VersionableReadModel;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\Model\Address;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
@@ -24,8 +26,10 @@ use OpenLoyalty\Component\Level\Domain\ReadModel\LevelDetails;
 /**
  * Class CustomerDetails.
  */
-class CustomerDetails implements SerializableReadModel
+class CustomerDetails implements SerializableReadModel, VersionableReadModel
 {
+    use Versionable;
+
     /**
      * @var CustomerId
      */

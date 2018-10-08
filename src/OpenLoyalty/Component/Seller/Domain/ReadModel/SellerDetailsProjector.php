@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Component\Seller\Domain\ReadModel;
 
-use Broadway\ReadModel\Projector;
+use OpenLoyalty\Component\Core\Infrastructure\Projector\Projector;
 use OpenLoyalty\Component\Pos\Domain\Pos;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
 use OpenLoyalty\Component\Seller\Domain\Event\SellerWasActivated;

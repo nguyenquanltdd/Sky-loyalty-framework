@@ -5,8 +5,8 @@
  */
 namespace OpenLoyalty\Component\Transaction\Domain\ReadModel;
 
-use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\Repository;
+use OpenLoyalty\Component\Core\Infrastructure\Projector\Projector;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Pos\Domain\Pos;

@@ -12,12 +12,16 @@ use OpenLoyalty\Component\Account\Domain\Model\P2PAddPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Model\PointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\CustomerId;
+use OpenLoyalty\Component\Core\Domain\ReadModel\Versionable;
+use OpenLoyalty\Component\Core\Domain\ReadModel\VersionableReadModel;
 
 /**
  * Class AccountDetails.
  */
-class AccountDetails implements SerializableReadModel
+class AccountDetails implements SerializableReadModel, VersionableReadModel
 {
+    use Versionable;
+
     /**
      * @var AccountId
      */

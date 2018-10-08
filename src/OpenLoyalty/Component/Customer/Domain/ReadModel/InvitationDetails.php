@@ -3,6 +3,8 @@
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
 use Broadway\ReadModel\SerializableReadModel;
+use OpenLoyalty\Component\Core\Domain\ReadModel\Versionable;
+use OpenLoyalty\Component\Core\Domain\ReadModel\VersionableReadModel;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Invitation;
 use OpenLoyalty\Component\Customer\Domain\InvitationId;
@@ -10,8 +12,10 @@ use OpenLoyalty\Component\Customer\Domain\InvitationId;
 /**
  * Class InvitationDetails.
  */
-class InvitationDetails implements SerializableReadModel
+class InvitationDetails implements SerializableReadModel, VersionableReadModel
 {
+    use Versionable;
+
     /**
      * @var InvitationId
      */

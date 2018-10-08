@@ -13,7 +13,7 @@ services:
         lazy: true
         tags:
             - { name: broadway.command_handler }
-    
+
     oloy.user.invitation.sha_token_generator:
         class: OpenLoyalty\Component\Customer\Domain\Service\ShaInvitationTokenGenerator
         public: false
@@ -29,7 +29,7 @@ services:
         lazy: true
         tags:
             - { name: broadway.command_handler }
-    
+
     oloy.user.seller.command_handler:
         class: OpenLoyalty\Component\Seller\Domain\Command\SellerCommandHandler
         arguments:
@@ -38,7 +38,7 @@ services:
         lazy: true
         tags:
             - { name: broadway.command_handler }
-    
+
     oloy.user.customer.unique_validator:
         class: OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator
         arguments:
@@ -48,38 +48,31 @@ services:
         class: OpenLoyalty\Component\Seller\Domain\Validator\SellerUniqueValidator
         arguments:
             - '@oloy.user.read_model.repository.seller_details'
-    
+
     oloy.user.customer.repository:
         class: OpenLoyalty\Component\Customer\Domain\CustomerRepository
         arguments:
             - '@broadway.event_store'
             - '@broadway.event_handling.event_bus'
             - ['@broadway.metadata_enriching_event_stream_decorator']
-    
+
     oloy.user.invitation.repository:
         class: OpenLoyalty\Component\Customer\Domain\InvitationRepository
         arguments:
             - '@broadway.event_store'
             - '@broadway.event_handling.event_bus'
             - ['@broadway.metadata_enriching_event_stream_decorator']
-    
+
     oloy.user.seller.repository:
         class: OpenLoyalty\Component\Seller\Domain\SellerRepository
         arguments:
             - '@broadway.event_store'
             - '@broadway.event_handling.event_bus'
             - ['@broadway.metadata_enriching_event_stream_decorator']
-    
-    oloy.user.read_model.repository_factory:
-        class: 'OpenLoyalty\Component\Core\Infrastructure\Repository\OloyElasticsearchRepositoryFactory'
-        arguments:
-            - '@broadway.elasticsearch.client'
-            - '@broadway.serializer.readmodel'
-            - '%es_max_result_window_size%'
 
     oloy.user.read_model.repository.customer_details:
         class: 'Broadway\ReadModel\ReadModel'
-        factory: ['@oloy.user.read_model.repository_factory', create]
+        factory: ['@oloy.read_model.repository.factory', create]
         arguments:
             - 'oloy.customer_details'
             - 'OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails'
@@ -87,7 +80,7 @@ services:
 
     oloy.user.read_model.repository.invitation_details:
         class: 'Broadway\ReadModel\ReadModel'
-        factory: ['@oloy.user.read_model.repository_factory', create]
+        factory: ['@oloy.read_model.repository.factory', create]
         arguments:
             - 'oloy.invitation_details'
             - 'OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetails'
@@ -95,7 +88,7 @@ services:
 
     oloy.user.read_model.repository.seller_details:
         class: 'Broadway\ReadModel\ReadModel'
-        factory: ['@oloy.user.read_model.repository_factory', create]
+        factory: ['@oloy.read_model.repository.factory', create]
         arguments:
             - 'oloy.seller_details'
             - 'OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetails'
@@ -127,7 +120,7 @@ services:
 
     oloy.user.read_model.repository.customers_belonging_to_one_level:
         class: 'Broadway\ReadModel\ReadModel'
-        factory: ['@oloy.user.read_model.repository_factory', create]
+        factory: ['@oloy.read_model.repository.factory', create]
         arguments:
             - 'oloy.customers_belonging_to_one_level'
             - 'OpenLoyalty\Component\Customer\Domain\ReadModel\CustomersBelongingToOneLevel'

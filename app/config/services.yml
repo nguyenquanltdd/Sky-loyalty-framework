@@ -45,10 +45,12 @@ services:
       - false
       - '@broadway.uuid.converter'
 
+  OpenLoyalty\Component\Core\Infrastructure\Serializer\SimpleInterfaceSerializer: ~
+
   oloy.read_model.repository.factory:
     class: OpenLoyalty\Component\Core\Infrastructure\Repository\OloyElasticsearchRepositoryFactory
     arguments:
       - '@broadway.elasticsearch.client'
-      - '@broadway.serializer.readmodel'
+      - '@OpenLoyalty\Component\Core\Infrastructure\Serializer\SimpleInterfaceSerializer'
       - '%es_max_result_window_size%'
 

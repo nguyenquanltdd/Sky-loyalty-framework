@@ -24,7 +24,7 @@ services:
 
   oloy.segment.read_model.repository.segmented_customers:
     class: 'Broadway\ReadModel\ReadModel'
-    factory: ['@oloy.user.read_model.repository_factory', create]
+    factory: ['@oloy.read_model.repository.factory', create]
     arguments:
       - 'oloy.segmented_customers'
       - 'OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomers'

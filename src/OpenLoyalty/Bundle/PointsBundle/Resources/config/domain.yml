@@ -29,7 +29,7 @@ services:
 
     OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsRepository:
         class: 'Broadway\ReadModel\ReadModel'
-        factory: ['@oloy.user.read_model.repository_factory', create]
+        factory: ['@oloy.read_model.repository.factory', create]
         arguments:
             - 'oloy.points_transfer_details'
             - 'OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails'
@@ -47,7 +47,7 @@ services:
 
     oloy.points.account.repository.account_details:
         class: 'Broadway\ReadModel\ReadModel'
-        factory: ['@oloy.user.read_model.repository_factory', create]
+        factory: ['@oloy.read_model.repository.factory', create]
         arguments:
             - 'oloy.account_details'
             - 'OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails'

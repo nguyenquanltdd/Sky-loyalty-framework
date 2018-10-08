@@ -7,6 +7,8 @@ namespace OpenLoyalty\Component\Transaction\Domain\ReadModel;
 
 use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Core\Domain\Model\SKU;
+use OpenLoyalty\Component\Core\Domain\ReadModel\Versionable;
+use OpenLoyalty\Component\Core\Domain\ReadModel\VersionableReadModel;
 use OpenLoyalty\Component\Transaction\Domain\CustomerId;
 use OpenLoyalty\Component\Transaction\Domain\Model\CustomerBasicData;
 use OpenLoyalty\Component\Transaction\Domain\Model\Item;
@@ -18,8 +20,10 @@ use OpenLoyalty\Component\Transaction\Domain\TransactionId;
 /**
  * Class TransactionDetails.
  */
-class TransactionDetails implements SerializableReadModel
+class TransactionDetails implements SerializableReadModel, VersionableReadModel
 {
+    use Versionable;
+
     /**
      * @var TransactionId
      */

@@ -19,7 +19,7 @@ services:
       - ['@broadway.metadata_enriching_event_stream_decorator']
   OpenLoyalty\Component\Transaction\Infrastructure\Repository\TransactionDetailsElasticsearchRepository:
     class: 'Broadway\ReadModel\ReadModel'
-    factory: ['@oloy.user.read_model.repository_factory', create]
+    factory: ['@oloy.read_model.repository.factory', create]
     arguments:
       - 'oloy.transactions_details'
       - 'OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails'

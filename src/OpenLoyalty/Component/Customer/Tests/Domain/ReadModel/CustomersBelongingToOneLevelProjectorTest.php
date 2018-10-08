@@ -1,10 +1,14 @@
 <?php
-
+/**
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Component\Customer\Tests\Domain\ReadModel;
 
 use Broadway\ReadModel\InMemory\InMemoryRepository;
 use Broadway\ReadModel\Repository;
 use Broadway\ReadModel\Testing\ProjectorScenarioTestCase;
+use Broadway\ReadModel\Projector;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasMovedToLevel;
 use OpenLoyalty\Component\Customer\Domain\LevelId;
@@ -12,7 +16,6 @@ use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomersBelongingToOneLevel;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomersBelongingToOneLevelProjector;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
-use Broadway\ReadModel\Projector;
 
 /**
  * Class CustomersBelongingToOneLevelProjectorTest.

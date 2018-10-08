@@ -7,12 +7,16 @@ namespace OpenLoyalty\Component\Campaign\Domain\ReadModel;
 
 use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
+use OpenLoyalty\Component\Core\Domain\ReadModel\Versionable;
+use OpenLoyalty\Component\Core\Domain\ReadModel\VersionableReadModel;
 
 /**
  * Class CampaignUsage.
  */
-class CampaignUsage implements SerializableReadModel
+class CampaignUsage implements SerializableReadModel, VersionableReadModel
 {
+    use Versionable;
+
     /**
      * @var CampaignId
      */

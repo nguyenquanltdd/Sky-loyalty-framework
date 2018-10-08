@@ -12,11 +12,13 @@ use OpenLoyalty\Component\Account\Domain\Model\PointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\CustomerId;
 use OpenLoyalty\Component\Account\Domain\TransactionId;
+use OpenLoyalty\Component\Core\Domain\ReadModel\Versionable;
+use OpenLoyalty\Component\Core\Domain\ReadModel\VersionableReadModel;
 
 /**
  * Class PointsTransferDetails.
  */
-class PointsTransferDetails implements SerializableReadModel
+class PointsTransferDetails implements SerializableReadModel, VersionableReadModel
 {
     const TYPE_ADDING = 'adding';
     const TYPE_SPENDING = 'spending';
@@ -26,6 +28,8 @@ class PointsTransferDetails implements SerializableReadModel
     const STATE_ACTIVE = 'active';
     const STATE_EXPIRED = 'expired';
     const STATE_PENDING = 'pending';
+
+    use Versionable;
 
     /**
      * @var PointsTransferId

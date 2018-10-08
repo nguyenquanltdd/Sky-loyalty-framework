@@ -6,13 +6,17 @@
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
 use Broadway\ReadModel\SerializableReadModel;
+use OpenLoyalty\Component\Core\Domain\ReadModel\Versionable;
+use OpenLoyalty\Component\Core\Domain\ReadModel\VersionableReadModel;
 use OpenLoyalty\Component\Customer\Domain\LevelId;
 
 /**
  * Class CustomersBelongingToOneLevel.
  */
-class CustomersBelongingToOneLevel implements SerializableReadModel
+class CustomersBelongingToOneLevel implements SerializableReadModel, VersionableReadModel
 {
+    use Versionable;
+
     /**
      * @var LevelId
      */

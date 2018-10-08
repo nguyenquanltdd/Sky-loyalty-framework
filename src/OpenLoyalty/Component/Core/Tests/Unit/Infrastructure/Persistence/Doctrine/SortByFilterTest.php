@@ -3,7 +3,7 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Component\Core\Tests\Infrastructure\Persistence\Doctrine;
+namespace OpenLoyalty\Component\Core\Tests\Unit\Infrastructure\Persistence\Doctrine;
 
 use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortByFilter;
 

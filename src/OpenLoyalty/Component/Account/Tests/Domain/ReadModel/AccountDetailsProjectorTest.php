@@ -1,7 +1,11 @@
 <?php
-
+/**
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
+use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\InMemory\InMemoryRepository;
 use Broadway\ReadModel\Testing\ProjectorScenarioTestCase;
 use OpenLoyalty\Component\Account\Domain\AccountId;
@@ -16,7 +20,6 @@ use OpenLoyalty\Component\Account\Domain\Event\PointsHasBeenReset;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetailsProjector;
 use OpenLoyalty\Component\Account\Domain\CustomerId;
-use Broadway\ReadModel\Projector;
 
 /**
  * Class AccountDetailsProjectorTest.
