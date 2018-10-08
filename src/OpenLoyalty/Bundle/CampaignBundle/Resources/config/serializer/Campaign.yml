@@ -40,6 +40,8 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
       serialized_name: usageInstruction
     getBrandDescription:
       serialized_name: brandDescription
+    getBrandName:
+      serialized_name: brandName
     getFlatLevels:
       serialized_name: levels
       type: array

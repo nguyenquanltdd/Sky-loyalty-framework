@@ -20,3 +20,7 @@ OpenLoyalty\Component\Campaign\Domain\CampaignTranslation:
       type: text
       nullable: true
       column: brand_description
+    brandName:
+      type: text
+      nullable: true
+      column: brand_name

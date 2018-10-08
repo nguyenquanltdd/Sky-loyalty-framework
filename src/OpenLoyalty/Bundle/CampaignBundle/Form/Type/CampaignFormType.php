@@ -91,6 +91,9 @@ class CampaignFormType extends AbstractType
                 'brandDescription' => [
                     'field_type' => TextareaType::class,
                 ],
+                'brandName' => [
+                    'field_type' => TextType::class,
+                ],
             ],
         ]);
 
@@ -120,10 +123,6 @@ class CampaignFormType extends AbstractType
                 'error_bubbling' => false,
             ])->addModelTransformer(new CategoriesDataTransformer())
         );
-
-        $builder->add('brandName', TextType::class, [
-            'required' => false,
-        ]);
 
         $builder->add('rewardValue', NumberType::class, [
             'scale' => 2,

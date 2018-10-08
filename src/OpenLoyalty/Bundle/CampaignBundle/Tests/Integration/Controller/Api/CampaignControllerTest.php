@@ -144,10 +144,12 @@ class CampaignControllerTest extends BaseApiTest
                         'en' => [
                             'name' => 'test',
                             'shortDescription' => 'short description',
+                            'brandName' => 'Samsung EN',
                         ],
                         'pl' => [
                             'name' => 'test PL',
                             'shortDescription' => 'krótki opis PL',
+                            'brandName' => 'Samsung PL',
                         ],
                     ],
                 ],
@@ -221,7 +223,7 @@ class CampaignControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $campaign = $this->campaignRepository->byId(new CampaignId($data['campaignId']));
-        $this->objectHasAttribute('singleCoupon', $campaign);
+        $this->objectHasAttribute('singleCoupon');
         $this->assertEquals(true, $campaign->isSingleCoupon());
     }
 
@@ -264,10 +266,12 @@ class CampaignControllerTest extends BaseApiTest
                         'en' => [
                             'name' => 'test',
                             'shortDescription' => 'short description',
+                            'brandName' => 'Samsung EN',
                         ],
                         'pl' => [
                             'name' => 'test PL',
                             'shortDescription' => 'krótki opis PL',
+                            'brandName' => 'Samsung PL',
                         ],
                     ],
                 ],
@@ -293,6 +297,7 @@ class CampaignControllerTest extends BaseApiTest
         $this->assertEquals('short description', $campaign->getShortDescription());
         $this->assertEquals('test PL', $campaign->translate('pl')->getName());
         $this->assertEquals('krótki opis PL', $campaign->translate('pl')->getShortDescription());
+        $this->assertEquals('Samsung PL', $campaign->translate('pl')->getBrandName());
     }
 
     /**

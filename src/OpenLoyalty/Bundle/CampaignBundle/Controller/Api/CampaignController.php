@@ -277,6 +277,8 @@ class CampaignController extends FOSRestController
      * @param Request $request
      *
      * @return Response
+     *
+     * @throws \Assert\AssertionFailedException
      */
     public function createAction(Request $request): Response
     {

@@ -51,6 +51,7 @@ class Campaign extends BaseCampaign
                     'conditionsDescription' => $campaign->getConditionsDescription(),
                     'usageInstruction' => $campaign->getUsageInstruction(),
                     'brandDescription' => $campaign->getBrandDescription(),
+                    'brandName' => $campaign->getBrandName(),
                 ];
             },
             $this->getTranslations()->toArray()
@@ -76,7 +77,6 @@ class Campaign extends BaseCampaign
             'taxPriceValue' => $this->taxPriceValue,
             'labels' => $labels,
             'translations' => $translations,
-            'brandName' => $this->brandName,
             'daysInactive' => $this->daysInactive,
             'daysValid' => $this->daysValid,
             'transactionPercentageValue' => $this->transactionPercentageValue,

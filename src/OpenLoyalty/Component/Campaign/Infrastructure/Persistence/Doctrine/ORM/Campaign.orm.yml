@@ -69,10 +69,6 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
       type: labels_json_array
       column: labels
       nullable: true
-    brandName:
-      type: text
-      nullable: true
-      column: brand_name
     daysInactive:
       type: integer
       nullable: true

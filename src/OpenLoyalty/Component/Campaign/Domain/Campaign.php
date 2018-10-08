@@ -54,11 +54,6 @@ class Campaign
     protected $moreInformationLink;
 
     /**
-     * @var string|null
-     */
-    protected $brandName;
-
-    /**
      * @var CampaignFile|null
      */
     protected $brandIcon;
@@ -223,10 +218,6 @@ class Campaign
             $this->moreInformationLink = $data['moreInformationLink'];
         }
 
-        if (isset($data['brandName'])) {
-            $this->brandName = $data['brandName'];
-        }
-
         if (isset($data['active'])) {
             $this->active = $data['active'];
         }
@@ -348,6 +339,9 @@ class Campaign
             foreach ($data['translations'] as $locale => $transData) {
                 if (array_key_exists('name', $transData)) {
                     $this->translate($locale, false)->setName($transData['name']);
+                }
+                if (array_key_exists('brandName', $transData)) {
+                    $this->translate($locale, false)->setBrandName($transData['brandName']);
                 }
                 if (array_key_exists('shortDescription', $transData)) {
                     $this->translate($locale, false)->setShortDescription($transData['shortDescription']);
@@ -730,15 +724,15 @@ class Campaign
      */
     public function getBrandName(): ?string
     {
-        return $this->brandName;
+        return $this->translateFieldFallback(null, 'brandName')->getBrandName();
     }
 
     /**
      * @param string|null $brandName
      */
-    public function setBrandName(?string $brandName)
+    public function setBrandName(?string $brandName): void
     {
-        $this->brandName = $brandName;
+        $this->translate(null, false)->setBrandName($brandName);
     }
 
     /**

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace OpenLoyalty\Component\Campaign\Tests\Integration\Domain\Command;
 
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
@@ -12,12 +14,12 @@ use OpenLoyalty\Component\Campaign\Tests\Domain\Command\CampaignCommandHandlerTe
 /**
  * Class CreateCampaignTest.
  */
-class CreateCampaignTest extends CampaignCommandHandlerTest
+final class CreateCampaignTest extends CampaignCommandHandlerTest
 {
     /**
      * @test
      */
-    public function it_creates_new_campaign()
+    public function it_creates_new_campaign(): void
     {
         $handler = $this->createCommandHandler();
         $campaignId = new CampaignId('00000000-0000-0000-0000-000000000000');
@@ -47,6 +49,7 @@ class CreateCampaignTest extends CampaignCommandHandlerTest
             'tax' => 23,
             'translations' => [
                 'en' => [
+                    'brandName' => 'Samsung',
                     'name' => 'test',
                     'shortDescription' => 'short desc',
                 ],

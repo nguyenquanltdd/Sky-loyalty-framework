@@ -12,6 +12,7 @@ Introduction
        create_a_new_bundle
        create_a_new_api_endpoint
        how_to_change_domain
+       translatable_field
        FAQ
 
 .. include:: /cookbook/map.rst.inc

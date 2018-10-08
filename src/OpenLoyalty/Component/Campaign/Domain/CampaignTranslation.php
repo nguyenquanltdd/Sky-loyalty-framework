@@ -40,6 +40,11 @@ class CampaignTranslation
     private $brandDescription;
 
     /**
+     * @var string|null
+     */
+    private $brandName;
+
+    /**
      * @return string|null
      */
     public function getName(): ?string
@@ -117,5 +122,21 @@ class CampaignTranslation
     public function setBrandDescription(?string $brandDescription): void
     {
         $this->brandDescription = $brandDescription;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getBrandName(): ?string
+    {
+        return $this->brandName;
+    }
+
+    /**
+     * @param null|string $brandName
+     */
+    public function setBrandName(?string $brandName): void
+    {
+        $this->brandName = $brandName;
     }
 }
