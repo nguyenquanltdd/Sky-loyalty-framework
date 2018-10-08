@@ -40,8 +40,8 @@ class AnniversaryEvaluator implements Evaluator
         if (!$criterion instanceof Anniversary) {
             return [];
         }
-        $from = new \DateTime();
-        $to = new \DateTime('+'.$criterion->getDays().' days');
+        $from = new \DateTime('today');
+        $to = new \DateTime(sprintf('today +%d days', $criterion->getDays()));
 
         if ($criterion->getAnniversaryType() == Anniversary::TYPE_BIRTHDAY) {
             $customers = $this->customerDetailsRepository->findByBirthdayAnniversary($from, $to);
@@ -51,8 +51,8 @@ class AnniversaryEvaluator implements Evaluator
             return [];
         }
 
-        return array_map(function (CustomerDetails $customerDetails) {
-            return $customerDetails->getCustomerId()->__toString();
+        return array_map(function (CustomerDetails $customerDetails): string {
+            return (string) $customerDetails->getCustomerId();
         }, $customers);
     }
 

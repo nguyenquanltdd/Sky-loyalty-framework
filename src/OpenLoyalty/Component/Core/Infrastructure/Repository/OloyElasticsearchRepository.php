@@ -418,7 +418,7 @@ class OloyElasticsearchRepository extends ElasticSearchRepository
      *
      * @return array
      */
-    protected function paginatedQuery(array $query, ?int $from = 0, ?int $size = self::MAX_QUERY_SIZE, ?array $sort = null)
+    protected function paginatedQuery(array $query, ?int $from = 0, ?int $size = self::MAX_QUERY_SIZE, ?array $sort = null): array
     {
         $query = [
             'index' => $this->index,
@@ -441,7 +441,7 @@ class OloyElasticsearchRepository extends ElasticSearchRepository
      *
      * @return array
      */
-    protected function searchAndDeserializeHits(array $query)
+    protected function searchAndDeserializeHits(array $query): array
     {
         try {
             $result = $this->client->search($query);
@@ -459,7 +459,7 @@ class OloyElasticsearchRepository extends ElasticSearchRepository
      *
      * @return array
      */
-    protected function deserializeHits(array $hits)
+    protected function deserializeHits(array $hits): array
     {
         return array_map([$this, 'deserializeHit'], $hits);
     }
@@ -515,7 +515,7 @@ class OloyElasticsearchRepository extends ElasticSearchRepository
     /**
      * {@inheritdoc}
      */
-    protected function query(array $query)
+    protected function query(array $query): array
     {
         return $this->searchAndDeserializeHits(
             [

@@ -19,7 +19,7 @@ interface CustomerDetailsRepository extends Repository
      *
      * @return CustomerDetails[]
      */
-    public function findByBirthdayAnniversary(\DateTime $from, \DateTime $to, $onlyActive = true);
+    public function findByBirthdayAnniversary(\DateTime $from, \DateTime $to, $onlyActive = true): array;
 
     /**
      * @param \DateTime $from
@@ -28,7 +28,7 @@ interface CustomerDetailsRepository extends Repository
      *
      * @return CustomerDetails[]
      */
-    public function findByCreationAnniversary(\DateTime $from, \DateTime $to, $onlyActive = true);
+    public function findByCreationAnniversary(\DateTime $from, \DateTime $to, $onlyActive = true): array;
 
     /**
      * @param array $params
@@ -36,7 +36,7 @@ interface CustomerDetailsRepository extends Repository
      *
      * @return CustomerDetails[]
      */
-    public function findByParameters(array $params, $exact = true);
+    public function findByParameters(array $params, $exact = true): array;
 
     /**
      * @param \DateTime $currentDate
@@ -56,7 +56,7 @@ interface CustomerDetailsRepository extends Repository
      *
      * @return CustomerDetails[]
      */
-    public function findByParametersPaginated(array $params, $exact = true, $page = 1, $perPage = 10, $sortField = null, $direction = 'DESC');
+    public function findByParametersPaginated(array $params, $exact = true, $page = 1, $perPage = 10, $sortField = null, $direction = 'DESC'): array;
 
     /**
      * @param array $params
@@ -64,7 +64,7 @@ interface CustomerDetailsRepository extends Repository
      *
      * @return int
      */
-    public function countTotal(array $params = [], $exact = true);
+    public function countTotal(array $params = [], $exact = true): int;
 
     /**
      * @param CustomerId $customerId
@@ -76,7 +76,7 @@ interface CustomerDetailsRepository extends Repository
      *
      * @return CampaignPurchase[]
      */
-    public function findPurchasesByCustomerIdPaginated(CustomerId $customerId, $page = 1, $perPage = 10, $sortField = null, $direction = 'DESC', $showCashback = false);
+    public function findPurchasesByCustomerIdPaginated(CustomerId $customerId, $page = 1, $perPage = 10, $sortField = null, $direction = 'DESC', $showCashback = false): array;
 
     /**
      * @return CustomerDetails[]
@@ -101,7 +101,7 @@ interface CustomerDetailsRepository extends Repository
      *
      * @return int
      */
-    public function countPurchasesByCustomerId(CustomerId $customerId, $showCashback = false);
+    public function countPurchasesByCustomerId(CustomerId $customerId, $showCashback = false): int;
 
     /**
      * @param $criteria
@@ -109,7 +109,7 @@ interface CustomerDetailsRepository extends Repository
      *
      * @return CustomerDetails[]
      */
-    public function findOneByCriteria($criteria, $limit);
+    public function findOneByCriteria($criteria, $limit): array;
 
     /**
      * @param $criteria
@@ -135,7 +135,7 @@ interface CustomerDetailsRepository extends Repository
      *
      * @return CustomerDetails[]
      */
-    public function findAllWithAverageTransactionAmountBetween($from, $to, $onlyActive = true);
+    public function findAllWithAverageTransactionAmountBetween($from, $to, $onlyActive = true): array;
 
     /**
      * @param $from
@@ -144,7 +144,7 @@ interface CustomerDetailsRepository extends Repository
      *
      * @return CustomerDetails[]
      */
-    public function findAllWithTransactionAmountBetween($from, $to, $onlyActive = true);
+    public function findAllWithTransactionAmountBetween($from, $to, $onlyActive = true): array;
 
     /**
      * @param $from
@@ -153,14 +153,14 @@ interface CustomerDetailsRepository extends Repository
      *
      * @return CustomerDetails[]
      */
-    public function findAllWithTransactionCountBetween($from, $to, $onlyActive = true);
+    public function findAllWithTransactionCountBetween($from, $to, $onlyActive = true): array;
 
     /**
      * @param $fieldName
      *
-     * @return int
+     * @return float
      */
-    public function sumAllByField($fieldName);
+    public function sumAllByField($fieldName): float;
 
     /**
      * @param array $labels
@@ -168,7 +168,7 @@ interface CustomerDetailsRepository extends Repository
      *
      * @return CustomerDetails[]
      */
-    public function findByLabels(array $labels, $active = null);
+    public function findByLabels(array $labels, $active = null): array;
 
     /**
      * @param array $labels
@@ -176,7 +176,7 @@ interface CustomerDetailsRepository extends Repository
      *
      * @return CustomerDetails[]
      */
-    public function findWithLabels(array $labels, $active = null);
+    public function findWithLabels(array $labels, $active = null): array;
 
     /**
      * @param string[] $customerIds

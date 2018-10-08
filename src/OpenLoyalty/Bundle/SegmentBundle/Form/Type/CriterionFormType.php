@@ -79,7 +79,7 @@ class CriterionFormType extends AbstractType
         ];
 
         $pos = array_map(function (Pos $pos) {
-            return $pos->getPosId()->__toString();
+            return (string) $pos->getPosId();
         }, $this->posRepository->findAll());
 
         $posChoices = array_combine($pos, $pos);
