@@ -38,7 +38,7 @@ class PosControllerTest extends BaseApiTest
             [
                 'pos' => [
                     'name' => 'new pos in wroclaw',
-                    'identifier' => 'pos2',
+                    'identifier' => 'pos3',
                     'location' => $this->getLocationData(),
                 ],
             ]

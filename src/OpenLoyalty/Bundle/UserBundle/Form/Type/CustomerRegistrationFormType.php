@@ -211,6 +211,7 @@ class CustomerRegistrationFormType extends AbstractType
         );
 
         $builder->add('labels', LabelsFormType::class, [
+            'label' => 'Labels',
             'required' => false,
             'constraints' => [
                 new CustomerLabel(),
@@ -221,6 +222,7 @@ class CustomerRegistrationFormType extends AbstractType
             'agreement1',
             CheckboxType::class,
             [
+                'label' => 'TOS Agreement (required to be true)',
                 'required' => true,
                 'constraints' => [
                     new NotBlank(),
@@ -231,6 +233,7 @@ class CustomerRegistrationFormType extends AbstractType
             'agreement2',
             CheckboxType::class,
             [
+                'label' => 'Direct Marketing Agreement (default false)',
                 'required' => false,
             ]
         );

@@ -143,11 +143,13 @@ class CustomerEditFormHandler
             $customerData['company'] = [];
         }
 
-        $labels = array_map(function (Label $label) {
-            return $label->serialize();
-        }, $form->get('labels')->getData() ?? []);
+        if (array_key_exists('labels', $customerData)) {
+            $labelsData = $form->get('labels')->getData();
 
-        $customerData['labels'] = $labels;
+            $customerData['labels'] = array_map(function (Label $label): array {
+                return $label->serialize();
+            }, $labelsData ?? []);
+        }
 
         $command = new UpdateCustomerDetails($customerId, $customerData);
         $this->commandBus->dispatch($command);
