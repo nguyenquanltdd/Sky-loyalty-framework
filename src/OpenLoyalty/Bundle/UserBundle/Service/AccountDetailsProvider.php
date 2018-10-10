@@ -41,10 +41,12 @@ class AccountDetailsProvider implements AccountDetailsProviderInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \Exception
      */
     public function getCustomerById(CustomerId $customerId): ?Customer
     {
-        $customer = $this->customerRepository->load($customerId->__toString());
+        $customer = $this->customerRepository->load((string) $customerId);
 
         if (empty($customer->getId())) {
             throw new \Exception('Customer does not exist');
@@ -59,6 +61,16 @@ class AccountDetailsProvider implements AccountDetailsProviderInterface
     public function getAccountByCustomer(Customer $customer): AccountDetails
     {
         $account = $this->validateAccount($this->accountRepository->findBy(['customerId' => (string) $customer->getId()]));
+
+        return $account;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAccountByCustomerId(CustomerId $customerId): AccountDetails
+    {
+        $account = $this->validateAccount($this->accountRepository->findBy(['customerId' => (string) $customerId]));
 
         return $account;
     }
