@@ -225,7 +225,7 @@ class EarningRuleController extends FOSRestController
         $params = $paramFetcher->all();
 
         $earningRuleRepository = $this->get('oloy.earning_rule.repository');
-        if ($params['paginated'] == false) {
+        if ($params['paginated'] === false) {
             $rulesQb = $earningRuleRepository
                 ->findByParameters(
                     $params,
