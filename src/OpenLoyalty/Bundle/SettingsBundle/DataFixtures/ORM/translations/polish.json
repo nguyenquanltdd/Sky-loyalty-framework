@@ -1436,7 +1436,7 @@
       "product_purchase": "Zakup produktu",
       "referral": "Zaproszenia do programu",
       "geolocation" : "Geolokalizacja",
-      "qrcode": "Qrcode"
+      "qrcode": "QRcode"
     },
     "value": "Wartość",
     "visibility_and_activity": "Dostępność reguły",

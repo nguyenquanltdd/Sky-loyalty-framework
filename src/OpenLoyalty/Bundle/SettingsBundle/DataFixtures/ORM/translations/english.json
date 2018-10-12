@@ -1411,7 +1411,7 @@
       "product_purchase": "Product purchase",
       "referral": "Customer Referral",
       "geolocation" : "Geolocation",
-      "qrcode": "Qrcode"
+      "qrcode": "QRcode"
     },
     "value": "Value",
     "visibility_and_activity": "Activity of rule",

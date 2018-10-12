@@ -78,7 +78,7 @@ class CreateEarningRuleFormType extends BaseEarningRuleFormType
                 'Referral' => EarningRule::TYPE_REFERRAL,
                 'Instant Reward' => InstantRewardRule::TYPE_INSTANT_REWARD,
                 'Geolocation' => EarningRule::TYPE_GEOLOCATION,
-                'Qrcode' => EarningRule::TYPE_QRCODE,
+                'QRcode' => EarningRule::TYPE_QRCODE,
             ],
         ]);
 
