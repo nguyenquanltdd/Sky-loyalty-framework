@@ -134,7 +134,8 @@
       "active": "Active",
       "active_prompt": "",
       "add": "Add campaign category",
-      "basic_info": "Basic information"
+      "basic_info": "Basic information",
+      "basic_info_details": "Basic information details"
     },
     "campaign_type": {
       "all": "All"
