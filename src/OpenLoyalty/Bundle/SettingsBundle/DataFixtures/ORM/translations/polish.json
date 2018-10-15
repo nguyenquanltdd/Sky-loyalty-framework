@@ -74,7 +74,9 @@
       "default": "Domyślny",
       "default_prompt": "",
       "code": "Kod (locale)",
-      "code_prompt": ""
+      "code_prompt": "",
+      "delete_confirmation": "Czy chcesz usunąć ten język??",
+      "delete_confirmation_description": "Wybrany język zostanie usunięty pernamentnie"
     }
   },
   "admin_edit": {
