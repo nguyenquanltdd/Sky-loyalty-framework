@@ -11,6 +11,8 @@ use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Component\Account\Domain\CustomerId;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
+use OpenLoyalty\Component\Campaign\Domain\CampaignId;
+use OpenLoyalty\Component\Campaign\Domain\LevelId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Customer\Domain\CampaignId as CustomerCampaignId;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
@@ -18,6 +20,7 @@ use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use Ramsey\Uuid\Uuid;
+use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
 
 /**
  * Class CustomerCampaignsControllerTest.
@@ -37,7 +40,6 @@ class CustomerCampaignsControllerTest extends BaseApiTest
     protected function setUp()
     {
         parent::setUp();
-
         static::bootKernel();
         $this->campaignRepository = static::$kernel->getContainer()->get('oloy.campaign.repository');
         $this->customerDetailsRepository = static::$kernel->getContainer()->get('oloy.user.read_model.repository.customer_details');
@@ -256,6 +258,74 @@ class CustomerCampaignsControllerTest extends BaseApiTest
 
         $this->assertNotEquals($firstElement['campaignId'], $firstElementSorted['campaignId']);
         $this->assertEquals($size, $sortedSize);
+    }
+
+    /**
+     * @param bool $enabled
+     *
+     * @throws \Assert\AssertionFailedException
+     */
+    private function loadCashbackData(bool $enabled = false): void
+    {
+        $campaign = $this->campaignRepository->findOneBy([
+            'campaignId' => new CampaignId(LoadCampaignData::CAMPAIGN3_ID),
+        ]);
+
+        if (!$campaign) {
+            return;
+        }
+        if (!$enabled) {
+            $campaign->setActive(false);
+            $campaign->setUnlimited(false);
+            $campaign->setCoupons([]);
+            $campaign->setLevels(
+                [
+                    new LevelId(LoadLevelData::LEVEL2_ID),
+                ]
+            );
+        } else {
+            $campaign->setActive(true);
+            $campaign->setUnlimited(true);
+            $campaign->setCoupons([new Coupon('123'), new Coupon('1233'), new Coupon('1234')]);
+            $campaign->setLevels(
+                [
+                    new LevelId(LoadLevelData::LEVEL2_ID),
+                    new LevelId(LoadLevelData::LEVEL_ID),
+                    new LevelId(LoadLevelData::LEVEL3_ID),
+                    new LevelId(LoadLevelData::LEVEL4_ID),
+                ]
+            );
+        }
+        $this->campaignRepository->update($campaign);
+    }
+
+    /**
+     * @test
+     */
+    public function it_available_campaigns_list_with_cashback(): void
+    {
+        $this->loadCashbackData(true);
+
+        $client = $this->createAuthenticatedClient(LoadUserData::TEST_USERNAME, LoadUserData::TEST_PASSWORD, 'customer');
+        $client->request(
+            'GET',
+            '/api/customer/campaign/available'
+        );
+
+        $response = $client->getResponse();
+        $content = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('campaigns', $content, 'Response should have campaigns');
+        $data = $content['campaigns'];
+        $cashbackCounter = 0;
+        foreach ($data as $item) {
+            if ($item['reward'] === Campaign::REWARD_TYPE_CASHBACK) {
+                ++$cashbackCounter;
+            }
+        }
+        $this->assertEquals($cashbackCounter, 1, 'Value should be 1');
+
+        $this->loadCashbackData();
     }
 
     /**
