@@ -33,12 +33,13 @@ class TemplateProvider
      */
     public function getJsonContent(): array
     {
-        $context = $this->settingsManager->getSettingByKey('cssJsonTemplate');
-        if (!empty($context)) {
-            return $context->getValue();
-        }
+        $cssTemplateSetting = $this->settingsManager->getSettingByKey('cssTemplate');
+        $accentColorSetting = $this->settingsManager->getSettingByKey('accentColor');
 
-        return [];
+        return [
+            'accent_color' => (!empty($accentColorSetting)) ? $accentColorSetting->getValue() : '',
+            'template_css' => $this->getCssContent(),
+        ];
     }
 
     /**

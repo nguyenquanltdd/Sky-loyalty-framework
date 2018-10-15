@@ -223,10 +223,6 @@ class SettingsControllerTest extends BaseApiTest
             'accentColor' => '',
             'cssTemplate' => '',
             'marketingVendorsValue' => '',
-            'cssJsonTemplate' => [
-                'accent_color' => 'rgba( 255,166,90, 1)',
-                'template_css' => '.c-accent { color: rgb(20,19,19) !important }; .hvc-accent:hover { color: rgb(20,19,19) }',
-            ],
         ];
 
         $client->request(
