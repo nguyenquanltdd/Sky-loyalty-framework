@@ -17,6 +17,7 @@ class AvailablePointsAmountChangedSystemEvent extends AccountSystemEvent
     const OPERATION_TYPE_P2P_ADD = 'p2p_add';
     const OPERATION_TYPE_SUBTRACT = 'subtract';
     const OPERATION_TYPE_P2P_SUBTRACT = 'p2p_subtract';
+
     /**
      * @var float
      */
@@ -27,10 +28,14 @@ class AvailablePointsAmountChangedSystemEvent extends AccountSystemEvent
      */
     protected $customerId;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     protected $amountChange;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $operationType;
 
     /**
@@ -54,15 +59,15 @@ class AvailablePointsAmountChangedSystemEvent extends AccountSystemEvent
     /**
      * @return CustomerId
      */
-    public function getCustomerId()
+    public function getCustomerId(): ?CustomerId
     {
         return $this->customerId;
     }
 
     /**
-     * @return int
+     * @return float
      */
-    public function getCurrentAmount()
+    public function getCurrentAmount(): ?float
     {
         return $this->currentAmount;
     }
@@ -70,7 +75,7 @@ class AvailablePointsAmountChangedSystemEvent extends AccountSystemEvent
     /**
      * @return int
      */
-    public function getAmountChange()
+    public function getAmountChange(): ?int
     {
         return $this->amountChange;
     }
@@ -78,7 +83,7 @@ class AvailablePointsAmountChangedSystemEvent extends AccountSystemEvent
     /**
      * @return string
      */
-    public function getOperationType()
+    public function getOperationType(): ?string
     {
         return $this->operationType;
     }

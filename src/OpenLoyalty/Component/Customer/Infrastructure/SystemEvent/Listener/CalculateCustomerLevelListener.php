@@ -128,44 +128,61 @@ class CalculateCustomerLevelListener
 
     /**
      * @param $event
+     *
+     * @throws \Assert\AssertionFailedException
      */
     public function handle($event)
     {
         if ($event instanceof CustomerRecalculateLevelRequestedSystemEvent) {
-            $this->handleRecalculateLevel($event);
+            $this->handleRecalculateLevel((string) $event->getCustomerId(), null, true);
         } elseif ($event instanceof AccountCreatedSystemEvent) {
             $this->handleAccountCreated($event);
         } elseif ($event instanceof CustomerRemovedManuallyLevelSystemEvent) {
             $this->handleRemovedManuallyLevel($event);
         } elseif ($this->tierAssignTypeProvider->getType() == TierAssignTypeProvider::TYPE_POINTS && $event instanceof AvailablePointsAmountChangedSystemEvent) {
-            $this->handlePoints($event->getCustomerId(), $event->getCurrentAmount());
+            $this->handleRecalculateLevel((string) $event->getCustomerId(), $event->getCurrentAmount());
         } elseif ($this->tierAssignTypeProvider->getType() == TierAssignTypeProvider::TYPE_TRANSACTIONS && $event instanceof CustomerAssignedToTransactionSystemEvent) {
             $this->handleTransaction($event);
         }
     }
 
     /**
-     * @param CustomerRecalculateLevelRequestedSystemEvent $event
+     * @param string     $customerId
+     * @param float|null $currentAmount
+     * @param bool       $recalculate
+     *
+     * @throws \Assert\AssertionFailedException
      */
-    protected function handleRecalculateLevel(CustomerRecalculateLevelRequestedSystemEvent $event): void
+    protected function handleRecalculateLevel(string $customerId, float $currentAmount = null, bool $recalculate = false): void
     {
-        $customerIdString = $event->getCustomerId()->__toString();
         /** @var CustomerDetails $customer */
-        $customer = $this->customerDetailsRepository->find($customerIdString);
-        $account = $this->getAccountDetails($customerIdString);
+        $customer = $this->customerDetailsRepository->find($customerId);
+        $account = $this->getAccountDetails($customerId);
         if (!$account) {
             return;
         }
-        if ($this->levelDowngradeModeProvider->getBase() === LevelDowngradeModeProvider::BASE_ACTIVE_POINTS) {
-            $currentAmount = $account->getAvailableAmount();
-        } elseif ($this->levelDowngradeModeProvider->getBase() == LevelDowngradeModeProvider::BASE_EARNED_POINTS) {
-            $currentAmount = $account->getEarnedAmountSince($customer->getLastLevelRecalculation() ?: $customer->getCreatedAt());
-        } elseif ($this->levelDowngradeModeProvider->getBase() == LevelDowngradeModeProvider::BASE_EARNED_POINTS_SINCE_LAST_LEVEL_CHANGE) {
-            $currentAmount = $account->getEarnedAmountSince($customer->getLastLevelRecalculation() ?: $customer->getCreatedAt());
+
+        try {
+            $downgradeMode = $this->levelDowngradeModeProvider->getBase();
+
+            switch ($downgradeMode) {
+                case LevelDowngradeModeProvider::BASE_ACTIVE_POINTS:
+                    $currentAmount = $account->getAvailableAmount();
+                    break;
+                case LevelDowngradeModeProvider::BASE_EARNED_POINTS:
+                    $currentAmount = $account->getEarnedAmountSince($customer->getLastLevelRecalculation() ?: $customer->getCreatedAt());
+                    break;
+                case LevelDowngradeModeProvider::BASE_EARNED_POINTS_SINCE_LAST_LEVEL_CHANGE:
+                    $currentAmount = $account->getEarnedAmountSince($customer->getLastLevelRecalculation() ?: $customer->getCreatedAt());
+                    break;
+            }
+        } catch (LevelDowngradeModeNotSupportedException $e) {
+            // just catch an exception
         }
 
-        if (isset($currentAmount)) {
-            $this->handlePoints(new AccountCustomerId($customerIdString), $currentAmount, true);
+        if (null !== $currentAmount) {
+            $accountCustomerId = new AccountCustomerId($customerId);
+            $this->handlePoints($accountCustomerId, $currentAmount, $recalculate);
         }
     }
 

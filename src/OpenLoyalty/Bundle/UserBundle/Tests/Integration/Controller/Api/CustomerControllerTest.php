@@ -6,7 +6,7 @@ use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
-use OpenLoyalty\Component\Customer\Tests\Domain\Command\CustomerCommandHandlerTest;
+use OpenLoyalty\Component\Customer\Tests\Unit\Domain\Command\CustomerCommandHandlerTest;
 use OpenLoyalty\Component\Customer\Domain\PosId;
 use OpenLoyalty\Component\Import\Infrastructure\ImportResultItem;
 use Symfony\Component\HttpFoundation\Response;
