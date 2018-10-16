@@ -13,14 +13,20 @@ use Assert\Assertion as Assert;
  */
 class AccountId implements Identifier
 {
+    /**
+     * @var string
+     */
     private $accountId;
 
     /**
+     * AccountId constructor.
+     *
      * @param string $accountId
+     *
+     * @throws \Assert\AssertionFailedException
      */
-    public function __construct($accountId)
+    public function __construct(string $accountId)
     {
-        Assert::string($accountId);
         Assert::uuid($accountId);
 
         $this->accountId = $accountId;

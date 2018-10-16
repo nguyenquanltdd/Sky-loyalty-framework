@@ -41,8 +41,9 @@ services:
             - { name: broadway.domain.event_listener }
         arguments:
             $repository: '@oloy.points.account.repository.points_transfer_details'
-            $accountRepository: '@oloy.points.account.repository.account_details'
-            $customerRepository: '@oloy.user.read_model.repository.customer_details'
+            $accountRepository: '@oloy.points.account.repository'
+            $customerRepository: '@oloy.user.customer.repository'
+            $transactionRepository: '@oloy.transaction.repository'
             $posRepository: '@oloy.pos.repository'
 
     oloy.points.account.repository.account_details:

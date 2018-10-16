@@ -22,6 +22,7 @@ use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
+use PHPUnit_Framework_MockObject_MockObject;
 
 /**
  * Class SpendPointsOnCampaignListenerTest.
@@ -30,18 +31,10 @@ final class SpendPointsOnCampaignListenerTest extends \PHPUnit_Framework_TestCas
 {
     protected $uuid = '00000000-0000-0000-0000-000000000000';
 
-    protected function getUuidGenerator()
-    {
-        $mock = $this->getMockBuilder(UuidGeneratorInterface::class)->getMock();
-        $mock->method('generate')->willReturn($this->uuid);
-
-        return $mock;
-    }
-
     /**
      * @test
      */
-    public function it_spend_points_when_customer_bought_campaign()
+    public function it_spend_points_when_customer_bought_campaign(): void
     {
         $listener = new SpendPointsOnCampaignListener(
             $this->getCommandBus(
@@ -69,7 +62,21 @@ final class SpendPointsOnCampaignListenerTest extends \PHPUnit_Framework_TestCas
         ));
     }
 
-    protected function getAccountDetailsRepository()
+    /**
+     * @return PHPUnit_Framework_MockObject_MockObject|UuidGeneratorInterface
+     */
+    protected function getUuidGenerator(): PHPUnit_Framework_MockObject_MockObject
+    {
+        $mock = $this->getMockBuilder(UuidGeneratorInterface::class)->getMock();
+        $mock->method('generate')->willReturn($this->uuid);
+
+        return $mock;
+    }
+
+    /**
+     * @return PHPUnit_Framework_MockObject_MockObject|Repository
+     */
+    protected function getAccountDetailsRepository(): PHPUnit_Framework_MockObject_MockObject
     {
         $account = $this->getMockBuilder(AccountDetails::class)->disableOriginalConstructor()->getMock();
         $account->method('getAccountId')->willReturn(new AccountId($this->uuid));
@@ -80,7 +87,12 @@ final class SpendPointsOnCampaignListenerTest extends \PHPUnit_Framework_TestCas
         return $repo;
     }
 
-    protected function getCommandBus($expected)
+    /**
+     * @param $expected
+     *
+     * @return PHPUnit_Framework_MockObject_MockObject|CommandBus
+     */
+    protected function getCommandBus($expected): PHPUnit_Framework_MockObject_MockObject
     {
         $mock = $this->getMockBuilder(CommandBus::class)->getMock();
         $mock->method('dispatch')->with($this->equalTo($expected));

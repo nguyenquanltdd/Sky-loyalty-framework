@@ -14,6 +14,9 @@ use Assert\Assertion as Assert;
  */
 class CustomerId implements Identifier
 {
+    /**
+     * @var string
+     */
     private $customerId;
 
     /**
@@ -23,9 +26,8 @@ class CustomerId implements Identifier
      *
      * @throws AssertionFailedException
      */
-    public function __construct($customerId)
+    public function __construct(string $customerId)
     {
-        Assert::string($customerId);
         Assert::uuid($customerId);
 
         $this->customerId = $customerId;

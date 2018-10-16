@@ -15,6 +15,9 @@ use Broadway\EventStore\EventStore;
  */
 class AccountRepository extends EventSourcingRepository
 {
+    /**
+     * {@inheritdoc}
+     */
     public function __construct(
         EventStore $eventStore,
         EventBus $eventBus,

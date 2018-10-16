@@ -19,16 +19,22 @@ class PointsTransferId implements Identifier
     protected $pointsTransferId;
 
     /**
+     * PointsTransferId constructor.
+     *
      * @param string $pointsTransferId
+     *
+     * @throws \Assert\AssertionFailedException
      */
-    public function __construct($pointsTransferId)
+    public function __construct(string $pointsTransferId)
     {
-        Assert::string($pointsTransferId);
         Assert::uuid($pointsTransferId);
 
         $this->pointsTransferId = $pointsTransferId;
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return $this->pointsTransferId;

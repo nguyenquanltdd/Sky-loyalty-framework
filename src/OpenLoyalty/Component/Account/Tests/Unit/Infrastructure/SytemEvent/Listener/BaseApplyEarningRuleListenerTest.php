@@ -21,15 +21,22 @@ use OpenLoyalty\Component\Account\Domain\TransactionId;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
 use OpenLoyalty\Component\Account\Infrastructure\EarningRuleApplier;
+use PHPUnit_Framework_MockObject_MockObject;
 
 /**
  * Class BaseApplyEarningRuleListenerTest.
  */
 abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var string
+     */
     protected $uuid = '00000000-0000-0000-0000-000000000000';
 
-    protected function getUuidGenerator()
+    /**
+     * @return PHPUnit_Framework_MockObject_MockObject|UuidGeneratorInterface
+     */
+    protected function getUuidGenerator(): PHPUnit_Framework_MockObject_MockObject
     {
         $mock = $this->getMockBuilder(UuidGeneratorInterface::class)->getMock();
         $mock->method('generate')->willReturn($this->uuid);
@@ -37,7 +44,10 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
         return $mock;
     }
 
-    protected function getAccountDetailsRepository()
+    /**
+     * @return PHPUnit_Framework_MockObject_MockObject|Repository
+     */
+    protected function getAccountDetailsRepository(): PHPUnit_Framework_MockObject_MockObject
     {
         $account = $this->getMockBuilder(AccountDetails::class)->disableOriginalConstructor()->getMock();
         $account->method('getAccountId')->willReturn(new AccountId($this->uuid));
@@ -53,9 +63,9 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
      * @param int         $duration
      * @param string:null $comment
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return PHPUnit_Framework_MockObject_MockObject|PointsTransfersManager
      */
-    protected function getPointsTransfersManager($value = 10, $duration = 0, $comment = null)
+    protected function getPointsTransfersManager($value = 10, $duration = 0, $comment = null): PHPUnit_Framework_MockObject_MockObject
     {
         $pointsTransfer = new AddPointsTransfer(
             new PointsTransferId($this->uuid),
@@ -75,7 +85,12 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
         return $manager;
     }
 
-    protected function getCommandBus($expected)
+    /**
+     * @param $expected
+     *
+     * @return PHPUnit_Framework_MockObject_MockObject|CommandBus
+     */
+    protected function getCommandBus($expected): PHPUnit_Framework_MockObject_MockObject
     {
         $mock = $this->getMockBuilder(CommandBus::class)->getMock();
         $mock->method('dispatch')->with($this->equalTo($expected));
@@ -83,7 +98,12 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
         return $mock;
     }
 
-    protected function getApplierForEvent($returnValue)
+    /**
+     * @param $returnValue
+     *
+     * @return PHPUnit_Framework_MockObject_MockObject|EarningRuleApplier
+     */
+    protected function getApplierForEvent($returnValue): PHPUnit_Framework_MockObject_MockObject
     {
         $mock = $this->getMockBuilder(EarningRuleApplier::class)->getMock();
         $mock->method('evaluateEventWithContext')->with($this->logicalOr(
@@ -98,7 +118,12 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
         return $mock;
     }
 
-    protected function getApplierForTransaction($returnValue)
+    /**
+     * @param $returnValue
+     *
+     * @return PHPUnit_Framework_MockObject_MockObject|EarningRuleApplier
+     */
+    protected function getApplierForTransaction($returnValue): PHPUnit_Framework_MockObject_MockObject
     {
         $mock = $this->getMockBuilder(EarningRuleApplier::class)->getMock();
         $mock->method('evaluateTransaction')->with($this->isInstanceOf(TransactionId::class))

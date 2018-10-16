@@ -3,7 +3,10 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
+
+declare(strict_types=1);
+
+namespace OpenLoyalty\Component\Account\Tests\Unit\Domain\ReadModel;
 
 use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\InMemory\InMemoryRepository;
@@ -24,7 +27,7 @@ use OpenLoyalty\Component\Account\Domain\CustomerId;
 /**
  * Class AccountDetailsProjectorTest.
  */
-class AccountDetailsProjectorTest extends ProjectorScenarioTestCase
+final class AccountDetailsProjectorTest extends ProjectorScenarioTestCase
 {
     /**
      * @var AccountId
@@ -137,6 +140,9 @@ class AccountDetailsProjectorTest extends ProjectorScenarioTestCase
             ));
     }
 
+    /**
+     * @return AccountDetails
+     */
     private function createReadModel(): AccountDetails
     {
         return new AccountDetails($this->accountId, $this->customerId);

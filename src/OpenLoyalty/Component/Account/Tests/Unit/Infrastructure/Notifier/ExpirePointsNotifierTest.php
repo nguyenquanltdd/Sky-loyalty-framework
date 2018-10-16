@@ -12,28 +12,32 @@ use Broadway\CommandHandling\CommandBus;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsRepository;
 use OpenLoyalty\Component\Account\Infrastructure\Notifier\ExpirePointsNotifier;
+use PHPUnit_Framework_MockObject_MockObject;
 use Psr\Log\LoggerInterface;
 
 /**
  * Class ExpirePointsNotifierTest.
  */
-class ExpirePointsNotifierTest extends \PHPUnit_Framework_TestCase
+final class ExpirePointsNotifierTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var CommandBus|\PHPUnit_Framework_MockObject_MockObject
+     * @var CommandBus|PHPUnit_Framework_MockObject_MockObject
      */
     private $commandBusMock;
 
     /**
-     * @var PointsTransferDetailsRepository|\PHPUnit_Framework_MockObject_MockObject
+     * @var PointsTransferDetailsRepository|PHPUnit_Framework_MockObject_MockObject
      */
     private $pointTransfersRepositoryMock;
 
     /**
-     * @var LoggerInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var LoggerInterface|PHPUnit_Framework_MockObject_MockObject
      */
     private $loggerMock;
 
+    /**
+     * {@inheritdoc}
+     */
     public function setUp(): void
     {
         $this->commandBusMock = $this->getMockForAbstractClass(CommandBus::class);
@@ -46,7 +50,7 @@ class ExpirePointsNotifierTest extends \PHPUnit_Framework_TestCase
      */
     public function it_dispatches_webhook_if_there_are_expiring_point_transfers(): void
     {
-        /** @var PointsTransferDetails|\PHPUnit_Framework_MockObject_MockObject $pointTransferMock */
+        /** @var PointsTransferDetails|PHPUnit_Framework_MockObject_MockObject $pointTransferMock */
         $pointTransferMock = $this
             ->getMockBuilder(PointsTransferDetails::class)
             ->disableOriginalConstructor()

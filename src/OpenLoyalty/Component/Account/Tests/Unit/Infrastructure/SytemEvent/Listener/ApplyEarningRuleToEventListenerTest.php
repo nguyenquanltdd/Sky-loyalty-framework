@@ -10,10 +10,12 @@ namespace OpenLoyalty\Component\Account\Tests\Unit\Infrastructure\SytemEvent\Lis
 
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
+use OpenLoyalty\Component\Account\Domain\CustomerId as AccountCustomerId;
 use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountCreatedSystemEvent;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\CustomEventOccurredSystemEvent;
+use OpenLoyalty\Component\Customer\Domain\CustomerId as CustomerCustomerId;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerLoggedInSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\NewsletterSubscriptionSystemEvent;
 use OpenLoyalty\Component\Transaction\Domain\CustomerId;
@@ -29,7 +31,7 @@ final class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleList
     /**
      * @test
      */
-    public function it_adds_points_on_registration()
+    public function it_adds_points_on_registration(): void
     {
         $accountId = new AccountId($this->uuid);
         $expected = new AddPoints($accountId, new AddPointsTransfer(
@@ -57,7 +59,7 @@ final class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleList
     /**
      * @test
      */
-    public function it_adds_points_on_first_transaction()
+    public function it_adds_points_on_first_transaction(): void
     {
         $accountId = new AccountId($this->uuid);
         $expected = new AddPoints($accountId, new AddPointsTransfer(
@@ -85,7 +87,7 @@ final class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleList
     /**
      * @test
      */
-    public function it_adds_points_on_login()
+    public function it_adds_points_on_login(): void
     {
         $accountId = new AccountId($this->uuid);
         $expected = new AddPoints($accountId, new AddPointsTransfer(
@@ -107,13 +109,13 @@ final class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleList
             $this->getPointsTransfersManager(10, 0, 'Test comment')
         );
 
-        $listener->onCustomerLogin(new CustomerLoggedInSystemEvent(new \OpenLoyalty\Component\Customer\Domain\CustomerId($this->uuid)));
+        $listener->onCustomerLogin(new CustomerLoggedInSystemEvent(new CustomerCustomerId($this->uuid)));
     }
 
     /**
      * @test
      */
-    public function it_adds_points_on_newsletter_subscription()
+    public function it_adds_points_on_newsletter_subscription(): void
     {
         $accountId = new AccountId($this->uuid);
         $expected = new AddPoints($accountId, new AddPointsTransfer(
@@ -135,14 +137,14 @@ final class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleList
             $this->getPointsTransfersManager(100, 0, 'Newsletter subscription comment')
         );
 
-        $customerId = new \OpenLoyalty\Component\Customer\Domain\CustomerId($this->uuid);
+        $customerId = new CustomerCustomerId($this->uuid);
         $listener->onNewsletterSubscription(new NewsletterSubscriptionSystemEvent($customerId));
     }
 
     /**
      * @test
      */
-    public function it_adds_points_on_custom_event()
+    public function it_adds_points_on_custom_event(): void
     {
         $accountId = new AccountId($this->uuid);
         $expected = new AddPoints($accountId, new AddPointsTransfer(
@@ -159,7 +161,7 @@ final class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleList
             $this->getPointsTransfersManager(100, 30)
         );
 
-        $customerId = new \OpenLoyalty\Component\Account\Domain\CustomerId($this->uuid);
+        $customerId = new AccountCustomerId($this->uuid);
         $listener->onCustomEvent(new CustomEventOccurredSystemEvent($customerId, 'facebook_like'));
     }
 }

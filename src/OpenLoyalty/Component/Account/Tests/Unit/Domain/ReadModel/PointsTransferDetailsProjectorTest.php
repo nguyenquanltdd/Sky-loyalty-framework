@@ -3,11 +3,14 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
+
+declare(strict_types=1);
+
+namespace OpenLoyalty\Component\Account\Tests\Unit\Domain\ReadModel;
 
 use Broadway\ReadModel\InMemory\InMemoryRepository;
 use Broadway\ReadModel\Projector;
-use Broadway\ReadModel\Repository;
+use Broadway\Repository\Repository as AggregateRootRepository;
 use Broadway\ReadModel\Testing\ProjectorScenarioTestCase;
 use OpenLoyalty\Component\Account\Domain\Account;
 use OpenLoyalty\Component\Account\Domain\AccountId;
@@ -27,12 +30,12 @@ use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsProjecto
 use OpenLoyalty\Component\Customer\Domain\Customer;
 use OpenLoyalty\Component\Account\Domain\CustomerId;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
-use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
+use PHPUnit_Framework_MockObject_MockObject;
 
 /**
  * Class PointsTransferDetailsProjectorTest.
  */
-class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
+final class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
 {
     /**
      * @var AccountId
@@ -52,19 +55,24 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $this->accountId = new AccountId('00000000-0000-0000-0000-000000000000');
         $this->customerId = new CustomerId('00000000-1111-0000-0000-000000000000');
 
-        $accountRepository = $this->getMockBuilder(Repository::class)->getMock();
+        /** @var AggregateRootRepository|PHPUnit_Framework_MockObject_MockObject $accountRepository */
+        $accountRepository = $this->getMockBuilder(AggregateRootRepository::class)->getMock();
         $account = Account::createAccount($this->accountId, $this->customerId);
+        $accountRepository->method('load')->willReturn($account);
 
-        $accountRepository->method('find')->willReturn($account);
-        $customerRepository = $this->getMockBuilder(Repository::class)->getMock();
+        /** @var AggregateRootRepository|PHPUnit_Framework_MockObject_MockObject $customerRepository */
+        $customerRepository = $this->getMockBuilder(AggregateRootRepository::class)->getMock();
         $customer = Customer::registerCustomer(
             new \OpenLoyalty\Component\Customer\Domain\CustomerId($this->customerId->__toString()),
             $this->getCustomerData()
         );
-        $customerRepository->method('find')->willReturn($customer);
+        $customerRepository->method('load')->willReturn($customer);
 
-        $transactionRepo = $this->getMockBuilder(TransactionDetailsRepository::class)->getMock();
-        $transactionRepo->method('find')->willReturn(null);
+        /** @var AggregateRootRepository|PHPUnit_Framework_MockObject_MockObject $transactionRepo */
+        $transactionRepo = $this->getMockBuilder(AggregateRootRepository::class)->getMock();
+        $transactionRepo->method('load')->willReturn(null);
+
+        /** @var PosRepository|PHPUnit_Framework_MockObject_MockObject $posRepo */
         $posRepo = $this->getMockBuilder(PosRepository::class)->getMock();
 
         return new PointsTransferDetailsProjector($repository, $accountRepository, $customerRepository, $transactionRepo, $posRepo);
@@ -90,11 +98,9 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $expectedReadModel->setLockedUntil($lockedUntil);
         $expiresAtDate->modify(sprintf('+%u days', 10));
         $expectedReadModel->setExpiresAt($expiresAtDate);
-        $this->scenario->given(array())
+        $this->scenario->given([])
             ->when(new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, 10, 2, $date)))
-            ->then(array(
-                $expectedReadModel,
-            ));
+            ->then([$expectedReadModel]);
     }
 
     /**
@@ -119,11 +125,9 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $expectedReadModel->setLockedUntil($lockedUntil);
         $expiresAtDate->modify(sprintf('+%u days', 10));
         $expectedReadModel->setExpiresAt($expiresAtDate);
-        $this->scenario->given(array())
+        $this->scenario->given([])
             ->when(new PointsWereAdded($this->accountId, new P2PAddPointsTransfer($accountId, $pointsId, 100, 10, 2, $date)))
-            ->then(array(
-                $expectedReadModel,
-            ));
+            ->then([$expectedReadModel]);
     }
 
     /**
@@ -145,11 +149,9 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $expectedReadModel->setLockedUntil($lockedUntil);
         $expiresAtDate->modify(sprintf('+%u days', 10));
         $expectedReadModel->setExpiresAt($expiresAtDate);
-        $this->scenario->given(array())
+        $this->scenario->given([])
             ->when(new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, 10, null, $date)))
-            ->then(array(
-                $expectedReadModel,
-            ));
+            ->then([$expectedReadModel]);
     }
 
     /**
@@ -172,11 +174,9 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $expectedReadModel->setLockedUntil($lockedUntil);
         $expiresAtDate->modify(sprintf('+%u days', 10));
         $expectedReadModel->setExpiresAt($expiresAtDate);
-        $this->scenario->given(array())
+        $this->scenario->given([])
             ->when(new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, 10, 10, $date)))
-            ->then(array(
-                $expectedReadModel,
-            ));
+            ->then([$expectedReadModel]);
     }
 
     /**
@@ -195,11 +195,9 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $expiresAtDate = clone $date;
         $expiresAtDate->modify(sprintf('+%u days', 0));
         $expectedReadModel->setExpiresAt($expiresAtDate);
-        $this->scenario->given(array())
+        $this->scenario->given([])
             ->when(new PointsWereSpent($this->accountId, new SpendPointsTransfer($pointsId, 100, $date)))
-            ->then(array(
-                $expectedReadModel,
-            ));
+            ->then([$expectedReadModel]);
     }
 
     /**
@@ -220,11 +218,9 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $expiresAtDate = clone $date;
         $expiresAtDate->modify(sprintf('+%u days', 0));
         $expectedReadModel->setExpiresAt($expiresAtDate);
-        $this->scenario->given(array())
+        $this->scenario->given([])
             ->when(new PointsWereTransferred($this->accountId, new P2PSpendPointsTransfer($accountId, $pointsId, 100, $date)))
-            ->then(array(
-                $expectedReadModel,
-            ));
+            ->then([$expectedReadModel]);
     }
 
     /**
@@ -244,13 +240,11 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $expiresAtDate->modify(sprintf('+%u days', 10));
         $expectedReadModel->setExpiresAt($expiresAtDate);
         $this->scenario
-            ->given(array(
+            ->given([
                 new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, 10, null, $date)),
-            ))
+            ])
             ->when(new PointsTransferHasBeenCanceled($this->accountId, $pointsId))
-            ->then(array(
-                $expectedReadModel,
-            ));
+            ->then([$expectedReadModel]);
     }
 
     /**
@@ -270,13 +264,11 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $expiresAtDate->modify(sprintf('+%u days', 10));
         $expectedReadModel->setExpiresAt($expiresAtDate);
         $this->scenario
-            ->given(array(
+            ->given([
                 new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, 10, null, $date)),
-            ))
+            ])
             ->when(new PointsTransferHasBeenExpired($this->accountId, $pointsId))
-            ->then(array(
-                $expectedReadModel,
-            ));
+            ->then([$expectedReadModel]);
     }
 
     /**
@@ -300,29 +292,11 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $expectedReadModel->setExpiresAt($expiresAtDate);
 
         $this->scenario
-            ->given(array(
+            ->given([
                 new PointsWereAdded($this->accountId, new AddPointsTransfer($pointsId, 100, 10, 10, $date)),
-            ))
+            ])
             ->when(new PointsTransferHasBeenUnlocked($this->accountId, $pointsId))
-            ->then(array(
-                $expectedReadModel,
-            ));
-    }
-
-    /**
-     * @test
-     * @expectedException \OpenLoyalty\Component\Account\Domain\Exception\PointsTransferCannotBeExpiredException
-     */
-    public function it_expires_only_adding_transfer(): void
-    {
-        $pointsId = new PointsTransferId('00000000-0000-0000-0000-000000000000');
-        $this->scenario
-            ->given(array(
-                new PointsWereSpent($this->accountId, new SpendPointsTransfer($pointsId, 100)),
-            ))
-            ->when(new PointsTransferHasBeenExpired($this->accountId, $pointsId))
-            ->then(array(
-            ));
+            ->then([$expectedReadModel]);
     }
 
     /**
@@ -342,6 +316,9 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         return $model;
     }
 
+    /**
+     * @return array
+     */
     private function getCustomerData(): array
     {
         return [

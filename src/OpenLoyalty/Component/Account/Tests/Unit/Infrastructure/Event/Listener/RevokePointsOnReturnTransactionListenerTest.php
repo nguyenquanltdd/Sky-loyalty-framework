@@ -28,6 +28,7 @@ use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsReposit
 use OpenLoyalty\Component\Transaction\Domain\Transaction;
 use OpenLoyalty\Component\Transaction\Domain\TransactionId;
 use OpenLoyalty\Component\Account\Domain\CustomerId as AccountCustomerId;
+use PHPUnit_Framework_MockObject_MockObject;
 
 /**
  * Class RevokePointsOnReturnTransactionListenerTest.
@@ -37,14 +38,34 @@ final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framewo
     protected $uuid = '00000000-0000-0000-0000-000000000000';
     protected $newUuid = '00000000-0000-0000-0000-000000000001';
     protected $documentNumber = '123';
-
     protected $transaction;
     protected $revisedTransaction;
 
     /**
+     * {@inheritdoc}
+     */
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->transaction = $this->getMockBuilder(TransactionDetails::class)->disableOriginalConstructor()->getMock();
+        $this->revisedTransaction = $this->getMockBuilder(TransactionDetails::class)->disableOriginalConstructor()->getMock();
+
+        $this->transaction->method('getTransactionId')->willReturn(new TransactionId($this->newUuid));
+        $this->revisedTransaction->method('getTransactionId')->willReturn(new TransactionId($this->uuid));
+
+        $this->transaction->method('getId')->willReturn($this->newUuid);
+        $this->transaction->method('getGrossValue')->willReturn(100);
+        $this->transaction->method('getRevisedDocument')->willReturn($this->documentNumber);
+        $this->transaction->method('getDocumentType')->willReturn(Transaction::TYPE_RETURN);
+
+        $this->revisedTransaction->method('getGrossValue')->willReturn(200);
+        $this->revisedTransaction->method('getId')->willReturn($this->uuid);
+    }
+
+    /**
      * @test
      */
-    public function it_revokes_points_for_return_transaction()
+    public function it_revokes_points_for_return_transaction(): void
     {
         $listener = new RevokePointsOnReturnTransactionListener(
             $this->getTransactionDetailsRepository(),
@@ -78,7 +99,7 @@ final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framewo
     /**
      * @test
      */
-    public function it_not_revokes_points_for_return_transaction_if_already_revoked()
+    public function it_not_revokes_points_for_return_transaction_if_already_revoked(): void
     {
         $listener = new RevokePointsOnReturnTransactionListener(
             $this->getTransactionDetailsRepository(),
@@ -109,25 +130,10 @@ final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framewo
         ));
     }
 
-    protected function setUp()
-    {
-        parent::setUp();
-        $this->transaction = $this->getMockBuilder(TransactionDetails::class)->disableOriginalConstructor()->getMock();
-        $this->revisedTransaction = $this->getMockBuilder(TransactionDetails::class)->disableOriginalConstructor()->getMock();
-
-        $this->transaction->method('getTransactionId')->willReturn(new TransactionId($this->newUuid));
-        $this->revisedTransaction->method('getTransactionId')->willReturn(new TransactionId($this->uuid));
-
-        $this->transaction->method('getId')->willReturn($this->newUuid);
-        $this->transaction->method('getGrossValue')->willReturn(100);
-        $this->transaction->method('getRevisedDocument')->willReturn($this->documentNumber);
-        $this->transaction->method('getDocumentType')->willReturn(Transaction::TYPE_RETURN);
-
-        $this->revisedTransaction->method('getGrossValue')->willReturn(200);
-        $this->revisedTransaction->method('getId')->willReturn($this->uuid);
-    }
-
-    protected function getUuidGenerator()
+    /**
+     * @return PHPUnit_Framework_MockObject_MockObject|UuidGeneratorInterface
+     */
+    protected function getUuidGenerator(): PHPUnit_Framework_MockObject_MockObject
     {
         $mock = $this->getMockBuilder(UuidGeneratorInterface::class)->getMock();
         $mock->method('generate')->willReturn($this->uuid);
@@ -135,7 +141,10 @@ final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framewo
         return $mock;
     }
 
-    protected function getTransactionDetailsRepository()
+    /**
+     * @return PHPUnit_Framework_MockObject_MockObject|TransactionDetailsRepository
+     */
+    protected function getTransactionDetailsRepository(): PHPUnit_Framework_MockObject_MockObject
     {
         $repo = $this->getMockBuilder(TransactionDetailsRepository::class)->getMock();
         $repo->method('find')->with($this->isType('string'))->willReturnCallback(function ($id) {
@@ -160,7 +169,13 @@ final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framewo
         return $repo;
     }
 
-    protected function getPointsTransferRepository($all, $alreadyRevoked = null)
+    /**
+     * @param      $all
+     * @param null $alreadyRevoked
+     *
+     * @return PHPUnit_Framework_MockObject_MockObject|PointsTransferDetailsRepository
+     */
+    protected function getPointsTransferRepository($all, $alreadyRevoked = null): PHPUnit_Framework_MockObject_MockObject
     {
         $repo = $this->getMockBuilder(PointsTransferDetailsRepository::class)->getMock();
         $repo->method('findBy')->with($this->arrayHasKey('type'))->will($this->returnCallback(function ($params) use ($all, $alreadyRevoked) {
@@ -194,7 +209,10 @@ final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framewo
         return $repo;
     }
 
-    protected function getAccountDetailsRepository()
+    /**
+     * @return PHPUnit_Framework_MockObject_MockObject|Repository
+     */
+    protected function getAccountDetailsRepository(): PHPUnit_Framework_MockObject_MockObject
     {
         $account = $this->getMockBuilder(AccountDetails::class)->disableOriginalConstructor()->getMock();
         $account->method('getAccountId')->willReturn(new AccountId($this->uuid));
@@ -205,7 +223,13 @@ final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framewo
         return $repo;
     }
 
-    protected function getCommandBus($expected, $times)
+    /**
+     * @param $expected
+     * @param $times
+     *
+     * @return PHPUnit_Framework_MockObject_MockObject|CommandBus
+     */
+    protected function getCommandBus($expected, $times): PHPUnit_Framework_MockObject_MockObject
     {
         $mock = $this->getMockBuilder(CommandBus::class)->getMock();
         $mock->expects($this->exactly($times))->method('dispatch')->with($this->equalTo($expected, 2));

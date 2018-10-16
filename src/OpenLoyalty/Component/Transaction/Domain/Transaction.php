@@ -31,7 +31,7 @@ class Transaction extends EventSourcedAggregateRoot
     protected $customerId;
 
     /**
-     * @var PosId
+     * @var PosId|null
      */
     protected $posId;
 
@@ -120,6 +120,14 @@ class Transaction extends EventSourcedAggregateRoot
         $this->apply(
             new LabelsWereUpdated($this->transactionId, $labels)
         );
+    }
+
+    /**
+     * @return PosId
+     */
+    public function getPosId(): ?PosId
+    {
+        return $this->posId;
     }
 
     private function create(
