@@ -35,7 +35,7 @@ services:
       - '@oloy.segment.read_model.repository.segmented_customers'
       - '@oloy.segment.repository'
       - '@broadway.event_dispatcher'
-      - '@oloy.user.read_model.repository.customer_details'
+      - '@oloy.user.customer.repository'
     calls:
       - [setLogger, ['@logger']]
   oloy.segment.segmentation_provider:

@@ -1,29 +1,34 @@
 <?php
+/**
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 
-namespace OpenLoyalty\Component\Segment\Tests\Domain\Command;
+declare(strict_types=1);
 
-use OpenLoyalty\Component\Segment\Domain\Command\CreateSegment;
+namespace OpenLoyalty\Component\Segment\Tests\Unit\Domain\Command;
+
+use OpenLoyalty\Component\Segment\Domain\Command\UpdateSegment;
 use OpenLoyalty\Component\Segment\Domain\Model\Criterion;
 use OpenLoyalty\Component\Segment\Domain\Segment;
 use OpenLoyalty\Component\Segment\Domain\SegmentId;
 
 /**
- * Class CreateSegmentTest.
+ * Class EditSegmentTest.
  */
-class CreateSegmentTest extends SegmentCommandHandlerTest
+class UpdateSegmentTest extends SegmentCommandHandlerTest
 {
     /**
      * @test
      */
-    public function it_creates_new_segment()
+    public function it_updates_segment(): void
     {
         $handler = $this->createCommandHandler();
-        $segmentId = new SegmentId('00000000-0000-0000-0000-000000000000');
+        $segmentId = new SegmentId('00000000-0000-0000-0000-000000001111');
         $posId = '00000000-0000-0000-0000-000000000000';
 
-        $command = new CreateSegment($segmentId, [
-            'name' => 'test',
-            'description' => 'desc',
+        $command = new UpdateSegment($segmentId, [
+            'name' => 'test-updated',
             'parts' => [
                 [
                     'segmentPartId' => '00000000-0000-0000-0000-000000000000',
@@ -32,18 +37,6 @@ class CreateSegmentTest extends SegmentCommandHandlerTest
                             'type' => Criterion::TYPE_BOUGHT_IN_POS,
                             'criterionId' => '00000000-0000-0000-0000-000000000000',
                             'posIds' => [$posId],
-                        ],
-                        [
-                            'type' => Criterion::TYPE_AVERAGE_TRANSACTION_AMOUNT,
-                            'criterionId' => '00000000-0000-0000-0000-000000000001',
-                            'fromAmount' => 1,
-                            'toAmount' => 10000,
-                        ],
-                        [
-                            'type' => Criterion::TYPE_TRANSACTION_COUNT,
-                            'criterionId' => '00000000-0000-0000-0000-000000000002',
-                            'min' => 10,
-                            'max' => 20,
                         ],
                     ],
                 ],
@@ -55,8 +48,9 @@ class CreateSegmentTest extends SegmentCommandHandlerTest
         $this->assertNotNull($segment);
         $this->assertInstanceOf(Segment::class, $segment);
         $this->assertTrue(count($segment->getParts()) == 1);
+        $this->assertEquals('test-updated', $segment->getName());
         $parts = $segment->getParts();
         $part = reset($parts);
-        $this->assertTrue(count($part->getCriteria()) == 3);
+        $this->assertTrue(count($part->getCriteria()) == 1);
     }
 }

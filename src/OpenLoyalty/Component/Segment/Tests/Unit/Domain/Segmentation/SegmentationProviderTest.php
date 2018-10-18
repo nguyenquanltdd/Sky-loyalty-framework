@@ -1,6 +1,12 @@
 <?php
+/**
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 
-namespace OpenLoyalty\Component\Segment\Tests\Domain\Segmentation;
+declare(strict_types=1);
+
+namespace OpenLoyalty\Component\Segment\Tests\Unit\Domain\Segmentation;
 
 use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
@@ -68,6 +74,9 @@ class SegmentationProviderTest extends \PHPUnit_Framework_TestCase
      */
     protected $customer3;
 
+    /**
+     * {@inheritdoc}
+     */
     public function setUp()
     {
         $this->customer1 = new CustomerId('00000000-0000-0000-0000-000000000001');
@@ -107,7 +116,7 @@ class SegmentationProviderTest extends \PHPUnit_Framework_TestCase
                 $ret = [];
 
                 foreach ($transactions as $transaction) {
-                    if ($transaction->getPosId()->__toString() == $posId) {
+                    if ((string) $transaction->getPosId() == $posId) {
                         $ret[] = $transaction;
                     }
                 }
@@ -126,13 +135,13 @@ class SegmentationProviderTest extends \PHPUnit_Framework_TestCase
             )->will($this->returnCallback(function ($a, $b) {
                 if ($a == 40 && $b == 200) {
                     return [
-                        new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId($this->customer2->__toString())),
-                        new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId($this->customer3->__toString())),
+                        new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId((string) $this->customer2)),
+                        new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId((string) $this->customer3)),
                     ];
                 }
                 if ($a == 0 && $b = 39.99) {
                     return [
-                        new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId($this->customer1->__toString())),
+                        new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId((string) $this->customer1)),
                     ];
                 }
 
@@ -144,8 +153,8 @@ class SegmentationProviderTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo(0),
                 $this->equalTo(40)
             )->willReturn([
-                new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId($this->customer1->__toString())),
-                new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId($this->customer3->__toString())),
+                new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId((string) $this->customer1)),
+                new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId((string) $this->customer3)),
             ]);
 
         $this->customerDetailsRepository->method('findAllWithTransactionCountBetween')
@@ -156,13 +165,13 @@ class SegmentationProviderTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnCallback(function ($a, $b) {
                 if ($a == 2 && $b == 10) {
                     return [
-                        new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId($this->customer3->__toString())),
+                        new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId((string) $this->customer3)),
                     ];
                 }
                 if ($a == 1 && $b == 1) {
                     return [
-                        new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId($this->customer1->__toString())),
-                        new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId($this->customer2->__toString())),
+                        new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId((string) $this->customer1)),
+                        new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId((string) $this->customer2)),
                     ];
                 }
 
@@ -182,7 +191,7 @@ class SegmentationProviderTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_return_customers_who_bought_in_pos()
+    public function it_return_customers_who_bought_in_pos(): void
     {
         $segment = new Segment(new SegmentId('00000000-0000-0000-0000-000000000000'), 'test');
         $part = new SegmentPart(new SegmentPartId('00000000-0000-0000-0000-000000000001'));
@@ -193,15 +202,15 @@ class SegmentationProviderTest extends \PHPUnit_Framework_TestCase
 
         $customers = $this->segmentationProvider->evaluateSegment($segment);
         $this->assertEquals([
-            $this->customer1->__toString() => $this->customer1->__toString(),
-            $this->customer3->__toString() => $this->customer3->__toString(),
+            (string) $this->customer1 => (string) $this->customer1,
+            (string) $this->customer3 => (string) $this->customer3,
         ], $customers);
     }
 
     /**
      * @test
      */
-    public function it_return_customers_with_at_least_two_transactions()
+    public function it_return_customers_with_at_least_two_transactions(): void
     {
         $segment = new Segment(new SegmentId('00000000-0000-0000-0000-000000000000'), 'test');
         $part = new SegmentPart(new SegmentPartId('00000000-0000-0000-0000-000000000001'));
@@ -213,14 +222,14 @@ class SegmentationProviderTest extends \PHPUnit_Framework_TestCase
 
         $customers = $this->segmentationProvider->evaluateSegment($segment);
         $this->assertEquals([
-            $this->customer3->__toString() => $this->customer3->__toString(),
+            (string) $this->customer3 => (string) $this->customer3,
         ], $customers);
     }
 
     /**
      * @test
      */
-    public function it_return_customers_with_only_one_transaction()
+    public function it_return_customers_with_only_one_transaction(): void
     {
         $segment = new Segment(new SegmentId('00000000-0000-0000-0000-000000000000'), 'test');
         $part = new SegmentPart(new SegmentPartId('00000000-0000-0000-0000-000000000001'));
@@ -232,15 +241,15 @@ class SegmentationProviderTest extends \PHPUnit_Framework_TestCase
 
         $customers = $this->segmentationProvider->evaluateSegment($segment);
         $this->assertEquals([
-            $this->customer1->__toString() => $this->customer1->__toString(),
-            $this->customer2->__toString() => $this->customer2->__toString(),
+            (string) $this->customer1 => (string) $this->customer1,
+            (string) $this->customer2 => (string) $this->customer2,
         ], $customers);
     }
 
     /**
      * @test
      */
-    public function it_return_customers_with_average_transaction_amount_greater_than_40()
+    public function it_return_customers_with_average_transaction_amount_greater_than_40(): void
     {
         $segment = new Segment(new SegmentId('00000000-0000-0000-0000-000000000000'), 'test');
         $part = new SegmentPart(new SegmentPartId('00000000-0000-0000-0000-000000000001'));
@@ -252,15 +261,15 @@ class SegmentationProviderTest extends \PHPUnit_Framework_TestCase
 
         $customers = $this->segmentationProvider->evaluateSegment($segment);
         $this->assertEquals([
-            $this->customer2->__toString() => $this->customer2->__toString(),
-            $this->customer3->__toString() => $this->customer3->__toString(),
+            (string) $this->customer2 => (string) $this->customer2,
+            (string) $this->customer3 => (string) $this->customer3,
         ], $customers);
     }
 
     /**
      * @test
      */
-    public function it_return_customers_with_average_transaction_amount_lower_than_40()
+    public function it_return_customers_with_average_transaction_amount_lower_than_40(): void
     {
         $segment = new Segment(new SegmentId('00000000-0000-0000-0000-000000000000'), 'test');
         $part = new SegmentPart(new SegmentPartId('00000000-0000-0000-0000-000000000001'));
@@ -272,14 +281,14 @@ class SegmentationProviderTest extends \PHPUnit_Framework_TestCase
 
         $customers = $this->segmentationProvider->evaluateSegment($segment);
         $this->assertEquals([
-            $this->customer1->__toString() => $this->customer1->__toString(),
+            (string) $this->customer1 => (string) $this->customer1,
         ], $customers);
     }
 
     /**
      * @test
      */
-    public function it_return_customers_with_transaction_amount_lower_than_40()
+    public function it_return_customers_with_transaction_amount_lower_than_40(): void
     {
         $segment = new Segment(new SegmentId('00000000-0000-0000-0000-000000000000'), 'test');
         $part = new SegmentPart(new SegmentPartId('00000000-0000-0000-0000-000000000001'));
@@ -292,15 +301,15 @@ class SegmentationProviderTest extends \PHPUnit_Framework_TestCase
         $customers = $this->segmentationProvider->evaluateSegment($segment);
 
         $this->assertEquals([
-            $this->customer1->__toString() => $this->customer1->__toString(),
-            $this->customer3->__toString() => $this->customer3->__toString(),
+            (string) $this->customer1 => (string) $this->customer1,
+            (string) $this->customer3 => (string) $this->customer3,
         ], $customers);
     }
 
     /**
      * @test
      */
-    public function it_return_customers_with_average_transaction_amount_greater_than_40_or_only_one_transaction()
+    public function it_return_customers_with_average_transaction_amount_greater_than_40_or_only_one_transaction(): void
     {
         $segment = new Segment(new SegmentId('00000000-0000-0000-0000-000000000000'), 'test');
         $part = new SegmentPart(new SegmentPartId('00000000-0000-0000-0000-000000000001'));
@@ -317,16 +326,16 @@ class SegmentationProviderTest extends \PHPUnit_Framework_TestCase
 
         $customers = $this->segmentationProvider->evaluateSegment($segment);
         $this->assertEquals([
-            $this->customer1->__toString() => $this->customer1->__toString(),
-            $this->customer2->__toString() => $this->customer2->__toString(),
-            $this->customer3->__toString() => $this->customer3->__toString(),
+            (string) $this->customer1 => (string) $this->customer1,
+            (string) $this->customer2 => (string) $this->customer2,
+            (string) $this->customer3 => (string) $this->customer3,
         ], $customers);
     }
 
     /**
      * @test
      */
-    public function it_return_customers_with_average_transaction_amount_greater_than_40_and_only_one_transaction()
+    public function it_return_customers_with_average_transaction_amount_greater_than_40_and_only_one_transaction(): void
     {
         $segment = new Segment(new SegmentId('00000000-0000-0000-0000-000000000000'), 'test');
         $part = new SegmentPart(new SegmentPartId('00000000-0000-0000-0000-000000000001'));
@@ -346,7 +355,7 @@ class SegmentationProviderTest extends \PHPUnit_Framework_TestCase
 
         $customers = $this->segmentationProvider->evaluateSegment($segment);
         $this->assertEquals([
-            $this->customer2->__toString() => $this->customer2->__toString(),
+            (string) $this->customer2 => (string) $this->customer2,
         ], $customers);
     }
 }

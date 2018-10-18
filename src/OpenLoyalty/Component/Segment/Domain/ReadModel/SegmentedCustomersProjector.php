@@ -5,11 +5,11 @@
  */
 namespace OpenLoyalty\Component\Segment\Domain\ReadModel;
 
+use Psr\Log\LoggerInterface;
 use Broadway\EventDispatcher\EventDispatcher;
 use Broadway\ReadModel\Repository;
-use Broadway\ReadModel\SerializableReadModel;
-use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
-use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
+use Broadway\Repository\Repository as AggregateRootRepository;
+use OpenLoyalty\Component\Customer\Domain\Customer;
 use OpenLoyalty\Component\Core\Domain\Model\Identifier;
 use OpenLoyalty\Component\Segment\Domain\CustomerId;
 use OpenLoyalty\Component\Segment\Domain\Segment;
@@ -18,7 +18,6 @@ use OpenLoyalty\Component\Segment\Domain\SegmentRepository;
 use OpenLoyalty\Component\Segment\Domain\SystemEvent\CustomerAddedToSegmentSystemEvent;
 use OpenLoyalty\Component\Segment\Domain\SystemEvent\CustomerRemovedFromSegmentSystemEvent;
 use OpenLoyalty\Component\Segment\Domain\SystemEvent\SegmentSystemEvents;
-use Psr\Log\LoggerInterface;
 
 /**
  * Class SegmentedCustomersProjector.
@@ -26,7 +25,7 @@ use Psr\Log\LoggerInterface;
 class SegmentedCustomersProjector
 {
     /**
-     * @var SegmentedCustomersRepository
+     * @var Repository
      */
     protected $repository;
 
@@ -36,9 +35,9 @@ class SegmentedCustomersProjector
     protected $segmentRepository;
 
     /**
-     * @var CustomerDetailsRepository
+     * @var AggregateRootRepository
      */
-    protected $customerDetailsRepository;
+    protected $customerRepository;
 
     /**
      * @var LoggerInterface
@@ -53,24 +52,37 @@ class SegmentedCustomersProjector
     /**
      * SegmentedCustomersProjector constructor.
      *
-     * @param Repository                $repository
-     * @param SegmentRepository         $segmentRepository
-     * @param EventDispatcher           $eventDispatcher
-     * @param CustomerDetailsRepository $customerDetailsRepository
+     * @param Repository              $repository
+     * @param SegmentRepository       $segmentRepository
+     * @param EventDispatcher         $eventDispatcher
+     * @param AggregateRootRepository $customerRepository
      */
     public function __construct(
         Repository $repository,
         SegmentRepository $segmentRepository,
         EventDispatcher $eventDispatcher,
-        CustomerDetailsRepository $customerDetailsRepository
+        AggregateRootRepository $customerRepository
     ) {
         $this->repository = $repository;
         $this->segmentRepository = $segmentRepository;
         $this->eventDispatcher = $eventDispatcher;
-        $this->customerDetailsRepository = $customerDetailsRepository;
+        $this->customerRepository = $customerRepository;
     }
 
-    public function storeSegmentation(Segment $segment, array $customers, array $currentCustomers = [])
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
+    }
+
+    /**
+     * @param Segment $segment
+     * @param array   $customers
+     * @param array   $currentCustomers
+     */
+    public function storeSegmentation(Segment $segment, array $customers, array $currentCustomers = []): void
     {
         foreach ($customers as $customer) {
             if (!$customer instanceof CustomerId) {
@@ -79,12 +91,12 @@ class SegmentedCustomersProjector
 
             $readModel = $this->getReadModel($segment->getSegmentId(), $customer);
             $readModel->setSegmentName($segment->getName());
-            $customerDetails = $this->customerDetailsRepository->find($customer);
-            if ($customerDetails instanceof CustomerDetails) {
-                $readModel->setFirstName($customerDetails->getFirstName());
-                $readModel->setLastName($customerDetails->getLastName());
-                $readModel->setEmail($customerDetails->getEmail());
-                $readModel->setPhone($customerDetails->getPhone());
+            $customerDomainModel = $this->customerRepository->load((string) $customer);
+            if ($customerDomainModel instanceof Customer) {
+                $readModel->setFirstName($customerDomainModel->getFirstName());
+                $readModel->setLastName($customerDomainModel->getLastName());
+                $readModel->setEmail($customerDomainModel->getEmail());
+                $readModel->setPhone($customerDomainModel->getPhone());
             }
             $this->repository->save($readModel);
         }
@@ -99,14 +111,20 @@ class SegmentedCustomersProjector
         $this->segmentRepository->save($segment);
     }
 
-    public function removeAll()
+    /**
+     * Removes all segments.
+     */
+    public function removeAll(): void
     {
         foreach ($this->repository->findAll() as $segmented) {
             $this->repository->remove($segmented->getId());
         }
     }
 
-    public function removeOneSegment($id)
+    /**
+     * @param string $id
+     */
+    public function removeOneSegment(string $id): void
     {
         $segmentedCustomers = $this->repository->findBy(['segmentId' => $id]);
 
@@ -115,44 +133,59 @@ class SegmentedCustomersProjector
         }
     }
 
-    protected function dispatchEventsForSegmentation(SegmentId $segmentId, $oldCustomers, $newCustomers)
+    /**
+     * @param SegmentId $segmentId
+     * @param array     $oldCustomers
+     * @param array     $newCustomers
+     */
+    protected function dispatchEventsForSegmentation(SegmentId $segmentId, array $oldCustomers, array $newCustomers): void
     {
         $dispatcher = $this->eventDispatcher;
-        $old = array_diff($oldCustomers, $newCustomers);
-        foreach ($old as $o) {
+        $toRemoveCustomers = array_diff($oldCustomers, $newCustomers);
+        foreach ($toRemoveCustomers as $toRemoveCustomer) {
             if ($this->logger) {
-                $this->logger->info('[segmentation] customer: '.$o.' removed from segment '.$segmentId->__toString());
+                $this->logger->info('[segmentation] customer: '.$toRemoveCustomer.' removed from segment '.(string) $segmentId);
             }
             $dispatcher->dispatch(
                 SegmentSystemEvents::CUSTOMER_REMOVED_FROM_SEGMENT,
-                [new CustomerRemovedFromSegmentSystemEvent($segmentId, new CustomerId($o))]
+                [new CustomerRemovedFromSegmentSystemEvent($segmentId, new CustomerId($toRemoveCustomer))]
             );
         }
-        $new = array_diff($newCustomers, $oldCustomers);
+        $toAddCustomers = array_diff($newCustomers, $oldCustomers);
 
-        foreach ($new as $n) {
+        foreach ($toAddCustomers as $toAddCustomer) {
             if ($this->logger) {
-                $this->logger->info('[segmentation] customer: '.$n.' added to segment '.$segmentId->__toString());
+                $this->logger->info('[segmentation] customer: '.$toAddCustomer.' added to segment '.(string) $segmentId);
             }
             $dispatcher->dispatch(
                 SegmentSystemEvents::CUSTOMER_ADDED_TO_SEGMENT,
-                [new CustomerAddedToSegmentSystemEvent($segmentId, new CustomerId($n))]
+                [new CustomerAddedToSegmentSystemEvent($segmentId, new CustomerId($toAddCustomer))]
             );
         }
     }
 
-    protected function getCustomersIdsAsStringFromSegmentation(array $customers)
+    /**
+     * @param array $customers
+     *
+     * @return array
+     */
+    protected function getCustomersIdsAsStringFromSegmentation(array $customers): array
     {
         return array_map(function (SegmentedCustomers $segmentedCustomers) {
-            return $segmentedCustomers->getCustomerId()->__toString();
+            return (string) $segmentedCustomers->getCustomerId();
         }, $customers);
     }
 
-    protected function getCustomersIdsAsString(array $customers)
+    /**
+     * @param array $customers
+     *
+     * @return array
+     */
+    protected function getCustomersIdsAsString(array $customers): array
     {
         return array_map(function ($customerId) {
             if ($customerId instanceof Identifier) {
-                $customerId = $customerId->__toString();
+                $customerId = (string) $customerId;
             }
 
             return $customerId;
@@ -163,24 +196,16 @@ class SegmentedCustomersProjector
      * @param SegmentId  $segmentId
      * @param CustomerId $customerId
      *
-     * @return SerializableReadModel|null|SegmentedCustomers
+     * @return SegmentedCustomers
      */
-    private function getReadModel(SegmentId $segmentId, CustomerId $customerId)
+    private function getReadModel(SegmentId $segmentId, CustomerId $customerId): SegmentedCustomers
     {
-        $readModel = $this->repository->find($segmentId->__toString().'_'.$customerId->__toString());
+        $readModel = $this->repository->find((string) $segmentId.'_'.(string) $customerId);
 
         if (null === $readModel) {
             $readModel = new SegmentedCustomers($segmentId, $customerId);
         }
 
         return $readModel;
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger($logger)
-    {
-        $this->logger = $logger;
     }
 }
