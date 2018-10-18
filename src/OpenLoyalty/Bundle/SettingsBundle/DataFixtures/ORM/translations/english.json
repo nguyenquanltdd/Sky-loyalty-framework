@@ -1877,6 +1877,8 @@
     "expire_coupons_notification_days_prompt": "[days]",
     "expire_points_notification_days": "Days before expiring points to notify user",
     "expire_points_notification_days_prompt": "[days]",
+    "expire_levels_notification_days": "Days to level recalculation",
+    "expire_levels_notification_days_prompt": "[days]",
     "faq_url": "FAQ URL",
     "field_prompt": "",
     "fields": "Field",

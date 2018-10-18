@@ -1906,6 +1906,8 @@
     "expire_coupons_notification_days_prompt": "[dni]",
     "expire_points_notification_days": "Ilość dni przed wygaśnięciem punktów do poinformowania użytkownika",
     "expire_points_notification_days_prompt": "[dni]",
+    "expire_levels_notification_days": "Ilość dni do rekalkulacji levelu",
+    "expire_levels_notification_days_prompt": "[dni]",
     "faq_url": "Adres URL FAQ",
     "field_prompt": "",
     "fields": "Kryterium",
