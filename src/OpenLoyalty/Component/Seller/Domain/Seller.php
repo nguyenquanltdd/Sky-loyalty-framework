@@ -23,6 +23,21 @@ class Seller extends EventSourcedAggregateRoot
     protected $id;
 
     /**
+     * @var array
+     */
+    protected $data = [];
+
+    /**
+     * @var bool
+     */
+    protected $active = false;
+
+    /**
+     * @var bool
+     */
+    protected $deleted = false;
+
+    /**
      * @return string
      */
     public function getAggregateRootId(): string
@@ -33,12 +48,18 @@ class Seller extends EventSourcedAggregateRoot
     /**
      * @return SellerId
      */
-    public function getId()
+    public function getId(): SellerId
     {
         return $this->id;
     }
 
-    public static function registerSeller(SellerId $sellerId, array $sellerData)
+    /**
+     * @param SellerId $sellerId
+     * @param array    $sellerData
+     *
+     * @return Seller
+     */
+    public static function registerSeller(SellerId $sellerId, array $sellerData): Seller
     {
         $seller = new self();
         $seller->register($sellerId, $sellerData);
@@ -46,43 +67,111 @@ class Seller extends EventSourcedAggregateRoot
         return $seller;
     }
 
-    public function update(array $sellerData)
+    /**
+     * @param array $sellerData
+     */
+    public function update(array $sellerData): void
     {
         $this->apply(
             new SellerWasUpdated($this->getId(), $sellerData)
         );
     }
 
-    public function activate()
+    /**
+     * @param SellerWasUpdated $event
+     */
+    protected function applySellerWasUpdated(SellerWasUpdated $event): void
+    {
+        $this->data = $event->getSellerData();
+    }
+
+    /**
+     * Activate.
+     */
+    public function activate(): void
     {
         $this->apply(
             new SellerWasActivated($this->getId())
         );
     }
 
-    public function deactivate()
+    /**
+     * @param SellerWasActivated $event
+     */
+    protected function applySellerWasActivated(SellerWasActivated $event): void
+    {
+        $this->setActive(true);
+    }
+
+    /**
+     * @param bool $active
+     */
+    private function setActive(bool $active): void
+    {
+        $this->active = $active;
+    }
+
+    /**
+     * Deactivate.
+     */
+    public function deactivate(): void
     {
         $this->apply(
             new SellerWasDeactivated($this->getId())
         );
     }
 
-    public function delete()
+    /**
+     * @param SellerWasDeactivated $event
+     */
+    protected function applySellerWasDeactivated(SellerWasDeactivated $event): void
+    {
+        $this->setActive(false);
+    }
+
+    /**
+     * Delete.
+     */
+    public function delete(): void
     {
         $this->apply(
             new SellerWasDeleted($this->getId())
         );
     }
 
-    private function register(SellerId $sellerId, array $sellerData)
+    /**
+     * @param SellerWasDeleted $event
+     */
+    protected function applySellerWasDeleted(SellerWasDeleted $event): void
+    {
+        $this->setDeleted(true);
+    }
+
+    /**
+     * @param bool $deleted
+     */
+    private function setDeleted(bool $deleted): void
+    {
+        $this->deleted = $deleted;
+    }
+
+    /**
+     * @param SellerId $sellerId
+     * @param array    $sellerData
+     */
+    private function register(SellerId $sellerId, array $sellerData): void
     {
         $this->apply(
             new SellerWasRegistered($sellerId, $sellerData)
         );
     }
 
-    public function applySellerWasRegistered(SellerWasRegistered $event)
+    /**
+     * @param SellerWasRegistered $event
+     */
+    protected function applySellerWasRegistered(SellerWasRegistered $event): void
     {
         $this->id = $event->getSellerId();
+        $this->data = $event->getSellerData();
     }
 }
