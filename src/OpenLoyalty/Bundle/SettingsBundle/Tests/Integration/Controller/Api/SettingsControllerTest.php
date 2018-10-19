@@ -159,11 +159,11 @@ class SettingsControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_return_css_settings_in_json_format()
+    public function it_return_css_settings_in_json_format(): void
     {
         $client = $this->createAuthenticatedClient();
 
-        $client->request('GET', '/api/settings/css');
+        $client->request('GET', '/api/settings/css?json=1');
         $response = $client->getResponse();
         $contentType = $response->headers->get('Content-Type');
 
@@ -174,6 +174,21 @@ class SettingsControllerTest extends BaseApiTest
 
         $this->assertArrayHasKey('accent_color', $data, 'Response should return array with field accent_color');
         $this->assertArrayHasKey('template_css', $data, 'Response should return array with field template_css');
+    }
+
+    /**
+     * @test
+     */
+    public function it_return_css_settings_in_css_format(): void
+    {
+        $client = $this->createAuthenticatedClient();
+
+        $client->request('GET', '/api/settings/css');
+        $response = $client->getResponse();
+        $contentType = $response->headers->get('Content-Type');
+
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals('text/css; charset=utf-8', $contentType);
     }
 
     /**

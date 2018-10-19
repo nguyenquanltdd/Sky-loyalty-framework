@@ -910,13 +910,21 @@ class SettingsController extends FOSRestController
      * @Route(name="oloy.settings.css", path="/settings/css")
      * @Method("GET")
      * @ApiDoc(
-     *     section="Settings"
+     *     name="Get choices",
+     *     section="Settings",
+     *     requirements={{"name"="json", "Returns content as json", "dataType"="boolean", "required"=false}}
      * )
      *
-     * @return JsonResponse
+     * @param Request $request
+     *
+     * @return Response
      */
-    public function cssAction()
+    public function cssAction(Request $request): Response
     {
-        return new JsonResponse($this->templateProvider->getJsonContent(), Response::HTTP_OK, ['Content-Type' => 'application/json']);
+        if ($request->get('json', false)) {
+            return new JsonResponse($this->templateProvider->getJsonContent(), Response::HTTP_OK, ['Content-Type' => 'application/json']);
+        }
+
+        return new Response($this->templateProvider->getCssContent(), Response::HTTP_OK, ['Content-Type' => 'text/css; charset=utf-8']);
     }
 }

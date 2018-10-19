@@ -33,7 +33,6 @@ class TemplateProvider
      */
     public function getJsonContent(): array
     {
-        $cssTemplateSetting = $this->settingsManager->getSettingByKey('cssTemplate');
         $accentColorSetting = $this->settingsManager->getSettingByKey('accentColor');
 
         return [
