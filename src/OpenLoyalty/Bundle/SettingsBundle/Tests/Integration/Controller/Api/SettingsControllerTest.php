@@ -159,11 +159,11 @@ class SettingsControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_return_css_settings_in_json_format()
+    public function it_return_css_settings_in_json_format(): void
     {
         $client = $this->createAuthenticatedClient();
 
-        $client->request('GET', '/api/settings/css');
+        $client->request('GET', '/api/settings/css?json=1');
         $response = $client->getResponse();
         $contentType = $response->headers->get('Content-Type');
 
@@ -174,6 +174,21 @@ class SettingsControllerTest extends BaseApiTest
 
         $this->assertArrayHasKey('accent_color', $data, 'Response should return array with field accent_color');
         $this->assertArrayHasKey('template_css', $data, 'Response should return array with field template_css');
+    }
+
+    /**
+     * @test
+     */
+    public function it_return_css_settings_in_css_format(): void
+    {
+        $client = $this->createAuthenticatedClient();
+
+        $client->request('GET', '/api/settings/css');
+        $response = $client->getResponse();
+        $contentType = $response->headers->get('Content-Type');
+
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals('text/css; charset=utf-8', $contentType);
     }
 
     /**
@@ -223,10 +238,6 @@ class SettingsControllerTest extends BaseApiTest
             'accentColor' => '',
             'cssTemplate' => '',
             'marketingVendorsValue' => '',
-            'cssJsonTemplate' => [
-                'accent_color' => 'rgba( 255,166,90, 1)',
-                'template_css' => '.c-accent { color: rgb(20,19,19) !important }; .hvc-accent:hover { color: rgb(20,19,19) }',
-            ],
         ];
 
         $client->request(

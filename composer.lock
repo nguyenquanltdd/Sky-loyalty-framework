@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "29c02422157a78d65418e4ad3e42a24e",
-    "content-hash": "26b6d04f875379888fe44469365437e0",
+    "hash": "781eb0b2c25b6ec1de987ad78fc58802",
+    "content-hash": "98db0ac918f730db871f6ef477ec499c",
     "packages": [
         {
             "name": "a2lix/auto-form-bundle",
@@ -6984,7 +6984,8 @@
     "prefer-lowest": false,
     "platform": {
         "php": ">=7.1",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-simplexml": "*"
     },
     "platform-dev": []
 }

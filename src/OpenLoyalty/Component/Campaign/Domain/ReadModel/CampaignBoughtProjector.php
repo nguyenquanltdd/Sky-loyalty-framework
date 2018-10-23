@@ -88,7 +88,7 @@ class CampaignBoughtProjector extends Projector
             $event->getCreatedAt(),
             new Coupon($event->getCoupon()->getCode()),
             $campaign->getReward(),
-            $campaign->getName(),
+            $campaign->getName() ?? '',
             $customer->getEmail(),
             $customer->getPhone(),
             $customer->getFirstName(),
