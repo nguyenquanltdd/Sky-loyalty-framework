@@ -1,13 +1,14 @@
 Segment API
 ===========
 
-These endpoints will allow you to see the list of segments taken in the Open Loyalty.
+These endpoints will allow you to retrieve information and manage the segments used in your instance of Open Loyalty.
+
+
 
 Get segments list
 -----------------
 
-To retrieve a paginated list of segments you will need to call the ``/api/segment`` endpoint with the ``GET`` method.
-
+To retrieve a paginated list of segments you need to call the ``/api/segment`` endpoint with the ``GET`` method.
 
 Definition
 ^^^^^^^^^^
@@ -15,7 +16,6 @@ Definition
 .. code-block:: text
 
     GET /api/segment
-
 
 +----------------------+----------------+--------------------------------------------------------+
 | Parameter            | Parameter type |  Description                                           |
@@ -45,8 +45,8 @@ Example
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -115,10 +115,12 @@ Exemplary Response
       "total": 2
     }
 
+
+
 Create new segment
 ------------------
 
-To create a new segment you will need to call the ``/api/segment`` endpoint with the ``POST`` method.
+To create a new segment you need to call the ``/api/segment`` endpoint with the ``POST`` method.
 
 Definition
 ^^^^^^^^^^
@@ -132,52 +134,99 @@ Definition
 +================================================+================+============================================================================+
 | Authorization                                  | header         | Token received during authentication                                       |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[name]                                  | request        |  Segment name                                                              |
+| segment[name]                                  | request        | Segment name                                                               |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[active]                                | request        |  *(optional)* Set 1 if active, otherwise 0                                 |
+| segment[active]                                | request        | *(optional)* Set 1 if active, otherwise 0                                  |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[description]                           | request        |  *(optional)* A short description                                          |
+| segment[description]                           | request        | *(optional)* A short description                                           |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][type]           | request        |  Criteria type for segment parts                                           |
+| segment[parts][0][criteria][0][type]           | request        | Criterion type. It can be one of the following:                            |
+|                                                |                | ``anniversary``, ``bought_in_pos``, ``transaction_count``,                 |
+|                                                |                | ``transaction_amount``, ``average_transaction_amount``,                    |
+|                                                |                | ``last_purchase_n_days_before``, ``purchase_period``,                      |
+|                                                |                | ``transaction_percent_in_pos``, ``bought_skus``, ``bought_makers``,        |
+|                                                |                | ``bought_labels``, ``customer_has_labels``,                                |
+|                                                |                | ``customer_has_labels_with_values``, ``customer_list``.                    |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][days]           | request        |  Days for Anniversary Type                                                 |
+| segment[parts][0][criteria][0][days]           | request        | Segment width in days. If set to 1, only customers with anniversary on     |
+|                                                |                | this exact date are in the segment.                                        |
+|                                                |                | *(required)* for ``anniversary`` criterion type.                           |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][anniversaryType]| request        |  Type for Anniversary Type                                                 |
+| segment[parts][0][criteria][0][anniversaryType]| request        | Anniversary type: ``birthday`` or ``registration``.                        |
+|                                                |                | *(required)* for ``anniversary`` criterion type.                           |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][fromAmount]     | request        |  Minimum value for Type Average transaction value                          |
+| segment[parts][0][criteria][0][fromAmount]     | request        | Minimum value of transactions.                                             |
+|                                                |                | *(required)* for ``average_transaction_amount`` and ``transaction_amount`` |
+|                                                |                | criterion type.                                                            |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][toAmount]       | request        |  Maximum value for Type Average transaction value                          |
+| segment[parts][0][criteria][0][toAmount]       | request        | Maximum value of transactions.                                             |
+|                                                |                | *(required)* for ``average_transaction_amount`` and ``transaction_amount`` |
+|                                                |                | criterion type.                                                            |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][posIds][0]      | request        |  Choose POS for Type Bought in specific POS                                |
+| segment[parts][0][criteria][0][posIds][]       | request        | One or more UUIDs of POS.                                                  |
+|                                                |                | *(required)* minimum 1 in collection for ``bought_in_pos`` criterion type. |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][makers][0]      | request        |  Brands for Type Bought specific brands                                    |
+| segment[parts][0][criteria][0][posId]          | request        | Exactly one UUID of POS.                                                   |
+|                                                |                | *(required)* for ``transaction_percent_in_pos`` criterion type.            |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][skuIds][0]      | request        |  SKUs for Type Bought specific SKU                                         |
+| segment[parts][0][criteria][0][percent]        | request        | Treshold percent value.                                                    |
+|                                                |                | *(required)* for ``transaction_percent_in_pos`` criterion type.            |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][days]           | request        |  Days for Type Last purchase was n days ago                                |
+| segment[parts][0][criteria][0][makers][]       | request        | One of more brands.                                                        |
+|                                                |                | *(required)* minimum 1 in collection for ``bought_makers`` criterion type. |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][fromDate]       | request        |  Date from for Type Purchase period                                        |
+| segment[parts][0][criteria][0][skuIds][]       | request        | One or more SKUs.                                                          |
+|                                                |                | *(required)* minimum 1 in collection for ``bought_skus`` criterion type.   |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][toDate]         | request        |  Days to for Type Purchase period                                          |
+| segment[parts][0][criteria][0][labels][]       | request        | One or more Labels, which apply either to the product or the customer.     |
+|                                                |                | Each label is an array of key and value elements:                          |
+|                                                |                | ``...[labels][0][key]=key_one&...[labels][0][value]=value_one`` .          |
+|                                                |                | For ``customer_has_labels`` criterions, there should be no value element.  |
+|                                                |                | *(required)* minimum 1 in collection for ``bought_labels``,                |
+|                                                |                | ``customer_has_labels`` and ``customer_has_labels_with_values``            |
+|                                                |                | criterion types.                                                           |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][min]            | request        |  Minimum for Type Transaction count                                        |
+| segment[parts][0][criteria][0][days]           | request        | Segment includes customers who shopped at least this days ago.             |
+|                                                |                | 1 is yesterday.                                                            |
+|                                                |                | *(required)* for ``last_purchase_n_days_before`` criterion type.           |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][max]            | request        |  Maximum for Type Transaction count                                        |
+| segment[parts][0][criteria][0][fromDate]       | request        | Start of date range.                                                       |
+|                                                |                | *(required)* for ``purchase_period`` criterion type.                       |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][percent]        | request        |  Percent for Type Transaction percent in POS                               |
+| segment[parts][0][criteria][0][toDate]         | request        | End of time range.                                                         |
+|                                                |                | *(required)* for ``purchase_period`` criterion type.                       |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][posId]          | request        |  POS for Type Transaction percent in POS                                   |
+| segment[parts][0][criteria][0][min]            | request        | Minimum transaction count.                                                 |
+|                                                |                | *(required)* for ``transaction_count`` criterion type.                     |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][fromAmount]     | request        |  Minimum value for Type Transaction value                                  |
+| segment[parts][0][criteria][0][max]            | request        | Maximum transaction count.                                                 |
+|                                                |                | *(required)* for ``transaction_count`` criterion type.                     |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][toAmount]       | request        |  Maximum value for Type Transaction value                                  |
+| segment[parts][0][criteria][0][customers][]    | request        | One or more Customers, identified by UUID, phone, loyalty card number,     |
+|                                                |                | or e-mail address. Identifiers don't have to be of the same type.          |
+|                                                |                | *(required)* minimum 1 in collection for ``customer_list`` criterion type. |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 
 Example
 ^^^^^^^
 
 .. code-block:: bash
-
 
     curl http://localhost:8181/api/segment/00000000-0000-0000-0000-000000000002` \
         -X "POST" \
@@ -193,12 +242,11 @@ Example
 
 .. note::
 
-    You could add or condition by clicking "ADD OR CONDITION"
-    You could add and condition by clicking "ADD AND CONDITION"
+    To create OR condition, add another ``SegmentPart`` element in ``segment[parts]`` array.
+    To create AND condition, add another ``Criterion`` element in ``segment[parts][<part_element>][criteria]`` array.
 
-
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -211,10 +259,11 @@ Exemplary Response
     }
 
 
+
 Delete segment
 --------------
 
-To delete segment you will need to call the ``/api/segment/<segment>`` endpoint with the ``DELETE`` method.
+To delete segment you need to call the ``/api/segment/<segment>`` endpoint with the ``DELETE`` method.
 
 Definition
 ^^^^^^^^^^
@@ -223,7 +272,6 @@ Definition
 
     DELETE /api/segment/<segment>
 
-
 +----------------------+----------------+--------------------------------------------------------+
 | Parameter            | Parameter type |  Description                                           |
 +======================+================+========================================================+
@@ -231,7 +279,6 @@ Definition
 +----------------------+----------------+--------------------------------------------------------+
 | <segment>            | query          | Segment ID                                             |
 +----------------------+----------------+--------------------------------------------------------+
-
 
 Example
 ^^^^^^^
@@ -246,11 +293,11 @@ Example
 
 .. note::
 
-    The *f9a64320-0e93-42b9-882c-43cd477156cf* segment ID is an exemplary value.
+    The *f9a64320-0e93-42b9-882c-43cd477156cf* segment ID is an example value.
     Your value can be different. Check in the list of all segments if you are not sure which id should be used.
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -261,10 +308,11 @@ Exemplary Response
     No Content
 
 
+
 Get segment details
 -------------------
 
-To retrieve segment details you will need to call the ``/api/segment/<segment>`` endpoint with the ``GET`` method.
+To retrieve segment details you need to call the ``/api/segment/<segment>`` endpoint with the ``GET`` method.
 
 Definition
 ^^^^^^^^^^
@@ -272,7 +320,6 @@ Definition
 .. code-block:: text
 
     GET /api/segment/<segment>
-
 
 +----------------------+----------------+--------------------------------------------------------+
 | Parameter            | Parameter type |  Description                                           |
@@ -285,10 +332,9 @@ Definition
 Example
 ^^^^^^^
 
-To see the details of the customer user with ``segment = 00000000-0000-0000-0000-000000000002`` use the below method:
+To see the details of the customer user with ``segment = 00000000-0000-0000-0000-000000000002`` use the method below:
 
 .. code-block:: bash
-
 
     curl http://localhost:8181/api/segment/00000000-0000-0000-0000-000000000002` \
         -X "GET" \
@@ -296,9 +342,8 @@ To see the details of the customer user with ``segment = 00000000-0000-0000-0000
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
 
-
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -333,7 +378,7 @@ Exemplary Response
 Update segment data
 -------------------
 
-To fully update segment data for user you will need to call the ``/api/segment/<segment>`` endpoint with the ``PUT`` method.
+To fully update segment data for user you need to call the ``/api/segment/<segment>`` endpoint with the ``PUT`` method.
 
 Definition
 ^^^^^^^^^^
@@ -342,58 +387,104 @@ Definition
 
     PUT /api/segment/<segment>
 
-
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | Parameter                                      | Parameter type |  Description                                                               |
 +================================================+================+============================================================================+
 | Authorization                                  | header         | Token received during authentication                                       |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| <segment>                                      | query          |  Segment ID                                                                |
+| <segment>                                      | query          | Segment ID                                                                 |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[name]                                  | request        |  Segment name                                                              |
+| segment[name]                                  | request        | Segment name                                                               |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[active]                                | request        |  *(optional)* Set 1 if active, otherwise 0                                 |
+| segment[active]                                | request        | *(optional)* Set 1 if active, otherwise 0                                  |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[description]                           | request        |  *(optional)* A short description                                          |
+| segment[description]                           | request        | *(optional)* A short description                                           |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][type]           | request        |  Criteria type for segment parts                                           |
+| segment[parts][0][criteria][0][type]           | request        | Criterion type. It can be one of the following:                            |
+|                                                |                | ``anniversary``, ``bought_in_pos``, ``transaction_count``,                 |
+|                                                |                | ``transaction_amount``, ``average_transaction_amount``,                    |
+|                                                |                | ``last_purchase_n_days_before``, ``purchase_period``,                      |
+|                                                |                | ``transaction_percent_in_pos``, ``bought_skus``, ``bought_makers``,        |
+|                                                |                | ``bought_labels``, ``customer_has_labels``,                                |
+|                                                |                | ``customer_has_labels_with_values``, ``customer_list``.                    |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][days]           | request        |  Days for Anniversary Type                                                 |
+| segment[parts][0][criteria][0][days]           | request        | Segment width in days. If set to 1, only customers with anniversary on     |
+|                                                |                | this exact date are in the segment.                                        |
+|                                                |                | *(required)* for ``anniversary`` criterion type.                           |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][anniversaryType]| request        |  Type for Anniversary Type                                                 |
+| segment[parts][0][criteria][0][anniversaryType]| request        | Anniversary type: ``birthday`` or ``registration``.                        |
+|                                                |                | *(required)* for ``anniversary`` criterion type.                           |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][fromAmount]     | request        |  Minimum value for Type Average transaction value                          |
+| segment[parts][0][criteria][0][fromAmount]     | request        | Minimum value of transactions.                                             |
+|                                                |                | *(required)* for ``average_transaction_amount`` and ``transaction_amount`` |
+|                                                |                | criterion type.                                                            |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][toAmount]       | request        |  Maximum value for Type Average transaction value                          |
+| segment[parts][0][criteria][0][toAmount]       | request        | Maximum value of transactions.                                             |
+|                                                |                | *(required)* for ``average_transaction_amount`` and ``transaction_amount`` |
+|                                                |                | criterion type.                                                            |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][posIds][0]      | request        |  Choose POS for Type Bought in specific POS                                |
+| segment[parts][0][criteria][0][posIds][0]      | request        | One or more UUIDs of POS.                                                  |
+|                                                |                | *(required)* minimum 1 in collection for ``bought_in_pos`` criterion type. |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][makers][0]      | request        |  Brands for Type Bought specific brands                                    |
+| segment[parts][0][criteria][0][posId]          | request        | Exactly one UUID of POS.                                                   |
+|                                                |                | *(required)* for ``transaction_percent_in_pos`` criterion type.            |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][skuIds][0]      | request        |  SKUs for Type Bought specific SKU                                         |
+| segment[parts][0][criteria][0][percent]        | request        | Treshold percent value.                                                    |
+|                                                |                | *(required)* for ``transaction_percent_in_pos`` criterion type.            |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][days]           | request        |  Days for Type Last purchase was n days ago                                |
+| segment[parts][0][criteria][0][makers][0]      | request        | One of more brands.                                                        |
+|                                                |                | *(required)* minimum 1 in collection for ``bought_makers`` criterion type. |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][fromDate]       | request        |  Date from for Type Purchase period                                        |
+| segment[parts][0][criteria][0][skuIds][0]      | request        | One or more SKUs.                                                          |
+|                                                |                | *(required)* minimum 1 in collection for ``bought_skus`` criterion type.   |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][toDate]         | request        |  Days to for Type Purchase period                                          |
+| segment[parts][0][criteria][0][labels][0]      | request        | One or more Labels, which apply either to the product or the customer.     |
+|                                                |                | Each label is an array of key and value elements:                          |
+|                                                |                | ``...[labels][0][key]=key_one&...[labels][0][value]=value_one`` .          |
+|                                                |                | For ``customer_has_labels`` criterions, there should be no value element.  |
+|                                                |                | *(required)* minimum 1 in collection for ``bought_labels``,                |
+|                                                |                | ``customer_has_labels`` and ``customer_has_labels_with_values``            |
+|                                                |                | criterion types.                                                           |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][min]            | request        |  Minimum for Type Transaction count                                        |
+| segment[parts][0][criteria][0][days]           | request        | Segment includes customers who shopped at least this days ago.             |
+|                                                |                | 1 is yesterday.                                                            |
+|                                                |                | *(required)* for ``last_purchase_n_days_before`` criterion type.           |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][max]            | request        |  Maximum for Type Transaction count                                        |
+| segment[parts][0][criteria][0][fromDate]       | request        | Start of date range.                                                       |
+|                                                |                | *(required)* for ``purchase_period`` criterion type.                       |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][percent]        | request        |  Percent for Type Transaction percent in POS                               |
+| segment[parts][0][criteria][0][toDate]         | request        | End of time range.                                                         |
+|                                                |                | *(required)* for ``purchase_period`` criterion type.                       |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][posId]          | request        |  POS for Type Transaction percent in POS                                   |
+| segment[parts][0][criteria][0][min]            | request        | Minimum transaction count.                                                 |
+|                                                |                | *(required)* for ``transaction_count`` criterion type.                     |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][fromAmount]     | request        |  Minimum value for Type Transaction value                                  |
+| segment[parts][0][criteria][0][max]            | request        | Maximum transaction count.                                                 |
+|                                                |                | *(required)* for ``transaction_count`` criterion type.                     |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| segment[parts][0][criteria][0][toAmount]       | request        |  Maximum value for Type Transaction value                                  |
+| segment[parts][0][criteria][0][customers][0]   | request        | One or more Customer UUIDs.                                                |
+|                                                |                | *(required)* minimum 1 in collection for ``customer_list`` criterion type. |
+|                                                |                | *(forbidden)* for other criterion types.                                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 
 Example
 ^^^^^^^
-To see the details of the admin user with ``level = 17347292-0aaf-4c25-9118-17eb2c55b58b`` use the below method:
+To update the details of a segment with ``segment = 17347292-0aaf-4c25-9118-17eb2c55b58b`` use the method below:
 
 .. code-block:: bash
 
@@ -411,12 +502,11 @@ To see the details of the admin user with ``level = 17347292-0aaf-4c25-9118-17eb
 
 .. note::
 
-    You could add or condition by clicking "ADD OR CONDITION"
-    You could add and condition by clicking "ADD AND CONDITION"
+    To create OR condition, add another ``SegmentPart`` element in ``segment[parts]`` array.
+    To create AND condition, add another ``Criterion`` element in ``segment[parts][<part_element>][criteria]`` array.
 
-
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -429,10 +519,11 @@ Exemplary Response
     }
 
 
-Activate level
+
+Activate segment
 --------------
 
-To activate level you will need to call the ``/api/segment/<segment>/activate`` endpoint with the ``POST`` method.
+To activate segment you need to call the ``/api/segment/<segment>/activate`` endpoint with the ``POST`` method.
 
 Definition
 ^^^^^^^^^^
@@ -441,13 +532,12 @@ Definition
 
     POST /api/segment/<segment>/activate
 
-
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | Parameter                                      | Parameter type |  Description                                                               |
 +================================================+================+============================================================================+
 | Authorization                                  | header         | Token received during authentication                                       |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| <segment>                                      | query          |  Segment ID                                                                |
+| <segment>                                      | query          | Segment ID                                                                 |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 
 Example
@@ -461,8 +551,8 @@ Example
         -H "Content-type:\ application/x-www-form-urlencoded" \
         -H "Authorization:\ Bearer\ eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -473,11 +563,11 @@ Exemplary Response
     No Content
 
 
+
 Get customers assigned to specific segment
 ------------------------------------------
 
-To retrieve a paginated list of customers assigned to specific segment you will need to call the ``/api/segment/<segment>/customers`` endpoint with the ``GET`` method.
-
+To retrieve a paginated list of customers assigned to specific segment you need to call the ``/api/segment/<segment>/customers`` endpoint with the ``GET`` method.
 
 Definition
 ^^^^^^^^^^
@@ -490,6 +580,8 @@ Definition
 | Parameter            | Parameter type |  Description                                           |
 +======================+================+========================================================+
 | Authorization        | header         | Token received during authentication                   |
++----------------------+----------------+--------------------------------------------------------+
+| <segment>            | query          | Segment ID                                             |
 +----------------------+----------------+--------------------------------------------------------+
 | firstName            | query          | *(optional)* First Name                                |
 +----------------------+----------------+--------------------------------------------------------+
@@ -522,8 +614,8 @@ Example
         -H "Content-type: application/x-www-form-urlencoded" \
         -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -581,10 +673,11 @@ Exemplary Response
     }
 
 
-Deactivate level
+
+Deactivate segment
 ----------------
 
-To deactivate level you will need to call the ``/api/segment/<segment>/deactivate`` endpoint with the ``POST`` method.
+To deactivate segment you need to call the ``/api/segment/<segment>/deactivate`` endpoint with the ``POST`` method.
 
 Definition
 ^^^^^^^^^^
@@ -593,13 +686,12 @@ Definition
 
     POST /api/segment/<segment>/deactivate
 
-
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | Parameter                                      | Parameter type |  Description                                                               |
 +================================================+================+============================================================================+
 | Authorization                                  | header         | Token received during authentication                                       |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| <segment>                                      | query          |  Segment ID                                                                |
+| <segment>                                      | query          | Segment ID                                                                 |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 
 Example
@@ -613,8 +705,8 @@ Example
         -H "Content-type:\ application/x-www-form-urlencoded" \
         -H "Authorization:\ Bearer\ eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
 
-Exemplary Response
-^^^^^^^^^^^^^^^^^^
+Example Response
+^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 

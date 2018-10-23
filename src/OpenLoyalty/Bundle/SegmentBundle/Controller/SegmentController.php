@@ -5,6 +5,8 @@
  */
 namespace OpenLoyalty\Bundle\SegmentBundle\Controller;
 
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\Route;
@@ -56,7 +58,9 @@ class SegmentController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
+     *
+     * @throws \Exception
      */
     public function createAction(Request $request)
     {
@@ -64,7 +68,6 @@ class SegmentController extends FOSRestController
 
         $form->handleRequest($request);
         if ($form->isValid()) {
-            /* @var SegmentRepository $segmentRepository */
             if ($this->get(OloySegmentValidator::class)->exists($form->getData()['name'])) {
                 $form->get('name')->addError(new FormError('Segment with this name already exists'));
 
@@ -72,26 +75,26 @@ class SegmentController extends FOSRestController
             }
 
             $segmentId = $this->get('broadway.uuid.generator')->generate();
-            $this->get('broadway.command_handling.command_bus')
-                ->dispatch(
-                    new CreateSegment(
-                        new SegmentId($segmentId),
-                        $form->getData()
-                    )
-                );
+            $commandBus = $this->get('broadway.command_handling.command_bus');
+
+            $commandBus->dispatch(
+                new CreateSegment(
+                    new SegmentId($segmentId),
+                    $form->getData()
+                )
+            );
+
             if ($form->getData()['active']) {
-                $this->get('broadway.command_handling.command_bus')
-                    ->dispatch(
-                        new ActivateSegment(new SegmentId($segmentId))
-                    );
+                $commandBus->dispatch(
+                    new ActivateSegment(new SegmentId($segmentId))
+                );
             } else {
-                $this->get('broadway.command_handling.command_bus')
-                    ->dispatch(
-                        new DeactivateSegment(new SegmentId($segmentId))
-                    );
+                $commandBus->dispatch(
+                    new DeactivateSegment(new SegmentId($segmentId))
+                );
             }
 
-            return $this->view(['segmentId' => $segmentId], 200);
+            return $this->view(['segmentId' => $segmentId], Response::HTTP_OK);
         }
 
         return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
@@ -117,52 +120,56 @@ class SegmentController extends FOSRestController
      * @param Request $request
      * @param Segment $segment
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
+     *
+     * @throws \Exception
      */
     public function editAction(Request $request, Segment $segment)
     {
-        $form = $this->get('form.factory')->createNamed('segment', EditSegmentFormType::class, null, [
-            'method' => 'PUT',
-        ]);
+        $form = $this->get('form.factory')
+            ->createNamed('segment', EditSegmentFormType::class, null, [
+                'method' => 'PUT',
+            ]);
 
         $form->handleRequest($request);
 
         if ($form->isValid()) {
             if ($this->get(OloySegmentValidator::class)->updateExists(
                 $form->getData()['name'],
-                $segment->getSegmentId()->__toString()
+                (string) $segment->getSegmentId()
             )) {
                 $form->get('name')->addError(new FormError('Segment with this name already exists'));
 
                 return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
             }
-            $this->get('broadway.command_handling.command_bus')
-                ->dispatch(
-                    new UpdateSegment(
-                        $segment->getSegmentId(),
-                        $form->getData()
-                    )
-                );
+
+            $commandBus = $this->get('broadway.command_handling.command_bus');
+
+            $commandBus->dispatch(
+                new UpdateSegment(
+                    $segment->getSegmentId(),
+                    $form->getData()
+                )
+            );
+
             if ($form->getData()['active']) {
-                $this->get('broadway.command_handling.command_bus')
-                    ->dispatch(
-                        new ActivateSegment($segment->getSegmentId())
-                    );
+                $commandBus->dispatch(
+                    new ActivateSegment($segment->getSegmentId())
+                );
             } else {
-                $this->get('broadway.command_handling.command_bus')
-                    ->dispatch(
-                        new DeactivateSegment($segment->getSegmentId())
-                    );
+                $commandBus->dispatch(
+                    new DeactivateSegment($segment->getSegmentId())
+                );
             }
 
-            return $this->view(['segmentId' => $segment->getSegmentId()->__toString()], 200);
+            return $this->view(['segmentId' => (string) $segment->getSegmentId()], Response::HTTP_OK);
         }
 
         return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
     }
 
     /**
-     * Method allows to activate.
+     * Method allows to activate segment.
      *
      * @Route(name="oloy.segment.activate", path="/segment/{segment}/activate")
      * @Method("POST")
@@ -174,7 +181,9 @@ class SegmentController extends FOSRestController
      *
      * @param Segment $segment
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
+     *
+     * @throws \Exception
      */
     public function activateAction(Segment $segment)
     {
@@ -183,7 +192,7 @@ class SegmentController extends FOSRestController
                 new ActivateSegment($segment->getSegmentId())
             );
 
-        return $this->view(null, 200);
+        return $this->view(null, Response::HTTP_OK);
     }
 
     /**
@@ -199,7 +208,9 @@ class SegmentController extends FOSRestController
      *
      * @param Segment $segment
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
+     *
+     * @throws \Exception
      */
     public function deactivateAction(Segment $segment)
     {
@@ -208,7 +219,7 @@ class SegmentController extends FOSRestController
                 new DeactivateSegment($segment->getSegmentId())
             );
 
-        return $this->view(null, 200);
+        return $this->view(null, Response::HTTP_OK);
     }
 
     /**
@@ -224,7 +235,9 @@ class SegmentController extends FOSRestController
      *
      * @param Segment $segment
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
+     *
+     * @throws \Exception
      */
     public function deleteAction(Segment $segment)
     {
@@ -233,7 +246,7 @@ class SegmentController extends FOSRestController
                 new DeleteSegment($segment->getSegmentId())
             );
 
-        return $this->view(null, 200);
+        return $this->view(null, Response::HTTP_OK);
     }
 
     /**
@@ -253,11 +266,11 @@ class SegmentController extends FOSRestController
      */
     public function getSegmentAction(Segment $segment): View
     {
-        return $this->view($this->get(SegmentReadModelTransformer::class)->transform($segment), 200);
+        return $this->view($this->get(SegmentReadModelTransformer::class)->transform($segment), Response::HTTP_OK);
     }
 
     /**
-     * Method will return customers assigned to this segment.
+     * Method returns customers assigned to this segment.
      *
      * @Route(name="oloy.segment.get_customers", path="/segment/{segment}/customers")
      * @Method("GET")
@@ -287,10 +300,12 @@ class SegmentController extends FOSRestController
     {
         $pagination = $this->get('oloy.pagination')->handleFromRequest($request);
         $params = $this->get('oloy.user.param_manager')->stripNulls($paramFetcher->all(), true, true);
-        $params['segmentId'] = $segment->getSegmentId()->__toString();
-        /** @var SegmentedCustomersRepository $repo */
-        $repo = $this->get('oloy.segment.read_model.repository.segmented_customers');
-        $segmented = $repo->findByParametersPaginated(
+        $params['segmentId'] = (string) $segment->getSegmentId();
+
+        /** @var SegmentedCustomersRepository $customersRepository */
+        $customersRepository = $this->get('oloy.segment.read_model.repository.segmented_customers');
+
+        $segmented = $customersRepository->findByParametersPaginated(
             $params,
             false,
             $pagination->getPage(),
@@ -299,7 +314,7 @@ class SegmentController extends FOSRestController
             $pagination->getSortDirection()
         );
 
-        $total = $repo->countTotal($params);
+        $total = $customersRepository->countTotal($params);
 
         if (count($segmented) == 0) {
             return $this->view([
@@ -308,34 +323,36 @@ class SegmentController extends FOSRestController
             ]);
         }
 
-        $view = $this->view(
-            [
-                'customers' => $segmented,
-                'total' => $total,
-            ]
-        );
+        $view = $this->view([
+            'customers' => $segmented,
+            'total' => $total,
+        ]);
+
         $context = new Context();
         $context->addGroup('Default');
         $context->addGroup('customers_in_segment');
-        $repo = $this->get('oloy.user.read_model.repository.customer_details');
+
         $serializer = $this->get('serializer');
+        $customerDetailsRepository = $this->get('oloy.user.read_model.repository.customer_details');
         $customerDetails = [];
+
         /** @var SegmentedCustomers $seg */
         foreach ($segmented as $seg) {
-            $details = $repo->find($seg->getCustomerId()->__toString());
+            $details = $customerDetailsRepository->find((string) $seg->getCustomerId());
+
             if ($details instanceof CustomerDetails) {
-                $customerDetails[$seg->getCustomerId()->__toString()] = $serializer->toArray($details);
+                $customerDetails[(string) $seg->getCustomerId()] = $serializer->toArray($details);
             }
         }
-        $context->setAttribute('customersDetails', $customerDetails);
 
+        $context->setAttribute('customersDetails', $customerDetails);
         $view->setContext($context);
 
         return $view;
     }
 
     /**
-     * Method will return segments list.
+     * Method returns segments list.
      *
      * @Route(name="oloy.segment.list", path="/segment")
      * @Method("GET")
@@ -354,13 +371,19 @@ class SegmentController extends FOSRestController
      * @param Request $request
      *
      * @return View
+     *
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
     public function getListAction(Request $request)
     {
-        $pagination = $this->get('oloy.pagination')->handleFromRequest($request, 'createdAt', 'DESC');
+        $pagination = $this->get('oloy.pagination')
+            ->handleFromRequest($request, 'createdAt', 'DESC');
         $onlyActive = $request->get('active', null);
 
+        /* @var SegmentRepository $segmentRepository */
         $segmentRepository = $this->get('oloy.segment.repository');
+
         $segments = $segmentRepository
             ->findAllPaginated(
                 $pagination->getPage(),
@@ -369,6 +392,7 @@ class SegmentController extends FOSRestController
                 $pagination->getSortDirection(),
                 $onlyActive
             );
+
         $total = $segmentRepository->countTotal();
 
         return $this->view(
@@ -376,7 +400,7 @@ class SegmentController extends FOSRestController
                 'segments' => $segments,
                 'total' => $total,
             ],
-            200
+            Response::HTTP_OK
         );
     }
 }

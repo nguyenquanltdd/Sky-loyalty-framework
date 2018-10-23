@@ -99,52 +99,66 @@ class CriterionFormType extends AbstractType
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($posChoices) {
             $form = $event->getForm();
             $data = $event->getData();
+
             if (!isset($data['type'])) {
                 $form->get('type')->addError(new FormError((new NotBlank())->message));
 
                 return;
             }
-            $type = $data['type'];
-            switch ($type) {
+
+            switch ($data['type']) {
                 case Criterion::TYPE_BOUGHT_IN_POS:
                     $this->prepareBoughtInPosForm($form, $posChoices);
                     break;
+
                 case Criterion::TYPE_TRANSACTION_COUNT:
                     $this->prepareTransactionCountForm($form);
                     break;
+
                 case Criterion::TYPE_AVERAGE_TRANSACTION_AMOUNT:
                     $this->prepareAverageTransactionAmountForm($form);
                     break;
-                case $type == Criterion::TYPE_PURCHASE_PERIOD:
+
+                case Criterion::TYPE_PURCHASE_PERIOD:
                     $this->preparePurchasePeriodForm($form);
                     break;
+
                 case Criterion::TYPE_LAST_PURCHASE_N_DAYS_BEFORE:
                     $this->prepareLastPurchaseNDaysBeforeForm($form);
                     break;
+
                 case Criterion::TYPE_TRANSACTION_AMOUNT:
                     $this->prepareTransactionAmountForm($form);
                     break;
+
                 case Criterion::TYPE_ANNIVERSARY:
                     $this->prepareAnniversaryForm($form);
                     break;
+
                 case Criterion::TYPE_TRANSACTION_PERCENT_IN_POS:
                     $this->prepareTransactionPercentInPosForm($form, $posChoices);
                     break;
+
                 case Criterion::TYPE_BOUGHT_SKUS:
                     $this->prepareBoughtSKUsForm($form);
                     break;
+
                 case Criterion::TYPE_BOUGHT_MAKERS:
                     $this->prepareBoughtMakersForm($form);
                     break;
+
                 case Criterion::TYPE_BOUGHT_LABELS:
                     $this->prepareBoughtLabelsForm($form);
                     break;
+
                 case Criterion::TYPE_CUSTOMER_HAS_LABELS:
                     $this->prepareCustomerHasLabelsForm($form);
                     break;
+
                 case Criterion::TYPE_CUSTOMER_WITH_LABELS_VALUES:
                     $this->prepareCustomerHasLabelsForm($form);
                     break;
+
                 case Criterion::TYPE_CUSTOMER_LIST:
                     $this->prepareCustomerList($form);
                     break;
