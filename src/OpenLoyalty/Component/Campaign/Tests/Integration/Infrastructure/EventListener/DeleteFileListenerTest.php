@@ -14,13 +14,18 @@ use Gaufrette\Filesystem;
  */
 class DeleteFileListenerTest extends KernelTestCase
 {
-    private const CAMPAIGN_PHOTO_DIR = __DIR__.'/../../../../../../../../app/uploads/tests/campaign_photos/';
+    private const CAMPAIGN_PHOTO_DIR = '/uploads/tests/campaign_photos/';
     private const IMAGE_FILE_NAME = 'test_delete_listener.png';
 
     /**
      * @var Filesystem
      */
     private $fileSystem;
+
+    /**
+     * @var string
+     */
+    private $kernelRootDir;
 
     /**
      * {@inheritdoc}
@@ -30,6 +35,7 @@ class DeleteFileListenerTest extends KernelTestCase
         parent::setUp();
         static::bootKernel();
         $this->fileSystem = self::$kernel->getContainer()->get('campaign_photos_filesystem');
+        $this->kernelRootDir = self::$kernel->getContainer()->getParameter('kernel.root_dir');
         $this->saveFile();
     }
 
@@ -38,7 +44,7 @@ class DeleteFileListenerTest extends KernelTestCase
      */
     public function it_remove_file_from_local_disk(): void
     {
-        $file = self::CAMPAIGN_PHOTO_DIR.self::IMAGE_FILE_NAME;
+        $file = $this->kernelRootDir.self::CAMPAIGN_PHOTO_DIR.self::IMAGE_FILE_NAME;
         $this->assertFileExists($file);
 
         $listener = new DeleteFileListener($this->fileSystem);

@@ -29,7 +29,7 @@ final class RemovePhotoCommandHandlerTest extends KernelTestCase
 {
     private const CAMPAIGN_ID = '000096cf-32a3-43bd-9034-4df343e5fd93';
     private const CAMPAIGN_PHOTO_ID = '00000000-0000-0000-0000-000000000001';
-    private const CAMPAIGN_PHOTO_DIR = __DIR__.'/../../../../../../../../app/uploads/tests/campaign_photos/';
+    private const CAMPAIGN_PHOTO_DIR = '/uploads/tests/campaign_photos/';
 
     /**
      * @var CampaignPhotoRepositoryInterface
@@ -57,6 +57,11 @@ final class RemovePhotoCommandHandlerTest extends KernelTestCase
     private $fileSystem;
 
     /**
+     * @var string
+     */
+    private $kernelRootDir;
+
+    /**
      * {@inheritdoc}
      */
     protected function setUp()
@@ -70,6 +75,7 @@ final class RemovePhotoCommandHandlerTest extends KernelTestCase
 
         $this->campaignRepository = new CampaignRepository($this->entityManager);
         $this->fileSystem = self::$kernel->getContainer()->get('oloy.campaign.photos_filesystem');
+        $this->kernelRootDir = self::$kernel->getContainer()->getParameter('kernel.root_dir');
         $this->addPhoto();
     }
 
@@ -78,12 +84,12 @@ final class RemovePhotoCommandHandlerTest extends KernelTestCase
      */
     public function it_delete_photo_file_from_disc_after_dispatch_command(): void
     {
-        $this->assertFileExists(self::CAMPAIGN_PHOTO_DIR.'remove_test.jpg');
+        $this->assertFileExists($this->kernelRootDir.self::CAMPAIGN_PHOTO_DIR.'remove_test.jpg');
         $this->commandBus->dispatch(RemovePhotoCommand::byCampaignIdAndPhotoId(
             new CampaignId(self::CAMPAIGN_ID),
             new PhotoId(self::CAMPAIGN_PHOTO_ID)
         ));
-        $this->assertFileNotExists(self::CAMPAIGN_PHOTO_DIR.'remove_test.jpg');
+        $this->assertFileNotExists($this->kernelRootDir.self::CAMPAIGN_PHOTO_DIR.'remove_test.jpg');
     }
 
     /**

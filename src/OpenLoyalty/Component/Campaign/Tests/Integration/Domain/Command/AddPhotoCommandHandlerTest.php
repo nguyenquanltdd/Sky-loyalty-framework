@@ -24,7 +24,7 @@ class AddPhotoCommandHandlerTest extends KernelTestCase
 {
     private const CAMPAIGN_ID = '000096cf-32a3-43bd-9034-4df343e5fd93';
 
-    private const CAMPAIGN_PHOTO_DIR = __DIR__.'/../../../../../../../../app/uploads/tests/campaign_photos/';
+    private const CAMPAIGN_PHOTO_DIR = '/uploads/tests/campaign_photos/';
 
     /**
      * @var CampaignPhotoRepositoryInterface
@@ -42,6 +42,11 @@ class AddPhotoCommandHandlerTest extends KernelTestCase
     private $entityManager;
 
     /**
+     * @var string
+     */
+    private $kernelRootDir;
+
+    /**
      * {@inheritdoc}
      */
     protected function setUp()
@@ -52,6 +57,7 @@ class AddPhotoCommandHandlerTest extends KernelTestCase
         $this->entityManager = self::$kernel->getContainer()->get('doctrine.orm.default_entity_manager');
         $uuidGenerator = self::$kernel->getContainer()->get('broadway.uuid.generator');
         $eventDispatcher = self::$kernel->getContainer()->get('broadway.event_dispatcher');
+        $this->kernelRootDir = self::$kernel->getContainer()->getParameter('kernel.root_dir');
 
         $campaignRepository = new CampaignRepository($this->entityManager);
         $this->photoRepository = new CampaignPhotoRepository($this->entityManager);
@@ -100,15 +106,15 @@ class AddPhotoCommandHandlerTest extends KernelTestCase
     {
         return count(
             array_diff(
-                scandir(self::CAMPAIGN_PHOTO_DIR),
-                ['..', '.']
+                scandir($this->kernelRootDir.self::CAMPAIGN_PHOTO_DIR),
+                ['..', '.', '.gitkeep']
             )
         );
     }
 
     private function clearPhotoDir(): void
     {
-        $files = glob(self::CAMPAIGN_PHOTO_DIR.'*');
+        $files = glob($this->kernelRootDir.self::CAMPAIGN_PHOTO_DIR.'*');
         array_map(
             function (string $file): void {
                 if (is_file($file)) {
