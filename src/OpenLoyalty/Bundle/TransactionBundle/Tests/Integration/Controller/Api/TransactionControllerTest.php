@@ -8,14 +8,15 @@ namespace OpenLoyalty\Bundle\TransactionBundle\Tests\Integration\Controller\Api;
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRule;
 use OpenLoyalty\Bundle\PosBundle\DataFixtures\ORM\LoadPosData;
+use OpenLoyalty\Bundle\SettingsBundle\Entity\BooleanSettingEntry;
+use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
+use OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManager;
 use OpenLoyalty\Bundle\TransactionBundle\DataFixtures\ORM\LoadTransactionData;
-use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadAdminData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Bundle\UserBundle\Status\CustomerStatusProvider;
 use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
-use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Import\Infrastructure\ImportResultItem;
 use OpenLoyalty\Component\Segment\Domain\Model\Criterion;
 use OpenLoyalty\Component\Segment\Domain\Segment;
@@ -38,7 +39,7 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_imports_transactions()
+    public function it_imports_transactions(): void
     {
         $xmlContent = file_get_contents(__DIR__.'/../../../Resources/fixtures/import.xml');
 
@@ -67,7 +68,7 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_imports_transactions_with_posidentifier_set()
+    public function it_imports_transactions_with_posidentifier_set(): void
     {
         $xmlContent = file_get_contents(__DIR__.'/../../../Resources/fixtures/import-with-posidentifier.xml');
 
@@ -106,7 +107,7 @@ class TransactionControllerTest extends BaseApiTest
         }
     }
 
-    public function getExpectedPosIdsWhenUsingIdentifier()
+    public function getExpectedPosIdsWhenUsingIdentifier(): array
     {
         return [
             LoadPosData::POS_ID,
@@ -117,7 +118,7 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_transactions_list()
+    public function it_returns_transactions_list(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -161,9 +162,9 @@ class TransactionControllerTest extends BaseApiTest
      * @dataProvider labelsForListProvider
      *
      * @param array $labels
-     * @param $expectedCount
+     * @param int   $expectedCount
      */
-    public function it_returns_transactions_list_filtered_by_labels(array $labels, $expectedCount)
+    public function it_returns_transactions_list_filtered_by_labels(array $labels, int $expectedCount): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -182,8 +183,10 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_register_new_transaction_without_setting_customer()
+    public function it_registers_new_transaction_without_setting_customer(): void
     {
+        static::bootKernel();
+
         $formData = [
             'transactionData' => [
                 'documentNumber' => '12311',
@@ -235,10 +238,10 @@ class TransactionControllerTest extends BaseApiTest
         $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
+
         /** @var TransactionDetails $transaction */
-        $transaction = $repo->find($data['transactionId']);
+        $transaction = $this->getService(TransactionDetailsRepository::class)
+            ->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
         $this->assertNull($transaction->getCustomerId());
     }
@@ -246,8 +249,10 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_register_new_transaction_with_only_required_data()
+    public function it_registers_new_transaction_with_only_required_data(): void
     {
+        static::bootKernel();
+
         $formData = [
             'transactionData' => [
                 'documentNumber' => '12322',
@@ -278,10 +283,10 @@ class TransactionControllerTest extends BaseApiTest
         $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
+
         /** @var TransactionDetails $transaction */
-        $transaction = $repo->find($data['transactionId']);
+        $transaction = $this->getService(TransactionDetailsRepository::class)
+            ->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
         $this->assertNull($transaction->getCustomerId());
     }
@@ -289,8 +294,10 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_register_new_return_transaction()
+    public function it_registers_new_return_transaction(): void
     {
+        static::bootKernel();
+
         $formData = [
             'revisedDocument' => 'revised test',
             'transactionData' => [
@@ -323,10 +330,10 @@ class TransactionControllerTest extends BaseApiTest
         $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
+
         /** @var TransactionDetails $transaction */
-        $transaction = $repo->find($data['transactionId']);
+        $transaction = $this->getService(TransactionDetailsRepository::class)
+            ->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
         $this->assertNull($transaction->getCustomerId());
         $this->assertEquals('return', $transaction->getDocumentType());
@@ -337,8 +344,10 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_register_new_transaction_with_pos()
+    public function it_registers_new_transaction_with_pos(): void
     {
+        static::bootKernel();
+
         $formData = [
             'transactionData' => [
                 'documentNumber' => '12344',
@@ -385,10 +394,10 @@ class TransactionControllerTest extends BaseApiTest
         $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
+
         /** @var TransactionDetails $transaction */
-        $transaction = $repo->find($data['transactionId']);
+        $transaction = $this->getService(TransactionDetailsRepository::class)
+            ->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
         $this->assertNull($transaction->getCustomerId());
         $this->assertNotNull($transaction->getPosId());
@@ -397,8 +406,10 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_register_new_transaction_and_assign_customer()
+    public function it_registers_new_transaction_and_assigns_customer(): void
     {
+        static::bootKernel();
+
         $formData = [
             'transactionData' => [
                 'documentNumber' => '12355',
@@ -444,20 +455,22 @@ class TransactionControllerTest extends BaseApiTest
         $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
+
         /** @var TransactionDetails $transaction */
-        $transaction = $repo->find($data['transactionId']);
+        $transaction = $this->getService(TransactionDetailsRepository::class)
+            ->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
         $this->assertNotNull($transaction->getCustomerId());
-        $this->assertEquals(LoadUserData::TEST_USER_ID, $transaction->getCustomerId()->__toString());
+        $this->assertEquals(LoadUserData::TEST_USER_ID, (string) $transaction->getCustomerId());
     }
 
     /**
      * @test
      */
-    public function it_register_new_transaction_with_labels()
+    public function it_registers_new_transaction_with_labels(): void
     {
+        static::bootKernel();
+
         $formData = [
             'transactionData' => [
                 'documentNumber' => '12366',
@@ -506,10 +519,10 @@ class TransactionControllerTest extends BaseApiTest
         $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
+
         /** @var TransactionDetails $transaction */
-        $transaction = $repo->find($data['transactionId']);
+        $transaction = $this->getService(TransactionDetailsRepository::class)
+            ->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
         $this->assertCount(1, $transaction->getLabels());
         $this->assertEquals('test label', $transaction->getLabels()[0]->getKey());
@@ -518,8 +531,10 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_edits_labels()
+    public function it_edits_labels(): void
     {
+        static::bootKernel();
+
         $client = $this->createAuthenticatedClient();
         $client->request(
             'POST',
@@ -538,10 +553,10 @@ class TransactionControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
+
         /** @var TransactionDetails $transaction */
-        $transaction = $repo->find($data['transactionId']);
+        $transaction = $this->getService(TransactionDetailsRepository::class)
+            ->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
         $this->assertCount(1, $transaction->getLabels());
         $this->assertEquals('new label added in api', $transaction->getLabels()[0]->getKey());
@@ -550,8 +565,10 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_append_labels_to_transaction()
+    public function it_appends_labels_to_transaction(): void
     {
+        static::bootKernel();
+
         $formData = [
             'transactionDocumentNumber' => 'labels-test-transaction',
             'labels' => [
@@ -571,10 +588,10 @@ class TransactionControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
-        static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
+
         /** @var TransactionDetails $transaction */
-        $transaction = $repo->find($data['transactionId']);
+        $transaction = $this->getService(TransactionDetailsRepository::class)
+            ->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
         $this->assertCount(2, $transaction->getLabels());
         $this->assertEquals('appended label', $transaction->getLabels()[1]->getKey());
@@ -583,15 +600,11 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_register_new_return_transaction_and_manually_assign_customer()
+    public function it_registers_new_return_transaction_and_manually_assigns_customer(): void
     {
         static::bootKernel([]);
-        static::$kernel->boot();
-        /** @var CustomerDetailsRepository $customerRepo */
-        $customerRepo = static::$kernel->getContainer()->get('oloy.user.read_model.repository.customer_details');
 
-        //create transaction with number 11238
-
+        // create transaction with number 12377
         $formData = [
             'transactionData' => [
                 'documentNumber' => '12377',
@@ -635,12 +648,12 @@ class TransactionControllerTest extends BaseApiTest
         ];
 
         $this->sendCreateTransactionRequest($formData);
-        //create return transaction for 11238
 
+        // create return transaction for 12377
         $formData = [
             'revisedDocument' => '12377',
             'transactionData' => [
-                'documentNumber' => '999911238',
+                'documentNumber' => '999912377',
                 'documentType' => 'return',
                 'purchaseDate' => (new \DateTime())->format('Y-m-d'),
                 'purchasePlace' => 'wroclaw',
@@ -680,8 +693,9 @@ class TransactionControllerTest extends BaseApiTest
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200'
             .$response->getContent());
 
+        // manually assign customer
         $formData = [
-            'transactionDocumentNumber' => '999911238',
+            'transactionDocumentNumber' => '999912377',
             'customerId' => LoadUserData::TEST_RETURN_USER_ID,
         ];
 
@@ -701,7 +715,8 @@ class TransactionControllerTest extends BaseApiTest
         static::$kernel->boot();
 
         /** @var CustomerDetails $customer */
-        $customer = $customerRepo->findOneByCriteria(['email' => LoadUserData::TEST_RETURN_USERNAME], 1);
+        $customer = $this->getService('oloy.user.read_model.repository.customer_details')
+            ->findOneByCriteria(['email' => LoadUserData::TEST_RETURN_USERNAME], 1);
         $customer = reset($customer);
 
         $newTransactionsCount = $customer->getTransactionsCount();
@@ -711,7 +726,7 @@ class TransactionControllerTest extends BaseApiTest
         $this->assertEquals(0, $newTransactionsAmount);
 
         /** @var CustomerStatusProvider $statusProvider */
-        $statusProvider = static::$kernel->getContainer()->get('oloy.customer_status_provider');
+        $statusProvider = $this->getService('oloy.customer_status_provider');
         $status = $statusProvider->getStatus($customer->getCustomerId());
 
         $this->assertEquals(10, $status->getPoints());
@@ -720,15 +735,11 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_register_new_return_transaction_and_assign_customer()
+    public function it_registers_new_return_transaction_and_assigns_customer(): void
     {
         static::bootKernel([]);
-        static::$kernel->boot();
-        /** @var CustomerDetailsRepository $customerRepo */
-        $customerRepo = static::$kernel->getContainer()->get('oloy.user.read_model.repository.customer_details');
 
         //create transaction with number R/11234
-
         $formData = [
             'transactionData' => [
                 'documentNumber' => 'R/11234',
@@ -774,7 +785,6 @@ class TransactionControllerTest extends BaseApiTest
         $this->sendCreateTransactionRequest($formData);
 
         //create return transaction for R/11234
-
         $formData = [
             'revisedDocument' => 'R/11234',
             'transactionData' => [
@@ -822,14 +832,18 @@ class TransactionControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200'
             .$response->getContent());
+
         static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
+
         /** @var TransactionDetails $transaction */
-        $transaction = $repo->find($data['transactionId']);
+        $transaction = $this->getService(TransactionDetailsRepository::class)
+            ->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
         $this->assertNotNull($transaction->getCustomerId());
+
         /** @var CustomerDetails $customer */
-        $customer = $customerRepo->findOneByCriteria(['email' => LoadUserData::TEST_RETURN_USERNAME], 1);
+        $customer = $this->getService('oloy.user.read_model.repository.customer_details')
+            ->findOneByCriteria(['email' => LoadUserData::TEST_RETURN_USERNAME], 1);
         $customer = reset($customer);
 
         $newTransactionsCount = $customer->getTransactionsCount();
@@ -839,7 +853,7 @@ class TransactionControllerTest extends BaseApiTest
         $this->assertEquals(0, $newTransactionsAmount);
 
         /** @var CustomerStatusProvider $statusProvider */
-        $statusProvider = static::$kernel->getContainer()->get('oloy.customer_status_provider');
+        $statusProvider = $this->getService('oloy.customer_status_provider');
         $status = $statusProvider->getStatus($customer->getCustomerId());
 
         $this->assertEquals(20, $status->getPoints());
@@ -848,15 +862,11 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_register_new_return_transaction_not_complete_and_assign_customer()
+    public function it_registers_new_incomplete_return_transaction_and_assigns_customer(): void
     {
         static::bootKernel([]);
-        static::$kernel->boot();
-        /** @var CustomerDetailsRepository $customerRepo */
-        $customerRepo = static::$kernel->getContainer()->get('oloy.user.read_model.repository.customer_details');
 
         //create transaction with number R/11235
-
         $formData = [
             'transactionData' => [
                 'documentNumber' => 'R/11235',
@@ -902,7 +912,6 @@ class TransactionControllerTest extends BaseApiTest
         $this->sendCreateTransactionRequest($formData);
 
         //create return transaction for R/11235
-
         $formData = [
             'revisedDocument' => 'R/11235',
             'transactionData' => [
@@ -950,14 +959,18 @@ class TransactionControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200'
             .$response->getContent());
+
         static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
+
         /** @var TransactionDetails $transaction */
-        $transaction = $repo->find($data['transactionId']);
+        $transaction = $this->getService(TransactionDetailsRepository::class)
+            ->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
         $this->assertNotNull($transaction->getCustomerId());
+
         /** @var CustomerDetails $customer */
-        $customer = $customerRepo->findOneByCriteria(['email' => LoadUserData::TEST_RETURN_USERNAME], 1);
+        $customer = $this->getService('oloy.user.read_model.repository.customer_details')
+            ->findOneByCriteria(['email' => LoadUserData::TEST_RETURN_USERNAME], 1);
         $customer = reset($customer);
 
         $newTransactionsCount = $customer->getTransactionsCount();
@@ -967,7 +980,7 @@ class TransactionControllerTest extends BaseApiTest
         $this->assertEquals(6, $newTransactionsAmount);
 
         /** @var CustomerStatusProvider $statusProvider */
-        $statusProvider = static::$kernel->getContainer()->get('oloy.customer_status_provider');
+        $statusProvider = $this->getService('oloy.customer_status_provider');
         $status = $statusProvider->getStatus($customer->getCustomerId());
 
         $this->assertEquals(34.6, $status->getPoints());
@@ -976,9 +989,9 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_register_new_transaction_and_assign_customer_by_loyalty_card()
+    public function it_registers_new_transaction_and_assigns_customer_by_loyalty_card(): void
     {
-        static::$kernel->boot();
+        static::bootKernel();
 
         $formData = [
             'transactionData' => [
@@ -1025,9 +1038,10 @@ class TransactionControllerTest extends BaseApiTest
         $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
+
         /** @var TransactionDetails $transaction */
-        $transaction = $repo->find($data['transactionId']);
+        $transaction = $this->getService(TransactionDetailsRepository::class)
+            ->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
         $this->assertEquals(LoadUserData::USER_USER_ID, $transaction->getCustomerId());
     }
@@ -1035,14 +1049,13 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_register_new_transaction_and_assign_customer_by_phone_number()
+    public function it_registers_new_transaction_and_assigns_customer_by_phone_number(): void
     {
-        static::$kernel->boot();
+        static::bootKernel();
 
-        /** @var CustomerDetailsRepository $customerRepo */
-        $customerRepo = static::$kernel->getContainer()->get('oloy.user.read_model.repository.customer_details');
         /** @var CustomerDetails $customer */
-        $customer = $customerRepo->findOneByCriteria(['email' => 'user@oloy.com'], 1);
+        $customer = $this->getService('oloy.user.read_model.repository.customer_details')
+            ->findOneByCriteria(['email' => 'user@oloy.com'], 1);
         $customer = reset($customer);
 
         $formData = [
@@ -1090,9 +1103,10 @@ class TransactionControllerTest extends BaseApiTest
         $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
+
         /** @var TransactionDetails $transaction */
-        $transaction = $repo->find($data['transactionId']);
+        $transaction = $this->getService(TransactionDetailsRepository::class)
+            ->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
         $this->assertEquals(LoadUserData::USER_USER_ID, $transaction->getCustomerId());
     }
@@ -1100,9 +1114,9 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_register_new_transaction_and_can_not_assign_to_customer()
+    public function it_registers_new_transaction_and_can_not_assign_to_customer(): void
     {
-        static::$kernel->boot();
+        static::bootKernel();
 
         $formData = [
             'transactionData' => [
@@ -1149,9 +1163,10 @@ class TransactionControllerTest extends BaseApiTest
         $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
+
         /** @var TransactionDetails $transaction */
-        $transaction = $repo->find($data['transactionId']);
+        $transaction = $this->getService(TransactionDetailsRepository::class)
+            ->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
         $this->assertNull($transaction->getCustomerId());
     }
@@ -1159,8 +1174,10 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_manually_assign_customer_to_transaction()
+    public function it_manually_assigns_customer_to_transaction(): void
     {
+        static::bootKernel();
+
         $formData = [
             'transactionDocumentNumber' => '888',
             'customerId' => LoadUserData::TEST_USER_ID,
@@ -1178,20 +1195,22 @@ class TransactionControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
-        static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
+
         /** @var TransactionDetails $transaction */
-        $transaction = $repo->find($data['transactionId']);
+        $transaction = $this->getService(TransactionDetailsRepository::class)
+            ->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
         $this->assertNotNull($transaction->getCustomerId());
-        $this->assertEquals(LoadUserData::TEST_USER_ID, $transaction->getCustomerId()->__toString());
+        $this->assertEquals(LoadUserData::TEST_USER_ID, (string) $transaction->getCustomerId());
     }
 
     /**
      * @test
      */
-    public function it_manually_assign_customer_to_transaction_using_customer()
+    public function it_manually_assigns_customer_to_transaction_using_customer(): void
     {
+        static::bootKernel();
+
         $formData = [
             'transactionDocumentNumber' => '999',
             'customerId' => LoadUserData::TEST_USER_ID,
@@ -1209,21 +1228,21 @@ class TransactionControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
-        static::$kernel->boot();
-        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
+
         /** @var TransactionDetails $transaction */
-        $transaction = $repo->find($data['transactionId']);
+        $transaction = $this->getService(TransactionDetailsRepository::class)
+            ->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
         $this->assertNotNull($transaction->getCustomerId());
-        $this->assertEquals(LoadUserData::USER_USER_ID, $transaction->getCustomerId()->__toString());
+        $this->assertEquals(LoadUserData::USER_USER_ID, (string) $transaction->getCustomerId());
     }
 
     /**
      * @test
      */
-    public function it_returns_a_transactions_list_with_required_fields()
+    public function it_returns_a_transactions_list_with_required_fields(): void
     {
-        $client = $this->createAuthenticatedClient(LoadAdminData::ADMIN_USERNAME, LoadAdminData::ADMIN_PASSWORD);
+        $client = $this->createAuthenticatedClient();
         $client->request(
             'GET',
             '/api/transaction'
@@ -1231,7 +1250,7 @@ class TransactionControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('transactions', $data);
         $this->assertArrayHasKey('total', $data);
 
@@ -1269,8 +1288,10 @@ class TransactionControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_register_new_transaction_and_assign_customer_by_email_and_multiply_points_by_customer_label_segment_group()
+    public function it_registers_new_transaction_and_assigns_customer_by_email_and_multiplies_points_by_customer_label_segment_group(): void
     {
+        static::bootKernel();
+
         $client = $this->createAuthenticatedClient();
         $client->request(
             'POST',
@@ -1324,8 +1345,10 @@ class TransactionControllerTest extends BaseApiTest
         $segmentData = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('segmentId', $segmentData);
+
         /** @var Segment $segment */
-        $segment = static::$kernel->getContainer()->get('oloy.segment.repository')->byId(new SegmentId($segmentData['segmentId']));
+        $segment = $this->getService('oloy.segment.repository')
+            ->byId(new SegmentId($segmentData['segmentId']));
         $this->assertInstanceOf(Segment::class, $segment);
         $this->assertEquals('Custom group', $segment->getName());
         $this->assertEquals(1, count($segment->getParts()));
@@ -1352,7 +1375,7 @@ class TransactionControllerTest extends BaseApiTest
                     'allTimeActive' => true,
                     'multiplier' => 4,
                     'segments' => [
-                        $segment->getSegmentId()->__toString(),
+                        (string) $segment->getSegmentId(),
                     ],
                     'skuIds' => [
                         'SKU123',
@@ -1404,17 +1427,82 @@ class TransactionControllerTest extends BaseApiTest
         $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $repo = static::$kernel->getContainer()->get(TransactionDetailsRepository::class);
+
         /** @var TransactionDetails $transaction */
-        $transaction = $repo->find($data['transactionId']);
+        $transaction = $this->getService(TransactionDetailsRepository::class)
+            ->find($data['transactionId']);
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
-        $this->assertEquals($customer['customerId'], $transaction->getCustomerId()->__toString());
+        $this->assertEquals($customer['customerId'], (string) $transaction->getCustomerId());
 
         /** @var CustomerStatusProvider $statusProvider */
-        $statusProvider = static::$kernel->getContainer()->get('oloy.customer_status_provider');
+        $statusProvider = $this->getService('oloy.customer_status_provider');
         $status = $statusProvider->getStatus(new CustomerId($customer['customerId']));
 
         $this->assertEquals(1850, $status->getPoints());
+    }
+
+    /**
+     * @test
+     */
+    public function it_registers_new_transaction_and_assigns_customer_when_points_are_all_time_active(): void
+    {
+        static::bootKernel();
+        $this->setPointsAllTimeActive(true);
+
+        $formData = [
+            'transactionData' => [
+                'documentNumber' => '12360',
+                'documentType' => 'sell',
+                'purchaseDate' => '2015-01-01',
+                'purchasePlace' => 'wroclaw',
+            ],
+            'items' => [
+                0 => [
+                    'sku' => ['code' => '123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 1,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+                1 => [
+                    'sku' => ['code' => '1123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 11,
+                    'category' => 'test',
+                    'maker' => 'company',
+                ],
+            ],
+            'customerData' => [
+                'name' => 'Jan Nowak',
+                'email' => 'USER-TEMP@OLOY.COM', // uppercase (should be matched with user-temp@oloy.com)
+                'nip' => 'aaa',
+                'phone' => self::PHONE_NUMBER,
+                'loyaltyCardNumber' => 'not-present-in-system',
+                'address' => [
+                    'street' => 'Bagno',
+                    'address1' => '12',
+                    'city' => 'Warszawa',
+                    'country' => 'PL',
+                    'province' => 'Mazowieckie',
+                    'postal' => '00-800',
+                ],
+            ],
+        ];
+
+        $response = $this->sendCreateTransactionRequest($formData)->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        /** @var TransactionDetails $transaction */
+        $transaction = $this->getService(TransactionDetailsRepository::class)
+            ->find($data['transactionId']);
+        $this->assertInstanceOf(TransactionDetails::class, $transaction);
+        $this->assertNotNull($transaction->getCustomerId());
+        $this->assertEquals(LoadUserData::TEST_USER_ID, (string) $transaction->getCustomerId());
+
+        $this->setPointsAllTimeActive(false);
     }
 
     /**
@@ -1427,10 +1515,6 @@ class TransactionControllerTest extends BaseApiTest
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
 
         $transactionData = $this->getDuplicatedNumberTransactionData('duplicatedDocumentNumberABC');
-        $response = $this->sendCreateTransactionRequest($transactionData)->getResponse();
-        $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 400');
-
-        $transactionData = $this->getDuplicatedNumberTransactionData('DUPlicateddocumentNumberabc');
         $response = $this->sendCreateTransactionRequest($transactionData)->getResponse();
         $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 400');
     }
@@ -1464,7 +1548,7 @@ class TransactionControllerTest extends BaseApiTest
         return
             [
                 'transactionData' => [
-                    'documentNumber' => 'aaaddddd',
+                    'documentNumber' => $documentNumber,
                     'documentType' => 'sell',
                     'purchaseDate' => (new \DateTime('+1 day'))->format('Y-m-d'),
                     'purchasePlace' => 'wroclaw',
@@ -1495,5 +1579,33 @@ class TransactionControllerTest extends BaseApiTest
                     ],
                 ],
             ];
+    }
+
+    /**
+     * Sets allTimeActive points setting.
+     *
+     * @param bool $allTimeActive
+     */
+    private function setPointsAllTimeActive(bool $allTimeActive): void
+    {
+        /** @var GeneralSettingsManager $settingsManager */
+        $settingsManager = $this->getService('ol.settings.manager');
+        $settingsManager->save(
+            Settings::fromArray([
+                new BooleanSettingEntry('allTimeActive', $allTimeActive),
+            ])
+        );
+    }
+
+    /**
+     * Gets a service from the container.
+     *
+     * @param string $className
+     *
+     * @return object
+     */
+    private function getService(string $className)
+    {
+        return static::$kernel->getContainer()->get($className);
     }
 }

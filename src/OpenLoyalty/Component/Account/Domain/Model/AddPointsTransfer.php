@@ -161,7 +161,7 @@ class AddPointsTransfer extends PointsTransfer
                 'transactionId' => $this->transactionId ? $this->transactionId->__toString() : null,
                 'lockedUntil' => null !== $this->lockedUntil ? $this->lockedUntil->getTimestamp() : null,
                 'locked' => $this->locked,
-                'expiresAt' => $this->expiresAt->getTimestamp(),
+                'expiresAt' => null !== $this->expiresAt ? $this->expiresAt->getTimestamp() : null,
             ]
         );
     }

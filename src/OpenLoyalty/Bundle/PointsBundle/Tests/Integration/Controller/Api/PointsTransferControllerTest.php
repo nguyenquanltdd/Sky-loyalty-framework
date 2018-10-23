@@ -27,7 +27,7 @@ class PointsTransferControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_imports_points_transfer()
+    public function it_imports_points_transfers(): void
     {
         $xmlContent = file_get_contents(__DIR__.'/../../../Resources/fixtures/import.xml');
 
@@ -57,7 +57,7 @@ class PointsTransferControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_fetches_transfer(): void
+    public function it_fetches_transfers(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -93,7 +93,7 @@ class PointsTransferControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_fetches_customer_transfer(): void
+    public function it_fetches_customer_transfers(): void
     {
         $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
         $client->request(
@@ -128,7 +128,7 @@ class PointsTransferControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_fetches_seller_transfer(): void
+    public function it_fetches_seller_transfers(): void
     {
         $client = $this->createAuthenticatedClient(LoadUserData::TEST_SELLER_USERNAME, LoadUserData::TEST_SELLER_PASSWORD, 'seller');
         $client->request(
@@ -190,7 +190,7 @@ class PointsTransferControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_exception_when_invalid_customer_uuid(): void
+    public function it_returns_exception_when_customer_uuid_is_invalid(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -260,7 +260,7 @@ class PointsTransferControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_transfer_points(): void
+    public function it_transfers_points(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -291,7 +291,7 @@ class PointsTransferControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_not_transfers_points_when_there_is_no_points(): void
+    public function it_does_not_transfer_points_when_there_is_no_points(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -399,7 +399,7 @@ class PointsTransferControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_spend_points()
+    public function it_spends_points(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -423,7 +423,7 @@ class PointsTransferControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_error_when_there_is_not_enough_points()
+    public function it_returns_error_when_there_is_not_enough_points(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -444,7 +444,7 @@ class PointsTransferControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_error_when_canceling_spend_transfer()
+    public function it_returns_error_when_canceling_spending_transfer(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -463,7 +463,7 @@ class PointsTransferControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_cancels_transfer()
+    public function it_cancels_transfer(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -483,7 +483,7 @@ class PointsTransferControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function merchant_can_add_points_to_customer_by_pos_cockpit()
+    public function it_allows_merchant_to_add_points_to_customer_by_pos_cockpit(): void
     {
         $client = $this->createAuthenticatedClient(LoadUserData::TEST_SELLER_USERNAME, LoadUserData::TEST_SELLER_PASSWORD, 'seller');
 
@@ -507,7 +507,7 @@ class PointsTransferControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_return_an_error_when_merchant_is_not_allowed_to_add_points_transfer()
+    public function it_returns_an_error_when_merchant_is_not_allowed_to_add_points_transfer(): void
     {
         $client = $this->createAuthenticatedClient(
             LoadUserData::TEST_SELLER2_USERNAME,
@@ -531,11 +531,11 @@ class PointsTransferControllerTest extends BaseApiTest
     }
 
     /**
-     * @param $customerId
+     * @param string $customerId
      *
      * @return AccountDetails
      */
-    protected function getAccountIdByCustomerId($customerId): AccountDetails
+    protected function getAccountIdByCustomerId(string $customerId): AccountDetails
     {
         /** @var Repository $repo */
         $repo = self::$kernel->getContainer()->get('oloy.points.account.repository.account_details');

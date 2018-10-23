@@ -239,7 +239,7 @@ class PointsTransferDetails implements SerializableReadModel, VersionableReadMod
             'value' => $this->value,
             'type' => $this->type,
             'createdAt' => $this->createdAt->getTimestamp(),
-            'expiresAt' => $this->expiresAt->getTimestamp(),
+            'expiresAt' => null !== $this->expiresAt ? $this->expiresAt->getTimestamp() : null,
             'lockedUntil' => null !== $this->lockedUntil ? $this->lockedUntil->getTimestamp() : null,
             'state' => $this->state,
             'transactionId' => $this->transactionId ? (string) $this->transactionId : null,

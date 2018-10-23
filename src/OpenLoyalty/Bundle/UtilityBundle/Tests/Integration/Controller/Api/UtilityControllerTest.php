@@ -10,7 +10,7 @@ use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
 use OpenLoyalty\Bundle\SegmentBundle\DataFixtures\ORM\LoadSegmentData;
 
 /**
- * Class TransactionControllerTest.
+ * Class UtilityControllerTest.
  */
 class UtilityControllerTest extends BaseApiTest
 {
