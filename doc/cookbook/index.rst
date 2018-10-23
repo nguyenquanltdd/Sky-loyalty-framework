@@ -13,6 +13,7 @@ Introduction
        create_a_new_api_endpoint
        how_to_change_domain
        translatable_field
+       how_to_backup_elasticsearch
        FAQ
 
 .. include:: /cookbook/map.rst.inc
