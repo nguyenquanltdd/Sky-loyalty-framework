@@ -434,11 +434,11 @@ Definition
 +=======================================================+================+============================================================================+
 | Authorization                                         | header         | Token received during authentication                                       |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| settings[currency]                                    | request        | Currency: {"PLN":"pln","USD":"usd","EUR":"eur", "HKD":"hkd"}                            |
+| settings[currency]                                    | request        | Currency: {"PLN":"pln","USD":"usd","EUR":"eur","HKD":"hkd","PESO":"cop"}   |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| settings[customerStatusesEarning][]                   | request        | Options:    "new","active","blocked","deleted"                                |
+| settings[customerStatusesEarning][]                   | request        | Options:    "new","active","blocked","deleted"                             |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
-| settings[customerStatusesSpending][]                  | request        | Options:    "new","active","blocked","deleted"                                |
+| settings[customerStatusesSpending][]                  | request        | Options:    "new","active","blocked","deleted"                             |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | settings[timezone]                                    | request        | Timezone                                                                   |
 +-------------------------------------------------------+----------------+----------------------------------------------------------------------------+
