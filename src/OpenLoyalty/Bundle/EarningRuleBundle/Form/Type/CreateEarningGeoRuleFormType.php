@@ -28,6 +28,7 @@ class CreateEarningGeoRuleFormType extends AbstractType
         $builder
             ->add('latitude', NumberType::class, [
                 'required' => true,
+                'scale' => 5,
                 'constraints' => [
                     new NotBlank(),
                     new Type([
@@ -37,6 +38,7 @@ class CreateEarningGeoRuleFormType extends AbstractType
             ])
             ->add('longitude', NumberType::class, [
                 'required' => true,
+                'scale' => 5,
                 'constraints' => [
                     new NotBlank(),
                     new Type([

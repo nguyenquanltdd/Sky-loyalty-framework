@@ -13,6 +13,8 @@ use Symfony\Component\Form\PreloadedExtension;
 use Symfony\Component\Form\Test\TypeTestCase;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Mapping\ClassMetadata;
 
 /**
  * Class CreateEarningRuleFormTypeTest.
@@ -24,12 +26,12 @@ class CreateEarningRuleFormTypeTest extends TypeTestCase
     protected function setUp()
     {
         $this->validator = $this->getMockBuilder(
-            'Symfony\Component\Validator\Validator\ValidatorInterface'
+            ValidatorInterface::class
         )->getMock();
         $this->validator
             ->method('validate')
             ->will($this->returnValue(new ConstraintViolationList()));
-        $metadata = $this->getMockBuilder('Symfony\Component\Validator\Mapping\ClassMetadata')
+        $metadata = $this->getMockBuilder(ClassMetadata::class)
             ->disableOriginalConstructor()->getMock();
         $metadata->method('addConstraint')->willReturn(true);
         $metadata->method('addPropertyConstraint')->willReturn(true);
