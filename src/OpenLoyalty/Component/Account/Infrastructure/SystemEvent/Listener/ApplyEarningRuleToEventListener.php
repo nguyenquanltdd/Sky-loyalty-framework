@@ -102,8 +102,12 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
     public function onCustomQrcodeEvent(QrcodeEventOccurredSystemEvent $event)
     {
         $result = [];
-        $evaluationResultList = $this->earningRuleApplier->evaluateQrcodeEvent($event->getCode(), $event->getEarningRuleId());
-        $account = $this->getAccountDetails($event->getCustomerId()->__toString());
+        $evaluationResultList = $this->earningRuleApplier->evaluateQrcodeEvent(
+            $event->getCode(),
+            (string) $event->getCustomerId(),
+            $event->getEarningRuleId()
+        );
+        $account = $this->getAccountDetails((string) $event->getCustomerId());
 
         if (!$account) {
             return;

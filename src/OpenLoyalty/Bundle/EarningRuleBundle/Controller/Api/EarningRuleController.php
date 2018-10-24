@@ -394,9 +394,6 @@ class EarningRuleController extends FOSRestController
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
-            $blad = $form->getErrors();
-            $ziom = 1;
-
             return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
         }
 
