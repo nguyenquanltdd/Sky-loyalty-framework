@@ -5,6 +5,7 @@ namespace OpenLoyalty\Bundle\CoreBundle\Tests\Integration;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadAdminData;
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
+use OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -13,6 +14,26 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  */
 abstract class BaseApiTest extends WebTestCase
 {
+    const MASTER_KEY_TOKEN = '1234';
+
+    /**
+     * @return Client
+     */
+    protected function createAuthenticatedClientUsingMasterKey(): Client
+    {
+        $client = static::createClient();
+        $container = static::$kernel->getContainer();
+        $container->set(
+            'OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider',
+            new MasterAdminProvider(
+                self::MASTER_KEY_TOKEN,
+                $container->get('oloy.user.user_manager')
+            )
+        );
+
+        return $client;
+    }
+
     protected function createAuthenticatedClient($username = LoadAdminData::ADMIN_USERNAME, $password = LoadAdminData::ADMIN_PASSWORD, $type = 'admin')
     {
         $client = static::createClient();
