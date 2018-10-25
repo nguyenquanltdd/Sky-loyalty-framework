@@ -59,6 +59,15 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     /**
      * {@inheritdoc}
      */
+    public function update(Campaign $campaign): void
+    {
+        $this->getEntityManager()->merge($campaign);
+        $this->getEntityManager()->flush();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function remove(Campaign $campaign)
     {
         $this->getEntityManager()->remove($campaign);
@@ -361,7 +370,6 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
                 )
             )
         );
-        $qb->andWhere('c.reward != :cashback')->setParameter('cashback', Campaign::REWARD_TYPE_CASHBACK);
 
         if (array_key_exists('featured', $filters) && !is_null($filters['featured'])) {
             $qb->andWhere('c.featured = :featured')->setParameter('featured', $filters['featured']);

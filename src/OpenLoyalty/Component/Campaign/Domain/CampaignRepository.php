@@ -101,6 +101,11 @@ interface CampaignRepository
     /**
      * @param Campaign $campaign
      */
+    public function update(Campaign $campaign): void;
+
+    /**
+     * @param Campaign $campaign
+     */
     public function remove(Campaign $campaign);
 
     /**

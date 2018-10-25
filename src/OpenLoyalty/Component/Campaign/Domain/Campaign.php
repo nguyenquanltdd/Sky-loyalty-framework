@@ -245,12 +245,22 @@ class Campaign
                 $this->setDaysValid($data['daysValid']);
             }
         }
-        if ($this->reward == self::REWARD_TYPE_CASHBACK) {
+        if ($this->reward === self::REWARD_TYPE_CASHBACK) {
+            if (isset($data['coupons'])) {
+                $this->coupons = $data['coupons'];
+            }
+
+            $this->setUnlimited(true);
+            $this->setSingleCoupon(true);
+
             if (isset($data['pointValue'])) {
                 $this->pointValue = $data['pointValue'];
             }
-            $this->unlimited = true;
-            $this->singleCoupon = true;
+            $this->campaignVisibility = new CampaignVisibility(
+                isset($data['campaignVisibility']['allTimeVisible']) ? $data['campaignVisibility']['allTimeVisible'] : true,
+                isset($data['campaignVisibility']['visibleFrom']) ? $data['campaignVisibility']['visibleFrom'] : null,
+                isset($data['campaignVisibility']['visibleTo']) ? $data['campaignVisibility']['visibleTo'] : null
+            );
         } elseif ($this->reward === self::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE) {
             if (array_key_exists('transactionPercentageValue', $data)) {
                 $this->setTransactionPercentageValue($data['transactionPercentageValue']);
