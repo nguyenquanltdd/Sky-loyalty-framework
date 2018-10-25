@@ -6,7 +6,6 @@
 namespace OpenLoyalty\Bundle\UserBundle\Security\Authenticator;
 
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
-use OpenLoyalty\Bundle\UserBundle\Service\AdminProvider;
 use OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -88,11 +87,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
     {
         $apiKey = $credentials['token'];
 
-        if ($userProvider instanceof AdminProvider) {
-            return $this->loadUserByApiMasterKey($apiKey) ?? $userProvider->loadUserByApiKey($apiKey);
-        }
-
-        return false;
+        return $this->loadUserByApiMasterKey($apiKey) ?? $userProvider->loadUserByApiKey($apiKey);
     }
 
     /**

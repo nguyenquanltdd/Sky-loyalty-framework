@@ -144,11 +144,19 @@ security:
             stateless: true
             provider: seller_provider
             lexik_jwt: ~
+            guard:
+                authenticators:
+                    - oloy.user.guard.token
+                entry_point: oloy.user.guard.token
         customer_api:
             pattern:   ^/api/customer
             stateless: true
             provider: customer_provider
             lexik_jwt: ~
+            guard:
+                authenticators:
+                    - oloy.user.guard.token
+                entry_point: oloy.user.guard.token
         settings_css:
             pattern:  ^/api/settings/css
             methods: ["GET"]

@@ -964,6 +964,24 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
+    public function it_allows_to_get_customers_list_using_master_api_key(): void
+    {
+        $client = $this->createAuthenticatedClientUsingMasterKey();
+        $client->request(
+            'GET',
+            '/api/customer',
+            [],
+            [],
+            ['HTTP_X-AUTH-TOKEN' => self::MASTER_KEY_TOKEN]
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+    }
+
+    /**
+     * @test
+     */
     public function it_allows_to_assign_pos_to_customer(): void
     {
         $client = $this->createAuthenticatedClient();

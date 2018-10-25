@@ -8,7 +8,6 @@ namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Security;
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadAdminData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
-use OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider;
 
 /**
  * Class LoginTest.
@@ -84,43 +83,27 @@ class LoginTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_accepts_correct_master_api_credentials()
+    public function it_accepts_access_for_invalid_master_api_key(): void
     {
-        $client = static::createClient();
-        $container = static::$kernel->getContainer();
-        $container->set(
-            'OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider',
-            new MasterAdminProvider(
-                '1234',
-                $container->get('oloy.user.user_manager')
-            )
-        );
+        $client = $this->createAuthenticatedClientUsingMasterKey();
 
         $client->request(
             'GET',
             '/api/admin',
             [],
             [],
-            ['HTTP_X-AUTH-TOKEN' => '1234']
+            ['HTTP_X-AUTH-TOKEN' => self::MASTER_KEY_TOKEN]
         );
 
-        $this->assertTrue($client->getResponse()->getStatusCode() == 200, 'Status code should be 200');
+        $this->assertEquals(200, $client->getResponse()->getStatusCode(), 'Status code should be 200');
     }
 
     /**
      * @test
      */
-    public function it_deny_access_invalid_master_api_credentials()
+    public function it_denies_access_for_invalid_master_api_key(): void
     {
-        $client = static::createClient();
-        $container = static::$kernel->getContainer();
-        $container->set(
-            'OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider',
-            new MasterAdminProvider(
-                '1234',
-                $container->get('oloy.user.user_manager')
-            )
-        );
+        $client = $this->createAuthenticatedClientUsingMasterKey();
 
         $client->request(
             'GET',
@@ -130,7 +113,7 @@ class LoginTest extends BaseApiTest
             ['HTTP_X-AUTH-TOKEN' => 'invalid_token']
         );
 
-        $this->assertTrue($client->getResponse()->getStatusCode() == 403, 'Status code should be 403');
+        $this->assertEquals(403, $client->getResponse()->getStatusCode(), 'Status code should be 403');
     }
 
     /**

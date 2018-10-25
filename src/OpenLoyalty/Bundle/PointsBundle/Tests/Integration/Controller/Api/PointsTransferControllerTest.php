@@ -10,7 +10,6 @@ use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\PointsBundle\DataFixtures\ORM\LoadAccountsWithTransfersData;
 use OpenLoyalty\Bundle\TransactionBundle\DataFixtures\ORM\LoadTransactionData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
-use OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider;
 use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
 use OpenLoyalty\Component\Account\Domain\Model\PointsTransfer;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
@@ -339,15 +338,7 @@ class PointsTransferControllerTest extends BaseApiTest
      */
     public function it_adds_points_as_api_when_logged_in_using_master_key(): void
     {
-        $client = static::createClient();
-        $container = static::$kernel->getContainer();
-        $container->set(
-            'OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider',
-            new MasterAdminProvider(
-                '1234',
-                $container->get('oloy.user.user_manager')
-            )
-        );
+        $client = $this->createAuthenticatedClientUsingMasterKey();
 
         $client->request(
             'POST',
@@ -359,7 +350,7 @@ class PointsTransferControllerTest extends BaseApiTest
                 ],
             ],
             [],
-            ['HTTP_X-AUTH-TOKEN' => '1234']
+            ['HTTP_X-AUTH-TOKEN' => self::MASTER_KEY_TOKEN]
         );
 
         $response = $client->getResponse();
