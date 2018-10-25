@@ -11,6 +11,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningQrcodeRule;
+use Symfony\Component\Validator\Constraints\Uuid;
 
 /**
  * Class CreateEarningQrcodeRuleFormType.
@@ -30,6 +31,7 @@ class CreateEarningQrcodeRuleFormType extends AbstractType
         $builder
             ->add('earningRuleId', TextType::class, [
                 'required' => false,
+                'constraints' => [new Uuid()],
             ]);
     }
 

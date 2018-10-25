@@ -78,9 +78,10 @@ interface EarningRuleApplier
 
     /**
      * @param string      $code
+     * @param string      $customerId
      * @param string|null $earningRuleId
      *
      * @return EvaluationResult[]
      */
-    public function evaluateQrcodeEvent(string $code, ?string $earningRuleId): array;
+    public function evaluateQrcodeEvent(string $code, string $customerId, ?string $earningRuleId): array;
 }

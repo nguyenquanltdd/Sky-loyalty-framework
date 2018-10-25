@@ -1,6 +1,6 @@
 <?php
-/**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Component\EarningRule\Domain;
@@ -449,28 +449,30 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     /**
      * {@inheritdoc}
      */
-    public function evaluateQrcodeEvent(string $code, ?string $earningRuleId): array
+    public function evaluateQrcodeEvent(string $code, string $customerId, ?string $earningRuleId): array
     {
         /** @var EvaluationResult[] $result */
         $result = [];
 
-        $earningQrcodeRules = $this->earningRuleQrcodeRepository->findQrcodeRules();
+        /** @var array $customerData */
+        $customerData = $this->getCustomerDetails($customerId);
 
+        $earningQrcodeRules = $this->earningRuleQrcodeRepository->findAllActiveQrcodeRules(
+            $code,
+            $earningRuleId,
+            $customerData['segments'],
+            $customerData['level'],
+            null,
+            $customerData['pos']
+        );
+
+        /* @var EarningRuleQrcode $earningQrcodeRule */
         foreach ($earningQrcodeRules as $earningQrcodeRule) {
-            /** @var EarningRuleQrcode $earningQrcodeRule */
-            if ($earningQrcodeRule->isActive()) {
-                if ($earningRuleId && $earningQrcodeRule->getEarningRuleId() != $earningRuleId) {
-                    continue;
-                }
-
-                if ($earningQrcodeRule->getCode() == $code) {
-                    $result[] = new EvaluationResult(
-                        (string) $earningQrcodeRule->getEarningRuleId(),
-                        $earningQrcodeRule->getPointsAmount(),
-                        $earningQrcodeRule->getName()
-                    );
-                }
-            }
+            $result[] = new EvaluationResult(
+                (string) $earningQrcodeRule->getEarningRuleId(),
+                $earningQrcodeRule->getPointsAmount(),
+                $earningQrcodeRule->getName()
+            );
         }
 
         return $result;
