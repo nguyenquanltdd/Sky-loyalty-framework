@@ -22,6 +22,7 @@ use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
+use OpenLoyalty\Component\Customer\Domain\TransactionId;
 use PHPUnit_Framework_MockObject_MockObject;
 
 /**
@@ -56,7 +57,7 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
 
                 return array_filter($campaigns, function ($campaign) use ($customerId, $used) {
                     /* @var CampaignBought $campaign */
-                    return $campaign->getCustomerId()->__toString() === $customerId && $used !== !$campaign->isUsed();
+                    return (string) $campaign->getCustomerId() === $customerId && $used !== !$campaign->isUsed();
                 });
             })
         );
@@ -82,15 +83,15 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
     /**
      * @test
      */
-    public function it_creates_a_read_model_when_campaign_was_bought_by_customer()
+    public function it_creates_a_read_model_when_campaign_was_bought_by_customer(): void
     {
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000000');
         $campaignId = new CustomerCampaignId('11111111-0000-0000-0000-000000000000');
         $coupon = new Coupon('testCoupon');
 
         $expectedData = [
-            'customerId' => $customerId->__toString(),
-            'campaignId' => $campaignId->__toString(),
+            'customerId' => (string) $customerId,
+            'campaignId' => (string) $campaignId,
             'coupon' => $coupon->getCode(),
             'campaignType' => 'Reward',
             'campaignName' => 'campaignName',
@@ -106,8 +107,10 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
             'activeSince' => null,
             'activeTo' => null,
             'transactionId' => null,
+            'usedForTransactionId' => null,
+            'returnedAmount' => 0,
         ];
-        $this->scenario->given(array())
+        $this->scenario->given([])
             ->when(
                 new CampaignWasBoughtByCustomer(
                     $customerId,
@@ -129,15 +132,69 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
     /**
      * @test
      */
-    public function it_update_a_read_model_when_campaign_usage_was_changed()
+    public function it_update_a_read_model_when_campaign_usage_was_changed(): void
     {
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000000');
         $campaignId = new CustomerCampaignId('11111111-0000-0000-0000-000000000000');
         $coupon = new Coupon('testCoupon');
 
         $expectedData = [
-            'customerId' => $customerId->__toString(),
-            'campaignId' => $campaignId->__toString(),
+            'customerId' => (string) $customerId,
+            'campaignId' => (string) $campaignId,
+            'coupon' => $coupon->getCode(),
+            'campaignType' => 'Reward',
+            'campaignName' => 'campaignName',
+            'customerEmail' => 'customerEmail',
+            'customerPhone' => 'customerPhone',
+            'customerName' => 'Joe',
+            'customerLastname' => 'Doe',
+            'costInPoints' => 0,
+            'currentPointsAmount' => 0,
+            'taxPriceValue' => null,
+            'used' => true,
+            'status' => CampaignPurchase::STATUS_ACTIVE,
+            'activeSince' => null,
+            'activeTo' => null,
+            'transactionId' => null,
+            'usedForTransactionId' => null,
+            'returnedAmount' => 0,
+        ];
+        $this->scenario->given(
+                [
+                    new CampaignWasBoughtByCustomer(
+                        $customerId,
+                        $campaignId,
+                        'campaignName',
+                        '1',
+                        $coupon,
+                        Campaign::REWARD_TYPE_DISCOUNT_CODE
+                    ),
+                ]
+            )
+            ->when(new CampaignUsageWasChanged($customerId, $campaignId, $coupon, true));
+
+        $result = $this->repository->findAll();
+        $result = array_pop($result)->serialize();
+        unset($result['purchasedAt']);
+
+        $this->assertEquals($expectedData, $result);
+    }
+
+    /**
+     * @test
+     */
+    public function it_update_a_read_model_when_campaign_usage_was_changed_with_transaction(): void
+    {
+        $customerId = new CustomerId('00000000-0000-0000-0000-000000000000');
+        $campaignId = new CustomerCampaignId('11111111-0000-0000-0000-000000000000');
+        $transactionId = new TransactionId('00000000-0000-0000-0000-000000000000');
+        $coupon = new Coupon('testCoupon');
+
+        $expectedData = [
+            'customerId' => (string) $customerId,
+            'campaignId' => (string) $campaignId,
+            'usedForTransactionId' => $transactionId,
+            'returnedAmount' => 0,
             'coupon' => $coupon->getCode(),
             'campaignType' => 'Reward',
             'campaignName' => 'campaignName',
@@ -155,7 +212,7 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
             'transactionId' => null,
         ];
         $this->scenario->given(
-                array(
+                [
                     new CampaignWasBoughtByCustomer(
                         $customerId,
                         $campaignId,
@@ -164,9 +221,9 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
                         $coupon,
                         Campaign::REWARD_TYPE_DISCOUNT_CODE
                     ),
-                )
+                ]
             )
-            ->when(new CampaignUsageWasChanged($customerId, $campaignId, $coupon, true));
+            ->when(new CampaignUsageWasChanged($customerId, $campaignId, $coupon, true, $transactionId));
 
         $result = $this->repository->findAll();
         $result = array_pop($result)->serialize();

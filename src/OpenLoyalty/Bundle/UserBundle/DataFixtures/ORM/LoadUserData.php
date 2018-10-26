@@ -75,6 +75,10 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
     const TEST_SELLER2_USERNAME = 'john2@doe2.com';
     const TEST_SELLER2_PASSWORD = 'open';
 
+    const USER_COUPON_RETURN_ID = '00000000-0000-474c-b092-b0dd880c07aa';
+    const USER_COUPON_RETURN_USERNAME = 'user-return@oloy.com';
+    const USER_COUPON_RETURN_PASSWORD = 'loyalty';
+
     const USER_TRANSFER_1_USER_ID = '00000000-0000-474c-b092-b0dd880c07f3';
     const USER_TRANSFER_1_USERNAME = 'user-transfer-1@oloy.com';
     const USER_TRANSFER_1_PASSWORD = 'loyalty';
@@ -107,6 +111,7 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
     {
         $this->loadCustomersData($manager);
         $this->loadForTransferData($manager);
+        $this->loadForCouponReturnData($manager);
         $this->loadSeller($manager);
     }
 
@@ -387,6 +392,51 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
                     'ForTransfersTest',
                     $data[1],
                     '123123231231231236'.$i
+                )
+            );
+
+            $bus->dispatch($command);
+            $bus->dispatch(new ActivateCustomer($customerId));
+
+            $user = new Customer($customerId);
+            $user->setPlainPassword($data[2]);
+            $user->setPhone($command->getCustomerData()['phone']);
+
+            $password = $this->container->get('security.password_encoder')
+                ->encodePassword($user, $user->getPlainPassword());
+
+            $user->addRole($this->getReference('role_participant'));
+            $user->setPassword($password);
+            $user->setIsActive(true);
+            $user->setStatus(Status::typeActiveNoCard());
+
+            $user->setEmail($data[1]);
+            $manager->persist($user);
+            ++$i;
+        }
+    }
+
+    /**
+     * @param ObjectManager $manager
+     *
+     * @throws \Exception
+     */
+    protected function loadForCouponReturnData(ObjectManager $manager): void
+    {
+        $bus = $this->container->get('broadway.command_handling.command_bus');
+        $users = [
+            [static::USER_COUPON_RETURN_ID, static::USER_COUPON_RETURN_USERNAME, static::USER_COUPON_RETURN_PASSWORD],
+        ];
+        $i = 0;
+        foreach ($users as $data) {
+            $customerId = new CustomerId($data[0]);
+            $command = new RegisterCustomer(
+                $customerId,
+                $this->getDefaultCustomerData(
+                    'TestUser',
+                    'ForCouponTest',
+                    $data[1],
+                    '1231232312312312376'.$i
                 )
             );
 

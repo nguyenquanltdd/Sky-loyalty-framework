@@ -8,6 +8,7 @@ namespace OpenLoyalty\Component\Customer\Domain\Event;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
+use OpenLoyalty\Component\Customer\Domain\TransactionId;
 
 /**
  * Class CampaignUsageWasChanged.
@@ -17,26 +18,40 @@ class CampaignUsageWasChanged extends CustomerEvent
     /**
      * @var CampaignId
      */
-    protected $campaignId;
+    private $campaignId;
 
     /**
      * @var Coupon
      */
-    protected $coupon;
+    private $coupon;
 
     /**
      * @var bool
      */
-    protected $used;
+    private $used;
 
-    public function __construct(CustomerId $customerId, CampaignId $campaignId, Coupon $coupon, $used)
-    {
+    /**
+     * @var TransactionId|null
+     */
+    private $transactionId;
+
+    public function __construct(
+        CustomerId $customerId,
+        CampaignId $campaignId,
+        Coupon $coupon,
+        bool $used,
+        ?TransactionId $transactionId = null
+    ) {
         parent::__construct($customerId);
         $this->campaignId = $campaignId;
         $this->used = $used;
         $this->coupon = $coupon;
+        $this->transactionId = $transactionId;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function serialize(): array
     {
         return array_merge(
@@ -45,13 +60,23 @@ class CampaignUsageWasChanged extends CustomerEvent
                 'campaignId' => $this->campaignId->__toString(),
                 'used' => $this->used,
                 'coupon' => $this->coupon->getCode(),
+                'transactionId' => $this->transactionId ? (string) $this->transactionId : null,
             ]
         );
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function deserialize(array $data)
     {
-        return new self(new CustomerId($data['customerId']), new CampaignId($data['campaignId']), new Coupon($data['coupon']), $data['used']);
+        return new self(
+            new CustomerId($data['customerId']),
+            new CampaignId($data['campaignId']),
+            new Coupon($data['coupon']),
+            $data['used'],
+            isset($data['transactionId']) ? new TransactionId($data['transactionId']) : null
+        );
     }
 
     /**
@@ -76,5 +101,13 @@ class CampaignUsageWasChanged extends CustomerEvent
     public function getCoupon()
     {
         return $this->coupon;
+    }
+
+    /**
+     * @return null|TransactionId
+     */
+    public function getTransactionId(): ?TransactionId
+    {
+        return $this->transactionId;
     }
 }

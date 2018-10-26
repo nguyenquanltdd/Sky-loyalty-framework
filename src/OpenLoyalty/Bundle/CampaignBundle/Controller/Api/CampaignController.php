@@ -55,6 +55,7 @@ use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignShortInfo;
 use OpenLoyalty\Component\Campaign\Domain\SegmentId;
 use OpenLoyalty\Component\Campaign\Domain\TransactionId;
+use OpenLoyalty\Component\Customer\Domain\TransactionId as CustomerTransactionId;
 use OpenLoyalty\Component\Campaign\Domain\Model\CampaignFile;
 use OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Repository\DoctrineCampaignRepository;
 use OpenLoyalty\Component\Campaign\Infrastructure\Repository\CampaignBoughtElasticsearchRepository;
@@ -1268,7 +1269,8 @@ class CampaignController extends FOSRestController
      *     name="mark coupon as used",
      *     section="Customer Campaign",
      *     parameters={
-     *      {"name"="used", "dataType"="true|false", "required"=true, "description"="True if mark as used, false otherwise"},
+     *      {"name"="used", "dataType"="boolean", "required"=true, "description"="True if mark as used, false otherwise"},
+     *      {"name"="transactionId", "dataType"="string", "required"=false, "description"="Id of transaction in which this coupon was used"},
      *     },
      *     statusCodes={
      *       200="Returned when successful",
@@ -1289,7 +1291,9 @@ class CampaignController extends FOSRestController
     public function campaignCouponUsage(Request $request, CustomerDetails $customer, DomainCampaign $campaign, $coupon): FosView
     {
         $used = $request->request->get('used', null);
-        if ($used === null) {
+        $transactionId = $request->request->get('transactionId', null);
+
+        if (null === $used) {
             return $this->view(
                 ['errors' => $this->translator->trans('campaign.field_used_is_required')],
                 Response::HTTP_BAD_REQUEST
@@ -1327,7 +1331,8 @@ class CampaignController extends FOSRestController
                 $customer->getCustomerId(),
                 new CustomerCampaignId((string) $campaign->getCampaignId()),
                 new Coupon($coupon),
-                $used
+                $used,
+                $transactionId ? new CustomerTransactionId($transactionId) : null
             )
         );
 
@@ -1350,6 +1355,7 @@ class CampaignController extends FOSRestController
      *          {"name"="coupons[][campaignId]", "dataType"="string", "required"=true, "description"="CampaignId value"},
      *          {"name"="coupons[][customerId]", "dataType"="string", "required"=true, "description"="CustomerId value"},
      *          {"name"="coupons[][code]", "dataType"="string", "required"=true, "description"="Coupon code"},
+     *          {"name"="coupons[][transactionId]", "dataType"="string", "required"=false, "description"="Id of transaction in which this coupon was used"},
      *     },
      *     statusCodes={
      *       200="Returned when successful",

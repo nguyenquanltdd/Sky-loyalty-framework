@@ -92,4 +92,29 @@ class CampaignBoughtElasticsearchRepository extends OloyElasticsearchRepository 
 
         return $this->query($query);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findByCustomerIdAndUsedForTransactionId(string $customerId, string $transactionId, string $reward): array
+    {
+        $filter = [
+            'must' => [
+                [
+                    'term' => [
+                        'used' => true,
+                    ],
+                ],
+            ],
+        ];
+        $filter['must'][]['term'] = ['customerId' => $customerId];
+        $filter['must'][]['term'] = ['usedForTransactionId' => $transactionId];
+        $filter['must'][]['term'] = ['campaignType' => $reward];
+
+        $query = [
+            'bool' => $filter,
+        ];
+
+        return $this->query($query);
+    }
 }

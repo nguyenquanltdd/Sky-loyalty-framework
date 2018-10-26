@@ -11,6 +11,7 @@ use OpenLoyalty\Component\Customer\Domain\Event\CampaignCouponWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignStatusWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
+use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasReturned;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerDetailsWereUpdated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerLevelWasRecalculated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasActivated;
@@ -239,14 +240,26 @@ class Customer extends EventSourcedAggregateRoot
     }
 
     /**
-     * @param CampaignId $campaignId
-     * @param Coupon     $coupon
-     * @param $used
+     * @param string $purchaseId
+     * @param Coupon $coupon
      */
-    public function changeCampaignUsage(CampaignId $campaignId, Coupon $coupon, $used): void
+    public function campaignWasReturned(string $purchaseId, Coupon $coupon): void
     {
         $this->apply(
-            new CampaignUsageWasChanged($this->getId(), $campaignId, $coupon, $used)
+            new CampaignWasReturned($this->getId(), $purchaseId, $coupon)
+        );
+    }
+
+    /**
+     * @param CampaignId         $campaignId
+     * @param Coupon             $coupon
+     * @param bool               $used
+     * @param null|TransactionId $transactionId
+     */
+    public function changeCampaignUsage(CampaignId $campaignId, Coupon $coupon, bool $used, ?TransactionId $transactionId = null): void
+    {
+        $this->apply(
+            new CampaignUsageWasChanged($this->getId(), $campaignId, $coupon, $used, $transactionId)
         );
     }
 

@@ -170,6 +170,11 @@ services:
             - '@broadway.command_handling.command_bus'
             - '@broadway.uuid.generator'
 
+    OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener\CreateCouponsReturnListener:
+        lazy: true
+        tags:
+            - { name: broadway.event_listener, event: oloy.transaction.customer_assigned, method: handleCustomerAssignedToTransaction }
+
     oloy.user.seller.listener.pos_updated:
         class: 'OpenLoyalty\Component\Seller\Infrastructure\SystemEvent\Listener\UpdatePosDataListener'
         tags:

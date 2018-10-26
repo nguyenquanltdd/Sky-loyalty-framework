@@ -27,6 +27,15 @@ interface CampaignBoughtRepository extends Repository
 
     /**
      * @param string $customerId
+     * @param string $transactionId
+     * @param string $reward
+     *
+     * @return CampaignBought[]
+     */
+    public function findByCustomerIdAndUsedForTransactionId(string $customerId, string $transactionId, string $reward): array;
+
+    /**
+     * @param string $customerId
      *
      * @return CampaignBought[]
      */
