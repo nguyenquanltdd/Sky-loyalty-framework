@@ -16,6 +16,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Model\Logo;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
 use OpenLoyalty\Bundle\SettingsBundle\Provider\AvailableMarketingVendors;
 use OpenLoyalty\Bundle\SettingsBundle\Service\LogoUploader;
+use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
@@ -77,7 +78,10 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
         $pointsPlural = new StringSettingEntry('programPointsPlural', 'Points');
         $settings->addEntry($pointsPlural);
 
-        $pointsDaysActive = new IntegerSettingEntry('pointsDaysActive', 30);
+        $pointsExpiryAfter = new StringSettingEntry('pointsDaysExpiryAfter', AddPointsTransfer::TYPE_AFTER_X_DAYS);
+        $settings->addEntry($pointsExpiryAfter);
+
+        $pointsDaysActive = new IntegerSettingEntry('pointsDaysActiveCount', AddPointsTransfer::DEFAULT_DAYS);
         $settings->addEntry($pointsDaysActive);
 
         $expirePointsNotificationDays = new IntegerSettingEntry('expirePointsNotificationDays', 10);

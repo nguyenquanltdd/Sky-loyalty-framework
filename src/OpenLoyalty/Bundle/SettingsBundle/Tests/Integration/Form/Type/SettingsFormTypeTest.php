@@ -21,6 +21,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Provider\AvailableMarketingVendors;
 use OpenLoyalty\Bundle\SettingsBundle\Service\TranslationsProvider;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\UserBundle\Entity\Status;
+use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
 use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\PreloadedExtension;
@@ -53,11 +54,11 @@ class SettingsFormTypeTest extends TypeTestCase
         'webhookHeaderValue' => '',
         'accentColor' => '#000abc',
         'cssTemplate' => 'body { color: red; }',
+        'pointsDaysExpiryAfter' => AddPointsTransfer::TYPE_ALL_TIME_ACTIVE,
     ];
 
     protected $booleanEntries = [
         'returns' => true,
-        'allTimeActive' => true,
         'allTimeNotLocked' => true,
         'excludeDeliveryCostsFromTierAssignment' => true,
         'webhooks' => false,
@@ -65,7 +66,7 @@ class SettingsFormTypeTest extends TypeTestCase
     ];
 
     protected $integerEntries = [
-        'pointsDaysActive' => 10,
+        'pointsDaysActiveCount' => 10,
         'expirePointsNotificationDays' => 10,
         'expireCouponsNotificationDays' => 10,
         'expireLevelsNotificationDays' => 10,

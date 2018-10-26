@@ -86,6 +86,7 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $lockedUntil = clone $date;
         $lockedUntil->modify('+2 days');
         $expiresAtDate = clone $lockedUntil;
+        $expiresAtDate->setTime(23, 59, 59);
         $expectedReadModel->setLockedUntil($lockedUntil);
         $expiresAtDate->modify(sprintf('+%u days', 10));
         $expectedReadModel->setExpiresAt($expiresAtDate);
@@ -114,6 +115,7 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $lockedUntil = clone $date;
         $lockedUntil->modify('+2 days');
         $expiresAtDate = clone $lockedUntil;
+        $expiresAtDate->setTime(23, 59, 59);
         $expectedReadModel->setLockedUntil($lockedUntil);
         $expiresAtDate->modify(sprintf('+%u days', 10));
         $expectedReadModel->setExpiresAt($expiresAtDate);
@@ -138,6 +140,7 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $date = new \DateTime();
         $expectedReadModel->setCreatedAt($date);
         $expiresAtDate = clone $date;
+        $expiresAtDate->setTime(23, 59, 59);
         $lockedUntil = null;
         $expectedReadModel->setLockedUntil($lockedUntil);
         $expiresAtDate->modify(sprintf('+%u days', 10));
@@ -165,6 +168,7 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $lockedUntil = clone $date;
         $lockedUntil->modify(sprintf('+%u days', 10));
         $expiresAtDate = clone $lockedUntil;
+        $expiresAtDate->setTime(23, 59, 59);
         $expectedReadModel->setLockedUntil($lockedUntil);
         $expiresAtDate->modify(sprintf('+%u days', 10));
         $expectedReadModel->setExpiresAt($expiresAtDate);
@@ -236,6 +240,7 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $date = new \DateTime();
         $expectedReadModel->setCreatedAt($date);
         $expiresAtDate = clone $date;
+        $expiresAtDate->setTime(23, 59, 59);
         $expiresAtDate->modify(sprintf('+%u days', 10));
         $expectedReadModel->setExpiresAt($expiresAtDate);
         $this->scenario
@@ -261,6 +266,7 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $date = new \DateTime();
         $expectedReadModel->setCreatedAt($date);
         $expiresAtDate = clone $date;
+        $expiresAtDate->setTime(23, 59, 59);
         $expiresAtDate->modify(sprintf('+%u days', 10));
         $expectedReadModel->setExpiresAt($expiresAtDate);
         $this->scenario
@@ -288,6 +294,7 @@ class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $lockedUntil = clone $date;
         $lockedUntil->modify(sprintf('+%u days', 10));
         $expiresAtDate = clone $lockedUntil;
+        $expiresAtDate->setTime(23, 59, 59);
         $expectedReadModel->setLockedUntil($lockedUntil);
         $expiresAtDate->modify(sprintf('+%u days', 10));
         $expectedReadModel->setExpiresAt($expiresAtDate);

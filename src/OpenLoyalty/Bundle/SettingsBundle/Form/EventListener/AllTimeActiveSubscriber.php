@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Bundle\SettingsBundle\Form\EventListener;
 
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
+use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
@@ -34,11 +35,16 @@ class AllTimeActiveSubscriber implements EventSubscriberInterface
         if (!$data instanceof Settings) {
             return;
         }
-        $allTime = $data->getEntry('allTimeActive');
-        if (!$allTime || !$allTime->getValue()) {
-            $days = $data->getEntry('pointsDaysActive');
-            if (!$days || !$days->getValue()) {
-                $event->getForm()->get('pointsDaysActive')->addError(new FormError((new NotBlank())->message));
+        $settings = $data->getEntry('pointsDaysExpiryAfter');
+        if ($settings
+            && AddPointsTransfer::TYPE_AFTER_X_DAYS === $settings->getValue()
+        ) {
+            $days = $data->getEntry('pointsDaysActiveCount');
+            if (null === $days || empty($days->getValue())) {
+                $event
+                    ->getForm()
+                    ->get('pointsDaysActiveCount')
+                    ->addError(new FormError((new NotBlank())->message));
             }
         }
     }

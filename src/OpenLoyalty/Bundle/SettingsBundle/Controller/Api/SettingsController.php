@@ -885,7 +885,7 @@ class SettingsController extends FOSRestController
      * @ApiDoc(
      *     name="Get choices",
      *     section="Settings",
-     *     requirements={{"name"="type", "description"="allowed types: timezone, language, country, availableFrontendTranslations, earningRuleLimitPeriod, availableCustomerStatuses, availableAccountActivationMethods", "dataType"="string", "required"=true}}
+     *     requirements={{"name"="type", "description"="allowed types: timezone, language, country, availableFrontendTranslations, earningRuleLimitPeriod, availableCustomerStatuses, availableAccountActivationMethods, availablePointExpireAfter", "dataType"="string", "required"=true}}
      * )
      *
      * @param ChoicesProvider $choicesProvider

@@ -215,7 +215,6 @@ class SettingsControllerTest extends BaseApiTest
             'programPointsSingular' => 'Point',
             'programPointsPlural' => 'Points',
             'tierAssignType' => TierAssignTypeProvider::TYPE_TRANSACTIONS,
-            'allTimeActive' => true,
             'allTimeNotLocked' => true,
             'excludedLevelCategories' => [],
             'customersIdentificationPriority' => [],
@@ -238,6 +237,7 @@ class SettingsControllerTest extends BaseApiTest
             'accentColor' => '',
             'cssTemplate' => '',
             'marketingVendorsValue' => '',
+            'pointsDaysExpiryAfter' => '',
         ];
 
         $client->request(
@@ -529,7 +529,6 @@ class SettingsControllerTest extends BaseApiTest
         }
 
         $this->assertArrayHasKey('returns', $settings);
-        $this->assertArrayHasKey('pointsDaysActive', $settings);
         $this->assertArrayHasKey('expirePointsNotificationDays', $settings);
         $this->assertArrayHasKey('expireCouponsNotificationDays', $settings);
         $this->assertArrayHasKey('expireLevelsNotificationDays', $settings);

@@ -14,6 +14,12 @@ use OpenLoyalty\Component\Account\Domain\TransactionId;
  */
 class AddPointsTransfer extends PointsTransfer
 {
+    const DEFAULT_DAYS = 30;
+    const TYPE_ALL_TIME_ACTIVE = 'all_time_active';
+    const TYPE_AFTER_X_DAYS = 'after_x_days';
+    const TYPE_AT_MONTH_END = 'at_the_end_of_the_month';
+    const TYPE_AT_YEAR_END = 'at_the_end_of_the_year';
+
     /**
      * @var float
      */
@@ -161,7 +167,7 @@ class AddPointsTransfer extends PointsTransfer
                 'transactionId' => $this->transactionId ? $this->transactionId->__toString() : null,
                 'lockedUntil' => null !== $this->lockedUntil ? $this->lockedUntil->getTimestamp() : null,
                 'locked' => $this->locked,
-                'expiresAt' => null !== $this->expiresAt ? $this->expiresAt->getTimestamp() : null,
+                'expiresAt' => ($this->expiresAt instanceof \DateTime) ? $this->expiresAt->getTimestamp() : null,
             ]
         );
     }
@@ -285,6 +291,9 @@ class AddPointsTransfer extends PointsTransfer
     private function getExpiresAtDate(int $days): \DateTime
     {
         $startDate = null !== $this->lockedUntil ? clone $this->lockedUntil : clone $this->getCreatedAt();
+
+        // we want to expire days always after certain amount of days at the end of the day
+        $startDate->setTime(23, 59, 59);
 
         return $startDate->modify(sprintf('+%u days', abs($days)));
     }
