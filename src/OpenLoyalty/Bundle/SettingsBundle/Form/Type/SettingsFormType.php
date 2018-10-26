@@ -21,6 +21,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\SettingsBundle\Service\TranslationsProvider;
 use OpenLoyalty\Bundle\SettingsBundle\Validator\Constraints\NotEmptyValue;
 use OpenLoyalty\Bundle\SettingsBundle\Validator\Constraints\ValidHexColor;
+use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
 use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
 use Symfony\Component\Form\AbstractType;
@@ -184,13 +185,7 @@ class SettingsFormType extends AbstractType
         );
         $builder->add($builder->create('helpEmailAddress', SettingsTextType::class, ['required' => false]));
         $builder->add($builder->create('returns', SettingsCheckboxType::class, ['required' => false]));
-        $builder->add(
-            $builder
-                ->create('pointsDaysActive', SettingsIntegerType::class, [
-                    'required' => false,
-                    'empty_data' => '',
-                ])
-        );
+
         $builder->add(
             $builder->create('expirePointsNotificationDays', SettingsIntegerType::class, [
                 'required' => false,
@@ -224,7 +219,33 @@ class SettingsFormType extends AbstractType
                     'empty_data' => '',
                 ])
         );
-        $builder->add($builder->create('allTimeActive', SettingsCheckboxType::class, ['required' => false]));
+
+        $builder->add(
+            $builder->create(
+                'pointsDaysExpiryAfter',
+                SettingsChoicesType::class,
+                [
+                    'choices' => [
+                        AddPointsTransfer::TYPE_ALL_TIME_ACTIVE,
+                        AddPointsTransfer::TYPE_AFTER_X_DAYS,
+                        AddPointsTransfer::TYPE_AT_MONTH_END,
+                        AddPointsTransfer::TYPE_AT_YEAR_END,
+                    ],
+                    'required' => true,
+                    'empty_data' => '',
+                ]
+            )
+        )->add(
+            $builder->create(
+                'pointsDaysActiveCount',
+                SettingsIntegerType::class,
+                [
+                    'empty_data' => '',
+                    'required' => false,
+                ]
+            )
+        );
+
         $builder->add($builder->create('webhooks', SettingsCheckboxType::class, ['required' => false]));
         $builder->add(
             $builder

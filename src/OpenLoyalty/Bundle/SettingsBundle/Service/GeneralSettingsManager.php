@@ -5,6 +5,9 @@
  */
 namespace OpenLoyalty\Bundle\SettingsBundle\Service;
 
+use OpenLoyalty\Bundle\SettingsBundle\Entity\SettingsEntry;
+use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
+
 /**
  * Class GeneralSettingsManager.
  */
@@ -18,12 +21,38 @@ class GeneralSettingsManager extends DoctrineSettingsManager implements GeneralS
      */
     public function getPointsDaysActive(): ?int
     {
-        $allTimeActive = $this->getSettingByKey('allTimeActive');
-        if ($allTimeActive && $allTimeActive->getValue()) {
-            return null;
+        $numberOfDays = self::DEFAULT_POINTS_DURATION_VALIDITY_DAYS;
+
+        $pointsDaysExpiryAfter = $this->getSettingByKey('pointsDaysExpiryAfter');
+        if (!$pointsDaysExpiryAfter) {
+            return $numberOfDays;
         }
 
-        return $this->getSettingByKey('pointsDaysActive')->getValue() ?? self::DEFAULT_POINTS_DURATION_VALIDITY_DAYS;
+        switch ($pointsDaysExpiryAfter->getValue()) {
+            case AddPointsTransfer::TYPE_ALL_TIME_ACTIVE:
+                $numberOfDays = null;
+                break;
+            case AddPointsTransfer::TYPE_AT_MONTH_END:
+                $today = $this->getDateTime();
+                $today->setTime(0, 0);
+                $lastDayOfThisMonth = new \DateTime('last day of this month');
+                $numberOfDays = (int) $lastDayOfThisMonth->diff($today)->format('%a');
+                break;
+            case AddPointsTransfer::TYPE_AT_YEAR_END:
+                $today = $this->getDateTime();
+                $today->setTime(0, 0);
+                $lastDayOfThisYear = new \DateTime('last day of december this year');
+                $numberOfDays = (int) $lastDayOfThisYear->diff($today)->format('%a');
+                break;
+            case AddPointsTransfer::TYPE_AFTER_X_DAYS:
+                $pointsDaysActiveCount = $this->getSettingByKey('pointsDaysActiveCount');
+                if ($pointsDaysActiveCount instanceof SettingsEntry && $pointsDaysActiveCount->getValue()) {
+                    $numberOfDays = $pointsDaysActiveCount->getValue();
+                }
+                break;
+        }
+
+        return $numberOfDays;
     }
 
     /**
@@ -134,5 +163,15 @@ class GeneralSettingsManager extends DoctrineSettingsManager implements GeneralS
     public function isDeliveryCostExcluded(): bool
     {
         return (bool) $this->getSettingByKey('excludeDeliveryCostsFromTierAssignment')->getValue();
+    }
+
+    /**
+     * @param null|string $time
+     *
+     * @return \DateTime
+     */
+    protected function getDateTime(?string $time = null): \DateTime
+    {
+        return new \DateTime($time);
     }
 }
