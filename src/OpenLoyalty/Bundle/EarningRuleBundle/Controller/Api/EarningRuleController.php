@@ -421,7 +421,7 @@ class EarningRuleController extends FOSRestController
         $results = $event->getEvaluationResults();
 
         if (empty($results)) {
-            return $this->view(['error' => $translator->trans('event does not exist')], Response::HTTP_BAD_REQUEST);
+            return $this->view(['error' => $translator->trans('earning_rule.geo.limit_was_exceeded')], Response::HTTP_BAD_REQUEST);
         }
 
         foreach ($results as $evaluationResult) {

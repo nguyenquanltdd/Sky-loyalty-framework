@@ -6,6 +6,10 @@
                 <source>earning_rule.campaign.not_exists</source>
                 <target>Kampania nie istnieje</target>
             </trans-unit>
+            <trans-unit id="earning_rule.geo.limit_was_exceeded">
+                <source>earning_rule.geo.limit_was_exceeded</source>
+                <target>Promień został przekroczony</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

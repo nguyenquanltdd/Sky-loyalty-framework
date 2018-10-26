@@ -983,20 +983,40 @@ Definition
 
     POST /api/earningRule/geolocation/customer/<customer>
 
-+-------------------------------------+----------------+---------------------------------------------------+
-| Parameter                           | Parameter type | Description                                       |
-+=====================================+================+===================================================+
-| Authorization                       | header         | Token received during authentication              |
-+-------------------------------------+----------------+---------------------------------------------------+
-| <customer>                          | query          | Customer ID                                       |
-+-------------------------------------+----------------+---------------------------------------------------+
-| earningRule[latitude]               | body           | Current customer's latitude                       |
-+-------------------------------------+----------------+---------------------------------------------------+
-| earningRule[longitude]              | body           | Current customer's longitude                      |
-+-------------------------------------+----------------+---------------------------------------------------+
++-------------------------------------+----------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Parameter                           | Parameter type | Description                                                                                                                                                     |
++=====================================+================+=================================================================================================================================================================+
+| Authorization                       | header         | Token received during authentication                                                                                                                            |
++-------------------------------------+----------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| <customer>                          | query          | Customer ID                                                                                                                                                     |
++-------------------------------------+----------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| earningRule[latitude]               | body           | Current customer's latitude. Positive and negative values can be used.                                                                                                                                     |
++-------------------------------------+----------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| earningRule[longitude]              | body           | Current customer's longitude. Positive and negative values can be used.                                                                                                                                    |
++-------------------------------------+----------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| earningRule[earningRuleId]          | body           | *(optional)* UUID of the earning rule. If specified, only this one geo rule will be executed. If omitted, all rules applicable to the customer will be executed |
++-------------------------------------+----------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
+.. code-block:: bash
+
+    curl http://localhost:8181/api/earningRule/geolocation/customer/00000000-0000-474c-b092-b0dd880c07e1 \
+        -X "POST" \
+        -H "Accept: application/json" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
+        -d "earningRule[latitude]=52.052240"
+        -d "earningRule[longitude]=-21.046587"
+        -d "earningRule[earningRuleId]=51283523-0760-474b-8c08-4ccd2b3a0f41"
+.. note::
+
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
+    Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
+
+.. note::
+
+    The *00000000-0000-474c-b092-b0dd880c07e1* customer UUID, *83fe084b-3682-4ddb-bc10-c3c2373dfbcc* earning rule UUID, *52.052240, -21.046587* coordinates are example values.
+    Your values can be different.
 
 .. code-block:: text
 
