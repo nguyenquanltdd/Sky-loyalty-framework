@@ -308,21 +308,8 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
             return $result;
         }
 
-        if ($earningRuleId !== null) {
-            $earningGeoRule = $this->earningRuleGeoRepository->byId(new EarningRuleId($earningRuleId));
-            $distance = $earningGeoRule->getDistance($latitude, $longitude);
-            if ($earningGeoRule->getRadius() >= $distance) {
-                $result[] = new EvaluationResult(
-                    (string) $earningGeoRule->getEarningRuleId(),
-                    $earningGeoRule->getPointsAmount(),
-                    $earningGeoRule->getName()
-                );
-            }
-
-            return $result;
-        }
-
         $earningGeoRules = $this->earningRuleGeoRepository->findGeoRules(
+            $earningRuleId,
             $customerData['segments'],
             $customerData['level'],
             null,

@@ -20,3 +20,6 @@ OpenLoyalty\Component\EarningRule\Domain\EarningRuleGeo:
       scale: 2
       precision: 14
       column: points_amount
+  embedded:
+    limit:
+      class: OpenLoyalty\Component\EarningRule\Domain\EarningRuleLimit

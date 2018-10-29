@@ -33,6 +33,11 @@ class EarningRuleGeo extends EarningRule
     protected $pointsAmount;
 
     /**
+     * @var EarningRuleLimit
+     */
+    protected $limit;
+
+    /**
      * {@inheritdoc}
      */
     public function setFromArray(array $earningRuleData = [])
@@ -48,6 +53,9 @@ class EarningRuleGeo extends EarningRule
         }
         if (isset($earningRuleData['pointsAmount'])) {
             $this->pointsAmount = $earningRuleData['pointsAmount'];
+        }
+        if (isset($earningRuleData['limit'])) {
+            $this->limit = EarningRuleLimit::fromArray($earningRuleData['limit']);
         }
         parent::setFromArray($earningRuleData);
     }
@@ -114,6 +122,22 @@ class EarningRuleGeo extends EarningRule
     public function getPointsAmount(): float
     {
         return (float) $this->pointsAmount;
+    }
+
+    /**
+     * @return EarningRuleLimit
+     */
+    public function getLimit(): EarningRuleLimit
+    {
+        return $this->limit;
+    }
+
+    /**
+     * @param EarningRuleLimit $limit
+     */
+    public function setLimit(EarningRuleLimit $limit): void
+    {
+        $this->limit = $limit;
     }
 
     public static function validateRequiredData(array $earningRuleData = [])

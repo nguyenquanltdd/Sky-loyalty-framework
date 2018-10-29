@@ -13,6 +13,7 @@ use OpenLoyalty\Component\Core\Domain\Model\Identifier;
 interface EarningRuleGeoRepository
 {
     /**
+     * @param string|null            $earningRuleId
      * @param array                  $segmentIds
      * @param null                   $levelId
      * @param \DateTime|null         $date
@@ -20,7 +21,7 @@ interface EarningRuleGeoRepository
      *
      * @return array
      */
-    public function findGeoRules(array $segmentIds = [], $levelId = null, \DateTime $date = null, $posId = null): array;
+    public function findGeoRules(string $earningRuleId = null, array $segmentIds = [], $levelId = null, \DateTime $date = null, $posId = null): array;
 
     /**
      * @param EarningRuleId $earningRuleId

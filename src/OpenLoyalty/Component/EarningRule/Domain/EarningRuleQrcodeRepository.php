@@ -15,7 +15,7 @@ interface EarningRuleQrcodeRepository
 {
     /**
      * @param string         $code
-     * @param string         $earningRuleId
+     * @param string|null    $earningRuleId
      * @param array          $segmentIds
      * @param string|null    $levelId
      * @param \DateTime|null $date
@@ -25,7 +25,7 @@ interface EarningRuleQrcodeRepository
      */
     public function findAllActiveQrcodeRules(
         string $code,
-        string $earningRuleId,
+        ?string $earningRuleId,
         array $segmentIds = [],
         ?string $levelId = null,
         ?\DateTime $date = null,

@@ -10,6 +10,7 @@ use Broadway\ReadModel\Repository;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager;
 use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
+use OpenLoyalty\Component\Account\Domain\CustomerId;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountCreatedSystemEvent;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
@@ -64,68 +65,23 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
      */
     public function onCustomGeoEvent(GeoEventOccurredSystemEvent $event)
     {
-        $result = $this->earningRuleApplier->evaluateGeoEvent(
+        $result = [];
+        $evaluationResultList = $this->earningRuleApplier->evaluateGeoEvent(
             $event->getLatitude(),
             $event->getLongitude(),
             (string) $event->getCustomerId(),
             $event->getEarningRuleId()
         );
+
         $account = $this->getAccountDetails((string) $event->getCustomerId());
-        if (!$account) {
-            return;
-        }
-
-        foreach ($result as $evaluationResult) {
-            $this->commandBus->dispatch(
-                new AddPoints(
-                    $account->getAccountId(),
-                    $this->pointsTransferManager->createAddPointsTransferInstance(
-                        new PointsTransferId($this->uuidGenerator->generate()),
-                        $evaluationResult->getPoints(),
-                        null,
-                        false,
-                        null,
-                        $evaluationResult->getName()
-                    )
-                )
-            );
-        }
-
-        $event->setEvaluationResults($result);
-    }
-
-    /**
-     * @param QrcodeEventOccurredSystemEvent $event
-     *
-     * @throws \OpenLoyalty\Component\Account\Infrastructure\Exception\EarningRuleLimitExceededException
-     */
-    public function onCustomQrcodeEvent(QrcodeEventOccurredSystemEvent $event)
-    {
-        $result = [];
-        $evaluationResultList = $this->earningRuleApplier->evaluateQrcodeEvent(
-            $event->getCode(),
-            (string) $event->getCustomerId(),
-            $event->getEarningRuleId()
-        );
-        $account = $this->getAccountDetails((string) $event->getCustomerId());
-
         if (!$account) {
             return;
         }
 
         foreach ($evaluationResultList as $evaluationResult) {
-            $pass = true;
+            $validUsageLimit = $this->validateUsageLimit($evaluationResult->getEarningRuleId(), $event->getCustomerId());
 
-            if ($this->earningRuleLimitValidator) {
-                try {
-                    $this->earningRuleLimitValidator->validate($evaluationResult->getEarningRuleId(), $event->getCustomerId());
-                    $pass = true;
-                } catch (\Exception $e) {
-                    $pass = false;
-                }
-            }
-
-            if ($pass) {
+            if ($validUsageLimit) {
                 $result[] = $evaluationResult;
                 $this->commandBus->dispatch(
                     new AddPoints(
@@ -143,7 +99,75 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
             }
         }
 
-        if (count($result) == 0 && count($evaluationResultList) > 0) {
+        if (count($result) === 0 && count($evaluationResultList) > 0) {
+            throw new EarningRuleLimitExceededException();
+        }
+
+        $event->setEvaluationResults($result);
+    }
+
+    /**
+     * @param string     $earningRuleId
+     * @param CustomerId $customerId
+     *
+     * @return bool
+     */
+    protected function validateUsageLimit(string $earningRuleId, CustomerId $customerId): bool
+    {
+        if (!$this->earningRuleLimitValidator) {
+            return true;
+        }
+
+        try {
+            $this->earningRuleLimitValidator->validate($earningRuleId, $customerId);
+
+            return true;
+        } catch (EarningRuleLimitExceededException $e) {
+            return false;
+        }
+    }
+
+    /**
+     * @param QrcodeEventOccurredSystemEvent $event
+     *
+     * @throws \OpenLoyalty\Component\Account\Infrastructure\Exception\EarningRuleLimitExceededException
+     */
+    public function onCustomQrcodeEvent(QrcodeEventOccurredSystemEvent $event)
+    {
+        $result = [];
+        $evaluationResultList = $this->earningRuleApplier->evaluateQrcodeEvent(
+            $event->getCode(),
+            (string) $event->getCustomerId(),
+            $event->getEarningRuleId()
+        );
+
+        $account = $this->getAccountDetails((string) $event->getCustomerId());
+        if (!$account) {
+            return;
+        }
+
+        foreach ($evaluationResultList as $evaluationResult) {
+            $validUsageLimit = $this->validateUsageLimit($evaluationResult->getEarningRuleId(), $event->getCustomerId());
+
+            if ($validUsageLimit) {
+                $result[] = $evaluationResult;
+                $this->commandBus->dispatch(
+                    new AddPoints(
+                        $account->getAccountId(),
+                        $this->pointsTransferManager->createAddPointsTransferInstance(
+                            new PointsTransferId($this->uuidGenerator->generate()),
+                            $evaluationResult->getPoints(),
+                            null,
+                            false,
+                            null,
+                            $evaluationResult->getName()
+                        )
+                    )
+                );
+            }
+        }
+
+        if (count($result) === 0 && count($evaluationResultList) > 0) {
             throw new EarningRuleLimitExceededException();
         }
 
