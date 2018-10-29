@@ -201,7 +201,8 @@ class CreateEarningRuleFormType extends BaseEarningRuleFormType
                         new NotNull(['message' => $this->translator->trans('earning_rule.geo_rule.constraints_points')]),
                         new Range(['min' => 1]),
                     ],
-                ]);
+                ])
+                ->add('limit', EarningRuleLimitFormType::class);
         } elseif ($type == EarningRule::TYPE_POINTS) {
             $form
                 ->add('pointValue', NumberType::class, [

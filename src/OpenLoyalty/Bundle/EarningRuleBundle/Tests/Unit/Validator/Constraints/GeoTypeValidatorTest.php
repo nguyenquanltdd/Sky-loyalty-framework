@@ -22,7 +22,7 @@ class GeoTypeValidatorTest extends ConstraintValidatorTestCase
     /**
      * @test
      */
-    public function test_valid()
+    public function test_valid(): void
     {
         $constraint = new GeoType();
         $this->validator->validate(38.897778, $constraint);
@@ -32,7 +32,7 @@ class GeoTypeValidatorTest extends ConstraintValidatorTestCase
     /**
      * @test
      */
-    public function test_comma()
+    public function test_comma(): void
     {
         $constraint = new GeoType();
         $this->validator->validate('38,897778', $constraint);
@@ -42,7 +42,17 @@ class GeoTypeValidatorTest extends ConstraintValidatorTestCase
     /**
      * @test
      */
-    public function test_not_valid()
+    public function test_zero(): void
+    {
+        $constraint = new GeoType();
+        $this->validator->validate('0', $constraint);
+        $this->assertNoViolation();
+    }
+
+    /**
+     * @test
+     */
+    public function test_not_valid(): void
     {
         $constraint = new GeoType();
         $this->validator->validate('test value', $constraint);

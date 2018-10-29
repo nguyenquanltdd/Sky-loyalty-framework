@@ -223,7 +223,7 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
             'code' => $this->code,
             'description' => $this->description,
         ];
-        if ($this->limit && ($this->type == self::TYPE_CUSTOM_EVENT || $this->type == self::TYPE_QRCODE)) {
+        if ($this->limit && ($this->type == self::TYPE_CUSTOM_EVENT || $this->type == self::TYPE_QRCODE || $this->type == self::TYPE_GEOLOCATION)) {
             $data['limit'] = [
                 'period' => $this->limit->getPeriod(),
                 'active' => $this->limit->isActive(),

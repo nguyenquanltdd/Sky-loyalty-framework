@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\EarningRuleBundle\Service;
 
 use OpenLoyalty\Component\Account\Domain\CustomerId;
 use OpenLoyalty\Component\EarningRule\Domain\CustomEventEarningRule;
+use OpenLoyalty\Component\EarningRule\Domain\EarningRuleGeo;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleId;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleLimit;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleQrcode;
@@ -57,7 +58,7 @@ class OloyEarningRuleValidator implements EarningRuleLimitValidator
         $earningRuleId = new EarningRuleId($earningRuleId);
         // /** @var CustomEventEarningRule $earningRule */
         $earningRule = $this->earningRuleRepository->byId($earningRuleId);
-        if (!($earningRule instanceof CustomEventEarningRule || $earningRule instanceof EarningRuleQrcode)) {
+        if (!($earningRule instanceof CustomEventEarningRule || $earningRule instanceof EarningRuleQrcode || $earningRule instanceof EarningRuleGeo)) {
             return;
         }
         $limit = $earningRule->getLimit();

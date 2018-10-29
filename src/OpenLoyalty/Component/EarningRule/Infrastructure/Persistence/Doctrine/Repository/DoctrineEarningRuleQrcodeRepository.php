@@ -23,7 +23,7 @@ class DoctrineEarningRuleQrcodeRepository extends EntityRepository implements Ea
      */
     public function findAllActiveQrcodeRules(
         string $code,
-        string $earningRuleId,
+        ?string $earningRuleId,
         array $segmentIds = [],
         ?string $levelId = null,
         ?\DateTime $date = null,

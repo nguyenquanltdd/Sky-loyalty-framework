@@ -21,12 +21,17 @@ class DoctrineEarningRuleGeoRepository extends EntityRepository implements Earni
      * {@inheritdoc}
      */
     public function findGeoRules(
+        string $earningRuleId = null,
         array $segmentIds = [],
         $levelId = null,
         \DateTime $date = null,
         $posId = null
     ): array {
         $qb = $this->getEarningRulesForLevelAndSegmentQueryBuilder($segmentIds, $levelId, $date, $posId);
+
+        if ($earningRuleId) {
+            $qb->andWhere('e.earningRuleId = :earningRuleId')->setParameter('earningRuleId', $earningRuleId);
+        }
 
         return $qb->getQuery()->getResult();
     }
