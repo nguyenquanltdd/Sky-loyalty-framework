@@ -6,7 +6,9 @@
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
 use Broadway\ReadModel\Repository;
+use Broadway\Repository\Repository as AggregateRootRepository;
 use OpenLoyalty\Component\Core\Infrastructure\Projector\Projector;
+use OpenLoyalty\Component\Customer\Domain\Customer;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasMovedToLevel;
 use OpenLoyalty\Component\Customer\Domain\LevelId as CustomerLevelId;
 use OpenLoyalty\Component\Level\Domain\Level;
@@ -19,9 +21,9 @@ use OpenLoyalty\Component\Level\Domain\LevelRepository;
 class CustomersBelongingToOneLevelProjector extends Projector
 {
     /**
-     * @var Repository
+     * @var AggregateRootRepository
      */
-    private $customerDetailsRepository;
+    private $customerRepository;
 
     /**
      * @var Repository
@@ -36,16 +38,16 @@ class CustomersBelongingToOneLevelProjector extends Projector
     /**
      * CustomersBelongingToOneLevelProjector constructor.
      *
-     * @param Repository      $customerDetailsRepository
-     * @param Repository      $customersBelongingToOneLevelRepository
-     * @param LevelRepository $levelRepository
+     * @param AggregateRootRepository $customerRepository
+     * @param Repository              $customersBelongingToOneLevelRepository
+     * @param LevelRepository         $levelRepository
      */
     public function __construct(
-        Repository $customerDetailsRepository,
+        AggregateRootRepository $customerRepository,
         Repository $customersBelongingToOneLevelRepository,
         LevelRepository $levelRepository
     ) {
-        $this->customerDetailsRepository = $customerDetailsRepository;
+        $this->customerRepository = $customerRepository;
         $this->customersBelongingToOneLevelRepository = $customersBelongingToOneLevelRepository;
         $this->levelRepository = $levelRepository;
     }
@@ -55,27 +57,25 @@ class CustomersBelongingToOneLevelProjector extends Projector
      */
     public function applyCustomerWasMovedToLevel(CustomerWasMovedToLevel $event)
     {
-        $customerId = $event->getCustomerId();
-        $levelId = $event->getLevelId();
-
-        /** @var CustomerDetails $customer */
-        $customer = $this->customerDetailsRepository->find($customerId->__toString());
+        /** @var Customer $customer */
+        $customer = $this->customerRepository->load((string) $event->getCustomerId());
         $currentLevel = $customer->getLevelId();
 
         if ($currentLevel) {
             $oldReadModel = $this->getReadModel($currentLevel, false);
             if ($oldReadModel) {
-                $oldReadModel->removeCustomer($customer);
+                $oldReadModel->removeCustomer($event->getCustomerId());
                 $this->customersBelongingToOneLevelRepository->save($oldReadModel);
                 /** @var Level $level */
-                $level = $this->levelRepository->byId(new LevelId($oldReadModel->getLevelId()->__toString()));
+                $level = $this->levelRepository->byId(new LevelId((string) $currentLevel));
                 if ($level) {
-                    $level->setCustomersCount(count($oldReadModel->getCustomers()));
+                    $level->removeCustomer();
                     $this->levelRepository->save($level);
                 }
             }
         }
 
+        $levelId = $event->getLevelId();
         if ($levelId) {
             $readModel = $this->getReadModel($levelId);
 
@@ -83,20 +83,22 @@ class CustomersBelongingToOneLevelProjector extends Projector
                 return;
             }
 
-            $readModel->addCustomer($customer);
+            $customerDetails = new CustomerDetails($event->getCustomerId());
+            $customerDetails->setFirstName($customer->getFirstName());
+            $customerDetails->setLastName($customer->getLastName());
+            $customerDetails->setEmail($customer->getEmail());
+            $readModel->addCustomer($customerDetails);
 
             $this->customersBelongingToOneLevelRepository->save($readModel);
 
             /** @var Level $level */
-            $level = $this->levelRepository->byId(new LevelId($readModel->getLevelId()->__toString()));
+            $level = $this->levelRepository->byId(new LevelId((string) $levelId));
             if ($level) {
-                $level->setCustomersCount(count($readModel->getCustomers()));
+                $level->addCustomer();
 
                 $this->levelRepository->save($level);
             }
         }
-
-        $this->customerDetailsRepository->save($customer);
     }
 
     /**

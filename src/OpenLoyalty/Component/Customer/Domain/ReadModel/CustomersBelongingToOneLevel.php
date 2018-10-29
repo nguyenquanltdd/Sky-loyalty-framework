@@ -8,6 +8,7 @@ namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Core\Domain\ReadModel\Versionable;
 use OpenLoyalty\Component\Core\Domain\ReadModel\VersionableReadModel;
+use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\LevelId;
 
 /**
@@ -37,20 +38,26 @@ class CustomersBelongingToOneLevel implements SerializableReadModel, Versionable
         $this->levelId = $levelId;
     }
 
-    public function addCustomer(CustomerDetails $customer)
+    /**
+     * @param CustomerDetails $customer
+     */
+    public function addCustomer(CustomerDetails $customer): void
     {
         $this->customers[] = [
-            'customerId' => $customer->getCustomerId()->__toString(),
+            'customerId' => (string) $customer->getCustomerId(),
             'firstName' => $customer->getFirstName(),
             'lastName' => $customer->getLastName(),
             'email' => $customer->getEmail(),
         ];
     }
 
-    public function removeCustomer(CustomerDetails $customer)
+    /**
+     * @param CustomerId $customerId
+     */
+    public function removeCustomer(CustomerId $customerId): void
     {
         foreach ($this->customers as $key => $cust) {
-            if ($cust['customerId'] == $customer->getCustomerId()->__toString()) {
+            if ($cust['customerId'] == (string) $customerId) {
                 unset($this->customers[$key]);
                 break;
             }
@@ -60,15 +67,15 @@ class CustomersBelongingToOneLevel implements SerializableReadModel, Versionable
     /**
      * @return array
      */
-    public function getCustomers()
+    public function getCustomers(): array
     {
         return $this->customers;
     }
 
     /**
-     * @return LevelId
+     * @return null|LevelId
      */
-    public function getLevelId()
+    public function getLevelId(): ?LevelId
     {
         return $this->levelId;
     }
@@ -78,13 +85,11 @@ class CustomersBelongingToOneLevel implements SerializableReadModel, Versionable
      */
     public function getId(): string
     {
-        return $this->levelId->__toString();
+        return (string) $this->levelId;
     }
 
     /**
-     * @param array $data
-     *
-     * @return mixed The object instance
+     * {@inheritdoc}
      */
     public static function deserialize(array $data)
     {
@@ -95,7 +100,7 @@ class CustomersBelongingToOneLevel implements SerializableReadModel, Versionable
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
     public function serialize(): array
     {

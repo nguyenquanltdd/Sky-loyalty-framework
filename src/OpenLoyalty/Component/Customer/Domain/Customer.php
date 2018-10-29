@@ -117,6 +117,21 @@ class Customer extends EventSourcedAggregateRoot
     protected $company = null;
 
     /**
+     * @var LevelId
+     */
+    protected $levelId = null;
+
+    /**
+     * @var bool
+     */
+    protected $removeLevelManually = false;
+
+    /**
+     * @var bool
+     */
+    protected $manually = false;
+
+    /**
      * @return string
      */
     public function getAggregateRootId(): string
@@ -178,6 +193,64 @@ class Customer extends EventSourcedAggregateRoot
         $this->apply(
             new CustomerWasMovedToLevel($this->getId(), $levelId, $manually, $removeLevelManually)
         );
+    }
+
+    /**
+     * @param CustomerWasMovedToLevel $event
+     */
+    public function applyCustomerWasMovedToLevel(CustomerWasMovedToLevel $event): void
+    {
+        $this->setLevelId($event->getLevelId());
+        $this->setRemoveLevelManually($event->isRemoveLevelManually());
+        $this->setManually($event->isManually());
+    }
+
+    /**
+     * @param LevelId $levelId
+     */
+    private function setLevelId(LevelId $levelId): void
+    {
+        $this->levelId = $levelId;
+    }
+
+    /**
+     * @param bool $removeLevelManually
+     */
+    private function setRemoveLevelManually(bool $removeLevelManually): void
+    {
+        $this->removeLevelManually = $removeLevelManually;
+    }
+
+    /**
+     * @param bool $manually
+     */
+    private function setManually(bool $manually): void
+    {
+        $this->manually = $manually;
+    }
+
+    /**
+     * @return null|LevelId
+     */
+    public function getLevelId(): ?LevelId
+    {
+        return $this->levelId;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRemoveLevelManually(): bool
+    {
+        return $this->removeLevelManually;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getManually(): bool
+    {
+        return $this->manually;
     }
 
     /**
@@ -312,6 +385,9 @@ class Customer extends EventSourcedAggregateRoot
         );
     }
 
+    /**
+     * Deactivate.
+     */
     public function deactivate(): void
     {
         $this->apply(
@@ -319,6 +395,9 @@ class Customer extends EventSourcedAggregateRoot
         );
     }
 
+    /**
+     * Activate.
+     */
     public function activate(): void
     {
         $this->apply(

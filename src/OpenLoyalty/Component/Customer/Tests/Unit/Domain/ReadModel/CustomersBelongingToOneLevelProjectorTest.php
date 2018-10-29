@@ -8,17 +8,20 @@ declare(strict_types=1);
 
 namespace OpenLoyalty\Component\Customer\Tests\Unit\Domain\ReadModel;
 
+use Broadway\Repository\Repository;
 use Broadway\ReadModel\InMemory\InMemoryRepository;
-use Broadway\ReadModel\Repository;
 use Broadway\ReadModel\Testing\ProjectorScenarioTestCase;
 use Broadway\ReadModel\Projector;
+use OpenLoyalty\Component\Customer\Domain\Customer;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
+use OpenLoyalty\Component\Customer\Domain\CustomerRepository;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasMovedToLevel;
 use OpenLoyalty\Component\Customer\Domain\LevelId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomersBelongingToOneLevel;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomersBelongingToOneLevelProjector;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
+use PHPUnit_Framework_MockObject_MockObject;
 
 /**
  * Class CustomersBelongingToOneLevelProjectorTest.
@@ -45,140 +48,165 @@ final class CustomersBelongingToOneLevelProjectorTest extends ProjectorScenarioT
      */
     protected $level2Id;
 
+    /**
+     * {@inheritdoc}
+     */
     protected function createProjector(InMemoryRepository $repository): Projector
     {
         $this->customerId = new CustomerId('00000000-1111-0000-0000-000000000000');
-        $this->customer2Id = new CustomerId('00000000-2222-0000-0000-000000000000');
         $this->levelId = new LevelId('00000000-2222-0000-0000-000000000111');
+
+        /** @var Customer|PHPUnit_Framework_MockObject_MockObject $customer */
+        $customer = $this->getMockBuilder(Customer::class)->getMock();
+        $customer->method('getId')->willReturn($this->customerId);
+        $customer->method('getLevelId')->willReturn($this->levelId);
+        $customer->method('getFirstName')->willReturn('John');
+        $customer->method('getLastName')->willReturn('Doe');
+        $customer->method('getEmail')->willReturn('john.doe@example.com');
+
+        $this->customer2Id = new CustomerId('00000000-2222-0000-0000-000000000000');
         $this->level2Id = new LevelId('00000000-2222-0000-0000-000000000222');
 
-        $customerRepository = $this->getMockBuilder(Repository::class)->getMock();
-        $customerData = $this->getCustomerData($this->levelId);
-        $customerData['id'] = $this->customerId->__toString();
-        $customer = CustomerDetails::deserialize($customerData);
-        $customer2Data = $this->getCustomerData($this->levelId, 'Andrzej');
-        $customer2Data['id'] = $this->customer2Id->__toString();
-        $customer2 = CustomerDetails::deserialize($customer2Data);
+        /** @var Customer|PHPUnit_Framework_MockObject_MockObject $customer2 */
+        $customer2 = $this->getMockBuilder(Customer::class)->getMock();
+        $customer2->method('getId')->willReturn($this->customerId);
+        $customer2->method('getLevelId')->willReturn($this->levelId);
+        $customer2->method('getFirstName')->willReturn('John1');
+        $customer2->method('getLastName')->willReturn('Doe1');
+        $customer2->method('getEmail')->willReturn('john.doe1@example.com');
 
-        $customerRepository->method('find')
+        /** @var CustomerRepository|PHPUnit_Framework_MockObject_MockObject $customerRepository */
+        $customerRepository = $this->getMockBuilder(Repository::class)->getMock();
+        $customerRepository->method('load')
             ->with($this->logicalOr(
-                $this->equalTo($this->customerId->__toString()),
-                $this->equalTo($this->customer2Id->__toString())
+                $this->equalTo((string) $this->customerId),
+                $this->equalTo((string) $this->customer2Id)
             ))
             ->will($this->returnCallback(function ($id) use ($customer, $customer2) {
                 if ($id == $customer->getId()) {
                     return $customer;
-                } else {
-                    return $customer2;
                 }
-            }));
-        $levelRepo = $this->getMockBuilder(LevelRepository::class)->getMock();
-        $levelRepo->method('byId')->willReturn(null);
 
-        return new CustomersBelongingToOneLevelProjector($customerRepository, $repository, $levelRepo);
+                return $customer2;
+            }));
+
+        /** @var LevelRepository|PHPUnit_Framework_MockObject_MockObject $levelRepository */
+        $levelRepository = $this->getMockBuilder(LevelRepository::class)->getMock();
+        $levelRepository->method('byId')->willReturn(null);
+
+        return new CustomersBelongingToOneLevelProjector($customerRepository, $repository, $levelRepository);
     }
 
     /**
      * @test
      */
-    public function it_add_customer_to_level()
+    public function it_add_customer_to_level(): void
     {
         $this->scenario
-            ->given([
-            ])
+            ->given([])
             ->when(new CustomerWasMovedToLevel($this->customerId, $this->levelId))
-            ->then(array(
-                $this->createBaseReadModel($this->customerId, $this->levelId, $this->getCustomerData($this->levelId)),
-            ));
+            ->then([
+                $this->createBaseReadModel(
+                    $this->customerId,
+                    $this->levelId,
+                    [
+                        'firstName' => 'John',
+                        'lastName' => 'Doe',
+                        'email' => 'john.doe@example.com',
+                    ]
+                ),
+            ]);
     }
 
     /**
      * @test
      */
-    public function it_changes_customer_level()
+    public function it_changes_customer_level(): void
     {
         $this->scenario
             ->given([
                 new CustomerWasMovedToLevel($this->customerId, $this->levelId),
             ])
             ->when(new CustomerWasMovedToLevel($this->customerId, $this->level2Id))
-            ->then(array(
+            ->then([
                 $this->createBaseReadModel($this->customerId, $this->levelId, null),
-                $this->createBaseReadModel($this->customerId, $this->level2Id, $this->getCustomerData($this->levelId)),
-            ));
+                $this->createBaseReadModel(
+                    $this->customerId,
+                    $this->level2Id,
+                    [
+                        'firstName' => 'John',
+                        'lastName' => 'Doe',
+                        'email' => 'john.doe@example.com',
+                    ]
+                ),
+            ]);
     }
 
     /**
      * @test
      */
-    public function it_add_multiple_customers_to_one_level()
+    public function it_add_multiple_customers_to_one_level(): void
     {
         $this->scenario
             ->given([
                 new CustomerWasMovedToLevel($this->customerId, $this->levelId),
             ])
             ->when(new CustomerWasMovedToLevel($this->customer2Id, $this->levelId))
-            ->then(array(
+            ->then([
                 $this->createBaseReadModelWithMultipleCustomers($this->levelId, [
                     [
                         'id' => $this->customerId,
-                        'data' => $this->getCustomerData($this->levelId),
+                        'data' => [
+                            'firstName' => 'John',
+                            'lastName' => 'Doe',
+                            'email' => 'john.doe@example.com',
+                        ],
                     ],
                     [
                         'id' => $this->customer2Id,
-                        'data' => $this->getCustomerData($this->levelId, 'Andrzej'),
+                        'data' => [
+                            'firstName' => 'John1',
+                            'lastName' => 'Doe1',
+                            'email' => 'john.doe1@example.com',
+                        ],
                     ],
                 ]),
-            ));
+            ]);
     }
 
-    private function createBaseReadModel(CustomerId $customerId, LevelId $levelId, array $data = null)
+    /**
+     * @param CustomerId $customerId
+     * @param LevelId    $levelId
+     * @param array|null $data
+     *
+     * @return CustomersBelongingToOneLevel
+     */
+    private function createBaseReadModel(CustomerId $customerId, LevelId $levelId, array $data = null): CustomersBelongingToOneLevel
     {
-        $obj = new CustomersBelongingToOneLevel($levelId);
+        $customersBelongingToOneLevel = new CustomersBelongingToOneLevel($levelId);
         if ($data) {
-            $data['id'] = $customerId->__toString();
-            $obj->addCustomer(CustomerDetails::deserialize($data));
+            $data['id'] = (string) $customerId;
+            $customersBelongingToOneLevel->addCustomer(CustomerDetails::deserialize($data));
         }
 
-        return $obj;
+        return $customersBelongingToOneLevel;
     }
 
-    private function createBaseReadModelWithMultipleCustomers(LevelId $levelId, array $customers = [])
+    /**
+     * @param LevelId $levelId
+     * @param array   $customers
+     *
+     * @return CustomersBelongingToOneLevel
+     */
+    private function createBaseReadModelWithMultipleCustomers(LevelId $levelId, array $customers = []): CustomersBelongingToOneLevel
     {
-        $obj = new CustomersBelongingToOneLevel($levelId);
+        $customersBelongingToOneLevel = new CustomersBelongingToOneLevel($levelId);
         foreach ($customers as $customer) {
             $data = $customer['data'];
-            $data['id'] = $customer['id']->__toString();
-            $obj->addCustomer(CustomerDetails::deserialize($data));
+            $data['id'] = (string) $customer['id'];
+            $customersBelongingToOneLevel->addCustomer(CustomerDetails::deserialize($data));
         }
 
-        return $obj;
-    }
-
-    private function getCustomerData(LevelId $levelId, $name = 'John')
-    {
-        return [
-            'firstName' => $name,
-            'lastName' => 'Doe',
-            'levelId' => $levelId->__toString(),
-            'gender' => 'male',
-            'email' => 'customer@open.com',
-            'birthDate' => 653011200,
-            'phone' => '123',
-            'createdAt' => 1470646394,
-            'loyaltyCardNumber' => '000000',
-            'company' => [
-                'name' => 'test',
-                'nip' => 'nip',
-            ],
-            'address' => [
-                'street' => 'Dmowskiego',
-                'address1' => '21',
-                'city' => 'Wrocław',
-                'country' => 'PL',
-                'postal' => '50-300',
-                'province' => 'Dolnośląskie',
-            ],
-        ];
+        return $customersBelongingToOneLevel;
     }
 }

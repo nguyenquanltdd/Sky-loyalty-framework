@@ -131,7 +131,7 @@ services:
         tags:
             - { name: broadway.domain.event_listener }
         arguments:
-            - '@oloy.user.read_model.repository.customer_details'
+            - '@oloy.user.customer.repository'
             - '@oloy.user.read_model.repository.customers_belonging_to_one_level'
             - '@oloy.level.repository'
 

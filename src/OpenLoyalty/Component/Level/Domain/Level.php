@@ -177,6 +177,26 @@ class Level
     }
 
     /**
+     * Remove customer.
+     */
+    public function removeCustomer(): void
+    {
+        --$this->customersCount;
+
+        if ($this->customersCount < 0) {
+            $this->customersCount = 0;
+        }
+    }
+
+    /**
+     * Add customer.
+     */
+    public function addCustomer(): void
+    {
+        ++$this->customersCount;
+    }
+
+    /**
      * @return float
      */
     public function getMinOrder()
