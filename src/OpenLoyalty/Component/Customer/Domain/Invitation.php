@@ -52,7 +52,15 @@ class Invitation extends EventSourcedAggregateRoot
         return $this->id;
     }
 
-    public static function createInvitation(InvitationId $invitationId, CustomerId $referrerId, $recipientEmail, $token)
+    /**
+     * @param InvitationId $invitationId
+     * @param CustomerId   $referrerId
+     * @param              $recipientEmail
+     * @param              $token
+     *
+     * @return Invitation
+     */
+    public static function createInvitation(InvitationId $invitationId, CustomerId $referrerId, $recipientEmail, $token): Invitation
     {
         $invitation = new self();
         $invitation->create($invitationId, $referrerId, $recipientEmail, $token);
@@ -60,35 +68,61 @@ class Invitation extends EventSourcedAggregateRoot
         return $invitation;
     }
 
-    public function attachCustomer(CustomerId $customerId)
+    /**
+     * @param CustomerId $customerId
+     */
+    public function attachCustomer(CustomerId $customerId): void
     {
         $this->apply(
             new CustomerWasAttachedToInvitation($this->id, $customerId)
         );
     }
 
-    public function purchaseMade()
+    /**
+     * Made purchase.
+     */
+    public function purchaseMade(): void
     {
         $this->apply(
             new PurchaseWasMadeForThisInvitation($this->id)
         );
     }
 
-    private function create(InvitationId $invitationId, CustomerId $referrerId, $recipientEmail, $token)
+    /**
+     * @param PurchaseWasMadeForThisInvitation $event
+     */
+    protected function applyPurchaseWasMadeForThisInvitation(PurchaseWasMadeForThisInvitation $event): void
+    {
+        $this->status = Invitation::STATUS_MADE_PURCHASE;
+    }
+
+    /**
+     * @param InvitationId $invitationId
+     * @param CustomerId   $referrerId
+     * @param              $recipientEmail
+     * @param              $token
+     */
+    private function create(InvitationId $invitationId, CustomerId $referrerId, $recipientEmail, $token): void
     {
         $this->apply(
             new InvitationWasCreated($invitationId, $referrerId, $recipientEmail, $token)
         );
     }
 
-    public function applyInvitationWasCreated(InvitationWasCreated $event)
+    /**
+     * @param InvitationWasCreated $event
+     */
+    protected function applyInvitationWasCreated(InvitationWasCreated $event): void
     {
         $this->setId($event->getInvitationId());
         $this->setRecipientEmail($event->getRecipientEmail());
         $this->setReferrerId($event->getReferrerId());
     }
 
-    public function applyCustomerWasAttachedToInvitation(CustomerWasAttachedToInvitation $event)
+    /**
+     * @param CustomerWasAttachedToInvitation $event
+     */
+    protected function applyCustomerWasAttachedToInvitation(CustomerWasAttachedToInvitation $event): void
     {
         $this->recipientId = $event->getCustomerId();
     }
@@ -96,15 +130,15 @@ class Invitation extends EventSourcedAggregateRoot
     /**
      * @param InvitationId $id
      */
-    public function setId($id)
+    public function setId($id): void
     {
         $this->id = $id;
     }
 
     /**
-     * @return CustomerId
+     * @return CustomerId|null
      */
-    public function getReferrerId()
+    public function getReferrerId(): ?CustomerId
     {
         return $this->referrerId;
     }
@@ -112,15 +146,15 @@ class Invitation extends EventSourcedAggregateRoot
     /**
      * @param CustomerId $referrerId
      */
-    public function setReferrerId($referrerId)
+    public function setReferrerId(CustomerId $referrerId): void
     {
         $this->referrerId = $referrerId;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getRecipientEmail()
+    public function getRecipientEmail(): ?string
     {
         return $this->recipientEmail;
     }
@@ -128,7 +162,7 @@ class Invitation extends EventSourcedAggregateRoot
     /**
      * @param string $recipientEmail
      */
-    public function setRecipientEmail($recipientEmail)
+    public function setRecipientEmail(string $recipientEmail): void
     {
         $this->recipientEmail = $recipientEmail;
     }
@@ -136,7 +170,7 @@ class Invitation extends EventSourcedAggregateRoot
     /**
      * @param string $status
      */
-    public function setStatus($status)
+    public function setStatus($status): void
     {
         $this->status = $status;
     }

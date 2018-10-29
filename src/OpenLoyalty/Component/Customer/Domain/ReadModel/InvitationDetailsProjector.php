@@ -5,7 +5,10 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
+use Broadway\Repository\Repository as AggregateRootRepository;
+use Broadway\ReadModel\Repository;
 use OpenLoyalty\Component\Core\Infrastructure\Projector\Projector;
+use OpenLoyalty\Component\Customer\Domain\Customer;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasAttachedToInvitation;
 use OpenLoyalty\Component\Customer\Domain\Event\InvitationWasCreated;
 use OpenLoyalty\Component\Customer\Domain\Event\PurchaseWasMadeForThisInvitation;
@@ -17,39 +20,42 @@ use OpenLoyalty\Component\Customer\Domain\InvitationId;
 class InvitationDetailsProjector extends Projector
 {
     /**
-     * @var CustomerDetailsRepository
+     * @var AggregateRootRepository
      */
-    private $customerDetailsRepository;
+    private $customerRepository;
 
     /**
-     * @var InvitationDetailsRepository
+     * @var Repository
      */
     private $invitationDetailsRepository;
 
     /**
      * InvitationDetailsProjector constructor.
      *
-     * @param CustomerDetailsRepository   $customerDetailsRepository
-     * @param InvitationDetailsRepository $invitationDetailsRepository
+     * @param AggregateRootRepository $customerRepository
+     * @param Repository              $invitationDetailsRepository
      */
     public function __construct(
-        CustomerDetailsRepository $customerDetailsRepository,
-        InvitationDetailsRepository $invitationDetailsRepository
+        AggregateRootRepository $customerRepository,
+        Repository $invitationDetailsRepository
     ) {
-        $this->customerDetailsRepository = $customerDetailsRepository;
+        $this->customerRepository = $customerRepository;
         $this->invitationDetailsRepository = $invitationDetailsRepository;
     }
 
-    public function applyInvitationWasCreated(InvitationWasCreated $event)
+    /**
+     * @param InvitationWasCreated $event
+     */
+    public function applyInvitationWasCreated(InvitationWasCreated $event): void
     {
-        $readModel = $this->getReadModel($event->getInvitationId());
-        if (!$readModel) {
-            $customer = $this->customerDetailsRepository->find($event->getReferrerId()->__toString());
-            if (!$customer instanceof CustomerDetails) {
+        $invitationDetails = $this->getReadModel($event->getInvitationId());
+        if (!$invitationDetails) {
+            $customer = $this->customerRepository->load((string) $event->getReferrerId());
+            if (!$customer instanceof Customer) {
                 return;
             }
 
-            $readModel = new InvitationDetails(
+            $invitationDetails = new InvitationDetails(
                 $event->getInvitationId(),
                 $event->getReferrerId(),
                 $customer->getEmail(),
@@ -59,36 +65,42 @@ class InvitationDetailsProjector extends Projector
             );
         }
 
-        $this->invitationDetailsRepository->save($readModel);
+        $this->invitationDetailsRepository->save($invitationDetails);
     }
 
-    public function applyCustomerWasAttachedToInvitation(CustomerWasAttachedToInvitation $event)
+    /**
+     * @param CustomerWasAttachedToInvitation $event
+     */
+    public function applyCustomerWasAttachedToInvitation(CustomerWasAttachedToInvitation $event): void
     {
-        $readModel = $this->getReadModel($event->getInvitationId());
-        if (!$readModel) {
+        $invitationDetails = $this->getReadModel($event->getInvitationId());
+        if (!$invitationDetails) {
             return;
         }
         $name = '';
-        $customer = $this->customerDetailsRepository->find($event->getCustomerId()->__toString());
-        if ($customer instanceof CustomerDetails) {
+        $customer = $this->customerRepository->load((string) $event->getCustomerId());
+        if ($customer instanceof Customer) {
             $name = $customer->getFirstName().' '.$customer->getLastName();
         }
 
-        $readModel->updateRecipientData($event->getCustomerId(), $name);
+        $invitationDetails->updateRecipientData($event->getCustomerId(), $name);
 
-        $this->invitationDetailsRepository->save($readModel);
+        $this->invitationDetailsRepository->save($invitationDetails);
     }
 
-    public function applyPurchaseWasMadeForThisInvitation(PurchaseWasMadeForThisInvitation $event)
+    /**
+     * @param PurchaseWasMadeForThisInvitation $event
+     */
+    public function applyPurchaseWasMadeForThisInvitation(PurchaseWasMadeForThisInvitation $event): void
     {
-        $readModel = $this->getReadModel($event->getInvitationId());
-        if (!$readModel) {
+        $invitationDetails = $this->getReadModel($event->getInvitationId());
+        if (!$invitationDetails) {
             return;
         }
 
-        $readModel->madePurchase();
+        $invitationDetails->madePurchase();
 
-        $this->invitationDetailsRepository->save($readModel);
+        $this->invitationDetailsRepository->save($invitationDetails);
     }
 
     /**
@@ -96,9 +108,10 @@ class InvitationDetailsProjector extends Projector
      *
      * @return InvitationDetails|null
      */
-    private function getReadModel(InvitationId $invitationId)
+    private function getReadModel(InvitationId $invitationId): ?InvitationDetails
     {
-        $readModel = $this->invitationDetailsRepository->find($invitationId->__toString());
+        /** @var InvitationDetails $readModel */
+        $readModel = $this->invitationDetailsRepository->find((string) $invitationId);
 
         return $readModel;
     }

@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Component\Customer\Infrastructure\Repository;
 
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
+use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetailsRepository;
 use OpenLoyalty\Component\Core\Infrastructure\Repository\OloyElasticsearchRepository;
 
@@ -27,21 +28,27 @@ class InvitationDetailsElasticsearchRepository extends OloyElasticsearchReposito
         ],
     ];
 
-    public function findByToken($token)
+    /**
+     * {@inheritdoc}
+     */
+    public function findByToken($token): array
     {
         return $this->findByParameters([
             'token' => $token,
         ], true);
     }
 
-    public function findOneByRecipientId(CustomerId $recipientId)
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneByRecipientId(CustomerId $recipientId): ?InvitationDetails
     {
         $invitations = $this->findByParameters([
-            'recipientId' => $recipientId->__toString(),
+            'recipientId' => (string) $recipientId,
         ], true);
 
         if (count($invitations) == 0) {
-            return;
+            return null;
         }
 
         return reset($invitations);

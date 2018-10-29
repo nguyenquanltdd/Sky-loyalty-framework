@@ -69,15 +69,15 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
      * @param string       $referrerEmail
      * @param string       $referrerName
      * @param string       $recipientEmail
-     * @param $token
+     * @param string       $token
      */
     public function __construct(
         InvitationId $invitationId,
         CustomerId $referrerId,
-        $referrerEmail,
-        $referrerName,
-        $recipientEmail,
-        $token
+        string $referrerEmail,
+        string $referrerName,
+        string $recipientEmail,
+        string $token
     ) {
         $this->invitationId = $invitationId;
         $this->referrerId = $referrerId;
@@ -105,7 +105,7 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return InvitationId
      */
-    public function getInvitationId()
+    public function getInvitationId(): InvitationId
     {
         return $this->invitationId;
     }
@@ -113,7 +113,7 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return CustomerId
      */
-    public function getReferrerId()
+    public function getReferrerId(): CustomerId
     {
         return $this->referrerId;
     }
@@ -121,7 +121,7 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return string
      */
-    public function getReferrerEmail()
+    public function getReferrerEmail(): string
     {
         return $this->referrerEmail;
     }
@@ -129,7 +129,7 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return string
      */
-    public function getReferrerName()
+    public function getReferrerName(): string
     {
         return $this->referrerName;
     }
@@ -137,7 +137,7 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return string
      */
-    public function getRecipientEmail()
+    public function getRecipientEmail(): string
     {
         return $this->recipientEmail;
     }
@@ -145,7 +145,7 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return CustomerId
      */
-    public function getRecipientId()
+    public function getRecipientId(): CustomerId
     {
         return $this->recipientId;
     }
@@ -153,23 +153,23 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return string
      */
-    public function getRecipientName()
+    public function getRecipientName(): string
     {
         return $this->recipientName;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getStatus()
+    public function getStatus(): string
     {
         return $this->status;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getToken()
+    public function getToken(): string
     {
         return $this->token;
     }
@@ -179,11 +179,11 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
      */
     public function getId(): string
     {
-        return $this->invitationId->__toString();
+        return (string) $this->invitationId;
     }
 
     /**
-     * @return mixed The object instance
+     * {@inheritdoc}
      */
     public static function deserialize(array $data)
     {
@@ -206,7 +206,7 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
     public function serialize(): array
     {
@@ -223,17 +223,26 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
         ];
     }
 
-    public function referrerIdAsString()
+    /**
+     * @return string
+     */
+    public function referrerIdAsString(): string
     {
         return (string) $this->referrerId;
     }
 
-    public function recipientIdAsString()
+    /**
+     * @return string
+     */
+    public function recipientIdAsString(): string
     {
         return (string) $this->recipientId;
     }
 
-    public function madePurchase()
+    /**
+     * Made purchase.
+     */
+    public function madePurchase(): void
     {
         $this->status = Invitation::STATUS_MADE_PURCHASE;
     }
