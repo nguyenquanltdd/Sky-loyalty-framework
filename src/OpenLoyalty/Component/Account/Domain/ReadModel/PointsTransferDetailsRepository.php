@@ -89,7 +89,7 @@ interface PointsTransferDetailsRepository extends Repository
     public function countTotalSpendingTransfers(): int;
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getTotalValueOfSpendingTransfers();
+    public function getTotalValueOfSpendingTransfers(): int;
 }

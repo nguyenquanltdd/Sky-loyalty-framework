@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\AnalyticsBundle\Controller;
 
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsRepository;
 use OpenLoyalty\Component\Customer\Domain\Invitation;
@@ -20,6 +21,21 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
  */
 class AnalyticsController extends FOSRestController
 {
+    /**
+     * @var PointsTransferDetailsRepository
+     */
+    private $pointsTransferDetailsRepository;
+
+    /**
+     * AnalyticsController constructor.
+     *
+     * @param PointsTransferDetailsRepository $pointsTransferDetailsRepository
+     */
+    public function __construct(PointsTransferDetailsRepository $pointsTransferDetailsRepository)
+    {
+        $this->pointsTransferDetailsRepository = $pointsTransferDetailsRepository;
+    }
+
     /**
      * Get transactions statistics.
      *
@@ -76,17 +92,20 @@ class AnalyticsController extends FOSRestController
      *     section="Analytics"
      * )
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
-    public function getPointsStats()
+    public function getPointsStats(): View
     {
-        /** @var PointsTransferDetailsRepository $repo */
-        $repo = $this->get('oloy.points.account.repository.points_transfer_details');
+        $totalSpendingTransfers = $this->pointsTransferDetailsRepository->countTotalSpendingTransfers();
 
-        return $this->view([
-            'totalSpendingTransfers' => $repo->countTotalSpendingTransfers(),
-            'totalPointsSpent' => $repo->getTotalValueOfSpendingTransfers(),
-        ]);
+        $valueOfSpendingTransfers = $this->pointsTransferDetailsRepository->getTotalValueOfSpendingTransfers();
+
+        return $this->view(
+            [
+                'totalSpendingTransfers' => $totalSpendingTransfers,
+                'totalPointsSpent' => $valueOfSpendingTransfers,
+            ]
+        );
     }
 
     /**

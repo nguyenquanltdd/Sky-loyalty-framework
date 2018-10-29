@@ -117,3 +117,7 @@ services:
     oloy.user.form_type.customer_registration:
         alias: OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerRegistrationFormType
         deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.analytics.voter.analytivs:
+        alias: OpenLoyalty\Bundle\AnalyticsBundle\Security\Voter\AnalyticsVoter
+        deprecated: The "%service_id%" service is deprecated since 2.8.0

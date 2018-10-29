@@ -5,12 +5,10 @@
  */
 namespace OpenLoyalty\Component\Account\Infrastructure\Repository;
 
-use Elasticsearch\Common\Exceptions\Missing404Exception;
 use OpenLoyalty\Bundle\PaginationBundle\Model\Pagination;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsRepository;
 use OpenLoyalty\Component\Core\Infrastructure\Repository\OloyElasticsearchRepository;
-use Webmozart\Assert\Assert;
 
 /**
  * Class PointsTransferDetailsRepository.
@@ -252,17 +250,9 @@ class PointsTransferDetailsElasticsearchRepository extends OloyElasticsearchRepo
             'size' => 0,
         ];
 
-        try {
-            $result = $this->client->search($query);
+        $result = $this->client->search($query);
 
-            Assert::keyExists($result, 'aggregations');
-            Assert::keyExists($result, 'summary');
-            Assert::keyExists($result, 'value');
-        } catch (Missing404Exception | \InvalidArgumentException $exception) {
-            return 0;
-        }
-
-        return $result['aggregations']['summary']['value'];
+        return (int) $result['aggregations']['summary']['value'];
     }
 
     /**
