@@ -42,6 +42,10 @@ class UniqueDocumentNumberValidator extends ConstraintValidator
      */
     public function validate($value, Constraint $constraint)
     {
+        if (empty($value)) {
+            return;
+        }
+
         $duplicatedValue = $this->transactionDetailsRepository->findTransactionByDocumentNumber($value);
 
         if ($duplicatedValue) {
