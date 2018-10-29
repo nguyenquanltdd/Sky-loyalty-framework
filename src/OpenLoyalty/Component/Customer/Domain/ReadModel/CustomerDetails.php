@@ -590,7 +590,7 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getBirthDate()
     {
@@ -598,9 +598,9 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     }
 
     /**
-     * @param \DateTime $birthDate
+     * @param \DateTime|null $birthDate
      */
-    public function setBirthDate(\DateTime $birthDate)
+    public function setBirthDate(?\DateTime $birthDate)
     {
         $this->birthDate = $birthDate;
     }

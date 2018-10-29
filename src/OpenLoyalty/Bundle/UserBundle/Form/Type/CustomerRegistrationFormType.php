@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\Form\Type;
 
+use OpenLoyalty\Bundle\UserBundle\Form\DataTransformer\DateTransformer;
 use OpenLoyalty\Bundle\UserBundle\Validator\Constraint\CustomerLabel;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\Model\Gender;
@@ -19,13 +20,13 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CountryType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\Validator\Constraints\DateTime;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type as Numeric;
@@ -178,14 +179,15 @@ class CustomerRegistrationFormType extends AbstractType
             );
         }
         $builder->add(
-            'birthDate',
-            DateType::class,
-            [
-                'label' => 'Birth date',
-                'required' => false,
-                'widget' => 'single_text',
-                'format' => 'yyyy-MM-dd',
-            ]
+            $builder->create('birthDate',
+                TextType::class,
+                [
+                    'label' => 'Birth date',
+                    'required' => false,
+                    'constraints' => [
+                        new DateTime(['format' => 'Y-m-d']),
+                    ],
+                ])->addModelTransformer(new DateTransformer())
         );
         $builder->add(
             'createdAt',
@@ -207,6 +209,7 @@ class CustomerRegistrationFormType extends AbstractType
             [
                 'label' => 'Loyalty card number',
                 'required' => false,
+                'empty_data' => '',
             ]
         );
 

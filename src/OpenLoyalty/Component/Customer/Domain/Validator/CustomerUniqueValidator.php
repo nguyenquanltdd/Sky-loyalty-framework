@@ -73,10 +73,15 @@ class CustomerUniqueValidator
      */
     public function validateLoyaltyCardNumberUnique(string $number, CustomerId $customerId): void
     {
+        // no loyalty card number
+        if (empty($number)) {
+            return;
+        }
+
         $customers = $this->customerDetailsRepository->findBy(['loyaltyCardNumber' => $number]);
         /** @var CustomerDetails $customer */
         foreach ($customers as $key => $customer) {
-            if ($customer->getId() == $customerId->__toString()) {
+            if ($customer->getId() == (string) $customerId) {
                 unset($customers[$key]);
             }
         }

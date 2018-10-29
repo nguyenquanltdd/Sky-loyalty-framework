@@ -151,7 +151,7 @@ services:
         arguments:
             - '@oloy.email.message_factory'
             - '@oloy.mailer'
-            - {from_name: '%mailer_from_name%', from_address: '%mailer_from_address%', password_reset_url: '%frontend_password_reset_url%', loyalty_program_name: '%loyalty_program_name%', ecommerce_address: '%ecommerce_address%', customer_panel_url: '%frontend_customer_panel_url%'}
+            - {from_name: '%mailer_from_name%', from_address: '%mailer_from_address%', reset_password_url: '%reset_password_url%', loyalty_program_name: '%loyalty_program_name%', ecommerce_address: '%ecommerce_address%', customer_url: '%customer_url%', admin_url: '%admin_url%', merchant_url: '%merchant_url%'}
 
     oloy.user.es_param_manager:
         class: OpenLoyalty\Bundle\UserBundle\Service\EsParamManager

@@ -404,7 +404,7 @@ class Customer extends EventSourcedAggregateRoot
         if (isset($data['email'])) {
             $this->setEmail($data['email']);
         }
-        if (!empty($data['birthDate'])) {
+        if (array_key_exists('birthDate', $data)) {
             $this->setBirthDate($data['birthDate']);
         }
 
@@ -542,19 +542,18 @@ class Customer extends EventSourcedAggregateRoot
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTime|null
      */
-    public function getBirthDate(): \DateTime
+    public function getBirthDate(): ?\DateTime
     {
         return $this->birthDate;
     }
 
     /**
-     * @param \DateTime $birthDate
+     * @param \DateTime|null $birthDate
      */
-    public function setBirthDate(\DateTime $birthDate): void
+    public function setBirthDate(?\DateTime $birthDate): void
     {
-        Assert::notEmpty($birthDate);
         $this->birthDate = $birthDate;
     }
 
@@ -588,7 +587,6 @@ class Customer extends EventSourcedAggregateRoot
      */
     public function setLoyaltyCardNumber(string $loyaltyCardNumber): void
     {
-        Assert::notEmpty($loyaltyCardNumber);
         $this->loyaltyCardNumber = $loyaltyCardNumber;
     }
 

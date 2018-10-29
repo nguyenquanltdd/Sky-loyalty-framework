@@ -8,6 +8,9 @@ namespace OpenLoyalty\Bundle\UserBundle\Service;
 use OpenLoyalty\Bundle\EmailBundle\Mailer\OloyMailer;
 use OpenLoyalty\Bundle\EmailBundle\Service\MessageFactoryInterface;
 use OpenLoyalty\Bundle\SettingsBundle\Service\ConditionsUploader;
+use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
+use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
+use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetails;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
@@ -44,11 +47,6 @@ class EmailProvider
     /**
      * @var string
      */
-    protected $passwordResetUrl;
-
-    /**
-     * @var string
-     */
     protected $loyaltyProgramName;
 
     /**
@@ -59,7 +57,22 @@ class EmailProvider
     /**
      * @var string
      */
+    protected $adminPanelUrl;
+
+    /**
+     * @var string
+     */
     protected $customerPanelUrl;
+
+    /**
+     * @var string
+     */
+    protected $merchantPanelUrl;
+
+    /**
+     * @var string
+     */
+    protected $resetPasswordUrl;
 
     /**
      * @var string
@@ -80,10 +93,12 @@ class EmailProvider
         $this->parameters = $parameters;
         $this->emailFromName = $parameters['from_name'] ?? '';
         $this->emailFromAddress = $parameters['from_address'] ?? '';
-        $this->passwordResetUrl = $parameters['password_reset_url'] ?? '';
         $this->loyaltyProgramName = $parameters['loyalty_program_name'] ?? '';
         $this->ecommerceAddress = $parameters['ecommerce_address'] ?? '';
-        $this->customerPanelUrl = $parameters['customer_panel_url'] ?? '';
+        $this->adminPanelUrl = $parameters['admin_url'] ?? '';
+        $this->customerPanelUrl = $parameters['customer_url'] ?? '';
+        $this->merchantPanelUrl = $parameters['merchant_url'] ?? '';
+        $this->resetPasswordUrl = $parameters['reset_password_url'] ?? '';
         $this->invitationUrl = $parameters['frontend_invitation_url'] ?? '';
     }
 
@@ -178,13 +193,23 @@ class EmailProvider
      */
     public function resettingPasswordMessage(User $user)
     {
+        $resetPasswordUrl = $this->adminPanelUrl;
+        if ($user instanceof Customer) {
+            $resetPasswordUrl = $this->customerPanelUrl;
+        } elseif ($user instanceof Admin) {
+            $resetPasswordUrl = $this->adminPanelUrl;
+        } elseif ($user instanceof Seller) {
+            $resetPasswordUrl = $this->merchantPanelUrl;
+        }
+        $resetPasswordUrl = $resetPasswordUrl.$this->resetPasswordUrl;
+
         return $this->sendMessage(
             'Password reset requested',
             $user->getEmail(),
             'OpenLoyaltyUserBundle:email:password_reset.html.twig',
             [
                 'program_name' => $this->loyaltyProgramName,
-                'url_reset_password' => $this->passwordResetUrl.'/'.$user->getConfirmationToken(),
+                'url_reset_password' => $resetPasswordUrl.'/'.$user->getConfirmationToken(),
             ]
         );
     }
