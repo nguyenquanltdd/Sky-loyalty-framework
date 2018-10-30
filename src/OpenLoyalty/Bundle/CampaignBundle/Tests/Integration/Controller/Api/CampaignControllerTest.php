@@ -1,4 +1,8 @@
 <?php
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 
 namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Integration\Controller\Api;
 
@@ -44,11 +48,12 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
         static::bootKernel();
+
         $this->campaignRepository = static::$kernel->getContainer()->get('oloy.campaign.repository');
         $this->customerDetailsRepository = static::$kernel->getContainer()->get('oloy.user.read_model.repository.customer_details');
     }
@@ -71,24 +76,25 @@ class CampaignControllerTest extends BaseApiTest
                 ],
             ]
         );
+
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        $this->assertOkResponseStatus($response);
     }
 
     /**
      * @test
      * @depends it_updates_campaign_brand
      */
-    public function it_gets_campaign_brand(): void
+    public function it_returns_campaign_brand(): void
     {
         $fileHash = md5_file(__DIR__.'/../../../Resources/test.jpg');
 
         $client = $this->createAuthenticatedClient();
-        $client->request(
-            'GET',
-            '/api/campaign/'.LoadCampaignData::CAMPAIGN2_ID.'/brand_icon'
-        );
+        $client->request('GET', '/api/campaign/'.LoadCampaignData::CAMPAIGN2_ID.'/brand_icon');
+
         $response = $client->getResponse();
+
         $this->assertEquals($fileHash, md5($response->getContent()), 'File has not been uploaded correctly.');
     }
 
@@ -102,8 +108,10 @@ class CampaignControllerTest extends BaseApiTest
             'DELETE',
             '/api/campaign/'.LoadCampaignData::CAMPAIGN2_ID.'/brand_icon'
         );
+
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        $this->assertOkResponseStatus($response);
     }
 
     /**
@@ -157,10 +165,14 @@ class CampaignControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
+
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        $this->assertOkResponseStatus($response);
         $this->assertArrayHasKey('campaignId', $data);
+
         $campaign = $this->campaignRepository->byId(new CampaignId($data['campaignId']));
+
         $this->assertInstanceOf(Campaign::class, $campaign);
         $this->assertEquals(99.95, $campaign->getTaxPriceValue());
         $this->assertEquals(23, $campaign->getTax());
@@ -220,9 +232,13 @@ class CampaignControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
+
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        $this->assertOkResponseStatus($response);
+
         $campaign = $this->campaignRepository->byId(new CampaignId($data['campaignId']));
+
         $this->objectHasAttribute('singleCoupon');
         $this->assertEquals(true, $campaign->isSingleCoupon());
     }
@@ -279,17 +295,23 @@ class CampaignControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
+
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        $this->assertOkResponseStatus($response);
         $this->assertArrayHasKey('campaignId', $data);
+
         $campaign = $this->campaignRepository->byId(new CampaignId($data['campaignId']));
+
         $this->assertInstanceOf(Campaign::class, $campaign);
         $this->assertEquals('test', $campaign->getName());
         $this->assertEquals(300.95, $campaign->getTaxPriceValue());
         $this->assertEquals(23, $campaign->getTax());
         $this->assertInternalType('array', $campaign->getLabels());
         $this->assertCount(1, $campaign->getLabels());
+
         $label = $campaign->getLabels()[0];
+
         $this->assertInstanceOf(Label::class, $label);
         $this->assertEquals('type', $label->getKey());
         $this->assertEquals('promotion', $label->getValue());
@@ -348,9 +370,12 @@ class CampaignControllerTest extends BaseApiTest
             'GET',
             '/api/campaign'
         );
+
         $response = $client->getResponse();
+
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        $this->assertOkResponseStatus($response);
         $this->assertArrayHasKey('campaigns', $data);
         $this->assertTrue(count($data['campaigns']) > 0, 'Contains at least one element');
     }
@@ -365,9 +390,9 @@ class CampaignControllerTest extends BaseApiTest
      */
     public function it_filters_campaigns_list(array $filters, int $expectedCount): void
     {
-        $client = $this->createAuthenticatedClient();
         $filters['perPage'] = 1000;
 
+        $client = $this->createAuthenticatedClient();
         $client->request(
             'GET',
             '/api/campaign',
@@ -375,8 +400,10 @@ class CampaignControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
+
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        $this->assertOkResponseStatus($response);
         $this->assertArrayHasKey('campaigns', $data);
         $this->assertArrayHasKey('total', $data);
         $this->assertCount($expectedCount, $data['campaigns']);
@@ -384,42 +411,20 @@ class CampaignControllerTest extends BaseApiTest
     }
 
     /**
-     * @return array
-     */
-    public function getCampaignsFilters(): array
-    {
-        return [
-            [['isFeatured' => 1, 'isPublic' => 1], 3],
-            [['isFeatured' => 0, 'isPublic' => 0], 4],
-            [['isFeatured' => 1], 12],
-            [['isFeatured' => 0], 8],
-            [['isPublic' => 1], 7],
-            [['isPublic' => 0], 13],
-            [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY2_ID]], 2],
-            [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID]], 1],
-            [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID, LoadCampaignData::CAMPAIGN_CATEGORY2_ID]], 2],
-            [['categoryId' => ['not-exist-sid']], 0],
-            [['name' => 'cashback'], 1],
-            [['name' => 'zwrot gotówki'], 0],
-            [['name' => 'test'], 3],
-        ];
-    }
-
-    /**
      * @test
      * @dataProvider sortParamsProvider
      */
-    public function it_returns_campaigns_list_sorted($field, $direction, $oppositeDirection): void
+    public function it_returns_campaigns_list_sorted(string $field, string $direction, string $oppositeDirection): void
     {
         $client = $this->createAuthenticatedClient();
-        $client->request(
-            'GET',
-            sprintf('/api/campaign?sort=%s&direction=%s', $field, $direction)
-        );
+        $client->request('GET', sprintf('/api/campaign?sort=%s&direction=%s', $field, $direction));
+
         $sortedResponse = $client->getResponse();
         $sortedData = json_decode($sortedResponse->getContent(), true);
-        $this->assertEquals(200, $sortedResponse->getStatusCode(), 'Response should have status 200');
+
+        $this->assertOkResponseStatus($sortedResponse);
         $this->assertArrayHasKey('campaigns', $sortedData);
+
         $firstElementSorted = reset($sortedData['campaigns']);
         $sortedSize = count($sortedData['campaigns']);
 
@@ -428,14 +433,13 @@ class CampaignControllerTest extends BaseApiTest
         }
 
         $client = $this->createAuthenticatedClient();
-        $client->request(
-            'GET',
-            sprintf('/api/campaign?sort=%s&direction=%s', $field, $oppositeDirection)
-        );
-        $response = $client->getResponse();
-        $data = json_decode($response->getContent(), true);
-        $firstElement = reset($data['campaigns']);
-        $size = count($data['campaigns']);
+        $client->request('GET', sprintf('/api/campaign?sort=%s&direction=%s', $field, $oppositeDirection));
+
+        $oppositeSortedResponse = $client->getResponse();
+        $oppositeSortedData = json_decode($oppositeSortedResponse->getContent(), true);
+
+        $firstElement = reset($oppositeSortedData['campaigns']);
+        $size = count($oppositeSortedData['campaigns']);
 
         $this->assertNotEquals($firstElement['campaignId'], $firstElementSorted['campaignId']);
         $this->assertEquals($size, $sortedSize);
@@ -608,9 +612,10 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_campaigns_available_to_customer()
+    public function it_returns_customer_available_campaigns(): void
     {
         static::$kernel->boot();
+
         $customerDetails = $this->getCustomerDetails(LoadUserData::USER_USERNAME);
         $customerId = $customerDetails->getCustomerId();
 
@@ -619,10 +624,11 @@ class CampaignControllerTest extends BaseApiTest
             'GET',
             sprintf('/api/admin/customer/%s/campaign/available', $customerId)
         );
+
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
 
+        $this->assertOkResponseStatus($response);
         $this->assertArrayHasKey('campaigns', $data);
         $this->assertNotEmpty($data['campaigns']);
     }
@@ -630,7 +636,7 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_campaigns_available_to_customer_with_segment_exclusiveness()
+    public function it_returns_customer_available_campaigns_with_segment_exclusiveness(): void
     {
         static::$kernel->boot();
         $customerDetails = $this->getCustomerDetails(LoadUserData::USER_USERNAME);
@@ -642,17 +648,20 @@ class CampaignControllerTest extends BaseApiTest
             'GET',
             sprintf('/api/admin/customer/%s/campaign/available?hasSegment=1', $customerId)
         );
+
         $mustHaveSegmentResponse = $client->getResponse();
         $mustHaveSegmentData = json_decode($mustHaveSegmentResponse->getContent(), true);
-        $this->assertEquals(200, $mustHaveSegmentResponse->getStatusCode(), 'Response should have status 200');
 
+        $this->assertOkResponseStatus($mustHaveSegmentResponse);
         $this->assertArrayHasKey('campaigns', $mustHaveSegmentData);
+
         $mustHaveSegmentSize = count($mustHaveSegmentData['campaigns']);
 
         // assert no elements without segment are in response for segment-exclusive campaigns
-        $elementsWithoutSegment = array_filter($mustHaveSegmentData['campaigns'], function ($campaign) {
+        $elementsWithoutSegment = array_filter($mustHaveSegmentData['campaigns'], function ($campaign): bool {
             return empty($campaign['segments']);
         });
+
         $this->assertEmpty($elementsWithoutSegment, 'Elements without segment present, asked for segment-exclusive campaigns');
 
         // non-exclusive
@@ -661,28 +670,32 @@ class CampaignControllerTest extends BaseApiTest
             'GET',
             sprintf('/api/admin/customer/%s/campaign/available?hasSegment=0', $customerId)
         );
+
         $mustNotHaveSegmentResponse = $client->getResponse();
         $mustNotHaveSegmentData = json_decode($mustNotHaveSegmentResponse->getContent(), true);
 
         $this->assertArrayHasKey('campaigns', $mustNotHaveSegmentData);
+
         $mustNotHaveSegmentSize = count($mustNotHaveSegmentData['campaigns']);
 
         // assert no elements with segment are in response for non-exclusive campaigns
-        $elementsWithSegment = array_filter($mustNotHaveSegmentData['campaigns'], function ($campaign) {
+        $elementsWithSegment = array_filter($mustNotHaveSegmentData['campaigns'], function ($campaign): bool {
             return !empty($campaign['segments']);
         });
+
         $this->assertEmpty($elementsWithSegment, 'Elements with segments present, asked for non-segment-exclusive campaigns');
 
         // all campaign data for the user
         $client = $this->createAuthenticatedClient();
-        $client->request(
-            'GET',
+        $client->request('GET',
             sprintf('/api/admin/customer/%s/campaign/available', $customerId)
         );
+
         $allResponse = $client->getResponse();
         $allData = json_decode($allResponse->getContent(), true);
 
         $this->assertArrayHasKey('campaigns', $allData);
+
         $allSize = count($allData['campaigns']);
 
         // assert no data has been lost
@@ -757,6 +770,7 @@ class CampaignControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
+
         $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 400');
     }
 
@@ -766,13 +780,13 @@ class CampaignControllerTest extends BaseApiTest
     public function it_returns_active_campaigns_list(): void
     {
         $client = $this->createAuthenticatedClient();
-        $client->request(
-            'GET',
-            '/api/campaign/active'
-        );
+        $client->request('GET', '/api/campaign/active');
+
         $response = $client->getResponse();
+
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        $this->assertOkResponseStatus($response);
         $this->assertArrayHasKey('campaigns', $data);
     }
 
@@ -782,14 +796,15 @@ class CampaignControllerTest extends BaseApiTest
     public function it_returns_csv_response_when_exports_bought_data(): void
     {
         $filenamePrefix = static::$kernel->getContainer()->getParameter('oloy.campaign.bought.export.filename_prefix');
+
         $expectedHeaderData = sprintf('attachment; filename="%s', $filenamePrefix);
+
         $client = $this->createAuthenticatedClient();
-        $client->request(
-            'GET',
-            '/api/campaign/bought/export/csv'
-        );
+        $client->request('GET', '/api/campaign/bought/export/csv');
+
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200');
+
+        $this->assertOkResponseStatus($response);
         $this->assertEquals(0, strpos($expectedHeaderData, $response->headers->get('content-disposition')));
     }
 
@@ -850,8 +865,9 @@ class CampaignControllerTest extends BaseApiTest
      */
     public function it_changes_multiple_coupons_to_used(): void
     {
-        $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
         $couponCode = Uuid::uuid4()->toString();
+
+        $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
         $customerDetails->addCampaignPurchase(
             new CampaignPurchase(
                 new \DateTime(),
@@ -924,13 +940,13 @@ class CampaignControllerTest extends BaseApiTest
     {
         $client = self::createClient();
 
-        $client->request(Request::METHOD_GET, '/api/campaign/public/featured', ['isPublic' => 1]);
+        $client->request('GET', '/api/campaign/public/featured', ['isPublic' => 1]);
 
         $response = $client->getResponse();
 
         $data = json_decode($response->getContent(), true);
 
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertOkResponseStatus($response);
         $this->assertCount(3, $data['campaigns']);
         $this->assertSame(3, $data['total']);
     }
@@ -942,7 +958,7 @@ class CampaignControllerTest extends BaseApiTest
      * @param array $filters
      * @param int   $expectedCount
      */
-    public function it_gets_seller_campaigns(array $filters, int $expectedCount): void
+    public function it_returns_seller_campaigns(array $filters, int $expectedCount): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -950,7 +966,9 @@ class CampaignControllerTest extends BaseApiTest
             '/api/seller/campaign',
             $filters
         );
+
         $response = $client->getResponse();
+
         $data = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('campaigns', $data);
@@ -966,7 +984,7 @@ class CampaignControllerTest extends BaseApiTest
      * @param array $filters
      * @param int   $expectedCount
      */
-    public function it_gets_seller_customer_available_campaigns(array $filters, int $expectedCount): void
+    public function it_returns_seller_customer_available_campaigns(array $filters, int $expectedCount): void
     {
         $client = $this->createAuthenticatedClient(
             LoadUserData::TEST_SELLER_USERNAME,
@@ -1003,6 +1021,28 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @return array
      */
+    public function getCampaignsFilters(): array
+    {
+        return [
+            [['isFeatured' => 1, 'isPublic' => 1], 3],
+            [['isFeatured' => 0, 'isPublic' => 0], 4],
+            [['isFeatured' => 1], 12],
+            [['isFeatured' => 0], 8],
+            [['isPublic' => 1], 7],
+            [['isPublic' => 0], 13],
+            [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY2_ID]], 2],
+            [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID]], 1],
+            [['categoryId' => [LoadCampaignData::CAMPAIGN_CATEGORY1_ID, LoadCampaignData::CAMPAIGN_CATEGORY2_ID]], 2],
+            [['categoryId' => ['not-exist-sid']], 0],
+            [['name' => 'cashback'], 1],
+            [['name' => 'zwrot gotówki'], 0],
+            [['name' => 'test'], 3],
+        ];
+    }
+
+    /**
+     * @return array
+     */
     public function getSellerCampaignsFilters(): array
     {
         return [
@@ -1021,6 +1061,7 @@ class CampaignControllerTest extends BaseApiTest
     {
         return [
             ['campaignId', 'asc', 'desc'],
+            ['campaignVisibility.visibleFrom', 'desc', 'asc'],
         ];
     }
 
@@ -1029,9 +1070,10 @@ class CampaignControllerTest extends BaseApiTest
      *
      * @return CustomerDetails
      */
-    protected function getCustomerDetails($email): CustomerDetails
+    private function getCustomerDetails($email): CustomerDetails
     {
         $customerDetails = $this->customerDetailsRepository->findBy(['email' => $email]);
+
         /** @var CustomerDetails $customerDetails */
         $customerDetails = reset($customerDetails);
 
@@ -1043,11 +1085,13 @@ class CampaignControllerTest extends BaseApiTest
      *
      * @return AccountDetails|null
      */
-    protected function getCustomerAccount(CustomerId $customerId): ?AccountDetails
+    private function getCustomerAccount(CustomerId $customerId): ?AccountDetails
     {
         $accountDetailsRepository = static::$kernel->getContainer()->get('oloy.points.account.repository.account_details');
+
         $accounts = $accountDetailsRepository->findBy(['customerId' => $customerId->__toString()]);
-        if (count($accounts) == 0) {
+
+        if (0 === count($accounts)) {
             return null;
         }
 

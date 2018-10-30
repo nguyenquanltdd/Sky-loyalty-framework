@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -148,37 +148,37 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      */
     public function findAllVisiblePaginated($page = 1, $perPage = 10, $sortField = null, $direction = 'ASC', array $filters = [])
     {
-        $qb = $this->createQueryBuilder('c');
+        $queryBuilder = $this->createQueryBuilder('c');
 
         if ($sortField) {
-            $qb->orderBy(
+            $queryBuilder->orderBy(
                 'e.'.$this->validateSort($sortField),
                 $this->validateSortBy($direction)
             );
         }
 
-        if (array_key_exists('isPublic', $filters) && !is_null($filters['isPublic'])) {
-            $qb->andWhere('c.public = :public')->setParameter('public', $filters['isPublic']);
+        if (array_key_exists('isPublic', $filters) && null !== $filters['isPublic']) {
+            $queryBuilder->andWhere('c.public = :public')->setParameter('public', $filters['isPublic']);
         }
 
-        $qb->andWhere(
-            $qb->expr()->orX(
+        $queryBuilder->andWhere(
+            $queryBuilder->expr()->orX(
                 'c.campaignVisibility.allTimeVisible = :true',
-                $qb->expr()->andX(
+                $queryBuilder->expr()->andX(
                     'c.campaignVisibility.visibleFrom <= :now',
                     'c.campaignVisibility.visibleTo >= :now'
                 )
             )
         );
-        $qb->andWhere('c.reward != :cashback')->setParameter('cashback', Campaign::REWARD_TYPE_CASHBACK);
+        $queryBuilder->andWhere('c.reward != :cashback')->setParameter('cashback', Campaign::REWARD_TYPE_CASHBACK);
 
-        $qb->andWhere('c.active = :true')->setParameter('true', true);
-        $qb->setParameter('now', new \DateTime());
+        $queryBuilder->andWhere('c.active = :true')->setParameter('true', true);
+        $queryBuilder->setParameter('now', new \DateTime());
 
-        $qb->setMaxResults($perPage);
-        $qb->setFirstResult(($page - 1) * $perPage);
+        $queryBuilder->setMaxResults($perPage);
+        $queryBuilder->setFirstResult(($page - 1) * $perPage);
 
-        return $qb->getQuery()->getResult();
+        return $queryBuilder->getQuery()->getResult();
     }
 
     /**
@@ -239,35 +239,36 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      */
     protected function getFeaturedCampaignsQueryBuilder(array $filters = []): QueryBuilder
     {
-        $query = $this->createQueryBuilder('campaign');
-        $query
+        $queryBuilder = $this->createQueryBuilder('campaign');
+        $queryBuilder
             ->andWhere('campaign.active = :true')
             ->setParameter('true', true)
         ;
 
-        $query
+        $queryBuilder
             ->andWhere('campaign.featured = :featured')
             ->setParameter('featured', true)
         ;
 
         if (array_key_exists('isPublic', $filters) && !is_null($filters['isPublic'])) {
-            $query->andWhere('campaign.public = :public')->setParameter('public', $filters['isPublic']);
+            $queryBuilder->andWhere('campaign.public = :public')->setParameter('public', $filters['isPublic']);
         }
 
-        $query
+        $queryBuilder
             ->andWhere(
-                $query->expr()->orX(
+                $queryBuilder->expr()->orX(
                     'campaign.campaignVisibility.allTimeVisible = :visible',
-                    $query->expr()->andX(
+                    $queryBuilder->expr()->andX(
                         'campaign.campaignVisibility.visibleFrom <= :now',
                         'campaign.campaignVisibility.visibleTo >= :now'
                     )
                 )
             )
             ->setParameter('now', new \DateTime())
-            ->setParameter('visible', true);
+            ->setParameter('visible', true)
+        ;
 
-        return $query;
+        return $queryBuilder;
     }
 
     /**
@@ -276,27 +277,32 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     public function countTotal($onlyVisible = false, array $filters = [])
     {
         $query = $this->createQueryBuilder('e');
+
         $query->select('count(e.campaignId)');
 
-        if (array_key_exists('isPublic', $filters) && !is_null($filters['isPublic'])) {
-            $query->andWhere('e.public = :public')->setParameter('public', $filters['isPublic']);
+        if (array_key_exists('isPublic', $filters) && null !== $filters['isPublic']) {
+            $query
+                ->andWhere('e.public = :public')
+                ->setParameter('public', $filters['isPublic'])
+            ;
         }
 
         if ($onlyVisible) {
-            $query->andWhere(
-                $query->expr()->orX(
-                    'e.campaignVisibility.allTimeVisible = :true',
-                    $query->expr()->andX(
-                        'e.campaignVisibility.visibleFrom <= :now',
-                        'e.campaignVisibility.visibleTo >= :now'
+            $query
+                ->andWhere(
+                    $query->expr()->orX(
+                        'e.campaignVisibility.allTimeVisible = :true',
+                        $query->expr()->andX(
+                            'e.campaignVisibility.visibleFrom <= :now',
+                            'e.campaignVisibility.visibleTo >= :now'
+                        )
                     )
                 )
-            );
-
-            $query->andWhere('e.reward != :cashback')->setParameter('cashback', Campaign::REWARD_TYPE_CASHBACK);
-
-            $query->andWhere('e.active = :true')->setParameter('true', true);
-            $query->setParameter('now', new \DateTime());
+                ->andWhere('e.reward != :cashback')
+                ->andWhere('e.active = :true')->setParameter('true', true)
+                ->setParameter('cashback', Campaign::REWARD_TYPE_CASHBACK)
+                ->setParameter('now', new \DateTime())
+            ;
         }
 
         return $query->getQuery()->getSingleScalarResult();
@@ -309,18 +315,18 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      */
     public function getActiveCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, array $categoryIds = [], $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC'): array
     {
-        $qb = $this->getCampaignsForLevelAndSegmentQueryBuilder($segmentIds, $levelId, $categoryIds, $page, $perPage, $sortField, $direction);
-        $qb->andWhere(
-            $qb->expr()->orX(
+        $queryBuilder = $this->getCampaignsForLevelAndSegmentQueryBuilder($levelId, $segmentIds, $categoryIds, $page, $perPage, $sortField, $direction);
+        $queryBuilder->andWhere(
+            $queryBuilder->expr()->orX(
                 'c.campaignActivity.allTimeActive = :true',
-                $qb->expr()->andX(
+                $queryBuilder->expr()->andX(
                     'c.campaignActivity.activeFrom <= :now',
                     'c.campaignActivity.activeTo >= :now'
                 )
             )
         );
 
-        return $qb->getQuery()->getResult();
+        return $queryBuilder->getQuery()->getResult();
     }
 
     /**
@@ -330,19 +336,19 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      */
     public function getActiveCashbackCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null): array
     {
-        $qb = $this->getCampaignsForLevelAndSegmentQueryBuilder($segmentIds, $levelId);
-        $qb->andWhere('c.reward = :reward')->setParameter('reward', Campaign::REWARD_TYPE_CASHBACK);
-        $qb->andWhere(
-            $qb->expr()->orX(
+        $queryBuilder = $this->getCampaignsForLevelAndSegmentQueryBuilder($levelId, $segmentIds);
+        $queryBuilder->andWhere('c.reward = :reward')->setParameter('reward', Campaign::REWARD_TYPE_CASHBACK);
+        $queryBuilder->andWhere(
+            $queryBuilder->expr()->orX(
                 'c.campaignActivity.allTimeActive = :true',
-                $qb->expr()->andX(
+                $queryBuilder->expr()->andX(
                     'c.campaignActivity.activeFrom <= :now',
                     'c.campaignActivity.activeTo >= :now'
                 )
             )
         );
 
-        return $qb->getQuery()->getResult();
+        return $queryBuilder->getQuery()->getResult();
     }
 
     /**
@@ -360,26 +366,38 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
         $direction = 'ASC',
         array $filters = []
     ): array {
-        $qb = $this->getCampaignsForLevelAndSegmentQueryBuilder($segmentIds, $levelId, $categoryIds, $page, $perPage, $sortField, $direction);
-        $qb->andWhere(
-            $qb->expr()->orX(
-                'c.campaignVisibility.allTimeVisible = :true',
-                $qb->expr()->andX(
-                    'c.campaignVisibility.visibleFrom <= :now',
-                    'c.campaignVisibility.visibleTo >= :now'
+        $queryBuilder = $this->getCampaignsForLevelAndSegmentQueryBuilder($levelId, $segmentIds, $categoryIds, $page, $perPage, $sortField, $direction);
+
+        $queryBuilder
+            ->andWhere(
+                $queryBuilder->expr()->orX(
+                    'c.campaignVisibility.allTimeVisible = :visible',
+                    $queryBuilder->expr()->andX(
+                        'c.campaignVisibility.visibleFrom <= :now',
+                        'c.campaignVisibility.visibleTo >= :now'
+                    )
                 )
             )
-        );
+            ->andWhere('c.reward != :cashback')
+            ->setParameter('visible', true)
+            ->setParameter('cashback', Campaign::REWARD_TYPE_CASHBACK)
+        ;
 
-        if (array_key_exists('featured', $filters) && !is_null($filters['featured'])) {
-            $qb->andWhere('c.featured = :featured')->setParameter('featured', $filters['featured']);
+        if (array_key_exists('featured', $filters) && null !== $filters['featured']) {
+            $queryBuilder
+                ->andWhere('c.featured = :featured')
+                ->setParameter('featured', $filters['featured'])
+            ;
         }
 
-        if (array_key_exists('isPublic', $filters) && !is_null($filters['isPublic'])) {
-            $qb->andWhere('c.public = :public')->setParameter('public', $filters['isPublic']);
+        if (array_key_exists('isPublic', $filters) && null !== $filters['isPublic']) {
+            $queryBuilder
+                ->andWhere('c.public = :public')
+                ->setParameter('public', $filters['isPublic'])
+            ;
         }
 
-        return $qb->getQuery()->getResult();
+        return $queryBuilder->getQuery()->getResult();
     }
 
     /**
@@ -396,48 +414,63 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      * @throws ORMException
      */
     protected function getCampaignsForLevelAndSegmentQueryBuilder(
-        array $segmentIds = [],
         LevelId $levelId = null,
+        array $segmentIds = [],
         array $categoryIds = [],
-        $page = 1,
-        $perPage = 10,
-        $sortField = null,
-        $direction = 'ASC'
+        ?int $page = 1,
+        ?int $perPage = 10,
+        ?string $sortField = null,
+        ?string $direction = 'ASC'
     ): QueryBuilder {
-        $this->getEntityManager()->getConfiguration()->addCustomStringFunction('cast', Cast::class);
-        $qb = $this->createQueryBuilder('c');
-        $qb->andWhere('c.active = :true')->setParameter('true', true);
+        $this
+            ->getEntityManager()
+            ->getConfiguration()
+            ->addCustomStringFunction('cast', Cast::class)
+        ;
 
-        $qb->setParameter('now', new \DateTime());
-        $levelOrSegment = $qb->expr()->orX();
-        if ($levelId) {
-            $levelOrSegment->add($qb->expr()->like('cast(c.levels as text)', ':levelId'));
-            $qb->setParameter('levelId', '%'.$levelId->__toString().'%');
+        $queryBuilder = $this->createQueryBuilder('c');
+        $queryBuilder
+            ->andWhere('c.active = :active')
+            ->setParameter('active', true)
+            ->setParameter('now', new \DateTime())
+        ;
+
+        $levelOrSegment = $queryBuilder->expr()->orX();
+
+        if (null !== $levelId) {
+            $levelOrSegment->add($queryBuilder->expr()->like('cast(c.levels as text)', ':levelId'));
+
+            $queryBuilder->setParameter('levelId', '%'.$levelId->__toString().'%');
         }
 
         $i = 0;
         foreach ($segmentIds as $segmentId) {
-            $levelOrSegment->add($qb->expr()->like('cast(c.segments as text)', ':segmentId'.$i));
-            $qb->setParameter('segmentId'.$i, '%'.$segmentId->__toString().'%');
+            $levelOrSegment->add(
+                $queryBuilder->expr()->like('cast(c.segments as text)', sprintf(':segmentId%d', $i))
+            );
+
+            $queryBuilder->setParameter(sprintf('segmentId%d', $i), '%'.$segmentId->__toString().'%');
+
             ++$i;
         }
 
-        $qb->andWhere($levelOrSegment);
+        $queryBuilder->andWhere($levelOrSegment);
 
-        $this->updateQueryByCategoriesIds($qb, $categoryIds);
+        $this->updateQueryByCategoriesIds($queryBuilder, $categoryIds);
 
-        if ($sortField) {
-            $qb->orderBy(
+        if (null !== $sortField) {
+            $queryBuilder->orderBy(
                 'c.'.$this->validateSort($sortField),
                 $this->validateSortBy($direction)
             );
         }
-        if ($perPage) {
-            $qb->setMaxResults($perPage);
-            $qb->setFirstResult(($page - 1) * $perPage);
-        }
 
-        return $qb;
+        $queryBuilder
+            ->setMaxResults($perPage)
+            ->setFirstResult(($page - 1) * $perPage)
+        ;
+
+        return $queryBuilder;
     }
 
     /**
@@ -450,7 +483,8 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     protected function getCampaignsByParamsQueryBuilder(array $params): QueryBuilder
     {
         $this->getEntityManager()->getConfiguration()->addCustomStringFunction('cast', Cast::class);
-        $qb = $this->createQueryBuilder('c');
+
+        $builder = $this->createQueryBuilder('c');
 
         if (array_key_exists('labels', $params) && is_array($params['labels'])) {
             foreach ($params['labels'] as $label) {
@@ -466,53 +500,55 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
                 }
 
                 if (!empty($searchLabel)) {
-                    $qb->andWhere($qb->expr()->like('cast(c.labels as text)', ':label'));
-                    $qb->setParameter('label', '%'.$searchLabel.'%');
+                    $builder->andWhere($builder->expr()->like('cast(c.labels as text)', ':label'));
+                    $builder->setParameter('label', '%'.$searchLabel.'%');
                 }
             }
         }
 
-        if (array_key_exists('active', $params) && !is_null($params['active'])) {
+        if (array_key_exists('active', $params) && null !== $params['active']) {
             if ($params['active']) {
-                $qb->andWhere('c.active = :true')->setParameter('true', true);
+                $builder->andWhere('c.active = :true')->setParameter('true', true);
             } else {
-                $qb->andWhere('c.active = :false')->setParameter('false', false);
+                $builder->andWhere('c.active = :false')->setParameter('false', false);
             }
         }
 
-        if (array_key_exists('isPublic', $params) && !is_null($params['isPublic'])) {
+        if (array_key_exists('isPublic', $params) && null !== $params['isPublic']) {
             if ($params['isPublic']) {
-                $qb->andWhere('c.public = :true')->setParameter('true', true);
+                $builder->andWhere('c.public = :true')->setParameter('true', true);
             } else {
-                $qb->andWhere('c.public = :false')->setParameter('false', false);
+                $builder->andWhere('c.public = :false')->setParameter('false', false);
             }
         }
 
-        if (array_key_exists('isFeatured', $params) && !is_null($params['isFeatured'])) {
+        if (array_key_exists('isFeatured', $params) && null !== $params['isFeatured']) {
             if ($params['isFeatured']) {
-                $qb->andWhere('c.featured = :true')->setParameter('true', true);
+                $builder->andWhere('c.featured = :true')->setParameter('true', true);
             } else {
-                $qb->andWhere('c.featured = :false')->setParameter('false', false);
+                $builder->andWhere('c.featured = :false')->setParameter('false', false);
             }
         }
 
-        if (array_key_exists('campaignType', $params) && !is_null($params['campaignType'])) {
-            $qb->andWhere('c.reward = :campaignType')->setParameter('campaignType', $params['campaignType']);
+        if (array_key_exists('campaignType', $params) && null !== $params['campaignType']) {
+            $builder->andWhere('c.reward = :campaignType')->setParameter('campaignType', $params['campaignType']);
         }
 
-        if (array_key_exists('name', $params) && !is_null($params['name'])) {
-            $qb->join('c.translations', 't');
-            $qb->andWhere($qb->expr()->like('t.name', ':name'))
-                ->setParameter('name', '%'.urldecode($params['name']).'%')
+        if (array_key_exists('name', $params) && null !== $params['name']) {
+            $builder
+                ->join('c.translations', 't')
+                ->andWhere($builder->expr()->like('t.name', ':name'))
                 ->andWhere('t.locale = :locale')
-                ->setParameter('locale', $params['_locale']);
+                ->setParameter('name', '%'.urldecode($params['name']).'%')
+                ->setParameter('locale', $params['_locale'])
+            ;
         }
 
         if (array_key_exists('categoryId', $params) && is_array($params['categoryId'])) {
-            $this->updateQueryByCategoriesIds($qb, $params['categoryId']);
+            $this->updateQueryByCategoriesIds($builder, $params['categoryId']);
         }
 
-        return $qb;
+        return $builder;
     }
 
     /**
@@ -521,17 +557,20 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      */
     protected function updateQueryByCategoriesIds(QueryBuilder $queryBuilder, array $categoryIds): void
     {
-        if (count($categoryIds) == 0) {
+        if (0 === count($categoryIds)) {
             return;
         }
 
         $categoriesOrX = $queryBuilder->expr()->orX();
+
         $i = 0;
         foreach ($categoryIds as $categoryId) {
             $categoriesOrX->add($queryBuilder->expr()->like('cast(c.categories as text)', ':categories'.$i));
             $queryBuilder->setParameter('categories'.$i, '%'.$categoryId.'%');
+
             ++$i;
         }
+
         $queryBuilder->andWhere($categoriesOrX);
     }
 
@@ -540,10 +579,13 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      */
     public function getActiveCampaigns(): array
     {
-        $qb = $this->createQueryBuilder('c')
-            ->andWhere('c.active = :active')
-            ->setParameter('active', true);
+        $builder = $this->createQueryBuilder('c');
 
-        return $qb->getQuery()->getResult();
+        $builder
+            ->andWhere('c.active = :active')
+            ->setParameter('active', true)
+        ;
+
+        return $builder->getQuery()->getResult();
     }
 }

@@ -1691,7 +1691,9 @@ Definition
 | perPage                             | query          | *(optional)* Number of items to display per page, |
 |                                     |                | by default = 10                                   |
 +-------------------------------------+----------------+---------------------------------------------------+
-| sort                                | query          | *(optional)* Sort by column name                  |
+| sort                                | query          | *(optional)* Sort by column name. Also available  |
+|                                     |                | to sort by child fields like                      |
+|                                     |                | `campaignVisibility.visibleFrom`                  |
 +-------------------------------------+----------------+---------------------------------------------------+
 | direction                           | query          | *(optional)* Direction of sorting [ASC, DESC],    |
 |                                     |                | by default = ASC                                  |

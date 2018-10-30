@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -19,7 +19,7 @@ trait SortFilter
      *
      * @return string
      */
-    public function validateSort(string $sortField)
+    public function validateSort(string $sortField): string
     {
         $entityManager = $this->getEntityManager();
         $metadata = $entityManager->getClassMetadata($this->getClassName());

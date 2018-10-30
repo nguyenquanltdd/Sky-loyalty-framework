@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -864,11 +864,11 @@ class CampaignController extends FOSRestController
      *     name="campaign visible for customers",
      *     section="Campaign",
      *     parameters={
-     *      {"name"="page", "dataType"="integer", "required"=false, "description"="Page number"},
-     *      {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
-     *      {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
-     *      {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
-     *      {"name"="format", "dataType"="html|raw", "required"=false, "description"="If set to html, the descriptions will be in HTML format. Omit for raw output."},
+     *          {"name"="page", "dataType"="integer", "required"=false, "description"="Page number"},
+     *          {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
+     *          {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
+     *          {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
+     *          {"name"="format", "dataType"="html|raw", "required"=false, "description"="If set to html, the descriptions will be in HTML format. Omit for raw output."},
      *     }
      * )
      *
@@ -883,22 +883,31 @@ class CampaignController extends FOSRestController
     {
         $paginator = $this->paginator->handleFromRequest($request);
 
-        $customers = array_values($this->campaignProvider->visibleForCustomers($campaign));
+        $visibleCampaigns = array_values($this->campaignProvider->visibleForCustomers($campaign));
 
-        $res = [];
-        foreach ($customers as $id) {
-            $tmp = $this->customerDetailsRepository->find($id);
-            if ($tmp instanceof CustomerDetails) {
-                $res[] = $tmp;
+        $customers = [];
+
+        foreach ($visibleCampaigns as $visibleCampaignId) {
+            $customerDetails = $this->customerDetailsRepository->find($visibleCampaignId);
+
+            if (!$customerDetails instanceof CustomerDetails) {
+                continue;
             }
-        }
-        $total = count($res);
-        $res = array_slice($res, ($paginator->getPage() - 1) * $paginator->getPerPage(), $paginator->getPerPage());
 
-        return $this->view([
-            'customers' => $res,
-            'total' => $total,
-        ]);
+            $customers[] = $customerDetails;
+        }
+
+        $total = count($customers);
+
+        $customers = array_slice($customers, ($paginator->getPage() - 1) * $paginator->getPerPage(), $paginator->getPerPage());
+
+        return $this->view(
+            [
+                'customers' => $customers,
+                'total' => $total,
+            ],
+            Response::HTTP_OK
+        );
     }
 
     /**
@@ -939,47 +948,45 @@ class CampaignController extends FOSRestController
         $paginator = $this->paginator->handleFromRequest($request);
 
         $categoryIds = $request->query->get('categoryId', []);
-        $customerSegments = $this->segmentedCustomersRepository
-            ->findBy(['customerId' => $customer->getId()]);
-        $segments = array_map(
-            function (SegmentedCustomers $segmentedCustomers) {
-                return new SegmentId((string) $segmentedCustomers->getSegmentId());
-            },
-            $customerSegments
-        );
 
-        $campaigns = $this->campaignRepository
-            ->getVisibleCampaignsForLevelAndSegment(
-                $segments,
-                $customer->getLevelId() ? new LevelId((string) $customer->getLevelId()) : null,
-                $categoryIds,
-                null,
-                null,
-                $paginator->getSort(),
-                $paginator->getSortDirection(),
-                [
-                    'featured' => $request->query->get('isFeatured'),
-                    'isPublic' => $request->query->get('isPublic'),
-                ]
-            );
+        $customerSegments = $this->segmentedCustomersRepository->findBy(['customerId' => $customer->getId()]);
+
+        $segments = array_map(function (SegmentedCustomers $segmentedCustomers): SegmentId {
+            return new SegmentId((string) $segmentedCustomers->getSegmentId());
+        }, $customerSegments);
+
+        $campaigns = $this->campaignRepository->getVisibleCampaignsForLevelAndSegment(
+            $segments,
+            $customer->getLevelId() ? new LevelId((string) $customer->getLevelId()) : null,
+            $categoryIds,
+            null,
+            null,
+            $paginator->getSort(),
+            $paginator->getSortDirection(),
+            [
+                'featured' => $request->query->get('isFeatured'),
+                'isPublic' => $request->query->get('isPublic'),
+            ]
+        );
 
         // filter by segment exclusiveness
         $mustHaveSegments = $request->query->get('hasSegment', null);
+
         if (null !== $mustHaveSegments) {
-            $campaigns = array_filter($campaigns, function (DomainCampaign $campaign) use ($mustHaveSegments) {
+            $campaigns = array_filter($campaigns, function (DomainCampaign $campaign) use ($mustHaveSegments): bool {
                 return $mustHaveSegments ? $campaign->hasSegments() : !$campaign->hasSegments();
             });
         }
 
         // filter by usage left
-        $campaigns = array_filter($campaigns, function (DomainCampaign $campaign) use ($customer) {
-            if ($campaign->getReward() == Campaign::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE) {
+        $campaigns = array_filter($campaigns, function (DomainCampaign $campaign) use ($customer): bool {
+            if ($campaign->getReward() === Campaign::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE) {
                 // Custom campaign not have to check usage left
                 return true;
             }
+
             $usageLeft = $this->campaignProvider->getUsageLeft($campaign);
-            $usageLeftForCustomer = $this->campaignProvider
-                ->getUsageLeftForCustomer($campaign, $customer->getId());
+            $usageLeftForCustomer = $this->campaignProvider->getUsageLeftForCustomer($campaign, $customer->getId());
 
             return $usageLeft > 0 && $usageLeftForCustomer > 0;
         });
@@ -999,10 +1006,8 @@ class CampaignController extends FOSRestController
         $context = new Context();
         $context->setGroups(['Default']);
         $context->setAttribute('customerId', $customer->getId());
-        $context->setAttribute(
-            FOSContextProvider::OUTPUT_FORMAT_ATTRIBUTE_NAME,
-            $request->get('format')
-        );
+        $context->setAttribute(FOSContextProvider::OUTPUT_FORMAT_ATTRIBUTE_NAME, $request->get('format'));
+
         $view->setContext($context);
 
         return $view;
@@ -1019,8 +1024,8 @@ class CampaignController extends FOSRestController
      *     name="buy campaign for customer",
      *     section="Campaign",
      *     statusCodes={
-     *       200="Returned when successful",
-     *       400="With error 'No coupons left' returned when campaign cannot be bought because of lack of coupons. With error 'Not enough points' returned when campaign cannot be bought because of not enough points on customer account. With empty error returned when campaign limits exceeded."
+     *          200="Returned when successful",
+     *          400="With error 'No coupons left' returned when campaign cannot be bought because of lack of coupons. With error 'Not enough points' returned when campaign cannot be bought because of not enough points on customer account. With empty error returned when campaign limits exceeded."
      *     }
      * )
      *

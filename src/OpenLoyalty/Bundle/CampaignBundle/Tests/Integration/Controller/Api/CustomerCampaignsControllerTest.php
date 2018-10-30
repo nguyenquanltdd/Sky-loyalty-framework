@@ -70,7 +70,7 @@ class CustomerCampaignsControllerTest extends BaseApiTest
         $campaigns = $customerDetails->getCampaignPurchases();
         $found = false;
         foreach ($campaigns as $campaignPurchase) {
-            if ($campaignPurchase->getCampaignId()->__toString() == LoadCampaignData::CAMPAIGN_ID) {
+            if ((string) $campaignPurchase->getCampaignId() === LoadCampaignData::CAMPAIGN_ID) {
                 $found = true;
                 break;
             }
@@ -307,23 +307,24 @@ class CustomerCampaignsControllerTest extends BaseApiTest
         $this->loadCashbackData(true);
 
         $client = $this->createAuthenticatedClient(LoadUserData::TEST_USERNAME, LoadUserData::TEST_PASSWORD, 'customer');
-        $client->request(
-            'GET',
-            '/api/customer/campaign/available'
-        );
+        $client->request('GET', '/api/customer/campaign/available');
 
         $response = $client->getResponse();
         $content = json_decode($response->getContent(), true);
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        $this->assertOkResponseStatus($response);
         $this->assertArrayHasKey('campaigns', $content, 'Response should have campaigns');
+
         $data = $content['campaigns'];
+
         $cashbackCounter = 0;
         foreach ($data as $item) {
             if ($item['reward'] === Campaign::REWARD_TYPE_CASHBACK) {
                 ++$cashbackCounter;
             }
         }
-        $this->assertEquals($cashbackCounter, 1, 'Value should be 1');
+
+        $this->assertEquals(0, $cashbackCounter, 'Value should be 1');
 
         $this->loadCashbackData();
     }

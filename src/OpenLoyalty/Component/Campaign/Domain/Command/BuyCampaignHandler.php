@@ -64,6 +64,7 @@ class BuyCampaignHandler extends SimpleCommandHandler
 
     public function handleBuyCampaign(BuyCampaign $command): void
     {
+        /** @var Campaign $campaign */
         $campaign = $this->campaignRepository->byId($command->getCampaignId());
 
         $status = CampaignPurchase::STATUS_ACTIVE;

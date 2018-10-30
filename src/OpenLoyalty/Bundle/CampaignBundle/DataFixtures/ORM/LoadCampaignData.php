@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -49,20 +49,18 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaignCategory->setActive(true);
         $campaignCategory->setSortOrder(0);
 
-        $this->container->get('broadway.command_handling.command_bus')
-            ->dispatch(
-                new CreateCampaignCategory(new CampaignCategoryId(self::CAMPAIGN_CATEGORY1_ID), $campaignCategory->toArray())
-            );
+        $this->container->get('broadway.command_handling.command_bus')->dispatch(
+            new CreateCampaignCategory(new CampaignCategoryId(self::CAMPAIGN_CATEGORY1_ID), $campaignCategory->toArray())
+        );
 
         $campaignCategory = new CampaignCategory();
         $campaignCategory->setName('Category B');
         $campaignCategory->setActive(true);
         $campaignCategory->setSortOrder(0);
 
-        $this->container->get('broadway.command_handling.command_bus')
-            ->dispatch(
-                new CreateCampaignCategory(new CampaignCategoryId(self::CAMPAIGN_CATEGORY2_ID), $campaignCategory->toArray())
-            );
+        $this->container->get('broadway.command_handling.command_bus')->dispatch(
+            new CreateCampaignCategory(new CampaignCategoryId(self::CAMPAIGN_CATEGORY2_ID), $campaignCategory->toArray())
+        );
 
         $campaign = new Campaign();
         $campaign->setActive(true);
@@ -100,10 +98,9 @@ class LoadCampaignData extends ContainerAwareFixture
             new CampaignCategoryId(self::CAMPAIGN_CATEGORY2_ID),
         ]);
 
-        $this->container->get('broadway.command_handling.command_bus')
-            ->dispatch(
-                new CreateCampaign(new CampaignId(self::CAMPAIGN_ID), $campaign->toArray())
-            );
+        $this->container->get('broadway.command_handling.command_bus')->dispatch(
+            new CreateCampaign(new CampaignId(self::CAMPAIGN_ID), $campaign->toArray())
+        );
 
         $campaign = new Campaign();
         $campaign->setActive(false);
@@ -131,10 +128,9 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaignVisibility->setVisibleTo(new \DateTime('2037-01-01'));
         $campaign->setCampaignVisibility($campaignVisibility);
 
-        $this->container->get('broadway.command_handling.command_bus')
-            ->dispatch(
-                new CreateCampaign(new CampaignId(self::CAMPAIGN2_ID), $campaign->toArray())
-            );
+        $this->container->get('broadway.command_handling.command_bus')->dispatch(
+            new CreateCampaign(new CampaignId(self::CAMPAIGN2_ID), $campaign->toArray())
+        );
 
         $campaign = new Campaign();
         $campaign->setReward(Campaign::REWARD_TYPE_CASHBACK);
@@ -157,10 +153,9 @@ class LoadCampaignData extends ContainerAwareFixture
             ]
         );
 
-        $this->container->get('broadway.command_handling.command_bus')
-                        ->dispatch(
-                            new CreateCampaign(new CampaignId(self::CAMPAIGN3_ID), $campaign->toArray())
-                        );
+        $this->container->get('broadway.command_handling.command_bus')->dispatch(
+            new CreateCampaign(new CampaignId(self::CAMPAIGN3_ID), $campaign->toArray())
+        );
 
         $campaign = new Campaign();
         $campaign->setReward(Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE);
@@ -182,18 +177,18 @@ class LoadCampaignData extends ContainerAwareFixture
             new CampaignCategoryId(self::CAMPAIGN_CATEGORY2_ID),
         ]);
 
-        $this->container->get('broadway.command_handling.command_bus')
-            ->dispatch(
-                new CreateCampaign(new CampaignId(self::PERCENTAGE_COUPON_CAMPAIGN_ID), $campaign->toArray())
-            );
-        $this->container->get('broadway.command_handling.command_bus')
-            ->dispatch(
-                new CreateCampaign(new CampaignId(self::INACTIVE_CAMPAIGN_ID), $this->getInactiveCampaignData()->toArray())
-            );
-        $this->container->get('broadway.command_handling.command_bus')
-            ->dispatch(
-                new CreateCampaign(new CampaignId(self::CUSTOM_CAMPAIGN_ID), $this->getCustomCampaignData()->toArray())
-            );
+        $this->container->get('broadway.command_handling.command_bus')->dispatch(
+            new CreateCampaign(new CampaignId(self::PERCENTAGE_COUPON_CAMPAIGN_ID), $campaign->toArray())
+        );
+
+        $this->container->get('broadway.command_handling.command_bus')->dispatch(
+            new CreateCampaign(new CampaignId(self::INACTIVE_CAMPAIGN_ID), $this->getInactiveCampaignData()->toArray())
+        );
+
+        $this->container->get('broadway.command_handling.command_bus')->dispatch(
+            new CreateCampaign(new CampaignId(self::CUSTOM_CAMPAIGN_ID), $this->getCustomCampaignData()->toArray())
+        );
+
         $this->loadRandomActiveCampaigns();
     }
 
@@ -202,7 +197,6 @@ class LoadCampaignData extends ContainerAwareFixture
      */
     protected function loadRandomActiveCampaigns()
     {
-        $commandBus = $this->container->get('broadway.command_handling.command_bus');
         for ($i = 0; $i < 12; ++$i) {
             $randomId = Uuid::uuid();
             $campaign = new Campaign();
@@ -229,10 +223,9 @@ class LoadCampaignData extends ContainerAwareFixture
             $campaign->setCampaignVisibility($campaignVisibility);
             $campaign->setFeatured(true);
 
-            $commandBus
-                ->dispatch(
-                    new CreateCampaign(new CampaignId($randomId), $campaign->toArray())
-                );
+            $this->container->get('broadway.command_handling.command_bus')->dispatch(
+                new CreateCampaign(new CampaignId($randomId), $campaign->toArray())
+            );
         }
     }
 

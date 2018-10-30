@@ -62,15 +62,19 @@ class CampaignControllerAccessTest extends BaseAccessControlTest
     {
         static::bootKernel();
         $provider = $this->getMockBuilder(CampaignProvider::class)->disableOriginalConstructor()->getMock();
-        $provider->method('visibleForCustomers')->with($this->isInstanceOf(Campaign::class))
-            ->will($this->returnCallback(function (Campaign $campaign) {
-                if ($campaign->getCampaignId()->__toString() == LoadCampaignData::CAMPAIGN_ID) {
+        $provider
+            ->method('visibleForCustomers')
+            ->with($this->isInstanceOf(Campaign::class))
+            ->will($this->returnCallback(function (Campaign $campaign): array {
+                if ((string) $campaign->getCampaignId() === LoadCampaignData::CAMPAIGN_ID) {
                     return [LoadUserData::USER_USER_ID];
                 }
-                if ($campaign->getCampaignId()->__toString() == LoadCampaignData::CAMPAIGN2_ID) {
+
+                if ((string) $campaign->getCampaignId() === LoadCampaignData::CAMPAIGN2_ID) {
                     return [];
                 }
-            }));
+            }))
+        ;
 
         $customerClient = $this->getCustomerClient();
         static::$kernel->getContainer()->set(CampaignProvider::class, $provider);

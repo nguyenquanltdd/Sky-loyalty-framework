@@ -1,4 +1,8 @@
 <?php
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 
 namespace OpenLoyalty\Bundle\CoreBundle\Tests\Integration;
 
@@ -8,6 +12,7 @@ use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class BaseApiTest.
@@ -84,14 +89,17 @@ abstract class BaseApiTest extends WebTestCase
      *
      * @return float
      */
-    protected function getCustomerPoints(Client $client, $customerId)
+    protected function getCustomerPoints(Client $client, string $customerId): float
     {
         $client->request(
             'GET',
             '/api/customer/'.$customerId.'/status'
         );
+
         $response = $client->getResponse();
+
         $data = json_decode($response->getContent(), true);
+
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('points', $data);
 
@@ -103,13 +111,15 @@ abstract class BaseApiTest extends WebTestCase
      *
      * @return string
      */
-    protected function getActivateTokenForCustomer($customerEmail)
+    protected function getActivateTokenForCustomer($customerEmail): string
     {
-        $em = static::$kernel->getContainer()->get('doctrine.orm.default_entity_manager');
-        $activateToken = $em
+        $entityManager = static::$kernel->getContainer()->get('doctrine.orm.default_entity_manager');
+
+        $activateToken = $entityManager
             ->getRepository('OpenLoyaltyUserBundle:Customer')
             ->findOneBy(['email' => $customerEmail])
-            ->getActionToken();
+            ->getActionToken()
+        ;
 
         return $activateToken;
     }
@@ -119,10 +129,11 @@ abstract class BaseApiTest extends WebTestCase
      *
      * @return null|Customer
      */
-    protected function getCustomerEntity($customerId)
+    protected function getCustomerEntity($customerId): ?Customer
     {
-        $customer = static::$kernel->getContainer()->get('doctrine.orm.entity_manager')
-            ->getRepository('OpenLoyaltyUserBundle:Customer')->find($customerId);
+        $entityManager = static::$kernel->getContainer()->get('doctrine.orm.entity_manager');
+
+        $customer = $entityManager->getRepository('OpenLoyaltyUserBundle:Customer')->find($customerId);
 
         return $customer;
     }
@@ -132,11 +143,20 @@ abstract class BaseApiTest extends WebTestCase
      *
      * @return null|Admin
      */
-    protected function getAdminEntity(string $adminId)
+    protected function getAdminEntity(string $adminId): ?Admin
     {
-        $admin = static::$kernel->getContainer()->get('doctrine.orm.entity_manager')
-            ->getRepository('OpenLoyaltyUserBundle:Admin')->find($adminId);
+        $entityManager = static::$kernel->getContainer()->get('doctrine.orm.entity_manager');
+
+        $admin = $entityManager->getRepository('OpenLoyaltyUserBundle:Admin')->find($adminId);
 
         return $admin;
+    }
+
+    /**
+     * @param Response $response
+     */
+    protected function assertOkResponseStatus(Response $response): void
+    {
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
     }
 }
