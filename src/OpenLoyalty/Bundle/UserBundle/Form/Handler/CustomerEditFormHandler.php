@@ -170,7 +170,7 @@ class CustomerEditFormHandler
             $this->commandBus->dispatch($updateCompanyDataCommand);
         }
 
-        if (isset($customerData['loyaltyCardNumber'])) {
+        if (array_key_exists('loyaltyCardNumber', $customerData)) {
             $loyaltyCardCommand = new UpdateCustomerLoyaltyCardNumber(
                 $customerId,
                 $customerData['loyaltyCardNumber']

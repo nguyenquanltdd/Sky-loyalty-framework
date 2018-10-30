@@ -31,15 +31,22 @@ parameters:
     mailer_from_address: open@oloy.com
     mailer_from_name: open@oloy.com
 
-    frontend_password_reset_url: '%env(frontend_password_reset_url)%'
+    admin_url: '%env(admin_url)%'
+    customer_url: '%env(customer_url)%'
+    merchant_url: '%env(merchant_url)%'
+    reset_password_url: '%env(reset_password_url)%'
     frontend_activate_account_url: '%env(frontend_activate_account_url)%'
     frontend_customer_panel_url: '%env(frontend_customer_panel_url)%'
     frontend_invitation_url: '%env(frontend_invitation_url)%'
 
-    env(frontend_password_reset_url): 'localhost:8182/#!/password/reset'
+    env(admin_url): 'http://localhost:8182/'
+    env(customer_url): 'http://localhost:8183/'
+    env(merchant_url): 'http://localhost:8184/'
+    env(reset_password_url): '#!/password/reset'
     env(frontend_activate_account_url): '#!/customer/panel/customer/registration/activate'
     env(frontend_invitation_url): '#!/register/'
-    env(frontend_customer_panel_url): 'http://localhost:8183/'
+    env(frontend_customer_panel_url): '%env(customer_url)%'
+
     loyalty_program_name: OpenLoyalty
     ecommerce_address: http://ecommerce.local
 

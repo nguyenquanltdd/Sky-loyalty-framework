@@ -186,7 +186,7 @@ class CustomerDetailsProjector extends Projector
         if (!empty($data['gender'])) {
             $readModel->setGender(new Gender($data['gender']));
         }
-        if (!empty($data['birthDate'])) {
+        if (array_key_exists('birthDate', $data)) {
             $readModel->setBirthDate($data['birthDate']);
         }
 

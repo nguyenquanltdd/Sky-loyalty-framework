@@ -214,7 +214,7 @@ class Campaign
             $this->reward = $data['reward'];
         }
 
-        if (isset($data['moreInformationLink'])) {
+        if (array_key_exists('moreInformationLink', $data)) {
             $this->moreInformationLink = $data['moreInformationLink'];
         }
 

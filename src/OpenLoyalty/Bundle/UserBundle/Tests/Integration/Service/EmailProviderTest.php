@@ -4,6 +4,9 @@ namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Service;
 
 use OpenLoyalty\Bundle\EmailBundle\Model\MessageInterface;
 use OpenLoyalty\Bundle\EmailBundle\Service\MessageFactoryInterface;
+use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
+use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
+use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
 use OpenLoyalty\Bundle\EmailBundle\Mailer\OloyMailer;
 use OpenLoyalty\Bundle\UserBundle\Service\EmailProvider;
@@ -52,7 +55,10 @@ class EmailProviderTest extends \PHPUnit_Framework_TestCase
         $this->parameters = [
             'from_address' => 'from@mail.com',
             'from_name' => 'from name',
-            'password_reset_url' => 'http://url.test/pass/reset',
+            'reset_password_url' => 'reset_password_url',
+            'admin_url' => 'admin_url',
+            'customer_url' => 'customer_url',
+            'merchant_url' => 'merchant_url',
             'loyalty_program_name' => 'Test program',
             'ecommerce_address' => 'http://ecommerce.test',
             'customer_panel_url' => 'http://customer.panel',
@@ -128,17 +134,40 @@ class EmailProviderTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @dataProvider getResetPasswordDataProvider
+     *
+     * @param string $userClass
+     * @param string $resetUrl
      */
-    public function it_sends_password_reset_email()
+    public function it_sends_password_reset_email(string $userClass, string $resetUrl): void
     {
-        $user = $this->getUserMock();
+        /** @var PHPUnit_Framework_MockObject_MockObject|User $user */
+        $user = $this->getMockBuilder($userClass)->disableOriginalConstructor()->getMock();
         $user->expects($this->atLeastOnce())->method('getEmail')->willReturn('user@example.com');
         $user->expects($this->atLeastOnce())->method('getConfirmationToken')->willReturn('1234');
 
         $emailProvider = $this->getEmailProviderMock(['sendMessage']);
-        $emailProvider->expects($this->once())->method('sendMessage');
+        $emailProvider->expects($this->once())->method('sendMessage')->with(
+            'Password reset requested',
+            'user@example.com',
+            'OpenLoyaltyUserBundle:email:password_reset.html.twig',
+            [
+                'program_name' => 'Test program',
+                'url_reset_password' => $resetUrl.'/1234',
+            ]
+        );
 
         $emailProvider->resettingPasswordMessage($user);
+    }
+
+    public function getResetPasswordDataProvider()
+    {
+        return [
+            [Admin::class, 'admin_urlreset_password_url'],
+            [Customer::class, 'customer_urlreset_password_url'],
+            [Seller::class, 'merchant_urlreset_password_url'],
+            [User::class, 'admin_urlreset_password_url'],
+        ];
     }
 
     /**
