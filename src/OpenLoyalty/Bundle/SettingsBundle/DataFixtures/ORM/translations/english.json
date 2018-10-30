@@ -287,6 +287,7 @@
     },
     "global": {
       "errors": {
+        "this_checkbox_is_required": "This checkbox is required",
         "invalid_jwt_token": "Error! Invalid token",
         "not_found": "Error! No data was found"
       }
@@ -360,6 +361,11 @@
       }
     },
     "homepage": {
+      "terms_popup": {
+        "button_text": "Go to loyalty program",
+        "title": "Please accept terms and conditions of the loyalty program",
+        "description": "If you want to join our loyalty program you must accept our terms and conditions. Your data will be used only for the purpose of the loyalty program."
+      },
       "headline": "Sell products, earn points and redeem rewards",
       "subtitle": "Loyalty program for partners and resellers",
       "earning_points_rules": {

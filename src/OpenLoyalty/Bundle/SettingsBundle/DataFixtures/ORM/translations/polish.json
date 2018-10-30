@@ -301,6 +301,7 @@
     },
     "global": {
       "errors": {
+        "this_checkbox_is_required": "To pole jest wymagane",
         "invalid_jwt_token": "Błąd! Nieprawidłowy token",
         "not_found": "Błąd! Nie znaleziono informacji na serwerze"
       }
@@ -383,6 +384,11 @@
       }
     },
     "homepage": {
+      "terms_popup": {
+        "button_text": "Przejdź do programu lojalnościowego",
+        "title": "Potwierdź warunki programu lojalnościowego",
+        "description": "Jeśli chcesz dołączyć do programu lojalnościowego musisz zaakceptować jego warunki i regulamin. Twoje dane zostaną wykorzystane wyłącznie na potrzeby programu lojalnościowego."
+      },
       "headline": "Sprzedawaj, zarabiaj punkty i odbieraj nagrody!",
       "subtitle": "Program motywacyjny",
       "earning_points_rules": {
