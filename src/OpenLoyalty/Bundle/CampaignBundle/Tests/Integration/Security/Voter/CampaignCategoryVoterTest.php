@@ -33,7 +33,7 @@ class CampaignCategoryVoterTest extends BaseVoterTest
 
         $voter = new CampaignCategoryVoter();
 
-        $this->makeAssertions($attributes, $voter);
+        $this->assertVoterAttributes($voter, $attributes);
 
         $this->assertEquals(true, $voter->vote($this->getCustomerToken(), $this->getSubjectById(self::CAMPAIGN_CATEGORY_ID), [CampaignVoter::VIEW]));
     }

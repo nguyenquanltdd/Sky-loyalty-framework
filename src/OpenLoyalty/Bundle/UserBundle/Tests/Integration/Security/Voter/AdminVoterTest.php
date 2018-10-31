@@ -1,5 +1,8 @@
 <?php
-
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Security\Voter;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
@@ -15,7 +18,7 @@ class AdminVoterTest extends BaseVoterTest
     /**
      * @test
      */
-    public function it_works()
+    public function it_works(): void
     {
         $attributes = [
             AdminVoter::VIEW => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => ''],
@@ -24,7 +27,7 @@ class AdminVoterTest extends BaseVoterTest
 
         $voter = new AdminVoter();
 
-        $this->makeAssertions($attributes, $voter);
+        $this->assertVoterAttributes($voter, $attributes);
     }
 
     protected function getSubjectById($id)

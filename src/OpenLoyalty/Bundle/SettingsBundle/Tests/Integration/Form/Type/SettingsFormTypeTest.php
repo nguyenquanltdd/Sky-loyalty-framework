@@ -59,6 +59,7 @@ class SettingsFormTypeTest extends TypeTestCase
 
     protected $booleanEntries = [
         'returns' => true,
+        'allowCustomersProfileEdits' => true,
         'allTimeNotLocked' => true,
         'excludeDeliveryCostsFromTierAssignment' => true,
         'webhooks' => false,

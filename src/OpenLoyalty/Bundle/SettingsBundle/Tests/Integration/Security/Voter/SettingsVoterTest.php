@@ -23,7 +23,7 @@ class SettingsVoterTest extends BaseVoterTest
 
         $voter = new SettingsVoter();
 
-        $this->makeAssertions($attributes, $voter);
+        $this->assertVoterAttributes($voter, $attributes);
     }
 
     protected function getSubjectById($id)

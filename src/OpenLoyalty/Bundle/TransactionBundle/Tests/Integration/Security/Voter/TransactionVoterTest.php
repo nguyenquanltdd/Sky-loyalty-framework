@@ -1,5 +1,8 @@
 <?php
-
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Bundle\TransactionBundle\Tests\Integration\Security\Voter;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
@@ -33,17 +36,24 @@ class TransactionVoterTest extends BaseVoterTest
             TransactionVoter::APPEND_LABELS_TO_TRANSACTION => ['seller' => false, 'customer' => true, 'admin' => false, 'id' => self::TRANSACTION2_ID],
             TransactionVoter::LIST_ITEM_LABELS => ['seller' => true, 'customer' => true, 'admin' => true],
         ];
-        $repo = $this->getMockBuilder(SellerDetailsRepository::class)->getMock();
-        $repo->method('find')->with($this->isType('string'))->willReturn(null);
-        $voter = new TransactionVoter($repo);
 
-        $this->makeAssertions($attributes, $voter);
+        /** @var SellerDetailsRepository|\PHPUnit_Framework_MockObject_MockObject $sellerDetailsRepositoryMock */
+        $sellerDetailsRepositoryMock = $this->getMockBuilder(SellerDetailsRepository::class)->getMock();
+        $sellerDetailsRepositoryMock
+            ->method('find')
+            ->with($this->isType('string'))
+            ->willReturn(null)
+        ;
+
+        $voter = new TransactionVoter($sellerDetailsRepositoryMock);
+
+        $this->assertVoterAttributes($voter, $attributes);
 
         $attributes = [
             TransactionVoter::VIEW => ['seller' => true, 'customer' => true, 'admin' => true, 'id' => self::TRANSACTION2_ID],
         ];
 
-        $this->makeAssertions($attributes, $voter);
+        $this->assertVoterAttributes($voter, $attributes);
     }
 
     protected function getSubjectById($id)

@@ -1889,6 +1889,8 @@
       "automatic": "automatycznie",
       "reset_points": "resetuj punkty"
     },
+    "allow_customers_profile_edits": "Pozwalaj użytkownikom na edycję swojego profilu",
+    "allow_customers_profile_edits_prompt": "Pozwalaj",
     "point_will_expire_after": "Metoda wygaśnięcia punktów",
     "at_the_end_of_the_year": "Punkty wygasną na koniec roku",
     "after_x_days": "Punkty wygasną po X dniach",

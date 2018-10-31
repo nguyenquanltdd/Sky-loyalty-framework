@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -10,6 +10,7 @@ use OpenLoyalty\Bundle\TransactionBundle\Model\AppendLabels;
 use OpenLoyalty\Component\Transaction\Domain\Command\AppendLabelsToTransaction;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
+use OpenLoyalty\Component\Transaction\Domain\TransactionId;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
@@ -23,39 +24,39 @@ class AppendLabelsToTransactionFormHandler
     /**
      * @var TransactionDetailsRepository
      */
-    protected $transactionDetailsRepository;
+    private $transactionDetailsRepository;
 
     /**
      * @var CommandBus
      */
-    protected $commandBus;
+    private $commandBus;
 
     /**
      * @var AuthorizationChecker
      */
-    protected $ac;
+    private $authorizationChecker;
 
     /**
      * ManuallyAssignCustomerToTransactionFormHandler constructor.
      *
      * @param TransactionDetailsRepository $transactionDetailsRepository
      * @param CommandBus                   $commandBus
-     * @param AuthorizationChecker         $ac
+     * @param AuthorizationChecker         $authorizationChecker
      */
     public function __construct(
         TransactionDetailsRepository $transactionDetailsRepository,
         CommandBus $commandBus,
-        AuthorizationChecker $ac
+        AuthorizationChecker $authorizationChecker
     ) {
         $this->transactionDetailsRepository = $transactionDetailsRepository;
         $this->commandBus = $commandBus;
-        $this->ac = $ac;
+        $this->authorizationChecker = $authorizationChecker;
     }
 
     /**
      * @param FormInterface $form
      *
-     * @return bool|\OpenLoyalty\Component\Transaction\Domain\TransactionId
+     * @return bool|TransactionId
      */
     public function onSuccess(FormInterface $form)
     {
@@ -65,24 +66,23 @@ class AppendLabelsToTransactionFormHandler
         $documentNumber = $data->getTransactionDocumentNumber();
 
         $transactions = $this->transactionDetailsRepository->findBy(['documentNumberRaw' => $documentNumber]);
-        if (count($transactions) == 0) {
+        if (0 === count($transactions)) {
             $form->get('transactionDocumentNumber')->addError(new FormError('No such transaction'));
 
             return false;
         }
+
         /** @var TransactionDetails $transaction */
         $transaction = reset($transactions);
 
-        if (!$this->ac->isGranted('APPEND_LABELS_TO_TRANSACTION', $transaction)) {
+        if (false === $this->authorizationChecker->isGranted('APPEND_LABELS_TO_TRANSACTION', $transaction)) {
             throw new AccessDeniedException();
         }
 
-        $this->commandBus->dispatch(
-            new AppendLabelsToTransaction(
-                $transaction->getTransactionId(),
-                $data->getLabels()
-            )
-        );
+        $this->commandBus->dispatch(new AppendLabelsToTransaction(
+            $transaction->getTransactionId(),
+            $data->getLabels()
+        ));
 
         return $transaction->getTransactionId();
     }

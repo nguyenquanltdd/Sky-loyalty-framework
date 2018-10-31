@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -18,28 +18,52 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
  */
 abstract class BaseVoterTest extends \PHPUnit_Framework_TestCase
 {
-    const USER_ID = '00000000-0000-474c-b092-b0dd880c07e1';
+    protected const USER_ID = '00000000-0000-474c-b092-b0dd880c07e1';
 
-    protected function getAdminToken()
+    /**
+     * @return UsernamePasswordToken
+     */
+    protected function getAdminToken(): UsernamePasswordToken
     {
-        $admin = $this->getMockBuilder(Admin::class)->disableOriginalConstructor()->getMock();
-        $admin->method('hasRole')->with($this->isType('string'))->will($this->returnCallback(function ($role) {
-            return $role == 'ROLE_ADMIN';
-        }));
-        $admin->method('getId')->willReturn(LoadAdminData::ADMIN_ID);
+        $adminMock = $this->createMock(Admin::class);
+        $adminMock
+            ->method('hasRole')
+            ->with($this->isType('string'))
+            ->will($this->returnCallback(
+                function (string $role): bool {
+                    return $role === 'ROLE_ADMIN';
+                }
+            ))
+        ;
+        $adminMock
+            ->method('getId')
+            ->willReturn(LoadAdminData::ADMIN_ID)
+        ;
 
-        return new UsernamePasswordToken($admin, '', 'some_empty_string');
+        return new UsernamePasswordToken($adminMock, '', 'some_empty_string');
     }
 
-    protected function getCustomerToken()
+    /**
+     * @return UsernamePasswordToken
+     */
+    protected function getCustomerToken(): UsernamePasswordToken
     {
-        $customer = $this->getMockBuilder(Customer::class)->disableOriginalConstructor()->getMock();
-        $customer->method('hasRole')->with($this->isType('string'))->will($this->returnCallback(function ($role) {
-            return $role == 'ROLE_PARTICIPANT';
-        }));
-        $customer->method('getId')->willReturn(self::USER_ID);
+        $customerMock = $this->createMock(Customer::class);
+        $customerMock
+            ->method('hasRole')
+            ->with($this->isType('string'))
+            ->will($this->returnCallback(
+                function (string $role): bool {
+                    return $role === 'ROLE_PARTICIPANT';
+                }
+            ))
+        ;
+        $customerMock
+            ->method('getId')
+            ->willReturn(self::USER_ID)
+        ;
 
-        return new UsernamePasswordToken($customer, '', 'some_empty_string');
+        return new UsernamePasswordToken($customerMock, '', 'some_empty_string');
     }
 
     /**
@@ -49,39 +73,51 @@ abstract class BaseVoterTest extends \PHPUnit_Framework_TestCase
      */
     protected function getSellerToken(bool $isAllowedPointTransfer = false): UsernamePasswordToken
     {
-        $seller = $this->getMockBuilder(Seller::class)->disableOriginalConstructor()->getMock();
-        $seller->method('hasRole')->with($this->isType('string'))->will($this->returnCallback(function ($role) {
-            return $role == 'ROLE_SELLER';
-        }));
+        $sellerMock = $this->createMock(Seller::class);
+        $sellerMock
+            ->method('hasRole')
+            ->with($this->isType('string'))
+            ->will($this->returnCallback(
+                function (string $role): string {
+                    return $role === 'ROLE_SELLER';
+                }
+            ))
+        ;
+        $sellerMock
+            ->method('getId')
+            ->willReturn(self::USER_ID)
+        ;
+        $sellerMock
+            ->method('isAllowPointTransfer')
+            ->willReturn($isAllowedPointTransfer)
+        ;
 
-        $seller->method('getId')->willReturn(self::USER_ID);
-        $seller->method('isAllowPointTransfer')->willReturn($isAllowedPointTransfer);
-
-        return new UsernamePasswordToken($seller, '', 'some_empty_string');
+        return new UsernamePasswordToken($sellerMock, '', 'some_empty_string');
     }
 
     /**
-     * @param $attributes
-     * @param $voter
+     * @param Voter $voter
+     * @param array $attributes
      */
-    protected function makeAssertions($attributes, Voter $voter)
+    protected function assertVoterAttributes(Voter $voter, array $attributes): void
     {
-        foreach ($attributes as $attr => $params) {
+        foreach ($attributes as $attribute => $params) {
             $subject = isset($params['id']) ? $this->getSubjectById($params['id']) : null;
+
             $this->assertEquals(
                 $params['customer'] ? VoterInterface::ACCESS_GRANTED : VoterInterface::ACCESS_DENIED,
-                $voter->vote($this->getCustomerToken(), $subject, [$attr]),
-                $attr.' - customer'
+                $voter->vote($this->getCustomerToken(), $subject, [$attribute]),
+                $attribute.' - customer'
             );
             $this->assertEquals(
                 $params['admin'] ? VoterInterface::ACCESS_GRANTED : VoterInterface::ACCESS_DENIED,
-                $voter->vote($this->getAdminToken(), $subject, [$attr]),
-                $attr.' - admin'
+                $voter->vote($this->getAdminToken(), $subject, [$attribute]),
+                $attribute.' - admin'
             );
             $this->assertEquals(
                 $params['seller'] ? VoterInterface::ACCESS_GRANTED : VoterInterface::ACCESS_DENIED,
-                $voter->vote($this->getSellerToken(), $subject, [$attr]),
-                $attr.' - seller'
+                $voter->vote($this->getSellerToken(), $subject, [$attribute]),
+                $attribute.' - seller'
             );
         }
     }

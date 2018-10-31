@@ -101,6 +101,7 @@ class RegisterCustomerManager
     public function register(CustomerId $customerId, array $customerData, ?string $plainPassword = null): Customer
     {
         $email = null;
+
         if (isset($customerData['email']) && !empty($customerData['email'])) {
             $email = strtolower($customerData['email']);
             if ($this->userManager->isCustomerExist($email)) {
@@ -119,21 +120,23 @@ class RegisterCustomerManager
             $this->customerUniqueValidator->validatePhoneUnique($customerData['phone']);
         }
 
-        $command = new RegisterCustomer($customerId, $customerData);
-        $this->commandBus->dispatch($command);
+        $this->commandBus->dispatch(new RegisterCustomer($customerId, $customerData));
 
         if (isset($customerData['address'])) {
-            $updateAddressCommand = new UpdateCustomerAddress($customerId, $customerData['address']);
-            $this->commandBus->dispatch($updateAddressCommand);
+            $this->commandBus->dispatch(new UpdateCustomerAddress($customerId, $customerData['address']));
         }
+
         if (isset($customerData['company']) && $customerData['company'] && $customerData['company']['name']
             && $customerData['company']['nip']) {
             $updateCompanyDataCommand = new UpdateCustomerCompanyDetails($customerId, $customerData['company']);
             $this->commandBus->dispatch($updateCompanyDataCommand);
         }
+
         if (isset($customerData['loyaltyCardNumber'])) {
-            $loyaltyCardCommand = new UpdateCustomerLoyaltyCardNumber($customerId, $customerData['loyaltyCardNumber']);
-            $this->commandBus->dispatch($loyaltyCardCommand);
+            $this->commandBus->dispatch(new UpdateCustomerLoyaltyCardNumber(
+                $customerId,
+                $customerData['loyaltyCardNumber'])
+            );
         }
 
         if (isset($customerData['level'])) {
@@ -180,11 +183,10 @@ class RegisterCustomerManager
     {
         if (!$user->getNewsletterUsedFlag()) {
             $user->setNewsletterUsedFlag(true);
+
             $this->entityManager->flush();
 
-            $this->commandBus->dispatch(
-                new NewsletterSubscription($customerId)
-            );
+            $this->commandBus->dispatch(new NewsletterSubscription($customerId));
         }
     }
 }

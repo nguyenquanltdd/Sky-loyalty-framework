@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -16,7 +16,7 @@ class PointsTransferControllerAccessTest extends BaseAccessControlTest
     /**
      * @test
      */
-    public function only_admin_and_seller_should_have_access_to_all_points_transfer_list()
+    public function it_restricts_only_admins_and_sellers_should_have_access_to_all_points_transfer_list(): void
     {
         $clients = [
             ['client' => $this->getCustomerClient(), 'status' => 403, 'name' => 'customer'],
@@ -30,7 +30,7 @@ class PointsTransferControllerAccessTest extends BaseAccessControlTest
     /**
      * @test
      */
-    public function only_admin_or_seller_can_add_points(): void
+    public function it_restricts_only_admins_or_sellers_can_add_points(): void
     {
         $clients = [
             ['client' => $this->getCustomerClient(), 'status' => 403, 'name' => 'customer'],
@@ -44,7 +44,7 @@ class PointsTransferControllerAccessTest extends BaseAccessControlTest
     /**
      * @test
      */
-    public function it_admin_can_spend_points(): void
+    public function it_restricts_admins_to_spend_points(): void
     {
         $clients = [
             ['client' => $this->getCustomerClient(), 'status' => 403, 'name' => 'customer'],
@@ -69,7 +69,7 @@ class PointsTransferControllerAccessTest extends BaseAccessControlTest
     /**
      * @test
      */
-    public function only_admin_can_cancel_points_transfer(): void
+    public function it_restricts_only_admins_can_cancel_points_transfers(): void
     {
         $clients = [
             ['client' => $this->getCustomerClient(), 'status' => 403, 'name' => 'customer'],

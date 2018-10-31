@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -19,14 +19,15 @@ class UtilityVoterTest extends BaseVoterTest
     /**
      * @test
      */
-    public function it_works()
+    public function it_works(): void
     {
         $attributes = [
             UtilityVoter::GENERATE_SEGMENT_CSV => ['seller' => false, 'customer' => false, 'admin' => true],
         ];
+
         $voter = new UtilityVoter();
 
-        $this->makeAssertions($attributes, $voter);
+        $this->assertVoterAttributes($voter, $attributes);
     }
 
     protected function getSubjectById($id)

@@ -1,5 +1,8 @@
 <?php
-
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Bundle\PosBundle\Tests\Security\Voter;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
@@ -17,7 +20,7 @@ class PosVoterTest extends BaseVoterTest
     /**
      * @test
      */
-    public function it_works()
+    public function it_works(): void
     {
         $attributes = [
             PosVoter::LIST_POS => ['seller' => true, 'customer' => false, 'admin' => true],
@@ -28,7 +31,7 @@ class PosVoterTest extends BaseVoterTest
 
         $voter = new PosVoter();
 
-        $this->makeAssertions($attributes, $voter);
+        $this->assertVoterAttributes($voter, $attributes);
     }
 
     protected function getSubjectById($id)

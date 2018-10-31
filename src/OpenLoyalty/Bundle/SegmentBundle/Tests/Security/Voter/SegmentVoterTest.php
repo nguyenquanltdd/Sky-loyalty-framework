@@ -1,5 +1,8 @@
 <?php
-
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Bundle\SegmentBundle\Tests\Security\Voter;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
@@ -17,7 +20,7 @@ class SegmentVoterTest extends BaseVoterTest
     /**
      * @test
      */
-    public function it_works()
+    public function it_works(): void
     {
         $attributes = [
             SegmentVoter::LIST_SEGMENTS => ['seller' => false, 'customer' => false, 'admin' => true],
@@ -32,7 +35,7 @@ class SegmentVoterTest extends BaseVoterTest
 
         $voter = new SegmentVoter();
 
-        $this->makeAssertions($attributes, $voter);
+        $this->assertVoterAttributes($voter, $attributes);
     }
 
     protected function getSubjectById($id)

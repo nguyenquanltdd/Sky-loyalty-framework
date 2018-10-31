@@ -1860,6 +1860,8 @@
       "automatic": "automatic",
       "reset_points": "reset points"
     },
+    "allow_customers_profile_edits": "Allow users to edit their profiles",
+    "allow_customers_profile_edits_prompt": "Allow",
     "point_will_expire_after": "Expire points method",
     "at_the_end_of_the_year": "At the end of the year",
     "after_x_days": "After X days",

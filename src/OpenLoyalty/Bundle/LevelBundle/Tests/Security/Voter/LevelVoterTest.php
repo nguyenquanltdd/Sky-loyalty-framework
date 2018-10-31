@@ -1,5 +1,8 @@
 <?php
-
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Bundle\LevelBundle\Tests\Security\Voter;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
@@ -18,7 +21,7 @@ class LevelVoterTest extends BaseVoterTest
     /**
      * @test
      */
-    public function it_works()
+    public function it_works(): void
     {
         $attributes = [
             LevelVoter::CREATE_LEVEL => ['seller' => false, 'customer' => false, 'admin' => true],
@@ -32,7 +35,7 @@ class LevelVoterTest extends BaseVoterTest
 
         $voter = new LevelVoter();
 
-        $this->makeAssertions($attributes, $voter);
+        $this->assertVoterAttributes($voter, $attributes);
     }
 
     protected function getSubjectById($id)

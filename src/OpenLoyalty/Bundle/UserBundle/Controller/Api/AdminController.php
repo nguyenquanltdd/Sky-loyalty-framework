@@ -101,6 +101,7 @@ class AdminController extends FOSRestController
         if (!$admin) {
             $admin = $this->getUser();
         }
+
         $this->denyAccessUnlessGranted('EDIT', $admin);
 
         if ($admin->getId() == $this->getUser()->getId()) {

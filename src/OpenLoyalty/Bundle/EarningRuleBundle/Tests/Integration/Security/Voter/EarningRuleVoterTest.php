@@ -1,5 +1,8 @@
 <?php
-
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Integration\Security\Voter;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
@@ -18,7 +21,7 @@ class EarningRuleVoterTest extends BaseVoterTest
     /**
      * @test
      */
-    public function it_works()
+    public function it_works(): void
     {
         $attributes = [
             EarningRuleVoter::CREATE_EARNING_RULE => ['seller' => false, 'customer' => false, 'admin' => true],
@@ -30,7 +33,7 @@ class EarningRuleVoterTest extends BaseVoterTest
 
         $voter = new EarningRuleVoter();
 
-        $this->makeAssertions($attributes, $voter);
+        $this->assertVoterAttributes($voter, $attributes);
     }
 
     protected function getSubjectById($id)

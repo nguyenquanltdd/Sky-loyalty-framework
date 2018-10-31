@@ -1,8 +1,12 @@
 <?php
-
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Security\Voter;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
+use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\UserBundle\Security\Voter\CustomerVoter;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
@@ -21,7 +25,7 @@ class CustomerVoterTest extends BaseVoterTest
     /**
      * @test
      */
-    public function it_works()
+    public function it_works(): void
     {
         $attributes = [
             CustomerVoter::CREATE_CUSTOMER => ['seller' => true, 'customer' => false, 'admin' => true],
@@ -34,12 +38,16 @@ class CustomerVoterTest extends BaseVoterTest
             CustomerVoter::EDIT => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::CUSTOMER_ID],
         ];
 
-        $repo = $this->getMockBuilder(SellerDetailsRepository::class)->getMock();
-        $repo->method('find')->willReturn(null);
+        /** @var SellerDetailsRepository|\PHPUnit_Framework_MockObject_MockObject $sellerDetailsRepositoryMock */
+        $sellerDetailsRepositoryMock = $this->getMockBuilder(SellerDetailsRepository::class)->getMock();
+        $sellerDetailsRepositoryMock->method('find')->willReturn(null);
 
-        $voter = new CustomerVoter($repo);
+        /** @var SettingsManager|\PHPUnit_Framework_MockObject_MockObject $settingsManagerMock */
+        $settingsManagerMock = $this->getMockBuilder(SettingsManager::class)->getMock();
 
-        $this->makeAssertions($attributes, $voter);
+        $voter = new CustomerVoter($sellerDetailsRepositoryMock, $settingsManagerMock);
+
+        $this->assertVoterAttributes($voter, $attributes);
     }
 
     protected function getSubjectById($id)

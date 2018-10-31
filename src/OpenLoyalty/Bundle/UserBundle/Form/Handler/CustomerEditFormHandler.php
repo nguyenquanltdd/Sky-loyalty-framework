@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\UserBundle\Form\Handler;
 
 use Broadway\CommandHandling\CommandBus;
 use Doctrine\ORM\EntityManager;
+use OpenLoyalty\Bundle\UserBundle\Entity\User;
 use OpenLoyalty\Bundle\UserBundle\Service\UserManager;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Customer\Domain\Command\UpdateCustomerAddress;
@@ -30,46 +31,47 @@ class CustomerEditFormHandler
     /**
      * @var CommandBus
      */
-    protected $commandBus;
+    private $commandBus;
+
     /**
      * @var UserManager
      */
-    protected $userManager;
+    private $userManager;
 
     /**
      * @var EntityManager
      */
-    protected $em;
+    private $entityManager;
 
     /**
      * @var CustomerUniqueValidator
      */
-    protected $customerUniqueValidator;
+    private $customerUniqueValidator;
 
     /**
      * @var TranslatorInterface
      */
-    protected $translator;
+    private $translator;
 
     /**
      * CustomerEditFormHandler constructor.
      *
      * @param CommandBus              $commandBus
      * @param UserManager             $userManager
-     * @param EntityManager           $em
+     * @param EntityManager           $entityManager
      * @param CustomerUniqueValidator $customerUniqueValidator
      * @param TranslatorInterface     $translator
      */
     public function __construct(
         CommandBus $commandBus,
         UserManager $userManager,
-        EntityManager $em,
+        EntityManager $entityManager,
         CustomerUniqueValidator $customerUniqueValidator,
         TranslatorInterface $translator
     ) {
         $this->commandBus = $commandBus;
         $this->userManager = $userManager;
-        $this->em = $em;
+        $this->entityManager = $entityManager;
         $this->customerUniqueValidator = $customerUniqueValidator;
         $this->translator = $translator;
     }
@@ -83,6 +85,7 @@ class CustomerEditFormHandler
     public function onSuccess(CustomerId $customerId, FormInterface $form): bool
     {
         $email = null;
+
         $customerData = $form->getData();
 
         if (isset($customerData['email']) && !empty($customerData['email'])) {
@@ -151,40 +154,37 @@ class CustomerEditFormHandler
             }, $labelsData ?? []);
         }
 
-        $command = new UpdateCustomerDetails($customerId, $customerData);
-        $this->commandBus->dispatch($command);
+        $this->commandBus->dispatch(new UpdateCustomerDetails($customerId, $customerData));
 
         if (isset($customerData['address'])) {
-            $updateAddressCommand = new UpdateCustomerAddress(
+            $this->commandBus->dispatch(new UpdateCustomerAddress(
                 $customerId,
                 $customerData['address']
-            );
-            $this->commandBus->dispatch($updateAddressCommand);
+            ));
         }
 
         if (isset($customerData['company'])) {
-            $updateCompanyDataCommand = new UpdateCustomerCompanyDetails(
+            $this->commandBus->dispatch(new UpdateCustomerCompanyDetails(
                 $customerId,
                 $customerData['company']
-            );
-            $this->commandBus->dispatch($updateCompanyDataCommand);
+            ));
         }
 
         if (array_key_exists('loyaltyCardNumber', $customerData)) {
-            $loyaltyCardCommand = new UpdateCustomerLoyaltyCardNumber(
+            $this->commandBus->dispatch(new UpdateCustomerLoyaltyCardNumber(
                 $customerId,
                 $customerData['loyaltyCardNumber']
-            );
-            $this->commandBus->dispatch($loyaltyCardCommand);
+            ));
         }
 
-        if (empty($email)) {
+        if (null === $email) {
             return true;
         }
 
-        $user = $this->em->getRepository('OpenLoyaltyUserBundle:Customer')->find((string) $customerId);
-
+        /** @var User $user */
+        $user = $this->entityManager->getRepository('OpenLoyaltyUserBundle:Customer')->find((string) $customerId);
         $user->setEmail($email);
+
         $this->userManager->updateUser($user);
 
         return true;
@@ -198,11 +198,15 @@ class CustomerEditFormHandler
      */
     private function isDifferentUserExistsWithThisEmail(string $id, string $email): bool
     {
-        $qb = $this->em->createQueryBuilder()->select('u')->from('OpenLoyaltyUserBundle:Customer', 'u');
-        $qb->andWhere('u.email = :email')->setParameter('email', $email);
-        $qb->andWhere('u.id != :id')->setParameter('id', $id);
+        $queryBuilder = $this->entityManager->createQueryBuilder();
+        $queryBuilder
+            ->select('u')
+            ->from('OpenLoyaltyUserBundle:Customer', 'u')
+            ->andWhere('u.email = :email')->setParameter('email', $email)
+            ->andWhere('u.id != :id')->setParameter('id', $id)
+        ;
 
-        $result = $qb->getQuery()->getResult();
+        $result = $queryBuilder->getQuery()->getResult();
 
         return count($result) > 0;
     }

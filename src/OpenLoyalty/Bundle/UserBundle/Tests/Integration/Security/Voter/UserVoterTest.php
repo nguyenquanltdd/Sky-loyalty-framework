@@ -1,5 +1,8 @@
 <?php
-
+/*
+ * Copyright © 2017 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Security\Voter;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
@@ -13,7 +16,7 @@ class UserVoterTest extends BaseVoterTest
     /**
      * @test
      */
-    public function it_works()
+    public function it_works(): void
     {
         $attributes = [
             UserVoter::PASSWORD_CHANGE => ['seller' => true, 'customer' => true, 'admin' => true],
@@ -22,9 +25,12 @@ class UserVoterTest extends BaseVoterTest
 
         $voter = new UserVoter();
 
-        $this->makeAssertions($attributes, $voter);
+        $this->assertVoterAttributes($voter, $attributes);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function getSubjectById($id)
     {
         return;

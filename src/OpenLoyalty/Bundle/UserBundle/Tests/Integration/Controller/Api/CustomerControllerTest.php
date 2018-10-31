@@ -1,5 +1,8 @@
 <?php
-
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Controller\Api;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
@@ -33,11 +36,8 @@ class CustomerControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(
-            200,
-            $response->getStatusCode(),
-            'Response should have status 200'
-        );
+
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
     }
 
     /**
@@ -72,11 +72,8 @@ class CustomerControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(
-            400,
-            $response->getStatusCode(),
-            'Response should have status 400'
-        );
+
+        $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 400');
     }
 
     /**
@@ -112,6 +109,7 @@ class CustomerControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
+
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('customerId', $data);
         $this->assertArrayHasKey('email', $data);
@@ -122,7 +120,6 @@ class CustomerControllerTest extends BaseApiTest
      */
     public function it_not_allows_to_register_new_customer_with_existing_phone_number(): void
     {
-        $client = $this->createAuthenticatedClient();
         $defaultCustomerData = [
             'firstName' => 'John',
             'lastName' => 'Doe',
@@ -133,6 +130,8 @@ class CustomerControllerTest extends BaseApiTest
             'agreement1' => true,
             'agreement2' => true,
         ];
+
+        $client = $this->createAuthenticatedClient();
         $client->request(
             'POST',
             '/api/customer/register',
@@ -143,7 +142,8 @@ class CustomerControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $this->assertEquals(400, $response->getStatusCode());
     }
 
     /**
@@ -584,10 +584,7 @@ class CustomerControllerTest extends BaseApiTest
     {
         // get current client's data
         $client = $this->createAuthenticatedClient();
-        $client->request(
-            'GET',
-            '/api/customer/'.LoadUserData::TEST_USER_ID
-        );
+        $client->request('GET', sprintf('/api/customer/%s', LoadUserData::TEST_USER_ID));
 
         $response = $client->getResponse();
         $currentClientData = json_decode($response->getContent(), true);
@@ -597,7 +594,7 @@ class CustomerControllerTest extends BaseApiTest
         $client = $this->createAuthenticatedClient();
         $client->request(
             'PUT',
-            '/api/customer/'.LoadUserData::TEST_USER_ID,
+            sprintf('/api/customer/%s', LoadUserData::TEST_USER_ID),
             [
                 'customer' => $customerData,
             ]
@@ -605,6 +602,7 @@ class CustomerControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), 'Edit response should have status 200');
+
         $data = json_decode($response->getContent(), true);
 
         $newClientData = array_merge($currentClientData, $customerData);
@@ -1104,14 +1102,13 @@ class CustomerControllerTest extends BaseApiTest
     public function it_adds_points_to_customer_after_account_edit_and_agreement2_is_checked(): void
     {
         $client = $this->createAuthenticatedClient();
+
         $customerId = LoadUserData::TEST_USER_ID;
         $points = $this->getCustomerPoints($client, $customerId);
 
         //Update customer data with checked agreement2
-        $client->request(
-            'GET',
-            '/api/customer/'.$customerId
-        );
+        $client->request('GET', sprintf('/api/customer/%s', $customerId));
+
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $customerData = json_decode($response->getContent(), true);
@@ -1206,10 +1203,7 @@ class CustomerControllerTest extends BaseApiTest
         $this->assertTrue($customer->getNewsletterUsedFlag());
 
         //Update customer data with checked agreement2
-        $client->request(
-            'GET',
-            '/api/customer/'.$customerId
-        );
+        $client->request('GET', sprintf('/api/customer/%s', $customerId));
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $customerData = json_decode($response->getContent(), true);
@@ -1254,29 +1248,36 @@ class CustomerControllerTest extends BaseApiTest
         int $counter
     ): void {
         $client = $this->createAuthenticatedClient();
-        $client->request(
-            'GET',
-            '/api/customer',
-            [$field => $phrase, 'perPage' => 1000]
-        );
+        $client->request('GET', '/api/customer', [$field => $phrase, 'perPage' => 1000]);
 
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
+
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $this->assertTrue(
-            count($data['customers']) == $counter,
-            sprintf('Expected records "%d" for field "%s" but found "%d"', $counter, $field, count($data['customers']))
+        $this->assertCount(
+            $counter,
+            $data['customers'],
+            sprintf(
+                'Expected records "%d" for field "%s" but found "%d"',
+                $counter,
+                $field,
+                count($data['customers'])
+            )
         );
-        $this->assertEquals($counter, $data['total'], sprintf('Expected total "%d" but found "%d"', $counter, $data['total']));
+        $this->assertEquals(
+            $counter,
+            $data['total'],
+            sprintf('Expected total "%d" but found "%d"', $counter, $data['total'])
+        );
 
         foreach ($data['customers'] as $customer) {
             $this->assertTrue(
                 array_key_exists($field, $customer),
-                'Field '.$field.' does not exists'
+                sprintf('Field %s does not exists', $field)
             );
             $this->assertTrue(
                 (strpos($customer[$field], $phrase) !== false),
-                'Searching phrase '.$phrase.' but found '.$customer[$field]
+               sprintf('Searching phrase %s but found %s', $phrase, $customer[$field])
             );
         }
     }
@@ -1337,8 +1338,9 @@ class CustomerControllerTest extends BaseApiTest
         $customerCount = count($data['customers']);
 
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $this->assertTrue(
-            $customerCount == $counter,
+        $this->assertEquals(
+            $counter,
+            $customerCount,
             sprintf('Expected records "%d" for field "%s" but found "%d"', $counter, $field, $customerCount)
         );
         $this->assertEquals(
@@ -1435,10 +1437,7 @@ class CustomerControllerTest extends BaseApiTest
                 $result = $result || (strpos($customer[$column], $phrase) !== false);
             }
 
-            $this->assertTrue(
-                $result,
-                'Searching phrase '.$phrase.' not found '
-            );
+            $this->assertTrue($result, sprintf('Searching phrase %s not found', $phrase));
         }
     }
 

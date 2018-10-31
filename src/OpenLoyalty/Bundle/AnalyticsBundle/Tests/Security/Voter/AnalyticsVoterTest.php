@@ -1,5 +1,8 @@
 <?php
-
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Bundle\AnalyticsBundle\Tests\Security\Voter;
 
 use OpenLoyalty\Bundle\AnalyticsBundle\Security\Voter\AnalyticsVoter;
@@ -13,7 +16,7 @@ class AnalyticsVoterTest extends BaseVoterTest
     /**
      * @test
      */
-    public function it_works()
+    public function it_works(): void
     {
         $attributes = [
             AnalyticsVoter::VIEW_STATS => ['seller' => false, 'customer' => false, 'admin' => true],
@@ -21,7 +24,7 @@ class AnalyticsVoterTest extends BaseVoterTest
 
         $voter = new AnalyticsVoter();
 
-        $this->makeAssertions($attributes, $voter);
+        $this->assertVoterAttributes($voter, $attributes);
     }
 
     protected function getSubjectById($id)

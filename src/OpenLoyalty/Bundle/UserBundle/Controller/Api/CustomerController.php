@@ -8,6 +8,7 @@ namespace OpenLoyalty\Bundle\UserBundle\Controller\Api;
 use Broadway\CommandHandling\CommandBus;
 use Broadway\ReadModel\Repository;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\Route;
@@ -30,6 +31,7 @@ use OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerEditFormType;
 use OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerRegistrationFormType;
 use OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerSelfRegistrationFormType;
 use OpenLoyalty\Bundle\UserBundle\Import\CustomerXmlImporter;
+use OpenLoyalty\Bundle\UserBundle\Service\ParamManager;
 use OpenLoyalty\Bundle\UserBundle\Service\RegisterCustomerManager;
 use OpenLoyalty\Component\Customer\Domain\Command\ActivateCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\AssignPosToCustomer;
@@ -52,10 +54,12 @@ use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetails;
 use OpenLoyalty\Component\Seller\Domain\SellerId;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * Class CustomerController.
@@ -83,23 +87,55 @@ class CustomerController extends FOSRestController
     private $actionTokenManager;
 
     /**
+     * @var FormFactoryInterface
+     */
+    private $formFactory;
+
+    /**
+     * @var ParamManager
+     */
+    private $paramManager;
+
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+
+    /**
+     * @var AuthorizationCheckerInterface
+     */
+    private $authorizationChecker;
+
+    /**
      * CustomerController constructor.
      *
-     * @param CommandBus                $commandBus
-     * @param DoctrineLevelRepository   $levelRepository
-     * @param CustomerDetailsRepository $customerDetailsRepository
-     * @param ActionTokenManager        $actionTokenManager
+     * @param CommandBus                    $commandBus
+     * @param DoctrineLevelRepository       $levelRepository
+     * @param CustomerDetailsRepository     $customerDetailsRepository
+     * @param ActionTokenManager            $actionTokenManager
+     * @param FormFactoryInterface          $formFactory
+     * @param ParamManager                  $paramManager
+     * @param EntityManagerInterface        $entityManager
+     * @param AuthorizationCheckerInterface $authorizationChecker
      */
     public function __construct(
         CommandBus $commandBus,
         DoctrineLevelRepository $levelRepository,
         CustomerDetailsRepository $customerDetailsRepository,
-        ActionTokenManager $actionTokenManager
+        ActionTokenManager $actionTokenManager,
+        FormFactoryInterface $formFactory,
+        ParamManager $paramManager,
+        EntityManagerInterface $entityManager,
+        AuthorizationCheckerInterface $authorizationChecker
     ) {
         $this->commandBus = $commandBus;
         $this->levelRepository = $levelRepository;
         $this->customerDetailsRepository = $customerDetailsRepository;
         $this->actionTokenManager = $actionTokenManager;
+        $this->formFactory = $formFactory;
+        $this->paramManager = $paramManager;
+        $this->entityManager = $entityManager;
+        $this->authorizationChecker = $authorizationChecker;
     }
 
     /**
@@ -114,11 +150,11 @@ class CustomerController extends FOSRestController
      *     name="Customers list",
      *     section="Customer",
      *     parameters={
-     *      {"name"="strict", "dataType"="boolean", "required"=false, "description"="Strict filtering"},
-     *      {"name"="page", "dataType"="integer", "required"=false, "description"="Page number"},
-     *      {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
-     *      {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
-     *      {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
+     *          {"name"="strict", "dataType"="boolean", "required"=false, "description"="Strict filtering"},
+     *          {"name"="page", "dataType"="integer", "required"=false, "description"="Page number"},
+     *          {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
+     *          {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
+     *          {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
      *     }
      * )
      *
@@ -160,6 +196,7 @@ class CustomerController extends FOSRestController
                 ],
             ];
         }
+
         if (isset($params['hoursFromLastUpdate'])) {
             $hoursFromLastUpdate = $params['hoursFromLastUpdate'];
             unset($params['hoursFromLastUpdate']);
@@ -170,6 +207,7 @@ class CustomerController extends FOSRestController
                 ],
             ];
         }
+
         if (isset($params['emailOrPhone'])) {
             $emailOrPhone = $params['emailOrPhone'];
             $params['emailOrPhone'] = [
@@ -180,6 +218,7 @@ class CustomerController extends FOSRestController
                 ],
             ];
         }
+
         if (isset($params['manuallyAssignedLevel'])) {
             if ($params['manuallyAssignedLevel']) {
                 $params['manuallyAssignedLevelId'] = [
@@ -188,11 +227,13 @@ class CustomerController extends FOSRestController
             }
             unset($params['manuallyAssignedLevel']);
         }
+
         $pagination = $this->get('oloy.pagination')->handleFromRequest($request, 'createdAt', 'desc');
 
-        /** @var CustomerDetailsRepository $repo */
-        $repo = $this->get('oloy.user.read_model.repository.customer_details');
-        $customers = $repo->findByParametersPaginated(
+        /** @var CustomerDetailsRepository $customerDetailsRepository */
+        $customerDetailsRepository = $this->get('oloy.user.read_model.repository.customer_details');
+
+        $customers = $customerDetailsRepository->findByParametersPaginated(
             $params,
             $request->get('strict', false),
             $pagination->getPage(),
@@ -200,14 +241,15 @@ class CustomerController extends FOSRestController
             $pagination->getSort(),
             $pagination->getSortDirection()
         );
-        $total = $repo->countTotal($params, $request->get('strict', false));
+
+        $total = $customerDetailsRepository->countTotal($params, $request->get('strict', false));
 
         return $this->view(
             [
                 'customers' => $customers,
                 'total' => $total,
             ],
-            200
+            Response::HTTP_OK
         );
     }
 
@@ -230,17 +272,21 @@ class CustomerController extends FOSRestController
     public function getCustomerAction(CustomerDetails $customer): View
     {
         $view = $this->view($customer, Response::HTTP_OK);
-        /** @var SegmentedCustomersRepository $repo */
-        $repo = $this->get('oloy.segment.read_model.repository.segmented_customers');
-        $segments = $repo->findBy(['customerId' => (string) $customer->getCustomerId()]);
+
+        /** @var SegmentedCustomersRepository $segmentedCustomersRepository */
+        $segmentedCustomersRepository = $this->get('oloy.segment.read_model.repository.segmented_customers');
+
+        $segments = $segmentedCustomersRepository->findBy(['customerId' => (string) $customer->getCustomerId()]);
 
         $serializer = $this->get('serializer');
+
         $segments = array_map(
-            function (SegmentedCustomers $segment) use ($serializer) {
+            function (SegmentedCustomers $segment) use ($serializer): array {
                 return $serializer->toArray($segment);
             },
             $segments
         );
+
         $auditManager = $this->container->get('oloy.audit.manager');
         $auditManager->auditCustomerEvent(AuditManagerInterface::VIEW_CUSTOMER_EVENT_TYPE, $customer->getCustomerId());
 
@@ -354,7 +400,7 @@ class CustomerController extends FOSRestController
     {
         return $this->view(
             $this->get('oloy.customer_status_provider')->getStatus($customer->getCustomerId()),
-            200
+            Response::HTTP_OK
         );
     }
 
@@ -431,25 +477,29 @@ class CustomerController extends FOSRestController
                 if (!$posId && $this->isGranted('ROLE_SELLER')) {
                     $this->handleSellerWasACreator($loggedUser, $customerId, $user);
                 } elseif ($posId) {
-                    $this->commandBus->dispatch(
-                        new AssignPosToCustomer($customerId, new PosId($posId))
-                    );
+                    $this->commandBus->dispatch(new AssignPosToCustomer($customerId, new PosId($posId)));
                 }
+
                 if ($this->isGranted('ROLE_SELLER')) {
                     $sellerId = (string) $loggedUser->getId();
                 }
+
                 if ($levelId) {
                     /** @var Level $level */
                     $level = $this->levelRepository->byId(new LevelId($levelId));
 
-                    $this->commandBus->dispatch(
-                        new MoveCustomerToLevel($customerId, new CustomerLevelId($levelId), $level->getName(), true)
-                    );
+                    $this->commandBus->dispatch(new MoveCustomerToLevel(
+                        $customerId,
+                        new CustomerLevelId($levelId),
+                        $level->getName(),
+                        true
+                    ));
                 }
                 if ($sellerId) {
-                    $this->commandBus->dispatch(
-                        new AssignSellerToCustomer($customerId, new CustomerSellerId($sellerId))
-                    );
+                    $this->commandBus->dispatch(new AssignSellerToCustomer(
+                        $customerId,
+                        new CustomerSellerId($sellerId)
+                    ));
                 }
 
                 if ($this->isGranted('ROLE_ADMIN')
@@ -458,9 +508,8 @@ class CustomerController extends FOSRestController
                         && !AccountActivationMethod::isMethodSms($accountActivationMethod)
                     )
                 ) {
-                    $this->commandBus->dispatch(
-                        new ActivateCustomer($customerId)
-                    );
+                    $this->commandBus->dispatch(new ActivateCustomer($customerId));
+
                     $registerCustomerManager->activate($user);
                 } else {
                     $this
@@ -477,7 +526,8 @@ class CustomerController extends FOSRestController
                     [
                         'customerId' => (string) $customerId,
                         'email' => $user->getEmail(),
-                    ]
+                    ],
+                    Response::HTTP_OK
                 );
             }
 
@@ -557,28 +607,28 @@ class CustomerController extends FOSRestController
     /**
      * Method allows to update customer details.
      *
-     * @param Request                 $request
-     * @param CustomerDetails         $customer
-     * @param RegisterCustomerManager $registerCustomerManager
-     *
-     * @return View
      * @Route(name="oloy.customer.edit_customer", path="/customer/{customer}")
      * @Security("is_granted('EDIT', customer)")
-     *
      * @Method("PUT")
+     *
      * @ApiDoc(
      *     name="Edit Customer",
      *     section="Customer",
-     *     input={"class" = "OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerEditFormType", "name" = "customer"},
+     *     input={"class"="OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerEditFormType", "name" = "customer"},
      *     parameters={
-     *         {"name"="customer[labels]", "dataType"="string|array", "required"=false,
-     *             "description"="String of labels in form of key:val;key:val or an array of labels, each being an array having 'key' and 'value' key."}
+     *         {"name"="customer[labels]", "dataType"="string|array", "required"=false, "description"="String of labels in form of key:val;key:val or an array of labels, each being an array having 'key' and 'value' key."}
      *     },
      *     statusCodes={
      *         200="Returned when successful",
      *         400="Returned when form contains errors",
      *     }
      * )
+     *
+     * @param Request                 $request
+     * @param CustomerDetails         $customer
+     * @param RegisterCustomerManager $registerCustomerManager
+     *
+     * @return View
      *
      * @throws \Exception
      */
@@ -588,82 +638,81 @@ class CustomerController extends FOSRestController
         RegisterCustomerManager $registerCustomerManager
     ): View {
         $loggedUser = $this->getUser();
+
+        if (!$this->authorizationChecker->isGranted('EDIT_PROFILE', $customer) && $loggedUser instanceof Customer) {
+            return $this->view($customer, Response::HTTP_OK);
+        }
+
         $accountActivationMethod = $this->actionTokenManager->getCurrentMethod();
 
         $options = [
-            'method' => 'PUT',
+            'method' => Request::METHOD_PUT,
             'includeLevelId' => true,
             'includePosId' => true,
             'activationMethod' => $accountActivationMethod,
         ];
 
-        if (!$this->isGranted('ROLE_SELLER') && !$loggedUser instanceof Seller) {
+        if (!$this->authorizationChecker->isGranted('ROLE_SELLER') && !$loggedUser instanceof Seller) {
             $options['includeSellerId'] = true;
         }
-        $form = $this->get('form.factory')->createNamed(
-            'customer',
-            CustomerEditFormType::class,
-            [],
-            $options
-        );
 
+        $form = $this->formFactory->createNamed('customer', CustomerEditFormType::class, [], $options);
         $form->submit($request->request->all()['customer'] ?? [], false);
 
         if ($form->isValid()) {
-            $ret = $this->get('oloy.user.form_handler.customer_edit')
-                ->onSuccess($customer->getCustomerId(), $form);
+            $formHandler = $this
+                ->get('oloy.user.form_handler.customer_edit')
+                ->onSuccess($customer->getCustomerId(), $form)
+            ;
 
-            if ($ret !== true) {
-                return $this->view($ret, Response::HTTP_BAD_REQUEST);
+            if (!$formHandler) {
+                return $this->view($formHandler, Response::HTTP_BAD_REQUEST);
             }
 
             /** @var CustomerDetails $customer */
             $customer = $this->customerDetailsRepository->find($customer->getId());
 
-            $levelId = $form->get('levelId')->getData();
-            $posId = $form->get('posId')->getData();
-            $sellerId = $form->has('sellerId') ? $form->get('sellerId')->getData() : null;
-
-            if ($posId) {
-                $this->commandBus->dispatch(
-                    new AssignPosToCustomer($customer->getCustomerId(), new PosId($posId))
-                );
+            if (null !== $posId = $form->get('posId')->getData()) {
+                $this->commandBus->dispatch(new AssignPosToCustomer($customer->getCustomerId(), new PosId($posId)));
             }
 
-            if ($levelId) {
-                if ($customer->getLevelId() != $levelId) {
+            if (null !== $levelId = $form->get('levelId')->getData()) {
+                if ($customer->getLevelId() !== $levelId) {
                     /** @var Level $level */
                     $level = $this->levelRepository->byId(new LevelId($levelId));
 
-                    $this->commandBus->dispatch(
-                        new MoveCustomerToLevel(
-                            $customer->getCustomerId(),
-                            new CustomerLevelId($levelId),
-                            $level->getName(),
-                            true
-                        )
-                    );
+                    $this->commandBus->dispatch(new MoveCustomerToLevel(
+                        $customer->getCustomerId(),
+                        new CustomerLevelId($levelId),
+                        $level->getName(),
+                        true
+                    ));
                 }
             }
 
-            if ($sellerId) {
-                $this->commandBus->dispatch(
-                    new AssignSellerToCustomer($customer->getCustomerId(), new CustomerSellerId($sellerId))
-                );
+            $sellerId = $form->has('sellerId') ? $form->get('sellerId')->getData() : null;
+
+            if (null !== $sellerId) {
+                $this->commandBus->dispatch(new AssignSellerToCustomer(
+                    $customer->getCustomerId(),
+                    new CustomerSellerId($sellerId)
+                ));
             }
 
             if ($customer->isAgreement2()) {
-                $em = $this->getDoctrine()->getManager();
-                $user = $em->getRepository('OpenLoyaltyUserBundle:Customer')->find($customer->getId());
+                /** @var User $user */
+                $user = $this->entityManager
+                    ->getRepository('OpenLoyaltyUserBundle:Customer')
+                    ->find($customer->getId())
+                ;
+
                 $registerCustomerManager->dispatchNewsletterSubscriptionEvent($user, $customer->getCustomerId());
             }
 
-            // as we may move to other level or change sellerId we need to refresh customer data
-            // and return latest customer state
-            /** @var CustomerDetails $customer */
-            $customer = $this->customerDetailsRepository->find($customer->getId());
+            /** @var CustomerDetails $updatedCustomerDetails */
+            $updatedCustomerDetails = $this->customerDetailsRepository->find($customer->getId());
 
-            return $this->view($customer);
+            return $this->view($updatedCustomerDetails, Response::HTTP_OK);
         }
 
         return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
@@ -880,16 +929,16 @@ class CustomerController extends FOSRestController
         if (!$phone) {
             return $this->view('', Response::HTTP_BAD_REQUEST);
         }
-        $user = $this->getDoctrine()->getManager()->getRepository(Customer::class)
-            ->findOneBy(['phone' => $phone]);
+
+        $user = $this->getDoctrine()->getManager()->getRepository(Customer::class)->findOneBy(['phone' => $phone]);
 
         if ($user instanceof Customer && $user->isNew()) {
             $activationCodeManager = $this->get('oloy.activation_code_manager');
             if ($activationCodeManager->resendCode($user)) {
                 return $this->view('');
-            } else {
-                return $this->view('', Response::HTTP_BAD_REQUEST);
             }
+
+            return $this->view('', Response::HTTP_BAD_REQUEST);
         }
 
         return $this->view('', Response::HTTP_BAD_REQUEST);
@@ -920,9 +969,9 @@ class CustomerController extends FOSRestController
             $registerCustomerManager->activate($user);
 
             return $this->view('', Response::HTTP_OK);
-        } else {
-            throw new NotFoundHttpException('bad_token');
         }
+
+        throw new NotFoundHttpException('bad_token');
     }
 
     /**
@@ -963,39 +1012,9 @@ class CustomerController extends FOSRestController
     }
 
     /**
-     * @param SellerId $sellerId
-     *
-     * @return SellerDetails|null
-     */
-    protected function getSellerDetails(SellerId $sellerId): ?SellerDetails
-    {
-        /** @var Repository $repo */
-        $repo = $this->get('oloy.user.read_model.repository.seller_details');
-
-        return $repo->find((string) $sellerId);
-    }
-
-    /**
-     * @param User $loggedUser
-     * @param      $customerId
-     * @param User $user
-     */
-    protected function handleSellerWasACreator(User $loggedUser, $customerId, User $user)
-    {
-        $sellerDetails = $this->getSellerDetails(new SellerId($loggedUser->getId()));
-        if ($sellerDetails instanceof SellerDetails && $sellerDetails->getPosId()) {
-            // assign pos and send email
-            $this->commandBus->dispatch(
-                new AssignPosToCustomer($customerId, new PosId($sellerDetails->getPosId()->__toString()))
-            );
-        }
-    }
-
-    /**
      * Method allows to remove customer from manually assigned level.
      *
-     * @Route(name="oloy.customer.remove_customer_from_manually_assigned_level",
-     *     path="/customer/{customer}/remove-manually-level")
+     * @Route(name="oloy.customer.remove_customer_from_manually_assigned_level", path="/customer/{customer}/remove-manually-level")
      * @Method("POST")
      * @Security("is_granted('ASSIGN_CUSTOMER_LEVEL', customer)")
      *
@@ -1003,17 +1022,16 @@ class CustomerController extends FOSRestController
      *     name="Remove customer from manually assigned level",
      *     section="Customer",
      *     statusCodes={
-     *       204="Returned when successful",
-     *       400="Returned when customer is not assigned to level manually",
+     *          204="Returned when successful",
+     *          400="Returned when customer is not assigned to level manually",
      *     }
      * )
      *
-     * @param Request         $request
      * @param CustomerDetails $customer
      *
      * @return View
      */
-    public function removeCustomerFromManuallyAssignedLevelAction(Request $request, CustomerDetails $customer): View
+    public function removeCustomerFromManuallyAssignedLevelAction(CustomerDetails $customer): View
     {
         $manuallyAssignedLevelId = $customer->getManuallyAssignedLevelId();
         if (!$manuallyAssignedLevelId) {
@@ -1023,9 +1041,7 @@ class CustomerController extends FOSRestController
             );
         }
 
-        $this->commandBus->dispatch(
-            new RemoveManuallyAssignedLevel($customer->getCustomerId())
-        );
+        $this->commandBus->dispatch(new RemoveManuallyAssignedLevel($customer->getCustomerId()));
 
         return $this->view(null, Response::HTTP_NO_CONTENT);
     }
@@ -1036,6 +1052,7 @@ class CustomerController extends FOSRestController
      * @Route(name="oloy.customer.import", path="/admin/customer/import")
      * @Method("POST")
      * @Security("is_granted('CREATE_CUSTOMER')")
+     *
      * @ApiDoc(
      *     name="Import customers",
      *     section="Customer",
@@ -1062,12 +1079,43 @@ class CustomerController extends FOSRestController
         if ($form->isValid()) {
             /** @var UploadedFile $file */
             $file = $form->getData()->getFile();
+
             $importFile = $importFileManager->upload($file, 'customers');
+
             $result = $importer->import($importFileManager->getAbsolutePath($importFile));
 
             return $this->view($result, Response::HTTP_OK);
         }
 
         return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * @param SellerId $sellerId
+     *
+     * @return SellerDetails|null
+     */
+    protected function getSellerDetails(SellerId $sellerId): ?SellerDetails
+    {
+        /** @var Repository $repo */
+        $repo = $this->get('oloy.user.read_model.repository.seller_details');
+
+        return $repo->find((string) $sellerId);
+    }
+
+    /**
+     * @param User $loggedUser
+     * @param      $customerId
+     * @param User $user
+     */
+    protected function handleSellerWasACreator(User $loggedUser, $customerId, User $user)
+    {
+        $sellerDetails = $this->getSellerDetails(new SellerId($loggedUser->getId()));
+        if ($sellerDetails instanceof SellerDetails && $sellerDetails->getPosId()) {
+            // assign pos and send email
+            $this->commandBus->dispatch(
+                new AssignPosToCustomer($customerId, new PosId($sellerDetails->getPosId()->__toString()))
+            );
+        }
     }
 }

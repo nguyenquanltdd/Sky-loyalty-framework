@@ -76,10 +76,6 @@ class SellerVoter extends Voter
 
     protected function canEdit(User $user, SellerDetails $subject)
     {
-        if ($user->hasRole('ROLE_ADMIN')) {
-            return true;
-        }
-
-        return false;
+        return $user->hasRole('ROLE_ADMIN');
     }
 }

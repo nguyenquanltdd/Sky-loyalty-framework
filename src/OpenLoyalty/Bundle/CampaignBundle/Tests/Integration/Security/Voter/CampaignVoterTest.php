@@ -30,7 +30,8 @@ class CampaignVoterTest extends BaseVoterTest
                 if ($campaign->getCampaignId()->__toString() == self::CAMPAIGN2_ID) {
                     return [];
                 }
-            }));
+            }))
+        ;
 
         $attributes = [
             CampaignVoter::CREATE_CAMPAIGN => ['seller' => false, 'customer' => false, 'admin' => true],
@@ -45,7 +46,7 @@ class CampaignVoterTest extends BaseVoterTest
 
         $voter = new CampaignVoter($provider);
 
-        $this->makeAssertions($attributes, $voter);
+        $this->assertVoterAttributes($voter, $attributes);
 
         $this->assertEquals(true, $voter->vote($this->getCustomerToken(), $this->getSubjectById(self::CAMPAIGN_ID), [CampaignVoter::VIEW]));
     }

@@ -93,11 +93,14 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
         $expireLevelsNotificationDays = new IntegerSettingEntry('expireLevelsNotificationDays', 10);
         $settings->addEntry($expireLevelsNotificationDays);
 
-        $allTimeNotLocked = new BooleanSettingEntry('allTimeNotLocked', true);
-        $settings->addEntry($allTimeNotLocked);
-
         $returns = new BooleanSettingEntry('returns', true);
         $settings->addEntry($returns);
+
+        $allowCustomersProfileEdits = new BooleanSettingEntry('allowCustomersProfileEdits', true);
+        $settings->addEntry($allowCustomersProfileEdits);
+
+        $allTimeNotLocked = new BooleanSettingEntry('allTimeNotLocked', true);
+        $settings->addEntry($allTimeNotLocked);
 
         $entry = new StringSettingEntry('tierAssignType');
         $entry->setValue(TierAssignTypeProvider::TYPE_TRANSACTIONS);

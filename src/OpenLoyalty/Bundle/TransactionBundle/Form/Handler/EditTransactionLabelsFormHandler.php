@@ -32,23 +32,23 @@ class EditTransactionLabelsFormHandler
     /**
      * @var AuthorizationChecker
      */
-    protected $ac;
+    protected $authorizationChecker;
 
     /**
      * ManuallyAssignCustomerToTransactionFormHandler constructor.
      *
      * @param TransactionDetailsRepository $transactionDetailsRepository
      * @param CommandBus                   $commandBus
-     * @param AuthorizationChecker         $ac
+     * @param AuthorizationChecker         $authorizationChecker
      */
     public function __construct(
         TransactionDetailsRepository $transactionDetailsRepository,
         CommandBus $commandBus,
-        AuthorizationChecker $ac
+        AuthorizationChecker $authorizationChecker
     ) {
         $this->transactionDetailsRepository = $transactionDetailsRepository;
         $this->commandBus = $commandBus;
-        $this->ac = $ac;
+        $this->authorizationChecker = $authorizationChecker;
     }
 
     /**
@@ -61,7 +61,7 @@ class EditTransactionLabelsFormHandler
         /** @var EditLabels $data */
         $data = $form->getData();
 
-        if (!$this->ac->isGranted('EDIT_TRANSACTION_LABELS')) {
+        if (!$this->authorizationChecker->isGranted('EDIT_TRANSACTION_LABELS')) {
             throw new AccessDeniedException();
         }
 

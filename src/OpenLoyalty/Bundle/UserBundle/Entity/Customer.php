@@ -19,9 +19,10 @@ class Customer extends User
 {
     /**
      * @var \DateTime
+     *
      * @ORM\Column(type="datetime", name="temporary_password_set_at", nullable=true)
      */
-    protected $temporaryPasswordSetAt;
+    private $temporaryPasswordSetAt;
 
     /**
      * @ORM\Column(name="action_token", type="string", length = 20, nullable = true)
@@ -40,17 +41,19 @@ class Customer extends User
 
     /**
      * @var Status
+     *
      * @ORM\Embedded(class = "Status", columnPrefix = "status_" )
      */
     private $status;
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", nullable=true)
      * @Assert\NotBlank(groups={"registration"})
      * @JMS\Expose()
      */
-    protected $phone;
+    private $phone;
 
     /**
      * Customer constructor.
@@ -59,7 +62,7 @@ class Customer extends User
      */
     public function __construct(CustomerId $id)
     {
-        parent::__construct($id->__toString());
+        parent::__construct((string) $id);
     }
 
     /**
@@ -79,17 +82,17 @@ class Customer extends User
     }
 
     /**
-     * @return \DateTime
+     * @return null|\DateTime
      */
-    public function getTemporaryPasswordSetAt()
+    public function getTemporaryPasswordSetAt(): ?\DateTime
     {
         return $this->temporaryPasswordSetAt;
     }
 
     /**
-     * @param \DateTime $temporaryPasswordSetAt
+     * @param null|\DateTime $temporaryPasswordSetAt
      */
-    public function setTemporaryPasswordSetAt($temporaryPasswordSetAt)
+    public function setTemporaryPasswordSetAt(?\DateTime $temporaryPasswordSetAt): void
     {
         $this->temporaryPasswordSetAt = $temporaryPasswordSetAt;
     }
@@ -97,15 +100,15 @@ class Customer extends User
     /**
      * @return string
      */
-    public function getReferralCustomerEmail()
+    public function getReferralCustomerEmail(): ?string
     {
         return $this->referralCustomerEmail;
     }
 
     /**
-     * @param string $referralCustomerEmail
+     * @param null|string $referralCustomerEmail
      */
-    public function setReferralCustomerEmail($referralCustomerEmail)
+    public function setReferralCustomerEmail(?string $referralCustomerEmail): void
     {
         $this->referralCustomerEmail = $referralCustomerEmail;
     }
@@ -113,7 +116,7 @@ class Customer extends User
     /**
      * @return bool
      */
-    public function getNewsletterUsedFlag()
+    public function getNewsletterUsedFlag(): bool
     {
         return boolval($this->newsletterUsedFlag);
     }
@@ -121,7 +124,7 @@ class Customer extends User
     /**
      * @param bool $newsletterUsedFlag
      */
-    public function setNewsletterUsedFlag($newsletterUsedFlag)
+    public function setNewsletterUsedFlag(bool $newsletterUsedFlag): void
     {
         $this->newsletterUsedFlag = $newsletterUsedFlag;
     }
@@ -129,7 +132,7 @@ class Customer extends User
     /**
      * @return Status
      */
-    public function getStatus()
+    public function getStatus(): Status
     {
         return $this->status;
     }
@@ -137,19 +140,15 @@ class Customer extends User
     /**
      * @return bool
      */
-    public function isNew()
+    public function isNew(): bool
     {
-        if ($this->getStatus() && $this->getStatus()->getType() === Status::TYPE_NEW) {
-            return true;
-        }
-
-        return false;
+        return $this->getStatus() && $this->getStatus()->getType() === Status::TYPE_NEW;
     }
 
     /**
      * @param Status $status
      */
-    public function setStatus(Status $status)
+    public function setStatus(Status $status): void
     {
         $this->status = $status;
     }
@@ -157,7 +156,7 @@ class Customer extends User
     /**
      * @return string
      */
-    public function getPhone()
+    public function getPhone(): string
     {
         return $this->phone;
     }
@@ -165,7 +164,7 @@ class Customer extends User
     /**
      * @param string $phone
      */
-    public function setPhone($phone = null)
+    public function setPhone(string $phone = null): void
     {
         $this->phone = $phone;
     }

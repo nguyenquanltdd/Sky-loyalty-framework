@@ -107,7 +107,7 @@ class SettingsControllerTest extends BaseApiTest
             '/api/settings/'.$name
         );
         $checkResponse = $client->getResponse();
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $checkResponse->getStatusCode());
+        $this->assertEquals(404, $checkResponse->getStatusCode());
     }
 
     /**
@@ -134,7 +134,7 @@ class SettingsControllerTest extends BaseApiTest
             '/api/settings/photo/'.$name
         );
         $checkResponse = $client->getResponse();
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $checkResponse->getStatusCode());
+        $this->assertEquals(404, $checkResponse->getStatusCode());
     }
 
     /**
@@ -153,7 +153,7 @@ class SettingsControllerTest extends BaseApiTest
 
         $deleteResponse = $client->getResponse();
 
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $deleteResponse->getStatusCode());
+        $this->assertEquals(404, $deleteResponse->getStatusCode());
     }
 
     /**
@@ -167,7 +167,7 @@ class SettingsControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $contentType = $response->headers->get('Content-Type');
 
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertOkResponseStatus($response);
         $this->assertEquals('application/json', $contentType);
 
         $data = json_decode($response->getContent(), true);
@@ -187,7 +187,7 @@ class SettingsControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $contentType = $response->headers->get('Content-Type');
 
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertOkResponseStatus($response);
         $this->assertEquals('text/css; charset=utf-8', $contentType);
     }
 
@@ -196,7 +196,7 @@ class SettingsControllerTest extends BaseApiTest
      *
      * @depends it_removes_a_photo
      */
-    public function it_updates_required_settings_correctly()
+    public function it_updates_required_settings_correctly(): void
     {
         $client = $this->createAuthenticatedClient();
 
@@ -218,7 +218,8 @@ class SettingsControllerTest extends BaseApiTest
             'allTimeNotLocked' => true,
             'excludedLevelCategories' => [],
             'customersIdentificationPriority' => [],
-            'returns' => false,
+            'returns' => true,
+            'allowCustomersProfileEdits' => true,
             'programConditionsUrl' => '',
             'programFaqUrl' => '',
             'programUrl' => '',
@@ -283,7 +284,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertOkResponseStatus($response);
 
         $getClient = $this->createAuthenticatedClient();
         $getClient->request(
@@ -300,7 +301,7 @@ class SettingsControllerTest extends BaseApiTest
      *
      * @param string $name
      */
-    public function it_returns_404_when_adding_invalid_photo(string $name)
+    public function it_returns_404_when_adding_invalid_photo(string $name): void
     {
         $client = $this->createAuthenticatedClient();
         $uploadedFile = new UploadedFile(__DIR__.'/../../../../Resources/images/logo/logo.png', 'invalid_photo.png');
@@ -315,7 +316,8 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+
+        $this->assertEquals(404, $response->getStatusCode());
     }
 
     /**
@@ -344,15 +346,14 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $this->assertOkResponseStatus($response);
 
         $getClient = $this->createAuthenticatedClient();
-        $getClient->request(
-            'GET',
-            '/api/settings/'.$name
-        );
+        $getClient->request('GET', sprintf('/api/settings/%s', $name));
         $getResponse = $getClient->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $getResponse->getStatusCode());
+
+        $this->assertOkResponseStatus($getResponse);
     }
 
     /**
@@ -373,7 +374,8 @@ class SettingsControllerTest extends BaseApiTest
             );
 
             $response = $client->getResponse();
-            $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+            $this->assertOkResponseStatus($response);
         }
     }
 
@@ -384,7 +386,7 @@ class SettingsControllerTest extends BaseApiTest
      * @param string $type
      * @param array  $sizes
      */
-    public function it_returns_resized_photo(string $type, array $sizes)
+    public function it_returns_resized_photo(string $type, array $sizes): void
     {
         $client = $this->createClient();
 
@@ -395,7 +397,8 @@ class SettingsControllerTest extends BaseApiTest
             );
 
             $response = $client->getResponse();
-            $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+            $this->assertOkResponseStatus($response);
         }
     }
 
@@ -412,7 +415,8 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+
+        $this->assertEquals(404, $response->getStatusCode());
     }
 
     /**
@@ -434,7 +438,7 @@ class SettingsControllerTest extends BaseApiTest
                     '/api/settings/photo/'.$name.'/'.$size
                 );
                 $response = $client->getResponse();
-                $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+                $this->assertEquals(404, $response->getStatusCode());
             }
         } else {
             $client->request(
@@ -442,7 +446,7 @@ class SettingsControllerTest extends BaseApiTest
                 '/api/settings/photo/'.$name
             );
             $response = $client->getResponse();
-            $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+            $this->assertEquals(404, $response->getStatusCode());
         }
     }
 
@@ -459,7 +463,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertOkResponseStatus($response);
     }
 
     /**
@@ -475,7 +479,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertOkResponseStatus($response);
         $data = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('settings', $data);
@@ -529,6 +533,7 @@ class SettingsControllerTest extends BaseApiTest
         }
 
         $this->assertArrayHasKey('returns', $settings);
+        $this->assertArrayHasKey('allowCustomersProfileEdits', $settings);
         $this->assertArrayHasKey('expirePointsNotificationDays', $settings);
         $this->assertArrayHasKey('expireCouponsNotificationDays', $settings);
         $this->assertArrayHasKey('expireLevelsNotificationDays', $settings);
@@ -555,7 +560,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertOkResponseStatus($response);
         $data = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('translations', $data);
@@ -582,7 +587,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertOkResponseStatus($response);
     }
 
     /**
@@ -597,7 +602,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertOkResponseStatus($response);
         $data = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('statuses', $data);
@@ -618,7 +623,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertOkResponseStatus($response);
     }
 
     /**
@@ -633,7 +638,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $this->assertEquals(404, $response->getStatusCode());
     }
 
     /**
@@ -648,7 +653,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertOkResponseStatus($response);
 
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(['method' => 'email'], $data);
@@ -666,7 +671,8 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $this->assertOkResponseStatus($response);
 
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(
@@ -692,7 +698,8 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $this->assertOkResponseStatus($response);
 
         $data = json_decode($response->getContent(), true);
         $this->assertArrayHasKey('choices', $data);
@@ -712,7 +719,8 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $this->assertOkResponseStatus($response);
 
         $data = json_decode($response->getContent(), true);
         $this->assertArrayHasKey('choices', $data);
@@ -723,16 +731,14 @@ class SettingsControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_timezones()
+    public function it_returns_timezones(): void
     {
         $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
-        $client->request(
-            'GET',
-            '/api/settings/choices/timezone'
-        );
+        $client->request('GET', '/api/settings/choices/timezone');
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $this->assertOkResponseStatus($response);
 
         $data = json_decode($response->getContent(), true);
         $this->assertArrayHasKey('choices', $data);
@@ -753,7 +759,9 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $this->assertOkResponseStatus($response);
+
         $data = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('choices', $data);
@@ -772,13 +780,12 @@ class SettingsControllerTest extends BaseApiTest
     public function it_returns_available_customer_statuses()
     {
         $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
-        $client->request(
-            'GET',
-            '/api/settings/choices/availableCustomerStatuses'
-        );
+        $client->request('GET', '/api/settings/choices/availableCustomerStatuses');
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $this->assertOkResponseStatus($response);
+
         $data = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('choices', $data);
@@ -797,16 +804,18 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $this->assertOkResponseStatus($response);
 
         $data = json_decode($response->getContent(), true);
+
         $this->assertEquals(['choices' => ['email', 'sms']], $data);
     }
 
     /**
      * @test
      */
-    public function it_returns_sms_gateway_config()
+    public function it_returns_sms_gateway_config(): void
     {
         $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
         $client->request(
@@ -815,16 +824,18 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $this->assertOkResponseStatus($response);
 
         $data = json_decode($response->getContent(), true);
+
         $this->assertEquals(['fields' => []], $data);
     }
 
     /**
      * @test
      */
-    public function it_returns_earning_rule_limit_period()
+    public function it_returns_earning_rule_limit_period(): void
     {
         $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
         $client->request(
@@ -833,15 +844,17 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $this->assertOkResponseStatus($response);
 
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(
-            ['choices' => [
-                '1 day' => EarningRuleLimit::PERIOD_DAY,
-                '1 week' => EarningRuleLimit::PERIOD_WEEK,
-                '1 month' => EarningRuleLimit::PERIOD_MONTH,
-            ],
+            [
+                'choices' => [
+                    '1 day' => EarningRuleLimit::PERIOD_DAY,
+                    '1 week' => EarningRuleLimit::PERIOD_WEEK,
+                    '1 month' => EarningRuleLimit::PERIOD_MONTH,
+                ],
             ],
             $data
         );
@@ -850,7 +863,7 @@ class SettingsControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_referral_events()
+    public function it_returns_referral_events(): void
     {
         $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
         $client->request(
@@ -859,15 +872,19 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $this->assertOkResponseStatus($response);
 
         $data = json_decode($response->getContent(), true);
+
         $this->assertEquals(
-            ['choices' => [
-                ReferralEarningRule::EVENT_REGISTER => ReferralEarningRule::EVENT_REGISTER,
-                ReferralEarningRule::EVENT_FIRST_PURCHASE => ReferralEarningRule::EVENT_FIRST_PURCHASE,
-                ReferralEarningRule::EVENT_EVERY_PURCHASE => ReferralEarningRule::EVENT_EVERY_PURCHASE,
-            ]],
+            [
+                'choices' => [
+                    ReferralEarningRule::EVENT_REGISTER => ReferralEarningRule::EVENT_REGISTER,
+                    ReferralEarningRule::EVENT_FIRST_PURCHASE => ReferralEarningRule::EVENT_FIRST_PURCHASE,
+                    ReferralEarningRule::EVENT_EVERY_PURCHASE => ReferralEarningRule::EVENT_EVERY_PURCHASE,
+                ],
+            ],
             $data
         );
     }
@@ -884,7 +901,8 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $this->assertOkResponseStatus($response);
 
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(
@@ -909,7 +927,7 @@ class SettingsControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $this->assertEquals(404, $response->getStatusCode());
     }
 
     /**

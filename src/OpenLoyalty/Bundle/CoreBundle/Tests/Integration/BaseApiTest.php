@@ -39,12 +39,22 @@ abstract class BaseApiTest extends WebTestCase
         return $client;
     }
 
-    protected function createAuthenticatedClient($username = LoadAdminData::ADMIN_USERNAME, $password = LoadAdminData::ADMIN_PASSWORD, $type = 'admin')
-    {
+    /**
+     * @param string $username
+     * @param string $password
+     * @param string $type
+     *
+     * @return Client
+     */
+    protected function createAuthenticatedClient(
+        $username = LoadAdminData::ADMIN_USERNAME,
+        $password = LoadAdminData::ADMIN_PASSWORD,
+        string $type = 'admin'
+    ): Client {
         $client = static::createClient();
         $client->request(
             'POST',
-            '/api/'.$type.'/login_check',
+            sprintf('/api/%s/login_check', $type),
             [
                 '_username' => $username,
                 '_password' => $password,
@@ -69,6 +79,7 @@ abstract class BaseApiTest extends WebTestCase
                 )
             )
         );
+
         $this->assertTrue(
             isset($data['refresh_token']),
             sprintf(
@@ -91,10 +102,7 @@ abstract class BaseApiTest extends WebTestCase
      */
     protected function getCustomerPoints(Client $client, string $customerId): float
     {
-        $client->request(
-            'GET',
-            '/api/customer/'.$customerId.'/status'
-        );
+        $client->request('GET', sprintf('/api/customer/%s/status', $customerId));
 
         $response = $client->getResponse();
 

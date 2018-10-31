@@ -107,36 +107,33 @@ class SettingsFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add(
-            $builder
-                ->create('currency', SettingsChoicesType::class, [
-                    'choices' => [
-                        'PLN' => 'pln',
-                        'USD' => 'usd',
-                        'EUR' => 'eur',
-                        'HKD' => 'hkd',
-                        'PESO' => 'cop',
-                    ],
-                    'constraints' => [new NotEmptyValue()],
-                ])
+            $builder->create('currency', SettingsChoicesType::class, [
+                'choices' => [
+                    'PLN' => 'pln',
+                    'USD' => 'usd',
+                    'EUR' => 'eur',
+                    'HKD' => 'hkd',
+                    'PESO' => 'cop',
+                ],
+                'constraints' => [new NotEmptyValue()],
+            ])
         );
 
         $builder->add(
-            $builder
-                ->create('customerStatusesEarning', SettingsChoicesType::class, [
-                    'choices' => $this->availableCustomerStatusesChoices->getChoices()['choices'],
-                    'multiple' => true,
-                    'required' => true,
-                    'constraints' => [new NotEmptyValue()],
-                    'transformTo' => 'json',
-                ])
+            $builder->create('customerStatusesEarning', SettingsChoicesType::class, [
+                'choices' => $this->availableCustomerStatusesChoices->getChoices()['choices'],
+                'multiple' => true,
+                'required' => true,
+                'constraints' => [new NotEmptyValue()],
+                'transformTo' => 'json',
+            ])
         );
         $builder->add(
-            $builder
-                ->create('accountActivationMethod', SettingsChoicesType::class, [
-                    'choices' => $this->accountActivationMethodsChoices->getChoices()['choices'],
-                    'required' => true,
-                    'constraints' => [new NotBlank()],
-                ])
+            $builder->create('accountActivationMethod', SettingsChoicesType::class, [
+                'choices' => $this->accountActivationMethodsChoices->getChoices()['choices'],
+                'required' => true,
+                'constraints' => [new NotBlank()],
+            ])
         );
         $builder->add(
             $builder->create(
@@ -151,40 +148,44 @@ class SettingsFormType extends AbstractType
         );
 
         $builder->add(
-            $builder
-                ->create('customerStatusesSpending', SettingsChoicesType::class, [
-                    'choices' => $this->availableCustomerStatusesChoices->getChoices()['choices'],
-                    'multiple' => true,
-                    'required' => true,
-                    'constraints' => [new NotEmptyValue()],
-                    'transformTo' => 'json',
-                ])
+            $builder->create('customerStatusesSpending', SettingsChoicesType::class, [
+                'choices' => $this->availableCustomerStatusesChoices->getChoices()['choices'],
+                'multiple' => true,
+                'required' => true,
+                'constraints' => [new NotEmptyValue()],
+                'transformTo' => 'json',
+            ])
         );
         $builder->add(
-            $builder
-                ->create('timezone', SettingsTimezoneType::class, [
-                    'preferred_choices' => ['Europe/Warsaw'],
-                    'constraints' => [new NotEmptyValue()],
-                ])
+            $builder->create('timezone', SettingsTimezoneType::class, [
+                'preferred_choices' => ['Europe/Warsaw'],
+                'constraints' => [new NotEmptyValue()],
+            ])
         );
-        $builder->add(
-            $builder->create('programName', SettingsTextType::class, ['constraints' => [new NotEmptyValue()]])
-        );
+        $builder->add($builder->create('programName', SettingsTextType::class, [
+            'constraints' => [new NotEmptyValue()],
+        ]));
         $builder->add($builder->create('programConditionsUrl', SettingsTextType::class, ['required' => false]));
         $builder->add($builder->create('programConditionsUrl', SettingsTextType::class, ['required' => false]));
         $builder->add($builder->create('programFaqUrl', SettingsTextType::class, ['required' => false]));
         $builder->add($builder->create('programUrl', SettingsTextType::class, ['required' => false]));
         $builder->add(
-            $builder
-                ->create('programPointsSingular', SettingsTextType::class, [
-                    'constraints' => [new NotEmptyValue()],
-                ])
+            $builder->create('programPointsSingular', SettingsTextType::class, [
+                'constraints' => [new NotEmptyValue()],
+            ])
         );
         $builder->add(
-            $builder->create('programPointsPlural', SettingsTextType::class, ['constraints' => [new NotEmptyValue()]])
+            $builder->create('programPointsPlural', SettingsTextType::class, [
+                'constraints' => [
+                    new NotEmptyValue(),
+                ],
+            ])
         );
         $builder->add($builder->create('helpEmailAddress', SettingsTextType::class, ['required' => false]));
         $builder->add($builder->create('returns', SettingsCheckboxType::class, ['required' => false]));
+        $builder->add($builder->create('allowCustomersProfileEdits', SettingsCheckboxType::class, [
+            'required' => false,
+        ]));
 
         $builder->add(
             $builder->create('expirePointsNotificationDays', SettingsIntegerType::class, [
@@ -203,136 +204,129 @@ class SettingsFormType extends AbstractType
             ])
         );
         $builder->add(
-            $builder
-                ->create('expireLevelsNotificationDays', SettingsIntegerType::class, [
-                    'required' => false,
-                    'constraints' => [
-                        new Optional(),
-                    ],
-                ])
+            $builder->create('expireLevelsNotificationDays', SettingsIntegerType::class, [
+                'required' => false,
+                'constraints' => [
+                    new Optional(),
+                ],
+            ])
         );
         $builder->add($builder->create('allTimeNotLocked', SettingsCheckboxType::class, ['required' => false]));
         $builder->add(
-            $builder
-                ->create('pointsDaysLocked', SettingsIntegerType::class, [
-                    'required' => false,
-                    'empty_data' => '',
-                ])
+            $builder->create('pointsDaysLocked', SettingsIntegerType::class, [
+                'required' => false,
+                'empty_data' => '',
+            ])
         );
 
-        $builder->add(
-            $builder->create(
-                'pointsDaysExpiryAfter',
-                SettingsChoicesType::class,
-                [
-                    'choices' => [
-                        AddPointsTransfer::TYPE_ALL_TIME_ACTIVE,
-                        AddPointsTransfer::TYPE_AFTER_X_DAYS,
-                        AddPointsTransfer::TYPE_AT_MONTH_END,
-                        AddPointsTransfer::TYPE_AT_YEAR_END,
-                    ],
-                    'required' => true,
-                    'empty_data' => '',
-                ]
+        $builder
+            ->add(
+                $builder->create(
+                    'pointsDaysExpiryAfter',
+                    SettingsChoicesType::class,
+                    [
+                        'choices' => [
+                            AddPointsTransfer::TYPE_ALL_TIME_ACTIVE,
+                            AddPointsTransfer::TYPE_AFTER_X_DAYS,
+                            AddPointsTransfer::TYPE_AT_MONTH_END,
+                            AddPointsTransfer::TYPE_AT_YEAR_END,
+                        ],
+                        'required' => true,
+                        'empty_data' => '',
+                    ]
+                )
             )
-        )->add(
-            $builder->create(
-                'pointsDaysActiveCount',
-                SettingsIntegerType::class,
-                [
-                    'empty_data' => '',
-                    'required' => false,
-                ]
+            ->add(
+                $builder->create(
+                    'pointsDaysActiveCount',
+                    SettingsIntegerType::class,
+                    [
+                        'empty_data' => '',
+                        'required' => false,
+                    ]
+                )
             )
-        );
+        ;
 
         $builder->add($builder->create('webhooks', SettingsCheckboxType::class, ['required' => false]));
         $builder->add(
-            $builder
-                ->create('uriWebhooks', SettingsTextType::class, [
-                    'required' => false,
-                    'constraints' => [
-                        new Callback([$this, 'checkUrl']),
-                    ],
-                ])
+            $builder->create('uriWebhooks', SettingsTextType::class, [
+                'required' => false,
+                'constraints' => [
+                    new Callback([$this, 'checkUrl']),
+                ],
+            ])
         );
         $builder->add(
-            $builder
-                ->create('webhookHeaderName', SettingsTextType::class, [
-                    'required' => false,
-                ])
+            $builder->create('webhookHeaderName', SettingsTextType::class, [
+                'required' => false,
+            ])
         );
         $builder->add(
-            $builder
-                ->create('webhookHeaderValue', SettingsTextType::class, [
-                    'required' => false,
-                ])
+            $builder->create('webhookHeaderValue', SettingsTextType::class, [
+                'required' => false,
+            ])
         );
         $builder->add(
-            $builder
-                ->create('accentColor', SettingsTextType::class, [
-                    'constraints' => [
-                        new ValidHexColor(),
-                    ],
-                ])
+            $builder->create('accentColor', SettingsTextType::class, [
+                'constraints' => [
+                    new ValidHexColor(),
+                ],
+            ])
         );
         $builder->add($builder->create('cssTemplate', SettingsTextType::class));
 
         $builder->add(
-            $builder
-                ->create('customersIdentificationPriority', SettingsCollectionType::class, [
-                    'required' => false,
-                    'allow_add' => true,
-                    'allow_delete' => true,
-                    'entry_type' => CustomersIdentificationPriority::class,
-                    'transformTo' => 'json',
-                ])
+            $builder->create('customersIdentificationPriority', SettingsCollectionType::class, [
+                'required' => false,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'entry_type' => CustomersIdentificationPriority::class,
+                'transformTo' => 'json',
+            ])
         );
 
         $builder->add(
-            $builder
-                ->create('tierAssignType', SettingsChoicesType::class, [
-                    'choices' => [
-                        TierAssignTypeProvider::TYPE_POINTS => TierAssignTypeProvider::TYPE_POINTS,
-                        TierAssignTypeProvider::TYPE_TRANSACTIONS => TierAssignTypeProvider::TYPE_TRANSACTIONS,
-                    ],
-                    'constraints' => [new NotBlank()],
-                ])
+            $builder->create('tierAssignType', SettingsChoicesType::class, [
+                'choices' => [
+                    TierAssignTypeProvider::TYPE_POINTS => TierAssignTypeProvider::TYPE_POINTS,
+                    TierAssignTypeProvider::TYPE_TRANSACTIONS => TierAssignTypeProvider::TYPE_TRANSACTIONS,
+                ],
+                'constraints' => [new NotBlank()],
+            ])
         );
         $builder->add(
-            $builder
-                ->create('excludeDeliveryCostsFromTierAssignment', SettingsCheckboxType::class, ['required' => false])
+            $builder->create('excludeDeliveryCostsFromTierAssignment', SettingsCheckboxType::class, [
+                'required' => false,
+            ])
         );
         $builder->add(
-            $builder
-                ->create('excludedDeliverySKUs', SettingsCollectionType::class, [
-                    'required' => false,
-                    'allow_add' => true,
-                    'allow_delete' => true,
-                    'entry_type' => TextType::class,
-                    'error_bubbling' => false,
-                    'transformTo' => 'json',
-                ])
+            $builder->create('excludedDeliverySKUs', SettingsCollectionType::class, [
+                'required' => false,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'entry_type' => TextType::class,
+                'error_bubbling' => false,
+                'transformTo' => 'json',
+            ])
         );
         $builder->add(
-            $builder
-                ->create('excludedLevelSKUs', SettingsCollectionType::class, [
-                    'required' => false,
-                    'allow_add' => true,
-                    'allow_delete' => true,
-                    'entry_type' => TextType::class,
-                    'transformTo' => 'json',
-                ])
+            $builder->create('excludedLevelSKUs', SettingsCollectionType::class, [
+                'required' => false,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'entry_type' => TextType::class,
+                'transformTo' => 'json',
+            ])
         );
         $builder->add(
-            $builder
-                ->create('excludedLevelCategories', SettingsCollectionType::class, [
-                    'required' => false,
-                    'allow_add' => true,
-                    'allow_delete' => true,
-                    'entry_type' => TextType::class,
-                    'transformTo' => 'json',
-                ])
+            $builder->create('excludedLevelCategories', SettingsCollectionType::class, [
+                'required' => false,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'entry_type' => TextType::class,
+                'transformTo' => 'json',
+            ])
         );
 
         $builder->add(
@@ -345,9 +339,8 @@ class SettingsFormType extends AbstractType
                 'constraints' => [new NotBlank()],
             ])
         );
-        $builder->add(
-            $builder->create('levelDowngradeDays', SettingsIntegerType::class)
-        );
+
+        $builder->add($builder->create('levelDowngradeDays', SettingsIntegerType::class));
 
         $builder->add(
             $builder->create('levelDowngradeBase', SettingsChoicesType::class, [
@@ -358,6 +351,7 @@ class SettingsFormType extends AbstractType
                 ],
             ])
         );
+
         $builder->add(
             $builder->create('levelResetPointsOnDowngrade', SettingsCheckboxType::class, [
                 'required' => false,

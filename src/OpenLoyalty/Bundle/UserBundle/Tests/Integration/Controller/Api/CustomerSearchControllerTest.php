@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -24,17 +24,14 @@ class CustomerSearchControllerTest extends BaseApiTest
      */
     public function it_allows_to_find_customers_using_partial_phrase(string $field, string $phrase, int $count): void
     {
+        $params = ['search' => [$field => $phrase]];
+
         $client = $this->createAuthenticatedClient(
             LoadUserData::TEST_SELLER_USERNAME,
             LoadUserData::TEST_SELLER_PASSWORD,
             'seller'
         );
-        $params = ['search' => [$field => $phrase]];
-        $client->request(
-            'POST',
-            '/api/pos/search/customer',
-            $params
-        );
+        $client->request('POST', '/api/pos/search/customer', $params);
 
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);

@@ -33,7 +33,7 @@ class PointsTransferVoterTest extends BaseVoterTest
 
         $voter = new PointsTransferVoter();
 
-        $this->makeAssertions($attributes, $voter);
+        $this->assertVoterAttributes($voter, $attributes);
     }
 
     /**

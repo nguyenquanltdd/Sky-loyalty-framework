@@ -1,5 +1,5 @@
 services:
-  ol.settings.voter:
-    class: OpenLoyalty\Bundle\SettingsBundle\Security\Voter\SettingsVoter
-    tags:
-      - { name: security.voter }
+    ol.settings.voter:
+        class: OpenLoyalty\Bundle\SettingsBundle\Security\Voter\SettingsVoter
+        tags:
+            - { name: security.voter }

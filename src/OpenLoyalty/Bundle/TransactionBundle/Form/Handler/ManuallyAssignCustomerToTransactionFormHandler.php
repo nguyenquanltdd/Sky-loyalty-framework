@@ -52,7 +52,7 @@ class ManuallyAssignCustomerToTransactionFormHandler
     /**
      * @var AuthorizationChecker
      */
-    protected $ac;
+    protected $authorizationChecker;
 
     /**
      * @var TranslatorInterface
@@ -66,21 +66,21 @@ class ManuallyAssignCustomerToTransactionFormHandler
      * @param CustomerDetailsRepository    $customerDetailsRepository
      * @param CommandBus                   $commandBus
      * @param EventDispatcher              $eventDispatcher
-     * @param AuthorizationChecker         $ac
+     * @param AuthorizationChecker         $authorizationChecker
      */
     public function __construct(
         TransactionDetailsRepository $transactionDetailsRepository,
         CustomerDetailsRepository $customerDetailsRepository,
         CommandBus $commandBus,
         EventDispatcher $eventDispatcher,
-        AuthorizationChecker $ac,
+        AuthorizationChecker $authorizationChecker,
         TranslatorInterface $translator
     ) {
         $this->transactionDetailsRepository = $transactionDetailsRepository;
         $this->customerDetailsRepository = $customerDetailsRepository;
         $this->commandBus = $commandBus;
         $this->eventDispatcher = $eventDispatcher;
-        $this->ac = $ac;
+        $this->authorizationChecker = $authorizationChecker;
         $this->translator = $translator;
     }
 
@@ -105,7 +105,7 @@ class ManuallyAssignCustomerToTransactionFormHandler
         /** @var TransactionDetails $transaction */
         $transaction = reset($transactions);
 
-        if (!$this->ac->isGranted('ASSIGN_CUSTOMER_TO_TRANSACTION', $transaction)) {
+        if (!$this->authorizationChecker->isGranted('ASSIGN_CUSTOMER_TO_TRANSACTION', $transaction)) {
             throw new AccessDeniedException();
         }
 
