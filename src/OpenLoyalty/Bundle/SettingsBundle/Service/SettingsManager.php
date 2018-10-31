@@ -1,31 +1,43 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
+
+declare(strict_types=1);
+
 namespace OpenLoyalty\Bundle\SettingsBundle\Service;
 
 use OpenLoyalty\Bundle\SettingsBundle\Entity\SettingsEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
 
+/**
+ * Interface SettingsManager.
+ */
 interface SettingsManager
 {
-    public function save(Settings $settings, $flush = true);
+    /**
+     * @param Settings $settings
+     * @param bool     $flush
+     */
+    public function save(Settings $settings, $flush = true): void;
+
+    public function removeAll(): void;
 
     /**
      * @return Settings
      */
-    public function getSettings();
+    public function getSettings(): Settings;
 
     /**
-     * @param $key
+     * @param string $key
      *
      * @return SettingsEntry|null
      */
-    public function getSettingByKey($key);
+    public function getSettingByKey(string $key): ?SettingsEntry;
 
     /**
      * @param string $key
      */
-    public function removeSettingByKey($key);
+    public function removeSettingByKey(string $key): void;
 }

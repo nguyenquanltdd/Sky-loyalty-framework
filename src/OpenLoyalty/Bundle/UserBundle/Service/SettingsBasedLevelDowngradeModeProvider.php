@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\Service;
 
+use OpenLoyalty\Bundle\SettingsBundle\Form\Type\SettingsFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Component\Customer\Infrastructure\Exception\LevelDowngradeModeNotSupportedException;
 use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
@@ -34,7 +35,7 @@ class SettingsBasedLevelDowngradeModeProvider implements LevelDowngradeModeProvi
      */
     public function getMode(): string
     {
-        $mode = $this->settingsManager->getSettingByKey('levelDowngradeMode');
+        $mode = $this->settingsManager->getSettingByKey(SettingsFormType::LEVEL_DOWNGRADE_MODE_SETTINGS_KEY);
         if (!$mode) {
             return LevelDowngradeModeProvider::MODE_AUTO;
         }
@@ -57,7 +58,7 @@ class SettingsBasedLevelDowngradeModeProvider implements LevelDowngradeModeProvi
      */
     public function getBase(): string
     {
-        $base = $this->settingsManager->getSettingByKey('levelDowngradeBase');
+        $base = $this->settingsManager->getSettingByKey(SettingsFormType::LEVEL_DOWNGRADE_BASE_SETTINGS_KEY);
         if (!$base) {
             return LevelDowngradeModeProvider::BASE_ACTIVE_POINTS;
         }
@@ -65,6 +66,7 @@ class SettingsBasedLevelDowngradeModeProvider implements LevelDowngradeModeProvi
         $value = $base->getValue();
 
         if (in_array($value, [
+            LevelDowngradeModeProvider::BASE_NONE,
             LevelDowngradeModeProvider::BASE_ACTIVE_POINTS,
             LevelDowngradeModeProvider::BASE_EARNED_POINTS,
             LevelDowngradeModeProvider::BASE_EARNED_POINTS_SINCE_LAST_LEVEL_CHANGE,

@@ -1,12 +1,16 @@
 <?php
+/*
+ * Copyright © 2017 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
+
+declare(strict_types=1);
 
 namespace OpenLoyalty\Bundle\SettingsBundle\Tests\Unit\Form\EventListener;
 
 use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\DowngradeModeSubscriber;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
-use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
-use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormInterface;
@@ -14,141 +18,178 @@ use Symfony\Component\Form\FormInterface;
 /**
  * Class DowngradeModeSubscriberTest.
  */
-class DowngradeModeSubscriberTest extends TestCase
+final class DowngradeModeSubscriberTest extends TestCase
 {
     /**
-     * @test
+     * @var FormInterface|\PHPUnit_Framework_MockObject_MockObject
      */
-    public function it_not_validates_when_tier_assign_type_is_transaction()
+    private $form;
+
+    /**
+     * @var DowngradeModeSubscriber
+     */
+    private $listener;
+
+    /**
+     * @var Settings
+     */
+    private $settings;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function setUp(): void
     {
-        $form = $this->getMockBuilder(FormInterface::class)->disableOriginalConstructor()->getMock();
-        $settings = new Settings();
-        $settings->addEntry(new StringSettingEntry('tierAssignType', TierAssignTypeProvider::TYPE_TRANSACTIONS));
-        $form->expects($this->never())->method('get');
+        parent::setUp();
 
-        $event = new FormEvent($form, $settings);
+        $this->form = $this->createMock(FormInterface::class);
 
-        $listener = new DowngradeModeSubscriber();
-        $listener->submit($event);
+        $this->listener = new DowngradeModeSubscriber();
+
+        $this->settings = new Settings();
     }
 
     /**
      * @test
      */
-    public function it_not_validates_when_level_downgrade_mode_is_auto()
+    public function it_does_not_validate_when_tier_assign_type_is_transaction(): void
     {
-        $form = $this->getMockBuilder(FormInterface::class)->disableOriginalConstructor()->getMock();
-        $settings = new Settings();
-        $settings->addEntry(new StringSettingEntry('tierAssignType', TierAssignTypeProvider::TYPE_POINTS));
-        $settings->addEntry(new StringSettingEntry('levelDowngradeMode', LevelDowngradeModeProvider::MODE_AUTO));
-        $form->expects($this->never())->method('get');
+        $this->settings->addEntry(new StringSettingEntry('tierAssignType', 'transactions'));
 
-        $event = new FormEvent($form, $settings);
+        $this->form->expects($this->never())->method('get');
 
-        $listener = new DowngradeModeSubscriber();
-        $listener->submit($event);
+        $event = new FormEvent($this->form, $this->settings);
+
+        $this->listener->__invoke($event);
     }
 
     /**
      * @test
      */
-    public function it_not_validates_when_level_downgrade_mode_is_none()
+    public function it_does_not_validate_when_level_downgrade_mode_is_auto(): void
     {
-        $form = $this->getMockBuilder(FormInterface::class)->disableOriginalConstructor()->getMock();
-        $settings = new Settings();
-        $settings->addEntry(new StringSettingEntry('tierAssignType', TierAssignTypeProvider::TYPE_POINTS));
-        $settings->addEntry(new StringSettingEntry('levelDowngradeMode', LevelDowngradeModeProvider::MODE_NONE));
-        $form->expects($this->never())->method('get');
+        $this->settings->addEntry(new StringSettingEntry('tierAssignType', 'points'));
+        $this->settings->addEntry(new StringSettingEntry('levelDowngradeMode', 'automatic'));
 
-        $event = new FormEvent($form, $settings);
+        $this->form->expects($this->never())->method('get');
 
-        $listener = new DowngradeModeSubscriber();
-        $listener->submit($event);
+        $event = new FormEvent($this->form, $this->settings);
+
+        $this->listener->__invoke($event);
     }
 
     /**
      * @test
      */
-    public function it_add_error_when_days_not_provided()
+    public function it_does_not_validate_when_level_downgrade_mode_is_none(): void
     {
-        $form = $this->getMockBuilder(FormInterface::class)->disableOriginalConstructor()->getMock();
-        $settings = new Settings();
-        $settings->addEntry(new StringSettingEntry('tierAssignType', TierAssignTypeProvider::TYPE_POINTS));
-        $settings->addEntry(new StringSettingEntry('levelDowngradeMode', LevelDowngradeModeProvider::MODE_X_DAYS));
-        $settings->addEntry(new StringSettingEntry('levelDowngradeBase', LevelDowngradeModeProvider::BASE_ACTIVE_POINTS));
-        $levelDowngradeDaysForm = $this->getMockBuilder(FormInterface::class)->disableOriginalConstructor()->getMock();
+        $this->settings->addEntry(new StringSettingEntry('tierAssignType', 'points'));
+        $this->settings->addEntry(new StringSettingEntry('levelDowngradeMode', 'none'));
+
+        $this->form->expects($this->never())->method('get');
+
+        $event = new FormEvent($this->form, $this->settings);
+
+        $this->listener->__invoke($event);
+    }
+
+    /**
+     * @test
+     */
+    public function it_add_error_when_days_not_provided(): void
+    {
+        $this->settings = new Settings();
+        $this->settings->addEntry(new StringSettingEntry('tierAssignType', 'points'));
+        $this->settings->addEntry(new StringSettingEntry('levelDowngradeMode', 'after_x_days'));
+        $this->settings->addEntry(new StringSettingEntry('levelDowngradeBase', 'active_points'));
+
+        $levelDowngradeDaysForm = $this->createMock(FormInterface::class);
         $levelDowngradeDaysForm->expects($this->once())->method('addError');
-        $form->expects($this->atLeast(1))->method('get')->with($this->equalTo('levelDowngradeDays'))->willReturn(
-            $levelDowngradeDaysForm
-        );
 
-        $event = new FormEvent($form, $settings);
+        $this
+            ->form
+            ->expects($this->atLeast(1))
+            ->method('get')
+            ->with($this->equalTo('levelDowngradeDays'))
+            ->willReturn(
+                $levelDowngradeDaysForm
+            )
+        ;
 
-        $listener = new DowngradeModeSubscriber();
-        $listener->submit($event);
+        $event = new FormEvent($this->form, $this->settings);
+
+        $this->listener->__invoke($event);
     }
 
     /**
      * @test
      */
-    public function it_add_error_when_days_less_than_one()
+    public function it_adds_error_when_days_less_than_one(): void
     {
-        $form = $this->getMockBuilder(FormInterface::class)->disableOriginalConstructor()->getMock();
-        $settings = new Settings();
-        $settings->addEntry(new StringSettingEntry('tierAssignType', TierAssignTypeProvider::TYPE_POINTS));
-        $settings->addEntry(new StringSettingEntry('levelDowngradeMode', LevelDowngradeModeProvider::MODE_X_DAYS));
-        $settings->addEntry(new StringSettingEntry('levelDowngradeBase', LevelDowngradeModeProvider::BASE_ACTIVE_POINTS));
-        $settings->addEntry(new StringSettingEntry('levelDowngradeDays', 0));
-        $levelDowngradeDaysForm = $this->getMockBuilder(FormInterface::class)->disableOriginalConstructor()->getMock();
+        $this->settings->addEntry(new StringSettingEntry('tierAssignType', 'points'));
+        $this->settings->addEntry(new StringSettingEntry('levelDowngradeMode', 'after_x_days'));
+        $this->settings->addEntry(new StringSettingEntry('levelDowngradeBase', 'active_points'));
+        $this->settings->addEntry(new StringSettingEntry('levelDowngradeDays', 0));
+
+        $levelDowngradeDaysForm = $this->createMock(FormInterface::class);
         $levelDowngradeDaysForm->expects($this->once())->method('addError');
-        $form->expects($this->atLeast(1))->method('get')->with($this->equalTo('levelDowngradeDays'))->willReturn(
-            $levelDowngradeDaysForm
-        );
 
-        $event = new FormEvent($form, $settings);
+        $this
+            ->form
+            ->expects($this->atLeast(1))
+            ->method('get')
+            ->with($this->equalTo('levelDowngradeDays'))
+            ->willReturn(
+                $levelDowngradeDaysForm
+            )
+        ;
 
-        $listener = new DowngradeModeSubscriber();
-        $listener->submit($event);
+        $event = new FormEvent($this->form, $this->settings);
+
+        $this->listener->__invoke($event);
     }
 
     /**
      * @test
      */
-    public function it_add_error_when_base_not_provided()
+    public function it_add_error_when_base_not_provided(): void
     {
-        $form = $this->getMockBuilder(FormInterface::class)->disableOriginalConstructor()->getMock();
-        $settings = new Settings();
-        $settings->addEntry(new StringSettingEntry('tierAssignType', TierAssignTypeProvider::TYPE_POINTS));
-        $settings->addEntry(new StringSettingEntry('levelDowngradeMode', LevelDowngradeModeProvider::MODE_X_DAYS));
-        $settings->addEntry(new StringSettingEntry('levelDowngradeDays', 1));
-        $levelBaseForm = $this->getMockBuilder(FormInterface::class)->disableOriginalConstructor()->getMock();
+        $this->settings->addEntry(new StringSettingEntry('tierAssignType', 'points'));
+        $this->settings->addEntry(new StringSettingEntry('levelDowngradeMode', 'after_x_days'));
+        $this->settings->addEntry(new StringSettingEntry('levelDowngradeDays', 1));
+
+        $levelBaseForm = $this->createMock(FormInterface::class);
         $levelBaseForm->expects($this->once())->method('addError');
-        $form->expects($this->atLeast(1))->method('get')->with($this->equalTo('levelDowngradeBase'))->willReturn(
-            $levelBaseForm
-        );
 
-        $event = new FormEvent($form, $settings);
+        $this
+            ->form
+            ->expects($this->atLeast(1))
+            ->method('get')
+            ->with($this->equalTo('levelDowngradeBase'))
+            ->willReturn(
+                $levelBaseForm
+            )
+        ;
 
-        $listener = new DowngradeModeSubscriber();
-        $listener->submit($event);
+        $event = new FormEvent($this->form, $this->settings);
+
+        $this->listener->__invoke($event);
     }
 
     /**
      * @test
      */
-    public function it_not_add_errors_when_valid()
+    public function it_not_add_errors_when_valid(): void
     {
-        $form = $this->getMockBuilder(FormInterface::class)->disableOriginalConstructor()->getMock();
-        $settings = new Settings();
-        $settings->addEntry(new StringSettingEntry('tierAssignType', TierAssignTypeProvider::TYPE_POINTS));
-        $settings->addEntry(new StringSettingEntry('levelDowngradeMode', LevelDowngradeModeProvider::MODE_X_DAYS));
-        $settings->addEntry(new StringSettingEntry('levelDowngradeDays', 1));
-        $settings->addEntry(new StringSettingEntry('levelDowngradeBase', LevelDowngradeModeProvider::BASE_ACTIVE_POINTS));
-        $form->expects($this->never())->method('get');
+        $this->settings->addEntry(new StringSettingEntry('tierAssignType', 'points'));
+        $this->settings->addEntry(new StringSettingEntry('levelDowngradeMode', 'after_x_days'));
+        $this->settings->addEntry(new StringSettingEntry('levelDowngradeDays', 1));
+        $this->settings->addEntry(new StringSettingEntry('levelDowngradeBase', 'active_points'));
 
-        $event = new FormEvent($form, $settings);
+        $this->form->expects($this->never())->method('get');
 
-        $listener = new DowngradeModeSubscriber();
-        $listener->submit($event);
+        $event = new FormEvent($this->form, $this->settings);
+
+        $this->listener->__invoke($event);
     }
 }

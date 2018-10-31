@@ -13,7 +13,6 @@ use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
-use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
 use OpenLoyalty\Component\EarningRule\Domain\ReferralEarningRule;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
@@ -224,10 +223,8 @@ class SettingsControllerTest extends BaseApiTest
             'programFaqUrl' => '',
             'programUrl' => '',
             'helpEmailAddress' => '',
-            'levelDowngradeMode' => LevelDowngradeModeProvider::MODE_AUTO,
-            'levelDowngradeBase' => '',
-            'levelDowngradeDays' => 0,
-            'levelResetPointsOnDowngrade' => false,
+            'levelDowngradeMode' => 'none',
+            'levelDowngradeBase' => 'none',
             'webhooks' => false,
             'uriWebhooks' => '',
             'webhookHeaderName' => '',
@@ -542,10 +539,14 @@ class SettingsControllerTest extends BaseApiTest
         $this->assertArrayHasKey('programName', $settings);
         $this->assertArrayHasKey('programPointsSingular', $settings);
         $this->assertArrayHasKey('programPointsPlural', $settings);
-        $this->assertArrayHasKey('tierAssignType', $settings);
         $this->assertArrayHasKey('accountActivationMethod', $settings);
+
         $this->assertArrayHasKey('accentColor', $settings);
         $this->assertArrayHasKey('cssTemplate', $settings);
+
+        $this->assertArrayHasKey('tierAssignType', $settings);
+        $this->assertArrayHasKey('levelDowngradeMode', $settings);
+        $this->assertArrayHasKey('levelDowngradeBase', $settings);
     }
 
     /**

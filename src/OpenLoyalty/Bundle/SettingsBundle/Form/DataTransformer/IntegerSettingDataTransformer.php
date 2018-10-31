@@ -45,7 +45,9 @@ class IntegerSettingDataTransformer implements DataTransformerInterface
             return;
         }
         if (!$value instanceof IntegerSettingEntry) {
-            throw new \InvalidArgumentException();
+            throw new \InvalidArgumentException(
+                sprintf('Value %s is not an instance of %s', $value, IntegerSettingEntry::class)
+            );
         }
 
         return $value->getValue();

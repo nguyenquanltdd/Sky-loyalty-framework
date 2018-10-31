@@ -18,6 +18,7 @@ interface LevelDowngradeModeProvider
     const MODE_AUTO = 'automatic';
     const MODE_X_DAYS = 'after_x_days';
 
+    const BASE_NONE = 'none';
     const BASE_ACTIVE_POINTS = 'active_points';
     const BASE_EARNED_POINTS = 'earned_points';
     const BASE_EARNED_POINTS_SINCE_LAST_LEVEL_CHANGE = 'earned_points_since_last_level_change';

@@ -1,10 +1,14 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
+
+declare(strict_types=1);
+
 namespace OpenLoyalty\Bundle\SettingsBundle\Form\EventListener;
 
+use OpenLoyalty\Bundle\SettingsBundle\Form\Type\SettingsFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
 use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
@@ -23,46 +27,70 @@ class DowngradeModeSubscriber implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
-        return [FormEvents::SUBMIT => 'submit'];
+        return [FormEvents::SUBMIT => '__invoke'];
     }
 
     /**
      * @param FormEvent $event
      */
-    public function submit(FormEvent $event)
+    public function __invoke(FormEvent $event): void
     {
         $data = $event->getData();
         if (!$data instanceof Settings) {
             return;
         }
-        if (!$data->getEntry('tierAssignType') || $data->getEntry('tierAssignType')->getValue() !== TierAssignTypeProvider::TYPE_POINTS) {
+
+        $tierAssignType = $data->getEntry(SettingsFormType::TIER_ASSIGN_TYPE_SETTINGS_KEY);
+        $levelDowngradeMode = $data->getEntry(SettingsFormType::LEVEL_DOWNGRADE_MODE_SETTINGS_KEY);
+
+        if (!$tierAssignType
+            || TierAssignTypeProvider::TYPE_POINTS !== $tierAssignType->getValue()
+            || !$levelDowngradeMode
+        ) {
             return;
-        }
-        $mode = $data->getEntry('levelDowngradeMode');
-        if (!$mode) {
-            return;
-        }
-        $mode = $mode->getValue();
-        if ($mode === LevelDowngradeModeProvider::MODE_AUTO || $mode === LevelDowngradeModeProvider::MODE_NONE) {
-            return;
-        }
-        $downgradeDays = $data->getEntry('levelDowngradeDays');
-        if (!$downgradeDays || null === $downgradeDays->getValue()) {
-            $event->getForm()->get('levelDowngradeDays')->addError($this->getTranslatedError((new NotBlank())->message));
         }
 
-        if ($downgradeDays && $downgradeDays->getValue() && $downgradeDays->getValue() < 1) {
-            $minMessage = (new Range(['min' => 1]))->minMessage;
-            $event->getForm()->get('levelDowngradeDays')->addError($this->getTranslatedError($minMessage, [
-                '{{ limit }}' => 1,
-            ]));
-        }
+        $levelDowngradeModeValue = $levelDowngradeMode->getValue();
+        if (LevelDowngradeModeProvider::MODE_X_DAYS === $levelDowngradeModeValue) {
+            $downgradeDays = $data->getEntry(SettingsFormType::LEVEL_DOWNGRADE_DAYS_SETTINGS_KEY);
+            if (!$downgradeDays || null === $downgradeDays->getValue()) {
+                $event
+                    ->getForm()
+                    ->get(SettingsFormType::LEVEL_DOWNGRADE_DAYS_SETTINGS_KEY)
+                    ->addError(
+                        $this->getTranslatedError((new NotBlank())->message)
+                    )
+                ;
+            }
 
-        $downgradeBase = $data->getEntry('levelDowngradeBase');
-        if (!$downgradeBase || !$downgradeBase->getValue()) {
-            $event->getForm()->get('levelDowngradeBase')->addError($this->getTranslatedError((new NotBlank())->message));
+            if ($downgradeDays && $downgradeDays->getValue() && $downgradeDays->getValue() < 1) {
+                $minMessage = (new Range(['min' => 1]))->minMessage;
+                $event
+                    ->getForm()
+                    ->get(SettingsFormType::LEVEL_DOWNGRADE_DAYS_SETTINGS_KEY)
+                    ->addError(
+                        $this->getTranslatedError(
+                            $minMessage,
+                            [
+                                '{{ limit }}' => 1,
+                            ]
+                        )
+                    )
+                ;
+            }
+
+            $downgradeBase = $data->getEntry(SettingsFormType::LEVEL_DOWNGRADE_BASE_SETTINGS_KEY);
+            if (!$downgradeBase || !$downgradeBase->getValue()) {
+                $event
+                    ->getForm()
+                    ->get(SettingsFormType::LEVEL_DOWNGRADE_BASE_SETTINGS_KEY)
+                    ->addError(
+                        $this->getTranslatedError((new NotBlank())->message)
+                    )
+                ;
+            }
         }
     }
 
@@ -74,10 +102,6 @@ class DowngradeModeSubscriber implements EventSubscriberInterface
      */
     private function getTranslatedError(string $message, array $params = []): FormError
     {
-        return new FormError(
-            $message,
-            $message,
-            $params
-        );
+        return new FormError($message, $message, $params);
     }
 }

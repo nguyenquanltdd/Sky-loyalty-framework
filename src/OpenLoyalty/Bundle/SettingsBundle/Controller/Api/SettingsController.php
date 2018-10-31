@@ -27,6 +27,7 @@ use OpenLoyalty\Component\Core\Domain\Exception\InvalidPhotoNameException;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Component\Form\FormFactory;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,12 +42,12 @@ class SettingsController extends FOSRestController
     /**
      * @var TranslatorInterface
      */
-    protected $translator;
+    private $translator;
 
     /**
      * @var SettingsManager
      */
-    protected $settingsManager;
+    private $settingsManager;
 
     /**
      * @var SimpleCommandBus
@@ -61,12 +62,17 @@ class SettingsController extends FOSRestController
     /**
      * @var TranslationsProvider
      */
-    protected $translationsProvider;
+    private $translationsProvider;
 
     /**
      * @var TemplateProvider
      */
-    protected $templateProvider;
+    private $templateProvider;
+
+    /**
+     * @var FormFactory
+     */
+    private $formFactory;
 
     /**
      * SettingsController constructor.
@@ -77,6 +83,7 @@ class SettingsController extends FOSRestController
      * @param LogoUploader         $uploader
      * @param SimpleCommandBus     $commandBus
      * @param TemplateProvider     $templateProvider
+     * @param FormFactory          $formFactory
      */
     public function __construct(
         TranslatorInterface $translator,
@@ -84,7 +91,8 @@ class SettingsController extends FOSRestController
         TranslationsProvider $translationsProvider,
         LogoUploader $uploader,
         SimpleCommandBus $commandBus,
-        TemplateProvider $templateProvider
+        TemplateProvider $templateProvider,
+        FormFactory $formFactory
     ) {
         $this->translator = $translator;
         $this->settingsManager = $settingsManager;
@@ -92,6 +100,7 @@ class SettingsController extends FOSRestController
         $this->uploader = $uploader;
         $this->commandBus = $commandBus;
         $this->templateProvider = $templateProvider;
+        $this->formFactory = $formFactory;
     }
 
     /**
@@ -615,23 +624,25 @@ class SettingsController extends FOSRestController
      */
     public function editAction(Request $request): Response
     {
-        $settingsManager = $this->get('ol.settings.manager');
-
-        $form = $this->get('form.factory')->createNamed('settings', SettingsFormType::class, $settingsManager->getSettings());
+        $form = $this->formFactory->createNamed('settings', SettingsFormType::class, $this->settingsManager->getSettings());
         $form->handleRequest($request);
 
-        if (!$form->isValid()) {
-            return $this->handleView(View::create($form->getErrors(), Response::HTTP_BAD_REQUEST));
+        if ($form->isValid()) {
+            $data = $form->getData();
+            $this->settingsManager->removeAll();
+            $this->settingsManager->save($data);
+
+            return $this->handleView(
+                View::create(
+                    [
+                        'settings' => $data->toArray(),
+                    ],
+                    Response::HTTP_OK
+                )
+            );
         }
 
-        $settingsManager->save($form->getData());
-
-        return $this->handleView(View::create(
-            [
-                'settings' => $form->getData()->toArray(),
-            ],
-            Response::HTTP_OK
-        ));
+        return $this->handleView(View::create($form->getErrors(), Response::HTTP_BAD_REQUEST));
     }
 
     /**

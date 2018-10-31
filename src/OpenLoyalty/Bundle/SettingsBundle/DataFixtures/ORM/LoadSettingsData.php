@@ -12,6 +12,7 @@ use OpenLoyalty\Bundle\SettingsBundle\Entity\FileSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\IntegerSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\JsonSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
+use OpenLoyalty\Bundle\SettingsBundle\Form\Type\SettingsFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Logo;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
 use OpenLoyalty\Bundle\SettingsBundle\Provider\AvailableMarketingVendors;
@@ -102,17 +103,29 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
         $allTimeNotLocked = new BooleanSettingEntry('allTimeNotLocked', true);
         $settings->addEntry($allTimeNotLocked);
 
-        $entry = new StringSettingEntry('tierAssignType');
-        $entry->setValue(TierAssignTypeProvider::TYPE_TRANSACTIONS);
-        $settings->addEntry($entry);
-
         $entry3 = new JsonSettingEntry('excludedLevelCategories');
         $entry3->setValue(['category_excluded_from_level']);
         $settings->addEntry($entry3);
 
-        $downgradeMode = new StringSettingEntry('levelDowngradeMode');
+        $entry = new StringSettingEntry(SettingsFormType::TIER_ASSIGN_TYPE_SETTINGS_KEY);
+        $entry->setValue(TierAssignTypeProvider::TYPE_TRANSACTIONS);
+        $settings->addEntry($entry);
+
+        $downgradeMode = new StringSettingEntry(SettingsFormType::LEVEL_DOWNGRADE_MODE_SETTINGS_KEY);
         $downgradeMode->setValue(LevelDowngradeModeProvider::MODE_NONE);
         $settings->addEntry($downgradeMode);
+
+        $downgradeDays = new IntegerSettingEntry(SettingsFormType::LEVEL_DOWNGRADE_DAYS_SETTINGS_KEY);
+        $downgradeDays->setValue(null);
+        $settings->addEntry($downgradeDays);
+
+        $downgradeBase = new StringSettingEntry(SettingsFormType::LEVEL_DOWNGRADE_BASE_SETTINGS_KEY);
+        $downgradeBase->setValue(LevelDowngradeModeProvider::BASE_NONE);
+        $settings->addEntry($downgradeBase);
+
+        $entry = new BooleanSettingEntry(SettingsFormType::LEVEL_RESET_POINTS_ON_DOWNGRADE_SETTINGS_KEY);
+        $entry->setValue(false);
+        $settings->addEntry($entry);
 
         // copy logo
         $rootDirectory = $this->getContainer()->getParameter('kernel.root_dir');

@@ -47,7 +47,7 @@ class SettingsFormTypeTest extends TypeTestCase
         'helpEmailAddress' => 'email',
         'tierAssignType' => 'points',
         'levelDowngradeMode' => LevelDowngradeModeProvider::MODE_AUTO,
-        'levelDowngradeBase' => '',
+        'levelDowngradeBase' => 'none',
         'accountActivationMethod' => 'email',
         'uriWebhooks' => '',
         'webhookHeaderName' => '',
