@@ -35,13 +35,13 @@ class GeneralSettingsManager extends DoctrineSettingsManager implements GeneralS
             case AddPointsTransfer::TYPE_AT_MONTH_END:
                 $today = $this->getDateTime();
                 $today->setTime(0, 0);
-                $lastDayOfThisMonth = new \DateTime('last day of this month');
+                $lastDayOfThisMonth = $this->getDateTime('last day of this month');
                 $numberOfDays = (int) $lastDayOfThisMonth->diff($today)->format('%a');
                 break;
             case AddPointsTransfer::TYPE_AT_YEAR_END:
                 $today = $this->getDateTime();
                 $today->setTime(0, 0);
-                $lastDayOfThisYear = new \DateTime('last day of december this year');
+                $lastDayOfThisYear = $this->getDateTime('last day of december this year');
                 $numberOfDays = (int) $lastDayOfThisYear->diff($today)->format('%a');
                 break;
             case AddPointsTransfer::TYPE_AFTER_X_DAYS:

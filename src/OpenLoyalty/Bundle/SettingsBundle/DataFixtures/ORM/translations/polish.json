@@ -301,6 +301,7 @@
     },
     "global": {
       "errors": {
+        "this_field_is_required": "To pole jest wymagane",
         "this_checkbox_is_required": "To pole jest wymagane",
         "invalid_jwt_token": "Błąd! Nieprawidłowy token",
         "not_found": "Błąd! Nie znaleziono informacji na serwerze"
@@ -696,7 +697,14 @@
     },
     "form": {
       "validation": {
-        "please_fill_form": "Proszę uzupełnij wymagane pola"
+        "your_password_must_be_at_least_8_characters_long": "Twoje hasło musi mieć co najmniej 8 znaków.",
+        "your_password_must_include_at_least_one_letter.": "Twoje hasło musi zawierać co najmniej jedną literę",
+        "your_password_must_include_at_least_one_number": "Twoje hasło musi zawierać co najmniej jedną cyfrę.",
+        "your_password_must_contain_at_least_one_special_character": "Twoje hasło musi zawierać co najmniej jeden znak specjalny.",
+        "your_password_must_include_both_upper_and_lower_case_letters.": "Twoje hasło musi zawierać zarówno duże, jak i małe litery",
+        "customer_with_such_email_already_exists": "Klient z takim adresem email już istnieje",
+        "please_fill_form": "Proszę uzupełnij wymagane pola",
+        "form_contains_errors": "Formularz zawiera błędy"
       }
     }
   },
@@ -1444,18 +1452,18 @@
       "points": "Punkty za każdą wydaną złotówkę",
       "product_purchase": "Zakup produktu",
       "referral": "Zaproszenia do programu",
-      "geolocation" : "Geolokalizacja",
+      "geolocation": "Geolokalizacja",
       "qrcode": "QRcode"
     },
     "value": "Wartość",
     "visibility_and_activity": "Dostępność reguły",
-    "latitude" : "Szerokość",
+    "latitude": "Szerokość",
     "latitude_prompt": "",
-    "longitude" : "Długość",
+    "longitude": "Długość",
     "longitude_prompt": "",
-    "radius" :"Promień",
+    "radius": "Promień",
     "radius_prompt": "w kilometrach od podanego punktu",
-    "points" : "Punkty",
+    "points": "Punkty",
     "points_prompt": ""
   },
   "front_error": {
@@ -1802,8 +1810,8 @@
       "heading": "Zidentyfikuj klienta",
       "loyalty_card_number": "Numer karty lojalnościowej",
       "name": "Imię i nazwisko",
-      "firstName" : "Imię",
-      "lastName" : "Nazwisko",
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
       "phone": "Numer telefonu",
       "phone_prompt": "Numer telefonu klienta",
       "postcode": "Kod pocztowy",

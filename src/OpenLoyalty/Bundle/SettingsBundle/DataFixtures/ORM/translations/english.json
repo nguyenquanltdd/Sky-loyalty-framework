@@ -287,6 +287,7 @@
     },
     "global": {
       "errors": {
+        "this_field_is_required": "This field is required",
         "this_checkbox_is_required": "This checkbox is required",
         "invalid_jwt_token": "Error! Invalid token",
         "not_found": "Error! No data was found"
@@ -677,7 +678,14 @@
     },
     "form":{
       "validation": {
-        "please_fill_form": "Please fill in all the required fields"
+        "your_password_must_be_at_least_8_characters_long": "Your password must be at least 8 characters long.",
+        "your_password_must_include_at_least_one_letter": "Your password must include at least one letter.",
+        "your_password_must_include_at_least_one_number": "Your password must include at least one number.",
+        "your_password_must_contain_at_least_one_special_character": "Your password must contain at least one special character.",
+        "your_password_must_include_both_upper_and_lower_case_letters.": "Your password must include both upper and lower case letters.",
+        "customer_with_such_email_already_exists": "Customer with such email already exists",
+        "please_fill_form": "Please fill in all the required fields",
+        "form_contains_errors": "Form contains errors"
       }
     }
   },
