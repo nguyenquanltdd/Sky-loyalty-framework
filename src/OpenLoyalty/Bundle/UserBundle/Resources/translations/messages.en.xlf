@@ -26,6 +26,10 @@
                 <source>customer.registration.phone_number_exists</source>
                 <target>Customer with such phone already exists.</target>
             </trans-unit>
+            <trans-unit id="customer.registration.start_leveL_not_found">
+                <source>customer.registration.start_leveL_not_found</source>
+                <target>Neither level is not available as start level for this customer.</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

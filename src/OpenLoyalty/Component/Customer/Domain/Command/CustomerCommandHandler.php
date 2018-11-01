@@ -28,6 +28,7 @@ use OpenLoyalty\Component\Customer\Domain\SystemEvent\NewsletterSubscriptionSyst
 use OpenLoyalty\Component\Customer\Domain\TransactionId;
 use OpenLoyalty\Component\Campaign\Domain\TransactionId as CampaignTransactionId;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
+use OpenLoyalty\Component\Customer\Infrastructure\Exception\LevelDowngradeModeNotSupportedException;
 use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 
 /**
@@ -98,6 +99,7 @@ class CustomerCommandHandler extends SimpleCommandHandler
         if (isset($customerData['phone']) && $customerData['phone']) {
             $this->customerUniqueValidator->validatePhoneUnique($customerData['phone']);
         }
+
         /** @var Customer $customer */
         $customer = Customer::registerCustomer($command->getCustomerId(), $customerData);
         $this->repository->save($customer);
@@ -228,6 +230,8 @@ class CustomerCommandHandler extends SimpleCommandHandler
 
     /**
      * @param MoveCustomerToLevel $command
+     *
+     * @throws LevelDowngradeModeNotSupportedException
      */
     public function handleMoveCustomerToLevel(MoveCustomerToLevel $command)
     {

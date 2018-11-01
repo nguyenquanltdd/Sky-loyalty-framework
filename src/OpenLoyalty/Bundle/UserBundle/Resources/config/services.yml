@@ -165,11 +165,6 @@ services:
         tags:
             - { name: jms_serializer.event_subscriber }
 
-    oloy.user.level_id_provider:
-        class: 'OpenLoyalty\Bundle\UserBundle\Service\OloyLevelIdProvider'
-        arguments:
-            - '@oloy.level.repository'
-
     oloy.user.settings_based_tier_assign_type_provider:
         class: 'OpenLoyalty\Bundle\UserBundle\Service\SettingsBasedTierAssignTypeProvider'
         arguments:
@@ -298,3 +293,7 @@ services:
             - '%master_api_key%'
 
     OpenLoyalty\Bundle\UserBundle\Command\CustomerImportCommand: ~
+
+    OpenLoyalty\Bundle\UserBundle\Service\OloyLevelIdProvider:
+        arguments:
+            - '@oloy.level.repository'

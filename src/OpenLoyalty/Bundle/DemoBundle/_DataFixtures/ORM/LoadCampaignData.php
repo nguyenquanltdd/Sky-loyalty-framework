@@ -189,10 +189,10 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setLimitPerUser(10);
         $campaign->setLevels(
             [
+                new LevelId(LoadLevelData::LEVEL0_ID),
+                new LevelId(LoadLevelData::LEVEL1_ID),
                 new LevelId(LoadLevelData::LEVEL2_ID),
-                new LevelId(LoadLevelData::LEVEL_ID),
                 new LevelId(LoadLevelData::LEVEL3_ID),
-                new LevelId(LoadLevelData::LEVEL4_ID),
             ]
         );
 
@@ -239,10 +239,10 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setLimitPerUser(1);
         $campaign->setLevels(
             [
+                new LevelId(LoadLevelData::LEVEL0_ID),
+                new LevelId(LoadLevelData::LEVEL1_ID),
                 new LevelId(LoadLevelData::LEVEL2_ID),
-                new LevelId(LoadLevelData::LEVEL_ID),
                 new LevelId(LoadLevelData::LEVEL3_ID),
-                new LevelId(LoadLevelData::LEVEL4_ID),
             ]
         );
 
@@ -289,10 +289,10 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setLimitPerUser(1);
         $campaign->setLevels(
             [
+                new LevelId(LoadLevelData::LEVEL0_ID),
+                new LevelId(LoadLevelData::LEVEL1_ID),
                 new LevelId(LoadLevelData::LEVEL2_ID),
-                new LevelId(LoadLevelData::LEVEL_ID),
                 new LevelId(LoadLevelData::LEVEL3_ID),
-                new LevelId(LoadLevelData::LEVEL4_ID),
             ]
         );
 
@@ -334,10 +334,10 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setLimitPerUser(1);
         $campaign->setLevels(
             [
+                new LevelId(LoadLevelData::LEVEL0_ID),
+                new LevelId(LoadLevelData::LEVEL1_ID),
                 new LevelId(LoadLevelData::LEVEL2_ID),
-                new LevelId(LoadLevelData::LEVEL_ID),
                 new LevelId(LoadLevelData::LEVEL3_ID),
-                new LevelId(LoadLevelData::LEVEL4_ID),
             ]
         );
 
@@ -381,10 +381,10 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setLimitPerUser(1);
         $campaign->setLevels(
             [
+                new LevelId(LoadLevelData::LEVEL0_ID),
+                new LevelId(LoadLevelData::LEVEL1_ID),
                 new LevelId(LoadLevelData::LEVEL2_ID),
-                new LevelId(LoadLevelData::LEVEL_ID),
                 new LevelId(LoadLevelData::LEVEL3_ID),
-                new LevelId(LoadLevelData::LEVEL4_ID),
             ]
         );
 
@@ -549,7 +549,7 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setLimitPerUser(1);
         $campaign->setLevels(
             [
-                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL1_ID),
             ]
         );
 
@@ -638,10 +638,10 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setLimitPerUser(2);
         $campaign->setLevels(
             [
+                new LevelId(LoadLevelData::LEVEL0_ID),
+                new LevelId(LoadLevelData::LEVEL1_ID),
                 new LevelId(LoadLevelData::LEVEL2_ID),
-                new LevelId(LoadLevelData::LEVEL_ID),
                 new LevelId(LoadLevelData::LEVEL3_ID),
-                new LevelId(LoadLevelData::LEVEL4_ID),
             ]
         );
 
@@ -686,10 +686,10 @@ class LoadCampaignData extends ContainerAwareFixture implements OrderedFixtureIn
         $campaign->setActive(true);
         $campaign->setLevels(
             [
+                new LevelId(LoadLevelData::LEVEL0_ID),
+                new LevelId(LoadLevelData::LEVEL1_ID),
                 new LevelId(LoadLevelData::LEVEL2_ID),
-                new LevelId(LoadLevelData::LEVEL_ID),
                 new LevelId(LoadLevelData::LEVEL3_ID),
-                new LevelId(LoadLevelData::LEVEL4_ID),
             ]
         );
 

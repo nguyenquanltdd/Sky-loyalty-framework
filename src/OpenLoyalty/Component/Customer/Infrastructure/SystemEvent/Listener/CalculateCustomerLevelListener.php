@@ -24,12 +24,12 @@ use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRecalculateLevelRe
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerRemovedManuallyLevelSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
 use OpenLoyalty\Component\Customer\Domain\TransactionId;
-use OpenLoyalty\Component\Level\Domain\LevelId;
 use OpenLoyalty\Component\Customer\Infrastructure\Exception\LevelDowngradeModeNotSupportedException;
 use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 use OpenLoyalty\Component\Customer\Infrastructure\ExcludeDeliveryCostsProvider;
 use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
 use OpenLoyalty\Component\Level\Domain\Level;
+use OpenLoyalty\Component\Level\Domain\LevelId as LevelLevelId;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\CustomerAssignedToTransactionSystemEvent;
 
@@ -217,18 +217,18 @@ class CalculateCustomerLevelListener
         $currentAmount = $status->getPoints() ?? 0;
 
         /** @var CustomerDetails $customer */
-        $customer = $this->customerDetailsRepository->find($customerId->__toString());
+        $customer = $this->customerDetailsRepository->find((string) $customerId);
 
         $levelId = $this->levelIdProvider->findLevelIdByConditionValueWithTheBiggestReward($currentAmount);
 
         /** @var Level $level */
-        $level = $this->levelRepository->byId(new LevelId($levelId));
+        $level = $levelId ? $this->levelRepository->byId(new LevelLevelId($levelId)) : null;
 
         $this->commandBus->dispatch(
             new MoveCustomerToLevel(
-                new CustomerId($customerId->__toString()),
+                new CustomerId((string) $customerId),
                 $levelId ? new CustomerLevelId($levelId) : null,
-                $levelId ? $level->getName() : null,
+                $level ? $level->getName() : null,
                 true,
                 true
             )
@@ -237,8 +237,8 @@ class CalculateCustomerLevelListener
         $this->eventDispatcher->dispatch(CustomerSystemEvents::CUSTOMER_LEVEL_CHANGED, [
             new CustomerLevelChangedSystemEvent(
                 $customer->getCustomerId(),
-                new CustomerLevelId($levelId),
-                $level->getName()
+                $levelId ? new CustomerLevelId($levelId) : null,
+                $level ? $level->getName() : null
             ),
         ]);
     }
@@ -252,7 +252,7 @@ class CalculateCustomerLevelListener
         $customerId = $event->getCustomerId();
 
         /** @var CustomerDetails $customer */
-        $customer = $this->customerDetailsRepository->find($customerId->__toString());
+        $customer = $this->customerDetailsRepository->find((string) $customerId);
 
         if (!$customer) {
             return;
@@ -260,20 +260,20 @@ class CalculateCustomerLevelListener
 
         if ($this->excludeDeliveryCostsProvider->areExcluded()) {
             $currentAmount = $customer->getTransactionsAmountWithoutDeliveryCosts() - $customer->getAmountExcludedForLevel();
-            if (!$customer->hasTransactionId(new TransactionId($transactionId->__toString()))) {
+            if (!$customer->hasTransactionId(new TransactionId((string) $transactionId))) {
                 $currentAmount += $event->getGrossValueWithoutDeliveryCosts() - $event->getAmountExcludedForLevel();
             }
         } else {
             $currentAmount = $customer->getTransactionsAmount() - $customer->getAmountExcludedForLevel();
 
-            if (!$customer->hasTransactionId(new TransactionId($transactionId->__toString()))) {
+            if (!$customer->hasTransactionId(new TransactionId((string) $transactionId))) {
                 $currentAmount += $event->getGrossValue() - $event->getAmountExcludedForLevel();
             }
         }
 
         /** @var Level $currentLevel */
         $currentLevel = $customer->getLevelId()
-            ? $this->levelRepository->byId(new LevelId($customer->getLevelId()->__toString()))
+            ? $this->levelRepository->byId(new LevelLevelId((string) $customer->getLevelId()))
             : null;
 
         if (!$levelId = $this->levelIdProvider->findLevelIdByConditionValueWithTheBiggestReward($currentAmount)) {
@@ -281,14 +281,14 @@ class CalculateCustomerLevelListener
         }
 
         /** @var Level $level */
-        $level = $this->levelRepository->byId(new LevelId($levelId));
+        $level = $this->levelRepository->byId(new LevelLevelId($levelId));
 
         // if new level is better than old one -> move customer
         if (!$currentLevel || $currentLevel->getReward()->getValue() < $level->getReward()->getValue()) {
             if (!$customer->getLevelId() || (string) $customer->getLevelId() !== $levelId) {
                 $this->commandBus->dispatch(
                     new MoveCustomerToLevel(
-                        new CustomerId($customerId->__toString()),
+                        new CustomerId((string) $customerId),
                         new CustomerLevelId($levelId),
                         $level->getName()
                     )
@@ -310,21 +310,21 @@ class CalculateCustomerLevelListener
         $newLevelId = $levelId;
 
         if ($customer->getManuallyAssignedLevelId()) {
-            $manualId = $customer->getManuallyAssignedLevelId()->__toString();
-            if ($manualId == $currentLevel->getLevelId()->__toString()) {
+            $manualId = (string) $customer->getManuallyAssignedLevelId();
+            if ($manualId === (string) $currentLevel->getLevelId()) {
                 return;
             }
             /** @var Level $manual */
-            $manual = $this->levelRepository->byId(new \OpenLoyalty\Component\Level\Domain\LevelId($manualId));
+            $manual = $this->levelRepository->byId(new LevelLevelId($manualId));
             if ($manual->getReward()->getValue() > $level->getReward()->getValue()) {
                 $newLevelId = $manualId;
             }
         }
 
-        if (!$currentLevel || $currentLevel->getLevelId()->__toString() !== $newLevelId) {
+        if (!$currentLevel || (string) $currentLevel->getLevelId() !== $newLevelId) {
             $this->commandBus->dispatch(
                 new MoveCustomerToLevel(
-                    new CustomerId($customerId->__toString()),
+                    new CustomerId((string) $customerId),
                     new CustomerLevelId($newLevelId),
                     $level->getName()
                 )
@@ -349,11 +349,11 @@ class CalculateCustomerLevelListener
     protected function handlePoints(AccountCustomerId $customerId, float $currentAmount, bool $isRecalculation = false): void
     {
         /** @var CustomerDetails $customer */
-        $customer = $this->customerDetailsRepository->find($customerId->__toString());
+        $customer = $this->customerDetailsRepository->find((string) $customerId);
 
         /** @var Level $currentLevel */
         $currentLevel = $customer->getLevelId()
-            ? $this->levelRepository->byId(new LevelId((string) $customer->getLevelId()))
+            ? $this->levelRepository->byId(new LevelLevelId((string) $customer->getLevelId()))
             : null;
 
         $levelId = $this->levelIdProvider->findLevelIdByConditionValueWithTheBiggestReward($currentAmount);
@@ -362,7 +362,7 @@ class CalculateCustomerLevelListener
         }
 
         /** @var Level $level */
-        $level = $this->levelRepository->byId(new LevelId($levelId));
+        $level = $this->levelRepository->byId(new LevelLevelId($levelId));
 
         if ($currentLevel && $currentLevel->getReward()->getValue() >= $level->getReward()->getValue()) {
             $downgradedLevelId = $this->handlePointsDowngrade($level, $customer, $currentLevel, $isRecalculation);
@@ -409,36 +409,36 @@ class CalculateCustomerLevelListener
         }
 
         if (LevelDowngradeModeProvider::MODE_NONE === $mode) {
-            return $currentLevel->getLevelId()->__toString();
+            return (string) $currentLevel->getLevelId();
         }
 
         if (LevelDowngradeModeProvider::MODE_AUTO === $mode) {
             if ($customer->getManuallyAssignedLevelId()) {
-                $manualId = $customer->getManuallyAssignedLevelId()->__toString();
+                $manualId = (string) $customer->getManuallyAssignedLevelId();
                 /** @var Level $manual */
-                $manual = $this->levelRepository->byId(new \OpenLoyalty\Component\Level\Domain\LevelId($manualId));
+                $manual = $this->levelRepository->byId(new LevelLevelId($manualId));
                 if ($manual->getReward()->getValue() > $calculatedLevel->getReward()->getValue()) {
                     return $manualId;
                 }
             }
 
-            return $calculatedLevel->getLevelId()->__toString();
+            return (string) $calculatedLevel->getLevelId();
         }
 
         if (LevelDowngradeModeProvider::MODE_X_DAYS === $mode) {
             if (!$isRecalculation) {
-                return $currentLevel->getLevelId()->__toString();
+                return (string) $currentLevel->getLevelId();
             } else {
                 if ($customer->getManuallyAssignedLevelId()) {
-                    $manualId = $customer->getManuallyAssignedLevelId()->__toString();
+                    $manualId = (string) $customer->getManuallyAssignedLevelId();
                     /** @var Level $manual */
-                    $manual = $this->levelRepository->byId(new \OpenLoyalty\Component\Level\Domain\LevelId($manualId));
+                    $manual = $this->levelRepository->byId(new LevelLevelId($manualId));
                     if ($manual->getReward()->getValue() > $calculatedLevel->getReward()->getValue()) {
                         return $manualId;
                     }
                 }
 
-                return $calculatedLevel->getLevelId()->__toString();
+                return (string) $calculatedLevel->getLevelId();
             }
         }
 
@@ -469,7 +469,7 @@ class CalculateCustomerLevelListener
         }
 
         /** @var Level $level */
-        $level = $this->levelRepository->byId(new LevelId($levelId));
+        $level = $this->levelRepository->byId(new LevelLevelId($levelId));
 
         if (!$customer->getLevelId() || (string) $customer->getLevelId() !== $levelId) {
             $this->commandBus->dispatch(

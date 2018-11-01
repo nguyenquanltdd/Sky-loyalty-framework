@@ -289,10 +289,10 @@ class CustomerCampaignsControllerTest extends BaseApiTest
             $campaign->setCoupons([new Coupon('123'), new Coupon('1233'), new Coupon('1234')]);
             $campaign->setLevels(
                 [
+                    new LevelId(LoadLevelData::LEVEL0_ID),
+                    new LevelId(LoadLevelData::LEVEL1_ID),
                     new LevelId(LoadLevelData::LEVEL2_ID),
-                    new LevelId(LoadLevelData::LEVEL_ID),
                     new LevelId(LoadLevelData::LEVEL3_ID),
-                    new LevelId(LoadLevelData::LEVEL4_ID),
                 ]
             );
         }

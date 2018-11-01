@@ -22,7 +22,9 @@ use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Exception\EmailAlreadyExistsException;
 use OpenLoyalty\Component\Customer\Domain\Exception\LoyaltyCardNumberAlreadyExistsException;
 use OpenLoyalty\Component\Customer\Domain\Exception\PhoneAlreadyExistsException;
+use OpenLoyalty\Component\Customer\Domain\Exception\StartLevelNotFoundException;
 use OpenLoyalty\Component\Customer\Domain\LevelId;
+use OpenLoyalty\Component\Customer\Domain\LevelIdProvider;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -62,6 +64,11 @@ class RegisterCustomerManager
     protected $translator;
 
     /**
+     * @var LevelIdProvider
+     */
+    private $levelIdProvider;
+
+    /**
      * RegisterCustomerManager constructor.
      *
      * @param UserManager             $userManager
@@ -70,6 +77,7 @@ class RegisterCustomerManager
      * @param Repository              $customerRepository
      * @param EntityManager           $entityManager
      * @param TranslatorInterface     $translator
+     * @param LevelIdProvider         $levelIdProvider
      */
     public function __construct(
         UserManager $userManager,
@@ -77,7 +85,8 @@ class RegisterCustomerManager
         CommandBus $commandBus,
         Repository $customerRepository,
         EntityManager $entityManager,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        LevelIdProvider $levelIdProvider
     ) {
         $this->userManager = $userManager;
         $this->customerUniqueValidator = $customerUniqueValidator;
@@ -85,6 +94,7 @@ class RegisterCustomerManager
         $this->customerRepository = $customerRepository;
         $this->entityManager = $entityManager;
         $this->translator = $translator;
+        $this->levelIdProvider = $levelIdProvider;
     }
 
     /**
@@ -95,6 +105,7 @@ class RegisterCustomerManager
      * @throws EmailAlreadyExistsException
      * @throws LoyaltyCardNumberAlreadyExistsException
      * @throws PhoneAlreadyExistsException
+     * @throws StartLevelNotFoundException
      *
      * @return Customer
      */
@@ -118,6 +129,10 @@ class RegisterCustomerManager
         }
         if (isset($customerData['phone']) && $customerData['phone']) {
             $this->customerUniqueValidator->validatePhoneUnique($customerData['phone']);
+        }
+
+        if (!isset($customerData['levelId']) && !$this->levelIdProvider->findLevelIdByConditionValueWithTheBiggestReward(0)) {
+            throw new StartLevelNotFoundException();
         }
 
         $this->commandBus->dispatch(new RegisterCustomer($customerId, $customerData));

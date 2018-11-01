@@ -108,7 +108,7 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaign->setLimit(10);
         $campaign->setUnlimited(false);
         $campaign->setLimitPerUser(2);
-        $campaign->setLevels([new LevelId(LoadLevelData::LEVEL2_ID), new LevelId(LoadLevelData::LEVEL_ID)]);
+        $campaign->setLevels([new LevelId(LoadLevelData::LEVEL2_ID), new LevelId(LoadLevelData::LEVEL1_ID)]);
         $campaign->setSegments([new SegmentId(LoadSegmentData::SEGMENT2_ID)]);
         $campaign->setCoupons([new Coupon('123'), new Coupon('1233'), new Coupon('1234')]);
         $campaign->setReward(Campaign::REWARD_TYPE_DISCOUNT_CODE);
@@ -162,7 +162,7 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaign->setName('Percentage discount code');
         $campaign->setActive(true);
         $campaign->setLabels([new Label('type', 'cashback')]);
-        $campaign->setLevels([new LevelId(LoadLevelData::LEVEL_ID), new LevelId(LoadLevelData::LEVEL2_ID), new LevelId(LoadLevelData::LEVEL3_ID)]);
+        $campaign->setLevels([new LevelId(LoadLevelData::LEVEL0_ID), new LevelId(LoadLevelData::LEVEL1_ID), new LevelId(LoadLevelData::LEVEL2_ID)]);
         $campaign->setSegments([new SegmentId(LoadSegmentData::SEGMENT2_ID)]);
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(true);
@@ -206,7 +206,7 @@ class LoadCampaignData extends ContainerAwareFixture
             $campaign->setLimit(rand(10, 50));
             $campaign->setUnlimited(false);
             $campaign->setLimitPerUser(10);
-            $campaign->setLevels([new LevelId(LoadLevelData::LEVEL_ID), new LevelId(LoadLevelData::LEVEL2_ID)]);
+            $campaign->setLevels([new LevelId(LoadLevelData::LEVEL1_ID), new LevelId(LoadLevelData::LEVEL2_ID)]);
             $campaign->setCoupons([new Coupon(rand(100, 1000))]);
             $campaign->setReward($i % 2 == 0 ? Campaign::REWARD_TYPE_DISCOUNT_CODE : Campaign::REWARD_TYPE_FREE_DELIVERY_CODE);
             $campaign->setName(sprintf('%s', $i));
@@ -243,10 +243,10 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaign->setLimitPerUser(2);
         $campaign->setLevels(
             [
+                new LevelId(LoadLevelData::LEVEL0_ID),
+                new LevelId(LoadLevelData::LEVEL1_ID),
                 new LevelId(LoadLevelData::LEVEL2_ID),
-                new LevelId(LoadLevelData::LEVEL_ID),
                 new LevelId(LoadLevelData::LEVEL3_ID),
-                new LevelId(LoadLevelData::LEVEL4_ID),
             ]
         );
         $campaign->setSegments([new SegmentId(LoadSegmentData::SEGMENT2_ID)]);
@@ -277,10 +277,10 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaign->setUnlimited(true);
         $campaign->setLevels(
             [
+                new LevelId(LoadLevelData::LEVEL0_ID),
+                new LevelId(LoadLevelData::LEVEL1_ID),
                 new LevelId(LoadLevelData::LEVEL2_ID),
-                new LevelId(LoadLevelData::LEVEL_ID),
                 new LevelId(LoadLevelData::LEVEL3_ID),
-                new LevelId(LoadLevelData::LEVEL4_ID),
             ]
         );
         $campaign->setReward(Campaign::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE);

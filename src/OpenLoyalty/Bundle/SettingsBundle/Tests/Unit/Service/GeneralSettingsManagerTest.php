@@ -53,8 +53,12 @@ final class GeneralSettingsManagerTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        $generalSettingsManager->method('getDateTime')->willReturn(
-            new \DateTime('2018-10-25')
+        $generalSettingsManager->method('getDateTime')->will(
+            $this->returnValueMap([
+                [null, new \DateTime('2018-10-25')],
+                ['last day of this month', new \DateTime('2018-10-31')],
+                ['last day of december this year', new \DateTime('2018-12-31')],
+            ])
         );
 
         $this->assertEquals($expected, $generalSettingsManager->getPointsDaysActive());

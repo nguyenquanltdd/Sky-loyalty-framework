@@ -17,10 +17,10 @@ use Symfony\Bridge\Doctrine\Tests\Fixtures\ContainerAwareFixture;
  */
 class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInterface
 {
-    const LEVEL_ID = 'f99748f2-bf86-11e6-a4a6-cec0c932ce01';
-    const LEVEL2_ID = '000096cf-32a3-43bd-9034-4df343e5fd94';
-    const LEVEL3_ID = '000096cf-32a3-43bd-9034-4df343e5fd93';
-    const LEVEL4_ID = '000096cf-32a3-43ba-9034-4df343e5fd93';
+    const LEVEL0_ID = 'f99748f2-bf86-11e6-a4a6-cec0c9320000';
+    const LEVEL1_ID = 'f99748f2-bf86-11e6-a4a6-cec0c9321111';
+    const LEVEL2_ID = 'f99748f2-bf86-11e6-a4a6-cec0c9322222';
+    const LEVEL3_ID = 'f99748f2-bf86-11e6-a4a6-cec0c9323333';
 
     public function load(ObjectManager $manager)
     {
@@ -54,7 +54,7 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
                 ],
             ],
         ];
-        $level = [
+        $level1 = [
             'conditionValue' => 5000,
             'reward' => [
                 'name' => '20% off for every purchase and additional reward',
@@ -135,10 +135,16 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
 
         $commandBud = $this->container->get('broadway.command_handling.command_bus');
         $commandBud->dispatch(
-            new CreateLevel(new LevelId(self::LEVEL_ID), $level)
+            new CreateLevel(new LevelId(self::LEVEL0_ID), $level0)
         );
         $commandBud->dispatch(
-            new ActivateLevel(new LevelId(self::LEVEL_ID))
+            new ActivateLevel(new LevelId(self::LEVEL0_ID))
+        );
+        $commandBud->dispatch(
+            new CreateLevel(new LevelId(self::LEVEL1_ID), $level1)
+        );
+        $commandBud->dispatch(
+            new ActivateLevel(new LevelId(self::LEVEL1_ID))
         );
         $commandBud->dispatch(
             new CreateLevel(new LevelId(self::LEVEL2_ID), $level2)
@@ -147,16 +153,10 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
             new ActivateLevel(new LevelId(self::LEVEL2_ID))
         );
         $commandBud->dispatch(
-            new CreateLevel(new LevelId(self::LEVEL3_ID), $level0)
+            new CreateLevel(new LevelId(self::LEVEL3_ID), $level3)
         );
         $commandBud->dispatch(
             new ActivateLevel(new LevelId(self::LEVEL3_ID))
-        );
-        $commandBud->dispatch(
-            new CreateLevel(new LevelId(self::LEVEL4_ID), $level3)
-        );
-        $commandBud->dispatch(
-            new ActivateLevel(new LevelId(self::LEVEL4_ID))
         );
     }
 

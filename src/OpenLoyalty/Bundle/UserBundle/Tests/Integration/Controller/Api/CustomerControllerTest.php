@@ -1,8 +1,11 @@
 <?php
-/*
+/**
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
+
+declare(strict_types=1);
+
 namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Controller\Api;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
@@ -31,7 +34,7 @@ class CustomerControllerTest extends BaseApiTest
             'POST',
             sprintf('/api/customer/%s/level', LoadUserData::USER_USER_ID),
             [
-                'levelId' => LoadLevelData::LEVEL3_ID,
+                'levelId' => LoadLevelData::LEVEL2_ID,
             ]
         );
 
@@ -118,7 +121,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_not_allows_to_register_new_customer_with_existing_phone_number(): void
+    public function it_does_not_allow_to_register_new_customer_with_existing_phone_number(): void
     {
         $defaultCustomerData = [
             'firstName' => 'John',
@@ -149,7 +152,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_set_default_gender_on_customer_registration(): void
+    public function it_sets_default_gender_on_customer_registration(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -319,7 +322,7 @@ class CustomerControllerTest extends BaseApiTest
                     'email' => 'john33@doe.com',
                     'gender' => 'male',
                     'birthDate' => '1990-01-01',
-                    'levelId' => LoadLevelData::LEVEL3_ID,
+                    'levelId' => LoadLevelData::LEVEL0_ID,
                     'address' => [
                         'street' => 'Bagno',
                         'address1' => '12',
@@ -670,7 +673,7 @@ class CustomerControllerTest extends BaseApiTest
         $customerData['agreement1'] = true;
         $customerData['email'] = $data['email'];
         $customerData['phone'] = $data['phone'];
-        $customerData['levelId'] = LoadLevelData::LEVEL4_ID;
+        $customerData['levelId'] = LoadLevelData::LEVEL3_ID;
         $client->request(
             'PUT',
             '/api/customer/'.LoadUserData::USER2_USER_ID,
@@ -782,7 +785,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allow_to_update_customer_with_his_same_phone_number(): void
+    public function it_allows_to_update_customer_with_his_same_phone_number(): void
     {
         $userId = '22222222-0000-474c-b092-b0dd880c07e2';
         $client = $this->createAuthenticatedClient();
@@ -811,7 +814,7 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_not_allow_to_update_customer_with_existing_phone_number_to_other_customer(): void
+    public function it_does_not_allow_to_update_customer_with_phone_number_of_another_customer(): void
     {
         $userId = '22222222-0000-474c-b092-b0dd880c07e2';
         $client = $this->createAuthenticatedClient();
@@ -989,7 +992,7 @@ class CustomerControllerTest extends BaseApiTest
             'POST',
             '/api/customer/'.LoadUserData::TEST_USER_ID.'/pos',
             [
-                'posId' => $posId->__toString(),
+                'posId' => (string) $posId,
             ]
         );
 
@@ -1008,7 +1011,7 @@ class CustomerControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('posId', $data);
-        $this->assertEquals($posId->__toString(), $data['posId'], json_encode($data));
+        $this->assertEquals((string) $posId, $data['posId'], json_encode($data));
     }
 
     /**
@@ -1276,7 +1279,7 @@ class CustomerControllerTest extends BaseApiTest
                 sprintf('Field %s does not exists', $field)
             );
             $this->assertTrue(
-                (strpos($customer[$field], $phrase) !== false),
+                (strpos((string) $customer[$field], $phrase) !== false),
                sprintf('Searching phrase %s but found %s', $phrase, $customer[$field])
             );
         }
@@ -1355,7 +1358,7 @@ class CustomerControllerTest extends BaseApiTest
                 'Field '.$field.' does not exists'
             );
             $this->assertTrue(
-                (strpos($customer[$field], $phrase) !== false),
+                (\strpos((string) $customer[$field], $phrase) !== false),
                 'Searching phrase '.$phrase.' but found '.$customer[$field]
             );
         }
@@ -1547,7 +1550,7 @@ class CustomerControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
 
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200'.$response->getContent());
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
 
         $this->assertArrayHasKey('levels', $data);
         $first = reset($data['levels']);

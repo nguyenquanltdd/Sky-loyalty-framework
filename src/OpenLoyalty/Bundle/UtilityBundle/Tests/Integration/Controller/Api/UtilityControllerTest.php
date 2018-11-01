@@ -42,7 +42,7 @@ class UtilityControllerTest extends BaseApiTest
         $client = $this->createAuthenticatedClient();
         $client->request(
             'GET',
-            '/api/csv/level/'.LoadLevelData::LEVEL_ID
+            '/api/csv/level/'.LoadLevelData::LEVEL1_ID
         );
         $response = $client->getResponse();
         $statusCode = $response->getStatusCode();

@@ -50,7 +50,7 @@ class LevelControllerAccessTest extends BaseAccessControlTest
             ['client' => $this->getAdminClient(), 'not_status' => 403, 'name' => 'admin'],
         ];
 
-        $this->checkClients($clients, '/api/level/'.LoadLevelData::LEVEL_ID.'/activate', [], 'POST');
+        $this->checkClients($clients, '/api/level/'.LoadLevelData::LEVEL2_ID.'/activate', [], 'POST');
     }
 
     /**
@@ -64,7 +64,7 @@ class LevelControllerAccessTest extends BaseAccessControlTest
             ['client' => $this->getAdminClient(), 'not_status' => 403, 'name' => 'admin'],
         ];
 
-        $this->checkClients($clients, '/api/level/'.LoadLevelData::LEVEL_ID, [], 'PUT');
+        $this->checkClients($clients, '/api/level/'.LoadLevelData::LEVEL1_ID, [], 'PUT');
     }
 
     /**
@@ -78,7 +78,7 @@ class LevelControllerAccessTest extends BaseAccessControlTest
             ['client' => $this->getAdminClient(), 'not_status' => 403, 'name' => 'admin'],
         ];
 
-        $this->checkClients($clients, '/api/level/'.LoadLevelData::LEVEL_ID);
+        $this->checkClients($clients, '/api/level/'.LoadLevelData::LEVEL1_ID);
     }
 
     /**
@@ -92,7 +92,7 @@ class LevelControllerAccessTest extends BaseAccessControlTest
             ['client' => $this->getAdminClient(), 'not_status' => 403, 'name' => 'admin'],
         ];
 
-        $this->checkClients($clients, '/api/level/'.LoadLevelData::LEVEL_ID.'/customers');
+        $this->checkClients($clients, '/api/level/'.LoadLevelData::LEVEL1_ID.'/customers');
     }
 
     /**

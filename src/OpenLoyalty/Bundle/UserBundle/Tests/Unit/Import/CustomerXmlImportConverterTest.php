@@ -50,7 +50,7 @@ class CustomerXmlImportConverterTest extends \PHPUnit_Framework_TestCase
             'agreement2' => false,
             'agreement3' => false,
             'birthDate' => \DateTime::createFromFormat(XmlNodeValidator::DATE_CONVERT_FORMAT, '2018-02-03'),
-            'levelId' => '000096cf-32a3-43bd-9034-4df343e5fd93',
+            'levelId' => 'e82c96cf-32a3-43bd-9034-4df343e50000',
             'posId' => 'adcf9c44-7401-43b1-98b9-59cff2ca3af7',
             'sellerId' => '00000000-0000-474c-b092-b0dd880c07e4',
             'active' => true,
