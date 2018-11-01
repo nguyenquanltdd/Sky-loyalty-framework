@@ -99,6 +99,7 @@ class CustomerCommandHandler extends SimpleCommandHandler
         if (isset($customerData['phone']) && $customerData['phone']) {
             $this->customerUniqueValidator->validatePhoneUnique($customerData['phone']);
         }
+
         /** @var Customer $customer */
         $customer = Customer::registerCustomer($command->getCustomerId(), $customerData);
         $this->repository->save($customer);

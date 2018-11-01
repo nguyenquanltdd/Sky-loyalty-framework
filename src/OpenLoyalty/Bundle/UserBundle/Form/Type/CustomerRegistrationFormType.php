@@ -256,9 +256,11 @@ class CustomerRegistrationFormType extends AbstractType
         );
 
         if ($options['includeLevelId'] && $this->levelRepository) {
-            $posChoices = array_map(function (Level $level) {
-                return (string) $level->getLevelId();
-            }, $this->levelRepository->findAllActive()
+            $levelChoices = array_map(
+                function (Level $level) {
+                    return (string) $level->getLevelId();
+                },
+                $this->levelRepository->findAllActive()
             );
 
             $builder->add(
@@ -266,7 +268,7 @@ class CustomerRegistrationFormType extends AbstractType
                 ChoiceType::class,
                 [
                     'required' => false,
-                    'choices' => array_combine($posChoices, $posChoices),
+                    'choices' => array_combine($levelChoices, $levelChoices),
                 ]
             );
         }

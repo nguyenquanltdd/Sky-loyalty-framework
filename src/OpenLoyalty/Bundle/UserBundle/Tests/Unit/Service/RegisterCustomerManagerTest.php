@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\UserBundle\Tests\Unit\Service;
 
 use Broadway\CommandHandling\CommandBus;
 use Doctrine\ORM\EntityManager;
+use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Bundle\UserBundle\Service\RegisterCustomerManager;
@@ -19,6 +20,7 @@ use OpenLoyalty\Component\Customer\Domain\Command\UpdateCustomerLoyaltyCardNumbe
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Exception\LoyaltyCardNumberAlreadyExistsException;
 use OpenLoyalty\Component\Customer\Domain\Exception\PhoneAlreadyExistsException;
+use OpenLoyalty\Component\Customer\Domain\LevelIdProvider;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
 use PHPUnit_Framework_MockObject_MockObject;
@@ -33,13 +35,15 @@ class RegisterCustomerManagerTest extends \PHPUnit_Framework_TestCase
      * @param UserManager|null             $userManagerMock
      * @param CustomerUniqueValidator|null $customerUniqueValidator
      * @param CommandBus|null              $commandBus
+     * @param null|LevelIdProvider         $levelIdProvider
      *
      * @return RegisterCustomerManager
      */
     protected function getRegisterCustomerManagerInstance(
         ?UserManager $userManagerMock = null,
         ?CustomerUniqueValidator $customerUniqueValidator = null,
-        ?CommandBus $commandBus = null
+        ?CommandBus $commandBus = null,
+        ?LevelIdProvider $levelIdProvider = null
     ): RegisterCustomerManager {
         $userManagerMock = $userManagerMock
             ?? $this->getMockBuilder(UserManager::class)->disableOriginalConstructor()->getMock();
@@ -62,13 +66,17 @@ class RegisterCustomerManagerTest extends \PHPUnit_Framework_TestCase
         /** @var TranslatorInterface|PHPUnit_Framework_MockObject_MockObject $translator */
         $translator = $this->getMockBuilder(TranslatorInterface::class)->disableOriginalConstructor()->getMock();
 
+        /** @var LevelIdProvider|PHPUnit_Framework_MockObject_MockObject $levelIdProviderMock */
+        $levelIdProviderMock = $levelIdProvider ?? $this->getMockBuilder(LevelIdProvider::class)->getMock();
+
         return new RegisterCustomerManager(
             $userManagerMock,
             $customerUniqueValidator,
             $commandBus,
             $customerRepository,
             $entityManager,
-            $translator
+            $translator,
+            $levelIdProviderMock
         );
     }
 
@@ -81,7 +89,11 @@ class RegisterCustomerManagerTest extends \PHPUnit_Framework_TestCase
         $userManagerMock = $this->getMockBuilder(UserManager::class)->disableOriginalConstructor()->getMock();
         $userManagerMock->expects($this->once())->method('isCustomerExist')->willReturn(true);
 
-        $customerManager = $this->getRegisterCustomerManagerInstance($userManagerMock);
+        /** @var LevelIdProvider|PHPUnit_Framework_MockObject_MockObject $levelIdProviderMock */
+        $levelIdProviderMock = $this->getMockBuilder(LevelIdProvider::class)->getMock();
+        $levelIdProviderMock->method('findLevelIdByConditionValueWithTheBiggestReward')->willReturn(LoadLevelData::LEVEL0_ID);
+
+        $customerManager = $this->getRegisterCustomerManagerInstance($userManagerMock, null, null, $levelIdProviderMock);
         $customerManager->register(
             new CustomerId(LoadUserData::TEST_USER_ID),
             [
@@ -100,7 +112,11 @@ class RegisterCustomerManagerTest extends \PHPUnit_Framework_TestCase
         $customerUniqueValidator->expects($this->once())->method('validateLoyaltyCardNumberUnique')
             ->willThrowException(new LoyaltyCardNumberAlreadyExistsException());
 
-        $customerManager = $this->getRegisterCustomerManagerInstance(null, $customerUniqueValidator);
+        /** @var LevelIdProvider|PHPUnit_Framework_MockObject_MockObject $levelIdProviderMock */
+        $levelIdProviderMock = $this->getMockBuilder(LevelIdProvider::class)->getMock();
+        $levelIdProviderMock->method('findLevelIdByConditionValueWithTheBiggestReward')->willReturn(LoadLevelData::LEVEL0_ID);
+
+        $customerManager = $this->getRegisterCustomerManagerInstance(null, $customerUniqueValidator, null, $levelIdProviderMock);
         $customerManager->register(
             new CustomerId(LoadUserData::TEST_USER_ID),
             [
@@ -120,7 +136,11 @@ class RegisterCustomerManagerTest extends \PHPUnit_Framework_TestCase
         $customerUniqueValidator->expects($this->once())->method('validatePhoneUnique')
             ->willThrowException(new PhoneAlreadyExistsException());
 
-        $customerManager = $this->getRegisterCustomerManagerInstance(null, $customerUniqueValidator);
+        /** @var LevelIdProvider|PHPUnit_Framework_MockObject_MockObject $levelIdProviderMock */
+        $levelIdProviderMock = $this->getMockBuilder(LevelIdProvider::class)->getMock();
+        $levelIdProviderMock->method('findLevelIdByConditionValueWithTheBiggestReward')->willReturn(LoadLevelData::LEVEL0_ID);
+
+        $customerManager = $this->getRegisterCustomerManagerInstance(null, $customerUniqueValidator, null, $levelIdProviderMock);
         $customerManager->register(
             new CustomerId(LoadUserData::TEST_USER_ID),
             [
@@ -140,7 +160,11 @@ class RegisterCustomerManagerTest extends \PHPUnit_Framework_TestCase
         $commandBus->expects($this->once())->method('dispatch')
             ->with($this->isInstanceOf(RegisterCustomer::class));
 
-        $customerManager = $this->getRegisterCustomerManagerInstance(null, null, $commandBus);
+        /** @var LevelIdProvider|PHPUnit_Framework_MockObject_MockObject $levelIdProviderMock */
+        $levelIdProviderMock = $this->getMockBuilder(LevelIdProvider::class)->getMock();
+        $levelIdProviderMock->method('findLevelIdByConditionValueWithTheBiggestReward')->willReturn(LoadLevelData::LEVEL0_ID);
+
+        $customerManager = $this->getRegisterCustomerManagerInstance(null, null, $commandBus, $levelIdProviderMock);
         $customerManager->register(
             new CustomerId(LoadUserData::TEST_USER_ID),
             [
@@ -165,7 +189,11 @@ class RegisterCustomerManagerTest extends \PHPUnit_Framework_TestCase
                 [$this->isInstanceOf(MoveCustomerToLevel::class)]
             );
 
-        $customerManager = $this->getRegisterCustomerManagerInstance(null, null, $commandBus);
+        /** @var LevelIdProvider|PHPUnit_Framework_MockObject_MockObject $levelIdProviderMock */
+        $levelIdProviderMock = $this->getMockBuilder(LevelIdProvider::class)->getMock();
+        $levelIdProviderMock->method('findLevelIdByConditionValueWithTheBiggestReward')->willReturn(LoadLevelData::LEVEL0_ID);
+
+        $customerManager = $this->getRegisterCustomerManagerInstance(null, null, $commandBus, $levelIdProviderMock);
         $customerManager->register(
             new CustomerId(LoadUserData::TEST_USER_ID),
             [

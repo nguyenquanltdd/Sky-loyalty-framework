@@ -18,14 +18,14 @@ use Symfony\Bridge\Doctrine\Tests\Fixtures\ContainerAwareFixture;
  */
 class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInterface
 {
-    const LEVEL_ID = 'e82c96cf-32a3-43bd-9034-4df343e5fd94';
-    const LEVEL_NAME = 'level0';
-    const LEVEL2_ID = '000096cf-32a3-43bd-9034-4df343e5fd94';
-    const LEVEL2_NAME = 'level1';
-    const LEVEL3_ID = '000096cf-32a3-43bd-9034-4df343e5fd93';
-    const LEVEL3_NAME = 'level2';
-    const LEVEL4_ID = '000096cf-32a3-43bd-9034-4df343e5fd95';
-    const LEVEL4_NAME = 'level3';
+    const LEVEL0_ID = 'e82c96cf-32a3-43bd-9034-4df343e50000';
+    const LEVEL1_ID = 'e82c96cf-32a3-43bd-9034-4df343e51111';
+    const LEVEL2_ID = 'e82c96cf-32a3-43bd-9034-4df343e52222';
+    const LEVEL3_ID = 'e82c96cf-32a3-43bd-9034-4df343e53333';
+    const LEVEL0_NAME = 'level0';
+    const LEVEL1_NAME = 'level1';
+    const LEVEL2_NAME = 'level2';
+    const LEVEL3_NAME = 'level3';
 
     public function load(ObjectManager $manager)
     {
@@ -33,12 +33,12 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
             'conditionValue' => 0,
             'reward' => [
                 'name' => 'test reward',
-                'value' => 0.14,
-                'code' => 'abc',
+                'value' => 0.00,
+                'code' => 'level0-prize',
             ],
             'translations' => [
                 'en' => [
-                    'name' => self::LEVEL_NAME,
+                    'name' => self::LEVEL0_NAME,
                     'description' => 'example level',
                 ],
                 'pl' => [
@@ -52,12 +52,12 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
             'conditionValue' => 20,
             'reward' => [
                 'name' => 'test reward',
-                'value' => 0.15,
+                'value' => 0.05,
                 'code' => 'abc',
             ],
             'translations' => [
                 'en' => [
-                    'name' => self::LEVEL2_NAME,
+                    'name' => self::LEVEL1_NAME,
                     'description' => 'example level',
                 ],
                 'pl' => [
@@ -66,11 +66,12 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
                 ],
             ],
         ];
+
         $level2 = [
             'conditionValue' => 200,
             'reward' => [
                 'name' => 'test reward',
-                'value' => 0.20,
+                'value' => 0.10,
                 'code' => 'abc',
             ],
             'specialRewards' => [
@@ -95,7 +96,7 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
             ],
             'translations' => [
                 'en' => [
-                    'name' => self::LEVEL3_NAME,
+                    'name' => self::LEVEL2_NAME,
                     'description' => 'example level',
                 ],
                 'pl' => [
@@ -104,17 +105,18 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
                 ],
             ],
         ];
-        $level4 = [
+
+        $level3 = [
             'conditionValue' => 999,
             'reward' => [
-                'name' => 'Level 4 reward',
-                'value' => 0.00,
-                'code' => 'level4',
+                'name' => 'Highest level reward',
+                'value' => 0.15,
+                'code' => 'level3-prize',
             ],
             'translations' => [
                 'en' => [
-                    'name' => self::LEVEL4_NAME,
-                    'description' => 'example level 4',
+                    'name' => self::LEVEL3_NAME,
+                    'description' => 'example level',
                 ],
                 'pl' => [
                     'name' => 'poziom2',
@@ -126,10 +128,16 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
         /** @var SimpleCommandBus $commandBus */
         $commandBus = $this->container->get('broadway.command_handling.command_bus');
         $commandBus->dispatch(
-            new CreateLevel(new LevelId(self::LEVEL_ID), $level1)
+            new CreateLevel(new LevelId(self::LEVEL0_ID), $level0)
         );
         $commandBus->dispatch(
-            new ActivateLevel(new LevelId(self::LEVEL_ID))
+            new ActivateLevel(new LevelId(self::LEVEL0_ID))
+        );
+        $commandBus->dispatch(
+            new CreateLevel(new LevelId(self::LEVEL1_ID), $level1)
+        );
+        $commandBus->dispatch(
+            new ActivateLevel(new LevelId(self::LEVEL1_ID))
         );
         $commandBus->dispatch(
             new CreateLevel(new LevelId(self::LEVEL2_ID), $level2)
@@ -138,16 +146,10 @@ class LoadLevelData extends ContainerAwareFixture implements OrderedFixtureInter
             new ActivateLevel(new LevelId(self::LEVEL2_ID))
         );
         $commandBus->dispatch(
-            new CreateLevel(new LevelId(self::LEVEL3_ID), $level0)
+            new CreateLevel(new LevelId(self::LEVEL3_ID), $level3)
         );
         $commandBus->dispatch(
             new ActivateLevel(new LevelId(self::LEVEL3_ID))
-        );
-        $commandBus->dispatch(
-            new CreateLevel(new LevelId(self::LEVEL4_ID), $level4)
-        );
-        $commandBus->dispatch(
-            new ActivateLevel(new LevelId(self::LEVEL4_ID))
         );
     }
 

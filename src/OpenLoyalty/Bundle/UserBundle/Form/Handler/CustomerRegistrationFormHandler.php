@@ -19,6 +19,7 @@ use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Exception\EmailAlreadyExistsException;
 use OpenLoyalty\Component\Customer\Domain\Exception\LoyaltyCardNumberAlreadyExistsException;
 use OpenLoyalty\Component\Customer\Domain\Exception\PhoneAlreadyExistsException;
+use OpenLoyalty\Component\Customer\Domain\Exception\StartLevelNotFoundException;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -139,6 +140,10 @@ class CustomerRegistrationFormHandler
             );
         } catch (PhoneAlreadyExistsException $ex) {
             $form->get('phone')->addError(
+                new FormError($this->translator->trans($ex->getMessageKey(), $ex->getMessageParams()))
+            );
+        } catch (StartLevelNotFoundException $ex) {
+            $form->get('levelId')->addError(
                 new FormError($this->translator->trans($ex->getMessageKey(), $ex->getMessageParams()))
             );
         }

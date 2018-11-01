@@ -471,7 +471,7 @@ class Customer extends EventSourcedAggregateRoot
      */
     public function setFirstName($firstName): void
     {
-        Assert::notEmpty($firstName);
+        Assert::notNull($firstName);
         $this->firstName = $firstName;
     }
 
@@ -488,7 +488,7 @@ class Customer extends EventSourcedAggregateRoot
      */
     public function setLastName($lastName): void
     {
-        Assert::notEmpty($lastName);
+        Assert::notNull($lastName);
         $this->lastName = $lastName;
     }
 

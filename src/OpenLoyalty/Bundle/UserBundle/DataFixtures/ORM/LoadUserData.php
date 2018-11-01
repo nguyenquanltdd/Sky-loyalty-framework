@@ -315,10 +315,10 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
         $bus->dispatch(new UpdateCustomerLoyaltyCardNumber($customerId, '0000'));
         $bus->dispatch(
             new MoveCustomerToLevel(
-            $customerId,
-            new LevelId(LoadLevelData::LEVEL_ID),
-            LoadLevelData::LEVEL_NAME
-        )
+                $customerId,
+                new LevelId(LoadLevelData::LEVEL1_ID),
+                LoadLevelData::LEVEL0_NAME
+            )
         );
         $bus->dispatch(new ActivateCustomer($customerId));
 

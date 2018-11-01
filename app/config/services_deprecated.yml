@@ -121,3 +121,7 @@ services:
     oloy.analytics.voter.analytivs:
         alias: OpenLoyalty\Bundle\AnalyticsBundle\Security\Voter\AnalyticsVoter
         deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.user.level_id_provider:
+        alias: OpenLoyalty\Bundle\UserBundle\Service\OloyLevelIdProvider
+        deprecated: The "%service_id%" service is deprecated since 2.8.0

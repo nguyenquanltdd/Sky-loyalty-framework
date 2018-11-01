@@ -161,10 +161,10 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             'active' => true,
             'allTimeActive' => false,
             'levels' => [
-                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL0_ID),
+                new LevelId(LoadLevelData::LEVEL1_ID),
                 new LevelId(LoadLevelData::LEVEL2_ID),
                 new LevelId(LoadLevelData::LEVEL3_ID),
-                new LevelId(LoadLevelData::LEVEL4_ID),
             ],
         ];
     }
@@ -180,10 +180,10 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             'active' => true,
             'allTimeActive' => true,
             'levels' => [
-                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL0_ID),
+                new LevelId(LoadLevelData::LEVEL1_ID),
                 new LevelId(LoadLevelData::LEVEL2_ID),
                 new LevelId(LoadLevelData::LEVEL3_ID),
-                new LevelId(LoadLevelData::LEVEL4_ID),
             ],
         ];
     }
@@ -204,10 +204,10 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             'startAt' => $startDate->getTimestamp(),
             'endAt' => $endDate->getTimestamp(),
             'levels' => [
-                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL0_ID),
+                new LevelId(LoadLevelData::LEVEL1_ID),
                 new LevelId(LoadLevelData::LEVEL2_ID),
                 new LevelId(LoadLevelData::LEVEL3_ID),
-                new LevelId(LoadLevelData::LEVEL4_ID),
             ],
         ];
     }
@@ -223,10 +223,10 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             'active' => true,
             'allTimeActive' => true,
             'levels' => [
-                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL0_ID),
+                new LevelId(LoadLevelData::LEVEL1_ID),
                 new LevelId(LoadLevelData::LEVEL2_ID),
                 new LevelId(LoadLevelData::LEVEL3_ID),
-                new LevelId(LoadLevelData::LEVEL4_ID),
             ],
         ];
     }
@@ -242,10 +242,10 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             'active' => true,
             'allTimeActive' => true,
             'levels' => [
-                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL0_ID),
+                new LevelId(LoadLevelData::LEVEL1_ID),
                 new LevelId(LoadLevelData::LEVEL2_ID),
                 new LevelId(LoadLevelData::LEVEL3_ID),
-                new LevelId(LoadLevelData::LEVEL4_ID),
             ],
         ];
     }
@@ -261,10 +261,10 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             'active' => true,
             'allTimeActive' => true,
             'levels' => [
-                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL0_ID),
+                new LevelId(LoadLevelData::LEVEL1_ID),
                 new LevelId(LoadLevelData::LEVEL2_ID),
                 new LevelId(LoadLevelData::LEVEL3_ID),
-                new LevelId(LoadLevelData::LEVEL4_ID),
             ],
         ];
     }
@@ -277,10 +277,10 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             'active' => true,
             'allTimeActive' => true,
             'levels' => [
-                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL0_ID),
+                new LevelId(LoadLevelData::LEVEL1_ID),
                 new LevelId(LoadLevelData::LEVEL2_ID),
                 new LevelId(LoadLevelData::LEVEL3_ID),
-                new LevelId(LoadLevelData::LEVEL4_ID),
             ],
         ];
     }
@@ -304,10 +304,10 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             'active' => true,
             'allTimeActive' => true,
             'levels' => [
-                new LevelId(LoadLevelData::LEVEL_ID),
+                new LevelId(LoadLevelData::LEVEL0_ID),
+                new LevelId(LoadLevelData::LEVEL1_ID),
                 new LevelId(LoadLevelData::LEVEL2_ID),
                 new LevelId(LoadLevelData::LEVEL3_ID),
-                new LevelId(LoadLevelData::LEVEL4_ID),
             ],
         ];
     }

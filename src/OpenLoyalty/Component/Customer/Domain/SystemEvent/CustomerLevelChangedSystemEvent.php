@@ -41,7 +41,7 @@ class CustomerLevelChangedSystemEvent extends CustomerSystemEvent
      */
     public function __construct(
         CustomerId $customerId,
-        LevelId $levelId,
+        ?LevelId $levelId,
         ?string $levelName = null,
         ?bool $levelMove = null
     ) {
@@ -55,7 +55,7 @@ class CustomerLevelChangedSystemEvent extends CustomerSystemEvent
     /**
      * @return LevelId
      */
-    public function getLevelId(): LevelId
+    public function getLevelId(): ?LevelId
     {
         return $this->levelId;
     }

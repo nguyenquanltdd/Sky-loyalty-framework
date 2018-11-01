@@ -58,7 +58,7 @@ class CustomerWasMovedToLevel extends CustomerEvent
     public function serialize(): array
     {
         return array_merge(parent::serialize(), [
-           'levelId' => $this->levelId ? $this->levelId->__toString() : null,
+           'levelId' => $this->levelId ? (string) $this->levelId : null,
             'updatedAt' => $this->updateAt ? $this->updateAt->getTimestamp() : null,
             'manually' => $this->manually,
             'removeLevelManually' => $this->removeLevelManually,
@@ -76,7 +76,7 @@ class CustomerWasMovedToLevel extends CustomerEvent
             new CustomerId($data['customerId']),
             $data['levelId'] ? new LevelId($data['levelId']) : null,
             $data['manually'],
-            isset($data['removeLevelManually']) ? $data['removeLevelManually'] : false
+            $data['removeLevelManually'] ?? false
         );
         if (isset($data['updatedAt'])) {
             $date = new \DateTime();

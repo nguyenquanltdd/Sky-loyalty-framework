@@ -65,9 +65,9 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
                 'pointsAmount' => 10,
                 'name' => 'Event - First Purchase - 10',
                 'levels' => [
-                    LoadLevelData::LEVEL_ID,
+                    LoadLevelData::LEVEL0_ID,
+                    LoadLevelData::LEVEL1_ID,
                     LoadLevelData::LEVEL2_ID,
-                    LoadLevelData::LEVEL3_ID,
                 ],
             ],
         ],
@@ -79,9 +79,9 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
                 'name' => 'Event - First Purchase - 12',
                 'pos' => [LoadPosData::POS2_ID],
                 'levels' => [
-                    LoadLevelData::LEVEL_ID,
+                    LoadLevelData::LEVEL0_ID,
+                    LoadLevelData::LEVEL1_ID,
                     LoadLevelData::LEVEL2_ID,
-                    LoadLevelData::LEVEL3_ID,
                 ],
             ],
         ],
@@ -116,7 +116,7 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
                 'eventName' => CustomerSystemEvents::NEWSLETTER_SUBSCRIPTION,
                 'pointsAmount' => 85,
                 'name' => 'Newsletter subscription test rule',
-                'levels' => [LoadLevelData::LEVEL3_ID],
+                'levels' => [LoadLevelData::LEVEL0_ID],
             ],
         ],
         self::FACEBOOK_LIKE_RULE_ID => [
@@ -134,9 +134,9 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
                 'pos' => [LoadPosData::POS_ID],
                 'name' => 'General spending rule limited to the POS',
                 'levels' => [
-                    LoadLevelData::LEVEL_ID,
+                    LoadLevelData::LEVEL0_ID,
+                    LoadLevelData::LEVEL1_ID,
                     LoadLevelData::LEVEL2_ID,
-                    LoadLevelData::LEVEL3_ID,
                 ],
             ],
         ],
@@ -157,9 +157,9 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
                 'name' => 'Instant reward test rule',
                 'allTimeActive' => true,
                 'levels' => [
-                    0 => LoadLevelData::LEVEL_ID,
-                    1 => LoadLevelData::LEVEL2_ID,
-                    2 => LoadLevelData::LEVEL3_ID,
+                    0 => LoadLevelData::LEVEL0_ID,
+                    1 => LoadLevelData::LEVEL1_ID,
+                    2 => LoadLevelData::LEVEL2_ID,
                 ],
                 'rewardCampaignId' => LoadCampaignData::PERCENTAGE_COUPON_CAMPAIGN_ID,
             ],
@@ -172,9 +172,9 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
                 'name' => 'Geo location test rule',
                 'allTimeActive' => true,
                 'levels' => [
-                    0 => LoadLevelData::LEVEL_ID,
-                    1 => LoadLevelData::LEVEL2_ID,
-                    2 => LoadLevelData::LEVEL3_ID,
+                    0 => LoadLevelData::LEVEL0_ID,
+                    1 => LoadLevelData::LEVEL1_ID,
+                    2 => LoadLevelData::LEVEL2_ID,
                 ],
                 'latitude' => 50.00,
                 'longitude' => 15,
@@ -192,9 +192,9 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
                 'pointsAmount' => 10,
                 'target' => 'level',
                 'levels' => [
-                    0 => LoadLevelData::LEVEL_ID,
-                    1 => LoadLevelData::LEVEL2_ID,
-                    2 => LoadLevelData::LEVEL3_ID,
+                    0 => LoadLevelData::LEVEL0_ID,
+                    1 => LoadLevelData::LEVEL1_ID,
+                    2 => LoadLevelData::LEVEL2_ID,
                 ],
             ],
         ],
@@ -272,7 +272,7 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             'endAt' => (new \DateTime('+1 month'))->getTimestamp(),
             'active' => true,
             'allTimeActive' => false,
-            'levels' => ([new LevelId(LoadLevelData::LEVEL3_ID)]),
+            'levels' => ([new LevelId(LoadLevelData::LEVEL0_ID)]),
         ];
     }
 

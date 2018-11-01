@@ -64,7 +64,7 @@ class LevelControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_return_level_data()
+    public function it_returns_level_data()
     {
         static::$kernel->boot();
         /** @var LevelRepository $repo */
@@ -74,7 +74,7 @@ class LevelControllerTest extends BaseApiTest
         $client = $this->createAuthenticatedClient();
         $client->request(
             'GET',
-            '/api/level/'.$level->getLevelId()->__toString()
+            '/api/level/'.((string) $level->getLevelId())
         );
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
@@ -82,7 +82,7 @@ class LevelControllerTest extends BaseApiTest
         $this->assertArrayHasKey('id', $data);
         $this->assertArrayHasKey('hasPhoto', $data);
         $this->assertInternalType('bool', $data['hasPhoto']);
-        $this->assertEquals($level->getLevelId()->__toString(), $data['id']);
+        $this->assertEquals((string) $level->getLevelId(), $data['id']);
 
         //translations
         //en
@@ -234,13 +234,13 @@ class LevelControllerTest extends BaseApiTest
         $client = $this->createAuthenticatedClient();
         $client->request(
             'PUT',
-            '/api/level/'.LoadLevelData::LEVEL_ID,
+            '/api/level/'.LoadLevelData::LEVEL1_ID,
             [
                 'level' => [
-                    'conditionValue' => 0.15,
+                    'conditionValue' => 20,
                     'reward' => [
                         'name' => 'new reward',
-                        'value' => 15,
+                        'value' => 5,
                         'code' => 'xyz',
                     ],
                     'translations' => [
@@ -260,8 +260,8 @@ class LevelControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('id', $data);
-        $this->assertEquals(LoadLevelData::LEVEL_ID, $data['id']);
-        $level = $this->getLevel(LoadLevelData::LEVEL_ID);
+        $this->assertEquals(LoadLevelData::LEVEL1_ID, $data['id']);
+        $level = $this->getLevel(LoadLevelData::LEVEL1_ID);
         $this->assertEquals('updated level name EN', $level->getName(), 'Name should be now "updated level name"');
     }
 
@@ -277,10 +277,10 @@ class LevelControllerTest extends BaseApiTest
             '/api/level/'.LoadLevelData::LEVEL2_ID,
             [
                 'level' => [
-                    'conditionValue' => 0.15,
+                    'conditionValue' => 200,
                     'reward' => [
                         'name' => 'new reward - edited',
-                        'value' => 2,
+                        'value' => 11,
                         'code' => 'xyz',
                     ],
                     'specialRewards' => [
@@ -330,13 +330,13 @@ class LevelControllerTest extends BaseApiTest
         $client = $this->createAuthenticatedClient();
         $client->request(
             'PUT',
-            '/api/level/'.LoadLevelData::LEVEL_ID,
+            '/api/level/'.LoadLevelData::LEVEL1_ID,
             [
                 'level' => [
-                    'conditionValue' => 0.15,
+                    'conditionValue' => 20,
                     'reward' => [
                         'name' => 'new reward - edited',
-                        'value' => 2,
+                        'value' => 7,
                         'code' => 'xyz',
                     ],
                     'translations' => [
@@ -356,11 +356,11 @@ class LevelControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('id', $data);
-        $this->assertEquals(LoadLevelData::LEVEL_ID, $data['id']);
-        $level = $this->getLevel(LoadLevelData::LEVEL_ID);
+        $this->assertEquals(LoadLevelData::LEVEL1_ID, $data['id']);
+        $level = $this->getLevel(LoadLevelData::LEVEL1_ID);
 
         $this->assertEquals('new reward - edited', $level->getReward()->getName(), 'Name should be now "new reward - edited"');
-        $this->assertEquals(0.02, $level->getReward()->getValue(), 'Value should be now "0.02"');
+        $this->assertEquals(0.07, $level->getReward()->getValue(), 'Value should be now "0.07"');
     }
 
     /**

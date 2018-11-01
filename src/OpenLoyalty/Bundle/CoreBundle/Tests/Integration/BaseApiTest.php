@@ -46,7 +46,7 @@ abstract class BaseApiTest extends WebTestCase
      *
      * @return Client
      */
-    protected function createAuthenticatedClient(
+    protected static function createAuthenticatedClient(
         $username = LoadAdminData::ADMIN_USERNAME,
         $password = LoadAdminData::ADMIN_PASSWORD,
         string $type = 'admin'
@@ -63,7 +63,7 @@ abstract class BaseApiTest extends WebTestCase
 
         $data = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertTrue(
+        static::assertTrue(
             isset($data['token']),
             sprintf(
                 'Response should have field "token". %s%s',
@@ -79,8 +79,7 @@ abstract class BaseApiTest extends WebTestCase
                 )
             )
         );
-
-        $this->assertTrue(
+        static::assertTrue(
             isset($data['refresh_token']),
             sprintf(
                 'Response should have field "refresh_token". %s',

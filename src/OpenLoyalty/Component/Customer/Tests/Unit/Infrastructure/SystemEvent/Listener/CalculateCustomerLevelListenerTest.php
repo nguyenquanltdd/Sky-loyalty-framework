@@ -67,7 +67,7 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
             $this->equalTo(
                 new MoveCustomerToLevel(
                     new CustomerId($customerId),
-                    new LevelId($levelId->__toString()),
+                    new LevelId((string) $levelId),
                     $level->getName(),
                     true,
                     true
@@ -113,7 +113,7 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
             $this->equalTo(
                 new MoveCustomerToLevel(
                     new CustomerId($customerId),
-                    new LevelId($levelId->__toString()),
+                    new LevelId((string) $levelId),
                     $level->getName(),
                     false,
                     false
@@ -295,7 +295,7 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
             $this->equalTo(
                 new MoveCustomerToLevel(
                     new CustomerId($customerId),
-                    new LevelId($levelId->__toString()),
+                    new LevelId((string) $levelId),
                     $level->getName(),
                     false,
                     false
@@ -342,7 +342,7 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
             $this->equalTo(
                 new MoveCustomerToLevel(
                     new CustomerId($customerId),
-                    new LevelId($levelId->__toString()),
+                    new LevelId((string) $levelId),
                     $level->getName(),
                     false,
                     false
@@ -396,7 +396,7 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
         $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
         $level = new Level($levelId, 10);
         $level->setName('test');
-        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 15);
+        $customerLevel = new Level(new LevelLevelId((string) $customerLevelId), 15);
         $customerLevel->setName('test2');
         $customerReward = new Reward('as2', 20, 'as');
         $reward = new Reward('as', 10, 'as');
@@ -416,8 +416,8 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
             $this->getExcludeDeliveryCostsProvider(true),
             $this->getLevelRepositoryWithArray([
-                $level->getLevelId()->__toString() => $level,
-                $customerLevel->getLevelId()->__toString() => $customerLevel,
+                (string) $level->getLevelId() => $level,
+                (string) $customerLevel->getLevelId() => $customerLevel,
             ]),
             $eventDispatcher,
             $this->getCustomerStatusProvider(),
@@ -442,7 +442,7 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
         $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
         $level = new Level($levelId, 10);
         $level->setName('test');
-        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 15);
+        $customerLevel = new Level(new LevelLevelId((string) $customerLevelId), 15);
         $customerLevel->setName('test2');
         $customerReward = new Reward('as2', 20, 'as');
         $reward = new Reward('as', 10, 'as');
@@ -462,8 +462,8 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
             $this->getExcludeDeliveryCostsProvider(true),
             $this->getLevelRepositoryWithArray([
-                $level->getLevelId()->__toString() => $level,
-                $customerLevel->getLevelId()->__toString() => $customerLevel,
+                (string) $level->getLevelId() => $level,
+                (string) $customerLevel->getLevelId() => $customerLevel,
             ]),
             $eventDispatcher,
             $this->getCustomerStatusProvider(),
@@ -485,7 +485,7 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
         $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
         $level = new Level($levelId, 10);
         $level->setName('test');
-        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 15);
+        $customerLevel = new Level(new LevelLevelId((string) $customerLevelId), 15);
         $customerLevel->setName('test2');
         $customerReward = new Reward('as2', 20, 'as');
         $reward = new Reward('as', 10, 'as');
@@ -497,7 +497,7 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
             $this->equalTo(
                 new MoveCustomerToLevel(
                     new CustomerId($customerId),
-                    new LevelId($levelId->__toString()),
+                    new LevelId((string) $levelId),
                     'test',
                     false,
                     false
@@ -528,8 +528,8 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
             $this->getExcludeDeliveryCostsProvider(true),
             $this->getLevelRepositoryWithArray([
-                $level->getLevelId()->__toString() => $level,
-                $customerLevel->getLevelId()->__toString() => $customerLevel,
+                (string) $level->getLevelId() => $level,
+                (string) $customerLevel->getLevelId() => $customerLevel,
             ]),
             $eventDispatcher,
             $this->getCustomerStatusProvider(),
@@ -551,7 +551,7 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
         $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
         $level = new Level($levelId, 10);
         $level->setName('test');
-        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 15);
+        $customerLevel = new Level(new LevelLevelId((string) $customerLevelId), 15);
         $customerLevel->setName('test2');
         $customerReward = new Reward('as2', 20, 'as');
         $reward = new Reward('as', 10, 'as');
@@ -563,7 +563,7 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
             $this->equalTo(
                 new MoveCustomerToLevel(
                     new CustomerId($customerId),
-                    new LevelId($levelId->__toString()),
+                    new LevelId((string) $levelId),
                     'test',
                     false,
                     false
@@ -594,8 +594,8 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
             $this->getExcludeDeliveryCostsProvider(true),
             $this->getLevelRepositoryWithArray([
-                $level->getLevelId()->__toString() => $level,
-                $customerLevel->getLevelId()->__toString() => $customerLevel,
+                (string) $level->getLevelId() => $level,
+                (string) $customerLevel->getLevelId() => $customerLevel,
             ]),
             $eventDispatcher,
             $this->getCustomerStatusProvider(),
@@ -617,7 +617,7 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
         $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
         $level = new Level($levelId, 10);
         $level->setName('test');
-        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 15);
+        $customerLevel = new Level(new LevelLevelId((string) $customerLevelId), 15);
         $customerLevel->setName('test2');
         $customerReward = new Reward('as2', 20, 'as');
         $reward = new Reward('as', 10, 'as');
@@ -629,7 +629,7 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
             $this->equalTo(
                 new MoveCustomerToLevel(
                     new CustomerId($customerId),
-                    new LevelId($levelId->__toString()),
+                    new LevelId((string) $levelId),
                     'test',
                     false,
                     false
@@ -660,8 +660,8 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
             $this->getExcludeDeliveryCostsProvider(true),
             $this->getLevelRepositoryWithArray([
-                $level->getLevelId()->__toString() => $level,
-                $customerLevel->getLevelId()->__toString() => $customerLevel,
+                (string) $level->getLevelId() => $level,
+                (string) $customerLevel->getLevelId() => $customerLevel,
             ]),
             $eventDispatcher,
             $this->getCustomerStatusProvider(),
@@ -683,7 +683,7 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
         $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
         $level = new Level($levelId, 10);
         $level->setName('test');
-        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 15);
+        $customerLevel = new Level(new LevelLevelId((string) $customerLevelId), 15);
         $customerLevel->setName('test2');
         $customerReward = new Reward('as2', 20, 'as');
         $reward = new Reward('as', 10, 'as');
@@ -703,8 +703,8 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
             $this->getExcludeDeliveryCostsProvider(true),
             $this->getLevelRepositoryWithArray([
-                $level->getLevelId()->__toString() => $level,
-                $customerLevel->getLevelId()->__toString() => $customerLevel,
+                (string) $level->getLevelId() => $level,
+                (string) $customerLevel->getLevelId() => $customerLevel,
             ]),
             $eventDispatcher,
             $this->getCustomerStatusProvider(),
@@ -729,7 +729,7 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
         $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
         $level = new Level($levelId, 10);
         $level->setName('test');
-        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 15);
+        $customerLevel = new Level(new LevelLevelId((string) $customerLevelId), 15);
         $customerLevel->setName('test2');
         $customerReward = new Reward('as2', 20, 'as');
         $reward = new Reward('as', 10, 'as');
@@ -749,8 +749,8 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
             $this->getExcludeDeliveryCostsProvider(true),
             $this->getLevelRepositoryWithArray([
-                $level->getLevelId()->__toString() => $level,
-                $customerLevel->getLevelId()->__toString() => $customerLevel,
+                (string) $level->getLevelId() => $level,
+                (string) $customerLevel->getLevelId() => $customerLevel,
             ]),
             $eventDispatcher,
             $this->getCustomerStatusProvider(),
@@ -775,7 +775,7 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
         $customerLevelId = new CustomerLevelId('00000000-0000-0000-0000-000000000002');
         $level = new Level($levelId, 10);
         $level->setName('test');
-        $customerLevel = new Level(new LevelLevelId($customerLevelId->__toString()), 15);
+        $customerLevel = new Level(new LevelLevelId((string) $customerLevelId), 15);
         $customerLevel->setName('test2');
         $customerReward = new Reward('as2', 20, 'as');
         $reward = new Reward('as', 10, 'as');
@@ -787,7 +787,7 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
             $this->equalTo(
                 new MoveCustomerToLevel(
                     new CustomerId($customerId),
-                    new LevelId($levelId->__toString()),
+                    new LevelId((string) $levelId),
                     'test',
                     false,
                     false
@@ -818,8 +818,8 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
             $this->getTierTypeAssignProvider(TierAssignTypeProvider::TYPE_POINTS),
             $this->getExcludeDeliveryCostsProvider(true),
             $this->getLevelRepositoryWithArray([
-                $level->getLevelId()->__toString() => $level,
-                $customerLevel->getLevelId()->__toString() => $customerLevel,
+                (string) $level->getLevelId() => $level,
+                (string) $customerLevel->getLevelId() => $customerLevel,
             ]),
             $eventDispatcher,
             $this->getCustomerStatusProvider(),
@@ -993,7 +993,7 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
                 if (count($levels) == 1) {
                     $level = reset($levels);
                     if ($level->getConditionValue() <= $conditionValue) {
-                        return $level->getLevelId()->__toString();
+                        return (string) $level->getLevelId();
                     } else {
                         return;
                     }
@@ -1007,7 +1007,7 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
                     }
                 }
 
-                return $current ? $current->getLevelId()->__toString() : null;
+                return $current ? (string) $current->getLevelId() : null;
             }))
         ;
 
@@ -1090,8 +1090,8 @@ final class CalculateCustomerLevelListenerTest extends \PHPUnit_Framework_TestCa
             ->method('byId')
             ->with($this->isInstanceOf(LevelLevelId::class))
             ->will($this->returnCallback(function (LevelLevelId $id) use ($levels) {
-                if (isset($levels[$id->__toString()])) {
-                    return $levels[$id->__toString()];
+                if (isset($levels[(string) $id])) {
+                    return $levels[(string) $id];
                 }
 
                 return;
