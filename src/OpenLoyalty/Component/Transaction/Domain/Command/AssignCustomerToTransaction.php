@@ -18,17 +18,57 @@ class AssignCustomerToTransaction extends TransactionCommand
      */
     protected $customerId;
 
-    public function __construct(TransactionId $transactionId, CustomerId $customerId)
-    {
+    /**
+     * @var string|null
+     */
+    protected $email;
+
+    /**
+     * @var string|null
+     */
+    protected $phone;
+
+    /**
+     * {@inheritdoc}
+     *
+     * @param CustomerId  $customerId
+     * @param string|null $email
+     * @param string|null $phone
+     */
+    public function __construct(
+        TransactionId $transactionId,
+        CustomerId $customerId,
+        string $email = null,
+        string $phone = null
+    ) {
         parent::__construct($transactionId);
+
         $this->customerId = $customerId;
+        $this->email = $email;
+        $this->phone = $phone;
     }
 
     /**
      * @return CustomerId
      */
-    public function getCustomerId()
+    public function getCustomerId(): CustomerId
     {
         return $this->customerId;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPhone(): ?string
+    {
+        return $this->phone;
     }
 }

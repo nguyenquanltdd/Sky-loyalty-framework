@@ -101,6 +101,7 @@ services:
     oloy.account.revoke_points_on_return_transaction_listener:
         class: OpenLoyalty\Component\Account\Infrastructure\Event\Listener\RevokePointsOnReturnTransactionListener
         arguments:
+            $transactionRepository: '@oloy.transaction.repository'
             $transfersRepo: '@oloy.points.account.repository.points_transfer_details'
             $accountDetailsRepository: '@oloy.points.account.repository.account_details'
             $commandBus: '@broadway.command_handling.command_bus'

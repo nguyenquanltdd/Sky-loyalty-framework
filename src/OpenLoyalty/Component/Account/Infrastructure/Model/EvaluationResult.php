@@ -13,17 +13,17 @@ class EvaluationResult
     /**
      * @var string
      */
-    protected $earningRuleId = null;
+    protected $earningRuleId = '';
 
     /**
      * @var int
      */
-    protected $points = null;
+    protected $points = 0.0;
 
     /**
      * @var string
      */
-    protected $name;
+    protected $name = '';
 
     /**
      * EvaluationResult constructor.
@@ -32,7 +32,7 @@ class EvaluationResult
      * @param float  $points
      * @param string $name
      */
-    public function __construct($earningRuleId, $points, string $name = '')
+    public function __construct(string $earningRuleId, float $points, string $name = '')
     {
         $this->earningRuleId = $earningRuleId;
         $this->points = $points;
@@ -42,15 +42,15 @@ class EvaluationResult
     /**
      * @return string
      */
-    public function getEarningRuleId()
+    public function getEarningRuleId(): string
     {
         return $this->earningRuleId;
     }
 
     /**
-     * @return int
+     * @return float
      */
-    public function getPoints()
+    public function getPoints(): float
     {
         return $this->points;
     }

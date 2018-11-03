@@ -89,7 +89,11 @@ abstract class BaseApplyEarningRuleListener
         return $account;
     }
 
-    protected function evaluateReferral($eventName, $customerId)
+    /**
+     * @param string $eventName
+     * @param string $customerId
+     */
+    protected function evaluateReferral(string $eventName, string $customerId): void
     {
         $results = $this->earningRuleApplier->evaluateReferralEvent($eventName, $customerId);
 

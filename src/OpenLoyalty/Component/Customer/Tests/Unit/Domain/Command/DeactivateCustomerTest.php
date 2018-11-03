@@ -1,4 +1,10 @@
 <?php
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
+
+declare(strict_types=1);
 
 namespace OpenLoyalty\Component\Customer\Tests\Unit\Domain\Command;
 
@@ -19,7 +25,7 @@ class DeactivateCustomerTest extends CustomerCommandHandlerTest
     {
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000000');
         $this->scenario
-            ->withAggregateId($customerId)
+            ->withAggregateId((string) $customerId)
             ->given([
                 new CustomerWasRegistered($customerId, CustomerCommandHandlerTest::getCustomerData()),
             ])

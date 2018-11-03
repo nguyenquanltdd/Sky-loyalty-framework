@@ -9,6 +9,7 @@ use OpenLoyalty\Bundle\UserBundle\Entity\User;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetailsRepository;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
+use OpenLoyalty\Component\Transaction\Domain\Transaction;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -43,10 +44,15 @@ class TransactionVoter extends Voter
         $this->sellerDetailsRepository = $sellerDetailsRepository;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function supports($attribute, $subject)
     {
         return $subject instanceof TransactionDetails && in_array($attribute, [
-            self::VIEW, self::ASSIGN_CUSTOMER_TO_TRANSACTION, self::APPEND_LABELS_TO_TRANSACTION,
+            self::VIEW, self::APPEND_LABELS_TO_TRANSACTION,
+        ]) || $subject instanceof Transaction && in_array($attribute, [
+                self::ASSIGN_CUSTOMER_TO_TRANSACTION,
         ]) || $subject == null && in_array($attribute, [
             self::LIST_TRANSACTIONS, self::LIST_CURRENT_CUSTOMER_TRANSACTIONS, self::LIST_CURRENT_POS_TRANSACTIONS,
             self::LIST_ITEM_LABELS, self::CREATE_TRANSACTION, self::EDIT_TRANSACTION_LABELS,
@@ -55,6 +61,9 @@ class TransactionVoter extends Voter
         ]);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
         /** @var User $user */
@@ -90,7 +99,13 @@ class TransactionVoter extends Voter
         }
     }
 
-    protected function canView(User $user, TransactionDetails $subject)
+    /**
+     * @param User               $user
+     * @param TransactionDetails $subject
+     *
+     * @return bool
+     */
+    protected function canView(User $user, TransactionDetails $subject): bool
     {
         if ($user->hasRole('ROLE_ADMIN')) {
             return true;
@@ -100,14 +115,20 @@ class TransactionVoter extends Voter
             return true;
         }
 
-        if ($user->hasRole('ROLE_PARTICIPANT') && $subject->getCustomerId() && $subject->getCustomerId()->__toString() == $user->getId()) {
+        if ($user->hasRole('ROLE_PARTICIPANT') && $subject->getCustomerId() && (string) $subject->getCustomerId() == $user->getId()) {
             return true;
         }
 
         return false;
     }
 
-    protected function canAssign(User $user, TransactionDetails $subject)
+    /**
+     * @param User        $user
+     * @param Transaction $subject
+     *
+     * @return bool
+     */
+    protected function canAssign(User $user, Transaction $subject): bool
     {
         if ($user->hasRole('ROLE_ADMIN')) {
             return true;
@@ -124,13 +145,19 @@ class TransactionVoter extends Voter
         return false;
     }
 
-    protected function canAppendLabels(User $user, TransactionDetails $subject)
+    /**
+     * @param User               $user
+     * @param TransactionDetails $subject
+     *
+     * @return bool
+     */
+    protected function canAppendLabels(User $user, TransactionDetails $subject): bool
     {
         if (!$user->hasRole('ROLE_PARTICIPANT')) {
             return false;
         }
 
-        if ($subject->getCustomerId() && $subject->getCustomerId()->__toString() === $user->getId()) {
+        if ($subject->getCustomerId() && (string) $subject->getCustomerId() === $user->getId()) {
             return true;
         }
 

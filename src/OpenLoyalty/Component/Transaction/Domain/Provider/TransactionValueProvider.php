@@ -5,8 +5,9 @@
  */
 namespace OpenLoyalty\Component\Transaction\Domain\Provider;
 
-use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
+use Broadway\Repository\Repository;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
+use OpenLoyalty\Component\Transaction\Domain\Transaction;
 use OpenLoyalty\Component\Transaction\Domain\TransactionId;
 
 /**
@@ -20,13 +21,20 @@ class TransactionValueProvider implements TransactionValueProviderInterface
     private $transactionDetailsRepository;
 
     /**
+     * @var Repository
+     */
+    private $transactionRepository;
+
+    /**
      * TransactionValueProvider constructor.
      *
      * @param TransactionDetailsRepository $transactionDetailsRepository
+     * @param Repository                   $transactionRepository
      */
-    public function __construct(TransactionDetailsRepository $transactionDetailsRepository)
+    public function __construct(TransactionDetailsRepository $transactionDetailsRepository, Repository $transactionRepository)
     {
         $this->transactionDetailsRepository = $transactionDetailsRepository;
+        $this->transactionRepository = $transactionRepository;
     }
 
     /**
@@ -34,15 +42,17 @@ class TransactionValueProvider implements TransactionValueProviderInterface
      */
     public function getTransactionValue(TransactionId $transactionId, bool $includeReturns = false): ?float
     {
-        /** @var TransactionDetails $transactionDetails */
-        $transactionDetails = $this->transactionDetailsRepository->find($transactionId->__toString());
+        /** @var Transaction $transaction */
+        $transaction = $this->transactionRepository->load((string) $transactionId);
 
-        $transactionValue = $transactionDetails ? $transactionDetails->getGrossValue() : null;
+        $transactionValue = $transaction ? $transaction->getGrossValue() : null;
 
         if ($includeReturns) {
-            $returns = $this->transactionDetailsRepository->findReturnsByDocumentNumber($transactionDetails->getDocumentNumber());
+            $returns = $this->transactionDetailsRepository->findReturnsByDocumentNumber($transaction->getDocumentNumber());
             foreach ($returns as $return) {
-                $transactionValue -= $return->getGrossValue();
+                /** @var Transaction $returnTransaction */
+                $returnTransaction = $this->transactionRepository->load($return->getId());
+                $transactionValue -= $returnTransaction->getGrossValue();
             }
         }
 

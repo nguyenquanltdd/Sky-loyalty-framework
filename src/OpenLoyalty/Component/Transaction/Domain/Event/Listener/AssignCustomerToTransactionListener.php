@@ -9,6 +9,9 @@ use Broadway\CommandHandling\CommandBus;
 use Broadway\Domain\DomainMessage;
 use Broadway\EventDispatcher\EventDispatcher;
 use Broadway\EventHandling\EventListener;
+use Broadway\Repository\Repository;
+use OpenLoyalty\Component\Customer\Domain\Customer;
+use OpenLoyalty\Component\Customer\Domain\CustomerRepository;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerUpdatedSystemEvent;
 use OpenLoyalty\Component\Transaction\Domain\Command\AssignCustomerToTransaction;
@@ -16,8 +19,6 @@ use OpenLoyalty\Component\Transaction\Domain\CustomerId;
 use OpenLoyalty\Component\Transaction\Domain\CustomerIdProvider;
 use OpenLoyalty\Component\Transaction\Domain\CustomerTransactionsSummaryProvider;
 use OpenLoyalty\Component\Transaction\Domain\Event\TransactionWasRegistered;
-use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
-use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\CustomerAssignedToTransactionSystemEvent;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\CustomerFirstTransactionSystemEvent;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
@@ -45,9 +46,9 @@ class AssignCustomerToTransactionListener implements EventListener
     protected $eventDispatcher;
 
     /**
-     * @var TransactionDetailsRepository
+     * @var Repository
      */
-    protected $transactionDetailsRepository;
+    protected $transactionRepository;
 
     /**
      * @var CustomerTransactionsSummaryProvider
@@ -55,39 +56,55 @@ class AssignCustomerToTransactionListener implements EventListener
     protected $customerTransactionsSummaryProvider;
 
     /**
+     * @var CustomerRepository
+     */
+    protected $customerRepository;
+
+    /**
      * AssignCustomerToTransactionListener constructor.
      *
      * @param CustomerIdProvider                  $customerIdProvider
      * @param CommandBus                          $commandBus
      * @param EventDispatcher                     $eventDispatcher
-     * @param TransactionDetailsRepository        $transactionDetailsRepository
+     * @param Repository                          $transactionRepository
      * @param CustomerTransactionsSummaryProvider $customerTransactionsSummaryProvider
+     * @param CustomerRepository                  $customerRepository
      */
     public function __construct(
         CustomerIdProvider $customerIdProvider,
         CommandBus $commandBus,
         EventDispatcher $eventDispatcher,
-        TransactionDetailsRepository $transactionDetailsRepository,
-        CustomerTransactionsSummaryProvider $customerTransactionsSummaryProvider
+        Repository $transactionRepository,
+        CustomerTransactionsSummaryProvider $customerTransactionsSummaryProvider,
+        CustomerRepository $customerRepository
     ) {
         $this->customerIdProvider = $customerIdProvider;
         $this->commandBus = $commandBus;
         $this->eventDispatcher = $eventDispatcher;
-        $this->transactionDetailsRepository = $transactionDetailsRepository;
+        $this->transactionRepository = $transactionRepository;
         $this->customerTransactionsSummaryProvider = $customerTransactionsSummaryProvider;
+        $this->customerRepository = $customerRepository;
     }
 
     public function onTransactionRegistered(TransactionWasRegistered $event)
     {
         $customerId = $this->customerIdProvider->getId($event->getCustomerData());
         if ($customerId) {
-            $transactionsCount = $this->customerTransactionsSummaryProvider->getTransactionsCount(new CustomerId($customerId));
+            /** @var Customer $customer */
+            $customer = $this->customerRepository->load($customerId);
 
             $this->commandBus->dispatch(
-                new AssignCustomerToTransaction($event->getTransactionId(), new CustomerId($customerId))
+                new AssignCustomerToTransaction(
+                    $event->getTransactionId(),
+                    new CustomerId($customerId),
+                    $customer->getEmail(),
+                    $customer->getPhone()
+                )
             );
-            /** @var TransactionDetails $transaction */
-            $transaction = $this->transactionDetailsRepository->find($event->getTransactionId()->__toString());
+
+            /** @var Transaction $transaction */
+            $transaction = $this->transactionRepository->load((string) $event->getTransactionId());
+            $transactionsCount = $this->customerTransactionsSummaryProvider->getTransactionsCount(new CustomerId($customerId));
             $this->eventDispatcher->dispatch(
                 TransactionSystemEvents::CUSTOMER_ASSIGNED_TO_TRANSACTION,
                 [new CustomerAssignedToTransactionSystemEvent(

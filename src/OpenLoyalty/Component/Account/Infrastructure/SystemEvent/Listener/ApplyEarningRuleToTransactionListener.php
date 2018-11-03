@@ -21,11 +21,11 @@ class ApplyEarningRuleToTransactionListener extends BaseApplyEarningRuleListener
     /**
      * @param CustomerAssignedToTransactionSystemEvent $event
      */
-    public function onRegisteredTransaction(CustomerAssignedToTransactionSystemEvent $event)
+    public function onRegisteredTransaction(CustomerAssignedToTransactionSystemEvent $event): void
     {
         $customerId = $event->getCustomerId();
         $transactionId = $event->getTransactionId();
-        $accounts = $this->accountDetailsRepository->findBy(['customerId' => $customerId->__toString()]);
+        $accounts = $this->accountDetailsRepository->findBy(['customerId' => (string) $customerId]);
 
         if (count($accounts) == 0) {
             return;
@@ -33,14 +33,14 @@ class ApplyEarningRuleToTransactionListener extends BaseApplyEarningRuleListener
 
         if ($event->isReturn()) {
             $this->commandBus->dispatch(new RefundEarningRuleCommand(
-                $transactionId->__toString(),
-                $customerId->__toString()
+                (string) $transactionId,
+                (string) $customerId
             ));
 
             return;
         }
 
-        $pointsWithContext = $this->earningRuleApplier->evaluateTransactionWithComment(new TransactionId($transactionId->__toString()), $customerId->__toString());
+        $pointsWithContext = $this->earningRuleApplier->evaluateTransactionWithComment(new TransactionId((string) $transactionId), (string) $customerId);
         $points = $pointsWithContext['points'];
         $comment = $pointsWithContext['comment'];
 
@@ -55,7 +55,7 @@ class ApplyEarningRuleToTransactionListener extends BaseApplyEarningRuleListener
                         $points,
                         null,
                         false,
-                        new TransactionId($transactionId->__toString()),
+                        new TransactionId((string) $transactionId),
                         $comment
                     )
                 )
@@ -63,7 +63,7 @@ class ApplyEarningRuleToTransactionListener extends BaseApplyEarningRuleListener
         }
 
         if (null !== $event->getTransactionsCount() && $event->getTransactionsCount() != 0) {
-            $this->evaluateReferral(ReferralEarningRule::EVENT_EVERY_PURCHASE, $event->getCustomerId()->__toString());
+            $this->evaluateReferral(ReferralEarningRule::EVENT_EVERY_PURCHASE, (string) $event->getCustomerId());
         }
     }
 }

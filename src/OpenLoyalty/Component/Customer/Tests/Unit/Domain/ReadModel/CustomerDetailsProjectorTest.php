@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -11,6 +11,7 @@ namespace OpenLoyalty\Component\Customer\Tests\Unit\Domain\ReadModel;
 use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\InMemory\InMemoryRepository;
 use Broadway\ReadModel\Testing\ProjectorScenarioTestCase;
+use Broadway\Repository\Repository;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerLevelWasRecalculated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasMovedToLevel;
 use OpenLoyalty\Component\Customer\Domain\LevelId;
@@ -28,6 +29,7 @@ use OpenLoyalty\Component\Level\Domain\LevelRepository;
 use OpenLoyalty\Component\Level\Domain\ReadModel\LevelDetails;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use OpenLoyalty\Component\Level\Domain\LevelId as LevelLevelId;
+use PHPUnit_Framework_MockObject_MockObject;
 
 /**
  * Class CustomerDetailsProjectorTest.
@@ -53,12 +55,17 @@ final class CustomerDetailsProjectorTest extends ProjectorScenarioTestCase
      */
     protected function createProjector(InMemoryRepository $repository): Projector
     {
+        /** @var TransactionDetailsRepository|PHPUnit_Framework_MockObject_MockObject $transactionDetailsRepo */
         $transactionDetailsRepo = $this->getMockBuilder(TransactionDetailsRepository::class)->getMock();
 
+        /** @var Levelrepository|PHPUnit_Framework_MockObject_MockObject $levelRepository */
         $levelRepository = $this->getMockBuilder(LevelRepository::class)->getMock();
         $levelRepository->method('byId')->willReturn($this->createTestLevelDetails());
 
-        return new CustomerDetailsProjector($repository, $transactionDetailsRepo, $levelRepository);
+        /** @var Repository|PHPUnit_Framework_MockObject_MockObject $transactionRepository */
+        $transactionRepository = $this->getMockBuilder(Repository::class)->getMock();
+
+        return new CustomerDetailsProjector($repository, $transactionDetailsRepo, $levelRepository, $transactionRepository);
     }
 
     /**

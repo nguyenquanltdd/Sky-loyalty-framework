@@ -1,17 +1,20 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Component\Transaction\Tests\ReadModel;
 
+declare(strict_types=1);
+
+namespace OpenLoyalty\Component\Transaction\Tests\Unit\ReadModel;
+
+use OpenLoyalty\Component\Transaction\Domain\Transaction;
+use OpenLoyalty\Component\Transaction\Domain\TransactionRepository;
+use PHPUnit_Framework_MockObject_MockObject;
 use Broadway\ReadModel\InMemory\InMemoryRepository;
 use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\Testing\ProjectorScenarioTestCase;
-use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
-use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
-use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
 use OpenLoyalty\Component\Transaction\Domain\CustomerId;
 use OpenLoyalty\Component\Transaction\Domain\Event\CustomerWasAssignedToTransaction;
@@ -29,28 +32,27 @@ use OpenLoyalty\Component\Transaction\Domain\TransactionId;
 class TransactionDetailsProjectorTest extends ProjectorScenarioTestCase
 {
     /**
-     * @var CustomerDetailsRepository
-     */
-    private $customerDetailsRepository;
-
-    /**
-     * @param InMemoryRepository $repository
-     *
-     * @return Projector
+     * {@inheritdoc}
      */
     protected function createProjector(InMemoryRepository $repository): Projector
     {
+        /** @var PosRepository|PHPUnit_Framework_MockObject_MockObject $posRepo */
         $posRepo = $this->getMockBuilder(PosRepository::class)->getMock();
         $posRepo->method('byId')->willReturn(null);
-        $this->customerDetailsRepository = $this->getMockBuilder(CustomerDetailsRepository::class)->getMock();
 
-        return new TransactionDetailsProjector($repository, $posRepo, $this->customerDetailsRepository);
+        $transaction = $this->getMockBuilder(Transaction::class)->getMock();
+
+        /** @var TransactionRepository|PHPUnit_Framework_MockObject_MockObject $transactionRepository */
+        $transactionRepository = $this->getMockBuilder(TransactionRepository::class)->disableOriginalConstructor()->getMock();
+        $transactionRepository->method('load')->willReturn($transaction);
+
+        return new TransactionDetailsProjector($repository, $posRepo, $transactionRepository);
     }
 
     /**
      * @test
      */
-    public function it_created_read_model_when_new_transaction_registered()
+    public function it_created_read_model_when_new_transaction_registered(): void
     {
         $transactionId = new TransactionId('00000000-0000-0000-0000-000000000000');
         $posId = new PosId('00000000-0000-0000-0000-000000000011');
@@ -85,7 +87,7 @@ class TransactionDetailsProjectorTest extends ProjectorScenarioTestCase
 
         $expectedReadModel = TransactionDetails::deserialize(
             array_merge($transactionData, [
-                'transactionId' => $transactionId->__toString(),
+                'transactionId' => (string) $transactionId,
                 'customerData' => $customerData,
                 'items' => $items,
             ])
@@ -118,14 +120,14 @@ class TransactionDetailsProjectorTest extends ProjectorScenarioTestCase
     /**
      * @test
      */
-    public function it_updates_read_model_when_customer_was_assigned_to_transaction()
+    public function it_updates_read_model_when_customer_was_assigned_to_transaction(): void
     {
         $transactionId = new TransactionId('00000000-0000-0000-0000-000000000000');
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000011');
 
         $expectedReadModel = TransactionDetails::deserialize(
             array_merge([
-                'transactionId' => $transactionId->__toString(),
+                'transactionId' => (string) $transactionId,
                 'customerData' => $this->getCustomerData(),
             ], $this->getTransactionData())
         );
@@ -133,6 +135,7 @@ class TransactionDetailsProjectorTest extends ProjectorScenarioTestCase
         $expectedReadModel->setCustomerId($customerId);
         $expectedReadModel->getCustomerData()->updateEmailAndPhone('test@example.com', '123');
 
+        // TODO: what is it?
         $customerDetails = new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId(LoadUserData::USER_USER_ID));
         $customerDetails->setEmail('test@example.com');
         $customerDetails->setPhone('123');
@@ -142,7 +145,7 @@ class TransactionDetailsProjectorTest extends ProjectorScenarioTestCase
             ->given([
                 new TransactionWasRegistered($transactionId, $this->getTransactionData(), $this->getCustomerData()),
             ])
-            ->when(new CustomerWasAssignedToTransaction($transactionId, $customerId))
+            ->when(new CustomerWasAssignedToTransaction($transactionId, $customerId, 'test@example.com', '123'))
             ->then(array(
                 $expectedReadModel,
             ));
@@ -151,13 +154,13 @@ class TransactionDetailsProjectorTest extends ProjectorScenarioTestCase
     /**
      * @test
      */
-    public function it_updates_read_model_when_labels_are_appended_to_transaction()
+    public function it_updates_read_model_when_labels_are_appended_to_transaction(): void
     {
         $transactionId = new TransactionId('00000000-0000-0000-0000-000000000000');
 
         $expectedReadModel = TransactionDetails::deserialize(
             array_merge([
-                'transactionId' => $transactionId->__toString(),
+                'transactionId' => (string) $transactionId,
                 'customerData' => $this->getCustomerData(),
             ], $this->getTransactionData())
         );
@@ -191,13 +194,13 @@ class TransactionDetailsProjectorTest extends ProjectorScenarioTestCase
     /**
      * @test
      */
-    public function it_updates_read_model_when_labels_are_updated()
+    public function it_updates_read_model_when_labels_are_updated(): void
     {
         $transactionId = new TransactionId('00000000-0000-0000-0000-000000000000');
 
         $expectedReadModel = TransactionDetails::deserialize(
             array_merge([
-                'transactionId' => $transactionId->__toString(),
+                'transactionId' => (string) $transactionId,
                 'customerData' => $this->getCustomerData(),
             ], $this->getTransactionData())
         );
@@ -230,20 +233,21 @@ class TransactionDetailsProjectorTest extends ProjectorScenarioTestCase
     /**
      * @return array
      */
-    protected function getTransactionData()
+    protected function getTransactionData(): array
     {
         return [
             'documentNumber' => '123',
             'purchasePlace' => 'wroclaw',
             'purchaseDate' => '1471859115',
             'documentType' => 'sell',
+            'grossValue' => 0.0,
         ];
     }
 
     /**
      * @return array
      */
-    protected function getCustomerData()
+    protected function getCustomerData(): array
     {
         return [
             'name' => 'Jan Nowak',

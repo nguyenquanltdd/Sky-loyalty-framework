@@ -5,39 +5,42 @@
  */
 namespace OpenLoyalty\Component\Account\Infrastructure;
 
+use OpenLoyalty\Component\Account\Domain\TransactionId;
 use OpenLoyalty\Component\Account\Infrastructure\Model\EvaluationResult;
+use OpenLoyalty\Component\Account\Infrastructure\Model\ReferralEvaluationResult;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\RuleNameContextInterface;
+use OpenLoyalty\Component\Transaction\Domain\Transaction;
 
 interface EarningRuleApplier
 {
     /**
      * Return number of points for this transaction.
      *
-     * @param $transaction
-     * @param $customerId
+     * @param Transaction $transaction
+     * @param string      $customerId
      *
-     * @return int
+     * @return float
      */
-    public function evaluateTransaction($transaction, $customerId);
+    public function evaluateTransaction(Transaction $transaction, string $customerId): float;
 
     /**
-     * @param $transaction
-     * @param $customerId
+     * @param TransactionId $transaction
+     * @param string        $customerId
      *
      * @return array
      */
-    public function evaluateTransactionWithComment($transaction, $customerId);
+    public function evaluateTransactionWithComment(TransactionId $transaction, string $customerId): array;
 
     /**
      * Return number of points for this event.
      *
      * @param string                        $eventName
-     * @param string                        $customerId
+     * @param string|null                   $customerId
      * @param RuleNameContextInterface|null $context
      *
-     * @return int
+     * @return float
      */
-    public function evaluateEvent($eventName, $customerId, RuleNameContextInterface $context = null);
+    public function evaluateEvent(string $eventName, ?string $customerId, ?RuleNameContextInterface $context = null): float;
 
     /**
      * Return number of points for this event.
@@ -57,24 +60,25 @@ interface EarningRuleApplier
      *
      * @return EvaluationResult
      */
-    public function evaluateCustomEvent($eventName, $customerId);
+    public function evaluateCustomEvent(string $eventName, string $customerId): EvaluationResult;
 
     /**
      * @param string $eventName
      * @param string $customerId
      *
-     * @return null|EvaluationResult
+     * @return ReferralEvaluationResult[]
      */
-    public function evaluateReferralEvent($eventName, $customerId);
+    public function evaluateReferralEvent(string $eventName, string $customerId): array;
 
     /**
-     * @param float  $latitude
-     * @param float  $longitude
-     * @param string $customerId
+     * @param float       $latitude
+     * @param float       $longitude
+     * @param string      $customerId
+     * @param string|null $earningRuleId
      *
      * @return EvaluationResult[]
      */
-    public function evaluateGeoEvent(float $latitude, float $longitude, string $customerId, ?string $cos): array;
+    public function evaluateGeoEvent(float $latitude, float $longitude, string $customerId, ?string $earningRuleId): array;
 
     /**
      * @param string      $code

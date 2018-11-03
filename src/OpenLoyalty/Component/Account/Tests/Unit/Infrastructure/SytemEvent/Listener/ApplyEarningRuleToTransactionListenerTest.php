@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -28,6 +28,7 @@ final class ApplyEarningRuleToTransactionListenerTest extends BaseApplyEarningRu
     public function it_adds_points_on_new_transaction()
     {
         $accountId = new AccountId($this->uuid);
+        $transactionId = new \OpenLoyalty\Component\Account\Domain\TransactionId($this->uuid);
         $expected = new AddPoints($accountId, new AddPointsTransfer(
             new PointsTransferId($this->uuid),
             10,
@@ -35,7 +36,7 @@ final class ApplyEarningRuleToTransactionListenerTest extends BaseApplyEarningRu
             null,
             null,
             false,
-            new \OpenLoyalty\Component\Account\Domain\TransactionId($this->uuid)
+            $transactionId
         ));
 
         $listener = new ApplyEarningRuleToTransactionListener(
@@ -43,7 +44,7 @@ final class ApplyEarningRuleToTransactionListenerTest extends BaseApplyEarningRu
             $this->getAccountDetailsRepository(),
             $this->getUuidGenerator(),
             $this->getApplierForTransaction(10),
-            $this->getPointsTransfersManager(10, 0)
+            $this->getPointsTransfersManager(10, 0, null, $transactionId)
         );
 
         $listener->onRegisteredTransaction(new CustomerAssignedToTransactionSystemEvent(

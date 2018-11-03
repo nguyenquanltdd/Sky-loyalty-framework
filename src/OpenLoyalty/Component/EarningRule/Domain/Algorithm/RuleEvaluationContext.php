@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Component\EarningRule\Domain\Algorithm;
 
-use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
+use OpenLoyalty\Component\Transaction\Domain\Transaction;
 
 /**
  * Class RuleEvaluationContext.
@@ -18,7 +18,7 @@ class RuleEvaluationContext extends RuleNameContext implements RuleEvaluationCon
     private $products;
 
     /**
-     * @var TransactionDetails
+     * @var Transaction
      */
     private $transaction;
 
@@ -30,10 +30,10 @@ class RuleEvaluationContext extends RuleNameContext implements RuleEvaluationCon
     /**
      * RuleEvaluationContext constructor.
      *
-     * @param TransactionDetails $transaction
-     * @param string             $customerId
+     * @param Transaction $transaction
+     * @param string      $customerId
      */
-    public function __construct(TransactionDetails $transaction, string $customerId = null)
+    public function __construct(Transaction $transaction, string $customerId)
     {
         $this->products = [];
         $this->transaction = $transaction;
@@ -43,7 +43,7 @@ class RuleEvaluationContext extends RuleNameContext implements RuleEvaluationCon
     /**
      * {@inheritdoc}
      */
-    public function getTransaction()
+    public function getTransaction(): Transaction
     {
         return $this->transaction;
     }
@@ -90,9 +90,9 @@ class RuleEvaluationContext extends RuleNameContext implements RuleEvaluationCon
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    public function getCustomerId(): ?string
+    public function getCustomerId(): string
     {
         return $this->customerId;
     }

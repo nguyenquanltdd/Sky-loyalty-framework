@@ -391,13 +391,19 @@ class TransactionController extends FOSRestController
                     $itemsObjects[] = Item::deserialize($item);
                 }
             }
-            $transactionDetails = new TransactionDetails(new TransactionId($this->get('broadway.uuid.generator')->generate()));
-            $transactionDetails->setItems($itemsObjects);
             $settingsManager = $this->get('ol.settings.manager');
             $excludedSKUs = $settingsManager->getSettingByKey('excludedDeliverySKUs');
-            $transactionDetails->setExcludedDeliverySKUs($excludedSKUs ? $excludedSKUs->getValue() : null);
 
-            $points = $this->get(OloyEarningRuleEvaluator::class)->evaluateTransaction($transactionDetails, $transactionDetails->getCustomerId());
+            $transaction = Transaction::createTransaction(
+                new TransactionId($this->get('broadway.uuid.generator')->generate()),
+                [],
+                [],
+                $itemsObjects,
+                null,
+                $excludedSKUs ? $excludedSKUs->getValue() : null
+            );
+
+            $points = $this->get(OloyEarningRuleEvaluator::class)->evaluateTransaction($transaction, null);
 
             return $this->view(['points' => $points]);
         }

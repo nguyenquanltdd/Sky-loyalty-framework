@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -30,6 +30,14 @@ use PHPUnit_Framework_MockObject_MockObject;
 final class SpendPointsOnCampaignListenerTest extends \PHPUnit_Framework_TestCase
 {
     protected $uuid = '00000000-0000-0000-0000-000000000000';
+
+    protected function getUuidGenerator()
+    {
+        $mock = $this->getMockBuilder(UuidGeneratorInterface::class)->getMock();
+        $mock->method('generate')->willReturn($this->uuid);
+
+        return $mock;
+    }
 
     /**
      * @test
@@ -62,21 +70,7 @@ final class SpendPointsOnCampaignListenerTest extends \PHPUnit_Framework_TestCas
         ));
     }
 
-    /**
-     * @return PHPUnit_Framework_MockObject_MockObject|UuidGeneratorInterface
-     */
-    protected function getUuidGenerator(): PHPUnit_Framework_MockObject_MockObject
-    {
-        $mock = $this->getMockBuilder(UuidGeneratorInterface::class)->getMock();
-        $mock->method('generate')->willReturn($this->uuid);
-
-        return $mock;
-    }
-
-    /**
-     * @return PHPUnit_Framework_MockObject_MockObject|Repository
-     */
-    protected function getAccountDetailsRepository(): PHPUnit_Framework_MockObject_MockObject
+    protected function getAccountDetailsRepository()
     {
         $account = $this->getMockBuilder(AccountDetails::class)->disableOriginalConstructor()->getMock();
         $account->method('getAccountId')->willReturn(new AccountId($this->uuid));

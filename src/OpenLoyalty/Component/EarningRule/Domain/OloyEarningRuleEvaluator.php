@@ -5,9 +5,12 @@
  */
 namespace OpenLoyalty\Component\EarningRule\Domain;
 
+use Broadway\Repository\Repository;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Component\Account\Domain\TransactionId;
-use OpenLoyalty\Component\Customer\Domain\Model\Status;
+use OpenLoyalty\Component\Customer\Domain\LevelId;
+use OpenLoyalty\Component\Customer\Domain\PosId;
+use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetailsRepository;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\EarningRuleAlgorithmFactoryInterface;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\EarningRuleAlgorithmInterface;
@@ -15,14 +18,14 @@ use OpenLoyalty\Component\EarningRule\Domain\Algorithm\RuleEvaluationContext;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\RuleNameContext;
 use OpenLoyalty\Component\EarningRule\Domain\Algorithm\RuleNameContextInterface;
 use OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableProvider;
-use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
-use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use OpenLoyalty\Component\Account\Infrastructure\EarningRuleApplier;
 use OpenLoyalty\Component\Account\Infrastructure\Model\EvaluationResult;
 use OpenLoyalty\Component\Account\Infrastructure\Model\ReferralEvaluationResult;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
-use OpenLoyalty\Component\Core\Domain\Model\Identifier;
+use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomers;
 use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomersRepository;
+use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
+use OpenLoyalty\Component\Transaction\Domain\Transaction;
 
 /**
  * Class OloyEarningRuleEvaluator.
@@ -43,11 +46,6 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
      * @var EarningRuleRepository
      */
     protected $earningRuleRepository;
-
-    /**
-     * @var TransactionDetailsRepository
-     */
-    protected $transactionDetailsRepository;
 
     /**
      * @var InvitationDetailsRepository
@@ -80,10 +78,14 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     private $stoppableProvider;
 
     /**
+     * @var Repository
+     */
+    private $transactionRepository;
+
+    /**
      * OloyEarningRuleEvaluator constructor.
      *
      * @param EarningRuleRepository                $earningRuleRepository
-     * @param TransactionDetailsRepository         $transactionDetailsRepository
      * @param EarningRuleAlgorithmFactoryInterface $algorithmFactory
      * @param InvitationDetailsRepository          $invitationDetailsRepository
      * @param SegmentedCustomersRepository         $segmentedCustomerElasticSearchRepository
@@ -92,10 +94,10 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
      * @param StoppableProvider                    $stoppableProvider
      * @param EarningRuleGeoRepository             $earningRuleGeoRepository
      * @param EarningRuleQrcodeRepository          $earningRuleQrcodeRepository
+     * @param Repository                           $transactionRepository
      */
     public function __construct(
         EarningRuleRepository $earningRuleRepository,
-        TransactionDetailsRepository $transactionDetailsRepository,
         EarningRuleAlgorithmFactoryInterface $algorithmFactory,
         InvitationDetailsRepository $invitationDetailsRepository,
         SegmentedCustomersRepository $segmentedCustomerElasticSearchRepository,
@@ -103,10 +105,10 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         SettingsManager $settingsManager,
         StoppableProvider $stoppableProvider,
         EarningRuleGeoRepository $earningRuleGeoRepository,
-        EarningRuleQrcodeRepository $earningRuleQrcodeRepository
+        EarningRuleQrcodeRepository $earningRuleQrcodeRepository,
+        Repository $transactionRepository
     ) {
         $this->earningRuleRepository = $earningRuleRepository;
-        $this->transactionDetailsRepository = $transactionDetailsRepository;
         $this->algorithmFactory = $algorithmFactory;
         $this->segmentedCustomerElasticSearchRepository = $segmentedCustomerElasticSearchRepository;
         $this->customerDetailsRepository = $customerDetailsRepository;
@@ -115,33 +117,36 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         $this->stoppableProvider = $stoppableProvider;
         $this->earningRuleGeoRepository = $earningRuleGeoRepository;
         $this->earningRuleQrcodeRepository = $earningRuleQrcodeRepository;
+        $this->transactionRepository = $transactionRepository;
     }
 
     /**
      * @param TransactionDetails|TransactionId $transaction
      *
-     * @return TransactionDetails
+     * @return Transaction
      */
-    protected function getTransactionObject($transaction)
+    protected function getTransactionObject($transaction): Transaction
     {
         if ($transaction instanceof TransactionId) {
-            $transaction = $this->transactionDetailsRepository->find($transaction->__toString());
+            /** @var Transaction $transaction */
+            $transaction = $this->transactionRepository->load((string) $transaction);
         }
 
         if ($transaction instanceof TransactionDetails) {
-            return $transaction;
+            /** @var Transaction $transaction */
+            $transaction = $this->transactionRepository->load((string) $transaction->getTransactionId());
         }
 
-        return;
+        return $transaction;
     }
 
     /**
-     * @param TransactionDetails $transaction
-     * @param $customerId
+     * @param Transaction $transaction
+     * @param string      $customerId
      *
      * @return array
      */
-    protected function getEarningRulesAlgorithms(TransactionDetails $transaction, $customerId)
+    protected function getEarningRulesAlgorithms(Transaction $transaction, string $customerId)
     {
         $customerData = $this->getCustomerDetails($customerId);
 
@@ -186,14 +191,8 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     /**
      * {@inheritdoc}
      */
-    public function evaluateTransaction($transaction, $customerId, RuleEvaluationContext $context = null)
+    public function evaluateTransaction(Transaction $transaction, string $customerId, RuleEvaluationContext $context = null): float
     {
-        $transaction = $this->getTransactionObject($transaction);
-
-        if (!$transaction) {
-            return 0;
-        }
-
         $customerData = $this->getCustomerDetails($customerId);
         if (null !== $customerData['status'] && !in_array($customerData['status'], $this->getCustomerEarningStatuses())) {
             return 0;
@@ -222,12 +221,9 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     }
 
     /**
-     * @param $transaction
-     * @param $customerId
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    public function evaluateTransactionWithComment($transaction, $customerId)
+    public function evaluateTransactionWithComment(TransactionId $transaction, string $customerId): array
     {
         $transaction = $this->getTransactionObject($transaction);
 
@@ -250,7 +246,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     /**
      * {@inheritdoc}
      */
-    public function evaluateEvent($eventName, $customerId, RuleNameContextInterface $context = null)
+    public function evaluateEvent(string $eventName, ?string $customerId, RuleNameContextInterface $context = null): float
     {
         $points = 0;
 
@@ -334,26 +330,20 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     }
 
     /**
-     * Return number of points for this custom event.
-     *
-     * @param string $eventName
-     * @param string $customerId
-     *
-     * @return int|EvaluationResult
-     *
-     * @throws \Doctrine\ORM\ORMException
+     * {@inheritdoc}
      */
-    public function evaluateCustomEvent($eventName, $customerId)
+    public function evaluateCustomEvent(string $eventName, string $customerId): EvaluationResult
     {
         /** @var EvaluationResult $result */
-        $result = null;
+        $result = new EvaluationResult('', 0.0);
 
         /** @var array $customerData */
         $customerData = $this->getCustomerDetails($customerId);
         if (null !== $customerData['status'] && !in_array($customerData['status'], $this->getCustomerEarningStatuses())) {
-            return 0;
+            return $result;
         }
 
+        /** @var CustomEventEarningRule[] $earningRules */
         $earningRules = $this->earningRuleRepository->findByCustomEventName(
             $eventName,
             $customerData['segments'],
@@ -363,18 +353,17 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         );
 
         if (!$earningRules) {
-            return 0;
+            return $result;
         }
 
         if (null !== $customerData['status'] && !in_array($customerData['status'], $this->getCustomerEarningStatuses())) {
-            return 0;
+            return $result;
         }
 
-        /** @var EarningRule $earningRule */
         foreach ($earningRules as $earningRule) {
-            if (null == $result || $earningRule->getPointsAmount() > $result->getPoints()) {
+            if (null === $result || $earningRule->getPointsAmount() > $result->getPoints()) {
                 $result = new EvaluationResult(
-                    $earningRule->getEarningRuleId()->__toString(),
+                    (string) $earningRule->getEarningRuleId(),
                     $earningRule->getPointsAmount(),
                     $earningRule->getName()
                 );
@@ -385,14 +374,9 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     }
 
     /**
-     * @param string $eventName
-     * @param string $customerId
-     *
-     * @throws \Doctrine\ORM\ORMException
-     *
-     * @return null|EvaluationResult|ReferralEvaluationResult[]
+     * {@inheritdoc}
      */
-    public function evaluateReferralEvent($eventName, $customerId)
+    public function evaluateReferralEvent(string $eventName, string $customerId): array
     {
         /** @var ReferralEvaluationResult[] $results */
         $results = [];
@@ -406,6 +390,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
             return $results;
         }
 
+        /** @var ReferralEarningRule[] $earningRules */
         $earningRules = $this->earningRuleRepository->findReferralByEventName(
             $eventName,
             $customerData['segments'],
@@ -417,11 +402,10 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
             return $results;
         }
 
-        /** @var ReferralEarningRule $earningRule */
         foreach ($earningRules as $earningRule) {
             if (!isset($results[$earningRule->getRewardType()]) || $earningRule->getPointsAmount() > $results[$earningRule->getRewardType()]->getPoints()) {
                 $results[$earningRule->getRewardType()] = new ReferralEvaluationResult(
-                    $earningRule->getEarningRuleId()->__toString(),
+                    (string) $earningRule->getEarningRuleId(),
                     $earningRule->getPointsAmount(),
                     $earningRule->getRewardType(),
                     $invitation,
@@ -472,7 +456,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
      *
      * @return array
      */
-    protected function getCustomerDetails($customerId)
+    protected function getCustomerDetails(string $customerId): array
     {
         $result = [
             'level' => null,
@@ -482,8 +466,6 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         ];
 
         if ($customerId) {
-            $customerId = $customerId instanceof Identifier ? $customerId->__toString() : $customerId;
-
             $customerDetails = $this->customerDetailsRepository->findOneByCriteria(['id' => $customerId], 1);
             $levelId = $this->getCustomerLevelById($customerDetails);
             $status = $this->getCustomerStatusById($customerDetails);
@@ -503,18 +485,18 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     }
 
     /**
-     * @param $customerDetails
+     * @param CustomerDetails[] $customerDetails
      *
      * @return null|PosId
      */
-    public function getCustomerPos($customerDetails)
+    public function getCustomerPos(array $customerDetails): ?PosId
     {
         if (!$customerDetails) {
             return null;
         }
 
         $pos = array_map(
-            function ($element) {
+            function (CustomerDetails $element) {
                 return $element->getPosId();
             },
             $customerDetails
@@ -526,11 +508,11 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     /**
      * Get customers segments.
      *
-     * @param $customerId
+     * @param string $customerId
      *
      * @return array
      */
-    protected function getCustomerSegmentsById($customerId)
+    protected function getCustomerSegmentsById(string $customerId): array
     {
         $segments = [];
 
@@ -542,7 +524,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
 
         if ($customerDetails) {
             $segments = array_map(
-                function ($element) {
+                function (SegmentedCustomers $element) {
                     return $element->getSegmentId();
                 },
                 $customerDetails
@@ -555,18 +537,18 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     /**
      * Get customers level.
      *
-     * @param $customerDetails
+     * @param CustomerDetails[] $customerDetails
      *
-     * @return LevelId
+     * @return LevelId|null
      */
-    protected function getCustomerLevelById($customerDetails)
+    protected function getCustomerLevelById(array $customerDetails): ?LevelId
     {
         if (!$customerDetails) {
             return null;
         }
 
         $levels = array_map(
-            function ($element) {
+            function (CustomerDetails $element) {
                 return $element->getLevelId();
             },
             $customerDetails
@@ -578,18 +560,18 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     /**
      * Get customers status.
      *
-     * @param $customerDetails
+     * @param CustomerDetails[] $customerDetails
      *
-     * @return Status
+     * @return string|null
      */
-    protected function getCustomerStatusById($customerDetails)
+    protected function getCustomerStatusById(array $customerDetails): ?string
     {
         if (!$customerDetails) {
             return null;
         }
 
         $statuses = array_map(
-            function ($element) {
+            function (CustomerDetails $element) {
                 return (null !== $element->getStatus()) ? $element->getStatus()->getType() : null;
             },
             $customerDetails
@@ -601,7 +583,7 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
     /**
      * @return array
      */
-    protected function getCustomerEarningStatuses()
+    protected function getCustomerEarningStatuses(): array
     {
         $customerStatusesEarning = $this->settingsManager->getSettingByKey('customerStatusesEarning');
         if ($customerStatusesEarning) {

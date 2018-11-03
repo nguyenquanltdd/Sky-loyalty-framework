@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -1358,7 +1358,7 @@ class CustomerControllerTest extends BaseApiTest
                 'Field '.$field.' does not exists'
             );
             $this->assertTrue(
-                (\strpos((string) $customer[$field], $phrase) !== false),
+                (strpos((string) $customer[$field], $phrase) !== false),
                 'Searching phrase '.$phrase.' but found '.$customer[$field]
             );
         }

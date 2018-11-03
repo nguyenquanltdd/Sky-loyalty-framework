@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -59,13 +59,14 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
     }
 
     /**
-     * @param int         $value
-     * @param int         $duration
-     * @param string:null $comment
+     * @param int                $value
+     * @param int                $duration
+     * @param string|null        $comment
+     * @param TransactionId|null $transactionId
      *
      * @return PHPUnit_Framework_MockObject_MockObject|PointsTransfersManager
      */
-    protected function getPointsTransfersManager($value = 10, $duration = 0, $comment = null): PHPUnit_Framework_MockObject_MockObject
+    protected function getPointsTransfersManager($value = 10, $duration = 0, $comment = null, TransactionId $transactionId = null)
     {
         $pointsTransfer = new AddPointsTransfer(
             new PointsTransferId($this->uuid),
@@ -74,7 +75,7 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
             null,
             null,
             false,
-            null,
+            $transactionId,
             $comment
         );
         $manager = $this->getMockBuilder(PointsTransfersManager::class)->disableOriginalConstructor()->getMock();
@@ -128,6 +129,8 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
         $mock = $this->getMockBuilder(EarningRuleApplier::class)->getMock();
         $mock->method('evaluateTransaction')->with($this->isInstanceOf(TransactionId::class))
             ->willReturn($returnValue);
+        $mock->method('evaluateTransactionWithComment')->with($this->isInstanceOf(TransactionId::class))
+             ->willReturn(['points' => $returnValue, 'comment' => '']);
 
         return $mock;
     }

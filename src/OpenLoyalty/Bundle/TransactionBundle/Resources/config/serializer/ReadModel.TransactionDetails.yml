@@ -10,7 +10,3 @@ OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails:
     posId:
       expose: true
       inline: true
-  virtual_properties:
-    getGrossValue:
-      serialized_name: grossValue
-      type: float

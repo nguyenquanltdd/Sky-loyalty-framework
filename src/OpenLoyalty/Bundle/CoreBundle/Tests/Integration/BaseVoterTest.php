@@ -104,6 +104,10 @@ abstract class BaseVoterTest extends \PHPUnit_Framework_TestCase
         foreach ($attributes as $attribute => $params) {
             $subject = isset($params['id']) ? $this->getSubjectById($params['id']) : null;
 
+            // override with custom subject
+            if (null === $subject && array_key_exists('subject', $params)) {
+                $subject = $params['subject'];
+            }
             $this->assertEquals(
                 $params['customer'] ? VoterInterface::ACCESS_GRANTED : VoterInterface::ACCESS_DENIED,
                 $voter->vote($this->getCustomerToken(), $subject, [$attribute]),

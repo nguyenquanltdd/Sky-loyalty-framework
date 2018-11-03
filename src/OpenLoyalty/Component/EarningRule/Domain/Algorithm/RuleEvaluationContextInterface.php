@@ -12,7 +12,7 @@
  */
 namespace OpenLoyalty\Component\EarningRule\Domain\Algorithm;
 
-use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
+use OpenLoyalty\Component\Transaction\Domain\Transaction;
 
 /**
  * Interface RuleEvaluationContextInterface.
@@ -20,9 +20,9 @@ use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 interface RuleEvaluationContextInterface
 {
     /**
-     * @return TransactionDetails
+     * @return Transaction
      */
-    public function getTransaction();
+    public function getTransaction(): Transaction;
 
     /**
      * @param string $sku
@@ -49,7 +49,7 @@ interface RuleEvaluationContextInterface
     public function getProducts();
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getCustomerId();
 }

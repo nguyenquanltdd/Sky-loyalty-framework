@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\TransactionBundle\Form\Handler;
 
 use Broadway\CommandHandling\CommandBus;
 use Broadway\EventDispatcher\EventDispatcher;
+use Broadway\Repository\Repository;
 use OpenLoyalty\Bundle\TransactionBundle\Model\AssignCustomer;
 use OpenLoyalty\Component\Customer\Domain\Exception\TooManyResultsException;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
@@ -18,6 +19,7 @@ use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsReposit
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\CustomerAssignedToTransactionSystemEvent;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
 use OpenLoyalty\Component\Transaction\Domain\Transaction;
+use OpenLoyalty\Component\Transaction\Domain\TransactionId;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
@@ -29,6 +31,11 @@ use Symfony\Component\Translation\TranslatorInterface;
  */
 class ManuallyAssignCustomerToTransactionFormHandler
 {
+    /**
+     * @var Repository
+     */
+    protected $transactionRepository;
+
     /**
      * @var TransactionDetailsRepository
      */
@@ -62,13 +69,16 @@ class ManuallyAssignCustomerToTransactionFormHandler
     /**
      * ManuallyAssignCustomerToTransactionFormHandler constructor.
      *
+     * @param Repository                   $transactionRepository
      * @param TransactionDetailsRepository $transactionDetailsRepository
      * @param CustomerDetailsRepository    $customerDetailsRepository
      * @param CommandBus                   $commandBus
      * @param EventDispatcher              $eventDispatcher
      * @param AuthorizationChecker         $authorizationChecker
+     * @param TranslatorInterface          $translator
      */
     public function __construct(
+        Repository $transactionRepository,
         TransactionDetailsRepository $transactionDetailsRepository,
         CustomerDetailsRepository $customerDetailsRepository,
         CommandBus $commandBus,
@@ -76,6 +86,7 @@ class ManuallyAssignCustomerToTransactionFormHandler
         AuthorizationChecker $authorizationChecker,
         TranslatorInterface $translator
     ) {
+        $this->transactionRepository = $transactionRepository;
         $this->transactionDetailsRepository = $transactionDetailsRepository;
         $this->customerDetailsRepository = $customerDetailsRepository;
         $this->commandBus = $commandBus;
@@ -87,7 +98,7 @@ class ManuallyAssignCustomerToTransactionFormHandler
     /**
      * @param FormInterface $form
      *
-     * @return bool|\OpenLoyalty\Component\Transaction\Domain\TransactionId
+     * @return bool|TransactionId
      */
     public function onSuccess(FormInterface $form)
     {
@@ -96,14 +107,17 @@ class ManuallyAssignCustomerToTransactionFormHandler
 
         $documentNumber = $data->getTransactionDocumentNumber();
 
-        $transactions = $this->transactionDetailsRepository->findBy(['documentNumberRaw' => $documentNumber]);
-        if (count($transactions) == 0) {
+        $transactionsDetails = $this->transactionDetailsRepository->findBy(['documentNumberRaw' => $documentNumber]);
+        if (count($transactionsDetails) == 0) {
             $form->get('transactionDocumentNumber')->addError(new FormError('No such transaction'));
 
             return false;
         }
-        /** @var TransactionDetails $transaction */
-        $transaction = reset($transactions);
+        /** @var TransactionDetails $transactionDetail */
+        $transactionDetail = reset($transactionsDetails);
+
+        /** @var Transaction $transaction */
+        $transaction = $this->transactionRepository->load($transactionDetail->getId());
 
         if (!$this->authorizationChecker->isGranted('ASSIGN_CUSTOMER_TO_TRANSACTION', $transaction)) {
             throw new AccessDeniedException();
@@ -153,7 +167,11 @@ class ManuallyAssignCustomerToTransactionFormHandler
         $this->commandBus->dispatch(
             new AssignCustomerToTransaction(
                 $transaction->getTransactionId(),
-                new CustomerId($customer->getCustomerId()->__toString())
+                new CustomerId(
+                    (string) $customer->getCustomerId()
+                ),
+                $customer->getEmail(),
+                $customer->getPhone()
             )
         );
 
@@ -161,7 +179,7 @@ class ManuallyAssignCustomerToTransactionFormHandler
             TransactionSystemEvents::CUSTOMER_ASSIGNED_TO_TRANSACTION,
             [new CustomerAssignedToTransactionSystemEvent(
                 $transaction->getTransactionId(),
-                new CustomerId($customer->getCustomerId()->__toString()),
+                new CustomerId((string) $customer->getCustomerId()),
                 $transaction->getGrossValue(),
                 $transaction->getGrossValueWithoutDeliveryCosts(),
                 0,

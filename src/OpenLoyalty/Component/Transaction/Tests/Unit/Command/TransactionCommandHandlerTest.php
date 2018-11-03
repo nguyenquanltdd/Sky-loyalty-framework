@@ -1,6 +1,12 @@
 <?php
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 
-namespace OpenLoyalty\Component\Transaction\Tests\Command;
+declare(strict_types=1);
+
+namespace OpenLoyalty\Component\Transaction\Tests\Unit\Command;
 
 use Broadway\CommandHandling\CommandHandler;
 use Broadway\CommandHandling\Testing\CommandHandlerScenarioTestCase;

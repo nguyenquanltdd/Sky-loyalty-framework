@@ -1,6 +1,12 @@
 <?php
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 
-namespace OpenLoyalty\Component\Transaction\Tests\Command;
+declare(strict_types=1);
+
+namespace OpenLoyalty\Component\Transaction\Tests\Unit\Command;
 
 use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Transaction\Domain\Command\RegisterTransaction;
@@ -67,7 +73,7 @@ class RegisterTransactionTest extends TransactionCommandHandlerTest
         ];
 
         $this->scenario
-            ->withAggregateId($transactionId)
+            ->withAggregateId((string) $transactionId)
             ->given([])
             ->when(new RegisterTransaction($transactionId, $transactionData, $customerData, $items))
             ->then(array(
@@ -134,7 +140,7 @@ class RegisterTransactionTest extends TransactionCommandHandlerTest
         ];
 
         $this->scenario
-            ->withAggregateId($transactionId)
+            ->withAggregateId((string) $transactionId)
             ->given([])
             ->when(new RegisterTransaction(
                 $transactionId,
@@ -222,7 +228,7 @@ class RegisterTransactionTest extends TransactionCommandHandlerTest
         ];
 
         $this->scenario
-            ->withAggregateId($transactionId)
+            ->withAggregateId((string) $transactionId)
             ->given([])
             ->when(new RegisterTransaction($transactionId, $transactionData, $customerData, $items, $posId))
             ->then(array(

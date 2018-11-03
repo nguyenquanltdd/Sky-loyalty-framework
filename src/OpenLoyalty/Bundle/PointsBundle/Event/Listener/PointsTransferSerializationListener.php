@@ -5,14 +5,14 @@
  */
 namespace OpenLoyalty\Bundle\PointsBundle\Event\Listener;
 
+use Broadway\Repository\Repository;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;
 use OpenLoyalty\Component\Pos\Domain\Pos;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
 use OpenLoyalty\Component\Transaction\Domain\Model\Item;
-use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
-use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
+use OpenLoyalty\Component\Transaction\Domain\Transaction;
 
 /**
  * Class PointsTransferSerializationListener.
@@ -25,22 +25,22 @@ class PointsTransferSerializationListener implements EventSubscriberInterface
     protected $posRepository;
 
     /**
-     * @var TransactionDetailsRepository
+     * @var Repository
      */
-    protected $transactionDetailsRepository;
+    protected $transactionRepository;
 
     /**
      * PointsTransferSerializationListener constructor.
      *
-     * @param PosRepository                $posRepository
-     * @param TransactionDetailsRepository $transactionDetailsRepository
+     * @param PosRepository $posRepository
+     * @param Repository    $transactionRepository
      */
     public function __construct(
         PosRepository $posRepository,
-        TransactionDetailsRepository $transactionDetailsRepository
+        Repository $transactionRepository
     ) {
         $this->posRepository = $posRepository;
-        $this->transactionDetailsRepository = $transactionDetailsRepository;
+        $this->transactionRepository = $transactionRepository;
     }
 
     /**
@@ -70,8 +70,8 @@ class PointsTransferSerializationListener implements EventSubscriberInterface
             }
 
             if ($transfer->getTransactionId()) {
-                $transaction = $this->transactionDetailsRepository->find($transfer->getTransactionId()->__toString());
-                if ($transaction instanceof TransactionDetails) {
+                $transaction = $this->transactionRepository->load((string) $transfer->getTransactionId());
+                if ($transaction instanceof Transaction) {
                     $event->getVisitor()->setData('transactionDocumentNumber', $transaction->getDocumentNumber());
                     $event->getVisitor()->setData('transaction', [
                         'grossValue' => $transaction->getGrossValue(),
@@ -83,8 +83,8 @@ class PointsTransferSerializationListener implements EventSubscriberInterface
             }
 
             if ($transfer->getRevisedTransactionId()) {
-                $transaction = $this->transactionDetailsRepository->find($transfer->getRevisedTransactionId()->__toString());
-                if ($transaction instanceof TransactionDetails) {
+                $transaction = $this->transactionRepository->load((string) $transfer->getRevisedTransactionId());
+                if ($transaction instanceof Transaction) {
                     $event->getVisitor()->setData('revisedTransactionDocumentNumber', $transaction->getDocumentNumber());
                 }
             }

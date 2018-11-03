@@ -9,19 +9,12 @@ use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Component\Pos\Domain\Pos;
-use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
-use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 
 /**
  * Class PosSerializationListener.
  */
 class PosSerializationListener implements EventSubscriberInterface
 {
-    /**
-     * @var TransactionDetailsRepository
-     */
-    protected $transactionDetailsRepository;
-
     /**
      * @var SettingsManager
      */
@@ -30,15 +23,16 @@ class PosSerializationListener implements EventSubscriberInterface
     /**
      * PosSerializationListener constructor.
      *
-     * @param TransactionDetailsRepository $transactionDetailsRepository
-     * @param SettingsManager              $settingsManager
+     * @param SettingsManager $settingsManager
      */
-    public function __construct(TransactionDetailsRepository $transactionDetailsRepository, SettingsManager $settingsManager)
+    public function __construct(SettingsManager $settingsManager)
     {
-        $this->transactionDetailsRepository = $transactionDetailsRepository;
         $this->settingsManager = $settingsManager;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getSubscribedEvents()
     {
         return array(
@@ -46,7 +40,10 @@ class PosSerializationListener implements EventSubscriberInterface
         );
     }
 
-    public function onPostSerialize(ObjectEvent $event)
+    /**
+     * @param ObjectEvent $event
+     */
+    public function onPostSerialize(ObjectEvent $event): void
     {
         /** @var Pos $pos */
         $pos = $event->getObject();
@@ -55,23 +52,6 @@ class PosSerializationListener implements EventSubscriberInterface
             $currency = $this->settingsManager->getSettingByKey('currency');
             $currency = $currency ? $currency->getValue() : 'PLN';
             $event->getVisitor()->addData('currency', $currency);
-            //            $transactions = $this->transactionDetailsRepository->findBy(['posId' => $pos->getPosId()->__toString()]);
-            //            $event->getVisitor()->addData('transactionsCount', $this->countTransactions($transactions));
-            //            $event->getVisitor()->addData('transactionValue', $this->countTransactionsValues($transactions));
         }
-    }
-
-    protected function countTransactions(array $transactions)
-    {
-        return count($transactions);
-    }
-
-    protected function countTransactionsValues(array $transactions)
-    {
-        return array_reduce($transactions, function ($carry, TransactionDetails $item) {
-            $carry += $item->getGrossValue();
-
-            return $carry;
-        }, 0);
     }
 }

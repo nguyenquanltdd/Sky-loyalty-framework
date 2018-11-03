@@ -235,7 +235,7 @@ class TransactionWasRegistered extends TransactionEvent
             $transactionData,
             $customerData,
             $items,
-            isset($data['posIs']) && $data['posId'] ? new PosId($data['posId']) : null,
+            isset($data['posId']) && $data['posId'] ? new PosId($data['posId']) : null,
             isset($data['excludedDeliverySKUs']) ? $data['excludedDeliverySKUs'] : null,
             isset($data['excludedLevelSKUs']) ? $data['excludedLevelSKUs'] : null,
             isset($data['excludedLevelCategories']) ? $data['excludedLevelCategories'] : null,

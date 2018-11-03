@@ -114,7 +114,7 @@ class ApplyingEarningRulesTest extends BaseApiTest
     {
         $formData = [
             'transactionData' => [
-                'documentNumber' => '1231111',
+                'documentNumber' => '1231111_1',
                 'documentType' => 'sell',
                 'purchaseDate' => (new \DateTime('+1 day'))->format('Y-m-d'),
                 'purchasePlace' => 'wroclaw',

@@ -7,10 +7,10 @@ namespace OpenLoyalty\Component\Transaction\Domain\Command;
 
 use Broadway\CommandHandling\SimpleCommandHandler;
 use Broadway\EventDispatcher\EventDispatcher;
+use Broadway\Repository\Repository;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionRegisteredEvent;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
 use OpenLoyalty\Component\Transaction\Domain\Transaction;
-use OpenLoyalty\Component\Transaction\Domain\TransactionRepository;
 
 /**
  * Class TransactionCommandHandler.
@@ -18,7 +18,7 @@ use OpenLoyalty\Component\Transaction\Domain\TransactionRepository;
 class TransactionCommandHandler extends SimpleCommandHandler
 {
     /**
-     * @var TransactionRepository
+     * @var Repository
      */
     protected $repository;
 
@@ -30,10 +30,10 @@ class TransactionCommandHandler extends SimpleCommandHandler
     /**
      * TransactionCommandHandler constructor.
      *
-     * @param TransactionRepository $repository
-     * @param EventDispatcher       $eventDispatcher
+     * @param Repository      $repository
+     * @param EventDispatcher $eventDispatcher
      */
-    public function __construct(TransactionRepository $repository, EventDispatcher $eventDispatcher)
+    public function __construct(Repository $repository, EventDispatcher $eventDispatcher)
     {
         $this->repository = $repository;
         $this->eventDispatcher = $eventDispatcher;
@@ -99,8 +99,12 @@ class TransactionCommandHandler extends SimpleCommandHandler
     public function handleAssignCustomerToTransaction(AssignCustomerToTransaction $command)
     {
         /** @var Transaction $transaction */
-        $transaction = $this->repository->load($command->getTransactionId()->__toString());
-        $transaction->assignCustomerToTransaction($command->getCustomerId());
+        $transaction = $this->repository->load((string) $command->getTransactionId());
+        $transaction->assignCustomerToTransaction(
+            $command->getCustomerId(),
+            $command->getEmail(),
+            $command->getPhone()
+        );
         $this->repository->save($transaction);
     }
 }

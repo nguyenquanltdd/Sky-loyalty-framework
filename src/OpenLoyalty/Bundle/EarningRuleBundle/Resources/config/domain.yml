@@ -66,7 +66,6 @@ services:
     arguments:
       $earningRuleRepository: '@oloy.earning_rule.repository'
       $earningRuleGeoRepository: '@oloy.earning_rule.geo_repository'
-      $transactionDetailsRepository: '@OpenLoyalty\Component\Transaction\Infrastructure\Repository\TransactionDetailsElasticsearchRepository'
       $algorithmFactory: '@oloy.earning_rule.algorithm_factory'
       $invitationDetailsRepository: '@oloy.user.read_model.repository.invitation_details'
       $segmentedCustomerElasticSearchRepository: '@oloy.segment.read_model.repository.segmented_customers'
@@ -74,6 +73,7 @@ services:
       $settingsManager: '@ol.settings.manager'
       $stoppableProvider: '@OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableProvider'
       $earningRuleQrcodeRepository: '@OpenLoyalty\Component\EarningRule\Infrastructure\Persistence\Doctrine\Repository\DoctrineEarningRuleQrcodeRepository'
+      $transactionRepository: '@oloy.transaction.repository'
 
   OpenLoyalty\Component\EarningRule\Domain\Stoppable\StoppableProvider: ~
   OpenLoyalty\Component\EarningRule\Domain\Returns\RefundAlgorithmProvider:

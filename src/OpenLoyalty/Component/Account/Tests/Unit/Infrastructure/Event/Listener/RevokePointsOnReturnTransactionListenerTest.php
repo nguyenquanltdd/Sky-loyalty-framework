@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -10,6 +10,7 @@ namespace OpenLoyalty\Component\Account\Tests\Unit\Infrastructure\Event\Listener
 
 use Broadway\CommandHandling\CommandBus;
 use Broadway\ReadModel\Repository;
+use Broadway\Repository\Repository as AggregateRootRepository;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\Command\SpendPoints;
@@ -35,11 +36,40 @@ use PHPUnit_Framework_MockObject_MockObject;
  */
 final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var string
+     */
     protected $uuid = '00000000-0000-0000-0000-000000000000';
+
+    /**
+     * @var string
+     */
     protected $newUuid = '00000000-0000-0000-0000-000000000001';
+
+    /**
+     * @var string
+     */
     protected $documentNumber = '123';
+
+    /**
+     * @var TransactionDetails|PHPUnit_Framework_MockObject_MockObject
+     */
     protected $transaction;
+
+    /**
+     * @var TransactionDetails|PHPUnit_Framework_MockObject_MockObject
+     */
     protected $revisedTransaction;
+
+    /**
+     * @var Transaction|PHPUnit_Framework_MockObject_MockObject
+     */
+    protected $transactionAggregateRoot;
+
+    /**
+     * @var Transaction|PHPUnit_Framework_MockObject_MockObject
+     */
+    protected $revisedTransactionAggregateRoot;
 
     /**
      * {@inheritdoc}
@@ -60,6 +90,20 @@ final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framewo
 
         $this->revisedTransaction->method('getGrossValue')->willReturn(200);
         $this->revisedTransaction->method('getId')->willReturn($this->uuid);
+
+        $this->transactionAggregateRoot = $this->getMockBuilder(Transaction::class)->disableOriginalConstructor()->getMock();
+        $this->revisedTransactionAggregateRoot = $this->getMockBuilder(Transaction::class)->disableOriginalConstructor()->getMock();
+
+        $this->transactionAggregateRoot->method('getTransactionId')->willReturn(new TransactionId($this->newUuid));
+        $this->revisedTransactionAggregateRoot->method('getTransactionId')->willReturn(new TransactionId($this->uuid));
+
+        $this->transactionAggregateRoot->method('getId')->willReturn($this->newUuid);
+        $this->transactionAggregateRoot->method('getGrossValue')->willReturn(100);
+        $this->transactionAggregateRoot->method('getRevisedDocument')->willReturn($this->documentNumber);
+        $this->transactionAggregateRoot->method('getDocumentType')->willReturn(Transaction::TYPE_RETURN);
+
+        $this->revisedTransactionAggregateRoot->method('getGrossValue')->willReturn(200);
+        $this->revisedTransactionAggregateRoot->method('getId')->willReturn($this->uuid);
     }
 
     /**
@@ -68,6 +112,7 @@ final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framewo
     public function it_revokes_points_for_return_transaction(): void
     {
         $listener = new RevokePointsOnReturnTransactionListener(
+            $this->getTransactionRepository(),
             $this->getTransactionDetailsRepository(),
             $this->getPointsTransferRepository(1000, 0),
             $this->getAccountDetailsRepository(),
@@ -102,6 +147,7 @@ final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framewo
     public function it_not_revokes_points_for_return_transaction_if_already_revoked(): void
     {
         $listener = new RevokePointsOnReturnTransactionListener(
+            $this->getTransactionRepository(),
             $this->getTransactionDetailsRepository(),
             $this->getPointsTransferRepository(1000, 1000),
             $this->getAccountDetailsRepository(),
@@ -142,28 +188,38 @@ final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framewo
     }
 
     /**
+     * @return PHPUnit_Framework_MockObject_MockObject|AggregateRootRepository
+     */
+    protected function getTransactionRepository(): PHPUnit_Framework_MockObject_MockObject
+    {
+        $repository = $this->getMockBuilder(AggregateRootRepository::class)->getMock();
+        $repository->method('load')->with($this->isType('string'))->willReturnCallback(function (string $id) {
+            switch ($id) {
+                case $this->uuid:
+                    return $this->revisedTransactionAggregateRoot;
+                case $this->newUuid:
+                    return $this->transactionAggregateRoot;
+            }
+
+            return null;
+        });
+
+        return $repository;
+    }
+
+    /**
      * @return PHPUnit_Framework_MockObject_MockObject|TransactionDetailsRepository
      */
     protected function getTransactionDetailsRepository(): PHPUnit_Framework_MockObject_MockObject
     {
         $repo = $this->getMockBuilder(TransactionDetailsRepository::class)->getMock();
-        $repo->method('find')->with($this->isType('string'))->willReturnCallback(function ($id) {
-            switch ($id) {
-                case $this->uuid:
-                    return $this->revisedTransaction;
-                case $this->newUuid:
-                    return $this->transaction;
-            }
-
-            return;
-        });
         $repo->method('findBy')->with($this->arrayHasKey('documentNumberRaw'))->willReturnCallback(function ($params) {
             switch ($params['documentNumberRaw']) {
                 case $this->documentNumber:
                     return [$this->revisedTransaction];
             }
 
-            return;
+            return null;
         });
 
         return $repo;

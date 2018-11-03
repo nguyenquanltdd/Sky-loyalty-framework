@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Bundle\CampaignBundle\Controller\Api;
 
 use Broadway\CommandHandling\CommandBus;
+use Broadway\Repository\Repository;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Context\Context;
@@ -67,8 +68,7 @@ use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomers;
 use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomersRepository;
-use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
-use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
+use OpenLoyalty\Component\Transaction\Domain\Transaction;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -113,9 +113,9 @@ class CampaignController extends FOSRestController
     private $couponCodeProvider;
 
     /**
-     * @var TransactionDetailsRepository
+     * @var Repository
      */
-    private $transactionDetailsRepository;
+    private $transactionRepository;
 
     /**
      * @var CampaignBoughtRepository
@@ -200,7 +200,7 @@ class CampaignController extends FOSRestController
      * @param CampaignValidator                     $campaignValidator
      * @param CampaignProvider                      $campaignProvider
      * @param CouponCodeProvider                    $couponCodeProvider
-     * @param TransactionDetailsRepository          $transactionDetailsRepository
+     * @param Repository                            $transactionRepository
      * @param CampaignBrandIconUploader             $campaignBrandIconUploader
      * @param ParamFetcher                          $paramFetcher
      * @param CampaignBoughtElasticsearchRepository $campaignBoughtRepository
@@ -222,7 +222,7 @@ class CampaignController extends FOSRestController
         CampaignValidator $campaignValidator,
         CampaignProvider $campaignProvider,
         CouponCodeProvider $couponCodeProvider,
-        TransactionDetailsRepository $transactionDetailsRepository,
+        Repository $transactionRepository,
         CampaignBrandIconUploader $campaignBrandIconUploader,
         ParamFetcher $paramFetcher,
         CampaignBoughtElasticsearchRepository $campaignBoughtRepository,
@@ -243,7 +243,7 @@ class CampaignController extends FOSRestController
         $this->campaignValidator = $campaignValidator;
         $this->campaignProvider = $campaignProvider;
         $this->couponCodeProvider = $couponCodeProvider;
-        $this->transactionDetailsRepository = $transactionDetailsRepository;
+        $this->transactionRepository = $transactionRepository;
         $this->campaignBoughtRepository = $campaignBoughtRepository;
         $this->campaignBrandIconUploader = $campaignBrandIconUploader;
         $this->paramFetcher = $paramFetcher;
@@ -1138,8 +1138,8 @@ class CampaignController extends FOSRestController
         $coupons = [];
         try {
             if ($transactionId) {
-                /** @var TransactionDetails $transaction */
-                $transaction = $this->transactionDetailsRepository->find($transactionId);
+                /** @var Transaction $transaction */
+                $transaction = $this->transactionRepository->load($transactionId);
                 if ($transaction) {
                     $transactionValue = $transaction->getGrossValue();
                     if ((string) $transaction->getCustomerId() !== $customer->getId()) {

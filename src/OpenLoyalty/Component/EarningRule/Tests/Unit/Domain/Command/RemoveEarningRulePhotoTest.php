@@ -1,9 +1,12 @@
 <?php
-/**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Component\EarningRule\Tests\Domain\Command;
+
+declare(strict_types=1);
+
+namespace OpenLoyalty\Component\EarningRule\Tests\Unit\Domain\Command;
 
 use OpenLoyalty\Component\EarningRule\Domain\Command\EarningRuleCommand;
 use OpenLoyalty\Component\EarningRule\Domain\Command\RemoveEarningRulePhoto;

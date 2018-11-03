@@ -1,8 +1,11 @@
 <?php
-/**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
+
+declare(strict_types=1);
+
 namespace OpenLoyalty\Component\Customer\Tests\Unit\Domain\Command;
 
 use Broadway\EventDispatcher\EventDispatcher;

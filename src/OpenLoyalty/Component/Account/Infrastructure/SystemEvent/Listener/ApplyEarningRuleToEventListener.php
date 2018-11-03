@@ -61,7 +61,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
     }
 
     /**
-     * {@inheritdoc}
+     * @param GeoEventOccurredSystemEvent $event
      */
     public function onCustomGeoEvent(GeoEventOccurredSystemEvent $event)
     {
@@ -130,7 +130,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
     /**
      * @param QrcodeEventOccurredSystemEvent $event
      *
-     * @throws \OpenLoyalty\Component\Account\Infrastructure\Exception\EarningRuleLimitExceededException
+     * @throws EarningRuleLimitExceededException
      */
     public function onCustomQrcodeEvent(QrcodeEventOccurredSystemEvent $event)
     {
@@ -181,7 +181,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
      */
     public function onCustomEvent(CustomEventOccurredSystemEvent $event)
     {
-        $result = $this->earningRuleApplier->evaluateCustomEvent($event->getEventName(), $event->getCustomerId());
+        $result = $this->earningRuleApplier->evaluateCustomEvent($event->getEventName(), (string) $event->getCustomerId());
         if (null == $result || $result->getPoints() <= 0) {
             return;
         }
@@ -213,7 +213,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
     {
         $result = $this->earningRuleApplier->evaluateEventWithContext(
             AccountSystemEvents::ACCOUNT_CREATED,
-            $event->getCustomerId()
+            (string) $event->getCustomerId()
         );
 
         if (array_key_exists('points', $result) && $result['points'] > 0) {
@@ -238,7 +238,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
      */
     public function onCustomerAttachedToInvitation(CustomerAttachedToInvitationSystemEvent $event)
     {
-        $this->evaluateReferral(ReferralEarningRule::EVENT_REGISTER, $event->getCustomerId()->__toString());
+        $this->evaluateReferral(ReferralEarningRule::EVENT_REGISTER, (string) $event->getCustomerId());
     }
 
     /**
@@ -248,7 +248,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
     {
         $result = $this->earningRuleApplier->evaluateEventWithContext(
             TransactionSystemEvents::CUSTOMER_FIRST_TRANSACTION,
-            $event->getCustomerId()
+            (string) $event->getCustomerId()
         );
         $account = $this->getAccountDetails($event->getCustomerId()->__toString());
 
@@ -272,7 +272,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
             );
         }
 
-        $this->evaluateReferral(ReferralEarningRule::EVENT_FIRST_PURCHASE, $event->getCustomerId()->__toString());
+        $this->evaluateReferral(ReferralEarningRule::EVENT_FIRST_PURCHASE, (string) $event->getCustomerId());
     }
 
     /**
@@ -282,7 +282,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
     {
         $result = $this->earningRuleApplier->evaluateEventWithContext(
             CustomerSystemEvents::CUSTOMER_LOGGED_IN,
-            $event->getCustomerId()
+            (string) $event->getCustomerId()
         );
 
         if (!array_key_exists('points', $result) || $result['points'] <= 0) {
@@ -316,7 +316,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
     {
         $result = $this->earningRuleApplier->evaluateEventWithContext(
             CustomerSystemEvents::NEWSLETTER_SUBSCRIPTION,
-            $event->getCustomerId()
+            (string) $event->getCustomerId()
         );
 
         if (!array_key_exists('points', $result) || $result['points'] <= 0) {

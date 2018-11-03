@@ -7,6 +7,7 @@ namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
 use OpenLoyalty\Component\Core\Infrastructure\Projector\Projector;
 use Broadway\ReadModel\Repository;
+use Broadway\Repository\Repository as AggregateRootRepository;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignCouponWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignStatusWasChanged;
@@ -61,17 +62,28 @@ class CustomerDetailsProjector extends Projector
     private $levelRepository;
 
     /**
+     * @var AggregateRootRepository
+     */
+    private $transactionRepository;
+
+    /**
      * CustomerDetailsProjector constructor.
      *
      * @param Repository                   $repository
      * @param TransactionDetailsRepository $transactionDetailsRepository
      * @param LevelRepository              $levelRepository
+     * @param AggregateRootRepository      $transactionRepository
      */
-    public function __construct(Repository $repository, TransactionDetailsRepository $transactionDetailsRepository, LevelRepository $levelRepository)
-    {
+    public function __construct(
+        Repository $repository,
+        TransactionDetailsRepository $transactionDetailsRepository,
+        LevelRepository $levelRepository,
+        AggregateRootRepository $transactionRepository
+    ) {
         $this->repository = $repository;
         $this->transactionDetailsRepository = $transactionDetailsRepository;
         $this->levelRepository = $levelRepository;
+        $this->transactionRepository = $transactionRepository;
     }
 
     /**
@@ -416,21 +428,23 @@ class CustomerDetailsProjector extends Projector
     public function applyCustomerWasAssignedToTransaction(CustomerWasAssignedToTransaction $event): void
     {
         $readModel = $this->getReadModel(new CustomerId((string) $event->getCustomerId()));
-        $transaction = $this->transactionDetailsRepository->find((string) $event->getTransactionId());
-        if (!$transaction instanceof TransactionDetails) {
-            return;
-        }
+        /** @var Transaction $transaction */
+        $transaction = $this->transactionRepository->load((string) $event->getTransactionId());
+
         $revisedTransaction = null;
         if ($transaction->getRevisedDocument() && $transaction->getDocumentType() == Transaction::TYPE_RETURN) {
             $tmp = $this->transactionDetailsRepository->findBy(['documentNumberRaw' => $transaction->getRevisedDocument()]);
             if (count($tmp) > 0) {
-                $revisedTransaction = reset($tmp);
+                $revisedTransactionDetails = reset($tmp);
+                if ($revisedTransactionDetails instanceof TransactionDetails) {
+                    $revisedTransaction = $this->transactionRepository->load($revisedTransactionDetails->getId());
+                }
             }
         }
 
         $returnAmount = 0;
         $returnWithoutDeliveryAmount = 0;
-        if ($revisedTransaction instanceof TransactionDetails) {
+        if ($revisedTransaction instanceof Transaction) {
             $grossValue = $transaction->getGrossValue();
             $grossValueWithoutDelivery = $transaction->getGrossValueWithoutDeliveryCosts();
             // make return amount always negative

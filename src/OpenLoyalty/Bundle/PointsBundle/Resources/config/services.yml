@@ -53,6 +53,7 @@ services:
         public: true
         arguments:
             $posRepository: '@oloy.pos.repository'
+            $transactionRepository: '@oloy.transaction.repository'
         tags:
             - { name: jms_serializer.event_subscriber }
 

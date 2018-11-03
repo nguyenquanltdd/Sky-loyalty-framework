@@ -6,9 +6,8 @@
 namespace OpenLoyalty\Component\Transaction\Domain\ReadModel;
 
 use Broadway\ReadModel\Repository;
+use Broadway\Repository\Repository as AggregateRootRepository;
 use OpenLoyalty\Component\Core\Infrastructure\Projector\Projector;
-use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
-use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Pos\Domain\Pos;
 use OpenLoyalty\Component\Pos\Domain\PosId;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
@@ -17,6 +16,7 @@ use OpenLoyalty\Component\Transaction\Domain\Event\LabelsWereAppendedToTransacti
 use OpenLoyalty\Component\Transaction\Domain\Event\LabelsWereUpdated;
 use OpenLoyalty\Component\Transaction\Domain\Event\TransactionWasRegistered;
 use OpenLoyalty\Component\Transaction\Domain\Model\CustomerBasicData;
+use OpenLoyalty\Component\Transaction\Domain\Transaction;
 use OpenLoyalty\Component\Transaction\Domain\TransactionId;
 
 /**
@@ -35,31 +35,38 @@ class TransactionDetailsProjector extends Projector
     private $posRepository;
 
     /**
-     * @var CustomerDetailsRepository
+     * @var AggregateRootRepository
      */
-    private $customerDetailsRepository;
+    private $transactionRepository;
 
     /**
      * TransactionDetailsProjector constructor.
      *
-     * @param Repository                $repository
-     * @param PosRepository             $posRepository
-     * @param CustomerDetailsRepository $customerDetailsRepository
+     * @param Repository              $repository
+     * @param PosRepository           $posRepository
+     * @param AggregateRootRepository $transactionRepository
      */
     public function __construct(
         Repository $repository,
         PosRepository $posRepository,
-        CustomerDetailsRepository $customerDetailsRepository
+        AggregateRootRepository $transactionRepository
     ) {
         $this->repository = $repository;
         $this->posRepository = $posRepository;
-        $this->customerDetailsRepository = $customerDetailsRepository;
+        $this->transactionRepository = $transactionRepository;
     }
 
-    protected function applyTransactionWasRegistered(TransactionWasRegistered $event)
+    /**
+     * @param TransactionWasRegistered $event
+     */
+    protected function applyTransactionWasRegistered(TransactionWasRegistered $event): void
     {
         $readModel = $this->getReadModel($event->getTransactionId());
+
         $transactionData = $event->getTransactionData();
+        /** @var Transaction $transaction */
+        $transaction = $this->transactionRepository->load((string) $event->getTransactionId());
+
         $readModel->setDocumentType($transactionData['documentType']);
         $readModel->setDocumentNumber($transactionData['documentNumber']);
         $readModel->setPurchaseDate($transactionData['purchaseDate']);
@@ -72,12 +79,13 @@ class TransactionDetailsProjector extends Projector
         $readModel->setExcludedLevelCategories($event->getExcludedLevelCategories());
         $readModel->setRevisedDocument($event->getRevisedDocument());
         $readModel->setLabels($event->getLabels());
+        $readModel->setGrossValue($transaction->getGrossValue());
 
         if ($readModel->getPosId()) {
             /** @var Pos $pos */
-            $pos = $this->posRepository->byId(new PosId($readModel->getPosId()->__toString()));
+            $pos = $this->posRepository->byId(new PosId((string) $readModel->getPosId()));
             if ($pos) {
-                $pos->setTransactionsAmount($pos->getTransactionsAmount() + $readModel->getGrossValue());
+                $pos->setTransactionsAmount($pos->getTransactionsAmount() + $transaction->getGrossValue());
                 $pos->setTransactionsCount($pos->getTransactionsCount() + 1);
                 $this->posRepository->save($pos);
             }
@@ -86,26 +94,32 @@ class TransactionDetailsProjector extends Projector
         $this->repository->save($readModel);
     }
 
-    public function applyCustomerWasAssignedToTransaction(CustomerWasAssignedToTransaction $event)
+    /**
+     * @param CustomerWasAssignedToTransaction $event
+     */
+    public function applyCustomerWasAssignedToTransaction(CustomerWasAssignedToTransaction $event): void
     {
         $readModel = $this->getReadModel($event->getTransactionId());
         $readModel->setCustomerId($event->getCustomerId());
-        $customer = $this->customerDetailsRepository->find($event->getCustomerId()->__toString());
-        if ($customer instanceof CustomerDetails) {
-            $customerData = $readModel->getCustomerData();
-            $customerData->updateEmailAndPhone($customer->getEmail(), $customer->getPhone());
-        }
+        $customerData = $readModel->getCustomerData();
+        $customerData->updateEmailAndPhone($event->getEmail(), $event->getPhone());
         $this->repository->save($readModel);
     }
 
-    public function applyLabelsWereAppendedToTransaction(LabelsWereAppendedToTransaction $event)
+    /**
+     * @param LabelsWereAppendedToTransaction $event
+     */
+    public function applyLabelsWereAppendedToTransaction(LabelsWereAppendedToTransaction $event): void
     {
         $readModel = $this->getReadModel($event->getTransactionId());
         $readModel->appendLabels($event->getLabels());
         $this->repository->save($readModel);
     }
 
-    public function applyLabelsWereUpdated(LabelsWereUpdated $event)
+    /**
+     * @param LabelsWereUpdated $event
+     */
+    public function applyLabelsWereUpdated(LabelsWereUpdated $event): void
     {
         $readModel = $this->getReadModel($event->getTransactionId());
         $readModel->setLabels($event->getLabels());
@@ -115,12 +129,12 @@ class TransactionDetailsProjector extends Projector
     /**
      * @param TransactionId $transactionId
      *
-     * @return TransactionDetails|null
+     * @return TransactionDetails
      */
-    private function getReadModel(TransactionId $transactionId)
+    private function getReadModel(TransactionId $transactionId): TransactionDetails
     {
         /** @var TransactionDetails $readModel */
-        $readModel = $this->repository->find($transactionId->__toString());
+        $readModel = $this->repository->find((string) $transactionId);
 
         if (null === $readModel) {
             $readModel = new TransactionDetails($transactionId);

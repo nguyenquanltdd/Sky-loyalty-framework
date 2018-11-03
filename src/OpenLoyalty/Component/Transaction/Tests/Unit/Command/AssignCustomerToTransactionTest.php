@@ -1,6 +1,12 @@
 <?php
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 
-namespace OpenLoyalty\Component\Transaction\Tests\Command;
+declare(strict_types=1);
+
+namespace OpenLoyalty\Component\Transaction\Tests\Unit\Command;
 
 use OpenLoyalty\Component\Transaction\Domain\Command\AssignCustomerToTransaction;
 use OpenLoyalty\Component\Transaction\Domain\CustomerId;
@@ -22,7 +28,7 @@ class AssignCustomerToTransactionTest extends TransactionCommandHandlerTest
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000011');
 
         $this->scenario
-            ->withAggregateId($transactionId)
+            ->withAggregateId((string) $transactionId)
             ->given([
                 new TransactionWasRegistered($transactionId, $this->getTransactionData(), $this->getCustomerData()),
             ])

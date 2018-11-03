@@ -9,6 +9,7 @@ use Broadway\CommandHandling\CommandBus;
 use Broadway\Domain\DomainMessage;
 use Broadway\EventHandling\EventListener;
 use Broadway\ReadModel\Repository;
+use Broadway\Repository\Repository as AggregateRootRepository;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Component\Account\Domain\Command\SpendPoints;
 use OpenLoyalty\Component\Account\Domain\Model\PointsTransfer;
@@ -28,6 +29,11 @@ use OpenLoyalty\Component\Transaction\Domain\Transaction;
  */
 class RevokePointsOnReturnTransactionListener implements EventListener
 {
+    /**
+     * @var AggregateRootRepository
+     */
+    private $transactionRepository;
+
     /**
      * @var TransactionDetailsRepository
      */
@@ -56,6 +62,7 @@ class RevokePointsOnReturnTransactionListener implements EventListener
     /**
      * RevokePointsOnReturnTransactionListener constructor.
      *
+     * @param AggregateRootRepository         $transactionRepository
      * @param TransactionDetailsRepository    $transactionDetailsRepository
      * @param PointsTransferDetailsRepository $transfersRepo
      * @param Repository                      $accountDetailsRepository
@@ -63,12 +70,14 @@ class RevokePointsOnReturnTransactionListener implements EventListener
      * @param UuidGeneratorInterface          $uuidGenerator
      */
     public function __construct(
+        AggregateRootRepository $transactionRepository,
         TransactionDetailsRepository $transactionDetailsRepository,
         PointsTransferDetailsRepository $transfersRepo,
         Repository $accountDetailsRepository,
         CommandBus $commandBus,
         UuidGeneratorInterface $uuidGenerator
     ) {
+        $this->transactionRepository = $transactionRepository;
         $this->transactionDetailsRepository = $transactionDetailsRepository;
         $this->transfersRepo = $transfersRepo;
         $this->accountDetailsRepository = $accountDetailsRepository;
@@ -87,20 +96,28 @@ class RevokePointsOnReturnTransactionListener implements EventListener
         }
     }
 
+    /**
+     * @param CustomerWasAssignedToTransaction $event
+     */
     public function onCustomerWasAssignedToTransaction(CustomerWasAssignedToTransaction $event)
     {
-        $transaction = $this->transactionDetailsRepository->find($event->getTransactionId()->__toString());
-        if (!$transaction instanceof TransactionDetails) {
+        $transaction = $this->transactionRepository->load((string) $event->getTransactionId());
+        if (!$transaction instanceof Transaction) {
             return;
         }
+
         $revisedTransaction = null;
         if ($transaction->getRevisedDocument() && $transaction->getDocumentType() == Transaction::TYPE_RETURN) {
-            $tmp = $this->transactionDetailsRepository->findBy(['documentNumberRaw' => $transaction->getRevisedDocument()]);
-            if (count($tmp) > 0) {
-                $revisedTransaction = reset($tmp);
+            $revisedTransactionsDetails = $this->transactionDetailsRepository->findBy(['documentNumberRaw' => $transaction->getRevisedDocument()]);
+            if (count($revisedTransactionsDetails) > 0) {
+                $revisedTransactionDetails = reset($revisedTransactionsDetails);
+                if ($revisedTransactionDetails instanceof TransactionDetails) {
+                    $revisedTransaction = $this->transactionRepository->load($revisedTransactionDetails->getId());
+                }
             }
         }
-        if (!$revisedTransaction instanceof TransactionDetails) {
+
+        if (!$revisedTransaction instanceof Transaction) {
             return;
         }
 
@@ -109,7 +126,7 @@ class RevokePointsOnReturnTransactionListener implements EventListener
 
         $pointsToRevoke = round($points / $amount * abs($transaction->getGrossValue()), 2);
 
-        $account = $this->getAccountDetails($event->getCustomerId()->__toString());
+        $account = $this->getAccountDetails((string) $event->getCustomerId());
         if (!$account) {
             return;
         }
@@ -132,10 +149,15 @@ class RevokePointsOnReturnTransactionListener implements EventListener
         );
     }
 
-    private function getAlreadyRevokedPoints(TransactionDetails $transaction)
+    /**
+     * @param Transaction $transaction
+     *
+     * @return float|null
+     */
+    private function getAlreadyRevokedPoints(Transaction $transaction): ?float
     {
         $transfers = $this->transfersRepo->findBy([
-            'revisedTransactionId' => $transaction->getTransactionId()->__toString(),
+            'revisedTransactionId' => (string) $transaction->getTransactionId(),
             'state' => PointsTransferDetails::STATE_ACTIVE,
             'type' => PointsTransferDetails::TYPE_SPENDING,
         ]);
@@ -147,10 +169,15 @@ class RevokePointsOnReturnTransactionListener implements EventListener
         });
     }
 
-    private function getPointsForTransaction(TransactionDetails $transaction)
+    /**
+     * @param Transaction $transaction
+     *
+     * @return float|null
+     */
+    private function getPointsForTransaction(Transaction $transaction): ?float
     {
         $transfers = $this->transfersRepo->findBy([
-            'transactionId' => $transaction->getTransactionId()->__toString(),
+            'transactionId' => (string) $transaction->getTransactionId(),
             'state' => PointsTransferDetails::STATE_ACTIVE,
             'type' => PointsTransferDetails::TYPE_ADDING,
         ]);
@@ -162,17 +189,22 @@ class RevokePointsOnReturnTransactionListener implements EventListener
         });
     }
 
-    protected function getAccountDetails($customerId)
+    /**
+     * @param string $customerId
+     *
+     * @return AccountDetails|null
+     */
+    protected function getAccountDetails(string $customerId): ?AccountDetails
     {
         $accounts = $this->accountDetailsRepository->findBy(['customerId' => $customerId]);
         if (count($accounts) == 0) {
-            return;
+            return null;
         }
         /** @var AccountDetails $account */
         $account = reset($accounts);
 
         if (!$account instanceof AccountDetails) {
-            return;
+            return null;
         }
 
         return $account;

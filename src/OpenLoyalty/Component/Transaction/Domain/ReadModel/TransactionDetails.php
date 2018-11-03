@@ -6,13 +6,13 @@
 namespace OpenLoyalty\Component\Transaction\Domain\ReadModel;
 
 use Broadway\ReadModel\SerializableReadModel;
-use OpenLoyalty\Component\Core\Domain\Model\SKU;
 use OpenLoyalty\Component\Core\Domain\ReadModel\Versionable;
 use OpenLoyalty\Component\Core\Domain\ReadModel\VersionableReadModel;
 use OpenLoyalty\Component\Transaction\Domain\CustomerId;
 use OpenLoyalty\Component\Transaction\Domain\Model\CustomerBasicData;
 use OpenLoyalty\Component\Transaction\Domain\Model\Item;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
+use OpenLoyalty\Component\Transaction\Domain\Model\Item as TransactionItem;
 use OpenLoyalty\Component\Transaction\Domain\PosId;
 use OpenLoyalty\Component\Transaction\Domain\Transaction;
 use OpenLoyalty\Component\Transaction\Domain\TransactionId;
@@ -40,9 +40,9 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     protected $purchaseDate;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected $purchasePlace;
+    protected $purchasePlace = null;
 
     /**
      * @var string
@@ -50,7 +50,7 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     protected $documentType;
 
     /**
-     * @var CustomerId
+     * @var CustomerId|null
      */
     protected $customerId;
 
@@ -62,34 +62,42 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @var Item[]
      */
-    protected $items;
+    protected $items = [];
 
     /**
      * @var Label[]
      */
-    protected $labels;
+    protected $labels = [];
 
     /**
-     * @var PosId
+     * @var PosId|null
      */
-    protected $posId;
+    protected $posId = null;
 
     /**
-     * @var array
+     * @var array|null
      */
-    protected $excludedDeliverySKUs;
+    protected $excludedDeliverySKUs = null;
 
     /**
-     * @var array
+     * @var array|null
      */
-    protected $excludedLevelSKUs;
+    protected $excludedLevelSKUs = null;
 
     /**
-     * @var array
+     * @var array|null
      */
-    protected $excludedLevelCategories;
+    protected $excludedLevelCategories = null;
 
-    protected $revisedDocument;
+    /**
+     * @var string|null
+     */
+    protected $revisedDocument = null;
+
+    /**
+     * @var float
+     */
+    protected $grossValue = 0.0;
 
     /**
      * TransactionDetails constructor.
@@ -106,11 +114,11 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
      */
     public function getId(): string
     {
-        return $this->transactionId->__toString();
+        return (string) $this->transactionId;
     }
 
     /**
-     * @param array $data
+     * {@inheritdoc}
      *
      * @return TransactionDetails
      */
@@ -149,6 +157,7 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
         $transaction->documentType = isset($data['documentType']) ? $data['documentType'] : Transaction::TYPE_SELL;
         $transaction->purchasePlace = $data['purchasePlace'];
         $transaction->purchaseDate = $data['purchaseDate'];
+        $transaction->grossValue = $data['grossValue'];
         $transaction->revisedDocument = isset($data['revisedDocument']) ? $data['revisedDocument'] : null;
         if (isset($data['excludedDeliverySKUs'])) {
             $transaction->excludedDeliverySKUs = json_decode($data['excludedDeliverySKUs'], true);
@@ -168,7 +177,7 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
     public function serialize(): array
     {
@@ -182,8 +191,8 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
         }
 
         return [
-            'customerId' => $this->customerId ? $this->customerId->__toString() : null,
-            'transactionId' => $this->transactionId->__toString(),
+            'customerId' => $this->customerId ? (string) $this->customerId : null,
+            'transactionId' => (string) $this->transactionId,
             'documentType' => $this->documentType,
             'documentNumber' => $this->documentNumber,
             'documentNumberRaw' => $this->documentNumber,
@@ -191,7 +200,7 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
             'purchasePlace' => $this->purchasePlace,
             'customerData' => $this->customerData->serialize(),
             'items' => $items,
-            'posId' => $this->posId ? $this->posId->__toString() : null,
+            'posId' => $this->posId ? (string) $this->posId : null,
             'excludedDeliverySKUs' => $this->excludedDeliverySKUs ? json_encode($this->excludedDeliverySKUs) : null,
             'excludedLevelSKUs' => $this->excludedLevelSKUs ? json_encode($this->excludedLevelSKUs) : null,
             'excludedLevelCategories' => $this->excludedLevelCategories ? json_encode(
@@ -199,13 +208,14 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
             ) : null,
             'revisedDocument' => $this->revisedDocument,
             'labels' => $labels,
+            'grossValue' => $this->grossValue,
         ];
     }
 
     /**
      * @return TransactionId
      */
-    public function getTransactionId()
+    public function getTransactionId(): TransactionId
     {
         return $this->transactionId;
     }
@@ -213,7 +223,7 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return string
      */
-    public function getDocumentNumber()
+    public function getDocumentNumber(): string
     {
         return $this->documentNumber;
     }
@@ -221,15 +231,15 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @param string $documentNumber
      */
-    public function setDocumentNumber($documentNumber)
+    public function setDocumentNumber(string $documentNumber): void
     {
         $this->documentNumber = $documentNumber;
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTime|null
      */
-    public function getPurchaseDate()
+    public function getPurchaseDate(): ?\DateTime
     {
         return $this->purchaseDate;
     }
@@ -237,23 +247,23 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @param \DateTime $purchaseDate
      */
-    public function setPurchaseDate($purchaseDate)
+    public function setPurchaseDate(\DateTime $purchaseDate): void
     {
         $this->purchaseDate = $purchaseDate;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getPurchasePlace()
+    public function getPurchasePlace(): ?string
     {
         return $this->purchasePlace;
     }
 
     /**
-     * @param string $purchasePlace
+     * @param string|null $purchasePlace
      */
-    public function setPurchasePlace($purchasePlace)
+    public function setPurchasePlace(?string $purchasePlace): void
     {
         $this->purchasePlace = $purchasePlace;
     }
@@ -261,7 +271,7 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return string
      */
-    public function getDocumentType()
+    public function getDocumentType(): string
     {
         return $this->documentType;
     }
@@ -269,15 +279,15 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @param string $documentType
      */
-    public function setDocumentType($documentType)
+    public function setDocumentType(string $documentType): void
     {
         $this->documentType = $documentType;
     }
 
     /**
-     * @return CustomerId
+     * @return CustomerId|null
      */
-    public function getCustomerId()
+    public function getCustomerId(): ?CustomerId
     {
         return $this->customerId;
     }
@@ -285,7 +295,7 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @param CustomerId $customerId
      */
-    public function setCustomerId($customerId)
+    public function setCustomerId(CustomerId $customerId): void
     {
         $this->customerId = $customerId;
     }
@@ -293,7 +303,7 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return CustomerBasicData
      */
-    public function getCustomerData()
+    public function getCustomerData(): CustomerBasicData
     {
         return $this->customerData;
     }
@@ -301,39 +311,39 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @param CustomerBasicData $customerData
      */
-    public function setCustomerData($customerData)
+    public function setCustomerData(CustomerBasicData $customerData): void
     {
         $this->customerData = $customerData;
     }
 
     /**
-     * @return \OpenLoyalty\Component\Transaction\Domain\Model\Item[]
+     * @return TransactionItem[]
      */
-    public function getItems()
+    public function getItems(): array
     {
         return $this->items;
     }
 
     /**
-     * @param \OpenLoyalty\Component\Transaction\Domain\Model\Item[] $items
+     * @param TransactionItem[] $items
      */
-    public function setItems($items)
+    public function setItems(array $items): void
     {
         $this->items = $items;
     }
 
     /**
-     * @return PosId
+     * @return PosId|null
      */
-    public function getPosId()
+    public function getPosId(): ?PosId
     {
         return $this->posId;
     }
 
     /**
-     * @param PosId $posId
+     * @param PosId|null $posId
      */
-    public function setPosId($posId)
+    public function setPosId(?PosId $posId): void
     {
         $this->posId = $posId;
     }
@@ -341,15 +351,15 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return array
      */
-    public function getExcludedDeliverySKUs()
+    public function getExcludedDeliverySKUs(): array
     {
         return $this->excludedDeliverySKUs;
     }
 
     /**
-     * @param array $excludedDeliverySKUs
+     * @param array|null $excludedDeliverySKUs
      */
-    public function setExcludedDeliverySKUs($excludedDeliverySKUs)
+    public function setExcludedDeliverySKUs(?array $excludedDeliverySKUs): void
     {
         $this->excludedDeliverySKUs = $excludedDeliverySKUs;
     }
@@ -357,7 +367,7 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return array
      */
-    public function getExcludedLevelSKUs()
+    public function getExcludedLevelSKUs(): array
     {
         return $this->excludedLevelSKUs;
     }
@@ -365,7 +375,7 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @param array $excludedLevelSKUs
      */
-    public function setExcludedLevelSKUs($excludedLevelSKUs)
+    public function setExcludedLevelSKUs(?array $excludedLevelSKUs): void
     {
         $this->excludedLevelSKUs = $excludedLevelSKUs;
     }
@@ -373,7 +383,7 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return array
      */
-    public function getExcludedLevelCategories()
+    public function getExcludedLevelCategories(): array
     {
         return $this->excludedLevelCategories;
     }
@@ -381,197 +391,23 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @param array $excludedLevelCategories
      */
-    public function setExcludedLevelCategories($excludedLevelCategories)
+    public function setExcludedLevelCategories(?array $excludedLevelCategories): void
     {
         $this->excludedLevelCategories = $excludedLevelCategories;
     }
 
-    public function getAmountExcludedForLevel()
-    {
-        if (!$this->excludedLevelSKUs) {
-            $excludedSKUs = [];
-        } else {
-            $excludedSKUs = array_map(
-                function ($obj) {
-                    if ($obj instanceof SKU) {
-                        return $obj->getCode();
-                    }
-
-                    return $obj;
-                },
-                $this->getExcludedLevelSKUs()
-            );
-        }
-
-        if (!$this->excludedLevelCategories) {
-            $excludedCategories = [];
-        } else {
-            $excludedCategories = array_map(
-                function ($obj) {
-                    return $obj;
-                },
-                $this->getExcludedLevelCategories()
-            );
-        }
-
-        $amountSKUs = array_reduce(
-            $this->items,
-            function ($carry, Item $item) use ($excludedSKUs) {
-                if (!in_array($item->getSku()->getCode(), $excludedSKUs)) {
-                    return $carry;
-                }
-                $carry += $item->getGrossValue();
-
-                return $carry;
-            },
-            0
-        );
-
-        $amountCategories = array_reduce(
-            $this->items,
-            function ($carry, Item $item) use ($excludedCategories) {
-                if (!in_array($item->getCategory(), $excludedCategories)) {
-                    return $carry;
-                }
-                $carry += $item->getGrossValue();
-
-                return $carry;
-            },
-            0
-        );
-
-        return $amountSKUs + $amountCategories;
-    }
-
     /**
-     * @param array $excludeSKUs
-     * @param array $excludeLabels
-     * @param array $includeLabels
-     * @param bool  $excludeDelivery
-     *
-     * @return Item[]
+     * @return string|null
      */
-    public function getFilteredItems(array $excludeSKUs = [], array $excludeLabels = [], array $includeLabels, $excludeDelivery = false)
-    {
-        //TODO: Refactor: should be one type of parameter
-        /** @var string[] $excludeSKUs */
-        $excludeSKUs = array_map(
-            function ($sku) {
-                return $sku instanceof SKU ? $sku->getCode() : $sku;
-            },
-            $excludeSKUs
-        );
-
-        //TODO: Refactor: should be one type of parameter
-        /** @var Label[] $excludeLabels */
-        $excludeLabels = array_map(
-            function ($label) {
-                return $label instanceof Label ? $label : new Label($label['key'], $label['value']);
-            },
-            $excludeLabels
-        );
-        /** @var Label[] $includeLabels */
-        $includeLabels = array_map(
-            function ($label) {
-                return $label instanceof Label ? $label : new Label($label['key'], $label['value']);
-            },
-            $includeLabels
-        );
-
-        if ($excludeDelivery && !empty($this->excludedDeliverySKUs)) {
-            $excludeSKUs = array_merge($excludeSKUs, $this->excludedDeliverySKUs);
-        }
-
-        return array_filter(
-            $this->items,
-            function (Item $item) use ($excludeSKUs, $excludeLabels, $includeLabels) {
-                // filter items by SKU
-                if (in_array($item->getSku()->getCode(), $excludeSKUs)) {
-                    return false;
-                }
-
-                if (count($excludeLabels) > 0) {
-                    // filter items by Label
-                    foreach ($excludeLabels as $excludeLabel) {
-                        foreach ($item->getLabels() as $label) {
-                            if ($label->getKey() == $excludeLabel->getKey()
-                                && $label->getValue() == $excludeLabel->getValue()
-                            ) {
-                                return false;
-                            }
-                        }
-                    }
-                } elseif (count($includeLabels) > 0) {
-                    // filter items by Label
-                    $productHasLabel = false;
-                    foreach ($includeLabels as $includeLabel) {
-                        foreach ($item->getLabels() as $label) {
-                            if ($label->getKey() === $includeLabel->getKey()
-                                && $label->getValue() === $includeLabel->getValue()
-                            ) {
-                                $productHasLabel = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!$productHasLabel) {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-        );
-    }
-
-    /**
-     * @param array $excludeAdditionalSKUs
-     * @param array $excludeLabels
-     * @param array $includedLabels
-     * @param bool  $excludeDelivery
-     *
-     * @return float
-     */
-    public function getGrossValue(
-        array $excludeAdditionalSKUs = [],
-        array $excludeLabels = [],
-        array $includedLabels = [],
-        $excludeDelivery = false
-    ) {
-        $filteredItems = $this->getFilteredItems($excludeAdditionalSKUs, $excludeLabels, $includedLabels, $excludeDelivery);
-
-        return array_reduce(
-            $filteredItems,
-            function ($carry, Item $item) {
-                return $carry + $item->getGrossValue();
-            },
-            0
-        );
-    }
-
-    /**
-     * @param array $excludeAdditionalSKUs
-     * @param array $excludeLabels
-     *
-     * @return float
-     */
-    public function getGrossValueWithoutDeliveryCosts(array $excludeAdditionalSKUs = [], array $excludeLabels = [], array $includedLabels = [])
-    {
-        return $this->getGrossValue($excludeAdditionalSKUs, $excludeLabels, $includedLabels, true);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getRevisedDocument()
+    public function getRevisedDocument(): ?string
     {
         return $this->revisedDocument;
     }
 
     /**
-     * @param mixed $revisedDocument
+     * @param string|null $revisedDocument
      */
-    public function setRevisedDocument($revisedDocument)
+    public function setRevisedDocument(?string $revisedDocument)
     {
         $this->revisedDocument = $revisedDocument;
     }
@@ -579,7 +415,7 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return Label[]
      */
-    public function getLabels()
+    public function getLabels(): array
     {
         return $this->labels;
     }
@@ -587,7 +423,7 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @param Label[] $labels
      */
-    public function setLabels(array $labels)
+    public function setLabels(array $labels): void
     {
         $this->labels = $labels;
     }
@@ -595,8 +431,24 @@ class TransactionDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @param array $labels
      */
-    public function appendLabels(array $labels)
+    public function appendLabels(array $labels): void
     {
         $this->labels = array_merge($this->labels, $labels);
+    }
+
+    /**
+     * @return float
+     */
+    public function getGrossValue(): float
+    {
+        return $this->grossValue;
+    }
+
+    /**
+     * @param float $grossValue
+     */
+    public function setGrossValue(float $grossValue): void
+    {
+        $this->grossValue = $grossValue;
     }
 }

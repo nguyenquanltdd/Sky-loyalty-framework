@@ -18,34 +18,84 @@ class CustomerWasAssignedToTransaction extends TransactionEvent
      */
     protected $customerId;
 
-    public function __construct(TransactionId $transactionId, CustomerId $customerId)
-    {
+    /**
+     * @var null|string
+     */
+    protected $email;
+
+    /**
+     * @var null|string
+     */
+    protected $phone;
+
+    /**
+     * {@inheritdoc}
+     *
+     * @param CustomerId  $customerId
+     * @param string|null $email
+     * @param string|null $phone
+     */
+    public function __construct(
+        TransactionId $transactionId,
+        CustomerId $customerId,
+        string $email = null,
+        string $phone = null
+    ) {
         parent::__construct($transactionId);
+
         $this->customerId = $customerId;
+        $this->email = $email;
+        $this->phone = $phone;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function serialize(): array
     {
         return array_merge(parent::serialize(), [
-            'customerId' => $this->customerId->__toString(),
+            'customerId' => (string) $this->customerId,
+            'email' => $this->email,
+            'phone' => $this->phone,
         ]);
     }
 
     /**
-     * @param array $data
+     * {@inheritdoc}
      *
      * @return CustomerWasAssignedToTransaction
      */
     public static function deserialize(array $data)
     {
-        return new self(new TransactionId($data['transactionId']), new CustomerId($data['customerId']));
+        return new self(
+            new TransactionId($data['transactionId']),
+            new CustomerId($data['customerId']),
+            $data['email'],
+            $data['phone']
+        );
     }
 
     /**
      * @return CustomerId
      */
-    public function getCustomerId()
+    public function getCustomerId(): CustomerId
     {
         return $this->customerId;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getPhone(): ?string
+    {
+        return $this->phone;
     }
 }

@@ -33,7 +33,7 @@ class QrcodeEventOccurredSystemEvent extends CustomEventOccurredSystemEvent
      *
      * @param float $code
      */
-    public function __construct(CustomerId $customerId, $code = null, $earningRuleId = null)
+    public function __construct(CustomerId $customerId, $code, $earningRuleId = null)
     {
         parent::__construct($customerId, '');
         $this->code = $code;

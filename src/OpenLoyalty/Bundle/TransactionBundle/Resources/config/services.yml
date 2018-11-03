@@ -43,6 +43,7 @@ services:
 
     OpenLoyalty\Bundle\TransactionBundle\Form\Handler\ManuallyAssignCustomerToTransactionFormHandler:
         arguments:
+            $transactionRepository: '@oloy.transaction.repository'
             $customerDetailsRepository: '@oloy.user.read_model.repository.customer_details'
             $commandBus: '@broadway.command_handling.command_bus'
             $eventDispatcher: '@broadway.event_dispatcher'

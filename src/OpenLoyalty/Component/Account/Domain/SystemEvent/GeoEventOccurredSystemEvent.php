@@ -40,7 +40,7 @@ class GeoEventOccurredSystemEvent extends CustomEventOccurredSystemEvent
      * @param float  $longitude
      * @param string $earningRuleId
      */
-    public function __construct(CustomerId $customerId, float $latitude = null, float $longitude = null, string $earningRuleId = null)
+    public function __construct(CustomerId $customerId, float $latitude, float $longitude, string $earningRuleId = null)
     {
         parent::__construct($customerId, '');
         $this->latitude = $latitude;

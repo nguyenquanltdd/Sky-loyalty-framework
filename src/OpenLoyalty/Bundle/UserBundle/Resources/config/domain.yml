@@ -101,6 +101,7 @@ services:
         arguments:
             $repository: '@oloy.user.read_model.repository.customer_details'
             $levelRepository: '@oloy.level.repository'
+            $transactionRepository: '@oloy.transaction.repository'
 
     oloy.user.customer.read_model.projector.invitation_details:
         class: 'OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetailsProjector'
