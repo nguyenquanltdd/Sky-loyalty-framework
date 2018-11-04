@@ -135,12 +135,6 @@ class TransactionDetailsProjectorTest extends ProjectorScenarioTestCase
         $expectedReadModel->setCustomerId($customerId);
         $expectedReadModel->getCustomerData()->updateEmailAndPhone('test@example.com', '123');
 
-        // TODO: what is it?
-        $customerDetails = new CustomerDetails(new \OpenLoyalty\Component\Customer\Domain\CustomerId(LoadUserData::USER_USER_ID));
-        $customerDetails->setEmail('test@example.com');
-        $customerDetails->setPhone('123');
-        $this->customerDetailsRepository->method('find')->with($this->isType('string'))->willReturn($customerDetails);
-
         $this->scenario
             ->given([
                 new TransactionWasRegistered($transactionId, $this->getTransactionData(), $this->getCustomerData()),

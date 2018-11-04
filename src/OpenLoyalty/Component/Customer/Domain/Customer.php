@@ -206,9 +206,9 @@ class Customer extends EventSourcedAggregateRoot
     }
 
     /**
-     * @param LevelId $levelId
+     * @param LevelId|null $levelId
      */
-    private function setLevelId(LevelId $levelId): void
+    private function setLevelId(?LevelId $levelId): void
     {
         $this->levelId = $levelId;
     }
