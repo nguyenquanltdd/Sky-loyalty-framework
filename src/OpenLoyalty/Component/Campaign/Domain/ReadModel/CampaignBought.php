@@ -269,14 +269,14 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
     }
 
     /**
-     * @param CampaignId         $campaignId
-     * @param CustomerId         $customerId
-     * @param Coupon             $coupon
-     * @param null|TransactionId $transactionId
+     * @param CampaignId      $campaignId
+     * @param CustomerId      $customerId
+     * @param Coupon          $coupon
+     * @param null|Identifier $transactionId
      *
      * @return string
      */
-    public static function createId(CampaignId $campaignId, CustomerId $customerId, Coupon $coupon, ?TransactionId $transactionId = null): string
+    public static function createId(CampaignId $campaignId, CustomerId $customerId, Coupon $coupon, ?Identifier $transactionId = null): string
     {
         $transactionSuffix = $transactionId ? '_'.((string) $transactionId) : '';
 
