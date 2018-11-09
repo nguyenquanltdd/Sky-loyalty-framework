@@ -9,19 +9,21 @@ use Gumlet\ImageResize;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Logo;
 use OpenLoyalty\Bundle\SettingsBundle\Service\ImageResizer;
 use OpenLoyalty\Component\Core\Infrastructure\ImageResizerInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Class ImageResizerTest.
  */
-class ImageResizerTest extends \PHPUnit_Framework_TestCase
+class ImageResizerTest extends TestCase
 {
     /**
-     * @var ImageResizer|\PHPUnit_Framework_MockObject_MockObject
+     * @var ImageResizer|MockObject
      */
     private $resizer;
     /**
-     * @var Filesystem|\PHPUnit_Framework_MockObject_MockObject
+     * @var Filesystem|MockObject
      */
     private $filesystem;
 

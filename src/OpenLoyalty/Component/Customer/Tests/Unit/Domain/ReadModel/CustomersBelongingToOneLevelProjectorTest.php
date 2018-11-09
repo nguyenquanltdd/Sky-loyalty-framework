@@ -21,7 +21,7 @@ use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomersBelongingToOneLevel;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomersBelongingToOneLevelProjector;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class CustomersBelongingToOneLevelProjectorTest.
@@ -56,7 +56,7 @@ final class CustomersBelongingToOneLevelProjectorTest extends ProjectorScenarioT
         $this->customerId = new CustomerId('00000000-1111-0000-0000-000000000000');
         $this->levelId = new LevelId('00000000-2222-0000-0000-000000000111');
 
-        /** @var Customer|PHPUnit_Framework_MockObject_MockObject $customer */
+        /** @var Customer|MockObject $customer */
         $customer = $this->getMockBuilder(Customer::class)->getMock();
         $customer->method('getId')->willReturn($this->customerId);
         $customer->method('getLevelId')->willReturn($this->levelId);
@@ -67,7 +67,7 @@ final class CustomersBelongingToOneLevelProjectorTest extends ProjectorScenarioT
         $this->customer2Id = new CustomerId('00000000-2222-0000-0000-000000000000');
         $this->level2Id = new LevelId('00000000-2222-0000-0000-000000000222');
 
-        /** @var Customer|PHPUnit_Framework_MockObject_MockObject $customer2 */
+        /** @var Customer|MockObject $customer2 */
         $customer2 = $this->getMockBuilder(Customer::class)->getMock();
         $customer2->method('getId')->willReturn($this->customerId);
         $customer2->method('getLevelId')->willReturn($this->levelId);
@@ -75,7 +75,7 @@ final class CustomersBelongingToOneLevelProjectorTest extends ProjectorScenarioT
         $customer2->method('getLastName')->willReturn('Doe1');
         $customer2->method('getEmail')->willReturn('john.doe1@example.com');
 
-        /** @var CustomerRepository|PHPUnit_Framework_MockObject_MockObject $customerRepository */
+        /** @var CustomerRepository|MockObject $customerRepository */
         $customerRepository = $this->getMockBuilder(Repository::class)->getMock();
         $customerRepository->method('load')
             ->with($this->logicalOr(
@@ -90,7 +90,7 @@ final class CustomersBelongingToOneLevelProjectorTest extends ProjectorScenarioT
                 return $customer2;
             }));
 
-        /** @var LevelRepository|PHPUnit_Framework_MockObject_MockObject $levelRepository */
+        /** @var LevelRepository|MockObject $levelRepository */
         $levelRepository = $this->getMockBuilder(LevelRepository::class)->getMock();
         $levelRepository->method('byId')->willReturn(null);
 

@@ -131,7 +131,7 @@ class AccountProviderTest extends TestCase
     /**
      * @param string|null $customerId
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject|Repository
+     * @return \MockObject|Repository
      */
     protected function getAccountRepository(?string $customerId = null): Repository
     {
@@ -155,7 +155,7 @@ class AccountProviderTest extends TestCase
      * @param null|string $loyaltyCardNumber
      * @param null|string $phone
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject|CustomerDetailsRepository
+     * @return \MockObject|CustomerDetailsRepository
      */
     protected function getCustomerRepository(?string $email = null, ?string $loyaltyCardNumber = null, ?string $phone = null): CustomerDetailsRepository
     {

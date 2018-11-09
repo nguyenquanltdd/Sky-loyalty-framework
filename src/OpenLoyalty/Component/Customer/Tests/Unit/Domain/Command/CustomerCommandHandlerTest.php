@@ -20,6 +20,7 @@ use OpenLoyalty\Component\Customer\Domain\CustomerRepository;
 use OpenLoyalty\Component\Customer\Domain\Specification\CustomerPhoneSpecificationInterface;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
 use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class CustomerCommandHandlerTest.
@@ -88,11 +89,11 @@ abstract class CustomerCommandHandlerTest extends CommandHandlerScenarioTestCase
         AuditManagerInterface $auditManager = null,
         LevelDowngradeModeProvider $levelDowngradeModeProvider = null)
     {
-        /** @var Repository|\PHPUnit_Framework_MockObject_MockObject $customerDetailsRepository */
+        /** @var Repository|MockObject $customerDetailsRepository */
         $customerDetailsRepository = $this->getMockBuilder(Repository::class)->getMock();
         $customerDetailsRepository->method('findBy')->willReturn([]);
 
-        /** @var CustomerPhoneSpecificationInterface|\PHPUnit_Framework_MockObject_MockObject $customerSpecification */
+        /** @var CustomerPhoneSpecificationInterface|MockObject $customerSpecification */
         $customerSpecification = $this->createMock(CustomerPhoneSpecificationInterface::class);
         $customerSpecification->method('isSatisfiedBy')->willReturn(true);
 

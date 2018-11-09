@@ -125,3 +125,7 @@ services:
     oloy.user.level_id_provider:
         alias: OpenLoyalty\Bundle\UserBundle\Service\OloyLevelIdProvider
         deprecated: The "%service_id%" service is deprecated since 2.8.0
+
+    oloy.earning_rule.photo_uploader:
+        alias: OpenLoyalty\Bundle\EarningRuleBundle\Service\EarningRulePhotoUploader
+        deprecated: The "%service_id%" service is deprecated since 3.1.0

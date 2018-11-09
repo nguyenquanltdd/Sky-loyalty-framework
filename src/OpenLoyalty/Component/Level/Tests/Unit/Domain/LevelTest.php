@@ -8,11 +8,12 @@ namespace OpenLoyalty\Component\Level\Tests\Unit\Domain;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelId;
 use OpenLoyalty\Component\Level\Domain\Model\LevelPhoto;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class LevelTest.
  */
-class LevelTest extends \PHPUnit_Framework_TestCase
+class LevelTest extends TestCase
 {
     const LEVEL_ID = '3a40b784-913f-45ee-8646-a78b2b4f5cef';
 

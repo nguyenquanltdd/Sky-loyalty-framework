@@ -31,11 +31,12 @@ use OpenLoyalty\Component\Segment\Domain\PosId;
 use OpenLoyalty\Component\Segment\Domain\Segment;
 use OpenLoyalty\Component\Segment\Domain\SegmentId;
 use OpenLoyalty\Component\Segment\Domain\SegmentPartId;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class SegmentReadModelTransformerTest.
  */
-class SegmentReadModelTransformerTest extends \PHPUnit_Framework_TestCase
+class SegmentReadModelTransformerTest extends TestCase
 {
     private const SEGMENT_ID = '00000000-0000-0000-0000-000000000000';
     private const SEGMENT_NAME = 'segment_name';

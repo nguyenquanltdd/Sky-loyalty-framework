@@ -9,11 +9,12 @@ use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use Elasticsearch\Common\Exceptions\Conflict409Exception;
 use OpenLoyalty\Component\Core\Infrastructure\Projector\Projector;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ProjectorTest.
  */
-class ProjectorTest extends \PHPUnit_Framework_TestCase
+class ProjectorTest extends TestCase
 {
     /**
      * @test

@@ -12,11 +12,12 @@ use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBought;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class CampaignBoughtTest.
  */
-class CampaignBoughtTest extends \PHPUnit_Framework_TestCase
+class CampaignBoughtTest extends TestCase
 {
     const CAMPAIGN_ID = '3a40b784-913f-45ee-8646-a78b2b4f5cef';
     const CUSTOMER_ID = '16d23cb7-e27a-47f7-a010-84f53b66cde1';

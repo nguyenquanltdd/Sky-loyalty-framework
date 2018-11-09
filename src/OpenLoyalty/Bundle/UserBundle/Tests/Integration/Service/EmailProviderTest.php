@@ -15,18 +15,19 @@ use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\Model\Reward;
-use PHPUnit_Framework_MockObject_MockBuilder;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockBuilder;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class EmailProviderTest extends \PHPUnit_Framework_TestCase
+class EmailProviderTest extends TestCase
 {
     /**
-     * @var OloyMailer|PHPUnit_Framework_MockObject_MockObject
+     * @var OloyMailer|MockObject
      */
     private $mailer;
 
     /**
-     * @var MessageFactoryInterface|PHPUnit_Framework_MockObject_MockObject
+     * @var MessageFactoryInterface|MockObject
      */
     private $messageFactory;
 
@@ -36,7 +37,7 @@ class EmailProviderTest extends \PHPUnit_Framework_TestCase
     private $parameters;
 
     /**
-     * @var MessageInterface|PHPUnit_Framework_MockObject_MockObject
+     * @var MessageInterface|MockObject
      */
     private $message;
 
@@ -141,7 +142,7 @@ class EmailProviderTest extends \PHPUnit_Framework_TestCase
      */
     public function it_sends_password_reset_email(string $userClass, string $resetUrl): void
     {
-        /** @var PHPUnit_Framework_MockObject_MockObject|User $user */
+        /** @var MockObject|User $user */
         $user = $this->getMockBuilder($userClass)->disableOriginalConstructor()->getMock();
         $user->expects($this->atLeastOnce())->method('getEmail')->willReturn('user@example.com');
         $user->expects($this->atLeastOnce())->method('getConfirmationToken')->willReturn('1234');
@@ -230,11 +231,11 @@ class EmailProviderTest extends \PHPUnit_Framework_TestCase
      * @param array|null $methods
      * @param array|null $methodsExcept
      *
-     * @return PHPUnit_Framework_MockObject_MockObject|EmailProvider
+     * @return MockObject|EmailProvider
      */
     public function getEmailProviderMock(array $methods = null, array $methodsExcept = null)
     {
-        /** @var PHPUnit_Framework_MockObject_MockBuilder $emailProvider */
+        /** @var MockBuilder $emailProvider */
         $emailProvider = $this->getMockBuilder(EmailProvider::class)->setConstructorArgs(
             [
                 $this->messageFactory,
@@ -254,7 +255,7 @@ class EmailProviderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject|CustomerDetails
+     * @return MockObject|CustomerDetails
      */
     public function getCustomerDetailsMock()
     {
@@ -264,7 +265,7 @@ class EmailProviderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject|User
+     * @return MockObject|User
      */
     public function getUserMock()
     {
@@ -274,7 +275,7 @@ class EmailProviderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject|Campaign
+     * @return MockObject|Campaign
      */
     public function getCampaignMock()
     {
@@ -284,7 +285,7 @@ class EmailProviderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject|Coupon
+     * @return MockObject|Coupon
      */
     public function getCouponMock()
     {
@@ -294,7 +295,7 @@ class EmailProviderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject|Level
+     * @return MockObject|Level
      */
     public function getLevelMock()
     {
@@ -304,7 +305,7 @@ class EmailProviderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject|Reward
+     * @return MockObject|Reward
      */
     public function getRewardMock()
     {

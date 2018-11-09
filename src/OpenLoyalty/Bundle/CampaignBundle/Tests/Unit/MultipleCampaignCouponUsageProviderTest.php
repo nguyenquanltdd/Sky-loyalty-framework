@@ -15,9 +15,10 @@ use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Translation\Translator;
 
-class MultipleCampaignCouponUsageProviderTest extends \PHPUnit_Framework_TestCase
+class MultipleCampaignCouponUsageProviderTest extends TestCase
 {
     private const CUSTOMER_ID = '00000000-0000-0000-0000-000000000000';
     private const CAMPAIGN_ID = '00000000-0000-0000-0000-000000000001';

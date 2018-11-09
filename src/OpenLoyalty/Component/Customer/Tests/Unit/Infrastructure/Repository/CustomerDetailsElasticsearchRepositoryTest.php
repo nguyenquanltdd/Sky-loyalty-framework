@@ -9,14 +9,16 @@ namespace OpenLoyalty\Component\Customer\Tests\Unit\Infrastructure\Repository;
 
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Customer\Infrastructure\Repository\CustomerDetailsElasticsearchRepository;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class CustomerDetailsElasticsearchRepositoryTest.
  */
-class CustomerDetailsElasticsearchRepositoryTest extends \PHPUnit_Framework_TestCase
+class CustomerDetailsElasticsearchRepositoryTest extends TestCase
 {
     /**
-     * @var CustomerDetailsRepository|\PHPUnit_Framework_MockObject_MockObject
+     * @var CustomerDetailsRepository|MockObject
      */
     private $customerDetailsRepository;
 

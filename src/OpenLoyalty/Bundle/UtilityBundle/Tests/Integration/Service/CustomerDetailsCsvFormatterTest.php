@@ -20,11 +20,12 @@ use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomersBelongingToOneLevel
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelId;
 use OpenLoyalty\Component\Segment\Domain\Segment;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class CustomerDetailsCsvFormatterTest.
  */
-class CustomerDetailsCsvFormatterTest extends \PHPUnit_Framework_TestCase
+class CustomerDetailsCsvFormatterTest extends TestCase
 {
     protected $segmentedCustomersRepository;
     protected $customerDetailsRepository;

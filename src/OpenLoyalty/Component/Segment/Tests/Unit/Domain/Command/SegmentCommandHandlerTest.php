@@ -14,11 +14,12 @@ use OpenLoyalty\Component\Segment\Domain\Segment;
 use OpenLoyalty\Component\Segment\Domain\SegmentId;
 use OpenLoyalty\Component\Segment\Domain\SegmentRepository;
 use OpenLoyalty\Component\Segment\Domain\SegmentPartRepository;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class SegmentCommandHandlerTest.
  */
-abstract class SegmentCommandHandlerTest extends \PHPUnit_Framework_TestCase
+abstract class SegmentCommandHandlerTest extends TestCase
 {
     /**
      * @var SegmentRepository

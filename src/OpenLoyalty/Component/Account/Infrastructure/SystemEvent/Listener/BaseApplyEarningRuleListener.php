@@ -65,7 +65,7 @@ abstract class BaseApplyEarningRuleListener
         $this->accountDetailsRepository = $accountDetailsRepository;
         $this->uuidGenerator = $uuidGenerator;
         $this->earningRuleApplier = $earningRuleApplier;
-        $this->pointsTransferManager = $pointsTransfersManager;
+        $this->pointsTransfersManager = $pointsTransfersManager;
     }
 
     /**
@@ -129,7 +129,7 @@ abstract class BaseApplyEarningRuleListener
                 $this->commandBus->dispatch(
                     new AddPoints(
                         $account->getAccountId(),
-                        $this->pointsTransferManager->createAddPointsTransferInstance(
+                        $this->pointsTransfersManager->createAddPointsTransferInstance(
                             new PointsTransferId($this->uuidGenerator->generate()),
                             $result->getPoints(),
                             null,

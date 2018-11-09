@@ -25,7 +25,7 @@ class PointsTransferImportCommandTest extends KernelTestCase
         $kernel->boot();
 
         /** @var PointsTransferXmlImporter $importer */
-        $importer = $kernel->getContainer()->get(PointsTransferXmlImporter::class);
+        $importer = $kernel->getContainer()->get('test.'.PointsTransferXmlImporter::class);
 
         $application = new Application($kernel);
         $application->add(new PointsTransferImportCommand($importer));

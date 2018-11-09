@@ -10,14 +10,16 @@ namespace OpenLoyalty\Component\Campaign\Tests\Unit\Infrastructure\EventListener
 
 use Gaufrette\Filesystem;
 use OpenLoyalty\Component\Campaign\Infrastructure\EventListener\SaveFileListener;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class SaveFileListenerTest.
  */
-final class SaveFileListenerTest extends \PHPUnit_Framework_TestCase
+final class SaveFileListenerTest extends TestCase
 {
     /**
-     * @var Filesystem | \PHPUnit_Framework_MockObject_MockObject
+     * @var Filesystem | MockObject
      */
     private $fileSystem;
 

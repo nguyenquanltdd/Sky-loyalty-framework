@@ -23,7 +23,7 @@ class CampaignVisibility
     protected $visibleFrom;
 
     /**
-     * @var \DateTimeOpenLoyalty\Component\Campaign\Domain\Model\CampaignVisibility
+     * @var \DateTime
      */
     protected $visibleTo;
 

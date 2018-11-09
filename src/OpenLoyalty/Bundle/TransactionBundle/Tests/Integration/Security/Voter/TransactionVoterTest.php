@@ -12,7 +12,7 @@ use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetailsRepository;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use OpenLoyalty\Component\Transaction\Domain\Transaction;
 use OpenLoyalty\Component\Transaction\Domain\TransactionId;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class TransactionVoterTest.
@@ -39,7 +39,7 @@ class TransactionVoterTest extends BaseVoterTest
             TransactionVoter::LIST_ITEM_LABELS => ['seller' => true, 'customer' => true, 'admin' => true],
         ];
 
-        /** @var SellerDetailsRepository|\PHPUnit_Framework_MockObject_MockObject $sellerDetailsRepositoryMock */
+        /** @var SellerDetailsRepository|\MockObject $sellerDetailsRepositoryMock */
         $sellerDetailsRepositoryMock = $this->getMockBuilder(SellerDetailsRepository::class)->getMock();
         $sellerDetailsRepositoryMock
             ->method('find')
@@ -61,7 +61,7 @@ class TransactionVoterTest extends BaseVoterTest
     /**
      * {@inheritdoc}
      *
-     * @return PHPUnit_Framework_MockObject_MockObject|TransactionDetails
+     * @return MockObject|TransactionDetails
      */
     protected function getSubjectById($id)
     {
@@ -79,9 +79,9 @@ class TransactionVoterTest extends BaseVoterTest
     /**
      * @param string $id
      *
-     * @return PHPUnit_Framework_MockObject_MockObject
+     * @return MockObject
      */
-    protected function getTransactionMock(string $id): PHPUnit_Framework_MockObject_MockObject
+    protected function getTransactionMock(string $id): MockObject
     {
         $transaction = $this->getMockBuilder(Transaction::class)->disableOriginalConstructor()->getMock();
         $transaction->method('getTransactionId')->willReturn(new TransactionId($id));

@@ -17,6 +17,7 @@ use OpenLoyalty\Component\Core\Domain\Command\RemovePhoto;
 use OpenLoyalty\Component\Core\Domain\Command\UploadPhoto;
 use OpenLoyalty\Component\Core\Domain\Exception\InvalidPhotoNameException;
 use OpenLoyalty\Component\Core\Domain\SystemEvent\PhotoSystemEvents;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -32,27 +33,27 @@ class PhotoCommandHandlerTest extends TestCase
     private $handler;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
+     * @var MockObject
      */
     private $settingsManager;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
+     * @var MockObject
      */
     private $uploader;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
+     * @var MockObject
      */
     private $translator;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
+     * @var MockObject
      */
     private $dispatcher;
 
     /**
-     * @test
+     * {@inheritdoc}
      */
     public function setUp()
     {

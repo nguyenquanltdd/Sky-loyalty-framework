@@ -4,7 +4,6 @@ services:
         autoconfigure: true
         public: false
 
-
     OpenLoyalty\Bundle\EarningRuleBundle\Validator\Constraints\GeoTypeValidator:
         arguments:
             - "@translator"
@@ -65,8 +64,7 @@ services:
         factory:   ['@knp_gaufrette.filesystem_map', get]
         arguments: ['earning_rule_photos']
 
-    oloy.earning_rule.photo_uploader:
-        class: OpenLoyalty\Bundle\EarningRuleBundle\Service\EarningRulePhotoUploader
+    OpenLoyalty\Bundle\EarningRuleBundle\Service\EarningRulePhotoUploader:
         arguments: ["@oloy.campaign.photos_filesystem"]
 
     oloy.earning_rule.validator.image:

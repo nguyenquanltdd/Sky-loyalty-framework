@@ -7,11 +7,12 @@ namespace OpenLoyalty\Component\Campaign\Tests\Unit\Domain;
 
 use OpenLoyalty\Component\Campaign\Domain\Exception\EmptyPhotoOriginalNameException;
 use OpenLoyalty\Component\Campaign\Domain\PhotoOriginalName;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class PhotoOriginalNameTest.
  */
-class PhotoOriginalNameTest extends \PHPUnit_Framework_TestCase
+class PhotoOriginalNameTest extends TestCase
 {
     /**
      * @test

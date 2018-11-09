@@ -36,6 +36,11 @@ class CampaignCouponWasChanged extends CustomerEvent
     private $newCoupon;
 
     /**
+     * @var Coupon
+     */
+    private $oldCoupon;
+
+    /**
      * CampaignCouponWasChanged constructor.
      *
      * @param CustomerId         $customerId

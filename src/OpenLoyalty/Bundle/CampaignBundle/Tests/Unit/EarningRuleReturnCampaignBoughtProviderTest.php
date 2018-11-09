@@ -14,12 +14,13 @@ use OpenLoyalty\Component\Campaign\Domain\Provider\EarningRuleReturnCampaignBoug
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBought;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
-use PHPUnit_Framework_MockObject_MockBuilder;
+use PHPUnit\Framework\MockObject\MockBuilder;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class EarningRuleReturnCampaignBoughtProviderTest.
  */
-class EarningRuleReturnCampaignBoughtProviderTest extends \PHPUnit_Framework_TestCase
+class EarningRuleReturnCampaignBoughtProviderTest extends TestCase
 {
     private const CUSTOMER_ID = '00000000-0000-0000-0000-000000000000';
     private const CUSTOMER_EMAIL = 'test@test.test';
@@ -46,7 +47,7 @@ class EarningRuleReturnCampaignBoughtProviderTest extends \PHPUnit_Framework_Tes
             self::CUSTOMER_PHONE,
             CampaignPurchase::STATUS_ACTIVE
         );
-        /** @var CampaignBoughtRepository|PHPUnit_Framework_MockObject_MockBuilder $campaignRepository */
+        /** @var CampaignBoughtRepository|MockBuilder $campaignRepository */
         $campaignRepository = $this->getMockBuilder(CampaignBoughtRepository::class)->getMock();
         $campaignRepository->method('findByTransactionIdAndCustomerId')->willReturn([$campaignBought]);
 

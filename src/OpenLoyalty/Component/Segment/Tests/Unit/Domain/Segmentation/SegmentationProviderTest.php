@@ -33,11 +33,12 @@ use OpenLoyalty\Component\Transaction\Domain\PosId;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use OpenLoyalty\Component\Transaction\Domain\TransactionId;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class SegmentationProviderTest.
  */
-class SegmentationProviderTest extends \PHPUnit_Framework_TestCase
+class SegmentationProviderTest extends TestCase
 {
     /**
      * @var Repository

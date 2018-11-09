@@ -13,13 +13,15 @@ use OpenLoyalty\Bundle\SettingsBundle\Entity\IntegerSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\DowngradeModeNoneResetAfterDaysFieldSubscriber;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormInterface;
 
 /**
  * Class DowngradeModeNoneResetAfterDaysFieldSubscriberTest.
  */
-final class DowngradeModeNoneResetAfterDaysFieldSubscriberTest extends \PHPUnit_Framework_TestCase
+final class DowngradeModeNoneResetAfterDaysFieldSubscriberTest extends TestCase
 {
     /**
      * @var DowngradeModeNoneResetAfterDaysFieldSubscriber
@@ -27,7 +29,7 @@ final class DowngradeModeNoneResetAfterDaysFieldSubscriberTest extends \PHPUnit_
     private $listener;
 
     /**
-     * @var FormInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var FormInterface|MockObject
      */
     private $form;
 

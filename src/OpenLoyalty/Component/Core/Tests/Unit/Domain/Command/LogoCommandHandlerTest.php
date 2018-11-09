@@ -12,6 +12,7 @@ use OpenLoyalty\Component\Core\Domain\Command\LogoCommandHandler;
 use OpenLoyalty\Component\Core\Domain\Command\ResizeLogo;
 use OpenLoyalty\Component\Core\Domain\SystemEvent\LogoSystemEvents;
 use OpenLoyalty\Component\Core\Infrastructure\FileInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -25,22 +26,22 @@ class LogoCommandHandlerTest extends TestCase
     private $handler;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
+     * @var MockObject
      */
     private $resizer;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
+     * @var MockObject
      */
     private $dispatcher;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
+     * @var MockObject
      */
     private $systemEvents;
 
     /**
-     * @test
+     * {@inheritdoc}
      */
     public function setUp()
     {

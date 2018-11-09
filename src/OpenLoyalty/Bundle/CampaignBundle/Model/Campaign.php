@@ -22,7 +22,7 @@ class Campaign extends BaseCampaign
      */
     public function __construct()
     {
-        // nothing to do
+        parent::__construct(null, []);
     }
 
     /**

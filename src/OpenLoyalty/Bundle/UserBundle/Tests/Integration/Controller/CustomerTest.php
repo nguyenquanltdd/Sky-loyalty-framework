@@ -3,12 +3,12 @@
 namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Controller;
 
 use OpenLoyalty\Component\Customer\Domain\Customer;
-use OpenLoyalty\Component\Customer\Domain\CustomerId;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class CustomerTest.
  */
-class CustomerTest extends \PHPUnit_Framework_TestCase
+class CustomerTest extends TestCase
 {
     /**
      * @test
@@ -16,7 +16,7 @@ class CustomerTest extends \PHPUnit_Framework_TestCase
      */
     public function it_throws_exception_on_empty_first_name()
     {
-        $customer = new Customer(new CustomerId('00-000-000-000'));
-        $customer->setFirstName('');
+        $customer = new Customer();
+        $customer->setFirstName(null);
     }
 }

@@ -9,25 +9,27 @@ use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Service\DoctrineSettingsManager;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Component\Webhook\Infrastructure\Client\Request\Header\DefaultRequestHeader;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class DefaultRequestHeaderTest.
  */
-class DefaultRequestHeaderTest extends \PHPUnit_Framework_TestCase
+class DefaultRequestHeaderTest extends TestCase
 {
     /**
      * @test
      */
     public function it_returns_default_headers(): void
     {
-        /** @var DoctrineSettingsManager|\PHPUnit_Framework_MockObject_MockObject $settingsManagerMock */
+        /** @var DoctrineSettingsManager|MockObject $settingsManagerMock */
         $settingsManagerMock = $this
             ->getMockBuilder(SettingsManager::class)
             ->disableOriginalConstructor()
             ->getMock()
         ;
 
-        /** @var StringSettingEntry|\PHPUnit_Framework_MockObject_MockObject $headerNameSettingEntryMock */
+        /** @var StringSettingEntry|MockObject $headerNameSettingEntryMock */
         $headerNameSettingEntryMock = $this
             ->getMockBuilder(StringSettingEntry::class)
             ->disableOriginalConstructor()
@@ -35,7 +37,7 @@ class DefaultRequestHeaderTest extends \PHPUnit_Framework_TestCase
         ;
         $headerNameSettingEntryMock->method('getValue')->willReturn('');
 
-        /** @var StringSettingEntry|\PHPUnit_Framework_MockObject_MockObject $headerValueSettingEntryMock */
+        /** @var StringSettingEntry|MockObject $headerValueSettingEntryMock */
         $headerValueSettingEntryMock = $this
             ->getMockBuilder(StringSettingEntry::class)
             ->disableOriginalConstructor()
@@ -74,14 +76,14 @@ class DefaultRequestHeaderTest extends \PHPUnit_Framework_TestCase
      */
     public function it_returns_default_headers_with_additional_header_from_settings(): void
     {
-        /** @var DoctrineSettingsManager|\PHPUnit_Framework_MockObject_MockObject $settingsManagerMock */
+        /** @var DoctrineSettingsManager|MockObject $settingsManagerMock */
         $settingsManagerMock = $this
             ->getMockBuilder(SettingsManager::class)
             ->disableOriginalConstructor()
             ->getMock()
         ;
 
-        /** @var StringSettingEntry|\PHPUnit_Framework_MockObject_MockObject $headerNameSettingEntryMock */
+        /** @var StringSettingEntry|MockObject $headerNameSettingEntryMock */
         $headerNameSettingEntryMock = $this
             ->getMockBuilder(StringSettingEntry::class)
             ->disableOriginalConstructor()
@@ -89,7 +91,7 @@ class DefaultRequestHeaderTest extends \PHPUnit_Framework_TestCase
         ;
         $headerNameSettingEntryMock->method('getValue')->willReturn('Content-Test');
 
-        /** @var StringSettingEntry|\PHPUnit_Framework_MockObject_MockObject $headerValueSettingEntryMock */
+        /** @var StringSettingEntry|MockObject $headerValueSettingEntryMock */
         $headerValueSettingEntryMock = $this
             ->getMockBuilder(StringSettingEntry::class)
             ->disableOriginalConstructor()

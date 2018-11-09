@@ -8,6 +8,7 @@ namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Integration\Service;
 use Gaufrette\Filesystem;
 use OpenLoyalty\Bundle\EarningRuleBundle\Service\EarningRulePhotoUploader;
 use OpenLoyalty\Component\EarningRule\Domain\Model\EarningRulePhoto;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -23,7 +24,7 @@ class EarningRulePhotoUploaderTest extends TestCase
     private $earningRulePhotoUploader;
 
     /**
-     * @var \PHPUnit\Framework\MockObject
+     * @var MockObject
      */
     private $filesystem;
 

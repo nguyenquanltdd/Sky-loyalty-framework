@@ -9,6 +9,7 @@ use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
 use OpenLoyalty\Bundle\PointsBundle\Security\Voter\PointsTransferVoter;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 /**
@@ -57,7 +58,7 @@ class PointsTransferVoterTest extends BaseVoterTest
     /**
      * @param $id
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return MockObject
      */
     protected function getSubjectById($id)
     {

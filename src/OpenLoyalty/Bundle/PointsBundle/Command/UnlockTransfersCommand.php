@@ -5,7 +5,6 @@
  */
 namespace OpenLoyalty\Bundle\PointsBundle\Command;
 
-use OpenLoyalty\Bundle\CoreBundle\Exception\TranslatedException;
 use OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;
 use OpenLoyalty\Component\Core\Domain\Exception\Translatable;
@@ -53,7 +52,7 @@ class UnlockTransfersCommand extends ContainerAwareCommand
             $message = $this->getContainer()->get('translator')
                 ->trans($exception->getMessageKey(), $exception->getMessageParams());
 
-            throw new TranslatedException($message, $exception);
+            throw new \Exception($message, $exception);
         }
         $bar->finish();
     }

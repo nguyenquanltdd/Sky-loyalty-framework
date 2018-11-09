@@ -8,14 +8,16 @@ namespace OpenLoyalty\Component\Core\Tests\Unit\Infrastructure\Persistence\Doctr
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortFilter;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class SortFilterTest.
  */
-class SortFilterTest extends \PHPUnit_Framework_TestCase
+class SortFilterTest extends TestCase
 {
     /**
-     * @var SortFilter
+     * @var MockObject
      */
     protected $sortFilter;
 
@@ -33,6 +35,7 @@ class SortFilterTest extends \PHPUnit_Framework_TestCase
         $entityManager = $this->getMockBuilder(EntityManager::class)->disableOriginalConstructor()->getMock();
         $entityManager->expects($this->once())->method('getClassMetadata')->with($testClassName)->willReturn($metadata);
 
+        /* @var MockObject|SortFilter sortFilter */
         $this->sortFilter = $this->getMockForTrait(SortFilter::class);
         $this->sortFilter->expects($this->once())->method('getEntityManager')->willReturn($entityManager);
         $this->sortFilter->expects($this->once())->method('getClassName')->willReturn($testClassName);

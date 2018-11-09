@@ -3,9 +3,11 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Bundle\EmailSettingsBundle\Service;
+namespace OpenLoyalty\Bundle\EmailSettingsBundle\Tests\Unit\Service;
 
-use PHPUnit_Framework_MockObject_MockObject;
+use OpenLoyalty\Bundle\EmailSettingsBundle\Service\EmailSettings;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\TwigBundle\Loader\FilesystemLoader;
 use Twig_Environment;
 use Twig_Source;
@@ -13,7 +15,7 @@ use Twig_Source;
 /**
  * Class EmailSettingsTest.
  */
-class EmailSettingsTest extends \PHPUnit_Framework_TestCase
+class EmailSettingsTest extends TestCase
 {
     /**
      * @var EmailSettings
@@ -47,12 +49,12 @@ class EmailSettingsTest extends \PHPUnit_Framework_TestCase
 
         $twigSource = new Twig_Source('<html></html>', 'registration.html.twig');
 
-        /** @var FilesystemLoader|PHPUnit_Framework_MockObject_MockObject $fileSystem */
+        /** @var FilesystemLoader|MockObject $fileSystem */
         $fileSystem = $this->createMock(FilesystemLoader::class);
         $fileSystem->method('exists')->willReturn(true);
         $fileSystem->method('getSourceContext')->willReturn($twigSource);
 
-        /** @var Twig_Environment|PHPUnit_Framework_MockObject_MockObject $twigEnvironment */
+        /** @var Twig_Environment|MockObject $twigEnvironment */
         $twigEnvironment = $this->createMock(Twig_Environment::class);
         $this->settingService = new EmailSettings(self::EMAIL_TEMPLATE, $fileSystem, $twigEnvironment);
     }

@@ -3,7 +3,7 @@
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Integration\Model;
+namespace OpenLoyalty\Bundle\LevelBundle\Tests\Integration\Model;
 
 use OpenLoyalty\Bundle\LevelBundle\Model\LevelPhoto;
 use OpenLoyalty\Component\Level\Domain\Model\LevelPhoto as DomainPhoto;

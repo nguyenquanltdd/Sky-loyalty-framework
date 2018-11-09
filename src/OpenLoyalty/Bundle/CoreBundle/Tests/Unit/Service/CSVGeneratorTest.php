@@ -3,7 +3,7 @@
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Bundle\CoreBundle\Tests\Unit;
+namespace OpenLoyalty\Bundle\CoreBundle\Tests\Unit\Service;
 
 use Faker\Provider\Uuid;
 use OpenLoyalty\Bundle\CoreBundle\CSVGenerator\Mapper;

@@ -13,11 +13,13 @@ use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\Specification\CustomerPhoneSpecificationInterface;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class CustomerUniqueValidatorTest.
  */
-final class CustomerUniqueValidatorTest extends \PHPUnit_Framework_TestCase
+final class CustomerUniqueValidatorTest extends TestCase
 {
     /**
      * @var Repository
@@ -25,7 +27,7 @@ final class CustomerUniqueValidatorTest extends \PHPUnit_Framework_TestCase
     protected $customerDetailsRepository;
 
     /**
-     * @var CustomerPhoneSpecificationInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var CustomerPhoneSpecificationInterface|MockObject
      */
     private $customerSpecification;
 
@@ -94,6 +96,7 @@ final class CustomerUniqueValidatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_not_throwing_exception_when_email_belongs_to_user(): void
     {
@@ -103,6 +106,7 @@ final class CustomerUniqueValidatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_not_throwing_exception_when_email_is_unique(): void
     {
@@ -122,6 +126,7 @@ final class CustomerUniqueValidatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_not_throwing_exception_when_card_number_belongs_to_user(): void
     {
@@ -131,6 +136,7 @@ final class CustomerUniqueValidatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_not_throwing_exception_when_card_is_unique(): void
     {

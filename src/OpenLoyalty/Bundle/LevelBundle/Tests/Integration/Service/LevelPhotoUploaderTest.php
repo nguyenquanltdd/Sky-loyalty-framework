@@ -3,11 +3,12 @@
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Integration\Service;
+namespace OpenLoyalty\Bundle\LevelBundle\Tests\Integration\Service;
 
 use Gaufrette\Filesystem;
 use OpenLoyalty\Bundle\LevelBundle\Service\LevelPhotoUploader;
 use OpenLoyalty\Component\Level\Domain\Model\LevelPhoto;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -23,7 +24,7 @@ class LevelPhotoUploaderTest extends TestCase
     private $levelPhotoUploader;
 
     /**
-     * @var \PHPUnit\Framework\MockObject
+     * @var MockObject
      */
     private $filesystem;
 

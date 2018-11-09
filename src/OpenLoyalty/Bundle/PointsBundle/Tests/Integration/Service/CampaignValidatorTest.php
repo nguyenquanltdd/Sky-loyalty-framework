@@ -12,11 +12,12 @@ use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CouponUsageRepository;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class CampaignValidatorTest.
  */
-class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
+class CampaignValidatorTest extends TestCase
 {
     /**
      * @test
@@ -31,12 +32,13 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_not_throwing_exception_when_there_is_enough_points(): void
     {
         $validator = new CampaignValidator($this->getCouponUsageRepository(0, 0), $this->getAccountDetailsRepository(10), $this->getSettingsManager([Status::TYPE_ACTIVE]));
         $campaign = new Campaign(new CampaignId('00000000-0000-474c-b092-b0dd880c07e1'), ['costInPoints' => 10]);
-        $validator->checkIfCustomerHasEnoughPoints($campaign, new CustomerId('00000000-0000-474c-b092-b0dd880c07e1'));
+        $result = $validator->checkIfCustomerHasEnoughPoints($campaign, new CustomerId('00000000-0000-474c-b092-b0dd880c07e1'));
     }
 
     /**
@@ -52,6 +54,7 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_ignores_quantity_for_cashback_points(): void
     {
@@ -63,6 +66,7 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_ignores_quantity_for_percentage_discount_points(): void
     {
@@ -74,6 +78,7 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_not_throwing_exception_when_there_is_enough_points_for_few_coupons(): void
     {
@@ -97,6 +102,7 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_not_throwing_exception_when_campaign_is_unlimited_and_there_are_coupons_left(): void
     {
@@ -109,6 +115,7 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_ignores_quantity_for_cashback_limits(): void
     {
@@ -124,6 +131,7 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_ignores_quantity_for_percentage_discount_limits(): void
     {
@@ -151,6 +159,7 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_not_throwing_exception_when_campaign_is_unlimited_and_there_are_coupons_left_for_few_coupons(): void
     {
@@ -177,6 +186,7 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_not_throwing_exception_when_campaign_is_limited_and_limit_is_not_exceeded(): void
     {
@@ -205,6 +215,7 @@ class CampaignValidatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_not_throwing_exception_when_campaign_is_limited_and_limit_is_not_exceeded_for_few_coupons(): void
     {

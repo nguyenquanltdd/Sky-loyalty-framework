@@ -7,11 +7,12 @@ namespace OpenLoyalty\Component\Webhook\Tests\Unit\Infrastructure\SystemEvent\Li
 
 use Broadway\CommandHandling\CommandBus;
 use OpenLoyalty\Component\Webhook\Infrastructure\SystemEvent\Listener\BaseWebhookListener;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class BaseWebhookListenerTest.
  */
-class BaseWebhookListenerTest extends \PHPUnit_Framework_TestCase
+class BaseWebhookListenerTest extends TestCase
 {
     /**
      * @test

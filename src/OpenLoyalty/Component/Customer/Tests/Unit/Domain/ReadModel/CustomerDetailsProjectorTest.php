@@ -29,7 +29,7 @@ use OpenLoyalty\Component\Level\Domain\LevelRepository;
 use OpenLoyalty\Component\Level\Domain\ReadModel\LevelDetails;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use OpenLoyalty\Component\Level\Domain\LevelId as LevelLevelId;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class CustomerDetailsProjectorTest.
@@ -55,14 +55,14 @@ final class CustomerDetailsProjectorTest extends ProjectorScenarioTestCase
      */
     protected function createProjector(InMemoryRepository $repository): Projector
     {
-        /** @var TransactionDetailsRepository|PHPUnit_Framework_MockObject_MockObject $transactionDetailsRepo */
+        /** @var TransactionDetailsRepository|MockObject $transactionDetailsRepo */
         $transactionDetailsRepo = $this->getMockBuilder(TransactionDetailsRepository::class)->getMock();
 
-        /** @var Levelrepository|PHPUnit_Framework_MockObject_MockObject $levelRepository */
+        /** @var Levelrepository|MockObject $levelRepository */
         $levelRepository = $this->getMockBuilder(LevelRepository::class)->getMock();
         $levelRepository->method('byId')->willReturn($this->createTestLevelDetails());
 
-        /** @var Repository|PHPUnit_Framework_MockObject_MockObject $transactionRepository */
+        /** @var Repository|MockObject $transactionRepository */
         $transactionRepository = $this->getMockBuilder(Repository::class)->getMock();
 
         return new CustomerDetailsProjector($repository, $transactionDetailsRepo, $levelRepository, $transactionRepository);

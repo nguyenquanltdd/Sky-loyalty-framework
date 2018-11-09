@@ -55,7 +55,7 @@ class CampaignCategoryParamConverter implements ParamConverterInterface
         $object = $this->repository->byId(new CampaignCategoryId($value));
 
         if (null === $object && false === $configuration->isOptional()) {
-            throw new NotFoundHttpException($this->translator(
+            throw new NotFoundHttpException($this->translator->trans(
                 sprintf('%s object not found.', $configuration->getClass())
             ));
         }

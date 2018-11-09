@@ -5,7 +5,7 @@
  */
 declare(strict_types=1);
 
-namespace OpenLoyalty\Component\Campaign\Infrastructure\Doctrine\Repository;
+namespace OpenLoyalty\Component\Campaign\Tests\Integration\Infrastructure\Doctrine\ORM\Repository;
 
 use Doctrine\ORM\EntityManagerInterface;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;

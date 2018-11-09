@@ -14,12 +14,13 @@ use OpenLoyalty\Component\Account\Domain\CustomerId;
 use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class AccountDetailsTest.
  */
-final class AccountDetailsTest extends \PHPUnit_Framework_TestCase
+final class AccountDetailsTest extends TestCase
 {
     /**
      * @test
@@ -34,9 +35,9 @@ final class AccountDetailsTest extends \PHPUnit_Framework_TestCase
         array $pointsTransfers,
         int $expected
     ): void {
-        /** @var AccountId|PHPUnit_Framework_MockObject_MockObject $accountId */
+        /** @var AccountId|MockObject $accountId */
         $accountId = $this->getMockBuilder(AccountId::class)->disableOriginalConstructor()->getMock();
-        /** @var CustomerId|PHPUnit_Framework_MockObject_MockObject $customerId */
+        /** @var CustomerId|MockObject $customerId */
         $customerId = $this->getMockBuilder(CustomerId::class)->disableOriginalConstructor()->getMock();
 
         $accountDetails = new AccountDetails($accountId, $customerId);

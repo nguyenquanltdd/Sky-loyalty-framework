@@ -7,11 +7,12 @@ namespace OpenLoyalty\Component\Campaign\Tests\Unit\Domain;
 
 use OpenLoyalty\Component\Campaign\Domain\Exception\EmptyPhotoPathException;
 use OpenLoyalty\Component\Campaign\Domain\PhotoPath;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class PhotoPathTest.
  */
-class PhotoPathTest extends \PHPUnit_Framework_TestCase
+class PhotoPathTest extends TestCase
 {
     /**
      * @test

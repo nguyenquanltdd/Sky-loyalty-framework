@@ -30,7 +30,7 @@ use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsProjecto
 use OpenLoyalty\Component\Customer\Domain\Customer;
 use OpenLoyalty\Component\Account\Domain\CustomerId;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class PointsTransferDetailsProjectorTest.
@@ -55,12 +55,12 @@ final class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         $this->accountId = new AccountId('00000000-0000-0000-0000-000000000000');
         $this->customerId = new CustomerId('00000000-1111-0000-0000-000000000000');
 
-        /** @var AggregateRootRepository|PHPUnit_Framework_MockObject_MockObject $accountRepository */
+        /** @var AggregateRootRepository|MockObject $accountRepository */
         $accountRepository = $this->getMockBuilder(AggregateRootRepository::class)->getMock();
         $account = Account::createAccount($this->accountId, $this->customerId);
         $accountRepository->method('load')->willReturn($account);
 
-        /** @var AggregateRootRepository|PHPUnit_Framework_MockObject_MockObject $customerRepository */
+        /** @var AggregateRootRepository|MockObject $customerRepository */
         $customerRepository = $this->getMockBuilder(AggregateRootRepository::class)->getMock();
         $customer = Customer::registerCustomer(
             new \OpenLoyalty\Component\Customer\Domain\CustomerId($this->customerId->__toString()),
@@ -68,11 +68,11 @@ final class PointsTransferDetailsProjectorTest extends ProjectorScenarioTestCase
         );
         $customerRepository->method('load')->willReturn($customer);
 
-        /** @var AggregateRootRepository|PHPUnit_Framework_MockObject_MockObject $transactionRepo */
+        /** @var AggregateRootRepository|MockObject $transactionRepo */
         $transactionRepo = $this->getMockBuilder(AggregateRootRepository::class)->getMock();
         $transactionRepo->method('load')->willReturn(null);
 
-        /** @var PosRepository|PHPUnit_Framework_MockObject_MockObject $posRepo */
+        /** @var PosRepository|MockObject $posRepo */
         $posRepo = $this->getMockBuilder(PosRepository::class)->getMock();
 
         return new PointsTransferDetailsProjector($repository, $accountRepository, $customerRepository, $transactionRepo, $posRepo);

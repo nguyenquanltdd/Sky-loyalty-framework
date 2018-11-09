@@ -7,7 +7,6 @@ namespace OpenLoyalty\Bundle\TranslationBundle\Model;
 
 use Knp\DoctrineBehaviors\Model\Translatable\TranslatableMethods;
 use Knp\DoctrineBehaviors\Model\Translatable\TranslatableProperties;
-use Knp\DoctrineBehaviors\Model\Translatable\Translation;
 
 /**
  * Trait FallbackTranslatable.
@@ -18,10 +17,10 @@ trait FallbackTranslatable
         TranslatableMethods;
 
     /**
-     * @param string|null $locale
-     * @param string|null $fieldName
+     * @param null|string $locale
+     * @param null|string $fieldName
      *
-     * @return Translation|null
+     * @return mixed
      */
     public function translateFieldFallback(?string $locale = null, ?string $fieldName = null)
     {

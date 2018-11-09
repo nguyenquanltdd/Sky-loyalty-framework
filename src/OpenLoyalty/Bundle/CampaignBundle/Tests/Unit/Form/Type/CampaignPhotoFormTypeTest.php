@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Unit\Form\Type;
 
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignCollectionPhotoFormType;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\PreloadedExtension;
 use Symfony\Component\Form\Test\TypeTestCase;
@@ -19,7 +20,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 final class CampaignPhotoFormTypeTest extends TypeTestCase
 {
     /**
-     * @var ValidatorInterface | \PHPUnit_Framework_MockObject_MockObject
+     * @var ValidatorInterface | MockObject
      */
     private $validator;
 

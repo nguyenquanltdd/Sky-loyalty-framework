@@ -20,9 +20,13 @@ class CampaignActivity extends BaseCampaignActivity
      */
     public function __construct()
     {
+        parent::__construct(true, null, null);
     }
 
-    public function toArray()
+    /**
+     * @return array
+     */
+    public function toArray(): array
     {
         return [
             'allTimeActive' => $this->allTimeActive,

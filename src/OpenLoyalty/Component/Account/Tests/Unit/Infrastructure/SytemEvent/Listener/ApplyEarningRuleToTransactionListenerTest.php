@@ -24,6 +24,7 @@ final class ApplyEarningRuleToTransactionListenerTest extends BaseApplyEarningRu
 {
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_adds_points_on_new_transaction()
     {

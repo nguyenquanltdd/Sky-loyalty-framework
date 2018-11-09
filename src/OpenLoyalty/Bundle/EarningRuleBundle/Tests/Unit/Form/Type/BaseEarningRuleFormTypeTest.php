@@ -9,6 +9,7 @@ use OpenLoyalty\Bundle\EarningRuleBundle\Form\Type\BaseEarningRuleFormType;
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRule;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelId;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\Test\TypeTestCase;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -22,9 +23,9 @@ class BaseEarningRuleFormTypeTest extends TypeTestCase
     /**
      * @param EarningRule $rule
      *
-     * @return ExecutionContextInterface
+     * @return ExecutionContextInterface|MockObject
      */
-    protected function createMockContext(EarningRule $rule): ExecutionContextInterface
+    protected function createMockContext(EarningRule $rule): MockObject
     {
         $parentFormMock = $this->getMockBuilder(Form::class)->disableOriginalConstructor()->getMock();
         $parentFormMock->method('getNormData')->willReturn($rule);
@@ -40,6 +41,7 @@ class BaseEarningRuleFormTypeTest extends TypeTestCase
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_validate_rule_when_level_or_segments_is_not_defined()
     {
@@ -55,6 +57,8 @@ class BaseEarningRuleFormTypeTest extends TypeTestCase
 
         $base = new BaseEarningRuleFormType();
         $base->validateTarget([], $contextMock);
+
+        $contextMock->getViolations();
     }
 
     /**

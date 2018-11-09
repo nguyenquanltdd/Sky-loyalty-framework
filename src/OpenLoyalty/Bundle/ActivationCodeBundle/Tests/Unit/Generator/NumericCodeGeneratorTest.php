@@ -7,11 +7,13 @@ namespace OpenLoyalty\Bundle\ActivationCodeBundle\Tests\Unit\Generator;
 
 use OpenLoyalty\Bundle\ActivationCodeBundle\Generator\AlphaNumericCodeGenerator;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Generator\NumericCodeGenerator;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class NumericCodeGeneratorTest.
  */
-class NumericCodeGeneratorTest extends \PHPUnit_Framework_TestCase
+class NumericCodeGeneratorTest extends TestCase
 {
     /**
      * @var NumericCodeGenerator
@@ -19,7 +21,7 @@ class NumericCodeGeneratorTest extends \PHPUnit_Framework_TestCase
     protected $numCodeGenerator;
 
     /**
-     * @var AlphaNumericCodeGenerator|\PHPUnit_Framework_MockObject_MockObject
+     * @var AlphaNumericCodeGenerator|MockObject
      */
     protected $alphaNumCodeGenerator;
 
@@ -28,7 +30,7 @@ class NumericCodeGeneratorTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        /* @var AlphaNumericCodeGenerator|\PHPUnit_Framework_MockObject_MockObject $alphaNumCodeGenerator */
+        /* @var AlphaNumericCodeGenerator|MockObject $alphaNumCodeGenerator */
         $this->alphaNumCodeGenerator = $this->getMockBuilder(AlphaNumericCodeGenerator::class)->getMock();
         $this->numCodeGenerator = new NumericCodeGenerator($this->alphaNumCodeGenerator);
     }

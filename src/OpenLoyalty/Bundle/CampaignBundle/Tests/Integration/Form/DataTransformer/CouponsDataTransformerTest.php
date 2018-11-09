@@ -4,11 +4,12 @@ namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Integration\Form\DataTransform
 
 use OpenLoyalty\Bundle\CampaignBundle\Form\DataTransformer\CouponsDataTransformer;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class CouponsDataTransformerTest.
  */
-class CouponsDataTransformerTest extends \PHPUnit_Framework_TestCase
+class CouponsDataTransformerTest extends TestCase
 {
     /**
      * @test

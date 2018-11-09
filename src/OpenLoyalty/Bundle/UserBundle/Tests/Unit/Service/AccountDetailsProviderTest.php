@@ -3,7 +3,7 @@
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Bundle\UserBundle\Tests\Service;
+namespace OpenLoyalty\Bundle\UserBundle\Tests\Unit\Service;
 
 use Broadway\ReadModel\Repository;
 use OpenLoyalty\Bundle\UserBundle\Service\AccountDetailsProvider;
@@ -13,11 +13,12 @@ use OpenLoyalty\Component\Customer\Domain\CustomerRepository;
 use OpenLoyalty\Component\Customer\Domain\Customer;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class AccountDetailsProviderTest.
  */
-class AccountDetailsProviderTest extends \PHPUnit_Framework_TestCase
+class AccountDetailsProviderTest extends TestCase
 {
     const CUSTOMER_ID = 'b90ebd9c-8c16-4525-a9de-bea74386dc6d';
     const CUSTOMER2_ID = 'b46ff62f-554b-485e-b92c-84633f2f2b2f';

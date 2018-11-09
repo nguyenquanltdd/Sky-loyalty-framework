@@ -30,6 +30,7 @@ final class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleList
 {
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_adds_points_on_registration(): void
     {
@@ -58,6 +59,7 @@ final class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleList
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_adds_points_on_first_transaction(): void
     {
@@ -86,6 +88,7 @@ final class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleList
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_adds_points_on_login(): void
     {
@@ -114,6 +117,7 @@ final class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleList
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_adds_points_on_newsletter_subscription(): void
     {
@@ -143,6 +147,7 @@ final class ApplyEarningRuleToEventListenerTest extends BaseApplyEarningRuleList
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_adds_points_on_custom_event(): void
     {

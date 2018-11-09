@@ -11,6 +11,7 @@ use OpenLoyalty\Bundle\UserBundle\Security\Voter\CustomerVoter;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetailsRepository;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class CustomerVoterTest.
@@ -38,11 +39,11 @@ class CustomerVoterTest extends BaseVoterTest
             CustomerVoter::EDIT => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::CUSTOMER_ID],
         ];
 
-        /** @var SellerDetailsRepository|\PHPUnit_Framework_MockObject_MockObject $sellerDetailsRepositoryMock */
+        /** @var SellerDetailsRepository|MockObject $sellerDetailsRepositoryMock */
         $sellerDetailsRepositoryMock = $this->getMockBuilder(SellerDetailsRepository::class)->getMock();
         $sellerDetailsRepositoryMock->method('find')->willReturn(null);
 
-        /** @var SettingsManager|\PHPUnit_Framework_MockObject_MockObject $settingsManagerMock */
+        /** @var SettingsManager|MockObject $settingsManagerMock */
         $settingsManagerMock = $this->getMockBuilder(SettingsManager::class)->getMock();
 
         $voter = new CustomerVoter($sellerDetailsRepositoryMock, $settingsManagerMock);

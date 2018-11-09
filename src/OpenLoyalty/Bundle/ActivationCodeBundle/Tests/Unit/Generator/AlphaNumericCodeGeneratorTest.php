@@ -6,11 +6,12 @@
 namespace OpenLoyalty\Bundle\ActivationCodeBundle\Tests\Unit\Generator;
 
 use OpenLoyalty\Bundle\ActivationCodeBundle\Generator\AlphaNumericCodeGenerator;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class AlphaNumericCodeGeneratorTest.
  */
-class AlphaNumericCodeGeneratorTest extends \PHPUnit_Framework_TestCase
+class AlphaNumericCodeGeneratorTest extends TestCase
 {
     /**
      * @var AlphaNumericCodeGenerator

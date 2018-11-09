@@ -8,13 +8,14 @@ use OpenLoyalty\Component\Import\Infrastructure\ImportResultItem;
 use OpenLoyalty\Component\Import\Infrastructure\ProcessImportResult;
 use OpenLoyalty\Component\Import\Infrastructure\XMLFileStreamer;
 use OpenLoyalty\Component\Import\Infrastructure\XMLImportConverter;
+use PHPUnit\Framework\TestCase;
 use Prewk\XmlStringStreamer;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class XmlImporterTest.
  */
-class XmlImporterTest extends \PHPUnit_Framework_TestCase
+class XmlImporterTest extends TestCase
 {
     /**
      * @param int   $correctNodes

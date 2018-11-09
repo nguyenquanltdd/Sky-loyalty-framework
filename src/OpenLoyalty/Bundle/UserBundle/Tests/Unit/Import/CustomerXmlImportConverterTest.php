@@ -7,11 +7,12 @@ namespace OpenLoyalty\Bundle\UserBundle\Tests\Unit\Import;
 
 use OpenLoyalty\Bundle\UserBundle\Import\CustomerXmlImportConverter;
 use OpenLoyalty\Component\Import\Infrastructure\Validator\XmlNodeValidator;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class CustomerXmlImportConverterTest.
  */
-class CustomerXmlImportConverterTest extends \PHPUnit_Framework_TestCase
+class CustomerXmlImportConverterTest extends TestCase
 {
     /**
      * @test

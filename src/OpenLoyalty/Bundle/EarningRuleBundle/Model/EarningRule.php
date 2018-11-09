@@ -131,6 +131,9 @@ class EarningRule extends BaseEarningRule implements GroupSequenceProviderInterf
      */
     protected $code;
 
+    /**
+     * {@inheritdoc}
+     */
     public function __construct()
     {
     }

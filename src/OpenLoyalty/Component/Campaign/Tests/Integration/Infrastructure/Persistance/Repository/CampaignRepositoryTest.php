@@ -3,7 +3,7 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Repository;
+namespace OpenLoyalty\Component\Campaign\Tests\Integration\Infrastructure\Persistance\Repository;
 
 use Doctrine\ORM\EntityManagerInterface;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;

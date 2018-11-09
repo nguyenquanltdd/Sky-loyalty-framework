@@ -20,9 +20,13 @@ class CampaignVisibility extends BaseCampaignVisibility
      */
     public function __construct()
     {
+        parent::__construct(true, null, null);
     }
 
-    public function toArray()
+    /**
+     * @return array
+     */
+    public function toArray(): array
     {
         return [
             'allTimeVisible' => $this->allTimeVisible,

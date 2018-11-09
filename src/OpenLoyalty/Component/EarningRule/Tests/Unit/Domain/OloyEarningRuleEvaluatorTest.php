@@ -39,12 +39,13 @@ use OpenLoyalty\Component\Transaction\Domain\Model\Item;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
 use OpenLoyalty\Component\Transaction\Domain\Transaction;
 use OpenLoyalty\Component\Transaction\Domain\TransactionRepository;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class OloyEarningRuleEvaluatorTest.
  */
-final class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
+final class OloyEarningRuleEvaluatorTest extends TestCase
 {
     private const USER_ID = '00000000-0000-0000-0000-000000000000';
 
@@ -541,9 +542,9 @@ final class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return EarningRuleAlgorithmFactoryInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @return EarningRuleAlgorithmFactoryInterface|MockObject
      */
-    protected function getEarningRuleAlgorithmFactory(): \PHPUnit_Framework_MockObject_MockObject
+    protected function getEarningRuleAlgorithmFactory(): MockObject
     {
         $algorithms = [
             PointsEarningRule::class => new PointsEarningRuleAlgorithm(),
@@ -565,9 +566,9 @@ final class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject|TransactionRepository
+     * @return MockObject|TransactionRepository
      */
-    protected function getTransactionRepository(): PHPUnit_Framework_MockObject_MockObject
+    protected function getTransactionRepository(): MockObject
     {
         $transactionRepository = $this->getMockBuilder(TransactionRepository::class)->disableOriginalConstructor()->getMock();
         $transactionRepository->method('load')->willReturn($this->getTransaction());
@@ -630,9 +631,9 @@ final class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return InvitationDetailsRepository|\PHPUnit_Framework_MockObject_MockObject
+     * @return InvitationDetailsRepository|MockObject
      */
-    protected function getInvitationDetailsRepository(): \PHPUnit_Framework_MockObject_MockObject
+    protected function getInvitationDetailsRepository(): MockObject
     {
         $mock = $this->createMock(InvitationDetailsRepository::class);
         $mock->method('find')->with($this->isType('string'))
@@ -644,11 +645,11 @@ final class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @param array $earningGeoRules
      *
-     * @return EarningRuleGeoRepository|PHPUnit_Framework_MockObject_MockObject
+     * @return EarningRuleGeoRepository|MockObject
      */
-    protected function getEarningGeoRuleRepository(array $earningGeoRules): \PHPUnit_Framework_MockObject_MockObject
+    protected function getEarningGeoRuleRepository(array $earningGeoRules): MockObject
     {
-        /** @var EarningRuleRepository|\PHPUnit_Framework_MockObject_MockObject $mock */
+        /** @var EarningRuleRepository|MockObject $mock */
         $mock = $this->createMock(EarningRuleGeoRepository::class);
         $mock->method('findGeoRules')
             ->willReturn($earningGeoRules);
@@ -659,11 +660,11 @@ final class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @param array $earningQrcodeRules
      *
-     * @return EarningRuleQrcodeRepository|PHPUnit_Framework_MockObject_MockObject
+     * @return EarningRuleQrcodeRepository|MockObject
      */
     protected function getEarningQrcodeRuleRepository(array $earningQrcodeRules
-    ): \PHPUnit_Framework_MockObject_MockObject {
-        /** @var EarningRuleRepository|\PHPUnit_Framework_MockObject_MockObject $mock */
+    ): MockObject {
+        /** @var EarningRuleRepository|MockObject $mock */
         $mock = $this->createMock(EarningRuleQrcodeRepository::class);
         $mock->method('findAllActiveQrcodeRules')->with(
             $this->isType('string'),
@@ -685,11 +686,11 @@ final class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @param array $earningRules
      *
-     * @return EarningRuleRepository|\PHPUnit_Framework_MockObject_MockObject
+     * @return EarningRuleRepository|MockObject
      */
-    protected function getEarningRuleRepository(array $earningRules): \PHPUnit_Framework_MockObject_MockObject
+    protected function getEarningRuleRepository(array $earningRules): MockObject
     {
-        /** @var EarningRuleRepository|\PHPUnit_Framework_MockObject_MockObject $mock */
+        /** @var EarningRuleRepository|MockObject $mock */
         $mock = $this->createMock(EarningRuleRepository::class);
         $mock->method('findAllActive')
             ->with(
@@ -732,9 +733,9 @@ final class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject|SegmentedCustomersRepository
+     * @return MockObject|SegmentedCustomersRepository
      */
-    protected function getSegmentedCustomersRepository(): \PHPUnit_Framework_MockObject_MockObject
+    protected function getSegmentedCustomersRepository(): MockObject
     {
         $mock = $this->createMock(SegmentedCustomersRepository::class);
 
@@ -750,9 +751,9 @@ final class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject|CustomerDetailsRepository
+     * @return MockObject|CustomerDetailsRepository
      */
-    protected function getCustomerDetailsRepository(): \PHPUnit_Framework_MockObject_MockObject
+    protected function getCustomerDetailsRepository(): MockObject
     {
         $mock = $this->createMock(CustomerDetailsRepository::class);
 
@@ -770,9 +771,9 @@ final class OloyEarningRuleEvaluatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @param array $statuses
      *
-     * @return PHPUnit_Framework_MockObject_MockObject|SettingsManager
+     * @return MockObject|SettingsManager
      */
-    protected function getSettingsManager(array $statuses): \PHPUnit_Framework_MockObject_MockObject
+    protected function getSettingsManager(array $statuses): MockObject
     {
         $settingsManager = $this->getMockBuilder(SettingsManager::class)->getMock();
         $settingsManager->method('getSettingByKey')->willReturn($statuses);

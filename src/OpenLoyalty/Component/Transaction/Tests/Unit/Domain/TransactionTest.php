@@ -13,11 +13,12 @@ use OpenLoyalty\Component\Core\Domain\Model\SKU;
 use OpenLoyalty\Component\Transaction\Domain\Model\Item;
 use OpenLoyalty\Component\Transaction\Domain\Transaction;
 use OpenLoyalty\Component\Transaction\Domain\TransactionId;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class TransactionDetailsTest.
  */
-class TransactionTest extends \PHPUnit_Framework_TestCase
+class TransactionTest extends TestCase
 {
     /**
      * @test

@@ -1,16 +1,17 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Component\MarkDownBundle\Tests\Unit\Infrastructure;
+namespace OpenLoyalty\Component\MarkDown\Tests\Unit\Infrastructure;
 
 use OpenLoyalty\Component\MarkDown\Infrastructure\ParseDownParser;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ParseDownParserTest.
  */
-class ParseDownParserTest extends \PHPUnit_Framework_TestCase
+class ParseDownParserTest extends TestCase
 {
     /**
      * @test

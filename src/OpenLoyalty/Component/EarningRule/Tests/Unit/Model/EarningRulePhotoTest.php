@@ -3,7 +3,7 @@
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Component\EarningRule\Tests\Domain\Model;
+namespace OpenLoyalty\Component\EarningRule\Tests\Unit\Model;
 
 use OpenLoyalty\Component\EarningRule\Domain\Model\EarningRulePhoto;
 use PHPUnit\Framework\TestCase;

@@ -70,10 +70,13 @@ class SetCouponsAsActiveCommand extends Command
     {
         $customers = $this->customerDetailsRepository->findCustomersWithPurchasesToActivate();
         $progressBarActive = $input->getOption('progress-bar');
+        $progressBar = null;
+
         if ($progressBarActive) {
             $progressBar = new ProgressBar($output, count($customers));
             $progressBar->start();
         }
+
         $date = new \DateTime();
         /** @var CustomerDetails $customer */
         foreach ($customers as $customer) {
@@ -97,11 +100,11 @@ class SetCouponsAsActiveCommand extends Command
                     ]);
                 }
             }
-            if ($progressBarActive) {
+            if ($progressBarActive && $progressBar instanceof ProgressBar) {
                 $progressBar->advance();
             }
         }
-        if ($progressBarActive) {
+        if ($progressBarActive && $progressBar instanceof ProgressBar) {
             $progressBar->finish();
         }
     }

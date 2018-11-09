@@ -7,11 +7,12 @@ namespace OpenLoyalty\Component\Campaign\Tests\Unit\Domain;
 
 use OpenLoyalty\Component\Campaign\Domain\Exception\InvalidPhotoMimeTypeException;
 use OpenLoyalty\Component\Campaign\Domain\PhotoMimeType;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class PhotoMimeTypeTest.
  */
-class PhotoMimeTypeTest extends \PHPUnit_Framework_TestCase
+class PhotoMimeTypeTest extends TestCase
 {
     /**
      * @test

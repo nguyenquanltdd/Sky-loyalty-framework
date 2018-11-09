@@ -20,9 +20,9 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
- * Class CustomerDataTransformerTest.
+ * Class PointsTransferXmlImportConverterTest.
  */
-class CustomerDataTransformerTest extends TestCase
+class PointsTransferXmlImportConverterTest extends TestCase
 {
     /**
      * @var PointsTransferXmlImportConverter
@@ -124,6 +124,7 @@ class CustomerDataTransformerTest extends TestCase
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_checks_that_type_at_least_one_customer_field_is_possible_to_pass(): void
     {

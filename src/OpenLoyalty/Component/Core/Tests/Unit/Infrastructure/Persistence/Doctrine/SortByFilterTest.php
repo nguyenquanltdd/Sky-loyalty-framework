@@ -6,11 +6,12 @@
 namespace OpenLoyalty\Component\Core\Tests\Unit\Infrastructure\Persistence\Doctrine;
 
 use OpenLoyalty\Component\Core\Infrastructure\Persistence\Doctrine\SortByFilter;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class SortByFilterTest.
  */
-class SortByFilterTest extends \PHPUnit_Framework_TestCase
+class SortByFilterTest extends TestCase
 {
     /**
      * @test

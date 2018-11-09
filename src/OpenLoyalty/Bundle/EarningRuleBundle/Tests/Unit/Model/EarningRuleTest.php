@@ -7,11 +7,12 @@ namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Unit\Model;
 
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\Model\EarningRulePhoto;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class EarningRuleTest.
  */
-class EarningRuleTest extends \PHPUnit_Framework_TestCase
+class EarningRuleTest extends TestCase
 {
     const EARNING_RULE_ID = '3a40b784-913f-45ee-8646-a78b2b4f5cef';
 

@@ -9,11 +9,12 @@ use OpenLoyalty\Component\Webhook\Domain\Command\DispatchWebhook;
 use OpenLoyalty\Component\Webhook\Domain\Command\WebhookCommandHandler;
 use OpenLoyalty\Component\Webhook\Infrastructure\Client\WebhookClientInterface;
 use OpenLoyalty\Component\Webhook\Infrastructure\WebhookConfigProvider;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class WebhookCommandHandlerTest.
  */
-class WebhookCommandHandlerTest extends \PHPUnit_Framework_TestCase
+class WebhookCommandHandlerTest extends TestCase
 {
     /**
      * @test

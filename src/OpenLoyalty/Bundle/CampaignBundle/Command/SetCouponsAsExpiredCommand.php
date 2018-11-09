@@ -75,6 +75,8 @@ class SetCouponsAsExpiredCommand extends Command
     {
         $customers = $this->customerDetailsRepository->findCustomersWithPurchasesToExpire();
         $progressBarActive = $input->getOption('progress-bar');
+        $progressBar = null;
+
         if ($progressBarActive) {
             $progressBar = new ProgressBar($output, count($customers));
             $progressBar->start();
@@ -106,11 +108,11 @@ class SetCouponsAsExpiredCommand extends Command
                     ]);
                 }
             }
-            if ($progressBarActive) {
+            if ($progressBarActive && $progressBarActive instanceof ProgressBar) {
                 $progressBar->advance();
             }
         }
-        if ($progressBarActive) {
+        if ($progressBarActive && $progressBarActive instanceof ProgressBar) {
             $progressBar->finish();
         }
     }

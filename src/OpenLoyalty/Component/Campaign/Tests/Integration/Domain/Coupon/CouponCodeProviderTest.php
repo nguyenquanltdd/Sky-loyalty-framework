@@ -3,7 +3,7 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Component\Campaign\Tests\Domain\Coupon;
+namespace OpenLoyalty\Component\Campaign\Tests\Integration\Domain\Coupon;
 
 use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;

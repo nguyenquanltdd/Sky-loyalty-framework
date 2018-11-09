@@ -8,8 +8,9 @@ namespace OpenLoyalty\Component\Campaign\Tests\Unit\Domain;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\Provider\CouponExpirationDateProvider;
+use PHPUnit\Framework\TestCase;
 
-class CouponExpirationDateProviderTest extends \PHPUnit_Framework_TestCase
+class CouponExpirationDateProviderTest extends TestCase
 {
     /**
      * @var CouponExpirationDateProvider

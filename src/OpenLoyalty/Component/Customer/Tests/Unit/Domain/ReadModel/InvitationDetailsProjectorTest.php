@@ -22,6 +22,7 @@ use OpenLoyalty\Component\Customer\Domain\Invitation;
 use OpenLoyalty\Component\Customer\Domain\InvitationId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetailsProjector;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class InvitationDetailsProjectorTest.
@@ -58,13 +59,13 @@ final class InvitationDetailsProjectorTest extends ProjectorScenarioTestCase
         $this->recipientEmail = 'andrew.doe@example.com';
         $this->token = 'token';
 
-        /** @var Customer|\PHPUnit_Framework_MockObject_MockObject $customer */
+        /** @var Customer|MockObject $customer */
         $customer = $this->getMockBuilder(Customer::class)->getMock();
         $customer->method('getEmail')->willReturn('john.doe@example.com');
         $customer->method('getFirstName')->willReturn('John');
         $customer->method('getLastName')->willReturn('Doe');
 
-        /** @var Repository|\PHPUnit_Framework_MockObject_MockObject $customerRepository */
+        /** @var Repository|MockObject $customerRepository */
         $customerRepository = $this->getMockBuilder(CustomerRepository::class)
                                    ->disableOriginalConstructor()
                                    ->getMock();

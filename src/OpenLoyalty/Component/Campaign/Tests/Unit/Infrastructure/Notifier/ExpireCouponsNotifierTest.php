@@ -14,25 +14,27 @@ use OpenLoyalty\Component\Campaign\Infrastructure\Notifier\ExpireCouponsNotifier
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 /**
  * Class ExpireCouponsNotifierTest.
  */
-class ExpireCouponsNotifierTest extends \PHPUnit_Framework_TestCase
+class ExpireCouponsNotifierTest extends TestCase
 {
     /**
-     * @var CommandBus|\PHPUnit_Framework_MockObject_MockObject
+     * @var CommandBus|MockObject
      */
     private $commandBusMock;
 
     /**
-     * @var LoggerInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var LoggerInterface|MockObject
      */
     private $loggerMock;
 
     /**
-     * @var CustomerDetailsRepository|\PHPUnit_Framework_MockObject_MockObject
+     * @var CustomerDetailsRepository|MockObject
      */
     private $customerDetailsRepositoryMock;
 
@@ -82,7 +84,7 @@ class ExpireCouponsNotifierTest extends \PHPUnit_Framework_TestCase
             $campaignPurchaseMocks[] = $campaignPurchaseMock;
         }
 
-        /** @var CustomerDetails|\PHPUnit_Framework_MockObject_MockObject $customerDetailsMock */
+        /** @var CustomerDetails|MockObject $customerDetailsMock */
         $customerDetailsMock = $this
             ->getMockBuilder(CustomerDetails::class)
             ->disableOriginalConstructor()

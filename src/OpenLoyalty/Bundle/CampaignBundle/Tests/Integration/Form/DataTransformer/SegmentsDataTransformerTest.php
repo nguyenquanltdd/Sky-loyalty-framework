@@ -4,11 +4,12 @@ namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Integration\Form\DataTransform
 
 use OpenLoyalty\Bundle\CampaignBundle\Form\DataTransformer\SegmentsDataTransformer;
 use OpenLoyalty\Component\Campaign\Domain\SegmentId;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class SegmentsDataTransformerTest.
  */
-class SegmentsDataTransformerTest extends \PHPUnit_Framework_TestCase
+class SegmentsDataTransformerTest extends TestCase
 {
     /**
      * @test

@@ -16,11 +16,12 @@ use OpenLoyalty\Component\Translation\Domain\Command\UpdateLanguage;
 use OpenLoyalty\Component\Translation\Domain\Language;
 use OpenLoyalty\Component\Translation\Domain\LanguageId;
 use OpenLoyalty\Component\Translation\Domain\LanguageRepository;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class DoctrineTranslationsManagerTest.
  */
-class DoctrineTranslationsManagerTest extends \PHPUnit_Framework_TestCase
+class DoctrineTranslationsManagerTest extends TestCase
 {
     /**
      * @test

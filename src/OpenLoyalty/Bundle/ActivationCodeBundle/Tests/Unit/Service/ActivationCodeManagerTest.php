@@ -11,40 +11,42 @@ use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Component\ActivationCode\Domain\ActivationCode;
 use OpenLoyalty\Component\ActivationCode\Domain\ActivationCodeId;
 use OpenLoyalty\Component\ActivationCode\Infrastructure\Persistence\Doctrine\Repository\DoctrineActivationCodeRepository;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class ActivationCodeManagerTest.
  */
-class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
+class ActivationCodeManagerTest extends TestCase
 {
     /**
-     * @var EntityManager|\PHPUnit_Framework_MockObject_MockObject
+     * @var EntityManager|MockObject
      */
     protected $em;
 
     /**
-     * @var DoctrineActivationCodeRepository|\PHPUnit_Framework_MockObject_MockObject
+     * @var DoctrineActivationCodeRepository|MockObject
      */
     protected $repository;
 
     /**
-     * @var UuidGeneratorInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var UuidGeneratorInterface|MockObject
      */
     protected $uuidGenerator;
 
     /**
-     * @var SmsSender|\PHPUnit_Framework_MockObject_MockObject
+     * @var SmsSender|MockObject
      */
     protected $smsSender;
 
     /**
-     * @var TranslatorInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var TranslatorInterface|MockObject
      */
     protected $translator;
 
     /**
-     * @var CodeGenerator|\PHPUnit_Framework_MockObject_MockObject
+     * @var CodeGenerator|MockObject
      */
     protected $codeGenerator;
 
@@ -260,7 +262,7 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
      * @param string           $objectId
      * @param string           $code
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject|ActivationCode
+     * @return MockObject|ActivationCode
      */
     protected function getActivationCodeMock(
         ActivationCodeId $activationCodeId,
@@ -274,7 +276,7 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|SmsSender
+     * @return MockObject|SmsSender
      */
     protected function getSmsSenderMock()
     {
@@ -284,7 +286,7 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|UuidGeneratorInterface
+     * @return MockObject|UuidGeneratorInterface
      */
     protected function getUuidGeneratorMock()
     {
@@ -313,7 +315,7 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|DoctrineActivationCodeRepository
+     * @return MockObject|DoctrineActivationCodeRepository
      */
     protected function getActivationCodeRepositoryMock()
     {
@@ -323,7 +325,7 @@ class ActivationCodeManagerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|EntityManager
+     * @return MockObject|EntityManager
      */
     protected function getEntityManagerMock()
     {

@@ -53,15 +53,15 @@ class LocationDataTransformer implements DataTransformerInterface
             return Location::deserialize($value);
         } catch (AssertionFailedException $e) {
             return new Location(
-                isset($data['street']) ? $data['street'] : null,
-                isset($data['address1']) ? $data['address1'] : null,
-                isset($data['province']) ? $data['province'] : null,
-                isset($data['city']) ? $data['city'] : null,
-                isset($data['postal']) ? $data['postal'] : null,
-                isset($data['country']) ? $data['country'] : null,
-                isset($data['address2']) ? $data['address2'] : null,
-                isset($data['lat']) ? $data['lat'] : null,
-                isset($data['long']) ? $data['long'] : null,
+                isset($value['street']) ? $value['street'] : null,
+                isset($value['address1']) ? $value['address1'] : null,
+                isset($value['province']) ? $value['province'] : null,
+                isset($value['city']) ? $value['city'] : null,
+                isset($value['postal']) ? $value['postal'] : null,
+                isset($value['country']) ? $value['country'] : null,
+                isset($value['address2']) ? $value['address2'] : null,
+                isset($value['lat']) ? $value['lat'] : null,
+                isset($value['long']) ? $value['long'] : null,
                 true
             );
         }

@@ -4,7 +4,8 @@
   "type": "project",
   "autoload": {
     "psr-4": {
-      "": "src/"
+      "OpenLoyalty\\": "src/OpenLoyalty",
+      "OpenLoyaltyPlugin\\": "src/OpenLoyaltyPlugin"
     },
     "classmap": [
       "app/AppKernel.php",
@@ -64,8 +65,13 @@
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^2.10",
-    "phpunit/phpunit": "^5.7",
-    "symfony/phpunit-bridge": "^3.0"
+    "phpunit/phpunit": "^7.0",
+    "symfony/phpunit-bridge": "^3.0",
+    "phpstan/phpstan": "^0.10.5",
+    "phpstan/phpstan-symfony": "^0.10.2",
+    "phpstan/phpstan-doctrine": "^0.10.0",
+    "phpstan/phpstan-webmozart-assert": "^0.10.0",
+    "phpstan/phpstan-phpunit": "^0.10.0"
   },
   "scripts": {
     "post-install-cmd": [

@@ -10,6 +10,8 @@ namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Unit\ParamConverter;
 
 use OpenLoyalty\Bundle\CampaignBundle\ParamConverter\CampaignParamConverter;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -17,10 +19,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 /**
  * Class CampaignParamConverterTest.
  */
-final class CampaignParamConverterTest extends \PHPUnit_Framework_TestCase
+final class CampaignParamConverterTest extends TestCase
 {
     /**
-     * @var CampaignRepository|\PHPUnit_Framework_MockObject_MockObject
+     * @var CampaignRepository|MockObject
      */
     private $campaignRepository;
 
@@ -30,7 +32,7 @@ final class CampaignParamConverterTest extends \PHPUnit_Framework_TestCase
     private $request;
 
     /**
-     * @var ParamConverter|\PHPUnit_Framework_MockObject_MockObject
+     * @var ParamConverter|MockObject
      */
     private $parameterConverter;
 

@@ -10,7 +10,7 @@ namespace OpenLoyalty\Component\Transaction\Tests\Unit\ReadModel;
 
 use OpenLoyalty\Component\Transaction\Domain\Transaction;
 use OpenLoyalty\Component\Transaction\Domain\TransactionRepository;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
 use Broadway\ReadModel\InMemory\InMemoryRepository;
 use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\Testing\ProjectorScenarioTestCase;
@@ -36,13 +36,13 @@ class TransactionDetailsProjectorTest extends ProjectorScenarioTestCase
      */
     protected function createProjector(InMemoryRepository $repository): Projector
     {
-        /** @var PosRepository|PHPUnit_Framework_MockObject_MockObject $posRepo */
+        /** @var PosRepository|MockObject $posRepo */
         $posRepo = $this->getMockBuilder(PosRepository::class)->getMock();
         $posRepo->method('byId')->willReturn(null);
 
         $transaction = $this->getMockBuilder(Transaction::class)->getMock();
 
-        /** @var TransactionRepository|PHPUnit_Framework_MockObject_MockObject $transactionRepository */
+        /** @var TransactionRepository|MockObject $transactionRepository */
         $transactionRepository = $this->getMockBuilder(TransactionRepository::class)->disableOriginalConstructor()->getMock();
         $transactionRepository->method('load')->willReturn($transaction);
 

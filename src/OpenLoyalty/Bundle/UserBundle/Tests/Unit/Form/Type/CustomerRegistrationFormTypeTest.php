@@ -3,7 +3,7 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Bundle\UserBundle\Test\Unit\Form\Type;
+namespace OpenLoyalty\Bundle\UserBundle\Tests\Unit\Form\Type;
 
 use OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerRegistrationFormType;
 use OpenLoyalty\Component\Level\Domain\Level;
@@ -15,7 +15,7 @@ use OpenLoyalty\Component\Pos\Domain\PosRepository;
 use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetails;
 use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetailsRepository;
 use OpenLoyalty\Component\Seller\Domain\SellerId;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\PreloadedExtension;
 use Symfony\Component\Form\Test\TypeTestCase;
@@ -30,27 +30,27 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class CustomerRegistrationFormTypeTest extends TypeTestCase
 {
     /**
-     * @var LevelRepository | PHPUnit_Framework_MockObject_MockObject
+     * @var LevelRepository | MockObject
      */
     protected $levelRepository;
 
     /**
-     * @var PosRepository | PHPUnit_Framework_MockObject_MockObject
+     * @var PosRepository | MockObject
      */
     protected $posRepository;
 
     /**
-     * @var SellerDetailsRepository | PHPUnit_Framework_MockObject_MockObject
+     * @var SellerDetailsRepository | MockObject
      */
     protected $sellerRepository;
 
     /**
-     * @var ValidatorInterface | PHPUnit_Framework_MockObject_MockObject
+     * @var ValidatorInterface | MockObject
      */
     private $validator;
 
     /**
-     * @var TranslatorInterface | PHPUnit_Framework_MockObject_MockObject
+     * @var TranslatorInterface | MockObject
      */
     private $translator;
 
@@ -80,7 +80,6 @@ class CustomerRegistrationFormTypeTest extends TypeTestCase
                     $level = [
                         new Level(
                             new LevelId('f99748f2-bf86-11e6-a4a6-cec0c932ce01'),
-                            'name',
                             0
                         ),
                     ];
@@ -157,9 +156,9 @@ class CustomerRegistrationFormTypeTest extends TypeTestCase
         $this->assertSame('2018-12-12', $form->get('birthDate')->getData()->format('Y-m-d'));
         $this->assertSame('2018-08-06', $form->get('createdAt')->getData()->format('Y-m-d'));
         $this->assertSame('1234567', $form->get('loyaltyCardNumber')->getData());
-        $this->assertSame(true, $form->get('agreement1')->getData());
-        $this->assertSame(true, $form->get('agreement2')->getData());
-        $this->assertSame(true, $form->get('agreement3')->getData());
+        $this->assertTrue($form->get('agreement1')->getData());
+        $this->assertTrue($form->get('agreement2')->getData());
+        $this->assertTrue($form->get('agreement3')->getData());
         $this->assertSame('jone2@example.com', $form->get('referral_customer_email')->getData());
 
         $this->assertSame('address 1', $form->get('address')->get('address1')->getData());

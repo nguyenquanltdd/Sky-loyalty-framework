@@ -8,15 +8,16 @@ declare(strict_types=1);
 
 namespace OpenLoyalty\Bundle\SettingsBundle\Tests\Unit\Service;
 
-use PHPUnit_Framework_MockObject_MockObject;
+use MockObject;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\SettingsEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManager;
 use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class GeneralSettingsManagerTest.
  */
-final class GeneralSettingsManagerTest extends \PHPUnit_Framework_TestCase
+final class GeneralSettingsManagerTest extends TestCase
 {
     /**
      * @test
@@ -27,7 +28,7 @@ final class GeneralSettingsManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function it_returns_points_activation_days(string $pointsDaysExpiryMode, ?int $expected): void
     {
-        /** @var GeneralSettingsManager|PHPUnit_Framework_MockObject_MockObject $generalSettingsManager */
+        /** @var GeneralSettingsManager|MockObject $generalSettingsManager */
         $generalSettingsManager = $this->getMockBuilder(GeneralSettingsManager::class)
             ->disableOriginalConstructor()
             ->setMethodsExcept(['getPointsDaysActive'])

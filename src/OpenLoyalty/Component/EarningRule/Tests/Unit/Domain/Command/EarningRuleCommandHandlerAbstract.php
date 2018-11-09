@@ -13,11 +13,12 @@ use OpenLoyalty\Component\EarningRule\Domain\Command\EarningRuleCommandHandler;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRule;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleId;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRuleRepository;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class EarningRuleCommandHandlerAbstract.
  */
-abstract class EarningRuleCommandHandlerAbstract extends \PHPUnit_Framework_TestCase
+abstract class EarningRuleCommandHandlerAbstract extends TestCase
 {
     protected $inMemoryRepository;
 

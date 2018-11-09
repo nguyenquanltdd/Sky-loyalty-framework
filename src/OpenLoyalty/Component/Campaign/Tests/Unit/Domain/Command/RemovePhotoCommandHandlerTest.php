@@ -17,22 +17,24 @@ use OpenLoyalty\Component\Campaign\Domain\PhotoId;
 use OpenLoyalty\Component\Campaign\Domain\PhotoMimeType;
 use OpenLoyalty\Component\Campaign\Domain\PhotoOriginalName;
 use OpenLoyalty\Component\Campaign\Domain\PhotoPath;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class RemoveCampaignPhotoCommandHandlerTest.
  */
-final class RemovePhotoCommandHandlerTest extends \PHPUnit_Framework_TestCase
+final class RemovePhotoCommandHandlerTest extends TestCase
 {
     private const CAMPAIGN_ID = '000096cf-32a3-43bd-9034-4df343e5fd93';
     private const CAMPAIGN_PHOTO_ID = '00000000-0000-0000-0000-4df343e5fd93';
 
     /**
-     * @var CampaignPhotoRepositoryInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var CampaignPhotoRepositoryInterface|MockObject
      */
     private $photoRepository;
 
     /**
-     * @var EventDispatcher|\PHPUnit_Framework_MockObject_MockObject
+     * @var EventDispatcher|MockObject
      */
     private $eventDispatcher;
 

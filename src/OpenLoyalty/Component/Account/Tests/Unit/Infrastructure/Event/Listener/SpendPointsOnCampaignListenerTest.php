@@ -22,12 +22,13 @@ use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class SpendPointsOnCampaignListenerTest.
  */
-final class SpendPointsOnCampaignListenerTest extends \PHPUnit_Framework_TestCase
+final class SpendPointsOnCampaignListenerTest extends TestCase
 {
     protected $uuid = '00000000-0000-0000-0000-000000000000';
 
@@ -41,6 +42,7 @@ final class SpendPointsOnCampaignListenerTest extends \PHPUnit_Framework_TestCas
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
     public function it_spend_points_when_customer_bought_campaign(): void
     {
@@ -84,9 +86,9 @@ final class SpendPointsOnCampaignListenerTest extends \PHPUnit_Framework_TestCas
     /**
      * @param $expected
      *
-     * @return PHPUnit_Framework_MockObject_MockObject|CommandBus
+     * @return MockObject|CommandBus
      */
-    protected function getCommandBus($expected): PHPUnit_Framework_MockObject_MockObject
+    protected function getCommandBus($expected): MockObject
     {
         $mock = $this->getMockBuilder(CommandBus::class)->getMock();
         $mock->method('dispatch')->with($this->equalTo($expected));

@@ -8,11 +8,12 @@ namespace OpenLoyalty\Bundle\SettingsBundle\Tests\Unit\Service;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\SettingsBundle\Service\TemplateProvider;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class TemplateProviderTest.
  */
-class TemplateProviderTest extends \PHPUnit_Framework_TestCase
+class TemplateProviderTest extends TestCase
 {
     /**
      * @test

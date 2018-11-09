@@ -21,12 +21,13 @@ use OpenLoyalty\Component\Account\Domain\TransactionId;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerSystemEvents;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
 use OpenLoyalty\Component\Account\Infrastructure\EarningRuleApplier;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class BaseApplyEarningRuleListenerTest.
  */
-abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestCase
+abstract class BaseApplyEarningRuleListenerTest extends TestCase
 {
     /**
      * @var string
@@ -34,9 +35,9 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
     protected $uuid = '00000000-0000-0000-0000-000000000000';
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject|UuidGeneratorInterface
+     * @return MockObject|UuidGeneratorInterface
      */
-    protected function getUuidGenerator(): PHPUnit_Framework_MockObject_MockObject
+    protected function getUuidGenerator(): MockObject
     {
         $mock = $this->getMockBuilder(UuidGeneratorInterface::class)->getMock();
         $mock->method('generate')->willReturn($this->uuid);
@@ -45,9 +46,9 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
     }
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject|Repository
+     * @return MockObject|Repository
      */
-    protected function getAccountDetailsRepository(): PHPUnit_Framework_MockObject_MockObject
+    protected function getAccountDetailsRepository(): MockObject
     {
         $account = $this->getMockBuilder(AccountDetails::class)->disableOriginalConstructor()->getMock();
         $account->method('getAccountId')->willReturn(new AccountId($this->uuid));
@@ -64,7 +65,7 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
      * @param string|null        $comment
      * @param TransactionId|null $transactionId
      *
-     * @return PHPUnit_Framework_MockObject_MockObject|PointsTransfersManager
+     * @return MockObject|PointsTransfersManager
      */
     protected function getPointsTransfersManager($value = 10, $duration = 0, $comment = null, TransactionId $transactionId = null)
     {
@@ -89,9 +90,9 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
     /**
      * @param $expected
      *
-     * @return PHPUnit_Framework_MockObject_MockObject|CommandBus
+     * @return MockObject|CommandBus
      */
-    protected function getCommandBus($expected): PHPUnit_Framework_MockObject_MockObject
+    protected function getCommandBus($expected): MockObject
     {
         $mock = $this->getMockBuilder(CommandBus::class)->getMock();
         $mock->method('dispatch')->with($this->equalTo($expected));
@@ -102,9 +103,9 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
     /**
      * @param $returnValue
      *
-     * @return PHPUnit_Framework_MockObject_MockObject|EarningRuleApplier
+     * @return MockObject|EarningRuleApplier
      */
-    protected function getApplierForEvent($returnValue): PHPUnit_Framework_MockObject_MockObject
+    protected function getApplierForEvent($returnValue): MockObject
     {
         $mock = $this->getMockBuilder(EarningRuleApplier::class)->getMock();
         $mock->method('evaluateEventWithContext')->with($this->logicalOr(
@@ -122,9 +123,9 @@ abstract class BaseApplyEarningRuleListenerTest extends \PHPUnit_Framework_TestC
     /**
      * @param $returnValue
      *
-     * @return PHPUnit_Framework_MockObject_MockObject|EarningRuleApplier
+     * @return MockObject|EarningRuleApplier
      */
-    protected function getApplierForTransaction($returnValue): PHPUnit_Framework_MockObject_MockObject
+    protected function getApplierForTransaction($returnValue): MockObject
     {
         $mock = $this->getMockBuilder(EarningRuleApplier::class)->getMock();
         $mock->method('evaluateTransaction')->with($this->isInstanceOf(TransactionId::class))

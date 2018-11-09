@@ -5,33 +5,35 @@
  */
 declare(strict_types=1);
 
-namespace OpenLoyalty\Bundle\CampaignBundle\Service;
+namespace OpenLoyalty\Bundle\CampaignBundle\Tests\Unit\Service;
 
 use Gaufrette\File;
 use Gaufrette\Filesystem;
+use OpenLoyalty\Bundle\CampaignBundle\Service\CampaignPhotoContentGenerator;
 use OpenLoyalty\Component\Campaign\Domain\Entity\CampaignPhoto;
 use OpenLoyalty\Component\Campaign\Domain\PhotoMimeType;
 use OpenLoyalty\Component\Campaign\Domain\PhotoPath;
 use OpenLoyalty\Component\Campaign\Domain\Repository\CampaignPhotoRepositoryInterface;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class CampaignPhotoContentGeneratorTest.
  */
-final class CampaignPhotoContentGeneratorTest extends \PHPUnit_Framework_TestCase
+final class CampaignPhotoContentGeneratorTest extends TestCase
 {
     private const PHOTO_ID = '00000000-0000-0000-0000-000000000001';
 
     private const CAMPAIGN_ID = '000096cf-32a3-43bd-9034-4df343e5fd93';
 
     /**
-     * @var Filesystem|PHPUnit_Framework_MockObject_MockObject
+     * @var Filesystem|MockObject
      */
     private $filesystem;
 
     /**
-     * @var CampaignPhotoRepositoryInterface|PHPUnit_Framework_MockObject_MockObject
+     * @var CampaignPhotoRepositoryInterface|MockObject
      */
     private $campaignPhotoEntity;
 
@@ -58,7 +60,7 @@ final class CampaignPhotoContentGeneratorTest extends \PHPUnit_Framework_TestCas
      */
     public function it_return_response_with_photo_content(): void
     {
-        /** @var CampaignPhotoRepositoryInterface|PHPUnit_Framework_MockObject_MockObject $photoRepository */
+        /** @var CampaignPhotoRepositoryInterface|MockObject $photoRepository */
         $photoRepository = $this->createMock(CampaignPhotoRepositoryInterface::class);
         $photoRepository->method('findOneByIdCampaignId')->willReturn($this->campaignPhotoEntity);
 
@@ -72,7 +74,7 @@ final class CampaignPhotoContentGeneratorTest extends \PHPUnit_Framework_TestCas
      */
     public function it_return_404_response_when_file_not_found(): void
     {
-        /** @var CampaignPhotoRepositoryInterface|PHPUnit_Framework_MockObject_MockObject $photoRepository */
+        /** @var CampaignPhotoRepositoryInterface|MockObject $photoRepository */
         $photoRepository = $this->createMock(CampaignPhotoRepositoryInterface::class);
         $photoRepository->method('findOneByIdCampaignId')->willReturn(null);
 

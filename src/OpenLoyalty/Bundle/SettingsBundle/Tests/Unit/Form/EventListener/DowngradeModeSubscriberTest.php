@@ -11,6 +11,7 @@ namespace OpenLoyalty\Bundle\SettingsBundle\Tests\Unit\Form\EventListener;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Form\EventListener\DowngradeModeSubscriber;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormInterface;
@@ -21,7 +22,7 @@ use Symfony\Component\Form\FormInterface;
 final class DowngradeModeSubscriberTest extends TestCase
 {
     /**
-     * @var FormInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var FormInterface|MockObject
      */
     private $form;
 

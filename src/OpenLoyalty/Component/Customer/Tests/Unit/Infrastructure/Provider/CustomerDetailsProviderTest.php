@@ -12,14 +12,16 @@ use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Customer\Infrastructure\Provider\CustomerDetailsProvider;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class CustomerDetailsProviderTest.
  */
-class CustomerDetailsProviderTest extends \PHPUnit_Framework_TestCase
+class CustomerDetailsProviderTest extends TestCase
 {
     /**
-     * @var CustomerDetailsRepository|\PHPUnit_Framework_MockObject_MockObject
+     * @var CustomerDetailsRepository|MockObject
      */
     private $customerDetailsRepositoryMock;
 
@@ -36,7 +38,7 @@ class CustomerDetailsProviderTest extends \PHPUnit_Framework_TestCase
      */
     public function it_provides_customer_details_for_given_customer_id(): void
     {
-        /** @var CustomerDetails|\PHPUnit_Framework_MockObject_MockObject $customerDetailsMock */
+        /** @var CustomerDetails|MockObject $customerDetailsMock */
         $customerDetailsMock = $this
             ->getMockBuilder(CustomerDetails::class)
             ->disableOriginalConstructor()
@@ -65,6 +67,6 @@ class CustomerDetailsProviderTest extends \PHPUnit_Framework_TestCase
 
         $customer = $customerDetailsProvider->getCustomerDetailsByCustomerId(new CustomerId('00000000-0000-0000-0000-000000000001'));
 
-        $this->assertSame(null, $customer);
+        $this->assertNull($customer);
     }
 }

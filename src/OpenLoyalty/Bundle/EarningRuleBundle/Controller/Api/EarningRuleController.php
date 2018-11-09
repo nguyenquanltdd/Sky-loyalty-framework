@@ -53,6 +53,21 @@ use Symfony\Component\Translation\TranslatorInterface;
 class EarningRuleController extends FOSRestController
 {
     /**
+     * @var EarningRulePhotoUploader
+     */
+    private $earningRulePhotoUploader;
+
+    /**
+     * EarningRuleController constructor.
+     *
+     * @param EarningRulePhotoUploader $earningRulePhotoUploader
+     */
+    public function __construct(EarningRulePhotoUploader $earningRulePhotoUploader)
+    {
+        $this->earningRulePhotoUploader = $earningRulePhotoUploader;
+    }
+
+    /**
      * Method allow to create new earning rule.
      *
      * @Route(name="oloy.earning_rule.create", path="/earningRule")
@@ -576,8 +591,7 @@ class EarningRuleController extends FOSRestController
      */
     public function removePhotoAction(EarningRule $earningRule, TranslatorInterface $translator)
     {
-        $uploader = $this->get('oloy.earning_rule.photo_uploader');
-        $uploader->remove($earningRule->getEarningRulePhoto());
+        $this->earningRulePhotoUploader->remove($earningRule->getEarningRulePhoto());
 
         $command = new RemoveEarningRulePhoto($earningRule->getEarningRuleId());
         try {
@@ -609,7 +623,7 @@ class EarningRuleController extends FOSRestController
         if (!$photo) {
             throw $this->createNotFoundException();
         }
-        $content = $this->get('oloy.earning_rule.photo_uploader')->get($photo);
+        $content = $this->earningRulePhotoUploader->get($photo);
         if (!$content) {
             throw $this->createNotFoundException();
         }

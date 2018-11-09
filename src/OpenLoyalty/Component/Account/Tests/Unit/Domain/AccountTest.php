@@ -25,7 +25,7 @@ use OpenLoyalty\Component\Account\Domain\Model\P2PSpendPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Model\PointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Model\SpendPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\PointsTransferId;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class AccountTest.
@@ -346,7 +346,7 @@ final class AccountTest extends AggregateRootScenarioTestCase
      */
     public function it_returns_points_transfer_by_id(): void
     {
-        /** @var Account|PHPUnit_Framework_MockObject_MockObject $account */
+        /** @var Account|MockObject $account */
         $account = $this->getMockBuilder(Account::class)
                         ->setMethodsExcept(['setPointsTransfers', 'getTransferById'])
                         ->getMock();
@@ -366,7 +366,7 @@ final class AccountTest extends AggregateRootScenarioTestCase
      */
     public function it_returns_null_when_get_points_transfer_by_id_not_exists(): void
     {
-        /** @var Account|PHPUnit_Framework_MockObject_MockObject $account */
+        /** @var Account|MockObject $account */
         $account = $this->getMockBuilder(Account::class)
                         ->setMethodsExcept(['setPointsTransfers', 'getTransferById'])
                         ->getMock();
@@ -382,9 +382,9 @@ final class AccountTest extends AggregateRootScenarioTestCase
     }
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject|PointsTransfer
+     * @return MockObject|PointsTransfer
      */
-    protected function getPointsTransferMock(): PHPUnit_Framework_MockObject_MockObject
+    protected function getPointsTransferMock(): MockObject
     {
         return $this->getMockBuilder(PointsTransfer::class)->disableOriginalConstructor()->getMock();
     }

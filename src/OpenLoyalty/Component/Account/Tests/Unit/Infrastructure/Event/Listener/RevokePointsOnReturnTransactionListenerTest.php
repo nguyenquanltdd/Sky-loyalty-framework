@@ -29,12 +29,13 @@ use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsReposit
 use OpenLoyalty\Component\Transaction\Domain\Transaction;
 use OpenLoyalty\Component\Transaction\Domain\TransactionId;
 use OpenLoyalty\Component\Account\Domain\CustomerId as AccountCustomerId;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class RevokePointsOnReturnTransactionListenerTest.
  */
-final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framework_TestCase
+final class RevokePointsOnReturnTransactionListenerTest extends TestCase
 {
     /**
      * @var string
@@ -52,22 +53,22 @@ final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framewo
     protected $documentNumber = '123';
 
     /**
-     * @var TransactionDetails|PHPUnit_Framework_MockObject_MockObject
+     * @var TransactionDetails|MockObject
      */
     protected $transaction;
 
     /**
-     * @var TransactionDetails|PHPUnit_Framework_MockObject_MockObject
+     * @var TransactionDetails|MockObject
      */
     protected $revisedTransaction;
 
     /**
-     * @var Transaction|PHPUnit_Framework_MockObject_MockObject
+     * @var Transaction|MockObject
      */
     protected $transactionAggregateRoot;
 
     /**
-     * @var Transaction|PHPUnit_Framework_MockObject_MockObject
+     * @var Transaction|MockObject
      */
     protected $revisedTransactionAggregateRoot;
 
@@ -177,9 +178,9 @@ final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framewo
     }
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject|UuidGeneratorInterface
+     * @return MockObject|UuidGeneratorInterface
      */
-    protected function getUuidGenerator(): PHPUnit_Framework_MockObject_MockObject
+    protected function getUuidGenerator(): MockObject
     {
         $mock = $this->getMockBuilder(UuidGeneratorInterface::class)->getMock();
         $mock->method('generate')->willReturn($this->uuid);
@@ -188,9 +189,9 @@ final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framewo
     }
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject|AggregateRootRepository
+     * @return MockObject|AggregateRootRepository
      */
-    protected function getTransactionRepository(): PHPUnit_Framework_MockObject_MockObject
+    protected function getTransactionRepository(): MockObject
     {
         $repository = $this->getMockBuilder(AggregateRootRepository::class)->getMock();
         $repository->method('load')->with($this->isType('string'))->willReturnCallback(function (string $id) {
@@ -208,9 +209,9 @@ final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framewo
     }
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject|TransactionDetailsRepository
+     * @return MockObject|TransactionDetailsRepository
      */
-    protected function getTransactionDetailsRepository(): PHPUnit_Framework_MockObject_MockObject
+    protected function getTransactionDetailsRepository(): MockObject
     {
         $repo = $this->getMockBuilder(TransactionDetailsRepository::class)->getMock();
         $repo->method('findBy')->with($this->arrayHasKey('documentNumberRaw'))->willReturnCallback(function ($params) {
@@ -229,9 +230,9 @@ final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framewo
      * @param      $all
      * @param null $alreadyRevoked
      *
-     * @return PHPUnit_Framework_MockObject_MockObject|PointsTransferDetailsRepository
+     * @return MockObject|PointsTransferDetailsRepository
      */
-    protected function getPointsTransferRepository($all, $alreadyRevoked = null): PHPUnit_Framework_MockObject_MockObject
+    protected function getPointsTransferRepository($all, $alreadyRevoked = null): MockObject
     {
         $repo = $this->getMockBuilder(PointsTransferDetailsRepository::class)->getMock();
         $repo->method('findBy')->with($this->arrayHasKey('type'))->will($this->returnCallback(function ($params) use ($all, $alreadyRevoked) {
@@ -266,9 +267,9 @@ final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framewo
     }
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject|Repository
+     * @return MockObject|Repository
      */
-    protected function getAccountDetailsRepository(): PHPUnit_Framework_MockObject_MockObject
+    protected function getAccountDetailsRepository(): MockObject
     {
         $account = $this->getMockBuilder(AccountDetails::class)->disableOriginalConstructor()->getMock();
         $account->method('getAccountId')->willReturn(new AccountId($this->uuid));
@@ -283,9 +284,9 @@ final class RevokePointsOnReturnTransactionListenerTest extends \PHPUnit_Framewo
      * @param $expected
      * @param $times
      *
-     * @return PHPUnit_Framework_MockObject_MockObject|CommandBus
+     * @return MockObject|CommandBus
      */
-    protected function getCommandBus($expected, $times): PHPUnit_Framework_MockObject_MockObject
+    protected function getCommandBus($expected, $times): MockObject
     {
         $mock = $this->getMockBuilder(CommandBus::class)->getMock();
         $mock->expects($this->exactly($times))->method('dispatch')->with($this->equalTo($expected, 2));

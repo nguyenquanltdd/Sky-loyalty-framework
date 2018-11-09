@@ -15,6 +15,7 @@ use Broadway\EventStore\EventStore;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Component\Account\Domain\AccountRepository;
 use OpenLoyalty\Component\Account\Domain\Command\AccountCommandHandler;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class AccountCommandHandlerTest.
@@ -40,7 +41,7 @@ abstract class AccountCommandHandlerTest extends CommandHandlerScenarioTestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|UuidGeneratorInterface
+     * @return MockObject|UuidGeneratorInterface
      */
     protected function getUuidGenerator()
     {

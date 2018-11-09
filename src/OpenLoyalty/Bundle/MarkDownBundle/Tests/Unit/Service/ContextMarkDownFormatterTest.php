@@ -9,11 +9,12 @@ use OpenLoyalty\Bundle\MarkDownBundle\Service\ContextMarkDownFormatter;
 use OpenLoyalty\Bundle\MarkDownBundle\Service\ContextProvider;
 use OpenLoyalty\Component\MarkDown\Infrastructure\MarkDownParser;
 use OpenLoyalty\Component\MarkDown\Infrastructure\ParseDownParser;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ContextMarkDownFormatterTest.
  */
-class ContextMarkDownFormatterTest extends \PHPUnit_Framework_TestCase
+class ContextMarkDownFormatterTest extends TestCase
 {
     /**
      * @test

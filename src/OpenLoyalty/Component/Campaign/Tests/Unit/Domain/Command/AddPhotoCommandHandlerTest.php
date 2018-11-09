@@ -14,34 +14,36 @@ use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\Factory\PhotoEntityFactory;
 use OpenLoyalty\Component\Campaign\Domain\Repository\CampaignPhotoRepositoryInterface;
 use OpenLoyalty\Component\Campaign\Domain\Repository\CampaignRepositoryInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * Class AddPhotoCommandHandlerTest.
  */
-class AddPhotoCommandHandlerTest extends \PHPUnit_Framework_TestCase
+class AddPhotoCommandHandlerTest extends TestCase
 {
     private const CAMPAIGN_ID = '000096cf-32a3-43bd-9034-4df343e5fd93';
 
     private const CAMPAIGN_PHOTO_ID = '00000000-0000-0000-0000-4df343e5fd93';
 
     /**
-     * @var CampaignRepositoryInterface | \PHPUnit_Framework_MockObject_MockObject
+     * @var CampaignRepositoryInterface | MockObject
      */
     private $campaignRepository;
 
     /**
-     * @var EventDispatcher | \PHPUnit_Framework_MockObject_MockObject
+     * @var EventDispatcher | MockObject
      */
     private $eventDispatcher;
 
     /**
-     * @var CampaignPhotoRepositoryInterface | \PHPUnit_Framework_MockObject_MockObject
+     * @var CampaignPhotoRepositoryInterface | MockObject
      */
     private $photoRepository;
 
     /**
-     * @var UuidGeneratorInterface | \PHPUnit_Framework_MockObject_MockObject
+     * @var UuidGeneratorInterface | MockObject
      */
     private $uuidGenerator;
 

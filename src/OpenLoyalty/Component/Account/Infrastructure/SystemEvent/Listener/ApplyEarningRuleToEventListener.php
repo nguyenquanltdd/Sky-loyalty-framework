@@ -86,7 +86,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
                 $this->commandBus->dispatch(
                     new AddPoints(
                         $account->getAccountId(),
-                        $this->pointsTransferManager->createAddPointsTransferInstance(
+                        $this->pointsTransfersManager->createAddPointsTransferInstance(
                             new PointsTransferId($this->uuidGenerator->generate()),
                             $evaluationResult->getPoints(),
                             null,
@@ -154,7 +154,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
                 $this->commandBus->dispatch(
                     new AddPoints(
                         $account->getAccountId(),
-                        $this->pointsTransferManager->createAddPointsTransferInstance(
+                        $this->pointsTransfersManager->createAddPointsTransferInstance(
                             new PointsTransferId($this->uuidGenerator->generate()),
                             $evaluationResult->getPoints(),
                             null,
@@ -194,7 +194,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
         }
 
         $this->commandBus->dispatch(
-            new AddPoints($account->getAccountId(), $this->pointsTransferManager->createAddPointsTransferInstance(
+            new AddPoints($account->getAccountId(), $this->pointsTransfersManager->createAddPointsTransferInstance(
                 new PointsTransferId($this->uuidGenerator->generate()),
                 $result->getPoints(),
                 null,
@@ -220,7 +220,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
             $this->commandBus->dispatch(
                 new AddPoints(
                     $event->getAccountId(),
-                    $this->pointsTransferManager->createAddPointsTransferInstance(
+                    $this->pointsTransfersManager->createAddPointsTransferInstance(
                         new PointsTransferId($this->uuidGenerator->generate()),
                         $result['points'],
                         null,
@@ -260,7 +260,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
             $this->commandBus->dispatch(
                 new AddPoints(
                     $account->getAccountId(),
-                    $this->pointsTransferManager->createAddPointsTransferInstance(
+                    $this->pointsTransfersManager->createAddPointsTransferInstance(
                         new PointsTransferId($this->uuidGenerator->generate()),
                         $result['points'],
                         null,
@@ -297,7 +297,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
         $this->commandBus->dispatch(
             new AddPoints(
                 $account->getAccountId(),
-                $this->pointsTransferManager->createAddPointsTransferInstance(
+                $this->pointsTransfersManager->createAddPointsTransferInstance(
                     new PointsTransferId($this->uuidGenerator->generate()),
                     $result['points'],
                     null,
@@ -331,7 +331,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
         $this->commandBus->dispatch(
             new AddPoints(
                 $account->getAccountId(),
-                $this->pointsTransferManager->createAddPointsTransferInstance(
+                $this->pointsTransfersManager->createAddPointsTransferInstance(
                     new PointsTransferId($this->uuidGenerator->generate()),
                     $result['points'],
                     null,

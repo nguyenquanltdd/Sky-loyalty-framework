@@ -9,6 +9,7 @@ use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadAdminData;
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
@@ -16,7 +17,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 /**
  * Class BaseVoterTest.
  */
-abstract class BaseVoterTest extends \PHPUnit_Framework_TestCase
+abstract class BaseVoterTest extends TestCase
 {
     protected const USER_ID = '00000000-0000-474c-b092-b0dd880c07e1';
 

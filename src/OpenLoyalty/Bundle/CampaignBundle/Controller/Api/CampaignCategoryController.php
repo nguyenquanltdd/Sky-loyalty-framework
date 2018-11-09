@@ -207,7 +207,7 @@ class CampaignCategoryController extends FOSRestController
             try {
                 $campaignCategoryId = new CampaignCategoryId($this->uuidGenerator->generate());
             } catch (AssertionFailedException $ex) {
-                return $this->view(['error' => $this->translator('Invalid identifier')], Response::HTTP_BAD_REQUEST);
+                return $this->view(['error' => $this->translator->trans('Invalid identifier')], Response::HTTP_BAD_REQUEST);
             }
 
             $campaignCategory = $form->getData();
@@ -292,7 +292,7 @@ class CampaignCategoryController extends FOSRestController
         $activate = $request->request->get('active', null);
         if (null === $activate) {
             return $this->view(
-                ['active' => $this->translator('this field is required')],
+                ['active' => $this->translator->trans('this field is required')],
                 Response::HTTP_BAD_REQUEST
             );
         }
