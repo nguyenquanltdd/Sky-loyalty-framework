@@ -119,6 +119,7 @@ class CustomerDetailsProjector extends Projector
             if ($level) {
                 $levelDetails = new LevelDetails($level->getLevelId());
                 $levelDetails->setName($level->getName());
+                $levelDetails->setTranslations($level->getTranslations());
                 $customer->setLevel($levelDetails);
             }
         }

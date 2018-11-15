@@ -87,7 +87,7 @@ class Level
      */
     public function getIdAsString(): string
     {
-        return $this->levelId->__toString();
+        return (string) $this->levelId;
     }
 
     /**

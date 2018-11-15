@@ -253,13 +253,21 @@ class CustomerController extends FOSRestController
 
         $total = $customerDetailsRepository->countTotal($params, $request->get('strict', false));
 
-        return $this->view(
+        $view = $this->view(
             [
                 'customers' => $customers,
                 'total' => $total,
             ],
             Response::HTTP_OK
         );
+
+        $context = new Context();
+        $context->addGroup('Default');
+        $context->setAttribute('locale', $request->getLocale());
+
+        $view->setContext($context);
+
+        return $view;
     }
 
     /**
@@ -275,10 +283,11 @@ class CustomerController extends FOSRestController
      * )
      *
      * @param CustomerDetails $customer
+     * @param Request         $request
      *
      * @return View
      */
-    public function getCustomerAction(CustomerDetails $customer): View
+    public function getCustomerAction(CustomerDetails $customer, Request $request): View
     {
         $view = $this->view($customer, Response::HTTP_OK);
 
@@ -302,6 +311,7 @@ class CustomerController extends FOSRestController
         $context = new Context();
         $context->addGroup('Default');
         $context->setAttribute('customerSegments', $segments);
+        $context->setAttribute('locale', $request->getLocale());
 
         $view->setContext($context);
 

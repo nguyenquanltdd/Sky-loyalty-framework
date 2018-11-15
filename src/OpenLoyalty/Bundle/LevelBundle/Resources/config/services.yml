@@ -50,3 +50,8 @@ services:
   OpenLoyalty\Bundle\LevelBundle\Form\Type\LevelFormType:
     tags:
       - { name: form.type }
+
+  OpenLoyalty\Bundle\LevelBundle\EventListener\LevelSerializationListener:
+    public: true
+    tags:
+      - { name: jms_serializer.event_subscriber }

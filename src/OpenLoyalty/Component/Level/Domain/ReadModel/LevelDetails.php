@@ -6,7 +6,10 @@
 namespace OpenLoyalty\Component\Level\Domain\ReadModel;
 
 use Broadway\ReadModel\SerializableReadModel;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use OpenLoyalty\Component\Level\Domain\LevelId;
+use OpenLoyalty\Component\Level\Domain\LevelTranslation;
 
 /**
  * Class LevelDetails.
@@ -22,6 +25,11 @@ class LevelDetails implements SerializableReadModel
      * @var string
      */
     protected $name;
+
+    /**
+     * @var array
+     */
+    protected $translations = [];
 
     /**
      * LevelDetails constructor.
@@ -44,6 +52,9 @@ class LevelDetails implements SerializableReadModel
         if (!empty($data['name'])) {
             $level->setName($data['name']);
         }
+        if (!empty($data['translations'])) {
+            $level->translations = $data['translations'];
+        }
 
         return $level;
     }
@@ -54,8 +65,9 @@ class LevelDetails implements SerializableReadModel
     public function serialize(): array
     {
         return [
-            'id' => $this->getLevelId()->__toString(),
+            'id' => (string) $this->getLevelId(),
             'name' => $this->getName(),
+            'translations' => $this->getTranslations() ?? [],
         ];
     }
 
@@ -92,10 +104,37 @@ class LevelDetails implements SerializableReadModel
     }
 
     /**
+     * @return array
+     */
+    public function getTranslations(): array
+    {
+        return $this->translations;
+    }
+
+    /**
+     * @param array|ArrayCollection $translations
+     */
+    public function setTranslations(iterable $translations): void
+    {
+        if ($translations instanceof Collection) {
+            $translations = $translations->toArray();
+        }
+
+        $this->translations = array_map(
+            function (LevelTranslation $level): array {
+                return [
+                    'name' => $level->getName(),
+                ];
+            },
+            $translations
+        );
+    }
+
+    /**
      * @return string
      */
     public function getId(): string
     {
-        return $this->getLevelId()->__toString();
+        return (string) $this->getLevelId();
     }
 }

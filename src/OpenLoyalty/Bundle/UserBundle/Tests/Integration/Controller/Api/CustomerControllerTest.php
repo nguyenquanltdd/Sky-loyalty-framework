@@ -950,6 +950,28 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
+    public function it_allows_to_get_customer_details_with_locale(): void
+    {
+        self::$kernel->boot();
+        $user = self::$kernel->getContainer()->get('doctrine.orm.entity_manager')
+            ->getRepository('OpenLoyaltyUserBundle:User')->findOneBy(['email' => 'user@oloy.com']);
+        $id = $user->getId();
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/customer/'.$id.'?_locale=pl'
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertEquals('poziom0', $data['level']['name']);
+    }
+
+    /**
+     * @test
+     */
     public function it_allows_to_get_customers_list(): void
     {
         $client = $this->createAuthenticatedClient();
@@ -960,6 +982,23 @@ class CustomerControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+    }
+
+    /**
+     * @test
+     */
+    public function it_allows_to_get_customers_list_with_locale(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/customer?_locale=pl'
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertEquals('poziom0', $data['customers'][0]['level']['name']);
     }
 
     /**

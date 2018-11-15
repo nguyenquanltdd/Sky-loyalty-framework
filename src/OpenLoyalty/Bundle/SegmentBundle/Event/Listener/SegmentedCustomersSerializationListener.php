@@ -35,11 +35,11 @@ class SegmentedCustomersSerializationListener implements EventSubscriberInterfac
                 return;
             }
             $details = $context->attributes->get('customersDetails')->get();
-            if (!isset($details[$segment->getCustomerId()->__toString()])) {
+            if (!isset($details[(string) $segment->getCustomerId()])) {
                 return;
             }
 
-            $details = $details[$segment->getCustomerId()->__toString()];
+            $details = $details[(string) $segment->getCustomerId()];
             $visitor = $context->getVisitor();
 
             if ($visitor instanceof GenericSerializationVisitor) {
@@ -47,7 +47,7 @@ class SegmentedCustomersSerializationListener implements EventSubscriberInterfac
                     if ($visitor->hasData($key)) {
                         continue;
                     }
-                    $visitor->addData($key, $value);
+                    $visitor->setData($key, $value);
                 }
             }
         }

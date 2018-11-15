@@ -5,12 +5,13 @@
  */
 namespace OpenLoyalty\Bundle\LevelBundle\Model;
 
+use OpenLoyalty\Component\Level\Domain\Level as BaseLevel;
 use OpenLoyalty\Component\Level\Domain\LevelTranslation;
 
 /**
  * Class Level.
  */
-class Level extends \OpenLoyalty\Component\Level\Domain\Level
+class Level extends BaseLevel
 {
     /**
      * Level constructor.

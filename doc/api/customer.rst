@@ -121,7 +121,7 @@ Definition
 
 .. code-block:: text
 
-    POST /api/admin/customer/{customer}/status
+    GET /api/admin/customer/{customer}/status
 
 +------------------------------------+----------------+-----------------------------------------------------------------------------------------------+
 | Parameter                          | Parameter type |  Description                                                                                  |
@@ -204,7 +204,7 @@ Definition
 
 .. code-block:: text
 
-    POST /api/admin/customer/{customer}/status
+    GET /api/customer
 
 +------------------------------------+----------------+------------------------------------------------------------------------+
 | Parameter                          | Parameter type |  Description                                                           |
@@ -242,6 +242,8 @@ Definition
 | sort                               | query          | *(optional)* Sort by column name                                       |
 +------------------------------------+----------------+------------------------------------------------------------------------+
 | direction                          | query          | *(optional)* Direction of sorting [ASC, DESC]                          |
++------------------------------------+----------------+------------------------------------------------------------------------+
+| _locale                            | query          | *(optional)* Retrieves data in given locale                            |
 +------------------------------------+----------------+------------------------------------------------------------------------+
 
 Example
