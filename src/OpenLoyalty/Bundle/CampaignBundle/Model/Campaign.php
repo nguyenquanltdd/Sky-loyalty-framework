@@ -102,7 +102,7 @@ class Campaign extends BaseCampaign
             return;
         }
 
-        if ($this->reward === self::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE) {
+        if ($this->reward === self::REWARD_TYPE_CUSTOM_CAMPAIGN_CODE) {
             return;
         }
 
@@ -137,7 +137,7 @@ class Campaign extends BaseCampaign
             return;
         }
 
-        if ($this->reward === self::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE) {
+        if ($this->reward === self::REWARD_TYPE_CUSTOM_CAMPAIGN_CODE) {
             return;
         }
 

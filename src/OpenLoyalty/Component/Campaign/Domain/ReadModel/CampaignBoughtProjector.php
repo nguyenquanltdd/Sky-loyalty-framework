@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -88,7 +88,10 @@ class CampaignBoughtProjector extends Projector
             $campaignId,
             new CustomerId((string) $event->getCustomerId()),
             $event->getCreatedAt(),
-            new Coupon($event->getCoupon()->getCode()),
+            new Coupon(
+                $event->getCoupon()->getCode(),
+                $event->getCoupon()->getId()
+            ),
             $campaign->getReward(),
             $campaign->getName() ?? '',
             $customer->getEmail(),
@@ -112,8 +115,8 @@ class CampaignBoughtProjector extends Projector
      * @param Coupon          $coupon
      * @param string          $couponType
      * @param string          $campaignName
-     * @param string          $customerEmail
-     * @param string          $customerPhone
+     * @param string|null     $customerEmail
+     * @param string|null     $customerPhone
      * @param string          $customerName
      * @param string          $customerLastname
      * @param int             $costInPoints
@@ -123,6 +126,7 @@ class CampaignBoughtProjector extends Projector
      * @param \DateTime|null  $activeSince
      * @param \DateTime|null  $activeTo
      * @param null|Identifier $transactionId
+     *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     private function storeCampaignUsages(
@@ -177,7 +181,8 @@ class CampaignBoughtProjector extends Projector
 
         foreach ($campaigns as $campaign) {
             if ((string) $campaign->getCampaignId() === (string) $event->getCampaignId()
-                && $campaign->getCoupon()->getCode() === $event->getCoupon()->getCode()) {
+                && $campaign->getCoupon()->getCode() === $event->getCoupon()->getCode()
+                && $campaign->getCoupon()->getId() === $event->getCoupon()->getId()) {
                 $campaign->setUsed($event->isUsed());
                 $campaign->setUsedForTransactionId($event->getTransactionId() ? new TransactionId((string) $event->getTransactionId()) : null);
                 $this->repository->save($campaign);
@@ -207,13 +212,13 @@ class CampaignBoughtProjector extends Projector
     {
         $campaigns = $this->campaignBoughtRepository->findByCustomerId((string) $event->getCustomerId());
         $campaignId = (string) $event->getCampaignId();
-        $coupon = $event->getCoupon()->getCode();
         $transactionId = $event->getTransactionId() ? (string) $event->getTransactionId() : null;
 
         foreach ($campaigns as $campaign) {
             if ((string) $campaign->getCampaignId() === $campaignId
                 && ($campaign->getTransactionId() ? (string) $campaign->getTransactionId() : null) === $transactionId
-                && $campaign->getCoupon()->getCode() === $coupon) {
+                && $campaign->getCoupon()->getCode() === $event->getCoupon()->getCode()
+                && $campaign->getCoupon()->getId() === $event->getCoupon()->getId()) {
                 $campaign->setStatus($event->getStatus());
                 $this->repository->save($campaign);
 

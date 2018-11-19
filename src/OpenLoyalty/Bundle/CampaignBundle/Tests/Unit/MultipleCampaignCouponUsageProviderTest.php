@@ -23,6 +23,7 @@ class MultipleCampaignCouponUsageProviderTest extends TestCase
     private const CUSTOMER_ID = '00000000-0000-0000-0000-000000000000';
     private const CAMPAIGN_ID = '00000000-0000-0000-0000-000000000001';
     private const COUPON_CODE = 'test';
+    private const COUPON_ID = '00000000-0000-0000-0000-000000000002';
 
     /**
      * @var MultipleCampaignCouponUsageProvider
@@ -41,7 +42,7 @@ class MultipleCampaignCouponUsageProviderTest extends TestCase
             new \DateTime(),
             1,
             new CustomerCampaignId(self::CAMPAIGN_ID),
-            new Coupon(self::COUPON_CODE),
+            new Coupon(self::COUPON_ID, self::COUPON_CODE),
             Campaign::REWARD_TYPE_DISCOUNT_CODE
         ));
         $campaign = new Campaign(new CampaignId(self::CAMPAIGN_ID));
@@ -74,11 +75,12 @@ class MultipleCampaignCouponUsageProviderTest extends TestCase
         $result = $this->service->validateRequest(
             [
                 'coupons' => [
-                        'campaignId' => self::CAMPAIGN_ID,
-                        'customerId' => self::CUSTOMER_ID,
-                        'used' => true,
-                        'code' => self::COUPON_CODE,
-                    ],
+                    'campaignId' => self::CAMPAIGN_ID,
+                    'customerId' => self::CUSTOMER_ID,
+                    'used' => true,
+                    'code' => self::COUPON_CODE,
+                    'couponId' => self::COUPON_ID,
+                ],
             ]
         );
 
@@ -93,10 +95,11 @@ class MultipleCampaignCouponUsageProviderTest extends TestCase
         $result = $this->service->validateRequestForCustomer(
             [
                 'coupons' => [
-                        'campaignId' => self::CAMPAIGN_ID,
-                        'used' => true,
-                        'code' => self::COUPON_CODE,
-                    ],
+                    'campaignId' => self::CAMPAIGN_ID,
+                    'used' => true,
+                    'code' => self::COUPON_CODE,
+                    'couponId' => self::COUPON_ID,
+                ],
             ],
             $this->customer
         );

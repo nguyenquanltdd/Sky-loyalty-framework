@@ -55,9 +55,18 @@ class CampaignValidator
         $this->settingsManager = $settingsManager;
     }
 
+    /**
+     * @param Campaign   $campaign
+     * @param CustomerId $customerId
+     * @param int        $quantity
+     *
+     * @throws CampaignLimitExceededException
+     * @throws CampaignLimitPerCustomerExceededException
+     * @throws NoCouponsLeftException
+     */
     public function validateCampaignLimits(Campaign $campaign, CustomerId $customerId, int $quantity = 1): void
     {
-        if ($campaign->isPercentageDiscountCode()) {
+        if ($campaign->isPercentageDiscountCode() || $campaign->isCustomReward()) {
             return;
         }
         if ($campaign->isCashback()) {
@@ -85,7 +94,12 @@ class CampaignValidator
         }
     }
 
-    public function checkIfCustomerStatusIsAllowed(Status $customerStatus)
+    /**
+     * @param Status $customerStatus
+     *
+     * @throws NotAllowedException
+     */
+    public function checkIfCustomerStatusIsAllowed(Status $customerStatus): void
     {
         if (null === $customerStatus || !in_array($customerStatus->getType(), $this->getCustomerSpendingStatuses())) {
             throw new NotAllowedException();

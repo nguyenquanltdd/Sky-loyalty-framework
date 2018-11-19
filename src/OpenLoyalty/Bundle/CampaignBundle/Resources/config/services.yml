@@ -35,12 +35,11 @@ services:
             - { name: request.param_converter, priority: 2, converter: campaign_converter }
     OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider:
         arguments:
-            - '@oloy.segment.read_model.repository.segmented_customers'
-            - '@oloy.user.read_model.repository.customers_belonging_to_one_level'
-            - '@oloy.campaign.read_model.repository.coupon_usage'
-            - '@OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator'
-            - '@oloy.campaign.read_model.repository.campaign_usage'
-            - '@oloy.campaign.repository'
+            $segmentedCustomersRepository: '@oloy.segment.read_model.repository.segmented_customers'
+            $customerBelongingToOneLevelRepository: '@oloy.user.read_model.repository.customers_belonging_to_one_level'
+            $couponUsageRepository: '@oloy.campaign.read_model.repository.coupon_usage'
+            $campaignValidator: '@OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator'
+            $campaignRepository: '@oloy.campaign.repository'
 
     OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator:
         arguments:
@@ -55,13 +54,12 @@ services:
             - '@oloy.campaign.repository'
     OpenLoyalty\Bundle\CampaignBundle\Event\Listener\CampaignSerializationListener:
         arguments:
-            - '@OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator'
-            - '@oloy.segment.repository'
-            - '@oloy.level.repository'
-            - '@oloy.campaign.read_model.repository.coupon_usage'
-            - '@OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider'
-            - '@oloy.campaign.read_model.repository.campaign_usage'
-            - '@oloy.customer_status_provider'
+            $campaignValidator: '@OpenLoyalty\Bundle\CampaignBundle\Service\CampaignValidator'
+            $segmentRepository: '@oloy.segment.repository'
+            $levelRepository: '@oloy.level.repository'
+            $couponUsageRepository: '@oloy.campaign.read_model.repository.coupon_usage'
+            $campaignProvider: '@OpenLoyalty\Bundle\CampaignBundle\Service\CampaignProvider'
+            $customerStatusProvider: '@oloy.customer_status_provider'
         tags:
             - { name: jms_serializer.event_subscriber }
 

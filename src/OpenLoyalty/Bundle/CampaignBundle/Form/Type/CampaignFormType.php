@@ -67,7 +67,7 @@ class CampaignFormType extends AbstractType
             Campaign::REWARD_TYPE_VALUE_CODE,
             Campaign::REWARD_TYPE_CASHBACK,
             Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE,
-            Campaign::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE,
+            Campaign::REWARD_TYPE_CUSTOM_CAMPAIGN_CODE,
         ];
 
         $builder->add('translations', TranslationsType::class, [
@@ -208,7 +208,9 @@ class CampaignFormType extends AbstractType
         $data = $event->getData();
         $form = $event->getForm();
 
-        if (isset($data['reward']) && $data['reward'] !== Campaign::REWARD_TYPE_CASHBACK && $data['reward'] !== Campaign::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE) {
+        if (isset($data['reward'])
+            && !in_array($data['reward'], [Campaign::REWARD_TYPE_CASHBACK, Campaign::REWARD_TYPE_CUSTOM_CAMPAIGN_CODE])
+        ) {
             $this->addValidityFields($form);
         }
 
@@ -218,7 +220,7 @@ class CampaignFormType extends AbstractType
                 'required' => true,
                 'constraints' => [new NotBlank()],
             ]);
-        } elseif (isset($data['reward']) && $data['reward'] === Campaign::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE) {
+        } elseif (isset($data['reward']) && $data['reward'] === Campaign::REWARD_TYPE_CUSTOM_CAMPAIGN_CODE) {
             $form->add('connectType', ChoiceType::class, [
                 'choices' => array_combine($connectTypes, $connectTypes),
                 'required' => true,

@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -35,6 +35,15 @@ class CampaignUsageWasChanged extends CustomerEvent
      */
     private $transactionId;
 
+    /**
+     * CampaignUsageWasChanged constructor.
+     *
+     * @param CustomerId         $customerId
+     * @param CampaignId         $campaignId
+     * @param Coupon             $coupon
+     * @param bool               $used
+     * @param null|TransactionId $transactionId
+     */
     public function __construct(
         CustomerId $customerId,
         CampaignId $campaignId,
@@ -60,6 +69,7 @@ class CampaignUsageWasChanged extends CustomerEvent
                 'campaignId' => $this->campaignId->__toString(),
                 'used' => $this->used,
                 'coupon' => $this->coupon->getCode(),
+                'couponId' => $this->coupon->getId(),
                 'transactionId' => $this->transactionId ? (string) $this->transactionId : null,
             ]
         );
@@ -73,7 +83,7 @@ class CampaignUsageWasChanged extends CustomerEvent
         return new self(
             new CustomerId($data['customerId']),
             new CampaignId($data['campaignId']),
-            new Coupon($data['coupon']),
+            new Coupon($data['couponId'], $data['coupon']),
             $data['used'],
             isset($data['transactionId']) ? new TransactionId($data['transactionId']) : null
         );
@@ -82,7 +92,7 @@ class CampaignUsageWasChanged extends CustomerEvent
     /**
      * @return CampaignId
      */
-    public function getCampaignId()
+    public function getCampaignId(): CampaignId
     {
         return $this->campaignId;
     }
@@ -90,7 +100,7 @@ class CampaignUsageWasChanged extends CustomerEvent
     /**
      * @return bool
      */
-    public function isUsed()
+    public function isUsed(): bool
     {
         return $this->used;
     }
@@ -98,7 +108,7 @@ class CampaignUsageWasChanged extends CustomerEvent
     /**
      * @return Coupon
      */
-    public function getCoupon()
+    public function getCoupon(): Coupon
     {
         return $this->coupon;
     }

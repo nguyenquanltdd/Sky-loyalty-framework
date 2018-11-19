@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -328,12 +328,14 @@ class CustomerDetailsProjector extends Projector
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
         $campaignId = (string) $event->getCampaignId();
+        $couponId = $event->getCoupon()->getId();
         $coupon = $event->getCoupon()->getCode();
         $transactionId = $event->getTransactionId();
 
         foreach ($readModel->getCampaignPurchases() as $purchase) {
             if ((string) $purchase->getCampaignId() === $campaignId
                 && $purchase->getCoupon()->getCode() === $coupon
+                && $purchase->getCoupon()->getId() === $couponId
                 && $event->isUsed() !== $purchase->isUsed()) {
                 $purchase->setUsed($event->isUsed());
                 $purchase->setUsedForTransactionId($transactionId);
@@ -372,13 +374,15 @@ class CustomerDetailsProjector extends Projector
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
         $campaignId = (string) $event->getCampaignId();
+        $couponId = $event->getCoupon()->getId();
         $coupon = $event->getCoupon()->getCode();
         $transactionId = $event->getTransactionId() ? (string) $event->getTransactionId() : null;
 
         foreach ($readModel->getCampaignPurchases() as $purchase) {
             if ((string) $purchase->getCampaignId() === $campaignId
                 && ($purchase->getTransactionId() ? (string) $purchase->getTransactionId() : null) === $transactionId
-                && $purchase->getCoupon()->getCode() === $coupon) {
+                && $purchase->getCoupon()->getCode() === $coupon
+                && $purchase->getCoupon()->getId() === $couponId) {
                 $purchase->setStatus($event->getStatus());
                 $this->repository->save($readModel);
 

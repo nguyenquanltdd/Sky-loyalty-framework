@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -87,7 +87,8 @@ class SetCouponsAsExpiredCommand extends Command
         /** @var CustomerDetails $customer */
         foreach ($customers as $customer) {
             /** @var CampaignPurchase $campaignPurchase */
-            foreach ($customer->getCampaignPurchases() as $campaignPurchase) {
+            $campaignPurchases = $customer->getCampaignPurchases();
+            foreach ($campaignPurchases as $campaignPurchase) {
                 if ($campaignPurchase->getStatus() === CampaignPurchase::STATUS_ACTIVE
                     && $campaignPurchase->isUsed() === false
                     && $campaignPurchase->getActiveTo()
@@ -103,8 +104,9 @@ class SetCouponsAsExpiredCommand extends Command
 
                     $this->logger->info('coupon activated '.$campaignPurchase->getCoupon()->getCode(), [
                         'campaignId' => $campaignPurchase->getCampaignId()->__toString(),
-                        'customerId' => $customer->getCustomerId()->__toString(),
+                        'customerId' => (string) $customer->getCustomerId(),
                         'coupon' => $campaignPurchase->getCoupon()->getCode(),
+                        'couponId' => $campaignPurchase->getCoupon()->getId(),
                     ]);
                 }
             }

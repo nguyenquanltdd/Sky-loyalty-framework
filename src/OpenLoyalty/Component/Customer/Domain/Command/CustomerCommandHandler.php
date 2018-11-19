@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -448,7 +448,10 @@ class CustomerCommandHandler extends SimpleCommandHandler
             new CampaignId($command->getCampaignId()),
             new TransactionId($command->getTransactionId()),
             $command->getCreatedAt(),
-            new Coupon($command->getNewCoupon())
+            new Coupon(
+                $command->getCouponId(),
+                $command->getNewCoupon()
+            )
         );
         $this->repository->save($customer);
     }

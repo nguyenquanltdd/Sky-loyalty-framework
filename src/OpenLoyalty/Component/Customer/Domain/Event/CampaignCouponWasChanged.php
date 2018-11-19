@@ -75,6 +75,7 @@ class CampaignCouponWasChanged extends CustomerEvent
                 'transactionId' => $this->transactionId->__toString(),
                 'createdAt' => $this->createdAt->getTimestamp(),
                 'newCoupon' => $this->newCoupon->getCode(),
+                'couponId' => $this->newCoupon->getId(),
             ]
         );
     }
@@ -92,7 +93,7 @@ class CampaignCouponWasChanged extends CustomerEvent
             new CampaignId($data['campaignId']),
             new TransactionId($data['transactionId']),
             $createdAt,
-            new Coupon($data['newCoupon'])
+            new Coupon($data['couponId'], $data['newCoupon'])
         );
     }
 

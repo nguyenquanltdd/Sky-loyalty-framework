@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -298,17 +298,37 @@ class Customer extends EventSourcedAggregateRoot
      * @param CampaignId $campaignId
      * @param $campaignName
      * @param $costInPoints
-     * @param Coupon $coupon
-     * @param $reward
+     * @param Coupon          $coupon
+     * @param string          $reward
      * @param string          $status
      * @param \DateTime|null  $activeSince
      * @param \DateTime|null  $activeTo
      * @param null|Identifier $transactionId
      */
-    public function buyCampaign(CampaignId $campaignId, $campaignName, $costInPoints, Coupon $coupon, $reward, string $status, ?\DateTime $activeSince, ?\DateTime $activeTo, ?Identifier $transactionId): void
-    {
+    public function buyCampaign(
+        CampaignId $campaignId,
+        $campaignName,
+        $costInPoints,
+        Coupon $coupon,
+        string $reward,
+        string $status,
+        ?\DateTime $activeSince,
+        ?\DateTime $activeTo,
+        ?Identifier $transactionId
+    ): void {
         $this->apply(
-            new CampaignWasBoughtByCustomer($this->getId(), $campaignId, $campaignName, $costInPoints, $coupon, $reward, $status, $activeSince, $activeTo, $transactionId)
+            new CampaignWasBoughtByCustomer(
+                $this->getId(),
+                $campaignId,
+                $campaignName,
+                $costInPoints,
+                $coupon,
+                $reward,
+                $status,
+                $activeSince,
+                $activeTo,
+                $transactionId
+            )
         );
     }
 

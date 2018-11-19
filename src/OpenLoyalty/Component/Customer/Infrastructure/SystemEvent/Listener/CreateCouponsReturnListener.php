@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener;
 
 use Broadway\CommandHandling\CommandBus;
+use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBought;
@@ -48,23 +49,31 @@ class CreateCouponsReturnListener
     private $campaignRepository;
 
     /**
+     * @var UuidGeneratorInterface
+     */
+    private $uuidGenerator;
+
+    /**
      * CreateCouponsReturnListener constructor.
      *
      * @param TransactionDetailsRepository $transactionDetailsRepository
      * @param CampaignBoughtRepository     $campaignBoughtRepository
      * @param CommandBus                   $commandBus
      * @param CampaignRepository           $campaignRepository
+     * @param UuidGeneratorInterface       $uuidGenerator
      */
     public function __construct(
         TransactionDetailsRepository $transactionDetailsRepository,
         CampaignBoughtRepository $campaignBoughtRepository,
         CommandBus $commandBus,
-        CampaignRepository $campaignRepository
+        CampaignRepository $campaignRepository,
+        UuidGeneratorInterface $uuidGenerator
     ) {
         $this->transactionDetailsRepository = $transactionDetailsRepository;
         $this->campaignBoughtRepository = $campaignBoughtRepository;
         $this->commandBus = $commandBus;
         $this->campaignRepository = $campaignRepository;
+        $this->uuidGenerator = $uuidGenerator;
     }
 
     /**
@@ -118,6 +127,10 @@ class CreateCouponsReturnListener
         }
     }
 
+    /**
+     * @param string $transactionId
+     * @param array  $purchases
+     */
     private function returnAllCoupons(string $transactionId, array $purchases): void
     {
         foreach ($purchases as $purchase) {
@@ -133,7 +146,10 @@ class CreateCouponsReturnListener
                     new CampaignId((string) $purchase->getCampaignId()),
                     $campaign->getName(),
                     0,
-                    new Coupon((string) $availableAmount),
+                    new Coupon(
+                        $this->uuidGenerator->generate(),
+                        (string) $availableAmount
+                    ),
                     $campaign->getReward(),
                     new TransactionId($transactionId),
                     $purchase->getId(),
@@ -172,7 +188,10 @@ class CreateCouponsReturnListener
                     new CampaignId((string) $purchase->getCampaignId()),
                     $campaign->getName(),
                     0,
-                    new Coupon((string) $couponValue),
+                    new Coupon(
+                        $this->uuidGenerator->generate(),
+                        (string) $couponValue
+                    ),
                     $campaign->getReward(),
                     new TransactionId($transactionId),
                     $purchase->getId(),

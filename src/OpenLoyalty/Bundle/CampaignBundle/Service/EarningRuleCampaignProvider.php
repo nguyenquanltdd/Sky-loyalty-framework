@@ -9,6 +9,7 @@ use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\Coupon\CouponCodeProvider;
+use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository;
 
 /**
@@ -105,12 +106,12 @@ class EarningRuleCampaignProvider implements EarningRuleCampaignProviderInterfac
     /**
      * {@inheritdoc}
      */
-    public function getNewCouponCodeForDiscountPercentageCode(string $campaignId, float $transactionValue): ?string
+    public function getNewCouponCodeForDiscountPercentageCode(string $campaignId, float $transactionValue): Coupon
     {
         $campaign = $this->findCampaign($campaignId);
 
         $coupon = $this->couponCodeProvider->getCoupon($campaign, $transactionValue);
 
-        return $coupon ? $coupon->getCode() : null;
+        return $coupon;
     }
 }

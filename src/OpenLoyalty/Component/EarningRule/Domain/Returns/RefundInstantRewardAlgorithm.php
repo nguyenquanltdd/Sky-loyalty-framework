@@ -62,26 +62,36 @@ class RefundInstantRewardAlgorithm implements RefundAlgorithmInterface
     {
         foreach ($refundContext->getCampaigns() as $campaign) {
             if ($campaign->getType() === Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE) {
-                $couponValue = $this->transactionValueProvider->getTransactionValue(new TransactionTransactionId($refundContext->getBaseTransactionId()->__toString()), true);
+                $couponValue = $this->transactionValueProvider->getTransactionValue(
+                    new TransactionTransactionId((string) $refundContext->getBaseTransactionId()),
+                    true
+                );
 
                 try {
-                    $newCouponCode = $this->earningRuleCampaignProvider->getNewCouponCodeForDiscountPercentageCode($campaign->getCampaignId()->__toString(), $couponValue);
+                    $newCouponCode = $this->earningRuleCampaignProvider->getNewCouponCodeForDiscountPercentageCode(
+                        (string) $campaign->getCampaignId(),
+                        $couponValue
+                    );
                 } catch (TooLowCouponValueException $exception) {
                     $newCouponCode = null;
                 }
-                if ($newCouponCode !== $campaign->getCoupon()->getCode()) {
-                    if ($newCouponCode === null) {
-                        $this->commandBus->dispatch(
-                            new CancelBoughtCampaign(
-                                new CustomerId($refundContext->getCustomerId()->__toString()),
-                                new CampaignId($campaign->getCampaignId()->__toString()),
-                                new Coupon($campaign->getCoupon()->getCode()),
-                                new TransactionId($refundContext->getBaseTransactionId()->__toString())
-                            )
-                        );
+                if ($newCouponCode === null ||
+                    ($newCouponCode->getCode() !== $campaign->getCoupon()->getCode() &&
+                    $newCouponCode->getId() !== $campaign->getCoupon()->getId())
+                ) {
+                    $this->commandBus->dispatch(
+                        new CancelBoughtCampaign(
+                            new CustomerId((string) $refundContext->getCustomerId()),
+                            new CampaignId((string) $campaign->getCampaignId()),
+                            new Coupon(
+                                $campaign->getCoupon()->getId(),
+                                $campaign->getCoupon()->getCode()
+                            ),
+                            new TransactionId((string) $refundContext->getBaseTransactionId())
+                        )
+                    );
 
-                        continue;
-                    }
+                    continue;
                 }
             }
         }

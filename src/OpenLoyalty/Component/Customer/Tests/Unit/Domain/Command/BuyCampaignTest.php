@@ -41,7 +41,7 @@ final class BuyCampaignTest extends CustomerCommandHandlerTest
                     $campaignId,
                     'test',
                     99,
-                    new Coupon('123'),
+                    new Coupon('1234', '123'),
                     Campaign::REWARD_TYPE_DISCOUNT_CODE,
                     CampaignPurchase::STATUS_ACTIVE,
                     null,
@@ -49,7 +49,7 @@ final class BuyCampaignTest extends CustomerCommandHandlerTest
                     )
             )
             ->then([
-                new CampaignWasBoughtByCustomer($customerId, $campaignId, 'test', 99, new Coupon('123'), Campaign::REWARD_TYPE_DISCOUNT_CODE),
+                new CampaignWasBoughtByCustomer($customerId, $campaignId, 'test', 99, new Coupon('1234', '123'), Campaign::REWARD_TYPE_DISCOUNT_CODE),
             ]);
     }
 
@@ -72,7 +72,7 @@ final class BuyCampaignTest extends CustomerCommandHandlerTest
                 $campaignId,
                 'test',
                 99,
-                new Coupon('123'),
+                new Coupon('1234', '123'),
                 Campaign::REWARD_TYPE_DISCOUNT_CODE,
                 CampaignPurchase::STATUS_INACTIVE,
                 null,
@@ -84,7 +84,7 @@ final class BuyCampaignTest extends CustomerCommandHandlerTest
                     $campaignId,
                     'test',
                     99,
-                    new Coupon('123'),
+                    new Coupon('1234', '123'),
                     Campaign::REWARD_TYPE_DISCOUNT_CODE,
                     CampaignPurchase::STATUS_INACTIVE
                 ),

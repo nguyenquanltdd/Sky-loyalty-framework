@@ -13,22 +13,37 @@ class Coupon
     /**
      * @var string
      */
-    protected $code;
+    private $id;
+
+    /**
+     * @var string
+     */
+    private $code;
 
     /**
      * Coupon constructor.
      *
+     * @param string $id
      * @param string $code
      */
-    public function __construct($code)
+    public function __construct(string $id, string $code)
     {
+        $this->id = $id;
         $this->code = $code;
     }
 
     /**
      * @return string
      */
-    public function getCode()
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCode(): string
     {
         return $this->code;
     }

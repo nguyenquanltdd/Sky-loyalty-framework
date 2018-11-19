@@ -33,7 +33,7 @@ final class ChangeBoughtCampaignStatusTest extends CustomerCommandHandlerTest
     {
         $campaignId = new CampaignId('00000000-0000-0000-0000-000000000000');
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000001');
-        $coupon = new Coupon('test');
+        $coupon = new Coupon('123', 'test');
 
         $campaignWasBoughtByCustomer = new CampaignWasBoughtByCustomer(
             $customerId,
@@ -63,7 +63,7 @@ final class ChangeBoughtCampaignStatusTest extends CustomerCommandHandlerTest
     {
         $campaignId = new CampaignId('00000000-0000-0000-0000-000000000000');
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000001');
-        $coupon = new Coupon('test');
+        $coupon = new Coupon('123', 'test');
 
         $campaignWasBoughtByCustomer = new CampaignWasBoughtByCustomer(
             $customerId,
@@ -94,7 +94,7 @@ final class ChangeBoughtCampaignStatusTest extends CustomerCommandHandlerTest
         $campaignId = new CampaignId('00000000-0000-0000-0000-000000000000');
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000001');
         $transactionId = new TransactionId('00000000-0000-0000-0000-000000000002');
-        $coupon = new Coupon('test');
+        $coupon = new Coupon('123', 'test');
 
         $this->scenario
             ->withAggregateId((string) $customerId)

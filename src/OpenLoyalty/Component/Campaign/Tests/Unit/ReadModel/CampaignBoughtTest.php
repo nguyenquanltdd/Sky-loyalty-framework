@@ -23,6 +23,7 @@ class CampaignBoughtTest extends TestCase
     const CUSTOMER_ID = '16d23cb7-e27a-47f7-a010-84f53b66cde1';
     const PURCHASED_AT = '2018-01-23 15:01';
     const COUPON_CODE = '1234-4321';
+    const COUPON_ID = '00000000-e27a-47f7-a010-84f53b66cde1';
     const CAMPAIGN_NAME = 'some-campaign';
     const CUSTOMER_EMAIL = 'user@oloy.com';
     const CUSTOMER_PHONE = '5551234554321';
@@ -155,6 +156,7 @@ class CampaignBoughtTest extends TestCase
                 'customerId' => self::CUSTOMER_ID,
                 'purchasedAt' => (new \DateTime(self::PURCHASED_AT))->getTimestamp(),
                 'coupon' => self::COUPON_CODE,
+                'couponId' => self::COUPON_ID,
                 'campaignType' => 'regular',
                 'campaignName' => self::CAMPAIGN_NAME,
                 'customerEmail' => self::CUSTOMER_EMAIL,
@@ -181,6 +183,9 @@ class CampaignBoughtTest extends TestCase
 
         $this->assertArrayHasKey('coupon', $serializedData);
         $this->assertEquals(self::COUPON_CODE, $serializedData['coupon']);
+
+        $this->assertArrayHasKey('couponId', $serializedData);
+        $this->assertEquals(self::COUPON_ID, $serializedData['couponId']);
 
         $this->assertArrayHasKey('campaignType', $serializedData);
         $this->assertEquals('regular', $serializedData['campaignType']);

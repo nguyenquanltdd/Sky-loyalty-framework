@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\UserBundle\Command;
 
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository;
+use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignUsageRepository;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,6 +30,7 @@ class CreateProjectionIndexCommand extends ContainerAwareCommand
         'oloy.segment.read_model.repository.segmented_customers',
         'oloy.campaign.read_model.repository.coupon_usage',
         CampaignBoughtRepository::class,
+        CampaignUsageRepository::class,
     ];
 
     protected function configure()

@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -153,8 +153,8 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
         Coupon $coupon,
         string $campaignType,
         string $campaignName,
-        $customerEmail,
-        $customerPhone,
+        ?string $customerEmail,
+        ?string $customerPhone,
         ?string $status = CampaignPurchase::STATUS_ACTIVE,
         ?bool $used = false,
         ?string $customerName = null,
@@ -187,7 +187,7 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function getId(): string
     {
@@ -195,9 +195,7 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
     }
 
     /**
-     * @param array $data
-     *
-     * @return mixed The object instance
+     * {@inheritdoc}
      */
     public static function deserialize(array $data)
     {
@@ -215,7 +213,10 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
             new CampaignId($data['campaignId']),
             new CustomerId($data['customerId']),
             (new \DateTime())->setTimestamp((int) $data['purchasedAt']),
-            new Coupon($data['coupon']),
+            new Coupon(
+                $data['coupon'],
+                array_key_exists('couponId', $data) ? $data['couponId'] : null
+            ),
             $data['campaignType'],
             $data['campaignName'],
             $data['customerEmail'],
@@ -240,7 +241,7 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
     public function serialize(): array
     {
@@ -249,6 +250,7 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
             'customerId' => (string) $this->customerId,
             'purchasedAt' => $this->purchasedAt->getTimestamp(),
             'coupon' => $this->coupon->getCode(),
+            'couponId' => $this->coupon->getId(),
             'campaignType' => $this->campaignType,
             'campaignName' => $this->campaignName,
             'customerEmail' => $this->customerEmail,
@@ -278,9 +280,10 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
      */
     public static function createId(CampaignId $campaignId, CustomerId $customerId, Coupon $coupon, ?Identifier $transactionId = null): string
     {
+        $couponId = $coupon->getId() ? '_'.$coupon->getId() : '';
         $transactionSuffix = $transactionId ? '_'.((string) $transactionId) : '';
 
-        return ((string) $campaignId).'_'.((string) $customerId).'_'.$coupon->getCode().$transactionSuffix;
+        return ((string) $campaignId).'_'.((string) $customerId).'_'.$coupon->getCode().$transactionSuffix.$couponId;
     }
 
     /**
