@@ -324,7 +324,7 @@ class CustomerCampaignsControllerTest extends BaseApiTest
             }
         }
 
-        $this->assertEquals(0, $cashbackCounter, 'Value should be 1');
+        $this->assertEquals(1, $cashbackCounter, 'Value should be 1');
 
         $this->loadCashbackData();
     }
