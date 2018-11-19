@@ -378,9 +378,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
                     )
                 )
             )
-            ->andWhere('c.reward != :cashback')
             ->setParameter('visible', true)
-            ->setParameter('cashback', Campaign::REWARD_TYPE_CASHBACK)
         ;
 
         if (array_key_exists('featured', $filters) && null !== $filters['featured']) {
