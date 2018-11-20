@@ -32,8 +32,8 @@ final class UpdateBoughtCampaignCouponTest extends CustomerCommandHandlerTest
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000001');
         $transactionId = new TransactionId('00000000-0000-0000-0000-000000000002');
         $createdAt = new \DateTime();
-        $coupon = new Coupon('test');
-        $newCoupon = new Coupon('test2');
+        $coupon = new Coupon('123', 'test');
+        $newCoupon = new Coupon('234', 'test2');
 
         $this->scenario
             ->withAggregateId((string) $customerId)
@@ -47,8 +47,9 @@ final class UpdateBoughtCampaignCouponTest extends CustomerCommandHandlerTest
                     $campaignId->__toString(),
                     $transactionId->__toString(),
                     $createdAt,
-                    $newCoupon->getCode()
-            )
+                    $newCoupon->getCode(),
+                    $newCoupon->getId()
+                )
             )
             ->then([
                 new CampaignCouponWasChanged(

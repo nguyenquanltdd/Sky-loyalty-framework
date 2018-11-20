@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -90,11 +90,11 @@ class CampaignPurchase implements Serializable
     /**
      * CampaignPurchase constructor.
      *
-     * @param \DateTime  $purchaseAt
-     * @param int        $costInPoints
-     * @param CampaignId $campaignId
-     * @param Coupon     $coupon
-     * @param $reward
+     * @param \DateTime       $purchaseAt
+     * @param int             $costInPoints
+     * @param CampaignId      $campaignId
+     * @param Coupon          $coupon
+     * @param string          $reward
      * @param string          $status
      * @param \DateTime|null  $activeSince
      * @param \DateTime|null  $activeTo
@@ -105,7 +105,7 @@ class CampaignPurchase implements Serializable
         $costInPoints,
         CampaignId $campaignId,
         Coupon $coupon,
-        $reward,
+        string $reward,
         string $status = self::STATUS_ACTIVE,
         ?\DateTime $activeSince = null,
         ?\DateTime $activeTo = null,
@@ -182,7 +182,7 @@ class CampaignPurchase implements Serializable
             $date,
             $data['costInPoints'],
             new CampaignId($data['campaignId']),
-            new Coupon($data['coupon']),
+            new Coupon($data['couponId'], $data['coupon']),
             $data['reward'],
             $data['status'] ?? self::STATUS_ACTIVE,
             $activeSince ?? null,
@@ -207,6 +207,7 @@ class CampaignPurchase implements Serializable
             'purchaseAt' => $this->purchaseAt->getTimestamp(),
             'campaignId' => $this->campaignId->__toString(),
             'coupon' => $this->coupon->getCode(),
+            'couponId' => $this->coupon->getId(),
             'used' => $this->used,
             'reward' => $this->reward,
             'isNotCashback' => $this->reward == Campaign::REWARD_TYPE_CASHBACK ? 0 : 1,
@@ -232,7 +233,7 @@ class CampaignPurchase implements Serializable
      */
     public function canBeUsed(): bool
     {
-        return self::STATUS_ACTIVE === $this->status;
+        return self::STATUS_ACTIVE === $this->status && !$this->isUsed();
     }
 
     /**

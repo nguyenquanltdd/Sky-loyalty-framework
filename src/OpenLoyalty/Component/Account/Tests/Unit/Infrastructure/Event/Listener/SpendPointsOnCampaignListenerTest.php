@@ -67,7 +67,7 @@ final class SpendPointsOnCampaignListenerTest extends TestCase
             new CampaignId($this->uuid),
             'test',
             10,
-            new Coupon('123'),
+            new Coupon('123', '123'),
             Campaign::REWARD_TYPE_DISCOUNT_CODE
         ));
     }

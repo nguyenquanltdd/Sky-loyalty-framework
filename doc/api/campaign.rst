@@ -986,6 +986,107 @@ Exemplary Response
       }]
     }
 
+Mark logged in customer coupons as used
+---------------------------------------
+
+Mark bought by logged in customer coupons as used using ``/api/admin/customer/campaign/coupons/mark_as_used`` endpoint with the ``POST`` method.
+
+Definition
+^^^^^^^^^^
+
+.. code-block:: text
+
+    POST /api/customer/campaign/coupons/mark_as_used
+
++---------------------------+----------------+-------------------------------------------------------------+
+| Parameter                 | Parameter type |  Description                                                |
++===========================+================+=============================================================+
+| Authorization             | header         | Token received during authentication                        |
++---------------------------+----------------+-------------------------------------------------------------+
+| coupons[][campaignId]     | request        | Campaign UUID                                               |
++---------------------------+----------------+-------------------------------------------------------------+
+| coupons[][couponId]       | request        | Coupon UUID                                                 |
++---------------------------+----------------+-------------------------------------------------------------+
+| coupons[][customerId]     | request        | Customer UUID                                               |
++---------------------------+----------------+-------------------------------------------------------------+
+| coupons[][code]           | request        | Coupon code                                                 |
++---------------------------+----------------+-------------------------------------------------------------+
+| coupons[][used]           | request        | Is coupon used, 1 if true, 0 if not used                    |
++---------------------------+----------------+-------------------------------------------------------------+
+| coupons[][transactionId]  | request        | *(optional)* Transaction ID for which coupon has been used  |
++---------------------------+----------------+-------------------------------------------------------------+
+
+Example
+^^^^^^^
+
+.. code-block:: bash
+
+    curl http://localhost:8181/api/admin/customer/campaign/coupons/mark_as_used \
+        -X "GET" -H "Accept: application/json" \
+        -H "Content-type: application/x-www-form-urlencoded" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
+        -d "coupons[0][campaignId]=00000000-0000-0000-0000-000000000001" \
+        -d "coupons[0][couponId]=00000000-0000-0000-0000-000000000002" \
+        -d "coupons[0][customerId]=00000000-0000-0000-0000-000000000004" \
+        -d "coupons[0][code]=WINTER" \
+        -d "coupons[0][used]=1" \
+        -d "coupons[0][transactionId]=00000000-0000-0000-0000-000000000003"
+
+.. note::
+
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
+    Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
+
+.. note::
+
+    The *campaignId = 00000000-0000-0000-0000-000000000001* id is an example value. Your value can be different.
+
+.. note::
+
+    The *couponId = 00000000-0000-0000-0000-000000000002* id is an example value. Your value can be different.
+
+.. note::
+
+    The *transactionId = 00000000-0000-0000-0000-000000000003* id is an example value. Your value can be different.
+
+Example Response
+^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    STATUS: 200 OK
+
+.. code-block:: json
+
+    {
+      "coupons": [
+        {
+          "name": "123",
+          "used": true,
+          "campaignId": "00000000-0000-0000-0000-000000000001",
+          "customerId": "00000000-0000-0000-0000-000000000004"
+        }
+      ]
+    }
+
+Example Error Response
+^^^^^^^^^^^^^^^^^^^^^^
+
+If there is no more coupons left, you'll receive follow responses.
+
+.. code-block:: text
+
+    STATUS: 400 Bad Request
+
+.. code-block:: json
+
+    {
+      "error": {
+        "code": 400,
+        "message": "Bad Request"
+      }
+    }
+
 Check campaign visibility for the customers
 -------------------------------------------
 

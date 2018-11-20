@@ -74,8 +74,8 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
      * @param CampaignId $campaignId
      * @param $campaignName
      * @param $costInPoints
-     * @param Coupon $coupon
-     * @param $reward
+     * @param Coupon          $coupon
+     * @param string          $reward
      * @param string          $status
      * @param \DateTime|null  $activeSince
      * @param \DateTime|null  $activeTo
@@ -87,7 +87,7 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
         $campaignName,
         $costInPoints,
         Coupon $coupon,
-        $reward,
+        string $reward,
         string $status = CampaignPurchase::STATUS_ACTIVE,
         ?\DateTime $activeSince = null,
         ?\DateTime $activeTo = null,
@@ -116,7 +116,7 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
     public function serialize(): array
     {
@@ -127,6 +127,7 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
                 'costInPoints' => $this->costInPoints,
                 'createdAt' => $this->createdAt->getTimestamp(),
                 'coupon' => $this->coupon->getCode(),
+                'couponId' => $this->coupon->getId(),
                 'campaignName' => $this->campaignName,
                 'reward' => $this->reward,
                 'status' => $this->status,
@@ -138,9 +139,7 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
     }
 
     /**
-     * @param array $data
-     *
-     * @return CampaignWasBoughtByCustomer
+     * {@inheritdoc}
      */
     public static function deserialize(array $data)
     {
@@ -159,7 +158,7 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
             new CampaignId($data['campaignId']),
             $data['campaignName'],
             $data['costInPoints'],
-            new Coupon($data['coupon']),
+            new Coupon($data['couponId'], $data['coupon']),
             $data['reward'],
             $data['status'] ?? CampaignPurchase::STATUS_ACTIVE,
             $activeSince ?? null,
@@ -193,7 +192,7 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
     /**
      * @return Coupon
      */
-    public function getCoupon()
+    public function getCoupon(): Coupon
     {
         return $this->coupon;
     }

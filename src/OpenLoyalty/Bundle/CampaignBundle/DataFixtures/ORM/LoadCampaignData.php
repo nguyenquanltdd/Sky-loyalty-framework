@@ -274,7 +274,6 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaign = new Campaign();
         $campaign->setActive(true);
         $campaign->setPublic(true);
-        $campaign->setUnlimited(true);
         $campaign->setLevels(
             [
                 new LevelId(LoadLevelData::LEVEL0_ID),
@@ -283,7 +282,7 @@ class LoadCampaignData extends ContainerAwareFixture
                 new LevelId(LoadLevelData::LEVEL3_ID),
             ]
         );
-        $campaign->setReward(Campaign::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE);
+        $campaign->setReward(Campaign::REWARD_TYPE_CUSTOM_CAMPAIGN_CODE);
         $campaign->setName('GEO custom campaign');
         $campaignActivity = new CampaignActivity();
         $campaignActivity->setAllTimeActive(true);

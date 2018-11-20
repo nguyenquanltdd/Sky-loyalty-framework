@@ -69,6 +69,7 @@ class CampaignStatusWasChanged extends CustomerEvent
                 'campaignId' => $this->campaignId->__toString(),
                 'status' => $this->status,
                 'coupon' => $this->coupon->getCode(),
+                'couponId' => $this->coupon->getId(),
                 'transactionId' => $this->transactionId ? $this->transactionId->__toString() : null,
             ]
         );
@@ -82,7 +83,7 @@ class CampaignStatusWasChanged extends CustomerEvent
         return new self(
             new CustomerId($data['customerId']),
             new CampaignId($data['campaignId']),
-            new Coupon($data['coupon']),
+            new Coupon($data['couponId'], $data['coupon']),
             $data['status'],
             isset($data['transactionId']) ? new TransactionId($data['transactionId']) : null
         );

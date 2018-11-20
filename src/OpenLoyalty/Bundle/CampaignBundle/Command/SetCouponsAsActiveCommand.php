@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -78,6 +78,7 @@ class SetCouponsAsActiveCommand extends Command
         }
 
         $date = new \DateTime();
+
         /** @var CustomerDetails $customer */
         foreach ($customers as $customer) {
             /** @var CampaignPurchase $campaignPurchase */
@@ -95,8 +96,9 @@ class SetCouponsAsActiveCommand extends Command
 
                     $this->logger->info('coupon activated '.$campaignPurchase->getCoupon()->getCode(), [
                         'campaignId' => $campaignPurchase->getCampaignId()->__toString(),
-                        'customerId' => $customer->getCustomerId()->__toString(),
+                        'customerId' => (string) $customer->getCustomerId(),
                         'coupon' => $campaignPurchase->getCoupon()->getCode(),
+                        'couponId' => $campaignPurchase->getCoupon()->getId(),
                     ]);
                 }
             }

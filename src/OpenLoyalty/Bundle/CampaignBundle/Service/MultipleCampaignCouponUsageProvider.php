@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -16,7 +16,6 @@ use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Customer\Domain\CampaignId as CustomerCampaignId;
 use OpenLoyalty\Component\Customer\Domain\Command\ChangeCampaignUsage;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
-use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
@@ -73,15 +72,16 @@ class MultipleCampaignCouponUsageProvider
         $result = [];
 
         foreach ($coupons as $key => $coupon) {
-            if (!isset($coupon['used'], $coupon['code'], $coupon['customerId'], $coupon['campaignId'])) {
+            if (!isset($coupon['used'], $coupon['code'], $coupon['customerId'], $coupon['campaignId'], $coupon['couponId'])) {
                 throw new MissingDataInRowsException($this->translator->trans('campaign.missing_data_in_rows'));
             }
             try {
                 $used = boolval($coupon['used']);
                 $campaign = $this->campaignRepository->byId(new CampaignId($coupon['campaignId']));
+                /** @var CustomerDetails|null $customer */
                 $customer = $this->customerDetailsRepository->find(new CustomerId($coupon['customerId']));
                 $transactionId = isset($coupon['transactionId']) ? new TransactionId($coupon['transactionId']) : null;
-                $coupon = new Coupon($coupon['code']);
+                $coupon = new Coupon($coupon['couponId'], $coupon['code']);
 
                 $this->checkFields($used, $customer, $campaign, $coupon, (string) $key);
             } catch (AssertionFailedException $exception) {
@@ -122,14 +122,14 @@ class MultipleCampaignCouponUsageProvider
         $result = [];
 
         foreach ($coupons as $key => $coupon) {
-            if (!isset($coupon['used'], $coupon['code'], $coupon['campaignId'])) {
+            if (!isset($coupon['used'], $coupon['code'], $coupon['campaignId'], $coupon['couponId'])) {
                 throw new MissingDataInRowsException();
             }
             try {
                 $used = boolval($coupon['used']);
                 $campaign = $this->campaignRepository->byId(new CampaignId($coupon['campaignId']));
                 $transactionId = isset($coupon['transactionId']) ? new TransactionId($coupon['transactionId']) : null;
-                $coupon = new Coupon($coupon['code']);
+                $coupon = new Coupon($coupon['couponId'], $coupon['code']);
                 $this->checkFields($used, $customer, $campaign, $coupon, $key);
             } catch (AssertionFailedException $exception) {
                 throw new InvalidDataProvidedException();
@@ -174,11 +174,7 @@ class MultipleCampaignCouponUsageProvider
                 $this->translator->trans('campaign.invalid_value_field_in_row', ['%name%' => 'campaignId', '%row%' => $key])
             );
         }
-        if (count(array_filter($customer->getCampaignPurchases(), function (CampaignPurchase $campaignPurchase) use ($campaign) {
-            return (string) $campaignPurchase->getCampaignId() === (string) $campaign->getCampaignId() && $campaignPurchase->getStatus() === CampaignPurchase::STATUS_ACTIVE && !$campaignPurchase->isUsed();
-        })) === 0) {
-            throw new NoCouponsLeftException();
-        }
+
         if (!$customer->canUsePurchase(new CustomerCampaignId((string) $campaign->getCampaignId()), $coupon)) {
             throw new InvalidDataProvidedException(
                 $this->translator->trans('campaign.invalid_value_field_in_row', ['%name%' => 'code', '%row%' => $key])

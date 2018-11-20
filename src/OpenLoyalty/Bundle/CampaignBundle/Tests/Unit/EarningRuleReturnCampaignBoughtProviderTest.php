@@ -27,6 +27,7 @@ class EarningRuleReturnCampaignBoughtProviderTest extends TestCase
     private const CUSTOMER_PHONE = '1234567890';
     private const CAMPAIGN_ID = '00000000-0000-0000-0000-000000000001';
     private const COUPON_CODE = 'test';
+    private const COUPON_ID = '00000000-0000-0000-0000-000000000002';
     private const CAMPAIGN_NAME = 'test';
 
     /**
@@ -40,7 +41,7 @@ class EarningRuleReturnCampaignBoughtProviderTest extends TestCase
             new CampaignId(self::CAMPAIGN_ID),
             new CustomerId(self::CUSTOMER_ID),
             new \DateTime(),
-            new Coupon(self::COUPON_CODE),
+            new Coupon(self::COUPON_CODE, self::COUPON_ID),
             Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE,
             self::CAMPAIGN_NAME,
             self::CUSTOMER_EMAIL,

@@ -56,11 +56,9 @@ use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignShortInfo;
 use OpenLoyalty\Component\Campaign\Domain\SegmentId;
 use OpenLoyalty\Component\Campaign\Domain\TransactionId;
-use OpenLoyalty\Component\Customer\Domain\TransactionId as CustomerTransactionId;
 use OpenLoyalty\Component\Campaign\Domain\Model\CampaignFile;
 use OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Repository\DoctrineCampaignRepository;
 use OpenLoyalty\Component\Campaign\Infrastructure\Repository\CampaignBoughtElasticsearchRepository;
-use OpenLoyalty\Component\Customer\Domain\CampaignId as CustomerCampaignId;
 use OpenLoyalty\Component\Customer\Domain\Command\ChangeCampaignUsage;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
@@ -980,7 +978,7 @@ class CampaignController extends FOSRestController
 
         // filter by usage left
         $campaigns = array_filter($campaigns, function (DomainCampaign $campaign) use ($customer): bool {
-            if ($campaign->getReward() === Campaign::CAMPAIGN_TYPE_CUSTOM_CAMPAIGN_CODE) {
+            if ($campaign->getReward() === Campaign::REWARD_TYPE_CUSTOM_CAMPAIGN_CODE) {
                 // Custom campaign not have to check usage left
                 return true;
             }
@@ -1039,6 +1037,10 @@ class CampaignController extends FOSRestController
      */
     public function buyCampaign(Request $request, DomainCampaign $campaign, CustomerDetails $customer): FosView
     {
+        if (!$campaign->canBeBoughtManually()) {
+            throw new BadRequestHttpException();
+        }
+
         if (!$this->campaignValidator->isCampaignActive($campaign) ||
             !$this->campaignValidator->isCampaignVisible($campaign)
         ) {
@@ -1265,86 +1267,6 @@ class CampaignController extends FOSRestController
     }
 
     /**
-     * Mark specific coupon as used/unused by customer.
-     *
-     * @Route(name="oloy.campaign.admin.customer.coupon_usage", path="/admin/customer/{customer}/campaign/{campaign}/coupon/{coupon}")
-     * @Method("POST")
-     *
-     * @ApiDoc(
-     *     name="mark coupon as used",
-     *     section="Customer Campaign",
-     *     parameters={
-     *      {"name"="used", "dataType"="boolean", "required"=true, "description"="True if mark as used, false otherwise"},
-     *      {"name"="transactionId", "dataType"="string", "required"=false, "description"="Id of transaction in which this coupon was used"},
-     *     },
-     *     statusCodes={
-     *       200="Returned when successful",
-     *       400="Returned when parameter 'used' not provided",
-     *       404="Returned when customer or campaign not found"
-     *     }
-     * )
-     *
-     * @View(serializerGroups={"admin", "Default"})
-     *
-     * @param Request         $request
-     * @param CustomerDetails $customer
-     * @param DomainCampaign  $campaign
-     * @param string          $coupon
-     *
-     * @return FosView
-     */
-    public function campaignCouponUsage(Request $request, CustomerDetails $customer, DomainCampaign $campaign, $coupon): FosView
-    {
-        $used = $request->request->get('used', null);
-        $transactionId = $request->request->get('transactionId', null);
-
-        if (null === $used) {
-            return $this->view(
-                ['errors' => $this->translator->trans('campaign.field_used_is_required')],
-                Response::HTTP_BAD_REQUEST
-            );
-        }
-
-        if (is_string($used)) {
-            $used = str_replace('"', '', $used);
-            $used = str_replace("'", '', $used);
-        }
-
-        if ($used === 'false' || $used === '0' || $used === 0) {
-            $used = false;
-        }
-
-        try {
-            $this->multipleCampaignCouponUsageProvider->validateRequestForCustomer(
-                [
-                    [
-                        'code' => $coupon,
-                        'campaignId' => (string) $campaign->getCampaignId(),
-                        'used' => $used,
-                    ],
-                ],
-                $customer
-            );
-        } catch (NoCouponsLeftException $e) {
-            return $this->view(['error' => $this->translator->trans($e->getMessage())], Response::HTTP_BAD_REQUEST);
-        } catch (CampaignUsageChangeException $e) {
-            throw new BadRequestHttpException($e->getMessage());
-        }
-
-        $this->commandBus->dispatch(
-            new ChangeCampaignUsage(
-                $customer->getCustomerId(),
-                new CustomerCampaignId((string) $campaign->getCampaignId()),
-                new Coupon($coupon),
-                $used,
-                $transactionId ? new CustomerTransactionId($transactionId) : null
-            )
-        );
-
-        return $this->view(['used' => $used]);
-    }
-
-    /**
      * Mark multiple coupons as used/unused by customer.
      *
      * @Route(name="oloy.campaign.admin.customer.coupon_multiple_usage", path="/admin/campaign/coupons/mark_as_used")
@@ -1375,7 +1297,6 @@ class CampaignController extends FOSRestController
      *
      * @return FosView
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
      * @throws BadRequestHttpException
      */
     public function campaignCouponListUsage(Request $request): FosView

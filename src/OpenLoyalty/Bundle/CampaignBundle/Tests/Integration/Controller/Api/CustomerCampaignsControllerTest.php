@@ -286,7 +286,7 @@ class CustomerCampaignsControllerTest extends BaseApiTest
         } else {
             $campaign->setActive(true);
             $campaign->setUnlimited(true);
-            $campaign->setCoupons([new Coupon('123'), new Coupon('1233'), new Coupon('1234')]);
+            $campaign->setCoupons([new Coupon('123', '123'), new Coupon('1233', '1233'), new Coupon('1234', '1234')]);
             $campaign->setLevels(
                 [
                     new LevelId(LoadLevelData::LEVEL0_ID),
@@ -480,67 +480,17 @@ class CustomerCampaignsControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_change_customer_coupon_to_used(): void
-    {
-        $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
-        $couponCode = Uuid::uuid4()->toString();
-        $customerDetails->addCampaignPurchase(
-            new CampaignPurchase(
-                new \DateTime(),
-                0,
-                new CustomerCampaignId(LoadCampaignData::CAMPAIGN_ID),
-                new Coupon($couponCode),
-                Campaign::REWARD_TYPE_DISCOUNT_CODE
-            )
-        );
-
-        $this->customerDetailsRepository->save($customerDetails);
-
-        $client = $this->createAuthenticatedClient(LoadUserData::USER2_USERNAME, LoadUserData::USER2_PASSWORD, 'customer');
-        $client->request(
-            'POST',
-            sprintf(
-                '/api/customer/campaign/%s/coupon/%s',
-                LoadCampaignData::CAMPAIGN_ID,
-                $couponCode
-            ),
-            [
-                'used' => true,
-            ]
-        );
-
-        $response = $client->getResponse();
-
-        $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
-        $campaigns = $customerDetails->getCampaignPurchases();
-        $campaignPurchase = null;
-
-        /** @var CampaignPurchase $campaign */
-        foreach ($campaigns as $campaign) {
-            if ($campaign->getCoupon()->getCode() === $couponCode) {
-                $campaignPurchase = $campaign;
-            }
-        }
-
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $this->assertNotNull($campaignPurchase);
-        $this->assertInstanceOf(CampaignPurchase::class, $campaignPurchase);
-        $this->assertTrue($campaignPurchase->isUsed());
-    }
-
-    /**
-     * @test
-     */
     public function it_cannot_change_customer_coupon_to_used_when_not_active(): void
     {
         $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
+        $couponId = Uuid::uuid4()->toString();
         $couponCode = Uuid::uuid4()->toString();
         $customerDetails->addCampaignPurchase(
             new CampaignPurchase(
                 new \DateTime(),
                 0,
                 new CustomerCampaignId(LoadCampaignData::INACTIVE_CAMPAIGN_ID),
-                new Coupon($couponCode),
+                new Coupon($couponId, $couponCode),
                 Campaign::REWARD_TYPE_DISCOUNT_CODE,
                 CampaignPurchase::STATUS_INACTIVE
             )
@@ -551,13 +501,16 @@ class CustomerCampaignsControllerTest extends BaseApiTest
         $client = $this->createAuthenticatedClient(LoadUserData::USER2_USERNAME, LoadUserData::USER2_PASSWORD, 'customer');
         $client->request(
             'POST',
-            sprintf(
-                '/api/customer/campaign/%s/coupon/%s',
-                LoadCampaignData::INACTIVE_CAMPAIGN_ID,
-                $couponCode
-            ),
+            '/api/customer/campaign/coupons/mark_as_used',
             [
-                'used' => true,
+                'coupons' => [
+                    [
+                        'campaignId' => LoadCampaignData::CAMPAIGN_ID,
+                        'code' => $couponCode,
+                        'couponId' => $couponId,
+                        'used' => true,
+                    ],
+                ],
             ]
         );
 
@@ -569,7 +522,7 @@ class CustomerCampaignsControllerTest extends BaseApiTest
 
         /** @var CampaignPurchase $campaign */
         foreach ($campaigns as $campaign) {
-            if ($campaign->getCoupon()->getCode() === $couponCode) {
+            if ($campaign->getCoupon()->getCode() === $couponCode && $campaign->getCoupon()->getId() === $couponId) {
                 $campaignPurchase = $campaign;
             }
         }
@@ -586,13 +539,14 @@ class CustomerCampaignsControllerTest extends BaseApiTest
     public function it_change_multiple_customer_coupons_to_used(): void
     {
         $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
+        $couponId = Uuid::uuid4()->toString();
         $couponCode = Uuid::uuid4()->toString();
         $customerDetails->addCampaignPurchase(
             new CampaignPurchase(
                 new \DateTime(),
                 0,
                 new CustomerCampaignId(LoadCampaignData::CAMPAIGN_ID),
-                new Coupon($couponCode),
+                new Coupon($couponId, $couponCode),
                 Campaign::REWARD_TYPE_DISCOUNT_CODE
             )
         );
@@ -608,6 +562,7 @@ class CustomerCampaignsControllerTest extends BaseApiTest
                         [
                             'campaignId' => LoadCampaignData::CAMPAIGN_ID,
                             'code' => $couponCode,
+                            'couponId' => $couponId,
                             'used' => true,
                         ],
                     ],
@@ -622,7 +577,7 @@ class CustomerCampaignsControllerTest extends BaseApiTest
 
         /** @var CampaignPurchase $campaign */
         foreach ($campaigns as $campaign) {
-            if ($campaign->getCoupon()->getCode() === $couponCode) {
+            if ($campaign->getCoupon()->getCode() === $couponCode && $campaign->getCoupon()->getId() === $couponId) {
                 $campaignPurchase = $campaign;
             }
         }

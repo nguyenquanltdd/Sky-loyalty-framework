@@ -32,7 +32,7 @@ class ChangeCampaignUsageTest extends CustomerCommandHandlerTest
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000000');
         $campaignId = new CampaignId('00000000-0000-0000-0000-000000000001');
         $transactionId = new TransactionId('00000000-0000-0000-0000-000000000001');
-        $coupon = new Coupon('20');
+        $coupon = new Coupon('123', '20');
 
         $this->scenario
             ->withAggregateId((string) $customerId)
@@ -73,7 +73,7 @@ class ChangeCampaignUsageTest extends CustomerCommandHandlerTest
                 $campaignId,
                 'test',
                 99,
-                new Coupon('123'),
+                new Coupon('1234', '123'),
                 Campaign::REWARD_TYPE_DISCOUNT_CODE,
                 CampaignPurchase::STATUS_INACTIVE,
                 null,
@@ -85,7 +85,7 @@ class ChangeCampaignUsageTest extends CustomerCommandHandlerTest
                     $campaignId,
                     'test',
                     99,
-                    new Coupon('123'),
+                    new Coupon('1234', '123'),
                     Campaign::REWARD_TYPE_DISCOUNT_CODE,
                     CampaignPurchase::STATUS_INACTIVE
                 ),

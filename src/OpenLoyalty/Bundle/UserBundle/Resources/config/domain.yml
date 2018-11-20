@@ -172,6 +172,8 @@ services:
             - '@broadway.uuid.generator'
 
     OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener\CreateCouponsReturnListener:
+        arguments:
+            $uuidGenerator: '@broadway.uuid.generator'
         lazy: true
         tags:
             - { name: broadway.event_listener, event: oloy.transaction.customer_assigned, method: handleCustomerAssignedToTransaction }

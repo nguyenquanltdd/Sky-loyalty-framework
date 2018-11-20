@@ -87,7 +87,7 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
     {
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000000');
         $campaignId = new CustomerCampaignId('11111111-0000-0000-0000-000000000000');
-        $coupon = new Coupon('testCoupon');
+        $coupon = new Coupon('123', 'testCoupon');
 
         $expectedData = [
             'customerId' => (string) $customerId,
@@ -109,6 +109,7 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
             'transactionId' => null,
             'usedForTransactionId' => null,
             'returnedAmount' => 0,
+            'couponId' => '123',
         ];
         $this->scenario->given([])
             ->when(
@@ -136,7 +137,7 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
     {
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000000');
         $campaignId = new CustomerCampaignId('11111111-0000-0000-0000-000000000000');
-        $coupon = new Coupon('testCoupon');
+        $coupon = new Coupon('123', 'testCoupon');
 
         $expectedData = [
             'customerId' => (string) $customerId,
@@ -158,6 +159,7 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
             'transactionId' => null,
             'usedForTransactionId' => null,
             'returnedAmount' => 0,
+            'couponId' => '123',
         ];
         $this->scenario->given(
                 [
@@ -188,7 +190,7 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000000');
         $campaignId = new CustomerCampaignId('11111111-0000-0000-0000-000000000000');
         $transactionId = new TransactionId('00000000-0000-0000-0000-000000000000');
-        $coupon = new Coupon('testCoupon');
+        $coupon = new Coupon('123', 'testCoupon');
 
         $expectedData = [
             'customerId' => (string) $customerId,
@@ -210,6 +212,7 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
             'activeSince' => null,
             'activeTo' => null,
             'transactionId' => null,
+            'couponId' => '123',
         ];
         $this->scenario->given(
                 [

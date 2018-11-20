@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -69,8 +69,8 @@ class BuyCustomerCampaign extends CustomerCommand
      * @param CampaignId $campaignId
      * @param $campaignName
      * @param $costInPoints
-     * @param Coupon $coupon
-     * @param $reward
+     * @param Coupon          $coupon
+     * @param string          $reward
      * @param string          $status
      * @param \DateTime|null  $activeSince
      * @param \DateTime|null  $activeTo
@@ -82,7 +82,7 @@ class BuyCustomerCampaign extends CustomerCommand
         $campaignName,
         $costInPoints,
         Coupon $coupon,
-        $reward,
+        string $reward,
         string $status = CampaignPurchase::STATUS_ACTIVE,
         ?\DateTime $activeSince = null,
         ?\DateTime $activeTo = null,

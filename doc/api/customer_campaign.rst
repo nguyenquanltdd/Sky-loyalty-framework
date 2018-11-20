@@ -185,94 +185,6 @@ Example Response
       "total": 1
     }
 
-Mark specific coupon as used / not used by a customer
------------------------------------------------------
-
-To mark a specific coupon as used / not used call ``/api/admin/customer/{customer}/campaign/{campaign}/coupon/{coupon}`` endpoint with the ``POST`` method.
-
-Definition
-^^^^^^^^^^
-
-.. code-block:: text
-
-    POST /api/admin/customer/{customer}/campaign/{campaign}/coupon/{coupon}
-
-+----------------------+----------------+--------------------------------------------------------+
-| Parameter            | Parameter type |  Description                                           |
-+======================+================+========================================================+
-| Authorization        | header         | Token received during authentication                   |
-+----------------------+----------------+--------------------------------------------------------+
-| customer             | request        | Customer UUID                                          |
-+----------------------+----------------+--------------------------------------------------------+
-| campaign             | request        | Campaign UUID                                          |
-+----------------------+----------------+--------------------------------------------------------+
-| coupon               | request        | Coupon UUID                                            |
-+----------------------+----------------+--------------------------------------------------------+
-| used                 | request        | Set ``1`` if used, otherwise ``0``                     |
-+----------------------+----------------+--------------------------------------------------------+
-| transactionId        | request        | *(optional)*                                           |
-|                      |                | Transaction UUID in which this coupon was used         |
-+----------------------+----------------+--------------------------------------------------------+
-
-Example
-^^^^^^^
-
-.. code-block:: bash
-
-    curl http://localhost:8181/api/admin/customer/00000000-0000-474c-b092-b0dd880c07e1/campaign/000096cf-32a3-43bd-9034-4df343e5fd93/coupon/123 \
-        -X "POST" \
-        -d "used=1" \
-        -H "Accept: application/json" \
-        -H "Content-type: application/x-www-form-urlencoded" \
-        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
-
-.. note::
-
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
-    Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-
-.. note::
-
-    The *customer = 00000000-0000-474c-b092-b0dd880c07e1* id is an example value. Your value can be different.
-    Check in the list of all customers if you are not sure which id should be used.
-
-.. note::
-
-    The *campaign = 000096cf-32a3-43bd-9034-4df343e5fd93* id is an example value. Your value can be different.
-    Check in the list of all campaigns if you are not sure which id should be used.
-
-.. note::
-
-    The *coupon = 123* id is an example value. Your value can be different.
-    Check in the list of all customer's coupons if you are not sure which id should be used.
-
-Example Response
-^^^^^^^^^^^^^^^^
-
-.. code-block:: text
-
-    STATUS: 200 OK
-
-.. code-block:: json
-
-    {
-      "used": "1"
-    }
-
-Example Response
-^^^^^^^^^^^^^^^^
-
-.. code-block:: text
-
-    STATUS: 200 OK
-
-.. code-block:: json
-
-    {
-      "used": false
-    }
-
-
 Get all campaigns available for logged in customer
 --------------------------------------------------
 
@@ -532,6 +444,104 @@ Example Response
       "total": 1
     }
 
+Mark logged in customer coupons as used
+---------------------------------------
+
+Mark bought by logged in customer coupons as used using ``/api/customer/campaign/coupons/mark_as_used`` endpoint with the ``POST`` method.
+
+Definition
+^^^^^^^^^^
+
+.. code-block:: text
+
+    POST /api/customer/campaign/coupons/mark_as_used
+
++---------------------------+----------------+-------------------------------------------------------------+
+| Parameter                 | Parameter type |  Description                                                |
++===========================+================+=============================================================+
+| Authorization             | header         | Token received during authentication                        |
++---------------------------+----------------+-------------------------------------------------------------+
+| coupons[][campaignId]     | request        | Campaign UUID                                               |
++---------------------------+----------------+-------------------------------------------------------------+
+| coupons[][couponId]       | request        | Coupon UUID                                                 |
++---------------------------+----------------+-------------------------------------------------------------+
+| coupons[][code]           | request        | Coupon code                                                 |
++---------------------------+----------------+-------------------------------------------------------------+
+| coupons[][used]           | request        | Is coupon used, 1 if true, 0 if not used                    |
++---------------------------+----------------+-------------------------------------------------------------+
+| coupons[][transactionId]  | request        | *(optional)* Transaction ID for which coupon has been used  |
++---------------------------+----------------+-------------------------------------------------------------+
+
+Example
+^^^^^^^
+
+.. code-block:: bash
+
+    curl http://localhost:8181/api/customer/campaign/coupons/mark_as_used \
+        -X "GET" -H "Accept: application/json" \
+        -H "Content-type: application/x-www-form-urlencoded" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
+        -d "coupons[0][campaignId]=00000000-0000-0000-0000-000000000001" \
+        -d "coupons[0][couponId]=00000000-0000-0000-0000-000000000002" \
+        -d "coupons[0][code]=WINTER" \
+        -d "coupons[0][used]=1" \
+        -d "coupons[0][transactionId]=00000000-0000-0000-0000-000000000003"
+
+.. note::
+
+    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
+    Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
+
+.. note::
+
+    The *campaignId = 00000000-0000-0000-0000-000000000001* id is an example value. Your value can be different.
+
+.. note::
+
+    The *couponId = 00000000-0000-0000-0000-000000000002* id is an example value. Your value can be different.
+
+.. note::
+
+    The *transactionId = 00000000-0000-0000-0000-000000000003* id is an example value. Your value can be different.
+
+Example Response
+^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    STATUS: 200 OK
+
+.. code-block:: json
+
+    {
+      "coupons": [
+        {
+          "name": "123",
+          "used": true,
+          "campaignId": "00000000-0000-0000-0000-000000000001",
+          "customerId": "00000000-0000-0000-0000-000000000004"
+        }
+      ]
+    }
+
+Example Error Response
+^^^^^^^^^^^^^^^^^^^^^^
+
+If there is no more coupons left, you'll receive follow responses.
+
+.. code-block:: text
+
+    STATUS: 400 Bad Request
+
+.. code-block:: json
+
+    {
+      "error": {
+        "code": 400,
+        "message": "Bad Request"
+      }
+    }
+
 Buy campaign by logged in customer
 ----------------------------------
 
@@ -621,116 +631,6 @@ If you don't have enough points to buy a reward, you'll receive follow responses
     {
       "error": "Not enough points"
     }
-
-
-
-
-
-
-
-
-
-
-
-
-Mark specific coupon as used / not used by a logged in customer
----------------------------------------------------------------
-
-To mark a specific coupon as used / nor used by a logged in customer call ``/api/admin/campaign/{campaign}/coupon/{coupon}`` endpoint with the ``POST`` method.
-
-Definition
-^^^^^^^^^^
-
-.. code-block:: text
-
-    POST /api/admin/campaign/{campaign}/coupon/{coupon}
-
-+----------------------+----------------+--------------------------------------------------------+
-| Parameter            | Parameter type |  Description                                           |
-+======================+================+========================================================+
-| Authorization        | header         | Token received during authentication                   |
-+----------------------+----------------+--------------------------------------------------------+
-| campaign             | request        | Campaign UUI                                           |
-+----------------------+----------------+--------------------------------------------------------+
-| coupon               | request        | Coupon UUID                                            |
-+----------------------+----------------+--------------------------------------------------------+
-| used                 | request        | Set ``1`` if used, otherwise ``0``                     |
-+----------------------+----------------+--------------------------------------------------------+
-
-Example
-^^^^^^^
-
-.. code-block:: bash
-
-    curl http://localhost:8181/api/admin/campaign/000096cf-32a3-43bd-9034-4df343e5fd93/coupon/123 \
-        -X "POST" \
-        -d "used=1" \
-        -H "Accept: application/json" \
-        -H "Content-type: application/x-www-form-urlencoded" \
-        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..."
-
-.. note::
-
-    The *eyJhbGciOiJSUzI1NiIsInR5cCI6...* authorization token is an example value.
-    Your value can be different. Read more about :doc:`Authorization in the </authorization>`.
-
-.. warning::
-
-    Calling this endpoint is meaningful only when you call it with authorization token that belongs to the logged in customer.
-    Otherwise it will return ``403 Forbidden`` error response.
-
-.. note::
-
-    The *campaign = 000096cf-32a3-43bd-9034-4df343e5fd93* id is an example value. Your value can be different.
-    Check in the list of all campaigns if you are not sure which id should be used.
-
-.. note::
-
-    The *coupon = 123* id is an example value. Your value can be different.
-    Check in the list of all customer's coupons if you are not sure which id should be used.
-
-Example Response
-^^^^^^^^^^^^^^^^
-
-.. code-block:: text
-
-    STATUS: 200 OK
-
-.. code-block:: json
-
-    {
-      "used": "1"
-    }
-
-Example Response
-^^^^^^^^^^^^^^^^
-
-.. code-block:: text
-
-    STATUS: 200 OK
-
-.. code-block:: json
-
-    {
-      "used": false
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 Get all campaigns bought by a customer (seller)
 -----------------------------------------------

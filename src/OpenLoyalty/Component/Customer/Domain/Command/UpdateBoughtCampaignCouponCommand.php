@@ -36,6 +36,11 @@ class UpdateBoughtCampaignCouponCommand
     private $newCoupon;
 
     /**
+     * @var string
+     */
+    private $couponId;
+
+    /**
      * UpdateBoughtCampaignCouponCommand constructor.
      *
      * @param string      $customerId
@@ -43,19 +48,22 @@ class UpdateBoughtCampaignCouponCommand
      * @param null|string $transactionId
      * @param \DateTime   $createdAt
      * @param string      $newCoupon
+     * @param string      $couponId
      */
     public function __construct(
         string $customerId,
         string $campaignId,
         ?string $transactionId,
         \DateTime $createdAt,
-        string $newCoupon
+        string $newCoupon,
+        string $couponId
     ) {
         $this->customerId = $customerId;
         $this->campaignId = $campaignId;
         $this->transactionId = $transactionId;
         $this->createdAt = $createdAt;
         $this->newCoupon = $newCoupon;
+        $this->couponId = $couponId;
     }
 
     /**
@@ -96,5 +104,13 @@ class UpdateBoughtCampaignCouponCommand
     public function getNewCoupon(): string
     {
         return $this->newCoupon;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCouponId(): string
+    {
+        return $this->couponId;
     }
 }

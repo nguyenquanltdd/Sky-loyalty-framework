@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -7,6 +7,7 @@ namespace OpenLoyalty\Component\Campaign\Domain\Command;
 
 use Broadway\CommandHandling\CommandBus;
 use Broadway\CommandHandling\SimpleCommandHandler;
+use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\Provider\CouponActivationDateProvider;
@@ -43,25 +44,36 @@ class BuyCampaignHandler extends SimpleCommandHandler
     private $expirationDateProvider;
 
     /**
+     * @var UuidGeneratorInterface
+     */
+    private $uuidGenerator;
+
+    /**
      * InstantRewardHandler constructor.
      *
      * @param CampaignRepository           $campaignRepository
      * @param CommandBus                   $commandBus
      * @param CouponActivationDateProvider $activationDateProvider
      * @param CouponExpirationDateProvider $expirationDateProvider
+     * @param UuidGeneratorInterface       $uuidGenerator
      */
     public function __construct(
         CampaignRepository $campaignRepository,
         CommandBus $commandBus,
         CouponActivationDateProvider $activationDateProvider,
-        CouponExpirationDateProvider $expirationDateProvider
+        CouponExpirationDateProvider $expirationDateProvider,
+        UuidGeneratorInterface $uuidGenerator
     ) {
         $this->campaignRepository = $campaignRepository;
         $this->commandBus = $commandBus;
         $this->activationDateProvider = $activationDateProvider;
         $this->expirationDateProvider = $expirationDateProvider;
+        $this->uuidGenerator = $uuidGenerator;
     }
 
+    /**
+     * @param BuyCampaign $command
+     */
     public function handleBuyCampaign(BuyCampaign $command): void
     {
         /** @var Campaign $campaign */
@@ -87,7 +99,10 @@ class BuyCampaignHandler extends SimpleCommandHandler
                 new CustomerCampaignId($campaign->getCampaignId()->__toString()),
                 $campaign->getName(),
                 $command->getPointsValue() ?? $campaign->getCostInPoints(),
-                new Coupon($command->getCoupon()->getCode()),
+                new Coupon(
+                    $this->uuidGenerator->generate(),
+                    $command->getCoupon()->getCode()
+                ),
                 $campaign->getReward(),
                 $status,
                 $activeSince,

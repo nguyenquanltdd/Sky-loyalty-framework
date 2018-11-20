@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -44,8 +44,13 @@ class ChangeCampaignUsage extends CustomerCommand
      * @param bool               $used
      * @param null|TransactionId $transactionId
      */
-    public function __construct(CustomerId $customerId, CampaignId $campaignId, Coupon $coupon, bool $used, ?TransactionId $transactionId = null)
-    {
+    public function __construct(
+        CustomerId $customerId,
+        CampaignId $campaignId,
+        Coupon $coupon,
+        bool $used,
+        ?TransactionId $transactionId = null
+    ) {
         parent::__construct($customerId);
         $this->campaignId = $campaignId;
         $this->used = $used;

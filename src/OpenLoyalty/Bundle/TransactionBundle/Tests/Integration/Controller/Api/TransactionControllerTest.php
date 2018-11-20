@@ -477,16 +477,38 @@ class TransactionControllerTest extends BaseApiTest
      */
     public function it_mark_coupon_as_used_for_transaction(): void
     {
+        static::$kernel->boot();
+        $repo = static::$kernel->getContainer()->get(CustomerDetailsRepository::class);
+        /** @var CustomerDetails $details */
+        $details = $repo->find(LoadUserData::USER_COUPON_RETURN_ID);
+        $coupon = null;
+        foreach ($details->getCampaignPurchases() as $purchase) {
+            if (100.00 === (float) $purchase->getCoupon()->getCode()) {
+                $coupon = $purchase->getCoupon();
+            }
+        }
+
+        $this->assertNotNull($coupon);
+
         $id = LoadTransactionData::TRANSACTION_COUPONS_USED_ID;
         $client = $this->createAuthenticatedClient();
         $client->request(
             'POST',
-            sprintf('/api/admin/customer/%s/campaign/%s/coupon/%s', LoadUserData::USER_COUPON_RETURN_ID, LoadCampaignData::PERCENTAGE_COUPON_CAMPAIGN_ID, '100'),
+            '/api/admin/campaign/coupons/mark_as_used',
             [
-                'used' => true,
-                'transactionId' => $id,
+                'coupons' => [
+                    [
+                        'customerId' => LoadUserData::USER_COUPON_RETURN_ID,
+                        'campaignId' => LoadCampaignData::PERCENTAGE_COUPON_CAMPAIGN_ID,
+                        'couponId' => $coupon->getId(),
+                        'code' => $coupon->getCode(),
+                        'used' => true,
+                        'transactionId' => $id,
+                    ],
+                ],
             ]
         );
+
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
     }

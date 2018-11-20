@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace OpenLoyalty\Component\Customer\Tests\Unit\Infrastructure\SystemEvent\Listener;
 
 use Broadway\CommandHandling\CommandBus;
+use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBought;
@@ -56,7 +57,8 @@ final class CreateCouponsReturnListenerTest extends TestCase
             $this->getTransactionRepository(100, 100),
             $this->getCampaignBoughtRepository([]),
             $commandBus,
-            $this->getCampaignRepository($campaign)
+            $this->getCampaignRepository($campaign),
+            $this->getUuidGenerator()
         );
 
         $listener->handleCustomerAssignedToTransaction(
@@ -114,7 +116,8 @@ final class CreateCouponsReturnListenerTest extends TestCase
             $this->getTransactionRepository(100, 100),
             $this->getCampaignBoughtRepository($bought),
             $commandBus,
-            $this->getCampaignRepository($campaign)
+            $this->getCampaignRepository($campaign),
+            $this->getUuidGenerator()
         );
 
         $commandBus->expects($this->once())->method('dispatch')->with($this->equalTo(
@@ -123,7 +126,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
                 new CampaignId(self::ID),
                 'Test campaign',
                 0,
-                new Coupon('10'),
+                new Coupon('123', '10'),
                 Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE,
                 new CustomerTransactionId(self::ID),
                 '00000000-0000-0000-0000-000000000000_00000000-0000-0000-0000-000000000000_10_00000000-0000-0000-0000-000000000000',
@@ -208,7 +211,8 @@ final class CreateCouponsReturnListenerTest extends TestCase
             $this->getTransactionRepository(100, 100),
             $this->getCampaignBoughtRepository($bought),
             $commandBus,
-            $this->getCampaignRepository($campaign)
+            $this->getCampaignRepository($campaign),
+            $this->getUuidGenerator()
         );
 
         $commandBus->expects($this->at(0))->method('dispatch')->with(
@@ -218,7 +222,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
                     new CampaignId(self::ID),
                     'Test campaign',
                     0,
-                    new Coupon('20'),
+                    new Coupon('123', '20'),
                     Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE,
                     new CustomerTransactionId(self::ID),
                     '00000000-0000-0000-0000-000000000000_00000000-0000-0000-0000-000000000000_20_00000000-0000-0000-0000-000000000000',
@@ -235,7 +239,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
                     new CampaignId(self::ID),
                     'Test campaign',
                     0,
-                    new Coupon('10'),
+                    new Coupon('123', '10'),
                     Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE,
                     new CustomerTransactionId(self::ID),
                     '00000000-0000-0000-0000-000000000000_00000000-0000-0000-0000-000000000000_10_00000000-0000-0000-0000-000000000000',
@@ -300,7 +304,8 @@ final class CreateCouponsReturnListenerTest extends TestCase
             $this->getTransactionRepository(50, 100),
             $this->getCampaignBoughtRepository($bought),
             $commandBus,
-            $this->getCampaignRepository($campaign)
+            $this->getCampaignRepository($campaign),
+            $this->getUuidGenerator()
         );
 
         $commandBus->expects($this->once())->method('dispatch')->with($this->equalTo(
@@ -309,7 +314,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
                 new CampaignId(self::ID),
                 'Test campaign',
                 0,
-                new Coupon('5'),
+                new Coupon('123', '5'),
                 Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE,
                 new CustomerTransactionId(self::ID),
                 '00000000-0000-0000-0000-000000000000_00000000-0000-0000-0000-000000000000_10_00000000-0000-0000-0000-000000000000',
@@ -394,7 +399,8 @@ final class CreateCouponsReturnListenerTest extends TestCase
             $this->getTransactionRepository(85, 100),
             $this->getCampaignBoughtRepository($bought),
             $commandBus,
-            $this->getCampaignRepository($campaign)
+            $this->getCampaignRepository($campaign),
+            $this->getUuidGenerator()
         );
 
         $commandBus->expects($this->at(0))->method('dispatch')->with(
@@ -404,7 +410,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
                     new CampaignId(self::ID),
                     'Test campaign',
                     0,
-                    new Coupon('20'),
+                    new Coupon('123', '20'),
                     Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE,
                     new CustomerTransactionId(self::ID),
                     '00000000-0000-0000-0000-000000000000_00000000-0000-0000-0000-000000000000_20_00000000-0000-0000-0000-000000000000',
@@ -421,7 +427,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
                     new CampaignId(self::ID),
                     'Test campaign',
                     0,
-                    new Coupon('5.5'),
+                    new Coupon('123', '5.5'),
                     Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE,
                     new CustomerTransactionId(self::ID),
                     '00000000-0000-0000-0000-000000000000_00000000-0000-0000-0000-000000000000_10_00000000-0000-0000-0000-000000000000',
@@ -488,7 +494,8 @@ final class CreateCouponsReturnListenerTest extends TestCase
             $this->getTransactionRepository(100, 100),
             $this->getCampaignBoughtRepository($bought),
             $commandBus,
-            $this->getCampaignRepository($campaign)
+            $this->getCampaignRepository($campaign),
+            $this->getUuidGenerator()
         );
 
         $listener->handleCustomerAssignedToTransaction(
@@ -566,5 +573,16 @@ final class CreateCouponsReturnListenerTest extends TestCase
         $repo->method('findBy')->willReturn([$transaction2]);
 
         return $repo;
+    }
+
+    /**
+     * @return MockObject|UuidGeneratorInterface
+     */
+    private function getUuidGenerator(): MockObject
+    {
+        $mock = $this->getMockBuilder(UuidGeneratorInterface::class)->getMock();
+        $mock->method('generate')->willReturn('123');
+
+        return $mock;
     }
 }

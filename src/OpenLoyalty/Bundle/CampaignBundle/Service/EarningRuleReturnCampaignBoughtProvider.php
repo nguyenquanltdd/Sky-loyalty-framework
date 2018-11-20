@@ -32,10 +32,7 @@ class EarningRuleReturnCampaignBoughtProvider implements EarningRuleReturnCampai
     }
 
     /**
-     * @param string $transactionId
-     * @param string $customerId
-     *
-     * @return EarningRuleCampaign[]
+     * {@inheritdoc}
      */
     public function findByTransactionAndCustomer(string $transactionId, string $customerId): array
     {
@@ -44,8 +41,11 @@ class EarningRuleReturnCampaignBoughtProvider implements EarningRuleReturnCampai
 
         foreach ($boughtCampaigns as $campaignBought) {
             $earningRuleCampaigns[] = new EarningRuleCampaign(
-                new EarningRuleCampaignId($campaignBought->getCampaignId()->__toString()),
-                new EarningRuleCoupon($campaignBought->getCoupon()->getCode()),
+                new EarningRuleCampaignId((string) $campaignBought->getCampaignId()),
+                new EarningRuleCoupon(
+                    $campaignBought->getCoupon()->getId(),
+                    $campaignBought->getCoupon()->getCode()
+                ),
                 $campaignBought->getCampaignType(),
                 $campaignBought->getPurchasedAt(),
                 $campaignBought->getStatus()

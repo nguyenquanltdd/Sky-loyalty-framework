@@ -52,6 +52,7 @@ class CampaignWasReturned extends CustomerEvent
             [
                 'purchaseId' => $this->purchaseId,
                 'coupon' => $this->coupon->getCode(),
+                'couponId' => $this->coupon->getId(),
             ]
         );
     }
@@ -64,7 +65,7 @@ class CampaignWasReturned extends CustomerEvent
         return new self(
             new CustomerId($data['customerId']),
             $data['purchaseId'],
-            new Coupon($data['coupon'])
+            new Coupon($data['couponId'], $data['coupon'])
         );
     }
 

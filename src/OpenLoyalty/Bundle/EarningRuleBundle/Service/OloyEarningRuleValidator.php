@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -56,7 +56,7 @@ class OloyEarningRuleValidator implements EarningRuleLimitValidator
     {
         $repo = $this->earningRuleUsageRepository;
         $earningRuleId = new EarningRuleId($earningRuleId);
-        // /** @var CustomEventEarningRule $earningRule */
+        /** @var CustomEventEarningRule $earningRule */
         $earningRule = $this->earningRuleRepository->byId($earningRuleId);
         if (!($earningRule instanceof CustomEventEarningRule || $earningRule instanceof EarningRuleQrcode || $earningRule instanceof EarningRuleGeo)) {
             return;
@@ -78,9 +78,9 @@ class OloyEarningRuleValidator implements EarningRuleLimitValidator
                 $usage = $repo->countMonthlyUsage($earningRuleId, $subject);
                 break;
             default:
-                $usage = 0;
+                $usage = null;
         }
-        if ($usage >= $limit->getLimit()) {
+        if (null !== $usage && $usage >= $limit->getLimit()) {
             throw new EarningRuleLimitExceededException();
         }
     }
