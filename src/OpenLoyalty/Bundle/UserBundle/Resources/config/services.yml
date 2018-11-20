@@ -98,6 +98,10 @@ services:
         tags:
             - { name: form.type }
 
+    OpenLoyalty\Bundle\UserBundle\Form\Type\InvitationFormType:
+        tags:
+            - { name: form.type }
+
     oloy.user.form_handler.customer_registration:
         autowire: true
         class: OpenLoyalty\Bundle\UserBundle\Form\Handler\CustomerRegistrationFormHandler
@@ -116,7 +120,6 @@ services:
             - '@oloy.user.read_model.repository.invitation_details'
             - '@oloy.user.read_model.repository.customer_details'
             - '@broadway.uuid.generator'
-            - '@oloy.user.email_provider'
 
     oloy.user.form_handler.seller_registration:
         class: OpenLoyalty\Bundle\UserBundle\Form\Handler\SellerRegistrationFormHandler
@@ -150,7 +153,7 @@ services:
         arguments:
             - '@oloy.email.message_factory'
             - '@oloy.mailer'
-            - {from_name: '%mailer_from_name%', from_address: '%mailer_from_address%', reset_password_url: '%reset_password_url%', loyalty_program_name: '%loyalty_program_name%', ecommerce_address: '%ecommerce_address%', customer_url: '%customer_url%', admin_url: '%admin_url%', merchant_url: '%merchant_url%'}
+            - {from_name: '%mailer_from_name%', from_address: '%mailer_from_address%', reset_password_url: '%reset_password_url%', loyalty_program_name: '%loyalty_program_name%', ecommerce_address: '%ecommerce_address%', customer_url: '%customer_url%', admin_url: '%admin_url%', merchant_url: '%merchant_url%', frontend_invitation_url: '%frontend_invitation_url%'}
 
     oloy.user.es_param_manager:
         class: OpenLoyalty\Bundle\UserBundle\Service\EsParamManager
@@ -296,3 +299,16 @@ services:
     OpenLoyalty\Bundle\UserBundle\Service\OloyLevelIdProvider:
         arguments:
             - '@oloy.level.repository'
+
+    OpenLoyalty\Bundle\UserBundle\Service\InvitationSender: ~
+
+    OpenLoyalty\Bundle\UserBundle\Service\SmsNotificationTransport:
+        arguments:
+            $parameters: {loyalty_program_name: '%loyalty_program_name%', customer_url: '%customer_url%', frontend_invitation_url: '%frontend_invitation_url%'}
+
+    OpenLoyalty\Bundle\UserBundle\Service\EmailNotificationTransport: ~
+
+    OpenLoyalty\Bundle\UserBundle\Service\NotificationService:
+        calls:
+            - [addTransport, ['@OpenLoyalty\Bundle\UserBundle\Service\EmailNotificationTransport']]
+            - [addTransport, ['@OpenLoyalty\Bundle\UserBundle\Service\SmsNotificationTransport']]

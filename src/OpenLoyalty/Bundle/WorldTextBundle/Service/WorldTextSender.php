@@ -1,14 +1,14 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\WorldTextBundle\Service;
 
 use OpenLoyalty\Bundle\ActivationCodeBundle\Exception\SmsSendException;
-use OpenLoyalty\Bundle\ActivationCodeBundle\Message\Message;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Service\SmsSender;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
+use OpenLoyalty\Bundle\SmsApiBundle\Message\Message;
 use OpenLoyalty\Bundle\WorldTextBundle\Lib\Exception\WTException;
 use OpenLoyalty\Bundle\WorldTextBundle\Lib\WorldTextSms;
 use Psr\Log\LoggerInterface;

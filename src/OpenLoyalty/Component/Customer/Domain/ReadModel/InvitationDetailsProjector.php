@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -61,6 +61,7 @@ class InvitationDetailsProjector extends Projector
                 $customer->getEmail(),
                 $customer->getFirstName().' '.$customer->getLastName(),
                 $event->getRecipientEmail(),
+                $event->getRecipientPhone(),
                 $event->getToken()
             );
         }

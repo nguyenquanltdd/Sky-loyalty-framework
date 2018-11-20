@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -52,11 +52,12 @@ class InvitationCommandHandler extends SimpleCommandHandler
 
     public function handleCreateInvitation(CreateInvitation $command)
     {
-        $token = $this->tokenGenerator->generate($command->getReferrerId(), $command->getRecipientEmail());
+        $token = $this->tokenGenerator->generate($command->getReferrerId(), $command->getRecipient());
         $invitation = Invitation::createInvitation(
             $command->getInvitationId(),
             $command->getReferrerId(),
-            $command->getRecipientEmail(),
+            $command->getType() === Invitation::EMAIL_TYPE ? $command->getRecipient() : null,
+            $command->getType() === Invitation::MOBILE_TYPE ? $command->getRecipient() : null,
             $token
         );
 

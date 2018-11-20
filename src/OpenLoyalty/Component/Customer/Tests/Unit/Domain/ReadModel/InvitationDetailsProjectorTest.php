@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -40,9 +40,14 @@ final class InvitationDetailsProjectorTest extends ProjectorScenarioTestCase
     protected $referrerId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $recipientEmail;
+
+    /**
+     * @var string|null
+     */
+    protected $recipientPhone;
 
     /**
      * @var string
@@ -57,6 +62,7 @@ final class InvitationDetailsProjectorTest extends ProjectorScenarioTestCase
         $this->invitationId = new InvitationId('00000000-0000-0000-0000-000000000000');
         $this->referrerId = new CustomerId('00000000-0000-0000-0000-000000000001');
         $this->recipientEmail = 'andrew.doe@example.com';
+        $this->recipientPhone = '123123777';
         $this->token = 'token';
 
         /** @var Customer|MockObject $customer */
@@ -80,13 +86,14 @@ final class InvitationDetailsProjectorTest extends ProjectorScenarioTestCase
     /**
      * @test
      */
-    public function it_creates_an_invitation(): void
+    public function it_creates_an_email_invitation(): void
     {
         $this->scenario->given([
         ])->when(new InvitationWasCreated(
                 $this->invitationId,
                 $this->referrerId,
                 $this->recipientEmail,
+                null,
                 $this->token
             )
         )->then([
@@ -103,6 +110,33 @@ final class InvitationDetailsProjectorTest extends ProjectorScenarioTestCase
     /**
      * @test
      */
+    public function it_creates_an_mobile_invitation(): void
+    {
+        $this->scenario->given([
+        ])->when(new InvitationWasCreated(
+                $this->invitationId,
+                $this->referrerId,
+                null,
+                $this->recipientPhone,
+                $this->token
+            )
+        )->then([
+            InvitationDetails::deserialize(
+                $this->getInvitationDetailsData(
+                    'john.doe@example.com',
+                    'John Doe',
+                    Invitation::STATUS_INVITED,
+                    null,
+                    null,
+                    Invitation::MOBILE_TYPE
+                )
+            ),
+        ]);
+    }
+
+    /**
+     * @test
+     */
     public function it_attaches_an_invitation_to_the_customer(): void
     {
         $this->scenario->given([
@@ -110,6 +144,7 @@ final class InvitationDetailsProjectorTest extends ProjectorScenarioTestCase
                 $this->invitationId,
                 $this->referrerId,
                 $this->recipientEmail,
+                null,
                 $this->token
             ),
         ])->when(new CustomerWasAttachedToInvitation(
@@ -139,6 +174,7 @@ final class InvitationDetailsProjectorTest extends ProjectorScenarioTestCase
                 $this->invitationId,
                 $this->referrerId,
                 $this->recipientEmail,
+                null,
                 $this->token
             ),
         ])->when(new PurchaseWasMadeForThisInvitation(
@@ -156,11 +192,12 @@ final class InvitationDetailsProjectorTest extends ProjectorScenarioTestCase
     }
 
     /**
-     * @param string      $referrerEmail
-     * @param string      $referrerName
-     * @param string      $status
-     * @param CustomerId  $recipientId
-     * @param string|null $recipientName
+     * @param string          $referrerEmail
+     * @param string          $referrerName
+     * @param string          $status
+     * @param CustomerId|null $recipientId
+     * @param string|null     $recipientName
+     * @param string          $type
      *
      * @return array
      */
@@ -169,12 +206,14 @@ final class InvitationDetailsProjectorTest extends ProjectorScenarioTestCase
         string $referrerName,
         string $status,
         CustomerId $recipientId = null,
-        string $recipientName = null
+        string $recipientName = null,
+        string $type = Invitation::EMAIL_TYPE
     ): array {
         return [
             'invitationId' => (string) $this->invitationId,
             'referrerId' => (string) $this->referrerId,
-            'recipientEmail' => $this->recipientEmail,
+            'recipientEmail' => $type === Invitation::EMAIL_TYPE ? $this->recipientEmail : null,
+            'recipientPhone' => $type === Invitation::MOBILE_TYPE ? $this->recipientPhone : null,
             'token' => $this->token,
             'recipientId' => (string) $recipientId,
             'recipientName' => $recipientName,
