@@ -1486,7 +1486,7 @@ class CustomerControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
 
-        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertEquals(200, $response->getStatusCode());
 
         $this->assertArrayHasKey('firstName', $data);
         $this->assertArrayHasKey('lastName', $data);
@@ -1507,6 +1507,7 @@ class CustomerControllerTest extends BaseApiTest
         $this->assertArrayHasKey('transactionsCount', $data);
         $this->assertArrayHasKey('transactionsAmount', $data);
         $this->assertArrayHasKey('currency', $data);
+        $this->assertArrayHasKey('pointsExpiringNextMonth', $data);
     }
 
     /**

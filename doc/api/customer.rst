@@ -186,6 +186,7 @@ Example Response
       "levelWillExpireInDays": 100,
       "pointsSinceLastLevelRecalculation": 0,
       "pointsRequiredToRetainLevel": 20
+      "pointsExpiringNextMonth": 150
     }
 
 .. note::

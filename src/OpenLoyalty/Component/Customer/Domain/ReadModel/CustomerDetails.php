@@ -480,7 +480,7 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return LevelId
      */
-    public function getLevelId()
+    public function getLevelId(): ?LevelId
     {
         return $this->levelId;
     }

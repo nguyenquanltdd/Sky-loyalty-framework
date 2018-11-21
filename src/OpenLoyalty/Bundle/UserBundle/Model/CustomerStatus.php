@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -145,6 +145,11 @@ class CustomerStatus
      * @var float|null
      */
     protected $pointsRequiredToRetainLevel;
+
+    /**
+     * @var int|null
+     */
+    private $pointsExpiringNextMonth;
 
     /**
      * CustomerStatus constructor.
@@ -555,5 +560,21 @@ class CustomerStatus
     public function setNextLevelConditionValue(float $nextLevelConditionValue): void
     {
         $this->nextLevelConditionValue = $nextLevelConditionValue;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getPointsExpiringNextMonth(): ?int
+    {
+        return $this->pointsExpiringNextMonth;
+    }
+
+    /**
+     * @param float|null $pointsExpiringNextMonth
+     */
+    public function setPointsExpiringNextMonth(?float $pointsExpiringNextMonth): void
+    {
+        $this->pointsExpiringNextMonth = $pointsExpiringNextMonth;
     }
 }

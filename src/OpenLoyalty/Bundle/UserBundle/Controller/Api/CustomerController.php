@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -33,6 +33,7 @@ use OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerSelfRegistrationFormType;
 use OpenLoyalty\Bundle\UserBundle\Import\CustomerXmlImporter;
 use OpenLoyalty\Bundle\UserBundle\Service\ParamManager;
 use OpenLoyalty\Bundle\UserBundle\Service\RegisterCustomerManager;
+use OpenLoyalty\Bundle\UserBundle\Status\CustomerStatusProvider;
 use OpenLoyalty\Component\Customer\Domain\Command\ActivateCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\AssignPosToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\AssignSellerToCustomer;
@@ -107,6 +108,11 @@ class CustomerController extends FOSRestController
     private $authorizationChecker;
 
     /**
+     * @var CustomerStatusProvider
+     */
+    private $customerStatusProvider;
+
+    /**
      * CustomerController constructor.
      *
      * @param CommandBus                    $commandBus
@@ -117,6 +123,7 @@ class CustomerController extends FOSRestController
      * @param ParamManager                  $paramManager
      * @param EntityManagerInterface        $entityManager
      * @param AuthorizationCheckerInterface $authorizationChecker
+     * @param CustomerStatusProvider        $customerStatusProvider
      */
     public function __construct(
         CommandBus $commandBus,
@@ -126,7 +133,8 @@ class CustomerController extends FOSRestController
         FormFactoryInterface $formFactory,
         ParamManager $paramManager,
         EntityManagerInterface $entityManager,
-        AuthorizationCheckerInterface $authorizationChecker
+        AuthorizationCheckerInterface $authorizationChecker,
+        CustomerStatusProvider $customerStatusProvider
     ) {
         $this->commandBus = $commandBus;
         $this->levelRepository = $levelRepository;
@@ -136,6 +144,7 @@ class CustomerController extends FOSRestController
         $this->paramManager = $paramManager;
         $this->entityManager = $entityManager;
         $this->authorizationChecker = $authorizationChecker;
+        $this->customerStatusProvider = $customerStatusProvider;
     }
 
     /**
@@ -353,7 +362,6 @@ class CustomerController extends FOSRestController
      * Method will return customer status<br/>
      * [Example response]<br/>
      * <pre>.
-     *
      * {
      * "firstName": "Jane",
      * "lastName": "Doe",
@@ -378,8 +386,9 @@ class CustomerController extends FOSRestController
      * "pointsSinceLastLevelRecalculation": 0,
      * "pointsRequiredToRetainLevel": 0,
      * "currency": "eur",
+     * "pointsExpiringNextMonth": 150
      * }
-     * </pre>
+     * </pre>.
      *
      * @Route(name="oloy.customer.get_status", path="/customer/{customer}/status")
      * @Route(name="oloy.customer.admin_get_status", path="/admin/customer/{customer}/status")
@@ -395,11 +404,13 @@ class CustomerController extends FOSRestController
      * @param CustomerDetails $customer
      *
      * @return View
+     *
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function getCustomerStatusAction(CustomerDetails $customer): View
     {
         return $this->view(
-            $this->get('oloy.customer_status_provider')->getStatus($customer->getCustomerId()),
+            $this->customerStatusProvider->getStatus($customer->getCustomerId()),
             Response::HTTP_OK
         );
     }
@@ -421,11 +432,9 @@ class CustomerController extends FOSRestController
      * @ApiDoc(
      *     name="Register Customer",
      *     section="Customer",
-     *     input={"class" = "OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerRegistrationFormType",
-     *         "name" = "customer"},
+     *     input={"class" = "OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerRegistrationFormType", "name" = "customer"},
      *     parameters={
-     *         {"name"="customer[labels]", "dataType"="string|array", "required"=false,
-     *             "description"="String of labels in form of key:val;key:val or an array of labels, each being an array having 'key' and 'value' key."}
+     *         {"name"="customer[labels]", "dataType"="string|array", "required"=false, "description"="String of labels in form of key:val;key:val or an array of labels, each being an array having 'key' and 'value' key."}
      *     },
      *     statusCodes={
      *         200="Returned when successful",
@@ -547,10 +556,10 @@ class CustomerController extends FOSRestController
      * @ApiDoc(
      *     name="Register Customer",
      *     section="Customer",
-     *     input={"class" = "OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerSelfRegistrationFormType", "name" =
-     *     "customer"}, statusCodes={
-     *       200="Returned when successful",
-     *       400="Returned when form contains errors",
+     *     input={"class" = "OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerSelfRegistrationFormType", "name"="customer"},
+     *     statusCodes={
+     *          200="Returned when successful",
+     *          400="Returned when form contains errors",
      *     }
      * )
      *

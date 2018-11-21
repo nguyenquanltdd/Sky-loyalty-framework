@@ -78,9 +78,10 @@ class AccountDetails implements SerializableReadModel, VersionableReadModel
      *
      * @throws AssertionFailedException
      */
-    public static function deserialize(array $data)
+    public static function deserialize(array $data): self
     {
         $account = new self(new AccountId($data['accountId']), new CustomerId($data['customerId']));
+
         foreach ($data['transfers'] as $transfer) {
             $account->addPointsTransfer($transfer['type']::deserialize($transfer['data']));
         }
@@ -88,6 +89,7 @@ class AccountDetails implements SerializableReadModel, VersionableReadModel
         if (isset($data['pointsResetAt'])) {
             $resetAt = new \DateTime();
             $resetAt->setTimestamp($data['pointsResetAt']);
+
             $account->setPointsResetAt($resetAt);
         }
 
@@ -108,19 +110,23 @@ class AccountDetails implements SerializableReadModel, VersionableReadModel
         }
 
         return [
-            'accountId' => $this->accountId->__toString(),
+            'accountId' => (string) $this->accountId,
             'pointsResetAt' => $this->pointsResetAt ? $this->pointsResetAt->getTimestamp() : null,
-            'customerId' => $this->customerId->__toString(),
+            'customerId' => (string) $this->customerId,
             'transfers' => $transfers,
         ];
     }
 
-    public function addPointsTransfer(PointsTransfer $pointsTransfer)
+    /**
+     * @param PointsTransfer $pointsTransfer
+     */
+    public function addPointsTransfer(PointsTransfer $pointsTransfer): void
     {
-        if (isset($this->transfers[$pointsTransfer->getId()->__toString()])) {
-            throw new \InvalidArgumentException($pointsTransfer->getId()->__toString().' already exists');
+        if (isset($this->transfers[(string) $pointsTransfer->getId()])) {
+            throw new \InvalidArgumentException(sprintf('%s already exists', (string) $pointsTransfer->getId()));
         }
-        $this->transfers[$pointsTransfer->getId()->__toString()] = $pointsTransfer;
+
+        $this->transfers[(string) $pointsTransfer->getId()] = $pointsTransfer;
     }
 
     /**
@@ -128,13 +134,13 @@ class AccountDetails implements SerializableReadModel, VersionableReadModel
      */
     public function getId(): string
     {
-        return $this->accountId->__toString();
+        return (string) $this->accountId;
     }
 
     /**
      * @return CustomerId
      */
-    public function getCustomerId()
+    public function getCustomerId(): CustomerId
     {
         return $this->customerId;
     }
@@ -142,7 +148,7 @@ class AccountDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @param CustomerId $customerId
      */
-    public function setCustomerId($customerId)
+    public function setCustomerId(CustomerId $customerId): void
     {
         $this->customerId = $customerId;
     }
@@ -150,7 +156,7 @@ class AccountDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return AccountId
      */
-    public function getAccountId()
+    public function getAccountId(): AccountId
     {
         return $this->accountId;
     }
@@ -158,7 +164,7 @@ class AccountDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return AddPointsTransfer[]
      */
-    public function getAllActiveAddPointsTransfers()
+    public function getAllActiveAddPointsTransfers(): array
     {
         $transfers = [];
         foreach ($this->transfers as $pointsTransfer) {
@@ -206,7 +212,7 @@ class AccountDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return AddPointsTransfer[]
      */
-    public function getAllExpiredAddPointsTransfers()
+    public function getAllExpiredAddPointsTransfers(): array
     {
         $transfers = [];
         foreach ($this->transfers as $pointsTransfer) {
@@ -250,7 +256,7 @@ class AccountDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return AddPointsTransfer[]
      */
-    public function getAllAddPointsTransfers()
+    public function getAllAddPointsTransfers(): array
     {
         $transfers = [];
         foreach ($this->transfers as $pointsTransfer) {
@@ -266,18 +272,26 @@ class AccountDetails implements SerializableReadModel, VersionableReadModel
         return $transfers;
     }
 
-    public function getTransfer(PointsTransferId $pointsTransferId)
+    /**
+     * @param PointsTransferId $pointsTransferId
+     *
+     * @return null|PointsTransfer
+     */
+    public function getTransfer(PointsTransferId $pointsTransferId): ?PointsTransfer
     {
-        if (!isset($this->transfers[$pointsTransferId->__toString()])) {
-            return;
+        if (!isset($this->transfers[(string) $pointsTransferId])) {
+            return null;
         }
 
-        return $this->transfers[$pointsTransferId->__toString()];
+        return $this->transfers[(string) $pointsTransferId];
     }
 
-    public function setTransfer(PointsTransfer $pointsTransfer)
+    /**
+     * @param PointsTransfer $pointsTransfer
+     */
+    public function setTransfer(PointsTransfer $pointsTransfer): void
     {
-        $this->transfers[$pointsTransfer->getId()->__toString()] = $pointsTransfer;
+        $this->transfers[(string) $pointsTransfer->getId()] = $pointsTransfer;
     }
 
     /**
@@ -395,9 +409,9 @@ class AccountDetails implements SerializableReadModel, VersionableReadModel
     }
 
     /**
-     * @return \OpenLoyalty\Component\Account\Domain\Model\PointsTransfer[]
+     * @return PointsTransfer[]
      */
-    public function getTransfers()
+    public function getTransfers(): array
     {
         return $this->transfers;
     }

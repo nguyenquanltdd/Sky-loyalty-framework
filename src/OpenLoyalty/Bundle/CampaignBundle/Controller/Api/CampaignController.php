@@ -421,9 +421,9 @@ class CampaignController extends FOSRestController
      *     section="Campaign",
      *     input={"class" = "OpenLoyalty\Bundle\CampaignBundle\Form\Type\EditCampaignFormType", "name" = "campaign"},
      *     statusCodes={
-     *       200="Returned when successful",
-     *       400="Returned when there are errors in form",
-     *       404="Returned when campaign not found"
+     *          200="Returned when successful",
+     *          400="Returned when there are errors in form",
+     *          404="Returned when campaign not found"
      *     }
      * )
      *
@@ -615,11 +615,11 @@ class CampaignController extends FOSRestController
             $params['activeSinceTo'] ?? null
         );
         $this->paramManager->appendDateRangeFilter(
-                $params,
-                'activeSince',
-                $params['activeToFrom'] ?? null,
-                $params['activeToTo'] ?? null
-            );
+            $params,
+            'activeSince',
+            $params['activeToFrom'] ?? null,
+            $params['activeToTo'] ?? null
+        );
 
         unset($params['purchasedAtFrom']);
         unset($params['purchasedAtTo']);

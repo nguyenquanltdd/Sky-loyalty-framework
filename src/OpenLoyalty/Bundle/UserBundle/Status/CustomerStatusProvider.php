@@ -8,6 +8,7 @@ namespace OpenLoyalty\Bundle\UserBundle\Status;
 use Broadway\ReadModel\Repository;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\UserBundle\Model\CustomerStatus;
+use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
 use OpenLoyalty\Component\Account\Infrastructure\Provider\AccountDetailsProviderInterface;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
@@ -19,12 +20,15 @@ use OpenLoyalty\Component\Customer\Infrastructure\TierAssignTypeProvider;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelId;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
+use OpenLoyalty\Component\Level\Domain\Model\Reward;
 
 /**
  * Class CustomerStatusProvider.
  */
 class CustomerStatusProvider
 {
+    public const DEFAULT_CURRENCY = 'PLN';
+
     /**
      * @var Repository
      */
@@ -101,146 +105,203 @@ class CustomerStatusProvider
      * @param CustomerId $customerId
      *
      * @return CustomerStatus
+     *
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function getStatus(CustomerId $customerId): CustomerStatus
     {
-        $status = new CustomerStatus($customerId);
-        $status->setCurrency($this->getCurrency());
+        $customerStatus = new CustomerStatus($customerId);
+        $customerStatus->setCurrency($this->settingsCurrency());
 
-        $customer = $this->customerDetailsProvider->getCustomerDetailsByCustomerId($customerId);
-        if (!$customer) {
-            return $status;
+        $customerDetails = $this->customerDetailsProvider->getCustomerDetailsByCustomerId($customerId);
+
+        if (null === $customerDetails) {
+            return $customerStatus;
         }
 
-        $status->setFirstName($customer->getFirstName());
-        $status->setLastName($customer->getLastName());
+        $customerStatus->setFirstName($customerDetails->getFirstName());
+        $customerStatus->setLastName($customerDetails->getLastName());
 
         $accountDetails = $this->accountDetailsProvider->getAccountDetailsByCustomerId($customerId);
 
-        /** @var Level $level */
-        $level = $customer->getLevelId() ? $this->levelRepository->byId(new LevelId((string) $customer->getLevelId())) : null;
-
         $nextLevel = null;
-        $conditionValue = 0;
 
-        $tierAssignType = $this->tierAssignTypeProvider->getType();
-        if ($tierAssignType == TierAssignTypeProvider::TYPE_POINTS) {
-            if ($accountDetails) {
-                $conditionValue = $accountDetails->getAvailableAmount();
-            }
-        } elseif ($tierAssignType == TierAssignTypeProvider::TYPE_TRANSACTIONS) {
-            if ($this->excludeDeliveryCostProvider->areExcluded()) {
-                $conditionValue = $customer->getTransactionsAmountWithoutDeliveryCosts() - $customer->getAmountExcludedForLevel();
-            } else {
-                $conditionValue = $customer->getTransactionsAmount() - $customer->getAmountExcludedForLevel();
-            }
-        }
+        /** @var Level $currentLevel */
+        $currentLevel = $this->levelRepository->byId(new LevelId((string) $customerDetails->getLevelId()));
 
-        /** @var Level $nextLevel */
-        $nextLevel = $level ?
-            $this->levelRepository->findNextLevelByConditionValueWithTheBiggestReward(
+        if (null !== $currentLevel) {
+            $conditionValue = $this->customerCurrentLevelConditionValue($customerDetails, $accountDetails);
+
+            /** @var Level $nextLevel */
+            $nextLevel = $this->levelRepository->findNextLevelByConditionValueWithTheBiggestReward(
                 $conditionValue,
-                $level->getConditionValue()
-            )
-            : null;
-
-        if ($accountDetails) {
-            $status->setPoints($accountDetails->getAvailableAmount());
-            $status->setP2pPoints($accountDetails->getP2PAvailableAmount());
-            $status->setTotalEarnedPoints($accountDetails->getEarnedAmount());
-            $status->setUsedPoints($accountDetails->getUsedAmount());
-            $status->setExpiredPoints($accountDetails->getExpiredAmount());
-            $status->setLockedPoints($accountDetails->getLockedAmount());
-
-            $status->setTransactionsAmount($customer->getTransactionsAmount());
-            $status->setTransactionsAmountWithoutDeliveryCosts($customer->getTransactionsAmountWithoutDeliveryCosts());
-            $status->setAverageTransactionsAmount(number_format($customer->getAverageTransactionAmount(), 2, '.', ''));
-            $status->setTransactionsCount($customer->getTransactionsCount());
-            if ($this->displayDowngradeModeXDaysStats()) {
-                $startDate = $customer->getLastLevelRecalculation() ?: $customer->getCreatedAt();
-                $status->setPointsSinceLastLevelRecalculation($accountDetails->getEarnedAmountSince($startDate));
-            }
+                $currentLevel->getConditionValue()
+            );
         }
 
-        if ($level) {
-            $status->setLevelName($level->getName());
-            $status->setLevelPercent(number_format($level->getReward()->getValue() * 100, 2).'%');
-            $status->setLevelConditionValue($level->getConditionValue());
+        if (null !== $accountDetails) {
+            $this->applyAccountDetails($customerStatus, $customerDetails, $accountDetails);
         }
 
-        if ($nextLevel) {
-            $status->setNextLevelName($nextLevel->getName());
-            $status->setNextLevelPercent(number_format($nextLevel->getReward()->getValue() * 100, 2).'%');
-            $status->setNextLevelConditionValue($nextLevel->getConditionValue());
+        if (null !== $currentLevel) {
+            $customerStatus->setLevelName($currentLevel->getName());
+            $customerStatus->setLevelPercent($this->rewardPercentageValue($currentLevel->getReward()));
+            $customerStatus->setLevelConditionValue($currentLevel->getConditionValue());
         }
 
-        if ($level && $nextLevel && $this->displayDowngradeModeXDaysStats()) {
-            $pointsRequiredToRetainLevel = $status->getLevelConditionValue() - $status->getPointsSinceLastLevelRecalculation();
-            if ($pointsRequiredToRetainLevel < 0) {
+        if (null !== $nextLevel) {
+            $customerStatus->setNextLevelName($nextLevel->getName());
+            $customerStatus->setNextLevelPercent($this->rewardPercentageValue($nextLevel->getReward()));
+            $customerStatus->setNextLevelConditionValue($nextLevel->getConditionValue());
+        }
+
+        if (null !== $currentLevel && null !== $nextLevel && $this->displayDowngradeModeXDaysStats()) {
+            $pointsRequiredToRetainLevel = $customerStatus->getLevelConditionValue() - $customerStatus->getPointsSinceLastLevelRecalculation();
+
+            if (0 > $pointsRequiredToRetainLevel) {
                 $pointsRequiredToRetainLevel = 0.00;
             }
-            $status->setPointsRequiredToRetainLevel($pointsRequiredToRetainLevel);
+
+            $customerStatus->setPointsRequiredToRetainLevel($pointsRequiredToRetainLevel);
         }
 
-        if ($nextLevel && $accountDetails) {
-            $this->applyNextLevelRequirements($customer, $status, $nextLevel, $accountDetails->getAvailableAmount());
+        if (null !== $nextLevel && null !== $accountDetails) {
+            $this->applyNextLevelRequirements($customerStatus, $customerDetails, $nextLevel, $accountDetails->getAvailableAmount());
         }
 
         if ($this->displayDowngradeModeXDaysStats()) {
-            $date = $customer->getLastLevelRecalculation() ?: $customer->getCreatedAt();
-            $nextDate = (clone $date)->modify(sprintf('+%u days', $this->levelDowngradeModeProvider->getDays()));
-            $currentDate = new \DateTime();
-            if ($nextDate < $currentDate) {
-                $days = 0;
-            } else {
-                $diff = abs($nextDate->getTimestamp() - $currentDate->getTimestamp());
-                $days = ceil($diff / 86400);
-            }
+            $days = $this->downgradeExpireDays($customerDetails);
 
-            $status->setLevelWillExpireInDays($days);
+            $customerStatus->setLevelWillExpireInDays($days);
         }
 
-        return $status;
+        $this->applyNextMonthExpirePoints($customerStatus, $accountDetails);
+
+        return $customerStatus;
     }
 
     /**
-     * @param CustomerDetails $customer
-     * @param CustomerStatus  $status
+     * @param CustomerStatus  $customerStatus
+     * @param CustomerDetails $customerDetails
+     * @param AccountDetails  $accountDetails
+     */
+    private function applyAccountDetails(
+        CustomerStatus $customerStatus,
+        CustomerDetails $customerDetails,
+        AccountDetails $accountDetails
+    ): void {
+        $customerStatus->setPoints($accountDetails->getAvailableAmount());
+        $customerStatus->setP2pPoints($accountDetails->getP2PAvailableAmount());
+        $customerStatus->setTotalEarnedPoints($accountDetails->getEarnedAmount());
+        $customerStatus->setUsedPoints($accountDetails->getUsedAmount());
+        $customerStatus->setExpiredPoints($accountDetails->getExpiredAmount());
+        $customerStatus->setLockedPoints($accountDetails->getLockedAmount());
+        $customerStatus->setTransactionsAmount($customerDetails->getTransactionsAmount());
+        $customerStatus->setTransactionsAmountWithoutDeliveryCosts($customerDetails->getTransactionsAmountWithoutDeliveryCosts());
+        $customerStatus->setAverageTransactionsAmount(number_format($customerDetails->getAverageTransactionAmount(), 2, '.', ''));
+        $customerStatus->setTransactionsCount($customerDetails->getTransactionsCount());
+
+        if ($this->displayDowngradeModeXDaysStats()) {
+            $startDate = $customerDetails->getLastLevelRecalculation() ?: $customerDetails->getCreatedAt();
+
+            $customerStatus->setPointsSinceLastLevelRecalculation($accountDetails->getEarnedAmountSince($startDate));
+        }
+    }
+
+    /**
+     * @param CustomerStatus  $customerStatus
+     * @param CustomerDetails $customerDetails
      * @param Level           $nextLevel
-     * @param                 $currentPoints
+     * @param int             $currentPoints
      */
     private function applyNextLevelRequirements(
-        CustomerDetails $customer,
-        CustomerStatus $status,
+        CustomerStatus $customerStatus,
+        CustomerDetails $customerDetails,
         Level $nextLevel,
-        $currentPoints
+        int $currentPoints
     ): void {
-        $tierAssignType = $this->tierAssignTypeProvider->getType();
+        $type = $this->tierAssignTypeProvider->getType();
+        switch ($type) {
+            case TierAssignTypeProvider::TYPE_POINTS:
+                $customerStatus->setPointsToNextLevel($nextLevel->getConditionValue() - $currentPoints);
 
-        if ($tierAssignType == TierAssignTypeProvider::TYPE_POINTS) {
-            $status->setPointsToNextLevel($nextLevel->getConditionValue() - $currentPoints);
-        } elseif ($tierAssignType == TierAssignTypeProvider::TYPE_TRANSACTIONS) {
-            if ($this->excludeDeliveryCostProvider->areExcluded()) {
-                $currentAmount = $customer->getTransactionsAmountWithoutDeliveryCosts() - $customer->getAmountExcludedForLevel();
-                $status->setTransactionsAmountToNextLevelWithoutDeliveryCosts(($nextLevel->getConditionValue() - $currentAmount));
-            } else {
-                $currentAmount = $customer->getTransactionsAmount() - $customer->getAmountExcludedForLevel();
-                $status->setTransactionsAmountToNextLevel(($nextLevel->getConditionValue() - $currentAmount));
-            }
+                return;
+            case TierAssignTypeProvider::TYPE_TRANSACTIONS:
+                $this->setCustomerTransactionAmountToNextLevel($customerStatus, $customerDetails, $nextLevel);
+
+                return;
         }
+
+        throw new \InvalidArgumentException();
+    }
+
+    /**
+     * @param CustomerStatus $customerStatus
+     * @param AccountDetails $accountDetails
+     */
+    private function applyNextMonthExpirePoints(CustomerStatus $customerStatus, AccountDetails $accountDetails): void
+    {
+        $expiringPointsSum = 0;
+
+        $addPointsTransfers = $accountDetails->getAllActiveAddPointsTransfers();
+        foreach ($addPointsTransfers as $pointsTransfer) {
+            if (null === $expiresAt = $pointsTransfer->getExpiresAt()) {
+                continue;
+            }
+
+            if ((new \DateTime())->format('m') >= $expiresAt->format('m')) {
+                continue;
+            }
+
+            $expiringPointsSum += $pointsTransfer->getAvailableAmount();
+        }
+
+        $customerStatus->setPointsExpiringNextMonth($expiringPointsSum);
+    }
+
+    /**
+     * @param CustomerStatus  $customerStatus
+     * @param CustomerDetails $customer
+     * @param Level           $nextLevel
+     */
+    private function setCustomerTransactionAmountToNextLevel(
+        CustomerStatus $customerStatus,
+        CustomerDetails $customer,
+        Level $nextLevel
+    ): void {
+        if ($this->excludeDeliveryCostProvider->areExcluded()) {
+            $currentAmount = $customer->getTransactionsAmountWithoutDeliveryCosts() - $customer->getAmountExcludedForLevel();
+            $customerStatus->setTransactionsAmountToNextLevelWithoutDeliveryCosts($nextLevel->getConditionValue() - $currentAmount);
+
+            return;
+        }
+
+        $currentAmount = $customer->getTransactionsAmount() - $customer->getAmountExcludedForLevel();
+        $customerStatus->setTransactionsAmountToNextLevel($nextLevel->getConditionValue() - $currentAmount);
     }
 
     /**
      * @return string
      */
-    private function getCurrency(): string
+    private function settingsCurrency(): string
     {
         $currency = $this->settingsManager->getSettingByKey('currency');
-        if ($currency) {
+
+        if (null !== $currency) {
             return $currency->getValue();
         }
 
-        return 'PLN';
+        return self::DEFAULT_CURRENCY;
+    }
+
+    /**
+     * @param Reward $reward
+     *
+     * @return string
+     */
+    private function rewardPercentageValue(Reward $reward): string
+    {
+        return number_format($reward->getValue() * 100, 2).'%';
     }
 
     /**
@@ -256,5 +317,54 @@ class CustomerStatusProvider
         } catch (LevelDowngradeModeNotSupportedException $e) {
             return false;
         }
+    }
+
+    /**
+     * @param $customerDetails
+     *
+     * @return int
+     */
+    private function downgradeExpireDays(CustomerDetails $customerDetails): int
+    {
+        $date = $customerDetails->getLastLevelRecalculation() ?: $customerDetails->getCreatedAt();
+
+        $nextDate = (clone $date)->modify(sprintf('+%u days', $this->levelDowngradeModeProvider->getDays()));
+        $currentDate = new \DateTime();
+
+        if ($nextDate < $currentDate) {
+            return 0;
+        }
+
+        $diff = abs($nextDate->getTimestamp() - $currentDate->getTimestamp());
+
+        return ceil($diff / 86400);
+    }
+
+    /**
+     * @param AccountDetails  $accountDetails
+     * @param CustomerDetails $customerDetails
+     *
+     * @return int
+     */
+    private function customerCurrentLevelConditionValue(
+        CustomerDetails $customerDetails,
+        ?AccountDetails $accountDetails
+    ): int {
+        $conditionValue = 0;
+
+        $tierAssignType = $this->tierAssignTypeProvider->getType();
+        if ($tierAssignType === TierAssignTypeProvider::TYPE_POINTS) {
+            if (null !== $accountDetails) {
+                $conditionValue = $accountDetails->getAvailableAmount();
+            }
+        } elseif ($tierAssignType === TierAssignTypeProvider::TYPE_TRANSACTIONS) {
+            if ($this->excludeDeliveryCostProvider->areExcluded()) {
+                $conditionValue = $customerDetails->getTransactionsAmountWithoutDeliveryCosts() - $customerDetails->getAmountExcludedForLevel();
+            } else {
+                $conditionValue = $customerDetails->getTransactionsAmount() - $customerDetails->getAmountExcludedForLevel();
+            }
+        }
+
+        return $conditionValue;
     }
 }
