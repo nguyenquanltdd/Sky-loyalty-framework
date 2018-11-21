@@ -467,6 +467,11 @@
           "cashback": "Cashback"
         },
         "page": {
+          "days": "d",
+          "hours": "h",
+          "minutes": "m",
+          "seconds": "s",
+          "reward_will_be_available_for": "Reward will be available for: ",
           "back_to_rewards_list": "Back to rewards list",
           "reward_availability_prefix": "Reward available since ",
           "reward_availability_suffix": " points",
@@ -483,6 +488,7 @@
           "reward_limit_prefix": "Limit of this reward is ",
           "reward_limit_suffix": " for one user.",
           "reward_available_from": "Reward available from: ",
+          "reward_available_to": "Reward available to: ",
           "popular_rewards": "Popular rewards",
           "points": " points",
           "not_enough_points_prefix": "You need additional ",

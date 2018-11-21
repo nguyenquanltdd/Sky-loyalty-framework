@@ -490,6 +490,11 @@
           "cashback": "cashback"
         },
         "page": {
+          "days": "d",
+          "hours": "g",
+          "minutes": "m",
+          "seconds": "s",
+          "reward_will_be_available_for": "Nagroda będzie dostępna za: ",
           "back_to_rewards_list": "Przejdź do listy nagród",
           "reward_availability_prefix": "Nagroda dostępna od ",
           "reward_availability_suffix": " punktów",
@@ -506,6 +511,7 @@
           "reward_limit_prefix": "Limit nagród wynosi ",
           "reward_limit_suffix": " na osobę",
           "reward_available_from": "Nagroda ważna od: ",
+          "reward_available_to": "Nagroda ważna do: ",
           "popular_rewards": "Popularne nagrody",
           "points": " punktów",
           "not_enough_points_prefix": "Brakuje Ci",
