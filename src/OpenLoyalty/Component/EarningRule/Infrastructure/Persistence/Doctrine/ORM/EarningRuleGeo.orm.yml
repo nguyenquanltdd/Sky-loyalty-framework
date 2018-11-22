@@ -4,12 +4,12 @@ OpenLoyalty\Component\EarningRule\Domain\EarningRuleGeo:
   fields:
     latitude:
       type: decimal
-      scale: 2
+      scale: 5
       precision: 14
       column: latitude
     longitude:
       type: decimal
-      scale: 2
+      scale: 5
       precision: 14
       column: longitude
     radius:
