@@ -10,7 +10,6 @@ use Gaufrette\Filesystem;
 use OpenLoyalty\Bundle\SettingsBundle\Model\FileInterface;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Logo;
 use OpenLoyalty\Component\Core\Domain\Command\ResizeLogo;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
