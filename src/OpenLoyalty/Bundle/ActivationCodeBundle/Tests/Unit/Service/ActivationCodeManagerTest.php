@@ -305,7 +305,7 @@ class ActivationCodeManagerTest extends TestCase
      */
     protected function getActivationCodeManager(UuidGeneratorInterface $uuidGenerator, EntityManager $em, CodeGenerator $codeGenerator, SmsSender $smsSender = null)
     {
-        $manager = new ActivationCodeManager($uuidGenerator, $em, $this->translator, $codeGenerator, 'OpenLoyalty');
+        $manager = new ActivationCodeManager($uuidGenerator, $em, $this->translator, $codeGenerator, 'OpenLoyalty', 6);
 
         if (null !== $smsSender) {
             $manager->setSmsSender($smsSender);

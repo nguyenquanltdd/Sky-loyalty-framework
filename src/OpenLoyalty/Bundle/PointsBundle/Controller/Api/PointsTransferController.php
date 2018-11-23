@@ -26,7 +26,6 @@ use OpenLoyalty\Bundle\PointsBundle\Import\PointsTransferXmlImporter;
 use OpenLoyalty\Bundle\PointsBundle\Service\PointsTransfersManager;
 use OpenLoyalty\Bundle\UserBundle\Service\EsParamManager;
 use OpenLoyalty\Bundle\UserBundle\Service\MasterAdminProvider;
-use OpenLoyalty\Bundle\UserBundle\Service\ParamManager;
 use OpenLoyalty\Component\Account\Domain\Command\AddPoints;
 use OpenLoyalty\Component\Account\Domain\Command\CancelPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Command\SpendPoints;

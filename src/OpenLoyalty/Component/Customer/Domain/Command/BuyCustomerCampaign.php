@@ -10,7 +10,6 @@ use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
-use OpenLoyalty\Component\Customer\Domain\TransactionId;
 
 /**
  * Class BuyCustomerCampaign.

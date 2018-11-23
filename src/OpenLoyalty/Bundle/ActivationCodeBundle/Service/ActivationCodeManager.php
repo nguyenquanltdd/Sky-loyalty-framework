@@ -69,19 +69,22 @@ class ActivationCodeManager
      * @param TranslatorInterface    $translator
      * @param CodeGenerator          $codeGenerator
      * @param string                 $loyaltyProgramName
+     * @param int                    $codeLength
      */
     public function __construct(
         UuidGeneratorInterface $uuidGenerator,
         EntityManager $em,
         TranslatorInterface $translator,
         CodeGenerator $codeGenerator,
-        string $loyaltyProgramName
+        string $loyaltyProgramName,
+        int $codeLength
     ) {
         $this->em = $em;
         $this->uuidGenerator = $uuidGenerator;
         $this->codeGenerator = $codeGenerator;
         $this->translator = $translator;
         $this->loyaltyProgramName = $loyaltyProgramName;
+        $this->codeLength = $codeLength;
     }
 
     /**

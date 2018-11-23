@@ -9,7 +9,6 @@ use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\FOSRestController;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\UtilityBundle\Service\CustomerDetailsCsvFormatter;
-use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Segment\Domain\Segment;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;

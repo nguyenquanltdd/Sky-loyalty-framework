@@ -59,3 +59,4 @@ parameters:
     earning_rule_photos_adapter: earning_rule_photos_local
     earning_rule_photos_adapter_env: EARNING_RULE_PHOTOS_ADAPTER
     master_api_key: ~
+    activation_code_length: 6

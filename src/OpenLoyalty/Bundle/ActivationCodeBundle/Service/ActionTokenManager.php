@@ -5,7 +5,6 @@
  */
 namespace OpenLoyalty\Bundle\ActivationCodeBundle\Service;
 
-use Doctrine\Common\Cache\Cache;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Method\ActivationMethod;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
