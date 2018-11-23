@@ -28,7 +28,8 @@ class EarningRuleLimit extends BaseLimit
         }
 
         if (!in_array($this->period, [
-            static::PERIOD_DAY, static::PERIOD_WEEK, static::PERIOD_MONTH,
+            static::PERIOD_DAY, static::PERIOD_WEEK, static::PERIOD_MONTH, static::PERIOD_FOREVER, self::PERIOD_YEAR,
+            static::PERIOD_3_MONTHS, static::PERIOD_6_MONTHS,
         ])) {
             $context->buildViolation('This value is not valid.')->atPath('period')->addViolation();
         }

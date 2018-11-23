@@ -403,7 +403,7 @@ Definition
 | Authorization                                  | header         |  Token received during authentication                                      |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | earningRule[type]                              | request        |  The type of earning points. Possible types: Custom event rule, Customer   |
-|                                                |                |     Referral, Event Rule, General spending rule, Multiple earned points,      |
+|                                                |                |     Referral, Event Rule, General spending rule, Multiple earned points,   |
 |                                                |                |  Product Purchase, Multiple by product labels                              |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | earningRule[rewardType]                        | request        |  Who will be rewarded. Possible types:                                     |
@@ -433,6 +433,7 @@ Definition
 | earningRule[limit][active]                     | request        |  Set 1 if usage limit active, otherwise 0                                  |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | earningRule[limit][period]                     | request        |  Period usage limit. *(required only if ``[limit][active]=1``)*            |
+|                                                |                |  Possible parameters: day,week,month,3months,6months,year,forever          |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+
 | earningRule[limit][limit]                      | request        |  Usage limit. *(required only if ``[limit][active]=1``)*                   |
 +------------------------------------------------+----------------+----------------------------------------------------------------------------+

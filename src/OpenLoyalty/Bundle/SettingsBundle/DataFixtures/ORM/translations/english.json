@@ -1359,13 +1359,21 @@
       "limit": "Limit",
       "limit_prompt": "",
       "period": "Period",
-      "period_prompt": ""
+      "period_prompt": "",
+      "3 months": "3 months",
+      "6 months": "6 months",
+      "1 year": "1 year",
+      "forever": "Forever"
     },
     "limit_info": "Usage limit",
     "limit_period": {
       "day": "day",
       "month": "month",
-      "week": "week"
+      "week": "week",
+      "3 months": "3 months",
+      "6 months": "6 months",
+      "1 year": "1 year",
+      "forever": "Forever"
     },
     "list": "Earning rules list",
     "min_order_value": "Min order value",

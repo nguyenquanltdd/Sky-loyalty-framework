@@ -77,6 +77,18 @@ class OloyEarningRuleValidator implements EarningRuleLimitValidator
             case EarningRuleLimit::PERIOD_MONTH:
                 $usage = $repo->countMonthlyUsage($earningRuleId, $subject);
                 break;
+            case EarningRuleLimit::PERIOD_3_MONTHS:
+                $usage = $repo->countThreeMonthlyUsage($earningRuleId, $subject);
+                break;
+            case EarningRuleLimit::PERIOD_6_MONTHS:
+                $usage = $repo->countSixMonthlyUsage($earningRuleId, $subject);
+                break;
+            case EarningRuleLimit::PERIOD_YEAR:
+                $usage = $repo->countYearUsage($earningRuleId, $subject);
+                break;
+            case EarningRuleLimit::PERIOD_FOREVER:
+                $usage = $repo->countForeverUsage($earningRuleId, $subject);
+                break;
             default:
                 $usage = 0;
         }
