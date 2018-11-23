@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -14,7 +14,7 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Exception\SmsSendException;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Generator\CodeGenerator;
-use OpenLoyalty\Bundle\ActivationCodeBundle\Message\Message;
+use OpenLoyalty\Bundle\SmsApiBundle\Message\Message;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Component\ActivationCode\Domain\ActivationCode;
 use OpenLoyalty\Component\ActivationCode\Domain\ActivationCodeId;

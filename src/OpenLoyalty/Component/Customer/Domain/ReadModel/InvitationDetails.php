@@ -47,9 +47,14 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
     private $recipientId;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $recipientName;
+
+    /**
+     * @var string|null
+     */
+    private $recipientPhone;
 
     /**
      * @var string
@@ -62,13 +67,15 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
     private $token;
 
     /**
+     * /**
      * InvitationDetails constructor.
      *
      * @param InvitationId $invitationId
      * @param CustomerId   $referrerId
      * @param string       $referrerEmail
      * @param string       $referrerName
-     * @param string       $recipientEmail
+     * @param null|string  $recipientEmail
+     * @param null|string  $recipientPhone
      * @param string       $token
      */
     public function __construct(
@@ -76,7 +83,8 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
         CustomerId $referrerId,
         string $referrerEmail,
         string $referrerName,
-        string $recipientEmail,
+        ?string $recipientEmail,
+        ?string $recipientPhone,
         string $token
     ) {
         $this->invitationId = $invitationId;
@@ -84,6 +92,7 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
         $this->referrerEmail = $referrerEmail;
         $this->referrerName = $referrerName;
         $this->recipientEmail = $recipientEmail;
+        $this->recipientPhone = $recipientPhone;
         $this->status = Invitation::STATUS_INVITED;
         $this->token = $token;
     }
@@ -121,7 +130,7 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return string
      */
-    public function getReferrerEmail(): string
+    public function getReferrerEmail(): ?string
     {
         return $this->referrerEmail;
     }
@@ -135,17 +144,17 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getRecipientEmail(): string
+    public function getRecipientEmail(): ?string
     {
         return $this->recipientEmail;
     }
 
     /**
-     * @return CustomerId
+     * @return CustomerId|null
      */
-    public function getRecipientId(): CustomerId
+    public function getRecipientId(): ?CustomerId
     {
         return $this->recipientId;
     }
@@ -183,6 +192,14 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
     }
 
     /**
+     * @return null|string
+     */
+    public function getRecipientPhone(): ?string
+    {
+        return $this->recipientPhone;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public static function deserialize(array $data)
@@ -192,7 +209,8 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
             new CustomerId($data['referrerId']),
             $data['referrerEmail'],
             $data['referrerName'],
-            $data['recipientEmail'],
+            $data['recipientEmail'] ?? null,
+           $data['recipientPhone'] ?? null,
             $data['token']
         );
         $invitation->updateRecipientData(
@@ -217,6 +235,7 @@ class InvitationDetails implements SerializableReadModel, VersionableReadModel
             'referrerName' => $this->referrerName,
             'recipientId' => $this->recipientId ? $this->recipientId->__toString() : null,
             'recipientEmail' => $this->recipientEmail,
+            'recipientPhone' => $this->recipientPhone,
             'recipientName' => $this->recipientName,
             'status' => $this->status,
             'token' => $this->token,

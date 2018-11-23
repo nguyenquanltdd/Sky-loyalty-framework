@@ -294,9 +294,13 @@
                 <source>Fill at least one customer field</source>
                 <target>Fill at least one customer field</target>
             </trans-unit>
-            <trans-unit id="74">
-                <source>a</source>
-                <target>Uzupełnij przynajmniej jedno pole</target>
+            <trans-unit id="75">
+                <source>Invitation exists</source>
+                <target>Invitation exists</target>
+            </trans-unit>
+            <trans-unit id="76">
+                <source>invitation.send_message</source>
+                <target>Register account using this link %s</target>
             </trans-unit>
         </body>
     </file>

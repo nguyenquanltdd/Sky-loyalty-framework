@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -15,6 +15,9 @@ use OpenLoyalty\Component\Customer\Domain\Event\PurchaseWasMadeForThisInvitation
  */
 class Invitation extends EventSourcedAggregateRoot
 {
+    const EMAIL_TYPE = 'email';
+    const MOBILE_TYPE = 'mobile';
+
     const STATUS_INVITED = 'invited';
     const STATUS_REGISTERED = 'registered';
     const STATUS_MADE_PURCHASE = 'made_purchase';
@@ -30,9 +33,14 @@ class Invitation extends EventSourcedAggregateRoot
     private $referrerId;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $recipientEmail;
+
+    /**
+     * @var string|null
+     */
+    private $recipientPhone;
 
     /**
      * @var CustomerId
@@ -55,15 +63,16 @@ class Invitation extends EventSourcedAggregateRoot
     /**
      * @param InvitationId $invitationId
      * @param CustomerId   $referrerId
-     * @param              $recipientEmail
-     * @param              $token
+     * @param null|string  $recipientEmail
+     * @param null|string  $recipientPhone
+     * @param string       $token
      *
      * @return Invitation
      */
-    public static function createInvitation(InvitationId $invitationId, CustomerId $referrerId, $recipientEmail, $token): Invitation
+    public static function createInvitation(InvitationId $invitationId, CustomerId $referrerId, ?string $recipientEmail, ?string $recipientPhone, string $token): Invitation
     {
         $invitation = new self();
-        $invitation->create($invitationId, $referrerId, $recipientEmail, $token);
+        $invitation->create($invitationId, $referrerId, $recipientEmail, $recipientPhone, $token);
 
         return $invitation;
     }
@@ -99,13 +108,14 @@ class Invitation extends EventSourcedAggregateRoot
     /**
      * @param InvitationId $invitationId
      * @param CustomerId   $referrerId
-     * @param              $recipientEmail
-     * @param              $token
+     * @param null|string  $recipientEmail
+     * @param null|string  $recipientPhone
+     * @param string       $token
      */
-    private function create(InvitationId $invitationId, CustomerId $referrerId, $recipientEmail, $token): void
+    private function create(InvitationId $invitationId, CustomerId $referrerId, ?string $recipientEmail, ?string $recipientPhone, string $token): void
     {
         $this->apply(
-            new InvitationWasCreated($invitationId, $referrerId, $recipientEmail, $token)
+            new InvitationWasCreated($invitationId, $referrerId, $recipientEmail, $recipientPhone, $token)
         );
     }
 
@@ -116,6 +126,7 @@ class Invitation extends EventSourcedAggregateRoot
     {
         $this->setId($event->getInvitationId());
         $this->setRecipientEmail($event->getRecipientEmail());
+        $this->setRecipientPhone($event->getRecipientPhone());
         $this->setReferrerId($event->getReferrerId());
     }
 
@@ -160,9 +171,9 @@ class Invitation extends EventSourcedAggregateRoot
     }
 
     /**
-     * @param string $recipientEmail
+     * @param null|string $recipientEmail
      */
-    public function setRecipientEmail(string $recipientEmail): void
+    public function setRecipientEmail(?string $recipientEmail): void
     {
         $this->recipientEmail = $recipientEmail;
     }
@@ -173,5 +184,21 @@ class Invitation extends EventSourcedAggregateRoot
     public function setStatus($status): void
     {
         $this->status = $status;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getRecipientPhone(): ?string
+    {
+        return $this->recipientPhone;
+    }
+
+    /**
+     * @param null|string $recipientPhone
+     */
+    public function setRecipientPhone(?string $recipientPhone): void
+    {
+        $this->recipientPhone = $recipientPhone;
     }
 }

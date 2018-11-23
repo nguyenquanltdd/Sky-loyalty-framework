@@ -868,6 +868,7 @@
       "heading": "Lista polecających i zaproszonych klientów",
       "list": "Zaproszeni klienci",
       "recipient_email": "E-mail Odbiorcy",
+      "recipient_phone": "Telefon odbiorcy",
       "recipient_id": "Identifikator Odbiorcy",
       "recipient_name": "Imię i nazwisko odbiorcy",
       "referred_completed": "Zaproszeni klienci, którzy się zarejestrowali",

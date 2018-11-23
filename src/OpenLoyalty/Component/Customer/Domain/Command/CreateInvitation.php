@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -21,19 +21,33 @@ class CreateInvitation extends InvitationCommand
     /**
      * @var string
      */
-    private $recipientEmail;
+    private $recipient;
 
-    public function __construct(InvitationId $invitationId, CustomerId $referrerId, $recipientEmail)
+    /**
+     * @var string
+     */
+    private $type;
+
+    /**
+     * CreateInvitation constructor.
+     *
+     * @param InvitationId $invitationId
+     * @param CustomerId   $referrerId
+     * @param string       $type
+     * @param string       $recipient
+     */
+    public function __construct(InvitationId $invitationId, CustomerId $referrerId, string $type, string $recipient)
     {
         parent::__construct($invitationId);
         $this->referrerId = $referrerId;
-        $this->recipientEmail = $recipientEmail;
+        $this->type = $type;
+        $this->recipient = $recipient;
     }
 
     /**
      * @return CustomerId
      */
-    public function getReferrerId()
+    public function getReferrerId(): CustomerId
     {
         return $this->referrerId;
     }
@@ -41,8 +55,16 @@ class CreateInvitation extends InvitationCommand
     /**
      * @return string
      */
-    public function getRecipientEmail()
+    public function getRecipient(): string
     {
-        return $this->recipientEmail;
+        return $this->recipient;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
     }
 }

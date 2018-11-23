@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -20,9 +20,14 @@ class InvitationWasCreated extends InvitationEvent
     private $referrerId;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $recipientEmail;
+
+    /**
+     * @var string|null
+     */
+    private $recipientPhone;
 
     /**
      * @var string
@@ -34,10 +39,11 @@ class InvitationWasCreated extends InvitationEvent
      */
     private $token;
 
-    public function __construct(InvitationId $invitationId, CustomerId $referrerId, $recipientEmail, $token)
+    public function __construct(InvitationId $invitationId, CustomerId $referrerId, ?string $recipientEmail, ?string $recipientPhone, string $token)
     {
         parent::__construct($invitationId);
         $this->recipientEmail = $recipientEmail;
+        $this->recipientPhone = $recipientPhone;
         $this->referrerId = $referrerId;
         $this->status = Invitation::STATUS_INVITED;
         $this->token = $token;
@@ -52,9 +58,9 @@ class InvitationWasCreated extends InvitationEvent
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getRecipientEmail()
+    public function getRecipientEmail(): ?string
     {
         return $this->recipientEmail;
     }
@@ -70,9 +76,17 @@ class InvitationWasCreated extends InvitationEvent
     /**
      * @return string
      */
-    public function getToken()
+    public function getToken(): string
     {
         return $this->token;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getRecipientPhone(): ?string
+    {
+        return $this->recipientPhone;
     }
 
     public function serialize(): array
@@ -81,6 +95,7 @@ class InvitationWasCreated extends InvitationEvent
             parent::serialize(),
             [
                 'recipientEmail' => $this->recipientEmail,
+                'recipientPhone' => $this->recipientPhone,
                 'referrerId' => (string) $this->referrerId,
                 'status' => $this->status,
                 'token' => $this->token,
@@ -98,7 +113,8 @@ class InvitationWasCreated extends InvitationEvent
         $invitation = new self(
             new InvitationId($data['invitationId']),
             new CustomerId($data['referrerId']),
-            $data['recipientEmail'],
+            $data['recipientEmail'] ?? null,
+            $data['recipientPhone'] ?? null,
             $data['token']
         );
         $invitation->status = $data['status'];

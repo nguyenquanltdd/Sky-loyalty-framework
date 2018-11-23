@@ -1,11 +1,11 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\ActivationCodeBundle\Service;
 
-use OpenLoyalty\Bundle\ActivationCodeBundle\Message\Message;
+use OpenLoyalty\Bundle\SmsApiBundle\Message\Message;
 use Psr\Log\LoggerInterface;
 
 /**

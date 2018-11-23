@@ -22,7 +22,7 @@ final class AttachCustomerToInvitationTest extends InvitationCommandHandlerTest
     /**
      * @test
      */
-    public function it_creates_new_invitation()
+    public function it_creates_new_email_invitation(): void
     {
         $invitationId = new InvitationId('00000000-0000-0000-0000-000000000000');
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000001');
@@ -30,7 +30,26 @@ final class AttachCustomerToInvitationTest extends InvitationCommandHandlerTest
         $this->scenario
             ->withAggregateId((string) $invitationId)
             ->given([
-                new InvitationWasCreated($invitationId, $customerId, 'test@oloy.com', 123),
+                new InvitationWasCreated($invitationId, $customerId, 'test@oloy.com', null, '123'),
+            ])
+            ->when(new AttachCustomerToInvitation($invitationId, $customerId))
+            ->then(array(
+                new CustomerWasAttachedToInvitation($invitationId, $customerId),
+            ));
+    }
+
+    /**
+     * @test
+     */
+    public function it_creates_new_mobile_invitation(): void
+    {
+        $invitationId = new InvitationId('00000000-0000-0000-0000-000000000000');
+        $customerId = new CustomerId('00000000-0000-0000-0000-000000000001');
+
+        $this->scenario
+            ->withAggregateId((string) $invitationId)
+            ->given([
+                new InvitationWasCreated($invitationId, $customerId, null, '123123123', '123'),
             ])
             ->when(new AttachCustomerToInvitation($invitationId, $customerId))
             ->then(array(

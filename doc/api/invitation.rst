@@ -31,6 +31,8 @@ Definition
 +-------------------------------------+----------------+---------------------------------------------------+
 | recipientEmail                      | query          | *(optional)* Recipient Email                      |
 +-------------------------------------+----------------+---------------------------------------------------+
+| recipientPhone                      | query          | *(optional)* Recipient Phone                      |
++-------------------------------------+----------------+---------------------------------------------------+
 | recipientName                       | query          | *(optional)* Recipient Name                       |
 +-------------------------------------+----------------+---------------------------------------------------+
 | status                              | query          | *(optional)* Possible values: All, Invited,       |
@@ -109,3 +111,48 @@ Exemplary Response
       ],
       "total": 4
     }
+
+
+Send invitation to customer
+---------------------------
+
+To send invitation to recipient you will need to call the ``/api/invitation/invite`` endpoint with the ``POST`` method.
+
+Definition
+^^^^^^^^^^
+
+.. code-block:: text
+
+    POST /api/invitation/invite
+
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| Parameter                                      | Parameter type |  Description                                                               |
++================================================+================+============================================================================+
+| Authorization                                  | header         | Token received during authentication                                       |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| invitation[type]                               | query          | Recipient type (mobile, email)                                             |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| invitation[recipientPhone]                     | query          | Required if type is mobile                                                 |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+| invitation[recipientEmail]                     | query          | Required if type is email                                                  |
++------------------------------------------------+----------------+----------------------------------------------------------------------------+
+
+Example
+^^^^^^^
+
+.. code-block:: bash
+
+    curl http://localhost:8181/api/invitation/invite \
+        -X "POST" \
+        -H "Accept: application/json" \
+        -H "Content-type: application/x-www-form-urlencoded" \
+        -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6..." \
+        -d "translation[type]=email" \
+        -d "translation[recipientEmail]=smith@example.com"
+
+Exemplary Response
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    STATUS: 200 OK

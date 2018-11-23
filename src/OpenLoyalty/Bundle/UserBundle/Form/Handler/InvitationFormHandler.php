@@ -4,15 +4,17 @@ namespace OpenLoyalty\Bundle\UserBundle\Form\Handler;
 
 use Broadway\CommandHandling\CommandBus;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
-use OpenLoyalty\Bundle\UserBundle\Service\EmailProvider;
+use OpenLoyalty\Bundle\UserBundle\Service\NotificationService;
 use OpenLoyalty\Component\Customer\Domain\Command\CreateInvitation;
+use OpenLoyalty\Component\Customer\Domain\Invitation;
 use OpenLoyalty\Component\Customer\Domain\InvitationId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetailsRepository;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class InvitationFormHandler.
@@ -40,9 +42,14 @@ class InvitationFormHandler
     protected $uuidGenerator;
 
     /**
-     * @var EmailProvider
+     * @var TranslatorInterface
      */
-    protected $emailProvider;
+    private $translator;
+
+    /**
+     * @var NotificationService
+     */
+    private $notificationService;
 
     /**
      * InvitationFormHandler constructor.
@@ -51,60 +58,104 @@ class InvitationFormHandler
      * @param InvitationDetailsRepository $invitationDetailsRepository
      * @param CustomerDetailsRepository   $customerDetailsRepository
      * @param UuidGeneratorInterface      $uuidGenerator
-     * @param EmailProvider               $emailProvider
+     * @param NotificationService         $notificationService
+     * @param TranslatorInterface         $translator
      */
     public function __construct(
         CommandBus $commandBus,
         InvitationDetailsRepository $invitationDetailsRepository,
         CustomerDetailsRepository $customerDetailsRepository,
         UuidGeneratorInterface $uuidGenerator,
-        EmailProvider $emailProvider
+        TranslatorInterface $translator,
+        NotificationService $notificationService
     ) {
         $this->commandBus = $commandBus;
         $this->invitationDetailsRepository = $invitationDetailsRepository;
         $this->customerDetailsRepository = $customerDetailsRepository;
         $this->uuidGenerator = $uuidGenerator;
-        $this->emailProvider = $emailProvider;
+        $this->translator = $translator;
+        $this->notificationService = $notificationService;
     }
 
-    public function onSuccess(CustomerDetails $currentCustomer, FormInterface $form)
+    /**
+     * @param CustomerDetails $currentCustomer
+     * @param FormInterface   $form
+     *
+     * @return bool
+     */
+    public function onSuccess(CustomerDetails $currentCustomer, FormInterface $form): bool
     {
         // if customer exists or if there is an invitation from current customer to this email -> return
-        $recipientEmail = $form->get('recipientEmail')->getData();
+        $invitationFormType = $form->get('type')->getData();
+        $invitationType = !empty($invitationFormType) ? $invitationFormType : Invitation::EMAIL_TYPE;
 
-        if ($this->doNotCreateInvitation($currentCustomer, $recipientEmail)) {
-            return new Response();
+        if ($invitationType === Invitation::MOBILE_TYPE) {
+            $recipient = $form->get('recipientPhone')->getData();
+        } else {
+            $recipient = $form->get('recipientEmail')->getData();
+        }
+
+        if (!$this->checkIfInvitationCanBeCreated($currentCustomer, $invitationType, $recipient)) {
+            $form->addError(new FormError($this->translator->trans('Invitation exists')));
+
+            return false;
         }
 
         $invitationId = new InvitationId($this->uuidGenerator->generate());
         $this->commandBus->dispatch(new CreateInvitation(
             $invitationId,
             $currentCustomer->getCustomerId(),
-            $recipientEmail
+            $invitationType,
+            $recipient
         ));
 
-        $invitationDetails = $this->invitationDetailsRepository->find($invitationId->__toString());
+        $invitationDetails = $this->invitationDetailsRepository->find((string) $invitationId);
 
         if (!$invitationDetails instanceof InvitationDetails) {
-            return new Response();
+            return false;
         }
 
-        $this->emailProvider->invitationEmail($invitationDetails);
+        $this->notificationService->sendInvitation($invitationDetails);
+
+        return true;
     }
 
-    protected function doNotCreateInvitation(CustomerDetails $currentCustomer, $recipientEmail)
+    /**
+     * @param CustomerDetails $currentCustomer
+     * @param string          $type
+     * @param string          $recipient
+     *
+     * @return bool
+     */
+    protected function checkIfInvitationCanBeCreated(CustomerDetails $currentCustomer, string $type, string $recipient): bool
     {
-        if (count($this->customerDetailsRepository->findOneByCriteria(['email' => strtolower($recipientEmail)], 1)) > 0) {
-            return true;
+        // check if recipient exists.
+        $fieldName = $type === Invitation::MOBILE_TYPE ? 'phone' : 'email';
+        $customers = $this->customerDetailsRepository->findOneByCriteria(
+            [
+                $fieldName => strtolower($recipient),
+            ],
+            1
+        );
+
+        if (count($customers) > 0) {
+            return false;
         }
 
-        if ($q = count($this->invitationDetailsRepository->findByParametersPaginated([
-                'recipientEmail' => $recipientEmail,
-                'referrerId' => $currentCustomer->getCustomerId()->__toString(),
-            ], true)) > 0) {
-            return true;
+        // check if invitation exists.
+        $fieldName = $type === Invitation::MOBILE_TYPE ? 'recipientPhone' : 'recipientEmail';
+        $invitations = $this->invitationDetailsRepository->findByParametersPaginated(
+            [
+                $fieldName => $recipient,
+                'referrerId' => (string) $currentCustomer->getCustomerId(),
+            ],
+            true
+        );
+
+        if (count($invitations) > 0) {
+            return false;
         }
 
-        return false;
+        return true;
     }
 }

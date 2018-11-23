@@ -294,6 +294,14 @@
                 <source>Fill at least one customer field</source>
                 <target>Uzupełnij przynajmniej jedno pole</target>
             </trans-unit>
+            <trans-unit id="75">
+                <source>Invitation exists</source>
+                <target>Zaproszenie już istnieje</target>
+            </trans-unit>
+           <trans-unit id="76">
+                <source>invitation.send_message</source>
+                <target>Załóż konto używając tego linku %s</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

@@ -845,6 +845,7 @@
       "heading": "Referred customers list",
       "list": "Referred customers",
       "recipient_email": "Recipient Email",
+      "recipient_phone": "Recipient Phone",
       "recipient_id": "Recipient Id",
       "recipient_name": "Recipient Name",
       "referred_completed": "Number of completed references",

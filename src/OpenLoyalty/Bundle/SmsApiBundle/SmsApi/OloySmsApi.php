@@ -1,17 +1,17 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\SmsApiBundle\SmsApi;
 
 use OpenLoyalty\Bundle\ActivationCodeBundle\Exception\SmsSendException;
-use OpenLoyalty\Bundle\ActivationCodeBundle\Message\Message;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Service\SmsSender;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
+use OpenLoyalty\Bundle\SmsApiBundle\Message\Message;
 use Psr\Log\LoggerInterface;
-use SMSApi\Client;
 use SMSApi\Api\SmsFactory;
+use SMSApi\Client;
 use SMSApi\Exception\SmsapiException;
 use Symfony\Component\Translation\TranslatorInterface;
 

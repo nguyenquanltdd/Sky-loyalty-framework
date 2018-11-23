@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -40,12 +40,13 @@ class InvitationController extends FOSRestController
      * @param ParamFetcher $paramFetcher
      *
      * @return \FOS\RestBundle\View\View
-     * @QueryParam(name="referrerId", nullable=true, description="referrerId"))
-     * @QueryParam(name="referrerEmail", nullable=true, description="referrerEmail"))
-     * @QueryParam(name="referrerName", nullable=true, description="referrerName"))
-     * @QueryParam(name="recipientId", nullable=true, description="recipientId"))
-     * @QueryParam(name="recipientEmail", nullable=true, description="recipientEmail"))
-     * @QueryParam(name="recipientName", nullable=true, description="recipientName"))
+     * @QueryParam(name="referrerId", nullable=true, description="referrer id"))
+     * @QueryParam(name="referrerEmail", nullable=true, description="referrer email"))
+     * @QueryParam(name="referrerName", nullable=true, description="referrer name"))
+     * @QueryParam(name="recipientId", nullable=true, description="recipient id"))
+     * @QueryParam(name="recipientEmail", nullable=true, description="recipient email"))
+     * @QueryParam(name="recipientPhone", nullable=true, description="recipient phone"))
+     * @QueryParam(name="recipientName", nullable=true, description="recipient name"))
      * @QueryParam(name="status", nullable=true, description="status"))
      */
     public function listAction(Request $request, ParamFetcher $paramFetcher)
@@ -84,6 +85,10 @@ class InvitationController extends FOSRestController
      *     name="Invite user",
      *     section="Invitation",
      *     input={"class" = "OpenLoyalty\Bundle\UserBundle\Form\Type\InvitationFormType", "name" = "invitation"},
+     *     parameters={
+     *         {"name"="invitation[recipientPhone]", "dataType"="string", "required"=false, "description"="Recipient phone number"},
+     *         {"name"="invitation[recipientEmail]", "dataType"="string", "required"=false, "description"="Recipient email"}
+     *     },
      * )
      *
      * @param Request $request
@@ -106,13 +111,10 @@ class InvitationController extends FOSRestController
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $response = $this->get('oloy.user.form_handler.invitation')->onSuccess($currentCustomer, $form);
-
-            if ($response instanceof Response) {
-                return $response;
+            $success = $this->get('oloy.user.form_handler.invitation')->onSuccess($currentCustomer, $form);
+            if ($success) {
+                return $this->view(null, Response::HTTP_OK);
             }
-
-            return $this->view('', Response::HTTP_OK);
         }
 
         return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
