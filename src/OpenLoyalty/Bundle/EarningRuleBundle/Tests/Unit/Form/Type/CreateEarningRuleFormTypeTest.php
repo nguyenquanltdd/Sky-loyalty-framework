@@ -60,6 +60,37 @@ class CreateEarningRuleFormTypeTest extends TypeTestCase
     /**
      * @test
      */
+    public function it_custom_event_limit()
+    {
+        $form = $this->factory->create(CreateEarningRuleFormType::class);
+
+        //year
+        $form->submit(self::getDataForCustomEventLimit('1 year'));
+        $this->assertTrue($form->isSynchronized());
+        $this->assertTrue($form->isValid());
+
+        //3months
+        $form = $this->factory->create(CreateEarningRuleFormType::class);
+        $form->submit(self::getDataForCustomEventLimit('3 months'));
+        $this->assertTrue($form->isSynchronized());
+        $this->assertTrue($form->isValid());
+
+        //6months
+        $form = $this->factory->create(CreateEarningRuleFormType::class);
+        $form->submit(self::getDataForCustomEventLimit('6 months'));
+        $this->assertTrue($form->isSynchronized());
+        $this->assertTrue($form->isValid());
+
+        //forever
+        $form = $this->factory->create(CreateEarningRuleFormType::class);
+        $form->submit(self::getDataForCustomEventLimit('forever'));
+        $this->assertTrue($form->isSynchronized());
+        $this->assertTrue($form->isValid());
+    }
+
+    /**
+     * @test
+     */
     public function it_has_valid_data_when_creating_new_event_earning_rule()
     {
         $formData = array_merge($this->getMainData(), [
@@ -128,6 +159,38 @@ class CreateEarningRuleFormTypeTest extends TypeTestCase
             'endAt' => '2016-10-10',
             'active' => false,
             'allTimeActive' => false,
+        ];
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return array
+     */
+    protected function getDataForCustomEventLimit(string $name = 'year'): array
+    {
+        return [
+            'earningRule' => [
+                'type' => EarningRule::TYPE_CUSTOM_EVENT,
+                'active' => true,
+                'allTimeActive' => true,
+                'description' => 'sth',
+                'eventName' => $name,
+                'target' => 'level',
+                'levels' => [
+                    'e82c96cf-32a3-43bd-9034-4df343e50000',
+                ],
+                'limit' => [
+                    'active' => true,
+                    'limit' => 10,
+                    'period' => $name,
+                ],
+                'name' => $name,
+                'pointsAmount' => 10,
+                'pos' => [
+                    '517c1372-d845-493c-ae8e-91b449ff13f8',
+                ],
+            ],
         ];
     }
 }

@@ -855,6 +855,10 @@ class SettingsControllerTest extends BaseApiTest
                     '1 day' => EarningRuleLimit::PERIOD_DAY,
                     '1 week' => EarningRuleLimit::PERIOD_WEEK,
                     '1 month' => EarningRuleLimit::PERIOD_MONTH,
+                    '3 months' => EarningRuleLimit::PERIOD_3_MONTHS,
+                    '6 months' => EarningRuleLimit::PERIOD_6_MONTHS,
+                    '1 year' => EarningRuleLimit::PERIOD_YEAR,
+                    'forever' => EarningRuleLimit::PERIOD_FOREVER,
                 ],
             ],
             $data

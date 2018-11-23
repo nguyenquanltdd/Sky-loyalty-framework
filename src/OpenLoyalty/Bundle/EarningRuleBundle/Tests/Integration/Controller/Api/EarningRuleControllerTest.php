@@ -266,7 +266,25 @@ class EarningRuleControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_creates_points_rule()
+    public function it_creates_custom_rule_using_limit(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/earningRule',
+            self::getDataForCustomEventLimit('3 months')
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('earningRuleId', $data);
+    }
+
+    /**
+     * @test
+     */
+    public function it_creates_points_rule(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -509,6 +527,38 @@ class EarningRuleControllerTest extends BaseApiTest
             'endAt' => '2016-10-10',
             'active' => false,
             'allTimeActive' => false,
+        ];
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return array
+     */
+    protected function getDataForCustomEventLimit(string $name = 'year'): array
+    {
+        return [
+            'earningRule' => [
+                'type' => EarningRule::TYPE_CUSTOM_EVENT,
+                'active' => true,
+                'allTimeActive' => true,
+                'description' => 'sth',
+                'eventName' => str_replace(' ', '_', $name),
+                'target' => 'level',
+                'levels' => [
+                    'e82c96cf-32a3-43bd-9034-4df343e50000',
+                ],
+                'limit' => [
+                    'active' => true,
+                    'limit' => 10,
+                    'period' => $name,
+                ],
+                'name' => $name,
+                'pointsAmount' => 10,
+                'pos' => [
+                    '517c1372-d845-493c-ae8e-91b449ff13f8',
+                ],
+            ],
         ];
     }
 }

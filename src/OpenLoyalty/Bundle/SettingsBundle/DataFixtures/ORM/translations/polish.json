@@ -1393,13 +1393,21 @@
       "limit": "Limit zastosowań",
       "limit_prompt": "",
       "period": "Ramy czasowe",
-      "period_prompt": ""
+      "period_prompt": "" ,
+      "3 months": "3 miesiące",
+      "6 months": "6 miesięcy",
+      "1 year": "1 rok",
+      "forever": "Na zawsze"
     },
     "limit_info": "Limit użycia",
     "limit_period": {
       "day": "dzień",
       "month": "miesiąc",
-      "week": "tydzień"
+      "week": "tydzień",
+      "3 months": "3 miesiące",
+      "6 months": "6 miesięcy",
+      "1 year": "1 rok",
+      "forever": "Na zawsze"
     },
     "list": "Lista reguł zdobywania punktów",
     "min_order_value": "Minimalna wartość zamówienia",

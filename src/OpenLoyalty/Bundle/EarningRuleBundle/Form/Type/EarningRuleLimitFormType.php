@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -9,7 +9,7 @@ use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRuleLimit;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -29,9 +29,16 @@ class EarningRuleLimitFormType extends AbstractType
                 EarningRuleLimit::PERIOD_DAY,
                 EarningRuleLimit::PERIOD_WEEK,
                 EarningRuleLimit::PERIOD_MONTH,
+                EarningRuleLimit::PERIOD_3_MONTHS,
+                EarningRuleLimit::PERIOD_6_MONTHS,
+                EarningRuleLimit::PERIOD_YEAR,
+                EarningRuleLimit::PERIOD_FOREVER,
             ],
         ]);
-        $builder->add('limit', NumberType::class);
+        $builder->add(
+            'limit',
+            IntegerType::class
+        );
     }
 
     public function configureOptions(OptionsResolver $resolver)
