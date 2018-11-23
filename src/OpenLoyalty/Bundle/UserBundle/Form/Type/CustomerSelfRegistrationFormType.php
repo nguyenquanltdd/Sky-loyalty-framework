@@ -5,19 +5,20 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\Form\Type;
 
-use OpenLoyalty\Bundle\UserBundle\Validator\Constraint\PasswordRequirements;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * Class CustomerSelfRegistrationFormType.
  */
 class CustomerSelfRegistrationFormType extends AbstractType
 {
+    /**
+     * @param FormBuilderInterface $builder
+     * @param array                $options
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('invitationToken', TextType::class, [
@@ -25,21 +26,14 @@ class CustomerSelfRegistrationFormType extends AbstractType
             'required' => false,
         ]);
 
-        $builder->add('plainPassword', PasswordType::class, [
+        $builder->add('plainPassword', ConfigurablePasswordType::class, [
             'required' => true,
-            'constraints' => [
-                new NotBlank(),
-                new PasswordRequirements([
-                    'requireSpecialCharacter' => true,
-                    'requireNumbers' => true,
-                    'requireLetters' => true,
-                    'requireCaseDiff' => true,
-                    'minLength' => 8,
-                ]),
-            ],
         ]);
     }
 
+    /**
+     * @param OptionsResolver $resolver
+     */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
@@ -47,6 +41,9 @@ class CustomerSelfRegistrationFormType extends AbstractType
         ]);
     }
 
+    /**
+     * @return null|string
+     */
     public function getParent()
     {
         return CustomerRegistrationFormType::class;

@@ -60,3 +60,4 @@ parameters:
     earning_rule_photos_adapter_env: EARNING_RULE_PHOTOS_ADAPTER
     master_api_key: ~
     activation_code_length: 6
+    password_security_level: advanced

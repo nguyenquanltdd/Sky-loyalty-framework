@@ -312,3 +312,9 @@ services:
         calls:
             - [addTransport, ['@OpenLoyalty\Bundle\UserBundle\Service\EmailNotificationTransport']]
             - [addTransport, ['@OpenLoyalty\Bundle\UserBundle\Service\SmsNotificationTransport']]
+
+    OpenLoyalty\Bundle\UserBundle\Form\Type\ConfigurablePasswordType:
+        arguments:
+            - '%password_security_level%'
+        tags:
+            - { name: form.type }
