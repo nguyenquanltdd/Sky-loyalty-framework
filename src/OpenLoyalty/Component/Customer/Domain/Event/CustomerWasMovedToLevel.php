@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -14,9 +14,9 @@ use OpenLoyalty\Component\Customer\Domain\LevelId;
 class CustomerWasMovedToLevel extends CustomerEvent
 {
     /**
-     * @var LevelId
+     * @var LevelId|null
      */
-    protected $levelId;
+    protected $levelId = null;
 
     /**
      * @var \DateTime
@@ -55,6 +55,9 @@ class CustomerWasMovedToLevel extends CustomerEvent
         $this->removeLevelManually = $removeLevelManually;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function serialize(): array
     {
         return array_merge(parent::serialize(), [
@@ -66,9 +69,7 @@ class CustomerWasMovedToLevel extends CustomerEvent
     }
 
     /**
-     * @param array $data
-     *
-     * @return mixed The object instance
+     * {@inheritdoc}
      */
     public static function deserialize(array $data)
     {
@@ -88,9 +89,9 @@ class CustomerWasMovedToLevel extends CustomerEvent
     }
 
     /**
-     * @return LevelId
+     * @return LevelId|null
      */
-    public function getLevelId()
+    public function getLevelId(): ?LevelId
     {
         return $this->levelId;
     }
@@ -98,7 +99,7 @@ class CustomerWasMovedToLevel extends CustomerEvent
     /**
      * @return \DateTime
      */
-    public function getUpdateAt()
+    public function getUpdateAt(): \DateTime
     {
         return $this->updateAt;
     }
@@ -106,7 +107,7 @@ class CustomerWasMovedToLevel extends CustomerEvent
     /**
      * @param \DateTime $updateAt
      */
-    public function setUpdateAt($updateAt)
+    public function setUpdateAt(\DateTime $updateAt): void
     {
         $this->updateAt = $updateAt;
     }
@@ -114,7 +115,7 @@ class CustomerWasMovedToLevel extends CustomerEvent
     /**
      * @return bool
      */
-    public function isManually()
+    public function isManually(): bool
     {
         return $this->manually;
     }
@@ -130,7 +131,7 @@ class CustomerWasMovedToLevel extends CustomerEvent
     /**
      * @param bool $removeLevelManually
      */
-    public function setRemoveLevelManually(bool $removeLevelManually)
+    public function setRemoveLevelManually(bool $removeLevelManually): void
     {
         $this->removeLevelManually = $removeLevelManually;
     }

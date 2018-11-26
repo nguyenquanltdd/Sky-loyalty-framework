@@ -39,7 +39,6 @@ services:
             $customerIdProvider: '@oloy.transaction.customer_id_provider'
             $commandBus: '@broadway.command_handling.command_bus'
             $eventDispatcher: '@broadway.event_dispatcher'
-            $customerTransactionsSummaryProvider: '@oloy.transaction.oloy_customer_transactions_summary_provider'
             $customerRepository: '@oloy.user.customer.repository'
             $transactionRepository: '@oloy.transaction.repository'
         lazy: true

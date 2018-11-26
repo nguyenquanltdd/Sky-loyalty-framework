@@ -97,7 +97,7 @@ class PointsTransferControllerTest extends BaseApiTest
         $client = $this->createAuthenticatedClient(LoadUserData::USER_USERNAME, LoadUserData::USER_PASSWORD, 'customer');
         $client->request(
             'GET',
-            '/api/customer/points/transfer'
+            '/api/customer/points/transfer?perPage=30'
         );
 
         $response = $client->getResponse();
@@ -182,7 +182,7 @@ class PointsTransferControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
 
         $this->assertSame(200, $response->getStatusCode(), 'Response should have status 200');
-        $this->assertEquals(10, $data['total']);
+        $this->assertEquals(11, $data['total']);
         $this->assertCount(10, $data['transfers']);
     }
 

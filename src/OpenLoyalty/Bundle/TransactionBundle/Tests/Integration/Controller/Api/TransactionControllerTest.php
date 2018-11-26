@@ -761,7 +761,7 @@ class TransactionControllerTest extends BaseApiTest
         // create transaction with number 12377
         $formData = [
             'transactionData' => [
-                'documentNumber' => '12377',
+                'documentNumber' => '12377_2',
                 'documentType' => 'sell',
                 'purchaseDate' => (new \DateTime())->format('Y-m-d'),
                 'purchasePlace' => 'NY',
@@ -805,9 +805,9 @@ class TransactionControllerTest extends BaseApiTest
 
         // create return transaction for 12377
         $formData = [
-            'revisedDocument' => '12377',
+            'revisedDocument' => '12377_2',
             'transactionData' => [
-                'documentNumber' => '999912377',
+                'documentNumber' => '999912377_2',
                 'documentType' => 'return',
                 'purchaseDate' => (new \DateTime())->format('Y-m-d'),
                 'purchasePlace' => 'New York',
@@ -849,7 +849,7 @@ class TransactionControllerTest extends BaseApiTest
 
         // manually assign customer
         $formData = [
-            'transactionDocumentNumber' => '999912377',
+            'transactionDocumentNumber' => '999912377_2',
             'customerId' => LoadUserData::TEST_RETURN_USER_ID,
         ];
 

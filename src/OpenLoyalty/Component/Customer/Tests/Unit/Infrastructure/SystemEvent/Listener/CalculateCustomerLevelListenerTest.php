@@ -71,7 +71,7 @@ final class CalculateCustomerLevelListenerTest extends TestCase
                     new CustomerId($customerId),
                     new LevelId((string) $levelId),
                     $level->getName(),
-                    true,
+                    false,
                     true
                 ),
                 1
@@ -156,7 +156,8 @@ final class CalculateCustomerLevelListenerTest extends TestCase
             new TransactionId('00000000-0000-0000-0000-000000000000'),
             new TransactionCustomerId($customerId),
             20,
-            20
+            20,
+            '1234567890'
         ));
     }
 
@@ -196,7 +197,8 @@ final class CalculateCustomerLevelListenerTest extends TestCase
             new TransactionId('00000000-0000-0000-0000-000000000000'),
             new TransactionCustomerId($customerId),
             20,
-            20
+            20,
+            '1234567890'
         ));
     }
 
@@ -277,7 +279,8 @@ final class CalculateCustomerLevelListenerTest extends TestCase
             new TransactionId('00000000-0000-0000-0000-000000000000'),
             new TransactionCustomerId($customerId),
             $transactionAmount,
-            $transactionAmount
+            $transactionAmount,
+            '1234567890'
         ));
     }
 

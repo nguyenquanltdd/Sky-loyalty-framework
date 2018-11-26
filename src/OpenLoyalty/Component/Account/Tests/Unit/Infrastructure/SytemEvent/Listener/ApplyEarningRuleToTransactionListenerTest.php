@@ -48,11 +48,14 @@ final class ApplyEarningRuleToTransactionListenerTest extends BaseApplyEarningRu
             $this->getPointsTransfersManager(10, 0, null, $transactionId)
         );
 
-        $listener->onRegisteredTransaction(new CustomerAssignedToTransactionSystemEvent(
-            new TransactionId($this->uuid),
-            new CustomerId($this->uuid),
-            0,
-            0
-        ));
+        $listener->onRegisteredTransaction(
+            new CustomerAssignedToTransactionSystemEvent(
+                new TransactionId($this->uuid),
+                new CustomerId($this->uuid),
+                0,
+                0,
+                '1234567890'
+            )
+        );
     }
 }

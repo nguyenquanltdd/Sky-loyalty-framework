@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -50,22 +50,22 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
     /**
      * @var string
      */
-    protected $status;
+    protected $status = CampaignPurchase::STATUS_ACTIVE;
 
     /**
      * @var \DateTime|null
      */
-    protected $activeSince;
+    protected $activeSince = null;
 
     /**
      * @var \DateTime|null
      */
-    protected $activeTo;
+    protected $activeTo = null;
 
     /**
      * @var null|Identifier
      */
-    private $transactionId;
+    private $transactionId = null;
 
     /**
      * CampaignWasBoughtByCustomer constructor.
@@ -110,7 +110,7 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
     /**
      * @return CampaignId
      */
-    public function getCampaignId()
+    public function getCampaignId(): CampaignId
     {
         return $this->campaignId;
     }
@@ -176,7 +176,7 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
     /**
      * @return \DateTime
      */
-    public function getCreatedAt()
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
@@ -184,7 +184,7 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
     /**
      * @return float
      */
-    public function getCostInPoints()
+    public function getCostInPoints(): float
     {
         return $this->costInPoints;
     }
@@ -200,7 +200,7 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
     /**
      * @return string
      */
-    public function getCampaignName()
+    public function getCampaignName(): string
     {
         return $this->campaignName;
     }
@@ -208,7 +208,7 @@ class CampaignWasBoughtByCustomer extends CustomerEvent
     /**
      * @return string
      */
-    public function getReward()
+    public function getReward(): string
     {
         return $this->reward;
     }

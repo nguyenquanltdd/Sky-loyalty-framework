@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -210,7 +210,7 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
      */
     public function getId(): string
     {
-        return $this->customerId->__toString();
+        return (string) $this->customerId;
     }
 
     /**
@@ -494,17 +494,17 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     }
 
     /**
-     * @return LevelId
+     * @return LevelId|null
      */
-    public function getManuallyAssignedLevelId()
+    public function getManuallyAssignedLevelId(): ?LevelId
     {
         return $this->manuallyAssignedLevelId;
     }
 
     /**
-     * @param LevelId $manuallyAssignedLevelId
+     * @param LevelId|null $manuallyAssignedLevelId
      */
-    public function setManuallyAssignedLevelId($manuallyAssignedLevelId)
+    public function setManuallyAssignedLevelId(?LevelId $manuallyAssignedLevelId): void
     {
         $this->manuallyAssignedLevelId = $manuallyAssignedLevelId;
     }
@@ -742,7 +742,7 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     }
 
     /**
-     * @param \DateTime $updatedAt
+     * @param \DateTimeInterface $updatedAt
      */
     public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
@@ -782,22 +782,25 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     }
 
     /**
-     * @return \OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase[]
+     * @return CampaignPurchase[]
      */
-    public function getCampaignPurchases()
+    public function getCampaignPurchases(): array
     {
         return $this->campaignPurchases;
     }
 
     /**
-     * @param \OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase[] $campaignPurchases
+     * @param CampaignPurchase[] $campaignPurchases
      */
-    public function setCampaignPurchases($campaignPurchases)
+    public function setCampaignPurchases($campaignPurchases): void
     {
         $this->campaignPurchases = $campaignPurchases;
     }
 
-    public function addCampaignPurchase(CampaignPurchase $campaignPurchase)
+    /**
+     * @param CampaignPurchase $campaignPurchase
+     */
+    public function addCampaignPurchase(CampaignPurchase $campaignPurchase): void
     {
         $this->campaignPurchases[] = $campaignPurchase;
     }
@@ -822,11 +825,16 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
         return false;
     }
 
-    public function getPurchasesByCampaignId(CampaignId $campaignId)
+    /**
+     * @param CampaignId $campaignId
+     *
+     * @return array
+     */
+    public function getPurchasesByCampaignId(CampaignId $campaignId): array
     {
         $tmp = [];
         foreach ($this->campaignPurchases as $campaignPurchase) {
-            if ($campaignPurchase->getCampaignId()->__toString() == $campaignId->__toString()) {
+            if ((string) $campaignPurchase->getCampaignId() === (string) $campaignId) {
                 $tmp[] = $campaignPurchase;
             }
         }
@@ -834,10 +842,15 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
         return $tmp;
     }
 
-    public function hasTransactionId(TransactionId $transactionId)
+    /**
+     * @param TransactionId $transactionId
+     *
+     * @return bool
+     */
+    public function hasTransactionId(TransactionId $transactionId): bool
     {
         foreach ($this->transactionIds as $id) {
-            if ($id->__toString() == $transactionId->__toString()) {
+            if ((string) $id === (string) $transactionId) {
                 return true;
             }
         }
@@ -845,7 +858,10 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
         return false;
     }
 
-    public function addTransactionId(TransactionId $transactionId)
+    /**
+     * @param TransactionId $transactionId
+     */
+    public function addTransactionId(TransactionId $transactionId): void
     {
         $this->transactionIds[] = $transactionId;
     }
@@ -853,7 +869,7 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return int
      */
-    public function getTransactionsCount()
+    public function getTransactionsCount(): int
     {
         return $this->transactionsCount;
     }
@@ -861,7 +877,7 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @param int $transactionsCount
      */
-    public function setTransactionsCount($transactionsCount)
+    public function setTransactionsCount(int $transactionsCount)
     {
         $this->transactionsCount = $transactionsCount;
     }
@@ -869,7 +885,7 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return float
      */
-    public function getTransactionsAmount()
+    public function getTransactionsAmount(): float
     {
         return $this->transactionsAmount;
     }
@@ -877,7 +893,7 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @param float $transactionsAmount
      */
-    public function setTransactionsAmount($transactionsAmount)
+    public function setTransactionsAmount(float $transactionsAmount)
     {
         $this->transactionsAmount = $transactionsAmount;
     }
@@ -885,7 +901,7 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return float
      */
-    public function getTransactionsAmountWithoutDeliveryCosts()
+    public function getTransactionsAmountWithoutDeliveryCosts(): float
     {
         return $this->transactionsAmountWithoutDeliveryCosts;
     }
@@ -893,7 +909,7 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @param float $transactionsAmountWithoutDeliveryCosts
      */
-    public function setTransactionsAmountWithoutDeliveryCosts($transactionsAmountWithoutDeliveryCosts)
+    public function setTransactionsAmountWithoutDeliveryCosts(float $transactionsAmountWithoutDeliveryCosts)
     {
         $this->transactionsAmountWithoutDeliveryCosts = $transactionsAmountWithoutDeliveryCosts;
     }
@@ -901,7 +917,7 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return float
      */
-    public function getAverageTransactionAmount()
+    public function getAverageTransactionAmount(): float
     {
         return $this->averageTransactionAmount;
     }
@@ -909,7 +925,7 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @param float $averageTransactionAmount
      */
-    public function setAverageTransactionAmount($averageTransactionAmount)
+    public function setAverageTransactionAmount(float $averageTransactionAmount)
     {
         $this->averageTransactionAmount = $averageTransactionAmount;
     }
@@ -917,7 +933,7 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return TransactionId[]
      */
-    public function getTransactionIds()
+    public function getTransactionIds(): array
     {
         return $this->transactionIds;
     }
@@ -925,15 +941,15 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @param TransactionId[] $transactionIds
      */
-    public function setTransactionIds($transactionIds)
+    public function setTransactionIds(array $transactionIds)
     {
         $this->transactionIds = $transactionIds;
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTime|null
      */
-    public function getLastTransactionDate()
+    public function getLastTransactionDate(): ?\DateTime
     {
         return $this->lastTransactionDate;
     }
@@ -941,7 +957,7 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @param \DateTime $lastTransactionDate
      */
-    public function setLastTransactionDate($lastTransactionDate)
+    public function setLastTransactionDate(\DateTime $lastTransactionDate)
     {
         $this->lastTransactionDate = $lastTransactionDate;
     }
@@ -949,7 +965,7 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @return float
      */
-    public function getAmountExcludedForLevel()
+    public function getAmountExcludedForLevel(): float
     {
         return $this->amountExcludedForLevel;
     }
@@ -957,7 +973,7 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     /**
      * @param float $amountExcludedForLevel
      */
-    public function setAmountExcludedForLevel($amountExcludedForLevel)
+    public function setAmountExcludedForLevel(float $amountExcludedForLevel)
     {
         $this->amountExcludedForLevel = $amountExcludedForLevel;
     }
@@ -994,7 +1010,12 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
         $this->lastLevelRecalculation = $lastLevelRecalculation;
     }
 
-    public static function resolveOptions($data)
+    /**
+     * @param array $data
+     *
+     * @return array
+     */
+    public static function resolveOptions(array $data): array
     {
         $defaults = [
             'firstName' => null,

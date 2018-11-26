@@ -9,6 +9,8 @@ use OpenLoyalty\Component\Core\Infrastructure\Projector\Projector;
 use Broadway\ReadModel\Repository;
 use Broadway\Repository\Repository as AggregateRootRepository;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
+use OpenLoyalty\Component\Customer\Domain\Customer;
+use OpenLoyalty\Component\Customer\Domain\Event\AssignedTransactionToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignCouponWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignStatusWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
@@ -36,8 +38,6 @@ use OpenLoyalty\Component\Level\Domain\Level;
 use OpenLoyalty\Component\Level\Domain\LevelId;
 use OpenLoyalty\Component\Level\Domain\LevelRepository;
 use OpenLoyalty\Component\Level\Domain\ReadModel\LevelDetails;
-use OpenLoyalty\Component\Transaction\Domain\Event\CustomerWasAssignedToTransaction;
-use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use OpenLoyalty\Component\Transaction\Domain\Transaction;
 
@@ -50,6 +50,11 @@ class CustomerDetailsProjector extends Projector
      * @var Repository
      */
     private $repository;
+
+    /**
+     * @var AggregateRootRepository
+     */
+    private $customerAggregateRootRepository;
 
     /**
      * @var TransactionDetailsRepository
@@ -70,17 +75,20 @@ class CustomerDetailsProjector extends Projector
      * CustomerDetailsProjector constructor.
      *
      * @param Repository                   $repository
+     * @param AggregateRootRepository      $customerAggregateRootRepository
      * @param TransactionDetailsRepository $transactionDetailsRepository
      * @param LevelRepository              $levelRepository
      * @param AggregateRootRepository      $transactionRepository
      */
     public function __construct(
         Repository $repository,
+        AggregateRootRepository $customerAggregateRootRepository,
         TransactionDetailsRepository $transactionDetailsRepository,
         LevelRepository $levelRepository,
         AggregateRootRepository $transactionRepository
     ) {
         $this->repository = $repository;
+        $this->customerAggregateRootRepository = $customerAggregateRootRepository;
         $this->transactionDetailsRepository = $transactionDetailsRepository;
         $this->levelRepository = $levelRepository;
         $this->transactionRepository = $transactionRepository;
@@ -97,27 +105,21 @@ class CustomerDetailsProjector extends Projector
         /** @var CustomerDetails $customer */
         $customer = $this->getReadModel($customerId);
 
-        if ($levelId) {
-            $customer->setLevelId($levelId);
+        $customer->setLevel(null);
+        $customer->setLevelId($levelId);
+        $customer->setManuallyAssignedLevelId(null);
 
-            if ($event->isRemoveLevelManually()) {
-                $customer->setManuallyAssignedLevelId(null);
-            } elseif ($event->isManually()) {
-                $customer->setManuallyAssignedLevelId($levelId);
-            }
+        if ($levelId && $event->isManually()) {
+            $customer->setManuallyAssignedLevelId($levelId);
+        }
 
+        if (null !== $levelId) {
             /** @var Level $level */
             $level = $this->levelRepository->byId(new LevelId((string) $levelId));
             if ($level) {
                 $levelDetails = new LevelDetails($level->getLevelId());
                 $levelDetails->setName($level->getName());
                 $customer->setLevel($levelDetails);
-            }
-        } else {
-            $customer->setLevel(null);
-            $customer->setLevelId(null);
-            if ($event->isManually()) {
-                $customer->setManuallyAssignedLevelId(null);
             }
         }
 
@@ -134,21 +136,20 @@ class CustomerDetailsProjector extends Projector
 
         $data = $event->getCustomerData();
         $data = $readModel->resolveOptions($data);
+
         $readModel->setFirstName($data['firstName']);
         $readModel->setLastName($data['lastName']);
 
         if (isset($data['phone'])) {
             $readModel->setPhone($data['phone']);
         }
-
         if (isset($data['email'])) {
             $readModel->setEmail($data['email']);
         }
-
-        if (!empty($data['gender'])) {
+        if (isset($data['gender'])) {
             $readModel->setGender(new Gender($data['gender']));
         }
-        if (!empty($data['birthDate'])) {
+        if (isset($data['birthDate'])) {
             $readModel->setBirthDate($data['birthDate']);
         }
         if (isset($data['agreement1'])) {
@@ -181,8 +182,8 @@ class CustomerDetailsProjector extends Projector
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
-
         $data = $event->getCustomerData();
+
         if (!empty($data['firstName'])) {
             $readModel->setFirstName($data['firstName']);
         }
@@ -201,7 +202,6 @@ class CustomerDetailsProjector extends Projector
         if (array_key_exists('birthDate', $data)) {
             $readModel->setBirthDate($data['birthDate']);
         }
-
         if (isset($data['agreement1'])) {
             $readModel->setAgreement1($data['agreement1']);
         }
@@ -327,23 +327,12 @@ class CustomerDetailsProjector extends Projector
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
-        $campaignId = (string) $event->getCampaignId();
-        $couponId = $event->getCoupon()->getId();
-        $coupon = $event->getCoupon()->getCode();
-        $transactionId = $event->getTransactionId();
 
-        foreach ($readModel->getCampaignPurchases() as $purchase) {
-            if ((string) $purchase->getCampaignId() === $campaignId
-                && $purchase->getCoupon()->getCode() === $coupon
-                && $purchase->getCoupon()->getId() === $couponId
-                && $event->isUsed() !== $purchase->isUsed()) {
-                $purchase->setUsed($event->isUsed());
-                $purchase->setUsedForTransactionId($transactionId);
-                $this->repository->save($readModel);
+        /** @var Customer $customer */
+        $customer = $this->customerAggregateRootRepository->load($event->getCustomerId());
 
-                return;
-            }
-        }
+        $readModel->setCampaignPurchases($customer->getCampaignPurchases());
+        $this->repository->save($readModel);
     }
 
     /**
@@ -353,17 +342,12 @@ class CustomerDetailsProjector extends Projector
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
-        $coupon = $event->getCoupon()->getCode();
-        $purchaseId = $event->getPurchaseId();
 
-        foreach ($readModel->getCampaignPurchases() as $purchase) {
-            if ($purchase->getId($event->getCustomerId()) === $purchaseId) {
-                $purchase->setReturnedAmount($purchase->getReturnedAmount() + (float) $coupon);
-                $this->repository->save($readModel);
+        /** @var Customer $customer */
+        $customer = $this->customerAggregateRootRepository->load($event->getCustomerId());
 
-                return;
-            }
-        }
+        $readModel->setCampaignPurchases($customer->getCampaignPurchases());
+        $this->repository->save($readModel);
     }
 
     /**
@@ -373,22 +357,12 @@ class CustomerDetailsProjector extends Projector
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
-        $campaignId = (string) $event->getCampaignId();
-        $couponId = $event->getCoupon()->getId();
-        $coupon = $event->getCoupon()->getCode();
-        $transactionId = $event->getTransactionId() ? (string) $event->getTransactionId() : null;
 
-        foreach ($readModel->getCampaignPurchases() as $purchase) {
-            if ((string) $purchase->getCampaignId() === $campaignId
-                && ($purchase->getTransactionId() ? (string) $purchase->getTransactionId() : null) === $transactionId
-                && $purchase->getCoupon()->getCode() === $coupon
-                && $purchase->getCoupon()->getId() === $couponId) {
-                $purchase->setStatus($event->getStatus());
-                $this->repository->save($readModel);
+        /** @var Customer $customer */
+        $customer = $this->customerAggregateRootRepository->load($event->getCustomerId());
 
-                return;
-            }
-        }
+        $readModel->setCampaignPurchases($customer->getCampaignPurchases());
+        $this->repository->save($readModel);
     }
 
     /**
@@ -427,62 +401,23 @@ class CustomerDetailsProjector extends Projector
     }
 
     /**
-     * @param CustomerWasAssignedToTransaction $event
+     * @param AssignedTransactionToCustomer $event
      */
-    public function applyCustomerWasAssignedToTransaction(CustomerWasAssignedToTransaction $event): void
+    public function applyAssignedTransactionToCustomer(AssignedTransactionToCustomer $event): void
     {
         $readModel = $this->getReadModel(new CustomerId((string) $event->getCustomerId()));
+
+        /** @var Customer $customer */
+        $customer = $this->customerAggregateRootRepository->load((string) $event->getCustomerId());
+        $readModel->setTransactionsAmount($customer->getTransactionsAmount());
+        $readModel->setTransactionsAmountWithoutDeliveryCosts($customer->getTransactionsAmountWithoutDeliveryCosts());
+        $readModel->setTransactionsCount($customer->getTransactionsCount());
+        $readModel->addTransactionId(new TransactionId((string) $event->getTransactionId()));
+        $readModel->setAverageTransactionAmount($customer->getAverageTransactionAmount());
+        $readModel->setAmountExcludedForLevel($customer->getAmountExcludedForLevel());
+
         /** @var Transaction $transaction */
         $transaction = $this->transactionRepository->load((string) $event->getTransactionId());
-
-        $revisedTransaction = null;
-        if ($transaction->getRevisedDocument() && $transaction->getDocumentType() == Transaction::TYPE_RETURN) {
-            $tmp = $this->transactionDetailsRepository->findBy(['documentNumberRaw' => $transaction->getRevisedDocument()]);
-            if (count($tmp) > 0) {
-                $revisedTransactionDetails = reset($tmp);
-                if ($revisedTransactionDetails instanceof TransactionDetails) {
-                    $revisedTransaction = $this->transactionRepository->load($revisedTransactionDetails->getId());
-                }
-            }
-        }
-
-        $returnAmount = 0;
-        $returnWithoutDeliveryAmount = 0;
-        if ($revisedTransaction instanceof Transaction) {
-            $grossValue = $transaction->getGrossValue();
-            $grossValueWithoutDelivery = $transaction->getGrossValueWithoutDeliveryCosts();
-            // make return amount always negative
-            $returnAmount = $grossValue > 0 ? ($grossValue * -1) : $grossValue;
-            $returnWithoutDeliveryAmount = $grossValueWithoutDelivery > 0 ? ($grossValueWithoutDelivery * -1) : $grossValueWithoutDelivery;
-
-            if ($revisedTransaction->getGrossValue() + $returnAmount <= 0) {
-                $readModel->setTransactionsCount($readModel->getTransactionsCount() - 1);
-            }
-        } else {
-            $readModel->setTransactionsCount($readModel->getTransactionsCount() + 1);
-        }
-
-        if ($returnAmount < 0) {
-            $result = $readModel->getTransactionsAmount() + $returnAmount;
-            if ($result < 0) { // prevent a negative transaction's amount
-                $readModel->setTransactionsAmount(0);
-            } else {
-                $readModel->setTransactionsAmount($result);
-            }
-        } else {
-            $readModel->setTransactionsAmount($readModel->getTransactionsAmount() + $transaction->getGrossValue());
-        }
-
-        if ($returnWithoutDeliveryAmount < 0) {
-            // if return transaction type: add a negative amount
-            $readModel->setTransactionsAmountWithoutDeliveryCosts($readModel->getTransactionsAmountWithoutDeliveryCosts() + $returnWithoutDeliveryAmount);
-        } else {
-            $readModel->setTransactionsAmountWithoutDeliveryCosts($readModel->getTransactionsAmountWithoutDeliveryCosts() + $transaction->getGrossValueWithoutDeliveryCosts());
-        }
-
-        $readModel->addTransactionId(new TransactionId((string) $event->getTransactionId()));
-        $readModel->setAverageTransactionAmount($readModel->getTransactionsCount() == 0 ? 0 : $readModel->getTransactionsAmount() / $readModel->getTransactionsCount());
-        $readModel->setAmountExcludedForLevel($readModel->getAmountExcludedForLevel() + $transaction->getAmountExcludedForLevel());
         if ($transaction->getPurchaseDate() > $readModel->getLastTransactionDate()) {
             $readModel->setLastTransactionDate($transaction->getPurchaseDate());
         }
@@ -497,19 +432,12 @@ class CustomerDetailsProjector extends Projector
     {
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
-        $campaignId = (string) $event->getCampaignId();
-        $transactionId = $event->getTransactionId() ? (string) $event->getTransactionId() : null;
 
-        foreach ($readModel->getCampaignPurchases() as $purchase) {
-            if ((string) $purchase->getCampaignId() === $campaignId
-                && $purchase->getPurchaseAt() == $event->getCreatedAt()
-                && ($purchase->getTransactionId() ? (string) $purchase->getTransactionId() : null === $transactionId)) {
-                $purchase->setCoupon($event->getNewCoupon());
-                $this->repository->save($readModel);
+        /** @var Customer $customer */
+        $customer = $this->customerAggregateRootRepository->load($event->getCustomerId());
 
-                return;
-            }
-        }
+        $readModel->setCampaignPurchases($customer->getCampaignPurchases());
+        $this->repository->save($readModel);
     }
 
     /**

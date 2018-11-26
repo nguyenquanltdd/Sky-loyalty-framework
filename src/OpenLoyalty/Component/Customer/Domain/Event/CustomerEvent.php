@@ -33,6 +33,6 @@ abstract class CustomerEvent implements Serializable
      */
     public function serialize(): array
     {
-        return array('customerId' => (string) $this->customerId);
+        return ['customerId' => (string) $this->customerId];
     }
 }
