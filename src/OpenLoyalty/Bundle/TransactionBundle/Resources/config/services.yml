@@ -27,13 +27,6 @@ services:
     oloy.transaction.customer_id_provider:
         alias: oloy.transaction.settings_based_customer_id_provider
 
-    oloy.transaction.oloy_customer_transactions_summary_provider:
-        class: OpenLoyalty\Bundle\TransactionBundle\Service\OloyCustomerTransactionsSummaryProvider
-        arguments: ['@oloy.user.read_model.repository.customer_details']
-
-    oloy.transaction.customer_transactions_summary_provider:
-        alias: oloy.transaction.oloy_customer_transactions_summary_provider
-
     oloy.transaction.serialization_listener.transaction:
         class: OpenLoyalty\Bundle\TransactionBundle\Event\Listener\TransactionSerializationListener
         arguments: ['@oloy.points.account.repository.points_transfer_details', '@ol.settings.manager', '@oloy.pos.repository']

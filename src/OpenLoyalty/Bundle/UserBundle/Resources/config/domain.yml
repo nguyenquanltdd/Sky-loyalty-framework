@@ -100,6 +100,7 @@ services:
             - { name: broadway.domain.event_listener }
         arguments:
             $repository: '@oloy.user.read_model.repository.customer_details'
+            $customerAggregateRootRepository: '@oloy.user.customer.repository'
             $levelRepository: '@oloy.level.repository'
             $transactionRepository: '@oloy.transaction.repository'
 
@@ -141,6 +142,10 @@ services:
 
     OpenLoyalty\Bundle\UserBundle\Service\SettingsBasedLevelDowngradeModeProvider:
         autowire: true
+
+    OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener\AssignTransactionToCustomerListener:
+        tags:
+            - { name: broadway.event_listener, event: oloy.transaction.customer_assigned, method: handle }
 
     oloy.user.customer.listener.calculate_customer_level:
         class: 'OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener\CalculateCustomerLevelListener'

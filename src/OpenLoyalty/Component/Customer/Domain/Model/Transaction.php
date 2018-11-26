@@ -1,52 +1,34 @@
 <?php
 /*
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Component\Transaction\Domain\SystemEvent;
 
-use OpenLoyalty\Component\Transaction\Domain\CustomerId;
-use OpenLoyalty\Component\Transaction\Domain\TransactionId;
+declare(strict_types=1);
+
+namespace OpenLoyalty\Component\Customer\Domain\Model;
+
+use OpenLoyalty\Component\Customer\Domain\TransactionId;
 
 /**
- * Class CustomerAssignedToTransactionSystemEvent.
+ * Class Transaction.
  */
-class CustomerAssignedToTransactionSystemEvent extends TransactionSystemEvent
+class Transaction
 {
     /**
-     * @var CustomerId
+     * @var TransactionId
      */
-    protected $customerId;
+    private $transactionId;
 
     /**
      * @var float
      */
-    protected $grossValue = 0.0;
-
-    /**
-     * @var int
-     */
-    protected $amountExcludedForLevel = 0;
+    private $grossValue = 0.0;
 
     /**
      * @var float
      */
-    protected $grossValueWithoutDeliveryCosts = 0.0;
-
-    /**
-     * @var int
-     */
-    protected $transactionsCount = 0;
-
-    /**
-     * @var bool
-     */
-    protected $return = false;
-
-    /**
-     * @var null|string
-     */
-    private $revisedDocument = null;
+    private $grossValueWithoutDeliveryCosts = 0.0;
 
     /**
      * @var string
@@ -54,46 +36,55 @@ class CustomerAssignedToTransactionSystemEvent extends TransactionSystemEvent
     private $documentNumber;
 
     /**
-     * CustomerAssignedToTransactionSystemEvent constructor.
+     * @var int
+     */
+    private $amountExcludedForLevel = 0;
+
+    /**
+     * @var bool
+     */
+    private $isReturn = false;
+
+    /**
+     * @var null|string
+     */
+    private $revisedDocument = null;
+
+    /**
+     * Transaction constructor.
      *
      * @param TransactionId $transactionId
-     * @param CustomerId    $customerId
      * @param float         $grossValue
      * @param float         $grossValueWithoutDeliveryCosts
      * @param string        $documentNumber
      * @param int           $amountExcludedForLevel
-     * @param int|null      $transactionsCount
-     * @param bool          $return
+     * @param bool          $isReturn
      * @param null|string   $revisedDocument
      */
     public function __construct(
         TransactionId $transactionId,
-        CustomerId $customerId,
         float $grossValue,
         float $grossValueWithoutDeliveryCosts,
         string $documentNumber,
-        int $amountExcludedForLevel = 0,
-        ?int $transactionsCount = null,
-        bool $return = false,
+        int $amountExcludedForLevel,
+        bool $isReturn,
         ?string $revisedDocument = null
     ) {
-        parent::__construct($transactionId, []);
+        $this->transactionId = $transactionId;
         $this->grossValue = $grossValue;
         $this->grossValueWithoutDeliveryCosts = $grossValueWithoutDeliveryCosts;
         $this->documentNumber = $documentNumber;
-        $this->customerId = $customerId;
         $this->amountExcludedForLevel = $amountExcludedForLevel;
-        $this->transactionsCount = $transactionsCount;
-        $this->return = $return;
+        $this->isReturn = $isReturn;
         $this->revisedDocument = $revisedDocument;
     }
 
     /**
-     * @return CustomerId
+     * @return TransactionId
      */
-    public function getCustomerId(): CustomerId
+    public function getTransactionId(): TransactionId
     {
-        return $this->customerId;
+        return $this->transactionId;
     }
 
     /**
@@ -113,6 +104,14 @@ class CustomerAssignedToTransactionSystemEvent extends TransactionSystemEvent
     }
 
     /**
+     * @return string
+     */
+    public function getDocumentNumber(): string
+    {
+        return $this->documentNumber;
+    }
+
+    /**
      * @return int
      */
     public function getAmountExcludedForLevel(): int
@@ -121,19 +120,11 @@ class CustomerAssignedToTransactionSystemEvent extends TransactionSystemEvent
     }
 
     /**
-     * @return int|null
-     */
-    public function getTransactionsCount(): ?int
-    {
-        return $this->transactionsCount;
-    }
-
-    /**
      * @return bool
      */
     public function isReturn(): bool
     {
-        return $this->return;
+        return $this->isReturn;
     }
 
     /**
@@ -142,13 +133,5 @@ class CustomerAssignedToTransactionSystemEvent extends TransactionSystemEvent
     public function getRevisedDocument(): ?string
     {
         return $this->revisedDocument;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDocumentNumber(): string
-    {
-        return $this->documentNumber;
     }
 }

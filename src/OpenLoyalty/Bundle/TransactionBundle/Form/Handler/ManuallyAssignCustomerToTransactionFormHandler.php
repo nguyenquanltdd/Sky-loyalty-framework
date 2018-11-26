@@ -182,9 +182,11 @@ class ManuallyAssignCustomerToTransactionFormHandler
                 new CustomerId((string) $customer->getCustomerId()),
                 $transaction->getGrossValue(),
                 $transaction->getGrossValueWithoutDeliveryCosts(),
+                $transaction->getDocumentNumber(),
                 0,
                 null,
-                $transaction->getDocumentType() == Transaction::TYPE_RETURN
+                $transaction->getDocumentType() === Transaction::TYPE_RETURN,
+                $transaction->getRevisedDocument()
             )]
         );
 

@@ -538,20 +538,34 @@ class CustomerCampaignsControllerTest extends BaseApiTest
      */
     public function it_change_multiple_customer_coupons_to_used(): void
     {
-        $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
-        $couponId = Uuid::uuid4()->toString();
-        $couponCode = Uuid::uuid4()->toString();
-        $customerDetails->addCampaignPurchase(
-            new CampaignPurchase(
-                new \DateTime(),
-                0,
-                new CustomerCampaignId(LoadCampaignData::CAMPAIGN_ID),
-                new Coupon($couponId, $couponCode),
-                Campaign::REWARD_TYPE_DISCOUNT_CODE
-            )
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/admin/customer/'.LoadUserData::USER2_USER_ID.'/campaign/'.LoadCampaignData::CAMPAIGN_ID.'/buy',
+            [
+                'withoutPoints' => true,
+            ]
         );
+        $response = $client->getResponse();
+        $this->assertOkResponseStatus($response);
 
-        $this->customerDetailsRepository->save($customerDetails);
+        $client = $this->createAuthenticatedClient(LoadUserData::USER2_USERNAME, LoadUserData::USER2_PASSWORD, 'customer');
+        $client->request(
+            'GET',
+            '/api/customer/campaign/bought'
+        );
+        $response = $client->getResponse();
+        $this->assertOkResponseStatus($response);
+        $data = json_decode($response->getContent(), true);
+        $data = reset($data);
+        $campaignBought = reset($data);
+        $this->assertArrayHasKey('coupon', $campaignBought);
+        $coupon = $campaignBought['coupon'];
+        $this->assertArrayHasKey('id', $coupon);
+        $this->assertArrayHasKey('code', $coupon);
+
+        $couponId = $coupon['id'];
+        $couponCode = $coupon['code'];
 
         $client = $this->createAuthenticatedClient(LoadUserData::USER2_USERNAME, LoadUserData::USER2_PASSWORD, 'customer');
         $client->request(

@@ -490,4 +490,25 @@ class CustomerCommandHandler extends SimpleCommandHandler
         $customer->recalculateLevel($date);
         $this->repository->save($customer);
     }
+
+    /**
+     * @param AssignTransactionToCustomer $command
+     */
+    public function handleAssignTransactionToCustomer(AssignTransactionToCustomer $command)
+    {
+        $customerId = $command->getCustomerId();
+        /** @var Customer $customer */
+        $customer = $this->repository->load((string) $customerId);
+        $customer->assignTransaction(
+            $command->getTransactionId(),
+            $command->getGrossValue(),
+            $command->getGrossValueWithoutDeliveryCosts(),
+            $command->getDocumentNumber(),
+            $command->getAmountExcludedForLevel(),
+            $command->isReturn(),
+            $command->getRevisedDocument()
+        );
+
+        $this->repository->save($customer);
+    }
 }

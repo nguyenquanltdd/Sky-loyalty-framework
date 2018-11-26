@@ -18,13 +18,11 @@ use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
-use OpenLoyalty\Component\Customer\Domain\CampaignId as CustomerCampaignId;
+use OpenLoyalty\Component\Customer\Domain\CustomerRepository;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
-use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\EarningRule\Domain\EarningRule;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -46,6 +44,11 @@ class CampaignControllerTest extends BaseApiTest
     private $customerDetailsRepository;
 
     /**
+     * @var CustomerRepository
+     */
+    private $customerAggregateRootRepository;
+
+    /**
      * {@inheritdoc}
      */
     protected function setUp(): void
@@ -56,6 +59,7 @@ class CampaignControllerTest extends BaseApiTest
 
         $this->campaignRepository = static::$kernel->getContainer()->get('oloy.campaign.repository');
         $this->customerDetailsRepository = static::$kernel->getContainer()->get('oloy.user.read_model.repository.customer_details');
+        $this->customerAggregateRootRepository = static::$kernel->getContainer()->get('oloy.user.customer.repository');
     }
 
     /**
@@ -813,21 +817,34 @@ class CampaignControllerTest extends BaseApiTest
      */
     public function it_changes_multiple_coupons_to_used(): void
     {
-        $couponId = Uuid::uuid4()->toString();
-        $couponCode = Uuid::uuid4()->toString();
-
-        $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
-        $customerDetails->addCampaignPurchase(
-            new CampaignPurchase(
-                new \DateTime(),
-                0,
-                new CustomerCampaignId(LoadCampaignData::CAMPAIGN_ID),
-                new Coupon($couponId, $couponCode),
-                Campaign::REWARD_TYPE_DISCOUNT_CODE
-            )
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/admin/customer/'.LoadUserData::USER2_USER_ID.'/campaign/'.LoadCampaignData::CAMPAIGN_ID.'/buy',
+            [
+                'withoutPoints' => true,
+            ]
         );
+        $response = $client->getResponse();
+        $this->assertOkResponseStatus($response);
 
-        $this->customerDetailsRepository->save($customerDetails);
+        $client = $this->createAuthenticatedClient(LoadUserData::USER2_USERNAME, LoadUserData::USER2_PASSWORD, 'customer');
+        $client->request(
+            'GET',
+            '/api/customer/campaign/bought'
+        );
+        $response = $client->getResponse();
+        $this->assertOkResponseStatus($response);
+        $data = json_decode($response->getContent(), true);
+        $data = reset($data);
+        $campaignBought = reset($data);
+        $this->assertArrayHasKey('coupon', $campaignBought);
+        $coupon = $campaignBought['coupon'];
+        $this->assertArrayHasKey('id', $coupon);
+        $this->assertArrayHasKey('code', $coupon);
+
+        $couponId = $coupon['id'];
+        $couponCode = $coupon['code'];
 
         $client = $this->createAuthenticatedClient();
         $client->request(

@@ -67,6 +67,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
                 new CustomerId(self::ID),
                 100,
                 100,
+                '123',
                 0,
                 null,
                 true
@@ -142,6 +143,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
                 new CustomerId(self::ID),
                 100,
                 100,
+                '123',
                 0,
                 null,
                 true
@@ -256,6 +258,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
                 new CustomerId(self::ID),
                 100,
                 100,
+                '123',
                 0,
                 null,
                 true
@@ -330,6 +333,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
                 new CustomerId(self::ID),
                 50,
                 50,
+                '123',
                 0,
                 null,
                 true
@@ -444,6 +448,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
                 new CustomerId(self::ID),
                 50,
                 50,
+                '123',
                 0,
                 null,
                 true
@@ -504,6 +509,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
                 new CustomerId(self::ID),
                 100,
                 100,
+                '123',
                 0,
                 null,
                 true

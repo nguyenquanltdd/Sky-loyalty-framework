@@ -7,6 +7,8 @@ namespace OpenLoyalty\Component\Customer\Domain;
 
 use Broadway\EventSourcing\EventSourcedAggregateRoot;
 use OpenLoyalty\Component\Core\Domain\Model\Identifier;
+use OpenLoyalty\Component\Core\Domain\Model\Label;
+use OpenLoyalty\Component\Customer\Domain\Event\AssignedTransactionToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignCouponWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignStatusWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
@@ -28,8 +30,8 @@ use OpenLoyalty\Component\Customer\Domain\Event\CustomerCompanyDetailsWereUpdate
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerLoyaltyCardNumberWasUpdated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasRegistered;
 use OpenLoyalty\Component\Customer\Domain\Model\Company;
-use Assert\Assertion as Assert;
 use OpenLoyalty\Component\Customer\Domain\Model\Status;
+use OpenLoyalty\Component\Customer\Domain\Model\Transaction;
 
 /**
  * Class Customer.
@@ -122,14 +124,44 @@ class Customer extends EventSourcedAggregateRoot
     protected $levelId = null;
 
     /**
-     * @var bool
+     * @var LevelId|null
      */
-    protected $removeLevelManually = false;
+    protected $manuallyAssignedLevelId;
+
+    /**
+     * @var Label[]
+     */
+    protected $labels = [];
+
+    /**
+     * @var PosId|null
+     */
+    protected $posId;
+
+    /**
+     * @var SellerId|null
+     */
+    protected $sellerId;
+
+    /**
+     * @var CampaignPurchase[]
+     */
+    protected $campaignPurchases = [];
 
     /**
      * @var bool
      */
-    protected $manually = false;
+    protected $active = false;
+
+    /**
+     * @var null|\DateTime
+     */
+    protected $lastLevelRecalculation;
+
+    /**
+     * @var Transaction[]
+     */
+    protected $transactions = [];
 
     /**
      * @return string
@@ -198,11 +230,16 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @param CustomerWasMovedToLevel $event
      */
-    public function applyCustomerWasMovedToLevel(CustomerWasMovedToLevel $event): void
+    protected function applyCustomerWasMovedToLevel(CustomerWasMovedToLevel $event): void
     {
-        $this->setLevelId($event->getLevelId());
-        $this->setRemoveLevelManually($event->isRemoveLevelManually());
-        $this->setManually($event->isManually());
+        $levelId = $event->getLevelId();
+
+        $this->setLevelId($levelId);
+        $this->setManuallyAssignedLevelId(null);
+
+        if ($levelId && $event->isManually()) {
+            $this->setManuallyAssignedLevelId($levelId);
+        }
     }
 
     /**
@@ -214,19 +251,19 @@ class Customer extends EventSourcedAggregateRoot
     }
 
     /**
-     * @param bool $removeLevelManually
+     * @param LevelId|null $manuallyAssignedLevelId
      */
-    private function setRemoveLevelManually(bool $removeLevelManually): void
+    private function setManuallyAssignedLevelId(?LevelId $manuallyAssignedLevelId): void
     {
-        $this->removeLevelManually = $removeLevelManually;
+        $this->manuallyAssignedLevelId = $manuallyAssignedLevelId;
     }
 
     /**
-     * @param bool $manually
+     * @return LevelId|null
      */
-    private function setManually(bool $manually): void
+    public function getManuallyAssignedLevelId(): ?LevelId
     {
-        $this->manually = $manually;
+        return $this->manuallyAssignedLevelId;
     }
 
     /**
@@ -235,22 +272,6 @@ class Customer extends EventSourcedAggregateRoot
     public function getLevelId(): ?LevelId
     {
         return $this->levelId;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isRemoveLevelManually(): bool
-    {
-        return $this->removeLevelManually;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getManually(): bool
-    {
-        return $this->manually;
     }
 
     /**
@@ -285,6 +306,30 @@ class Customer extends EventSourcedAggregateRoot
     }
 
     /**
+     * @param PosWasAssignedToCustomer $event
+     */
+    protected function applyPosWasAssignedToCustomer(PosWasAssignedToCustomer $event): void
+    {
+        $this->setPosId($event->getPosId());
+    }
+
+    /**
+     * @param PosId $posId
+     */
+    private function setPosId(PosId $posId): void
+    {
+        $this->posId = $posId;
+    }
+
+    /**
+     * @return null|PosId
+     */
+    public function getPosId(): ?PosId
+    {
+        return $this->posId;
+    }
+
+    /**
      * @param SellerId $sellerId
      */
     public function assignSellerToCustomer(SellerId $sellerId): void
@@ -292,6 +337,30 @@ class Customer extends EventSourcedAggregateRoot
         $this->apply(
             new SellerWasAssignedToCustomer($this->getId(), $sellerId)
         );
+    }
+
+    /**
+     * @param SellerWasAssignedToCustomer $event
+     */
+    protected function applySellerWasAssignedToCustomer(SellerWasAssignedToCustomer $event): void
+    {
+        $this->setSellerId($event->getSellerId());
+    }
+
+    /**
+     * @param SellerId $sellerId
+     */
+    private function setSellerId(SellerId $sellerId): void
+    {
+        $this->sellerId = $sellerId;
+    }
+
+    /**
+     * @return null|SellerId
+     */
+    public function getSellerId(): ?SellerId
+    {
+        return $this->sellerId;
     }
 
     /**
@@ -333,14 +402,248 @@ class Customer extends EventSourcedAggregateRoot
     }
 
     /**
-     * @param string $purchaseId
-     * @param Coupon $coupon
+     * @param CampaignWasBoughtByCustomer $event
      */
-    public function campaignWasReturned(string $purchaseId, Coupon $coupon): void
+    protected function applyCampaignWasBoughtByCustomer(CampaignWasBoughtByCustomer $event): void
     {
-        $this->apply(
-            new CampaignWasReturned($this->getId(), $purchaseId, $coupon)
+        $this->addCampaignPurchase(
+            new CampaignPurchase(
+                $event->getCreatedAt(),
+                $event->getCostInPoints(),
+                $event->getCampaignId(),
+                $event->getCoupon(),
+                $event->getReward(),
+                $event->getStatus(),
+                $event->getActiveSince(),
+                $event->getActiveTo(),
+                $event->getTransactionId()
+            )
         );
+    }
+
+    /**
+     * @return CampaignPurchase[]
+     */
+    public function getCampaignPurchases(): array
+    {
+        return $this->campaignPurchases;
+    }
+
+    /**
+     * @param CampaignPurchase $campaignPurchase
+     */
+    private function addCampaignPurchase(CampaignPurchase $campaignPurchase): void
+    {
+        $this->campaignPurchases[] = $campaignPurchase;
+    }
+
+    /**
+     * @param TransactionId $transactionId
+     * @param float         $grossValue
+     * @param float         $grossValueWithoutDeliveryCosts
+     * @param string        $documentNumber
+     * @param int           $amountExcludedForLevel
+     * @param bool          $isReturn
+     * @param null|string   $revisedDocument
+     */
+    public function assignTransaction(
+        TransactionId $transactionId,
+        float $grossValue,
+        float $grossValueWithoutDeliveryCosts,
+        string $documentNumber,
+        int $amountExcludedForLevel,
+        bool $isReturn,
+        ?string $revisedDocument
+    ): void {
+        $this->apply(
+            new AssignedTransactionToCustomer(
+                $this->getId(),
+                $transactionId,
+                $grossValue,
+                $grossValueWithoutDeliveryCosts,
+                $documentNumber,
+                $amountExcludedForLevel,
+                $isReturn,
+                $revisedDocument
+            )
+        );
+    }
+
+    /**
+     * @param AssignedTransactionToCustomer $event
+     */
+    public function applyAssignedTransactionToCustomer(AssignedTransactionToCustomer $event): void
+    {
+        $this->addTransaction(
+            new Transaction(
+                $event->getTransactionId(),
+                $event->getGrossValue(),
+                $event->getGrossValueWithoutDeliveryCosts(),
+                $event->getDocumentNumber(),
+                $event->getAmountExcludedForLevel(),
+                $event->isReturn(),
+                $event->getRevisedDocument()
+            )
+        );
+    }
+
+    /**
+     * @return Transaction[]
+     */
+    public function getTransactions(): array
+    {
+        return $this->transactions;
+    }
+
+    /**
+     * @param Transaction $transaction
+     */
+    private function addTransaction(Transaction $transaction): void
+    {
+        $this->transactions[] = $transaction;
+    }
+
+    /**
+     * @return float
+     */
+    public function getAmountExcludedForLevel(): float
+    {
+        $amountExcludedForLevel = 0.0;
+
+        foreach ($this->getTransactions() as $transaction) {
+            $amountExcludedForLevel += $transaction->getAmountExcludedForLevel();
+        }
+
+        return $amountExcludedForLevel;
+    }
+
+    /**
+     * @return float
+     */
+    public function getAverageTransactionAmount(): float
+    {
+        return $this->getTransactionsCount() == 0 ? 0 : $this->getTransactionsAmount() / $this->getTransactionsCount();
+    }
+
+    /**
+     * @return float
+     */
+    public function getTransactionsAmountWithoutDeliveryCosts(): float
+    {
+        $transactionsAmountWithoutDeliveryCosts = 0.0;
+
+        foreach ($this->getTransactions() as $transaction) {
+            $returnWithoutDeliveryAmount = 0;
+
+            if ($transaction->isReturn()) {
+                $revisedTransaction = $this->getTransactionByDocumentNumber($transaction->getRevisedDocument());
+                if ($revisedTransaction instanceof Transaction) {
+                    $grossValueWithoutDelivery = $transaction->getGrossValueWithoutDeliveryCosts();
+                    // make return amount always negative
+                    $returnWithoutDeliveryAmount = $grossValueWithoutDelivery > 0 ? ($grossValueWithoutDelivery * -1) : $grossValueWithoutDelivery;
+                }
+            }
+
+            if ($returnWithoutDeliveryAmount < 0) {
+                // if return transaction type: add a negative amount
+                $transactionsAmountWithoutDeliveryCosts += $returnWithoutDeliveryAmount;
+            } else {
+                $transactionsAmountWithoutDeliveryCosts += $transaction->getGrossValueWithoutDeliveryCosts();
+            }
+        }
+
+        return $transactionsAmountWithoutDeliveryCosts;
+    }
+
+    /**
+     * @return float
+     */
+    public function getTransactionsAmount(): float
+    {
+        $transactionsAmount = 0.0;
+
+        foreach ($this->getTransactions() as $transaction) {
+            $returnAmount = 0;
+
+            if ($transaction->isReturn()) {
+                $revisedTransaction = $this->getTransactionByDocumentNumber($transaction->getRevisedDocument());
+                if ($revisedTransaction instanceof Transaction) {
+                    $grossValue = $transaction->getGrossValue();
+                    // make return amount always negative
+                    $returnAmount = $grossValue > 0 ? ($grossValue * -1) : $grossValue;
+                }
+            }
+
+            if ($returnAmount < 0) {
+                $result = $transactionsAmount + $returnAmount;
+                if ($result < 0) { // prevent a negative transaction's amount
+                    $transactionsAmount = 0.0;
+                } else {
+                    $transactionsAmount = $result;
+                }
+            } else {
+                $transactionsAmount += $transaction->getGrossValue();
+            }
+        }
+
+        return $transactionsAmount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTransactionsCount(): int
+    {
+        $transactionsCount = 0;
+        $transactionsAmount = [];
+
+        foreach ($this->getTransactions() as $transaction) {
+            if (!$transaction->isReturn()) {
+                ++$transactionsCount;
+                $transactionsAmount[$transaction->getDocumentNumber()] = $transaction->getGrossValue();
+            }
+
+            if ($transaction->isReturn()) {
+                $grossValue = $transaction->getGrossValue();
+                // make return amount always negative
+                $returnAmount = $grossValue > 0 ? ($grossValue * -1) : $grossValue;
+
+                if (!array_key_exists($transaction->getRevisedDocument(), $transactionsAmount)) {
+                    continue;
+                }
+
+                $transactionsAmount[$transaction->getRevisedDocument()] += $returnAmount;
+
+                if ($transactionsAmount[$transaction->getRevisedDocument()] <= 0) {
+                    --$transactionsCount;
+                }
+            }
+        }
+
+        // when someone creates more returns than amount available on sell transaction,
+        // ie. sell = $10, return1 = $5, return2 = $5 and return3 = $2 the counter will be -1
+        // so we need to prevent that
+        if ($transactionsCount < 0) {
+            $transactionsCount = 0;
+        }
+
+        return $transactionsCount;
+    }
+
+    /**
+     * @param string $documentNumber
+     *
+     * @return null|Transaction
+     */
+    private function getTransactionByDocumentNumber(string $documentNumber): ?Transaction
+    {
+        foreach ($this->getTransactions() as $transaction) {
+            if (!$transaction->isReturn() && $documentNumber === $transaction->getDocumentNumber()) {
+                return $transaction;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -354,6 +657,57 @@ class Customer extends EventSourcedAggregateRoot
         $this->apply(
             new CampaignUsageWasChanged($this->getId(), $campaignId, $coupon, $used, $transactionId)
         );
+    }
+
+    /**
+     * @param CampaignUsageWasChanged $event
+     */
+    protected function applyCampaignUsageWasChanged(CampaignUsageWasChanged $event): void
+    {
+        $campaignId = (string) $event->getCampaignId();
+        $couponId = $event->getCoupon()->getId();
+        $coupon = $event->getCoupon()->getCode();
+        $transactionId = $event->getTransactionId();
+
+        foreach ($this->getCampaignPurchases() as $purchase) {
+            if ((string) $purchase->getCampaignId() === $campaignId
+                && $purchase->getCoupon()->getCode() === $coupon
+                && $purchase->getCoupon()->getId() === $couponId
+                && $event->isUsed() !== $purchase->isUsed()) {
+                $purchase->setUsed($event->isUsed());
+                $purchase->setUsedForTransactionId($transactionId);
+
+                return;
+            }
+        }
+    }
+
+    /**
+     * @param string $purchaseId
+     * @param Coupon $coupon
+     */
+    public function campaignWasReturned(string $purchaseId, Coupon $coupon): void
+    {
+        $this->apply(
+            new CampaignWasReturned($this->getId(), $purchaseId, $coupon)
+        );
+    }
+
+    /**
+     * @param CampaignWasReturned $event
+     */
+    protected function applyCampaignWasReturned(CampaignWasReturned $event): void
+    {
+        $coupon = $event->getCoupon()->getCode();
+        $purchaseId = $event->getPurchaseId();
+
+        foreach ($this->getCampaignPurchases() as $purchase) {
+            if ($purchase->getId($event->getCustomerId()) === $purchaseId) {
+                $purchase->setReturnedAmount($purchase->getReturnedAmount() + (float) $coupon);
+
+                return;
+            }
+        }
     }
 
     /**
@@ -381,6 +735,28 @@ class Customer extends EventSourcedAggregateRoot
     }
 
     /**
+     * @param CampaignStatusWasChanged $event
+     */
+    protected function applyCampaignStatusWasChanged(CampaignStatusWasChanged $event): void
+    {
+        $campaignId = (string) $event->getCampaignId();
+        $couponId = $event->getCoupon()->getId();
+        $coupon = $event->getCoupon()->getCode();
+        $transactionId = $event->getTransactionId() ? (string) $event->getTransactionId() : null;
+
+        foreach ($this->getCampaignPurchases() as $purchase) {
+            if ((string) $purchase->getCampaignId() === $campaignId
+                && ($purchase->getTransactionId() ? (string) $purchase->getTransactionId() : null) === $transactionId
+                && $purchase->getCoupon()->getCode() === $coupon
+                && $purchase->getCoupon()->getId() === $couponId) {
+                $purchase->setStatus($event->getStatus());
+
+                return;
+            }
+        }
+    }
+
+    /**
      * @param CampaignId    $campaignId
      * @param TransactionId $transactionId
      * @param \DateTime     $createdAt
@@ -391,6 +767,25 @@ class Customer extends EventSourcedAggregateRoot
         $this->apply(
             new CampaignCouponWasChanged($this->getId(), $campaignId, $transactionId, $createdAt, $newCoupon)
         );
+    }
+
+    /**
+     * @param CampaignCouponWasChanged $event
+     */
+    protected function applyCampaignCouponWasChanged(CampaignCouponWasChanged $event): void
+    {
+        $campaignId = (string) $event->getCampaignId();
+        $transactionId = $event->getTransactionId() ? (string) $event->getTransactionId() : null;
+
+        foreach ($this->getCampaignPurchases() as $purchase) {
+            if ((string) $purchase->getCampaignId() === $campaignId
+                && $purchase->getPurchaseAt() == $event->getCreatedAt()
+                && ($purchase->getTransactionId() ? (string) $purchase->getTransactionId() : null === $transactionId)) {
+                $purchase->setCoupon($event->getNewCoupon());
+
+                return;
+            }
+        }
     }
 
     /**
@@ -416,6 +811,31 @@ class Customer extends EventSourcedAggregateRoot
     }
 
     /**
+     * @param CustomerWasDeactivated $event
+     */
+    protected function applyCustomerWasDeactivated(CustomerWasDeactivated $event): void
+    {
+        $this->setActive(false);
+        $this->setStatus(Status::typeBlocked());
+    }
+
+    /**
+     * @return bool
+     */
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    /**
+     * @param bool $active
+     */
+    private function setActive(bool $active): void
+    {
+        $this->active = $active;
+    }
+
+    /**
      * Activate.
      */
     public function activate(): void
@@ -423,6 +843,15 @@ class Customer extends EventSourcedAggregateRoot
         $this->apply(
             new CustomerWasActivated($this->getId())
         );
+    }
+
+    /**
+     * @param CustomerWasActivated $event
+     */
+    protected function applyCustomerWasActivated(CustomerWasActivated $event): void
+    {
+        $this->setActive(true);
+        $this->setStatus(Status::typeActiveNoCard());
     }
 
     /**
@@ -436,6 +865,30 @@ class Customer extends EventSourcedAggregateRoot
     }
 
     /**
+     * @param CustomerLevelWasRecalculated $event
+     */
+    protected function applyCustomerLevelWasRecalculated(CustomerLevelWasRecalculated $event): void
+    {
+        $this->setLastLevelRecalculation($event->getDate());
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getLastLevelRecalculation(): ?\DateTime
+    {
+        return $this->lastLevelRecalculation;
+    }
+
+    /**
+     * @param \DateTime|null $lastLevelRecalculation
+     */
+    private function setLastLevelRecalculation(?\DateTime $lastLevelRecalculation = null): void
+    {
+        $this->lastLevelRecalculation = $lastLevelRecalculation;
+    }
+
+    /**
      * @param CustomerWasRegistered $event
      */
     protected function applyCustomerWasRegistered(CustomerWasRegistered $event): void
@@ -444,38 +897,56 @@ class Customer extends EventSourcedAggregateRoot
         $data = $this->resolveOptions($data);
 
         $this->id = $event->getCustomerId();
+
         $this->setFirstName($data['firstName']);
         $this->setLastName($data['lastName']);
+
         if (isset($data['phone'])) {
             $this->setPhone($data['phone']);
-        }
-        if (isset($data['gender'])) {
-            $this->setGender(new Gender($data['gender']));
         }
         if (isset($data['email'])) {
             $this->setEmail($data['email']);
         }
+        if (isset($data['gender'])) {
+            $this->setGender(new Gender($data['gender']));
+        }
         if (isset($data['birthDate'])) {
             $this->setBirthDate($data['birthDate']);
         }
-
         if (isset($data['agreement1'])) {
             $this->setAgreement1($data['agreement1']);
         }
-
         if (isset($data['agreement2'])) {
             $this->setAgreement2($data['agreement2']);
         }
-
         if (isset($data['agreement3'])) {
             $this->setAgreement3($data['agreement3']);
         }
-
-        if (isset($data['status'])) {
-            $this->setStatus(Status::fromData($data['status']));
+        $labels = [];
+        if (isset($data['labels'])) {
+            foreach ($data['labels'] as $label) {
+                $labels[] = new Label($label['key'], $label['value']);
+            }
         }
-
+        $this->setLabels($labels);
+        $this->setStatus(Status::typeNew());
         $this->setCreatedAt($data['createdAt']);
+    }
+
+    /**
+     * @return Label[]
+     */
+    public function getLabels(): array
+    {
+        return $this->labels;
+    }
+
+    /**
+     * @param Label[] $labels
+     */
+    public function setLabels(array $labels = []): void
+    {
+        $this->labels = $labels;
     }
 
     /**
@@ -494,29 +965,33 @@ class Customer extends EventSourcedAggregateRoot
         if (isset($data['phone'])) {
             $this->setPhone($data['phone']);
         }
+        if (array_key_exists('email', $data)) {
+            $this->setEmail($data['email']);
+        }
         if (!empty($data['gender'])) {
             $this->setGender(new Gender($data['gender']));
-        }
-        if (!empty($data['status'])) {
-            $this->setStatus(Status::fromData($data['status']));
-        }
-        if (isset($data['email'])) {
-            $this->setEmail($data['email']);
         }
         if (array_key_exists('birthDate', $data)) {
             $this->setBirthDate($data['birthDate']);
         }
-
         if (isset($data['agreement1'])) {
             $this->setAgreement1($data['agreement1']);
         }
-
         if (isset($data['agreement2'])) {
             $this->setAgreement2($data['agreement2']);
         }
-
         if (isset($data['agreement3'])) {
             $this->setAgreement3($data['agreement3']);
+        }
+        if (!empty($data['status'])) {
+            $this->setStatus(Status::fromData($data['status']));
+        }
+        if (isset($data['labels'])) {
+            $labels = [];
+            foreach ($data['labels'] as $label) {
+                $labels[] = new Label($label['key'], $label['value']);
+            }
+            $this->setLabels($labels);
         }
     }
 
@@ -568,9 +1043,8 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @param string $firstName
      */
-    public function setFirstName($firstName): void
+    public function setFirstName(string $firstName): void
     {
-        Assert::notNull($firstName);
         $this->firstName = $firstName;
     }
 
@@ -585,9 +1059,8 @@ class Customer extends EventSourcedAggregateRoot
     /**
      * @param string $lastName
      */
-    public function setLastName($lastName): void
+    public function setLastName(string $lastName): void
     {
-        Assert::notNull($lastName);
         $this->lastName = $lastName;
     }
 
@@ -604,7 +1077,6 @@ class Customer extends EventSourcedAggregateRoot
      */
     public function setGender(Gender $gender): void
     {
-        Assert::notEmpty($gender);
         $this->gender = $gender;
     }
 
@@ -669,7 +1141,6 @@ class Customer extends EventSourcedAggregateRoot
      */
     public function setAddress(Address $address): void
     {
-        Assert::notEmpty($address);
         $this->address = $address;
     }
 
@@ -702,7 +1173,6 @@ class Customer extends EventSourcedAggregateRoot
      */
     public function setCreatedAt(\DateTime $createdAt): void
     {
-        Assert::notEmpty($createdAt);
         $this->createdAt = $createdAt;
     }
 
@@ -803,11 +1273,11 @@ class Customer extends EventSourcedAggregateRoot
     }
 
     /**
-     * @param $data
+     * @param array $data
      *
      * @return array
      */
-    public static function resolveOptions($data): array
+    public static function resolveOptions(array $data): array
     {
         $defaults = [
             'firstName' => null,
@@ -818,6 +1288,9 @@ class Customer extends EventSourcedAggregateRoot
             'birthDate' => null,
             'company' => null,
             'loyaltyCardNumber' => null,
+            'agreement1' => false,
+            'agreement2' => false,
+            'agreement3' => false,
         ];
 
         return array_merge($defaults, $data);

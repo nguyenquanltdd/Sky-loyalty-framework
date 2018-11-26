@@ -71,7 +71,7 @@ class LoadCampaignData extends ContainerAwareFixture
         $campaign->setLimitPerUser(2);
         $campaign->setLevels([new LevelId(LoadLevelData::LEVEL2_ID)]);
         $campaign->setSegments([new SegmentId(LoadSegmentData::SEGMENT2_ID)]);
-        $campaign->setCoupons([new Coupon('123')]);
+        $campaign->setCoupons([new Coupon('123'), new Coupon('1234'), new Coupon('12345'), new Coupon('123456')]);
         $campaign->setReward(Campaign::REWARD_TYPE_DISCOUNT_CODE);
         $campaign->setName('Test configured campaign');
         $campaign->setBrandDescription('Some _Brand_ description');

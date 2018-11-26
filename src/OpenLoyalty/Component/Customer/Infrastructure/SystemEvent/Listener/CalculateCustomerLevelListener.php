@@ -229,7 +229,7 @@ class CalculateCustomerLevelListener
                 new CustomerId((string) $customerId),
                 $levelId ? new CustomerLevelId($levelId) : null,
                 $level ? $level->getName() : null,
-                true,
+                false,
                 true
             )
         );

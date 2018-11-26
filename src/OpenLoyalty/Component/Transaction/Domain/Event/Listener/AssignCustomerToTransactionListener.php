@@ -17,7 +17,6 @@ use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerUpdatedSystemEvent
 use OpenLoyalty\Component\Transaction\Domain\Command\AssignCustomerToTransaction;
 use OpenLoyalty\Component\Transaction\Domain\CustomerId;
 use OpenLoyalty\Component\Transaction\Domain\CustomerIdProvider;
-use OpenLoyalty\Component\Transaction\Domain\CustomerTransactionsSummaryProvider;
 use OpenLoyalty\Component\Transaction\Domain\Event\TransactionWasRegistered;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\CustomerAssignedToTransactionSystemEvent;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\CustomerFirstTransactionSystemEvent;
@@ -51,11 +50,6 @@ class AssignCustomerToTransactionListener implements EventListener
     protected $transactionRepository;
 
     /**
-     * @var CustomerTransactionsSummaryProvider
-     */
-    protected $customerTransactionsSummaryProvider;
-
-    /**
      * @var CustomerRepository
      */
     protected $customerRepository;
@@ -63,26 +57,23 @@ class AssignCustomerToTransactionListener implements EventListener
     /**
      * AssignCustomerToTransactionListener constructor.
      *
-     * @param CustomerIdProvider                  $customerIdProvider
-     * @param CommandBus                          $commandBus
-     * @param EventDispatcher                     $eventDispatcher
-     * @param Repository                          $transactionRepository
-     * @param CustomerTransactionsSummaryProvider $customerTransactionsSummaryProvider
-     * @param CustomerRepository                  $customerRepository
+     * @param CustomerIdProvider $customerIdProvider
+     * @param CommandBus         $commandBus
+     * @param EventDispatcher    $eventDispatcher
+     * @param Repository         $transactionRepository
+     * @param CustomerRepository $customerRepository
      */
     public function __construct(
         CustomerIdProvider $customerIdProvider,
         CommandBus $commandBus,
         EventDispatcher $eventDispatcher,
         Repository $transactionRepository,
-        CustomerTransactionsSummaryProvider $customerTransactionsSummaryProvider,
         CustomerRepository $customerRepository
     ) {
         $this->customerIdProvider = $customerIdProvider;
         $this->commandBus = $commandBus;
         $this->eventDispatcher = $eventDispatcher;
         $this->transactionRepository = $transactionRepository;
-        $this->customerTransactionsSummaryProvider = $customerTransactionsSummaryProvider;
         $this->customerRepository = $customerRepository;
     }
 
@@ -104,7 +95,8 @@ class AssignCustomerToTransactionListener implements EventListener
 
             /** @var Transaction $transaction */
             $transaction = $this->transactionRepository->load((string) $event->getTransactionId());
-            $transactionsCount = $this->customerTransactionsSummaryProvider->getTransactionsCount(new CustomerId($customerId));
+            $transactionsCount = $customer->getTransactionsCount();
+
             $this->eventDispatcher->dispatch(
                 TransactionSystemEvents::CUSTOMER_ASSIGNED_TO_TRANSACTION,
                 [new CustomerAssignedToTransactionSystemEvent(
@@ -112,9 +104,11 @@ class AssignCustomerToTransactionListener implements EventListener
                     new CustomerId($customerId),
                     $transaction->getGrossValue(),
                     $transaction->getGrossValueWithoutDeliveryCosts(),
+                    $transaction->getDocumentNumber(),
                     $transaction->getAmountExcludedForLevel(),
                     $transactionsCount,
-                    $transaction->getDocumentType() == Transaction::TYPE_RETURN
+                    $transaction->getDocumentType() == Transaction::TYPE_RETURN,
+                    $transaction->getRevisedDocument()
                 )]
             );
 
