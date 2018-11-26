@@ -148,13 +148,13 @@ class TransactionControllerTest extends BaseApiTest
                 [
                     'labels' => [['key' => 'scan_id']],
                 ],
-                4,
+                6,
             ],
             [
                 [
                     'labels' => [['key' => 'scan_id', 'value' => 'abc123789def-abc123789def-abc123789def-abc123789def']],
                 ],
-                1,
+                3,
             ],
             [
                 [
@@ -307,7 +307,7 @@ class TransactionControllerTest extends BaseApiTest
         static::bootKernel();
 
         $formData = [
-            'revisedDocument' => 'revised test',
+            'revisedDocument' => '12322',
             'transactionData' => [
                 'documentNumber' => '12333',
                 'purchaseDate' => '2015-01-01',
@@ -345,7 +345,7 @@ class TransactionControllerTest extends BaseApiTest
         $this->assertInstanceOf(TransactionDetails::class, $transaction);
         $this->assertNull($transaction->getCustomerId());
         $this->assertEquals('return', $transaction->getDocumentType());
-        $this->assertEquals('revised test', $transaction->getRevisedDocument());
+        $this->assertEquals('12322', $transaction->getRevisedDocument());
         $this->assertEquals(-12, $transaction->getGrossValue());
     }
 

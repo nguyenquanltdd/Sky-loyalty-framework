@@ -41,6 +41,7 @@ services:
             $eventDispatcher: '@broadway.event_dispatcher'
             $customerRepository: '@oloy.user.customer.repository'
             $transactionRepository: '@oloy.transaction.repository'
+            $transactionDetailsRepository: '@OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository'
         lazy: true
         tags:
             - { name: broadway.domain.event_listener }

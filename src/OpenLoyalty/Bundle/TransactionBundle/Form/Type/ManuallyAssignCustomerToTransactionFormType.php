@@ -10,6 +10,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use OpenLoyalty\Bundle\TransactionBundle\Validator\Constraints\TransactionReturnDocument;
 
 /**
  * Class ManuallyAssignCustomerToTransactionFormType.
@@ -20,6 +21,7 @@ class ManuallyAssignCustomerToTransactionFormType extends AbstractType
     {
         $builder->add('transactionDocumentNumber', TextType::class, [
             'required' => true,
+            'constraints' => [new TransactionReturnDocument(true)],
         ]);
 
         $builder->add('customerId', TextType::class, [

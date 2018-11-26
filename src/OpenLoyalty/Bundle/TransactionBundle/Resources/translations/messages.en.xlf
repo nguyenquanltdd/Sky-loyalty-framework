@@ -10,6 +10,18 @@
                 <source>transaction.document_number_should_be_unique</source>
                 <target>Document number should be unique</target>
             </trans-unit>
+            <trans-unit id="transaction.document_return_incorrect_owner">
+                <source>transaction.document_return_incorrect_owner</source>
+                <target>Incorrect owner of the transaction</target>
+            </trans-unit>
+            <trans-unit id="transaction.document_return_not_exist">
+                <source>transaction.document_return_not_exist</source>
+                <target>Transaction not exist</target>
+            </trans-unit>
+            <trans-unit id="transaction.document_return_wrong_type">
+                <source>transaction.document_return_wrong_type</source>
+                <target>Transaction wrong type</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

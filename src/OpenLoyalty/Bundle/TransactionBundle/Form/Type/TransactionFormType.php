@@ -18,6 +18,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Valid;
+use OpenLoyalty\Bundle\TransactionBundle\Validator\Constraints\TransactionReturnDocument;
 
 /**
  * Class TransactionFormType.
@@ -48,6 +49,7 @@ class TransactionFormType extends AbstractType
         $builder->add($this->buildTransactionDataForm($builder));
         $builder->add('revisedDocument', TextType::class, [
             'required' => false,
+            'constraints' => [new TransactionReturnDocument()],
         ]);
         $builder->add('items', CollectionType::class, [
             'entry_type' => ItemFormType::class,
