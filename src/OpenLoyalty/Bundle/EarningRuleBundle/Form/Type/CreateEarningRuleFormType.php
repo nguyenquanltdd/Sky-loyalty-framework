@@ -304,7 +304,7 @@ class CreateEarningRuleFormType extends BaseEarningRuleFormType
             $form
                 ->add('rewardCampaignId', CampaignIdFormType::class, [
                     'required' => true,
-                    'constraints' => [new NotBlank()],
+                    'constraints' => [new NotNull()],
                 ]);
         }
         if (!isset($data['target'])) {

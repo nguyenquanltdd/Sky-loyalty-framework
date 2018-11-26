@@ -50,9 +50,13 @@ class CampaignIdFormType extends AbstractType
     {
         $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
             $data = $event->getData();
-            $customer = $this->campaignRepository->byId(new CampaignId($data));
-            if (!$customer instanceof Campaign) {
-                $event->getForm()->addError(new FormError($this->translator->trans('earning_rule.campaign.not_exists')));
+            if (is_null($data)) {
+                $event->getForm()->addError(new FormError($this->translator->trans('earning_rule.campaign.required')));
+            } else {
+                $customer = $this->campaignRepository->byId(new CampaignId($data));
+                if (!$customer instanceof Campaign) {
+                    $event->getForm()->addError(new FormError($this->translator->trans('earning_rule.campaign.not_exists')));
+                }
             }
         });
         $builder->addModelTransformer(new CampaignIdDataTransformer());
