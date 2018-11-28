@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -9,7 +9,6 @@ use Broadway\Domain\DomainMessage;
 use Broadway\EventDispatcher\EventDispatcher;
 use Broadway\EventHandling\EventListener;
 use Broadway\ReadModel\Repository;
-use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 use Psr\Log\LoggerInterface;
@@ -47,7 +46,7 @@ class CampaignUsageProjector implements EventListener
     /**
      * @param LoggerInterface $logger
      */
-    public function setLogger($logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
@@ -55,20 +54,21 @@ class CampaignUsageProjector implements EventListener
     /**
      * @param DomainMessage $domainMessage
      */
-    public function handle(DomainMessage $domainMessage)
+    public function handle(DomainMessage $domainMessage): void
     {
         $event = $domainMessage->getPayload();
         if ($event instanceof CampaignWasBoughtByCustomer) {
-            $this->storeCampaignUsages(new CampaignId($event->getCampaignId()->__toString()));
+            $this->storeCampaignUsages(new CampaignId((string) $event->getCampaignId()));
         }
     }
 
     /**
      * @param CampaignId $campaignId
      */
-    public function storeCampaignUsages(CampaignId $campaignId)
+    public function storeCampaignUsages(CampaignId $campaignId): void
     {
         $readModel = $this->getReadModel($campaignId);
+
         if ($readModel->getCampaignUsage() !== null) {
             $readModel->setCampaignUsage($readModel->getCampaignUsage() + 1);
         } else {
@@ -80,10 +80,11 @@ class CampaignUsageProjector implements EventListener
     /**
      * @param CampaignId $campaignId
      *
-     * @return SerializableReadModel|null|CampaignUsage
+     * @return CampaignUsage
      */
-    private function getReadModel(CampaignId $campaignId)
+    private function getReadModel(CampaignId $campaignId): CampaignUsage
     {
+        /** @var CampaignUsage $readModel */
         $readModel = $this->repository->find($campaignId);
         if (null === $readModel) {
             $readModel = new CampaignUsage($campaignId);

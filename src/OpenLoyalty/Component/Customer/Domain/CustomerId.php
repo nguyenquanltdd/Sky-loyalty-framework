@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -13,12 +13,19 @@ use Assert\Assertion as Assert;
  */
 class CustomerId implements Identifier
 {
+    /**
+     * @var string
+     */
     private $customerId;
 
     /**
+     * CustomerId constructor.
+     *
      * @param string $customerId
+     *
+     * @throws \Assert\AssertionFailedException
      */
-    public function __construct($customerId)
+    public function __construct(string $customerId)
     {
         Assert::string($customerId);
         Assert::uuid($customerId);
@@ -27,7 +34,7 @@ class CustomerId implements Identifier
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function __toString()
     {

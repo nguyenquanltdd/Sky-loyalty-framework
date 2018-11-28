@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -13,8 +13,16 @@ use OpenLoyalty\Component\Customer\Domain\CustomerId;
  */
 abstract class CustomerEvent implements Serializable
 {
+    /**
+     * @var CustomerId
+     */
     private $customerId;
 
+    /**
+     * CustomerEvent constructor.
+     *
+     * @param CustomerId $customerId
+     */
     public function __construct(CustomerId $customerId)
     {
         $this->customerId = $customerId;
@@ -23,7 +31,7 @@ abstract class CustomerEvent implements Serializable
     /**
      * @return CustomerId
      */
-    public function getCustomerId()
+    public function getCustomerId(): CustomerId
     {
         return $this->customerId;
     }

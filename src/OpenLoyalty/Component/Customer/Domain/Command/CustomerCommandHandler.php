@@ -511,4 +511,18 @@ class CustomerCommandHandler extends SimpleCommandHandler
 
         $this->repository->save($customer);
     }
+
+    /**
+     * @param AssignAccountToCustomer $command
+     */
+    public function handleAssignAccountToCustomer(AssignAccountToCustomer $command)
+    {
+        $customerId = $command->getCustomerId();
+        /** @var Customer $customer */
+        $customer = $this->repository->load((string) $customerId);
+        $customer->assignAccount(
+            $command->getAccountId()
+        );
+        $this->repository->save($customer);
+    }
 }
