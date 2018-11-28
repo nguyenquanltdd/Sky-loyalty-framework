@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -29,6 +29,7 @@ use OpenLoyalty\Component\EarningRule\Domain\OloyEarningRuleEvaluator;
 use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetails;
 use OpenLoyalty\Component\Seller\Domain\SellerId;
 use OpenLoyalty\Component\Transaction\Domain\Command\RegisterTransaction;
+use OpenLoyalty\Component\Transaction\Domain\Exception\InvalidTransactionReturnDocumentNumberException;
 use OpenLoyalty\Component\Transaction\Domain\Model\Item;
 use OpenLoyalty\Component\Transaction\Domain\PosId;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
@@ -42,7 +43,6 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use OpenLoyalty\Component\Transaction\Domain\Exception\InvalidTransactionReturnDocumentNumberException;
 
 /**
  * Class TransactionController.
@@ -274,8 +274,6 @@ class TransactionController extends FOSRestController
      * @param Request $request
      *
      * @return View
-     *
-     * @throws InvalidTransactionReturnDocumentNumberException
      */
     public function registerAction(Request $request): View
     {
@@ -296,6 +294,7 @@ class TransactionController extends FOSRestController
             $excludedSKUs = $settingsManager->getSettingByKey('excludedDeliverySKUs');
             $excludedLevelSKUs = $settingsManager->getSettingByKey('excludedLevelSKUs');
             $excludedCategories = $settingsManager->getSettingByKey('excludedLevelCategories');
+
             try {
                 $this->get('broadway.command_handling.command_bus')->dispatch(
                     new RegisterTransaction(
@@ -317,7 +316,7 @@ class TransactionController extends FOSRestController
                 return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
             }
 
-            return $this->view(['transactionId' => $transactionId->__toString()]);
+            return $this->view(['transactionId' => (string) $transactionId]);
         }
 
         return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);

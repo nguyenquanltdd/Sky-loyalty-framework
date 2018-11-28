@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -32,7 +32,7 @@ use Symfony\Component\HttpKernel\Client;
 /**
  * Class TransactionControllerTest.
  */
-class TransactionControllerTest extends BaseApiTest
+final class TransactionControllerTest extends BaseApiTest
 {
     use UploadedFileTrait;
 
@@ -1670,6 +1670,46 @@ class TransactionControllerTest extends BaseApiTest
 
         $transactionData = $this->getDuplicatedNumberTransactionData('duplicatedDocumentNumberABC');
         $response = $this->sendCreateTransactionRequest($transactionData)->getResponse();
+        $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 400');
+    }
+
+    /**
+     * @test
+     */
+    public function it_blocks_return_transaction_to_non_existing_transaction(): void
+    {
+        static::bootKernel();
+
+        $formData = [
+            'revisedDocument' => 'not-existing-document-number',
+            'transactionData' => [
+                'documentNumber' => 'not-existing-document-number-123',
+                'purchaseDate' => '2015-01-01',
+                'purchasePlace' => 'New York',
+                'documentType' => 'return',
+            ],
+            'items' => [
+                0 => [
+                    'sku' => ['code' => '123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => -11,
+                    'category' => 'test',
+                ],
+                1 => [
+                    'sku' => ['code' => '1123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => -1,
+                    'category' => 'test',
+                ],
+            ],
+            'customerData' => [
+                'name' => 'John Doe',
+            ],
+        ];
+
+        $response = $this->sendCreateTransactionRequest($formData)->getResponse();
         $this->assertEquals(400, $response->getStatusCode(), 'Response should have status 400');
     }
 

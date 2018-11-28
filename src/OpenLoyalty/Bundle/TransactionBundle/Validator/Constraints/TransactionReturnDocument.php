@@ -17,24 +17,21 @@ class TransactionReturnDocument extends Constraint
     /**
      * @var bool
      */
-    private $isManuallyAssign;
+    protected $isManually;
 
     /**
-     * TransactionReturnDocument constructor.
-     *
-     * @param bool $isManuallyAssign
+     * {@inheritdoc}
      */
-    public function __construct(bool $isManuallyAssign = false)
+    public function getRequiredOptions()
     {
-        parent::__construct();
-        $this->isManuallyAssign = $isManuallyAssign;
+        return array_merge(parent::getRequiredOptions(), ['isManually']);
     }
 
     /**
-     * getDefaultOption.
+     * @return bool
      */
-    public function getDefaultOption(): bool
+    public function getIsManually(): bool
     {
-        return $this->isManuallyAssign;
+        return $this->isManually;
     }
 }

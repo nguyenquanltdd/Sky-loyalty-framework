@@ -17,11 +17,14 @@ use OpenLoyalty\Bundle\TransactionBundle\Validator\Constraints\TransactionReturn
  */
 class ManuallyAssignCustomerToTransactionFormType extends AbstractType
 {
+    /**
+     * {@inheritdoc}
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('transactionDocumentNumber', TextType::class, [
             'required' => true,
-            'constraints' => [new TransactionReturnDocument(true)],
+            'constraints' => [new TransactionReturnDocument(['isManually' => true])],
         ]);
 
         $builder->add('customerId', TextType::class, [
@@ -35,6 +38,9 @@ class ManuallyAssignCustomerToTransactionFormType extends AbstractType
         ]);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([

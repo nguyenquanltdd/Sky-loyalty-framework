@@ -3,12 +3,11 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
+
 namespace OpenLoyalty\Bundle\TransactionBundle\Validator\Constraints;
 
-use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
-use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
@@ -28,27 +27,13 @@ class TransactionReturnDocumentValidator extends ConstraintValidator
     private $transactionDetailsRepository;
 
     /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var CustomerDetailsRepository
-     */
-    private $customerDetailsRepository;
-
-    /**
      * TransactionReturnDocumentValidator constructor.
      *
      * @param TransactionDetailsRepository $transactionDetailsRepository
-     * @param TranslatorInterface          $translator
-     * @param CustomerDetailsRepository    $customerDetailsRepository
      */
-    public function __construct(TransactionDetailsRepository $transactionDetailsRepository, TranslatorInterface $translator, CustomerDetailsRepository $customerDetailsRepository)
+    public function __construct(TransactionDetailsRepository $transactionDetailsRepository)
     {
         $this->transactionDetailsRepository = $transactionDetailsRepository;
-        $this->translator = $translator;
-        $this->customerDetailsRepository = $customerDetailsRepository;
     }
 
     /**
@@ -56,59 +41,91 @@ class TransactionReturnDocumentValidator extends ConstraintValidator
      */
     public function validate($value, Constraint $constraint)
     {
+        if (!$constraint instanceof TransactionReturnDocument) {
+            return;
+        }
+
         if (null === $value) {
             return;
         }
 
         $transaction = $this->transactionDetailsRepository->findTransactionByDocumentNumber($value);
 
-        self::checkTransactionIsNull($transaction);
+        if ($this->isTransactionIsNull($transaction)) {
+            return;
+        }
 
         if (self::DOCUMENT_TYPE_RETURN === $transaction->getDocumentType() && $transaction->getRevisedDocument() != null) {
             $basedTransaction = $this->transactionDetailsRepository->findTransactionByDocumentNumber($transaction->getRevisedDocument());
 
-            self::checkTransactionIsNull($basedTransaction);
-            self::checkTransactionType($transaction, $basedTransaction);
-            self::checkTransactionOwner($constraint, $transaction, $basedTransaction);
+            if ($this->isTransactionIsNull($basedTransaction)) {
+                return;
+            }
+
+            if ($this->isReturnTransaction($transaction) && $this->isReturnTransaction($basedTransaction)) {
+                $this->context->buildViolation(self::TRANSACTION_WRONG_TYPE)->addViolation();
+
+                return;
+            }
+
+            if ($this->isOwnerOfBasedTransaction($constraint, $transaction, $basedTransaction)) {
+                return;
+            }
         }
     }
 
     /**
-     * @param TransactionDetails $transaction
+     * @param null|TransactionDetails $transaction
+     *
+     * @return bool
      */
-    private function checkTransactionIsNull(TransactionDetails $transaction): void
+    private function isTransactionIsNull(?TransactionDetails $transaction): bool
     {
         if (null === $transaction) {
             $this->context->buildViolation(self::TRANSACTION_NOT_EXIST)->addViolation();
 
-            return;
+            return true;
         }
+
+        return false;
     }
 
     /**
      * @param TransactionDetails $transaction
-     * @param TransactionDetails $basedTransaction
+     *
+     * @return bool
      */
-    private function checkTransactionType(TransactionDetails $transaction, TransactionDetails $basedTransaction): void
+    private function isReturnTransaction(TransactionDetails $transaction): bool
     {
-        if (self::DOCUMENT_TYPE_RETURN === $transaction->getDocumentType() && self::DOCUMENT_TYPE_RETURN === $basedTransaction->getDocumentType()) {
-            $this->context->buildViolation(self::TRANSACTION_WRONG_TYPE)->addViolation();
-
-            return;
+        if (self::DOCUMENT_TYPE_RETURN === $transaction->getDocumentType()) {
+            return true;
         }
+
+        return false;
     }
 
     /**
-     * @param Constraint         $constraint
-     * @param TransactionDetails $transaction
-     * @param TransactionDetails $basedTransaction
+     * @param TransactionReturnDocument $constraint
+     * @param TransactionDetails        $transaction
+     * @param TransactionDetails        $basedTransaction
+     *
+     * @return bool
      */
-    private function checkTransactionOwner(Constraint $constraint, TransactionDetails $transaction, TransactionDetails $basedTransaction): void
-    {
-        if ($constraint->getDefaultOption() && null != $transaction->getCustomerId() && null != $basedTransaction->getCustomerId() && (string) $transaction->getCustomerId() !== (string) $basedTransaction->getCustomerId()) {
+    private function isOwnerOfBasedTransaction(
+        TransactionReturnDocument $constraint,
+        TransactionDetails $transaction,
+        TransactionDetails $basedTransaction
+    ): bool {
+        if ($constraint->getIsManually()
+            && null !== $transaction->getCustomerId()
+            && null !== $basedTransaction->getCustomerId()
+            && (string) $transaction->getCustomerId() !== (string) $basedTransaction->getCustomerId()
+        ) {
             $this->context->buildViolation(self::TRANSACTION_INCORRECT_OWNER)->addViolation();
 
-            return;
+            return false;
         }
+
+        return true;
     }
 }
