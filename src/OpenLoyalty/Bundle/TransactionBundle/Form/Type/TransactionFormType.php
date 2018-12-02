@@ -52,7 +52,7 @@ class TransactionFormType extends AbstractType
         $builder->add($this->buildTransactionDataForm($builder));
         $builder->add('revisedDocument', TextType::class, [
             'required' => false,
-            'constraints' => [new TransactionReturnDocument(['isManually' => false])],
+            'constraints' => [new TransactionReturnDocument(['isManually' => true])],
         ]);
         $builder->add('items', CollectionType::class, [
             'entry_type' => ItemFormType::class,

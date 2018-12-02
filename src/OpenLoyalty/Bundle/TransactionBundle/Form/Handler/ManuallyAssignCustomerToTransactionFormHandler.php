@@ -31,6 +31,8 @@ use Symfony\Component\Translation\TranslatorInterface;
  */
 class ManuallyAssignCustomerToTransactionFormHandler
 {
+    const DOCUMENT_TYPE_RETURN = 'return';
+
     /**
      * @var Repository
      */
@@ -164,6 +166,14 @@ class ManuallyAssignCustomerToTransactionFormHandler
             return false;
         }
 
+        if ($transaction->getDocumentType() === self::DOCUMENT_TYPE_RETURN) {
+            $basedTransaction = $this->findBasedTransaction($form, $transaction);
+            $isOwnerResult = $this->isOwnerOfBasedTransaction($form, $customer, $basedTransaction);
+            if (!$isOwnerResult) {
+                return false;
+            }
+        }
+
         $this->commandBus->dispatch(
             new AssignCustomerToTransaction(
                 $transaction->getTransactionId(),
@@ -191,5 +201,47 @@ class ManuallyAssignCustomerToTransactionFormHandler
         );
 
         return $transaction->getTransactionId();
+    }
+
+    /**
+     * @param FormInterface $form
+     * @param Transaction   $transaction
+     *
+     * @return null|Transaction
+     */
+    private function findBasedTransaction(FormInterface $form, Transaction $transaction)
+    {
+        $transactionsDetails = $this->transactionDetailsRepository->findBy(['documentNumberRaw' => $transaction->getRevisedDocument()]);
+        if (count($transactionsDetails) == 0) {
+            $form->get('transactionDocumentNumber')->addError(new FormError('No such transaction'));
+
+            return null;
+        }
+
+        /** @var TransactionDetails $transactionDetail */
+        $transactionDetail = reset($transactionsDetails);
+
+        /** @var Transaction $transaction */
+        $transaction = $this->transactionRepository->load($transactionDetail->getId());
+
+        return $transaction;
+    }
+
+    /**
+     * @param FormInterface   $form
+     * @param CustomerDetails $customer
+     * @param Transaction     $basedTransaction
+     *
+     * @return bool
+     */
+    private function isOwnerOfBasedTransaction(FormInterface $form, CustomerDetails $customer, Transaction $basedTransaction): bool
+    {
+        if ((string) $customer->getCustomerId() != (string) $basedTransaction->getCustomerId()) {
+            $form->get('transactionDocumentNumber')->addError(new FormError($this->translator->trans('transaction.document_return_incorrect_owner')));
+
+            return false;
+        }
+
+        return true;
     }
 }

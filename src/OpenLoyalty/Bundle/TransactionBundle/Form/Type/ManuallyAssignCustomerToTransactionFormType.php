@@ -24,7 +24,7 @@ class ManuallyAssignCustomerToTransactionFormType extends AbstractType
     {
         $builder->add('transactionDocumentNumber', TextType::class, [
             'required' => true,
-            'constraints' => [new TransactionReturnDocument(['isManually' => true])],
+            'constraints' => [new TransactionReturnDocument(['isManually' => false])],
         ]);
 
         $builder->add('customerId', TextType::class, [

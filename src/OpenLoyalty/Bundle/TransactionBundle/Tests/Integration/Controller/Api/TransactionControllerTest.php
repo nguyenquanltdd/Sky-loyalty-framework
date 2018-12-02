@@ -787,8 +787,6 @@ final class TransactionControllerTest extends BaseApiTest
             'customerData' => [
                 'name' => 'Jon Doe',
                 'email' => LoadUserData::TEST_RETURN_USERNAME,
-                'nip' => '123-111-123-112',
-                'phone' => self::PHONE_NUMBER,
                 'loyaltyCardNumber' => 'sa2222',
                 'address' => [
                     'street' => 'Street',
@@ -832,14 +830,6 @@ final class TransactionControllerTest extends BaseApiTest
             ],
             'customerData' => [
                 'name' => 'Jon Doe',
-                'address' => [
-                    'street' => 'Street',
-                    'address1' => '12',
-                    'city' => 'NY',
-                    'country' => 'US',
-                    'province' => 'Seattle',
-                    'postal' => '10001',
-                ],
             ],
         ];
 
@@ -864,7 +854,7 @@ final class TransactionControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200'
-            .$response->getContent());
+                .$response->getContent());
 
         static::$kernel->boot();
 

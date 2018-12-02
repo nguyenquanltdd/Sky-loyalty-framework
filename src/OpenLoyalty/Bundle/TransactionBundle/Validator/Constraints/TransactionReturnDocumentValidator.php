@@ -56,7 +56,13 @@ class TransactionReturnDocumentValidator extends ConstraintValidator
         }
 
         if (self::DOCUMENT_TYPE_RETURN === $transaction->getDocumentType() && $transaction->getRevisedDocument() != null) {
-            $basedTransaction = $this->transactionDetailsRepository->findTransactionByDocumentNumber($transaction->getRevisedDocument());
+            $basedDocumentValue = $transaction->getRevisedDocument();
+
+            if ($constraint->getIsManually()) {
+                $basedDocumentValue = $transaction->getDocumentNumber();
+            }
+
+            $basedTransaction = $this->transactionDetailsRepository->findTransactionByDocumentNumber($basedDocumentValue);
 
             if ($this->isTransactionIsNull($basedTransaction)) {
                 return;
