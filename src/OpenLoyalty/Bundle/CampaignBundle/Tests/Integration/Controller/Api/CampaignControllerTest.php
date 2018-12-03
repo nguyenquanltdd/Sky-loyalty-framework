@@ -885,11 +885,11 @@ class CampaignControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_public_list_of_featured_campaigns(): void
+    public function it_returns_public_list_of_public_and_active_campaigns(): void
     {
         $client = self::createClient();
 
-        $client->request(Request::METHOD_GET, '/api/campaign/public/featured');
+        $client->request(Request::METHOD_GET, '/api/campaign/public/available');
 
         $response = $client->getResponse();
 
@@ -907,7 +907,7 @@ class CampaignControllerTest extends BaseApiTest
     {
         $client = self::createClient();
 
-        $client->request('GET', '/api/campaign/public/featured', ['isPublic' => 1]);
+        $client->request('GET', '/api/campaign/public/available', ['isFeatured' => 1]);
 
         $response = $client->getResponse();
 

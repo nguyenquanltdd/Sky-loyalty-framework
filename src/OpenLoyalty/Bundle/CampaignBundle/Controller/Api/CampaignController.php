@@ -1332,17 +1332,18 @@ class CampaignController extends FOSRestController
     }
 
     /**
-     * List only featured campaigns.
+     * List only campaigns that are publicly available.
      *
-     * @Route(name="oloy.campaign.public.featured", path="/campaign/public/featured")
+     * @Route(name="oloy.campaign.public.available", path="/campaign/public/available")
      * @Method("GET")
      * @Security("is_granted('IS_AUTHENTICATED_ANONYMOUSLY')")
      *
      * @ApiDoc(
-     *     name="list only featured campaigns",
+     *     name="get public campaigns list",
      *     section="Campaign",
      *     parameters={
-     *          {"name"="isPublic", "dataType"="boolean", "required"=false, "description"="Filter by public flag"},
+     *          {"name"="hasSegment", "dataType"="boolean", "required"=false, "description"="Whether campaign is offered exclusively to some segments"},
+     *          {"name"="categoryId[]", "dataType"="string", "required"=false, "description"="Filter by categories"},
      *          {"name"="page", "dataType"="integer", "required"=false, "description"="Page number"},
      *          {"name"="perPage", "dataType"="integer", "required"=false, "description"="Number of elements per page"},
      *          {"name"="sort", "dataType"="string", "required"=false, "description"="Field to sort by"},
@@ -1350,48 +1351,63 @@ class CampaignController extends FOSRestController
      *          {"name"="format", "dataType"="html|raw", "required"=false, "description"="If set to html, the descriptions will be in HTML format. Omit for raw output."},
      *     },
      *     statusCodes={
-     *          200="Returned when successful",
-     *          400="Returned when data is invalid",
-     *          404="Returned when customer or campaign not found"
+     *          200="Returned when successful (this includes 0 results)",
+     *          400="Returned when data is invalid"
      *     }
      * )
+     *
+     * @QueryParam(name="labels", nullable=true, description="filter by labels"))
+     * @QueryParam(name="isFeatured", nullable=true, description="filter by featured tag"))
+     * @QueryParam(name="campaignType", nullable=true, description="filter by campaign type"))
+     * @QueryParam(name="name", nullable=true, description="filter by campaign name"))
      *
      * @View(serializerGroups={"list", "Default"})
      *
      * @param Request $request
      *
-     * @return Response
+     * @return FosView
+     *
+     * @throws ORMException
      */
-    public function getPublicFeaturedAction(Request $request): Response
+    public function getPublicAvailableAction(Request $request): FosView
     {
         $paginator = $this->paginator->handleFromRequest($request);
 
-        $campaigns = $this->campaignRepository->findAllFeaturedPaginated(
-            $paginator->getPage(),
-            $paginator->getPerPage(),
+        $params = $this->paramFetcher->all();
+        $params['categoryId'] = $request->query->get('categoryId', []);
+        $params['_locale'] = $request->getLocale();
+        $params['isPublic'] = true;
+        $params['active'] = true;
+
+        $campaigns = $this->campaignRepository->findByParameters(
+            $params,
             $paginator->getSort(),
-            $paginator->getSortDirection(),
-            [
-                'isPublic' => $request->query->get('isPublic'),
-            ]
+            $paginator->getSortDirection()
         );
 
-        $total = $this->campaignRepository->countFeatured(
-            [
-                'isPublic' => $request->query->get('isPublic'),
-            ]
-        );
+        // filter by segment exclusiveness
+        $mustHaveSegments = $request->query->get('hasSegment', null);
+
+        if (null !== $mustHaveSegments) {
+            $campaigns = array_filter($campaigns, function (DomainCampaign $campaign) use ($mustHaveSegments): bool {
+                return $mustHaveSegments ? $campaign->hasSegments() : !$campaign->hasSegments();
+            });
+        }
 
         $view = FosView::create(
             [
-                'campaigns' => $campaigns,
-                'total' => $total,
+                'campaigns' => array_slice(
+                    $campaigns,
+                    ($paginator->getPage() - 1) * $paginator->getPerPage(),
+                    $paginator->getPerPage()
+                ),
+                'total' => count($campaigns),
             ],
             Response::HTTP_OK
         );
 
         $context = new Context();
-
+        $context->setGroups(['Default', 'list']);
         $context->setAttribute(
             FOSContextProvider::OUTPUT_FORMAT_ATTRIBUTE_NAME,
             $request->get('format')
@@ -1399,6 +1415,6 @@ class CampaignController extends FOSRestController
 
         $view->setContext($context);
 
-        return $this->viewHandler->handle($view);
+        return $view;
     }
 }

@@ -39,6 +39,32 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     }
 
     /**
+     * @param array       $params
+     * @param string|null $sortField
+     * @param string      $direction
+     *
+     * @return array
+     *
+     * @throws ORMException
+     */
+    public function findByParameters(
+        array $params,
+        $sortField = null,
+        $direction = 'ASC'
+    ) {
+        $qb = $this->getCampaignsByParamsQueryBuilder($params);
+
+        if ($sortField) {
+            $qb->orderBy(
+                'c.'.$this->validateSort($sortField),
+                $this->validateSortBy($direction)
+            );
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function byId(CampaignId $campaignId)
@@ -94,11 +120,11 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     }
 
     /**
-     * @param array  $params
-     * @param int    $page
-     * @param int    $perPage
-     * @param null   $sortField
-     * @param string $direction
+     * @param array       $params
+     * @param int         $page
+     * @param int         $perPage
+     * @param string|null $sortField
+     * @param string      $direction
      *
      * @return array
      *
@@ -179,96 +205,6 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
         $queryBuilder->setFirstResult(($page - 1) * $perPage);
 
         return $queryBuilder->getQuery()->getResult();
-    }
-
-    /**
-     * @param int    $page
-     * @param int    $perPage
-     * @param null   $sortField
-     * @param string $direction
-     * @param array  $filters
-     *
-     * @return array
-     */
-    public function findAllFeaturedPaginated(
-        $page = 1,
-        $perPage = 10,
-        $sortField = null,
-        $direction = 'ASC',
-        array $filters = []
-    ): array {
-        $query = $this->getFeaturedCampaignsQueryBuilder($filters);
-
-        if ($sortField) {
-            $query->orderBy(sprintf('campaign.%s', $this->validateSort($sortField)), $this->validateSortBy($direction));
-        }
-
-        $query
-            ->setMaxResults($perPage)
-            ->setFirstResult(($page - 1) * $perPage)
-        ;
-
-        return $query->getQuery()->getResult();
-    }
-
-    /**
-     * @param array $filters
-     *
-     * @return int
-     */
-    public function countFeatured(array $filters = []): int
-    {
-        $query = $this->getFeaturedCampaignsQueryBuilder();
-        $query->select('count(campaign.campaignId)');
-
-        if (array_key_exists('isPublic', $filters) && !is_null($filters['isPublic'])) {
-            $query->andWhere('campaign.public = :public')->setParameter('public', $filters['isPublic']);
-        }
-
-        try {
-            return $query->getQuery()->getSingleScalarResult();
-        } catch (ORMException $ex) {
-            return 0;
-        }
-    }
-
-    /**
-     * @param array $filters
-     *
-     * @return QueryBuilder
-     */
-    protected function getFeaturedCampaignsQueryBuilder(array $filters = []): QueryBuilder
-    {
-        $queryBuilder = $this->createQueryBuilder('campaign');
-        $queryBuilder
-            ->andWhere('campaign.active = :true')
-            ->setParameter('true', true)
-        ;
-
-        $queryBuilder
-            ->andWhere('campaign.featured = :featured')
-            ->setParameter('featured', true)
-        ;
-
-        if (array_key_exists('isPublic', $filters) && !is_null($filters['isPublic'])) {
-            $queryBuilder->andWhere('campaign.public = :public')->setParameter('public', $filters['isPublic']);
-        }
-
-        $queryBuilder
-            ->andWhere(
-                $queryBuilder->expr()->orX(
-                    'campaign.campaignVisibility.allTimeVisible = :visible',
-                    $queryBuilder->expr()->andX(
-                        'campaign.campaignVisibility.visibleFrom <= :now',
-                        'campaign.campaignVisibility.visibleTo >= :now'
-                    )
-                )
-            )
-            ->setParameter('now', new \DateTime())
-            ->setParameter('visible', true)
-        ;
-
-        return $queryBuilder;
     }
 
     /**
@@ -404,7 +340,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      * @param array        $categoryIds
      * @param int          $page
      * @param int          $perPage
-     * @param null         $sortField
+     * @param string|null  $sortField
      * @param string       $direction
      *
      * @return QueryBuilder
@@ -505,27 +441,15 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
         }
 
         if (array_key_exists('active', $params) && null !== $params['active']) {
-            if ($params['active']) {
-                $builder->andWhere('c.active = :true')->setParameter('true', true);
-            } else {
-                $builder->andWhere('c.active = :false')->setParameter('false', false);
-            }
+            $builder->andWhere('c.active = :bool')->setParameter('bool', (bool) $params['active']);
         }
 
         if (array_key_exists('isPublic', $params) && null !== $params['isPublic']) {
-            if ($params['isPublic']) {
-                $builder->andWhere('c.public = :true')->setParameter('true', true);
-            } else {
-                $builder->andWhere('c.public = :false')->setParameter('false', false);
-            }
+            $builder->andWhere('c.public = :bool')->setParameter('bool', (bool) $params['isPublic']);
         }
 
         if (array_key_exists('isFeatured', $params) && null !== $params['isFeatured']) {
-            if ($params['isFeatured']) {
-                $builder->andWhere('c.featured = :true')->setParameter('true', true);
-            } else {
-                $builder->andWhere('c.featured = :false')->setParameter('false', false);
-            }
+            $builder->andWhere('c.featured = :bool')->setParameter('bool', (bool) $params['isFeatured']);
         }
 
         if (array_key_exists('campaignType', $params) && null !== $params['campaignType']) {
