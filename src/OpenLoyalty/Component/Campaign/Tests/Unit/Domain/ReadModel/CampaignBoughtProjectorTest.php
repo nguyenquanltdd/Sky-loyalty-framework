@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -8,7 +8,8 @@ namespace OpenLoyalty\Component\Campaign\Tests\Unit\Domain\ReadModel;
 use Broadway\ReadModel\InMemory\InMemoryRepository;
 use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\Testing\ProjectorScenarioTestCase;
-use OpenLoyalty\Bundle\UserBundle\Service\AccountDetailsProvider;
+use OpenLoyalty\Component\Account\Domain\Account;
+use OpenLoyalty\Component\Account\Domain\AccountRepository;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
@@ -18,6 +19,7 @@ use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository;
 use OpenLoyalty\Component\Customer\Domain\CampaignId as CustomerCampaignId;
 use OpenLoyalty\Component\Customer\Domain\Customer;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
+use OpenLoyalty\Component\Customer\Domain\CustomerRepository;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
@@ -73,11 +75,24 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
         $customerId = new CustomerId('00000000-0000-0000-0000-000000000000');
         $this->customer = Customer::registerCustomer($customerId, $this->getCustomerData());
 
-        /** @var AccountDetailsProvider|MockObject $accountDetailsRepository */
-        $accountDetailsRepository = $this->getMockBuilder(AccountDetailsProvider::class)->disableOriginalConstructor()->getMock();
-        $accountDetailsRepository->method('getCustomerById')->willReturn($this->customer);
+        /** @var CustomerRepository|MockObject $customerRepository */
+        $customerRepository = $this->getMockBuilder(CustomerRepository::class)->disableOriginalConstructor()->getMock();
+        $customerRepository->method('load')->willReturn($this->customer);
 
-        return new CampaignBoughtProjector($repository, $campaignBoughtRepository, $campaignRepository, $accountDetailsRepository);
+        $account = $this->getMockBuilder(Account::class)->disableOriginalConstructor()->getMock();
+        $account->method('getAvailableAmount')->willReturn(0);
+
+        /** @var AccountRepository|MockObject $accountRepository */
+        $accountRepository = $this->getMockBuilder(AccountRepository::class)->disableOriginalConstructor()->getMock();
+        $accountRepository->method('load')->willReturn($account);
+
+        return new CampaignBoughtProjector(
+            $repository,
+            $campaignBoughtRepository,
+            $campaignRepository,
+            $customerRepository,
+            $accountRepository
+        );
     }
 
     /**

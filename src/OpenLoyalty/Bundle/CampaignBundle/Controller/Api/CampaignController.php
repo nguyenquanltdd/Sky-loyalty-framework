@@ -1282,6 +1282,7 @@ class CampaignController extends FOSRestController
      *          {"name"="coupons[][campaignId]", "dataType"="string", "required"=true, "description"="CampaignId value"},
      *          {"name"="coupons[][customerId]", "dataType"="string", "required"=true, "description"="CustomerId value"},
      *          {"name"="coupons[][code]", "dataType"="string", "required"=true, "description"="Coupon code"},
+     *          {"name"="coupons[][couponId]", "dataType"="string", "required"=true, "description"="Coupon ID"},
      *          {"name"="coupons[][transactionId]", "dataType"="string", "required"=false, "description"="Id of transaction in which this coupon was used"},
      *     },
      *     statusCodes={

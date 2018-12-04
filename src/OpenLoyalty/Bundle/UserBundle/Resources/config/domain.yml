@@ -147,6 +147,10 @@ services:
         tags:
             - { name: broadway.event_listener, event: oloy.transaction.customer_assigned, method: handle }
 
+    OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener\AssignAccountToCustomerListener:
+        tags:
+            - { name: broadway.event_listener, event: oloy.account.created, method: handle }
+
     oloy.user.customer.listener.calculate_customer_level:
         class: 'OpenLoyalty\Component\Customer\Infrastructure\SystemEvent\Listener\CalculateCustomerLevelListener'
         lazy: true

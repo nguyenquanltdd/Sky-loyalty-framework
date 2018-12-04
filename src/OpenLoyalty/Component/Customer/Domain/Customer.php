@@ -8,6 +8,7 @@ namespace OpenLoyalty\Component\Customer\Domain;
 use Broadway\EventSourcing\EventSourcedAggregateRoot;
 use OpenLoyalty\Component\Core\Domain\Model\Identifier;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
+use OpenLoyalty\Component\Customer\Domain\Event\AssignedAccountToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Event\AssignedTransactionToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignCouponWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignStatusWasChanged;
@@ -164,6 +165,11 @@ class Customer extends EventSourcedAggregateRoot
     protected $transactions = [];
 
     /**
+     * @var null|AccountId
+     */
+    protected $accountId;
+
+    /**
      * @return string
      */
     public function getAggregateRootId(): string
@@ -225,6 +231,43 @@ class Customer extends EventSourcedAggregateRoot
         $this->apply(
             new CustomerWasMovedToLevel($this->getId(), $levelId, $manually, $removeLevelManually)
         );
+    }
+
+    /**
+     * @param AccountId $accountId
+     */
+    public function assignAccount(AccountId $accountId): void
+    {
+        $this->apply(
+            new AssignedAccountToCustomer(
+                $this->getId(),
+                $accountId
+            )
+        );
+    }
+
+    /**
+     * @param AssignedAccountToCustomer $event
+     */
+    protected function applyAssignedAccountToCustomer(AssignedAccountToCustomer $event): void
+    {
+        $this->setAccountId($event->getAccountId());
+    }
+
+    /**
+     * @param AccountId $accountId
+     */
+    private function setAccountId(AccountId $accountId): void
+    {
+        $this->accountId = $accountId;
+    }
+
+    /**
+     * @return AccountId|null
+     */
+    public function getAccountId(): ?AccountId
+    {
+        return $this->accountId;
     }
 
     /**

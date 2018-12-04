@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -22,7 +22,7 @@ class CouponUsage implements SerializableReadModel, VersionableReadModel
     /**
      * @var int
      */
-    protected $usage;
+    protected $usage = 0;
 
     /**
      * @var CampaignId
@@ -47,7 +47,7 @@ class CouponUsage implements SerializableReadModel, VersionableReadModel
      * @param Coupon     $coupon
      * @param int        $usage
      */
-    public function __construct(CampaignId $campaignId, CustomerId $customerId, Coupon $coupon, $usage = 1)
+    public function __construct(CampaignId $campaignId, CustomerId $customerId, Coupon $coupon, int $usage = 1)
     {
         $this->campaignId = $campaignId;
         $this->customerId = $customerId;
@@ -56,9 +56,7 @@ class CouponUsage implements SerializableReadModel, VersionableReadModel
     }
 
     /**
-     * @param array $data
-     *
-     * @return mixed The object instance
+     * {@inheritdoc}
      */
     public static function deserialize(array $data)
     {
@@ -68,20 +66,49 @@ class CouponUsage implements SerializableReadModel, VersionableReadModel
             $usage = 1;
         }
 
-        return new self(new CampaignId($data['campaignId']), new CustomerId($data['customerId']), new Coupon($data['coupon']), $usage);
+        return new self(
+            new CampaignId($data['campaignId']),
+            new CustomerId($data['customerId']),
+            new Coupon($data['coupon'], $data['couponId']),
+            $usage
+        );
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
     public function serialize(): array
     {
         return [
-            'campaignId' => $this->campaignId->__toString(),
-            'customerId' => $this->customerId->__toString(),
+            'campaignId' => (string) $this->campaignId,
+            'customerId' => (string) $this->customerId,
             'coupon' => $this->coupon->getCode(),
+            'couponId' => $this->coupon->getId(),
             'usage' => $this->getUsage(),
         ];
+    }
+
+    /**
+     * @param CampaignId $campaignId
+     * @param CustomerId $customerId
+     * @param Coupon     $coupon
+     *
+     * @return string
+     */
+    public static function createId(
+        CampaignId $campaignId,
+        CustomerId $customerId,
+        Coupon $coupon
+    ): string {
+        $couponId = $coupon->getId() ? '_'.$coupon->getId() : '';
+
+        return sprintf(
+            '%s_%s_%s%s',
+            (string) $campaignId,
+            (string) $customerId,
+            $coupon->getCode(),
+            $couponId
+        );
     }
 
     /**
@@ -89,11 +116,10 @@ class CouponUsage implements SerializableReadModel, VersionableReadModel
      */
     public function getId(): string
     {
-        return sprintf(
-            '%s_%s_%s',
-            $this->campaignId->__toString(),
-            $this->customerId->__toString(),
-            $this->coupon->getCode()
+        return self::createId(
+            $this->campaignId,
+            $this->customerId,
+            $this->coupon
         );
     }
 
@@ -122,9 +148,9 @@ class CouponUsage implements SerializableReadModel, VersionableReadModel
     }
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getUsage()
+    public function getUsage(): int
     {
         return $this->usage;
     }

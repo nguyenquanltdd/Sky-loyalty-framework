@@ -7,15 +7,17 @@ namespace OpenLoyalty\Component\Campaign\Domain\ReadModel;
 
 use Broadway\EventDispatcher\EventDispatcher;
 use Broadway\ReadModel\Repository;
+use Broadway\Repository\Repository as AggregareRootRepository;
+use OpenLoyalty\Component\Account\Domain\Account;
 use OpenLoyalty\Component\Core\Infrastructure\Projector\Projector;
 use OpenLoyalty\Bundle\CampaignBundle\Model\Campaign;
-use OpenLoyalty\Bundle\UserBundle\Service\AccountDetailsProviderInterface;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 use OpenLoyalty\Component\Campaign\Domain\TransactionId;
 use OpenLoyalty\Component\Core\Domain\Model\Identifier;
+use OpenLoyalty\Component\Customer\Domain\Customer;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignCouponWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignStatusWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
@@ -48,28 +50,36 @@ class CampaignBoughtProjector extends Projector
     private $campaignRepository;
 
     /**
-     * @var AccountDetailsProviderInterface
+     * @var AggregareRootRepository
      */
-    private $accountDetailsProvider;
+    private $customerRepository;
+
+    /**
+     * @var AggregareRootRepository
+     */
+    private $accountRepository;
 
     /**
      * CampaignUsageProjector constructor.
      *
-     * @param Repository                      $repository
-     * @param CampaignBoughtRepository        $campaignBoughtRepository
-     * @param CampaignRepository              $campaignRepository
-     * @param AccountDetailsProviderInterface $accountDetailsProvider
+     * @param Repository               $repository
+     * @param CampaignBoughtRepository $campaignBoughtRepository
+     * @param CampaignRepository       $campaignRepository
+     * @param AggregareRootRepository  $customerRepository
+     * @param AggregareRootRepository  $accountRepository
      */
     public function __construct(
         Repository $repository,
         CampaignBoughtRepository $campaignBoughtRepository,
         CampaignRepository $campaignRepository,
-        AccountDetailsProviderInterface $accountDetailsProvider
+        AggregareRootRepository $customerRepository,
+        AggregareRootRepository $accountRepository
     ) {
         $this->repository = $repository;
         $this->campaignBoughtRepository = $campaignBoughtRepository;
         $this->campaignRepository = $campaignRepository;
-        $this->accountDetailsProvider = $accountDetailsProvider;
+        $this->customerRepository = $customerRepository;
+        $this->accountRepository = $accountRepository;
     }
 
     /**
@@ -81,8 +91,11 @@ class CampaignBoughtProjector extends Projector
 
         /** @var Campaign $campaign */
         $campaign = $this->campaignRepository->byId($campaignId);
-        $customer = $this->accountDetailsProvider->getCustomerById($event->getCustomerId());
-        $account = $this->accountDetailsProvider->getAccountByCustomer($customer);
+        /** @var Customer $customer */
+        $customer = $this->customerRepository->load((string) $event->getCustomerId());
+
+        /** @var Account $account */
+        $account = $this->accountRepository->load((string) $customer->getAccountId());
 
         $this->storeCampaignUsages(
             $campaignId,
@@ -118,7 +131,7 @@ class CampaignBoughtProjector extends Projector
      * @param string|null     $customerEmail
      * @param string|null     $customerPhone
      * @param string          $customerName
-     * @param string          $customerLastname
+     * @param string          $customerLastName
      * @param int             $costInPoints
      * @param int             $currentPointsAmount
      * @param float|null      $taxPriceValue
@@ -139,7 +152,7 @@ class CampaignBoughtProjector extends Projector
         ?string $customerEmail,
         ?string $customerPhone,
         string $customerName,
-        string $customerLastname,
+        string $customerLastName,
         int $costInPoints,
         int $currentPointsAmount,
         ?float $taxPriceValue,
@@ -160,7 +173,7 @@ class CampaignBoughtProjector extends Projector
             $status,
             null,
             $customerName,
-            $customerLastname,
+            $customerLastName,
             $costInPoints,
             $currentPointsAmount,
             $taxPriceValue,

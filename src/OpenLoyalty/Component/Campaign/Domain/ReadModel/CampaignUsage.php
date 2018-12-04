@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -25,7 +25,7 @@ class CampaignUsage implements SerializableReadModel, VersionableReadModel
     /**
      * @var int
      */
-    protected $campaignUsage;
+    protected $campaignUsage = 0;
 
     /**
      * CampaignUsage constructor.
@@ -42,13 +42,11 @@ class CampaignUsage implements SerializableReadModel, VersionableReadModel
      */
     public function getId(): string
     {
-        return $this->campaignId->__toString();
+        return (string) $this->campaignId;
     }
 
     /**
-     * @param array $data
-     *
-     * @return mixed The object instance
+     * {@inheritdoc}
      */
     public static function deserialize(array $data)
     {
@@ -61,12 +59,12 @@ class CampaignUsage implements SerializableReadModel, VersionableReadModel
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
     public function serialize(): array
     {
         return [
-            'campaignId' => $this->campaignId->__toString(),
+            'campaignId' => (string) $this->campaignId,
             'usage' => $this->campaignUsage,
         ];
     }
@@ -74,7 +72,7 @@ class CampaignUsage implements SerializableReadModel, VersionableReadModel
     /**
      * @return CampaignId
      */
-    public function getCampaignId()
+    public function getCampaignId(): CampaignId
     {
         return $this->campaignId;
     }
@@ -82,7 +80,7 @@ class CampaignUsage implements SerializableReadModel, VersionableReadModel
     /**
      * @return int
      */
-    public function getCampaignUsage()
+    public function getCampaignUsage(): int
     {
         return $this->campaignUsage;
     }
@@ -90,7 +88,7 @@ class CampaignUsage implements SerializableReadModel, VersionableReadModel
     /**
      * @param int $campaignUsage
      */
-    public function setCampaignUsage($campaignUsage)
+    public function setCampaignUsage(int $campaignUsage): void
     {
         $this->campaignUsage = $campaignUsage;
     }

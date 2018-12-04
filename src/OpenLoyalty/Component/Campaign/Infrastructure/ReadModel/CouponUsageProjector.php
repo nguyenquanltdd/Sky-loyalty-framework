@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -34,21 +34,32 @@ class CouponUsageProjector implements EventListener
         $this->repository = $repository;
     }
 
-    protected function handleCampaignWasBoughtByCustomer(CampaignWasBoughtByCustomer $event)
+    /**
+     * @param CampaignWasBoughtByCustomer $event
+     */
+    protected function handleCampaignWasBoughtByCustomer(CampaignWasBoughtByCustomer $event): void
     {
         $this->storeCouponUsage(
-            new CampaignId($event->getCampaignId()->__toString()),
-            new CustomerId($event->getCustomerId()->__toString()),
-            new Coupon($event->getCoupon()->getCode())
+            new CampaignId((string) $event->getCampaignId()),
+            new CustomerId((string) $event->getCustomerId()),
+            new Coupon($event->getCoupon()->getCode(), $event->getCoupon()->getId())
         );
     }
 
+    /**
+     * @param CampaignId $campaignId
+     * @param CustomerId $customerId
+     * @param Coupon     $coupon
+     */
     public function storeCouponUsage(CampaignId $campaignId, CustomerId $customerId, Coupon $coupon)
     {
         $readModel = $this->getReadModel($campaignId, $customerId, $coupon);
         $this->repository->save($readModel);
     }
 
+    /**
+     * Remove all.
+     */
     public function removeAll()
     {
         foreach ($this->repository->findAll() as $segmented) {
@@ -56,9 +67,20 @@ class CouponUsageProjector implements EventListener
         }
     }
 
-    private function getReadModel(CampaignId $campaignId, CustomerId $customerId, Coupon $coupon)
+    /**
+     * @param CampaignId $campaignId
+     * @param CustomerId $customerId
+     * @param Coupon     $coupon
+     *
+     * @return CouponUsage
+     */
+    private function getReadModel(CampaignId $campaignId, CustomerId $customerId, Coupon $coupon): CouponUsage
     {
-        $readModel = $this->repository->find($campaignId->__toString().'_'.$customerId->__toString().'_'.$coupon->getCode());
+        $couponId = CouponUsage::createId($campaignId, $customerId, $coupon);
+
+        /** @var CouponUsage $readModel */
+        $readModel = $this->repository->find($couponId);
+
         if (null === $readModel) {
             $readModel = new CouponUsage($campaignId, $customerId, $coupon, 1);
         } elseif (null !== $readModel->getUsage()) {
@@ -72,7 +94,7 @@ class CouponUsageProjector implements EventListener
     /**
      * @param DomainMessage $domainMessage
      */
-    public function handle(DomainMessage $domainMessage)
+    public function handle(DomainMessage $domainMessage): void
     {
         $event = $domainMessage->getPayload();
         if ($event instanceof CampaignWasBoughtByCustomer) {
