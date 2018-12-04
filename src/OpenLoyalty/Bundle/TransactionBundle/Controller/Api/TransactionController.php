@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -177,6 +177,7 @@ class TransactionController extends FOSRestController
      *
      * @Route(name="oloy.transaction.seller.list_by_document_number", path="/seller/transaction/{documentNumber}")
      * @Method("GET")
+     * @Security("is_granted('LIST_CURRENT_POS_TRANSACTIONS')")
      *
      * @ApiDoc(
      *     name="get transactions list by documentNumber",
@@ -455,7 +456,7 @@ class TransactionController extends FOSRestController
                 return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
             }
 
-            return $this->view(['transactionId' => $result->__toString()]);
+            return $this->view(['transactionId' => (string) $result]);
         }
 
         return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);

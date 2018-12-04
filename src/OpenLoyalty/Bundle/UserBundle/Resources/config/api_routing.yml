@@ -26,3 +26,7 @@ admin:
 invitation:
     resource: '@OpenLoyaltyUserBundle/Controller/Api/InvitationController.php'
     type: annotation
+
+acl:
+    resource: '@OpenLoyaltyUserBundle/Controller/Api/AclController.php'
+    type: annotation

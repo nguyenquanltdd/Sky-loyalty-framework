@@ -41,6 +41,11 @@ class AdminCommand
     protected $email;
 
     /**
+     * @var null|array
+     */
+    protected $roles;
+
+    /**
      * AdminCommand constructor.
      *
      * @param AdminId $adminId
@@ -120,5 +125,21 @@ class AdminCommand
     public function setEmail(string $email): void
     {
         $this->email = $email;
+    }
+
+    /**
+     * @return null|array
+     */
+    public function getRoles(): ?array
+    {
+        return $this->roles;
+    }
+
+    /**
+     * @param array $roles
+     */
+    public function setRoles(array $roles): void
+    {
+        $this->roles = $roles;
     }
 }

@@ -927,7 +927,7 @@ class CustomerController extends FOSRestController
     }
 
     /**
-     * Method allows to activate customer.
+     * Method allows to resend SMS activation code.
      *
      * @Route(name="oloy.customer.send_sms_code_to_customer_by_phone", path="/customer/customer-phone/send-sms-code")
      * @Method("POST")
@@ -994,7 +994,7 @@ class CustomerController extends FOSRestController
     }
 
     /**
-     * Method allows to activate by activation token.
+     * Method allows to activate account by SMS token.
      *
      * @Route(name="oloy.customer.activate_sms_account", path="/customer/activate-sms/{token}")
      * @Method("POST")

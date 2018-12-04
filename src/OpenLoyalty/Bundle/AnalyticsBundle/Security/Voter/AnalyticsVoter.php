@@ -1,11 +1,12 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\AnalyticsBundle\Security\Voter;
 
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
+use OpenLoyalty\Bundle\UserBundle\Security\PermissionAccess;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -14,6 +15,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  */
 class AnalyticsVoter extends Voter
 {
+    const PERMISSION_RESOURCE = 'ANALYTICS';
+
     const VIEW_STATS = 'VIEW_STATS';
 
     /**
@@ -36,9 +39,12 @@ class AnalyticsVoter extends Voter
             return false;
         }
 
+        $viewAdmin = $user->hasRole('ROLE_ADMIN')
+                     && $user->hasPermission(self::PERMISSION_RESOURCE, [PermissionAccess::VIEW]);
+
         switch ($attribute) {
             case self::VIEW_STATS:
-                return $user->hasRole('ROLE_ADMIN');
+                return $viewAdmin;
             default:
                 return false;
         }

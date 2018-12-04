@@ -46,11 +46,11 @@ services:
     oloy.user.user_manager:
         class: OpenLoyalty\Bundle\UserBundle\Service\UserManager
         arguments:
-            - '@security.password_encoder'
-            - '@doctrine.orm.entity_manager'
-            - '@oloy.user.password_generator'
-            - '@oloy.action_token_manager'
-            - '@oloy.user.read_model.repository.customer_details'
+            $passwordEncoder: '@security.password_encoder'
+            $em: '@doctrine.orm.entity_manager'
+            $passwordGenerator: '@oloy.user.password_generator'
+            $activationMethodProvider: '@oloy.action_token_manager'
+            $customerDetailsRepository: '@oloy.user.read_model.repository.customer_details'
 
     oloy.user.event.authentication_success_listener:
         class: OpenLoyalty\Bundle\UserBundle\EventListener\AuthenticationListener
@@ -300,6 +300,27 @@ services:
         arguments:
             - '@oloy.level.repository'
 
+    OpenLoyalty\Bundle\UserBundle\Entity\Repository\RoleRepository:
+        factory:
+            - '@doctrine.orm.default_entity_manager'
+            - getRepository
+        arguments:
+            - 'OpenLoyalty\Bundle\UserBundle\Entity\Role'
+
+    OpenLoyalty\Bundle\UserBundle\Service\AclManager: ~
+
+    OpenLoyalty\Bundle\UserBundle\CQRS\Handler\RoleHandler:
+        tags:
+            - { name: broadway.command_handler }
+
+    OpenLoyalty\Bundle\UserBundle\Form\Type\RoleFormType:
+        tags:
+            - { name: form.type }
+
+    OpenLoyalty\Bundle\UserBundle\Form\Type\PermissionFormType:
+        tags:
+            - { name: form.type }
+
     OpenLoyalty\Bundle\UserBundle\Service\InvitationSender: ~
 
     OpenLoyalty\Bundle\UserBundle\Service\SmsNotificationTransport:
@@ -316,5 +337,9 @@ services:
     OpenLoyalty\Bundle\UserBundle\Form\Type\ConfigurablePasswordType:
         arguments:
             - '%password_security_level%'
+        tags:
+            - { name: form.type }
+
+    OpenLoyalty\Bundle\UserBundle\Form\Type\AdminSelfEditFormType:
         tags:
             - { name: form.type }

@@ -23,10 +23,10 @@ class PosVoterTest extends BaseVoterTest
     public function it_works(): void
     {
         $attributes = [
-            PosVoter::LIST_POS => ['seller' => true, 'customer' => false, 'admin' => true],
-            PosVoter::CREATE_POS => ['seller' => false, 'customer' => false, 'admin' => true],
-            PosVoter::EDIT => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => self::POS_ID],
-            PosVoter::VIEW => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::POS_ID],
+            PosVoter::LIST_POS => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => true],
+            PosVoter::CREATE_POS => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false],
+            PosVoter::EDIT => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => self::POS_ID, 'admin_reporter' => false],
+            PosVoter::VIEW => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::POS_ID, 'admin_reporter' => true],
         ];
 
         $voter = new PosVoter();

@@ -3,7 +3,7 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Security\Voter;
+namespace OpenLoyalty\Bundle\UserBundle\Tests\Unit\Security\Voter;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
@@ -29,14 +29,14 @@ class CustomerVoterTest extends BaseVoterTest
     public function it_works(): void
     {
         $attributes = [
-            CustomerVoter::CREATE_CUSTOMER => ['seller' => true, 'customer' => false, 'admin' => true],
-            CustomerVoter::LIST_CUSTOMERS => ['seller' => true, 'customer' => false, 'admin' => true],
-            CustomerVoter::ASSIGN_POS => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::CUSTOMER_ID],
-            CustomerVoter::ASSIGN_CUSTOMER_LEVEL => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::CUSTOMER_ID],
-            CustomerVoter::DEACTIVATE => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::CUSTOMER_ID],
-            CustomerVoter::VIEW => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::CUSTOMER_ID],
-            CustomerVoter::VIEW_STATUS => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::CUSTOMER_ID],
-            CustomerVoter::EDIT => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::CUSTOMER_ID],
+            CustomerVoter::CREATE_CUSTOMER => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => false],
+            CustomerVoter::LIST_CUSTOMERS => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => true],
+            CustomerVoter::ASSIGN_POS => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => false, 'id' => self::CUSTOMER_ID],
+            CustomerVoter::ASSIGN_CUSTOMER_LEVEL => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => false, 'id' => self::CUSTOMER_ID],
+            CustomerVoter::DEACTIVATE => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => false, 'id' => self::CUSTOMER_ID],
+            CustomerVoter::VIEW => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => true, 'id' => self::CUSTOMER_ID],
+            CustomerVoter::VIEW_STATUS => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => true, 'id' => self::CUSTOMER_ID],
+            CustomerVoter::EDIT => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => false, 'id' => self::CUSTOMER_ID],
         ];
 
         /** @var SellerDetailsRepository|MockObject $sellerDetailsRepositoryMock */
@@ -51,6 +51,9 @@ class CustomerVoterTest extends BaseVoterTest
         $this->assertVoterAttributes($voter, $attributes);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function getSubjectById($id)
     {
         $customer = $this->getMockBuilder(CustomerDetails::class)->disableOriginalConstructor()->getMock();

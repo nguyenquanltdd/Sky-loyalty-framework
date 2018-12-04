@@ -695,6 +695,25 @@
       }
     }
   },
+  "role": {
+    "heading": "Roles",
+    "add": "Add role",
+    "list": "Roles list",
+    "actions": "Actions",
+    "edit_heading": "Role edit",
+    "basic_info": "Basic Information",
+    "name": "Name",
+    "name_prompt": "",
+    "permissions": "Permissions",
+    "access": "Access",
+    "access_prompt": "",
+    "resource": "Resource",
+    "resource_prompt": "",
+    "add_permission": "Add permission",
+    "add_heading": "Add role",
+    "delete_confirmation": "Do you want to delete selected role?",
+    "delete_confirmation_description": "This operation can not be undone."
+  },
   "customer": {
     "actions": "Actions",
     "activate_confirmation": "Customer activation",
@@ -1469,6 +1488,7 @@
     "and": "AND",
     "cancel": "Cancel",
     "change": "Change",
+    "roles": "ACL",
     "configuration": "Configuration",
     "confirm": "Yes",
     "edit": "Edit",
@@ -2105,6 +2125,8 @@
     "value": "Value"
   },
   "users": {
+    "roles": "Roles",
+    "roles_prompt": "",
     "actions": "Actions",
     "active": "Active",
     "active_prompt": "",
@@ -2371,9 +2393,21 @@
       "error": "An error occurred",
       "success": "POS added"
     },
+    "post_role": {
+      "error": "An error occurred",
+      "success": "Role has been added"
+    },
+    "put_role": {
+      "error": "An error occurred",
+      "success": "Role has been edited"
+    },
     "post_registration_customer": {
       "error": "An error occurred",
       "success": "You successfully registered customer"
+    },
+    "post_delete_role": {
+      "error": "An error occurred",
+      "success": "Role deleted"
     },
     "post_registration_customer_activate": {
       "error": "An error occurred",

@@ -25,13 +25,13 @@ class LevelVoterTest extends BaseVoterTest
     public function it_works(): void
     {
         $attributes = [
-            LevelVoter::CREATE_LEVEL => ['seller' => false, 'customer' => false, 'admin' => true],
-            LevelVoter::EDIT => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => self::LEVEL_ID],
-            LevelVoter::VIEW => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::LEVEL2_ID],
-            LevelVoter::ACTIVATE => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => self::LEVEL2_ID],
-            LevelVoter::LIST_LEVELS => ['seller' => true, 'customer' => false, 'admin' => true],
-            LevelVoter::LIST_CUSTOMERS => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => self::LEVEL2_ID],
-            LevelVoter::CUSTOMER_LIST_LEVELS => ['seller' => false, 'customer' => true, 'admin' => false, 'id' => self::LEVEL_ID],
+            LevelVoter::CREATE_LEVEL => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false],
+            LevelVoter::EDIT => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false, 'id' => self::LEVEL_ID],
+            LevelVoter::VIEW => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => true, 'id' => self::LEVEL2_ID],
+            LevelVoter::ACTIVATE => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false, 'id' => self::LEVEL2_ID],
+            LevelVoter::LIST_LEVELS => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => true],
+            LevelVoter::LIST_CUSTOMERS => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => true, 'id' => self::LEVEL2_ID],
+            LevelVoter::CUSTOMER_LIST_LEVELS => ['seller' => false, 'customer' => true, 'admin' => false, 'admin_reporter' => false, 'id' => self::LEVEL_ID],
         ];
 
         $voter = new LevelVoter();

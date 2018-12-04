@@ -3,7 +3,7 @@
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Security\Voter;
+namespace OpenLoyalty\Bundle\UserBundle\Tests\Unit\Security\Voter;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadAdminData;
@@ -21,8 +21,10 @@ class AdminVoterTest extends BaseVoterTest
     public function it_works(): void
     {
         $attributes = [
-            AdminVoter::VIEW => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => ''],
-            AdminVoter::EDIT => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => ''],
+            AdminVoter::VIEW => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => true, 'id' => ''],
+            AdminVoter::EDIT => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false, 'id' => ''],
+            AdminVoter::CREATE_USER => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false, 'id' => ''],
+            AdminVoter::LIST => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => true, 'id' => ''],
         ];
 
         $voter = new AdminVoter();
@@ -30,6 +32,9 @@ class AdminVoterTest extends BaseVoterTest
         $this->assertVoterAttributes($voter, $attributes);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function getSubjectById($id)
     {
         $admin = $this->getMockBuilder(Admin::class)->disableOriginalConstructor()->getMock();

@@ -25,11 +25,12 @@ class PointsTransferVoterTest extends BaseVoterTest
     public function it_works(): void
     {
         $attributes = [
-            PointsTransferVoter::LIST_POINTS_TRANSFERS => ['seller' => true, 'customer' => false, 'admin' => true],
-            PointsTransferVoter::LIST_CUSTOMER_POINTS_TRANSFERS => ['seller' => false, 'customer' => true, 'admin' => false],
-            PointsTransferVoter::ADD_POINTS => ['seller' => false, 'customer' => false, 'admin' => true],
-            PointsTransferVoter::SPEND_POINTS => ['seller' => false, 'customer' => false, 'admin' => true],
-            PointsTransferVoter::CANCEL => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => self::TRANSFER_ID],
+            PointsTransferVoter::LIST_POINTS_TRANSFERS => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => true],
+            PointsTransferVoter::LIST_CUSTOMER_POINTS_TRANSFERS => ['seller' => false, 'customer' => true, 'admin' => false, 'admin_reporter' => false],
+            PointsTransferVoter::ADD_POINTS => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false],
+            PointsTransferVoter::SPEND_POINTS => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false],
+            PointsTransferVoter::CANCEL => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false, 'id' => self::TRANSFER_ID],
+            PointsTransferVoter::TRANSFER_POINTS => ['seller' => false, 'customer' => true, 'admin' => true, 'admin_reporter' => false],
         ];
 
         $voter = new PointsTransferVoter();

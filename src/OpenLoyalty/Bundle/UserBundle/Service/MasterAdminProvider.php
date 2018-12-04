@@ -53,7 +53,7 @@ class MasterAdminProvider implements UserProviderInterface
         }
 
         $id = new AdminId(self::INTERNAL_ID);
-        $user = $this->userManager->createNewAdmin($id);
+        $user = $this->userManager->createNewAdmin($id, true);
         $user->setUsername(self::USERNAME);
         $user->setPassword($this->masterApiKey);
 

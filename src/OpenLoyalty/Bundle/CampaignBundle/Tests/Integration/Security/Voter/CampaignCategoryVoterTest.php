@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -25,10 +25,10 @@ class CampaignCategoryVoterTest extends BaseVoterTest
     public function it_works(): void
     {
         $attributes = [
-            CampaignCategoryVoter::CREATE_CAMPAIGN_CATEGORY => ['seller' => false, 'customer' => false, 'admin' => true],
-            CampaignCategoryVoter::EDIT => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => self::CAMPAIGN_CATEGORY_ID],
-            CampaignCategoryVoter::VIEW => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::CAMPAIGN_CATEGORY2_ID],
-            CampaignCategoryVoter::LIST_ALL_CAMPAIGN_CATEGORIES => ['seller' => false, 'customer' => false, 'admin' => true],
+            CampaignCategoryVoter::CREATE_CAMPAIGN_CATEGORY => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false],
+            CampaignCategoryVoter::EDIT => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false, 'id' => self::CAMPAIGN_CATEGORY_ID],
+            CampaignCategoryVoter::VIEW => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => true, 'id' => self::CAMPAIGN_CATEGORY2_ID],
+            CampaignCategoryVoter::LIST_ALL_CAMPAIGN_CATEGORIES => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => true],
         ];
 
         $voter = new CampaignCategoryVoter();

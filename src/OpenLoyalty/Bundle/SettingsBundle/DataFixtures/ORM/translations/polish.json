@@ -714,6 +714,25 @@
       }
     }
   },
+    "role": {
+      "heading": "Role",
+      "add": "Dodaj rolę",
+      "list": "Lista ról",
+      "actions": "Akcje",
+      "edit_heading": "Edytuj rolę",
+      "basic_info": "Informacje Podstawowe",
+      "name": "Nazwa",
+      "name_prompt": "",
+      "permissions": "Uprawnienia",
+      "access": "Dostęp",
+      "access_prompt": "",
+      "resource": "Zasób",
+      "resource_prompt": "",
+      "add_permission": "Nadaj uprawnienie",
+      "add_heading": "Dodaj rolę",
+      "delete_confirmation": "Czy chcesz usunąć wybraną rolę?",
+      "delete_confirmation_description": "Ta operacja nie może zostać cofnięta."
+    },
   "customer": {
     "actions": "Akcje",
     "activate_confirmation": "Aktywacja klienta",
@@ -1499,6 +1518,7 @@
     "cancel": "Anuluj",
     "change": "Zmień",
     "configuration": "Konfiguracja",
+    "roles": "Uprawnienia",
     "confirm": "Tak",
     "edit": "Edytuj",
     "emails": "E-maile",
@@ -2136,6 +2156,8 @@
     "value": "Wartość"
   },
   "users": {
+    "roles": "Role",
+    "roles_prompt": "",
     "actions": "Akcje",
     "active": "Aktywny",
     "active_prompt": "",
@@ -2215,6 +2237,18 @@
     },
     "get_campaigns": {
       "error": "Nie można uzyskać listy nagród"
+    },
+    "post_role": {
+      "error": "Wystąpił błąd",
+      "success": "Dodano rolę"
+    },
+    "put_role": {
+      "error": "Wystąpił błąd",
+      "success": "Rola została zmieniona"
+    },
+    "post_delete_role": {
+      "error": "Wystąpił błąd",
+      "success": "Role została usunięta"
     },
     "get_customer": {
       "cant_edit": "Nie masz praw do edycji tego klienta",

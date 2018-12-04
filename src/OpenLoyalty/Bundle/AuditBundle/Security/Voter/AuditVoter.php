@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Bundle\AuditBundle\Security\Voter;
 
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
+use OpenLoyalty\Bundle\UserBundle\Security\PermissionAccess;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -14,6 +15,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  */
 class AuditVoter extends Voter
 {
+    const PERMISSION_RESOURCE = 'AUDIT';
+
     const AUDIT_LOG = 'AUDIT_LOG';
 
     /**
@@ -38,9 +41,12 @@ class AuditVoter extends Voter
             return false;
         }
 
+        $viewAuditAdmin = $user->hasRole('ROLE_ADMIN')
+            && $user->hasPermission(self::PERMISSION_RESOURCE, [PermissionAccess::VIEW]);
+
         switch ($attribute) {
             case self::AUDIT_LOG:
-                return $user->hasRole('ROLE_ADMIN');
+                return $viewAuditAdmin;
             default:
                 return false;
         }

@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -22,7 +22,7 @@ use JMS\Serializer\Annotation as JMS;
  *  message="This username is already exist"
  * )
  */
-abstract class User implements UserInterface, \Serializable
+abstract class User implements UserInterface, \Serializable, PermissionStorageInterface
 {
     /**
      * @ORM\Column(type="string")
@@ -64,6 +64,7 @@ abstract class User implements UserInterface, \Serializable
     /**
      * @ORM\ManyToMany(targetEntity="Role")
      * @ORM\JoinTable(name="ol__users_roles")
+     * @JMS\Expose()
      */
     protected $roles;
 
@@ -298,6 +299,62 @@ abstract class User implements UserInterface, \Serializable
     {
     }
 
+    /**
+     * @return bool
+     */
+    public function isSuperAdmin(): bool
+    {
+        /** @var Role $role */
+        foreach ($this->roles as $role) {
+            if ($role->isMaster()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $resource
+     * @param array  $accesses
+     *
+     * @return bool
+     */
+    public function hasPermission(string $resource, array $accesses): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        foreach ($accesses as $access) {
+            if (!$this->hasAccessToResource($resource, $access)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param string $resource
+     * @param string $access
+     *
+     * @return bool
+     */
+    protected function hasAccessToResource(string $resource, string $access): bool
+    {
+        /** @var Role $role */
+        foreach ($this->getRoles() as $role) {
+            foreach ($role->getPermissions() as $permission) {
+                if ($permission->getAccess() === $access && $permission->getResource() === $resource) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public function hasRole($role)
     {
         if ($this->findUserRole($role)) {
@@ -392,5 +449,19 @@ abstract class User implements UserInterface, \Serializable
     public function setLastLoginAt($lastLoginAt)
     {
         $this->lastLoginAt = $lastLoginAt;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPermissions(): array
+    {
+        $permissions = [];
+        /** @var Role $role */
+        foreach ($this->getRoles() as $role) {
+            $permissions = array_merge($permissions, $role->getPermissions()->toArray());
+        }
+
+        return $permissions;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright © 2017 Divante, Inc. All rights reserved.
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Security\Voter;
@@ -22,7 +22,8 @@ class UtilityVoterTest extends BaseVoterTest
     public function it_works(): void
     {
         $attributes = [
-            UtilityVoter::GENERATE_SEGMENT_CSV => ['seller' => false, 'customer' => false, 'admin' => true],
+            UtilityVoter::GENERATE_CSV_BY_LEVEL => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => true],
+            UtilityVoter::GENERATE_CSV_BY_SEGMENT => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => true],
         ];
 
         $voter = new UtilityVoter();

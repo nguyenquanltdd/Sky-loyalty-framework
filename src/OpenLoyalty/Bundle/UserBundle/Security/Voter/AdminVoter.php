@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\UserBundle\Security\Voter;
 
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
+use OpenLoyalty\Bundle\UserBundle\Security\PermissionAccess;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -15,6 +16,9 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  */
 class AdminVoter extends Voter
 {
+    const PERMISSION_RESOURCE = 'ADMIN';
+
+    const LIST = 'LIST_ADMINS';
     const EDIT = 'EDIT';
     const VIEW = 'VIEW';
     const CREATE_USER = 'CREATE_USER';
@@ -23,7 +27,7 @@ class AdminVoter extends Voter
     {
         return $subject instanceof Admin && in_array($attribute, [
             self::VIEW, self::EDIT,
-        ]) || in_array($attribute, [self::CREATE_USER]);
+        ]) || in_array($attribute, [self::CREATE_USER, self::LIST]);
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
@@ -35,42 +39,23 @@ class AdminVoter extends Voter
             return false;
         }
 
+        $viewAdmin = $user->hasRole('ROLE_ADMIN')
+            && $user->hasPermission(self::PERMISSION_RESOURCE, [PermissionAccess::VIEW]);
+
+        $fullAdmin = $user->hasRole('ROLE_ADMIN')
+            && $user->hasPermission(self::PERMISSION_RESOURCE, [PermissionAccess::VIEW, PermissionAccess::MODIFY]);
+
         switch ($attribute) {
+            case self::LIST:
+                return $viewAdmin;
             case self::VIEW:
-                return $this->canView($user, $subject);
+                return $viewAdmin;
             case self::EDIT:
-                return $this->canEdit($user, $subject);
+                return $fullAdmin;
             case self::CREATE_USER:
-                return $this->canCreate($user);
+                return $fullAdmin;
             default:
                 return false;
         }
-    }
-
-    protected function canView(User $user, User $subject)
-    {
-        if ($user->hasRole('ROLE_ADMIN') && $user instanceof Admin) {
-            return true;
-        }
-
-        return false;
-    }
-
-    protected function canEdit(User $user, User $subject)
-    {
-        if ($user->hasRole('ROLE_ADMIN') && $user instanceof Admin) {
-            return true;
-        }
-
-        return false;
-    }
-
-    protected function canCreate(User $user)
-    {
-        if ($user->hasRole('ROLE_ADMIN') && $user instanceof Admin) {
-            return true;
-        }
-
-        return false;
     }
 }

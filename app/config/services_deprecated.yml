@@ -133,3 +133,7 @@ services:
     oloy.campaign.read_model.repository.campaign_usage:
         alias: OpenLoyalty\Component\Campaign\Infrastructure\Repository\CampaignUsageElasticsearchRepository
         deprecated: The "%service_id%" service is deprecated since 3.1.0
+
+    oloy.transaction.voters.transaction:
+        alias: OpenLoyalty\Bundle\TransactionBundle\Security\Voter\TransactionVoter
+        deprecated: The "%service_id%" service is deprecated since 3.2.0

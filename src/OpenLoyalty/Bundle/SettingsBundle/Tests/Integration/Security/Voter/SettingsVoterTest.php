@@ -16,9 +16,9 @@ class SettingsVoterTest extends BaseVoterTest
     public function it_works()
     {
         $attributes = [
-            SettingsVoter::VIEW_SETTINGS => ['seller' => false, 'customer' => false, 'admin' => true],
-            SettingsVoter::VIEW_SETTINGS_CHOICES => ['seller' => true, 'customer' => true, 'admin' => true],
-            SettingsVoter::EDIT_SETTINGS => ['seller' => false, 'customer' => false, 'admin' => true],
+            SettingsVoter::VIEW_SETTINGS => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => true],
+            SettingsVoter::VIEW_SETTINGS_CHOICES => ['seller' => true, 'customer' => true, 'admin' => true, 'admin_reporter' => true],
+            SettingsVoter::EDIT_SETTINGS => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false],
         ];
 
         $voter = new SettingsVoter();

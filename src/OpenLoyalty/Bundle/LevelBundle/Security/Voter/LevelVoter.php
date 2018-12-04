@@ -1,11 +1,12 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\LevelBundle\Security\Voter;
 
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
+use OpenLoyalty\Bundle\UserBundle\Security\PermissionAccess;
 use OpenLoyalty\Component\Level\Domain\Level;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -15,6 +16,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  */
 class LevelVoter extends Voter
 {
+    const PERMISSION_RESOURCE = 'LEVEL';
+
     const CREATE_LEVEL = 'CREATE_LEVEL';
     const EDIT = 'EDIT';
     const LIST_LEVELS = 'LIST_LEVELS';
@@ -37,23 +40,25 @@ class LevelVoter extends Voter
         /** @var User $user */
         $user = $token->getUser();
 
-        if (!$user instanceof User) {
-            return false;
-        }
+        $viewAdmin = $user->hasRole('ROLE_ADMIN')
+            && $user->hasPermission(self::PERMISSION_RESOURCE, [PermissionAccess::VIEW]);
+
+        $fullAdmin = $user->hasRole('ROLE_ADMIN')
+            && $user->hasPermission(self::PERMISSION_RESOURCE, [PermissionAccess::VIEW, PermissionAccess::MODIFY]);
 
         switch ($attribute) {
             case self::CREATE_LEVEL:
-                return $user->hasRole('ROLE_ADMIN');
+                return $fullAdmin;
             case self::LIST_LEVELS:
-                return $user->hasRole('ROLE_ADMIN') || $user->hasRole('ROLE_SELLER');
+                return $viewAdmin || $user->hasRole('ROLE_SELLER');
             case self::EDIT:
-                return $user->hasRole('ROLE_ADMIN');
+                return $fullAdmin;
             case self::VIEW:
-                return $user->hasRole('ROLE_ADMIN') || $user->hasRole('ROLE_SELLER');
+                return $viewAdmin || $user->hasRole('ROLE_SELLER');
             case self::LIST_CUSTOMERS:
-                return $user->hasRole('ROLE_ADMIN');
+                return $viewAdmin;
             case self::ACTIVATE:
-                return $user->hasRole('ROLE_ADMIN');
+                return $fullAdmin;
             case self::CUSTOMER_LIST_LEVELS:
                 return $user->hasRole('ROLE_PARTICIPANT');
             default:

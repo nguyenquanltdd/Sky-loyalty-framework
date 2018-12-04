@@ -10,6 +10,7 @@ use Lexik\Bundle\JWTAuthenticationBundle\Event\AuthenticationFailureEvent;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\AuthenticationSuccessEvent;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTCreatedEvent;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
+use OpenLoyalty\Bundle\UserBundle\Entity\PermissionStorageInterface;
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
 use OpenLoyalty\Bundle\UserBundle\Exception\SellerIsNotActiveException;
 use OpenLoyalty\Bundle\UserBundle\Service\UserManager;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Role\RoleInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
@@ -73,8 +75,32 @@ class AuthenticationListener
             $payload['id'] = $user->getId();
         }
         $payload['lastLoginAt'] = $user->getLastLoginAt() ? $user->getLastLoginAt()->format(\DateTime::ISO8601) : null;
-
+        $payload['permissions'] = $this->getPermissionsData($user);
+        $payload['superAdmin'] = $user->isSuperAdmin();
         $event->setData($payload);
+    }
+
+    /**
+     * @param UserInterface $user
+     *
+     * @return array
+     */
+    protected function getPermissionsData(UserInterface $user): array
+    {
+        $permissions = [];
+        if ($user instanceof PermissionStorageInterface) {
+            foreach ($user->getPermissions() as $permission) {
+                if (!array_key_exists($permission->getResource(), $permissions)) {
+                    $permissions[$permission->getResource()] = [];
+                }
+                $permissions[$permission->getResource()] = array_unique(array_merge(
+                    $permissions[$permission->getResource()],
+                    [$permission->getAccess()]
+                ));
+            }
+        }
+
+        return $permissions;
     }
 
     /**

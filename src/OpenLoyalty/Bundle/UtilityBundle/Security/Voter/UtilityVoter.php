@@ -1,11 +1,12 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\UtilityBundle\Security\Voter;
 
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
+use OpenLoyalty\Bundle\UserBundle\Security\PermissionAccess;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -14,7 +15,10 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  */
 class UtilityVoter extends Voter
 {
-    const GENERATE_SEGMENT_CSV = 'GENERATE_SEGMENT_CSV';
+    const PERMISSION_RESOURCE = 'SEGMENT_EXPORT';
+
+    const GENERATE_CSV_BY_SEGMENT = 'GENERATE_CSV_BY_SEGMENT';
+    const GENERATE_CSV_BY_LEVEL = 'GENERATE_CSV_BY_LEVEL';
 
     /**
      * @param string $attribute
@@ -24,7 +28,7 @@ class UtilityVoter extends Voter
      */
     public function supports($attribute, $subject)
     {
-        return $subject == null && in_array($attribute, [self::GENERATE_SEGMENT_CSV]);
+        return $subject == null && in_array($attribute, [self::GENERATE_CSV_BY_SEGMENT, self::GENERATE_CSV_BY_LEVEL]);
     }
 
     /**
@@ -43,9 +47,15 @@ class UtilityVoter extends Voter
             return false;
         }
 
+        $viewPermission = $user->hasRole('ROLE_ADMIN') && $user->hasPermission(
+                self::PERMISSION_RESOURCE, [PermissionAccess::VIEW]
+            );
+
         switch ($attribute) {
-            case self::GENERATE_SEGMENT_CSV:
-                return $user->hasRole('ROLE_ADMIN');
+            case self::GENERATE_CSV_BY_SEGMENT:
+                return $viewPermission;
+            case self::GENERATE_CSV_BY_LEVEL:
+                return $viewPermission;
             default:
                 return false;
         }

@@ -24,11 +24,12 @@ class EarningRuleVoterTest extends BaseVoterTest
     public function it_works(): void
     {
         $attributes = [
-            EarningRuleVoter::CREATE_EARNING_RULE => ['seller' => false, 'customer' => false, 'admin' => true],
-            EarningRuleVoter::EDIT => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => self::EARNING_RULE_ID],
-            EarningRuleVoter::VIEW => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::EARNING_RULE2_ID],
-            EarningRuleVoter::LIST_ALL_EARNING_RULES => ['seller' => true, 'customer' => false, 'admin' => true],
-            EarningRuleVoter::LIST_ACTIVE_EARNING_RULES => ['seller' => false, 'customer' => true, 'admin' => true],
+            EarningRuleVoter::CREATE_EARNING_RULE => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false],
+            EarningRuleVoter::USE => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false],
+            EarningRuleVoter::EDIT => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false, 'id' => self::EARNING_RULE_ID],
+            EarningRuleVoter::VIEW => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => true, 'id' => self::EARNING_RULE2_ID],
+            EarningRuleVoter::LIST_ALL_EARNING_RULES => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => true],
+            EarningRuleVoter::LIST_ACTIVE_EARNING_RULES => ['seller' => false, 'customer' => true, 'admin' => true, 'admin_reporter' => true],
         ];
 
         $voter = new EarningRuleVoter();

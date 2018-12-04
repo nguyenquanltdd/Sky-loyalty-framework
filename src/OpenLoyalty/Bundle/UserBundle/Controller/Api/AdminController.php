@@ -37,7 +37,7 @@ class AdminController extends FOSRestController
      *
      * @Route(name="oloy.user.list", path="/admin")
      * @Method("GET")
-     * @Security("is_granted('ROLE_ADMIN')")
+     * @Security("is_granted('LIST_ADMINS')")
      *
      * @ApiDoc(
      *     name="Admins list",
@@ -100,9 +100,9 @@ class AdminController extends FOSRestController
     {
         if (!$admin) {
             $admin = $this->getUser();
+        } else {
+            $this->denyAccessUnlessGranted('EDIT', $admin);
         }
-
-        $this->denyAccessUnlessGranted('EDIT', $admin);
 
         if ($admin->getId() == $this->getUser()->getId()) {
             $type = AdminSelfEditFormType::class;
@@ -198,9 +198,9 @@ class AdminController extends FOSRestController
         /* @var Admin $user */
         if (!$admin) {
             $admin = $this->getUser();
+        } else {
+            $this->denyAccessUnlessGranted('VIEW', $admin);
         }
-
-        $this->denyAccessUnlessGranted('VIEW', $admin);
 
         return $this->view($admin, Response::HTTP_OK);
     }

@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -25,14 +25,15 @@ class LoadRoleData extends AbstractFixture implements FixtureInterface, OrderedF
         $role = new Role('ROLE_PARTICIPANT');
         $manager->persist($role);
         $this->addReference('role_participant', $role);
+
         $role = new Role('ROLE_SELLER');
         $manager->persist($role);
         $this->addReference('role_seller', $role);
 
-        $role = new Role('ROLE_ADMIN');
-
+        $role = new Role('ROLE_ADMIN', 'Super admin', true);
         $manager->persist($role);
         $this->addReference('role_admin', $role);
+
         $manager->flush();
     }
 

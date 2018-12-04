@@ -31,3 +31,7 @@ services:
         class: OpenLoyalty\Bundle\UserBundle\Security\Voter\InvitationVoter
         tags:
             - { name: security.voter }
+
+    OpenLoyalty\Bundle\UserBundle\Security\Voter\AclVoter:
+        tags:
+            - { name: security.voter }

@@ -856,7 +856,7 @@ class CampaignController extends FOSRestController
      *
      * @Route(name="oloy.campaign.get_customers_visible_for_campaign", path="/campaign/{campaign}/customers/visible")
      * @Method("GET")
-     * @Security("is_granted('LIST_ALL_CAMPAIGNS')")
+     * @Security("is_granted('LIST_ALL_CAMPAIGNS_CUSTOMERS')")
      *
      * @ApiDoc(
      *     name="campaign visible for customers",
@@ -914,7 +914,7 @@ class CampaignController extends FOSRestController
      * @Route(name="oloy.campaign.admin.customer.available", path="/admin/customer/{customer}/campaign/available")
      * @Route(name="oloy.campaign.seller.customer.available", path="/seller/customer/{customer}/campaign/available")
      * @Method("GET")
-     * @Security("is_granted('BUY_FOR_CUSTOMER_SELLER') or is_granted('BUY_FOR_CUSTOMER_ADMIN')")
+     * @Security("is_granted('VIEW_BUY_FOR_CUSTOMER_SELLER') or is_granted('VIEW_BUY_FOR_CUSTOMER_ADMIN')")
      *
      * @ApiDoc(
      *     name="get available campaigns for customer list",
@@ -1200,7 +1200,7 @@ class CampaignController extends FOSRestController
      * @Route(name="oloy.campaign.admin.customer.bought", path="/admin/customer/{customer}/campaign/bought")
      * @Route(name="oloy.campaign.seller.customer.bought", path="/seller/customer/{customer}/campaign/bought")
      * @Method("GET")
-     * @Security("is_granted('BUY_FOR_CUSTOMER_SELLER') or is_granted('BUY_FOR_CUSTOMER_ADMIN')")
+     * @Security("is_granted('VIEW_BUY_FOR_CUSTOMER_SELLER') or is_granted('VIEW_BUY_FOR_CUSTOMER_ADMIN')")
      *
      * @ApiDoc(
      *     name="get customer bough campaigns list",

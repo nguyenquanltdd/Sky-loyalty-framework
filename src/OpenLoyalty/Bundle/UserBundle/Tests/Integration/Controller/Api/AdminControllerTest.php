@@ -8,6 +8,7 @@ namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Controller\Api;
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadAdminData;
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
+use OpenLoyalty\Bundle\UserBundle\Entity\Role;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -106,6 +107,10 @@ class AdminControllerTest extends BaseApiTest
     {
         $client = $this->createAuthenticatedClient();
 
+        $entityManager = static::$kernel->getContainer()->get('doctrine.orm.entity_manager');
+        /** @var Role $role */
+        $role = $entityManager->getRepository('OpenLoyaltyUserBundle:Role')->findOneBy(['name' => 'Reporter admin']);
+
         $client->request(
             'POST',
             '/api/admin/data',
@@ -117,6 +122,9 @@ class AdminControllerTest extends BaseApiTest
                     'phone' => '+48123123123',
                     'plainPassword' => 'Test12#$',
                     'isActive' => true,
+                    'roles' => [
+                        $role->getId(),
+                    ],
                 ],
             ]
         );
@@ -133,6 +141,7 @@ class AdminControllerTest extends BaseApiTest
         $this->assertEquals('Alice', $admin->getFirstName());
         $this->assertEquals('May', $admin->getLastName());
         $this->assertEquals('+48123123123', $admin->getPhone());
+        $this->assertEquals(1, count($admin->getRoles()));
         $this->assertTrue($admin->getIsActive());
     }
 

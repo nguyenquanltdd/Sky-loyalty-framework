@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -130,6 +130,12 @@ class SellerController extends FOSRestController
     {
         $form = $this->get('form.factory')->createNamed('seller', SellerRegistrationFormType::class);
 
+        if (!$this->isGranted('ASSIGN_POS_TO_SELLER')) {
+            $sellerRequest = $request->request->get('seller');
+            unset($sellerRequest['posId']);
+            $request->request->set('seller', $sellerRequest);
+        }
+
         $form->handleRequest($request);
 
         if ($form->isValid()) {
@@ -155,7 +161,7 @@ class SellerController extends FOSRestController
                 $this->get('oloy.user.user_manager')->updateUser($user);
 
                 return $this->view([
-                    'sellerId' => $sellerId->__toString(),
+                    'sellerId' => (string) $sellerId,
                     'password' => $user->getPlainPassword(),
                     'email' => $user->getEmail(),
                 ]);
@@ -191,7 +197,7 @@ class SellerController extends FOSRestController
         /** @var EntityManager $em */
         $em = $this->get('doctrine.orm.entity_manager');
         $user = $em->getRepository('OpenLoyaltyUserBundle:Seller')
-            ->find($seller->getSellerId()->__toString());
+            ->find((string) $seller->getSellerId());
 
         if ($user instanceof Seller) {
             $user->setIsActive(true);
@@ -223,8 +229,7 @@ class SellerController extends FOSRestController
             );
         /** @var EntityManager $em */
         $em = $this->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository('OpenLoyaltyUserBundle:Seller')
-            ->find($seller->getSellerId()->__toString());
+        $user = $em->getRepository('OpenLoyaltyUserBundle:Seller')->find((string) $seller->getSellerId());
 
         if ($user instanceof Seller) {
             $user->setIsActive(false);
@@ -257,8 +262,7 @@ class SellerController extends FOSRestController
 
         /** @var EntityManager $em */
         $em = $this->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository('OpenLoyaltyUserBundle:Seller')
-            ->find($seller->getSellerId()->__toString());
+        $user = $em->getRepository('OpenLoyaltyUserBundle:Seller')->find((string) $seller->getSellerId());
 
         if ($user instanceof Seller) {
             $user->setIsActive(false);
@@ -295,6 +299,12 @@ class SellerController extends FOSRestController
             'method' => 'PUT',
         ]);
 
+        if (!$this->isGranted('ASSIGN_POS_TO_SELLER')) {
+            $sellerRequest = $request->request->get('seller');
+            unset($sellerRequest['posId']);
+            $request->request->set('seller', $sellerRequest);
+        }
+
         $form->handleRequest($request);
 
         if ($form->isValid()) {
@@ -312,7 +322,7 @@ class SellerController extends FOSRestController
                 }
 
                 return $this->view([
-                    'sellerId' => $seller->getSellerId()->__toString(),
+                    'sellerId' => (string) $seller->getSellerId(),
                 ]);
             } else {
                 return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);

@@ -328,7 +328,7 @@ class EarningRuleController extends FOSRestController
      *
      * @Route(name="oloy.earning_rule.report_custom_event", path="/{version}/earnRule/{eventName}/customer/{customer}", requirements={"version": "v1"}, defaults={"version":"v1"})
      * @Method("POST")
-     *
+     * @Security("is_granted('USE')")
      * @ApiDoc(
      *     name="report custom event and earn points",
      *     section="Earning Rule",
@@ -383,6 +383,7 @@ class EarningRuleController extends FOSRestController
      *
      * @Route(name="oloy.earning_rule.report_custom_geolocation", path="/earningRule/geolocation/customer/{customer}")
      * @Method("POST")
+     * @Security("is_granted('USE')")
      * @ApiDoc(
      *     name="report custom event and earn points",
      *     section="Earning Rule",
@@ -460,6 +461,7 @@ class EarningRuleController extends FOSRestController
      *
      * @Route(name="oloy.earning_rule.report_custom_qrcode", path="/earningRule/qrcode/customer/{customer}")
      * @Method("POST")
+     * @Security("is_granted('USE')")
      * @ApiDoc(
      *     name="report custom event and earn points",
      *     section="Earning Rule",

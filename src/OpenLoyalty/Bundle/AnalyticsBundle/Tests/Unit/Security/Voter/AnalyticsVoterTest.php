@@ -19,7 +19,7 @@ class AnalyticsVoterTest extends BaseVoterTest
     public function it_works(): void
     {
         $attributes = [
-            AnalyticsVoter::VIEW_STATS => ['seller' => false, 'customer' => false, 'admin' => true],
+            AnalyticsVoter::VIEW_STATS => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => true],
         ];
 
         $voter = new AnalyticsVoter();

@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\TransactionBundle\Tests\Integration\Security\Voter;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
 use OpenLoyalty\Bundle\TransactionBundle\Security\Voter\TransactionVoter;
+use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Transaction\Domain\CustomerId;
 use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetailsRepository;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
@@ -28,18 +29,19 @@ class TransactionVoterTest extends BaseVoterTest
     public function it_works(): void
     {
         $attributes = [
-            TransactionVoter::LIST_TRANSACTIONS => ['seller' => false, 'customer' => false, 'admin' => true],
-            TransactionVoter::LIST_CURRENT_CUSTOMER_TRANSACTIONS => ['seller' => false, 'customer' => true, 'admin' => false],
-            TransactionVoter::LIST_CURRENT_POS_TRANSACTIONS => ['seller' => true, 'customer' => false, 'admin' => false],
-            TransactionVoter::VIEW => ['seller' => true, 'customer' => false, 'admin' => true, 'id' => self::TRANSACTION_ID],
-            TransactionVoter::EDIT_TRANSACTION_LABELS => ['seller' => false, 'customer' => false, 'admin' => true],
-            TransactionVoter::CREATE_TRANSACTION => ['seller' => false, 'customer' => false, 'admin' => true],
-            TransactionVoter::ASSIGN_CUSTOMER_TO_TRANSACTION => ['seller' => true, 'customer' => true, 'admin' => true, 'subject' => $this->getTransactionMock(self::TRANSACTION_ID)],
-            TransactionVoter::APPEND_LABELS_TO_TRANSACTION => ['seller' => false, 'customer' => true, 'admin' => false, 'id' => self::TRANSACTION2_ID],
-            TransactionVoter::LIST_ITEM_LABELS => ['seller' => true, 'customer' => true, 'admin' => true],
+            TransactionVoter::LIST_TRANSACTIONS => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => true],
+            TransactionVoter::LIST_CURRENT_CUSTOMER_TRANSACTIONS => ['seller' => false, 'customer' => true, 'admin' => false, 'admin_reporter' => false],
+            TransactionVoter::LIST_CURRENT_POS_TRANSACTIONS => ['seller' => true, 'customer' => false, 'admin' => false, 'admin_reporter' => false],
+            TransactionVoter::VIEW => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => true, 'id' => self::TRANSACTION_ID],
+            TransactionVoter::EDIT_TRANSACTION_LABELS => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false],
+            TransactionVoter::CREATE_TRANSACTION => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false],
+            TransactionVoter::ASSIGN_CUSTOMER_TO_TRANSACTION => ['seller' => true, 'customer' => true, 'admin' => true, 'admin_reporter' => false, 'subject' => $this->getTransactionMock(self::TRANSACTION_ID)],
+            TransactionVoter::APPEND_LABELS_TO_TRANSACTION => ['seller' => false, 'customer' => true, 'admin' => false, 'admin_reporter' => false, 'id' => self::TRANSACTION2_ID],
+            TransactionVoter::LIST_ITEM_LABELS => ['seller' => true, 'customer' => true, 'admin' => true, 'admin_reporter' => true],
+            TransactionVoter::LIST_CUSTOMER_TRANSACTIONS => ['seller' => false, 'customer' => true, 'admin' => true, 'admin_reporter' => true, 'subject' => $this->getCustomerDetailsMock()],
         ];
 
-        /** @var SellerDetailsRepository|\MockObject $sellerDetailsRepositoryMock */
+        /** @var SellerDetailsRepository|MockObject $sellerDetailsRepositoryMock */
         $sellerDetailsRepositoryMock = $this->getMockBuilder(SellerDetailsRepository::class)->getMock();
         $sellerDetailsRepositoryMock
             ->method('find')
@@ -92,5 +94,13 @@ class TransactionVoterTest extends BaseVoterTest
         $transaction->method('getCustomerId')->willReturn($customerId);
 
         return $transaction;
+    }
+
+    /**
+     * @return MockObject|CustomerDetails
+     */
+    protected function getCustomerDetailsMock(): MockObject
+    {
+        return $this->getMockBuilder(CustomerDetails::class)->disableOriginalConstructor()->getMock();
     }
 }

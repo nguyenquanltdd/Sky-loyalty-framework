@@ -20,5 +20,6 @@ The REST API Reference
    points_transfers
    security
    transactions
+   acl
 
 .. include:: map.rst.inc

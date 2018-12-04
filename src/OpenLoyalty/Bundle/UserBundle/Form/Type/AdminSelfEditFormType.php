@@ -5,9 +5,14 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\Form\Type;
 
+use OpenLoyalty\Bundle\UserBundle\Entity\Role;
+use OpenLoyalty\Bundle\UserBundle\Service\AclManagerInterface;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type as Numeric;
 
 /**
@@ -15,6 +20,21 @@ use Symfony\Component\Validator\Constraints\Type as Numeric;
  */
 class AdminSelfEditFormType extends AbstractType
 {
+    /**
+     * @var AclManagerInterface
+     */
+    private $aclManager;
+
+    /**
+     * AdminFormType constructor.
+     *
+     * @param AclManagerInterface $aclManager
+     */
+    public function __construct(AclManagerInterface $aclManager)
+    {
+        $this->aclManager = $aclManager;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -32,6 +52,26 @@ class AdminSelfEditFormType extends AbstractType
                 new Numeric(['type' => 'numeric', 'message' => 'Incorrect phone number format, use +00000000000']),
             ],
         ]);
+
+        $rolesChoices = array_map(
+            function (Role $role) {
+                return (string) $role->getId();
+            },
+            $this->aclManager->getAdminRoles()
+        );
+
+        $builder->add('roles', CollectionType::class, [
+            'entry_type' => ChoiceType::class,
+            'allow_add' => true,
+            'allow_delete' => true,
+            'error_bubbling' => false,
+            'entry_options' => [
+                'choices' => array_combine($rolesChoices, $rolesChoices),
+                'required' => true,
+                'constraints' => [new NotBlank()],
+            ],
+        ]);
+
         $builder->add('email', TextType::class, [
             'required' => true,
         ]);

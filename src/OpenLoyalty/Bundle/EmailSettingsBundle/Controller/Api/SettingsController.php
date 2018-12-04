@@ -27,7 +27,7 @@ class SettingsController extends FOSRestController
      *
      * @Route(name="oloy.email_settings.list", path="/settings/emails")
      * @Method("GET")
-     * @Security("is_granted('ROLE_ADMIN')")
+     * @Security("is_granted('VIEW_SETTINGS')")
      *
      * @ApiDoc(
      *     name="System e-mail list",
@@ -55,7 +55,7 @@ class SettingsController extends FOSRestController
      *
      * @Route(name="oloy.email_settings.get", path="/settings/emails/{emailId}")
      * @Method("GET")
-     * @Security("is_granted('ROLE_ADMIN')")
+     * @Security("is_granted('VIEW_SETTINGS')")
      *
      * @ApiDoc(
      *     name="Get single system e-mail",
@@ -91,7 +91,7 @@ class SettingsController extends FOSRestController
     /**
      * @Route(name="oloy.email_settings.update", path="/settings/emails/{email}")
      * @Method("PUT")
-     * @Security("is_granted('ROLE_ADMIN')")
+     * @Security("is_granted('EDIT_SETTINGS')")
      *
      * @ApiDoc(
      *     name="Update single system e-mail",

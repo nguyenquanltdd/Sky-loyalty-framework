@@ -23,14 +23,14 @@ class SegmentVoterTest extends BaseVoterTest
     public function it_works(): void
     {
         $attributes = [
-            SegmentVoter::LIST_SEGMENTS => ['seller' => false, 'customer' => false, 'admin' => true],
-            SegmentVoter::CREATE_SEGMENT => ['seller' => false, 'customer' => false, 'admin' => true],
-            SegmentVoter::LIST_CUSTOMERS => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => self::SEGMENT_ID],
-            SegmentVoter::EDIT => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => self::SEGMENT_ID],
-            SegmentVoter::VIEW => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => self::SEGMENT_ID],
-            SegmentVoter::ACTIVATE => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => self::SEGMENT_ID],
-            SegmentVoter::DELETE => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => self::SEGMENT_ID],
-            SegmentVoter::DEACTIVATE => ['seller' => false, 'customer' => false, 'admin' => true, 'id' => self::SEGMENT_ID],
+            SegmentVoter::LIST_SEGMENTS => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => true],
+            SegmentVoter::CREATE_SEGMENT => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false],
+            SegmentVoter::LIST_CUSTOMERS => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => true, 'id' => self::SEGMENT_ID],
+            SegmentVoter::EDIT => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false, 'id' => self::SEGMENT_ID],
+            SegmentVoter::VIEW => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => true, 'id' => self::SEGMENT_ID],
+            SegmentVoter::ACTIVATE => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false, 'id' => self::SEGMENT_ID],
+            SegmentVoter::DELETE => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false, 'id' => self::SEGMENT_ID],
+            SegmentVoter::DEACTIVATE => ['seller' => false, 'customer' => false, 'admin' => true, 'admin_reporter' => false, 'id' => self::SEGMENT_ID],
         ];
 
         $voter = new SegmentVoter();

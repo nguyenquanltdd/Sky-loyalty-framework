@@ -27,7 +27,7 @@ class UtilityController extends FOSRestController
      *
      * @Route(name="oloy.csv.segment.generate", path="/csv/segment/{segment}")
      * @Method("GET")
-     * @Security("is_granted('GENERATE_SEGMENT_CSV')")
+     * @Security("is_granted('GENERATE_CSV_BY_SEGMENT')")
      * @ApiDoc(
      *     section="Utility"
      * )
@@ -53,7 +53,7 @@ class UtilityController extends FOSRestController
      *
      * @Route(name="oloy.csv.level.generate", path="/csv/level/{level}")
      * @Method("GET")
-     * @Security("is_granted('GENERATE_SEGMENT_CSV')")
+     * @Security("is_granted('GENERATE_CSV_BY_LEVEL')")
      * @ApiDoc(
      *     section="Utility"
      * )

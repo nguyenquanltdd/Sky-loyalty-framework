@@ -691,7 +691,7 @@ class SettingsController extends FOSRestController
      *
      * @Route(name="oloy.settings.translations_list", path="/admin/translations")
      * @Method("GET")
-     * @Security("is_granted('EDIT_SETTINGS')")
+     * @Security("is_granted('VIEW_SETTINGS')")
      * @ApiDoc(
      *     name="Get translations list",
      *     section="Settings"
@@ -717,7 +717,7 @@ class SettingsController extends FOSRestController
      *
      * @Route(name="oloy.settings.customer_statuses_list", path="/admin/customer-statuses")
      * @Method("GET")
-     * @Security("is_granted('EDIT_SETTINGS')")
+     * @Security("is_granted('VIEW_SETTINGS')")
      * @ApiDoc(
      *     name="Get customer statuses list",
      *     section="Settings"
@@ -743,7 +743,7 @@ class SettingsController extends FOSRestController
      *
      * @Route(name="oloy.settings.translations_get", path="/admin/translations/{code}")
      * @Method("GET")
-     * @Security("is_granted('EDIT_SETTINGS')")
+     * @Security("is_granted('VIEW_SETTINGS')")
      * @ApiDoc(
      *     name="Get single translation by code",
      *     section="Settings"

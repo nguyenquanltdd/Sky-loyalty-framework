@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\PointsBundle\Security\Voter;
 
 use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
+use OpenLoyalty\Bundle\UserBundle\Security\PermissionAccess;
 use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetails;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -16,6 +17,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  */
 class PointsTransferVoter extends Voter
 {
+    const PERMISSION_RESOURCE = 'POINT_TRANSFER';
+
     const LIST_POINTS_TRANSFERS = 'LIST_POINTS_TRANSFERS';
     const ADD_POINTS = 'ADD_POINTS';
     const SPEND_POINTS = 'SPEND_POINTS';
@@ -54,19 +57,23 @@ class PointsTransferVoter extends Voter
             return false;
         }
 
+        $viewAdmin = $user->hasRole('ROLE_ADMIN')
+            && $user->hasPermission(self::PERMISSION_RESOURCE, [PermissionAccess::VIEW]);
+
+        $fullAdmin = $user->hasRole('ROLE_ADMIN')
+            && $user->hasPermission(self::PERMISSION_RESOURCE, [PermissionAccess::VIEW, PermissionAccess::MODIFY]);
+
         switch ($attribute) {
             case self::LIST_POINTS_TRANSFERS:
-                return $user->hasRole('ROLE_ADMIN') || $user->hasRole('ROLE_SELLER');
+                return $viewAdmin || $user->hasRole('ROLE_SELLER');
             case self::TRANSFER_POINTS:
-                return $user->hasRole('ROLE_ADMIN') || $user->hasRole('ROLE_PARTICIPANT');
+                return $fullAdmin || $user->hasRole('ROLE_PARTICIPANT');
             case self::ADD_POINTS:
-                return
-                    $user->hasRole('ROLE_ADMIN')
-                    || ($user->hasRole('ROLE_SELLER') && $user->isAllowPointTransfer());
+                return $fullAdmin || ($user->hasRole('ROLE_SELLER') && $user->isAllowPointTransfer());
             case self::SPEND_POINTS:
-                return $user->hasRole('ROLE_ADMIN') || ($user->hasRole('ROLE_SELLER') && $user instanceof Seller && $user->isAllowPointTransfer());
+                return $fullAdmin || ($user->hasRole('ROLE_SELLER') && $user instanceof Seller && $user->isAllowPointTransfer());
             case self::CANCEL:
-                return $user->hasRole('ROLE_ADMIN');
+                return $fullAdmin;
             case self::LIST_CUSTOMER_POINTS_TRANSFERS:
                 return $user->hasRole('ROLE_PARTICIPANT');
             default:

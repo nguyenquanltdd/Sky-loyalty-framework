@@ -1,11 +1,12 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\TransactionBundle\Security\Voter;
 
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
+use OpenLoyalty\Bundle\UserBundle\Security\PermissionAccess;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetailsRepository;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
@@ -18,6 +19,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  */
 class TransactionVoter extends Voter
 {
+    const PERMISSION_RESOURCE = 'TRANSACTION';
+
     const LIST_TRANSACTIONS = 'LIST_TRANSACTIONS';
     const LIST_CURRENT_CUSTOMER_TRANSACTIONS = 'LIST_CURRENT_CUSTOMER_TRANSACTIONS';
     const LIST_CURRENT_POS_TRANSACTIONS = 'LIST_CURRENT_POS_TRANSACTIONS';
@@ -32,7 +35,7 @@ class TransactionVoter extends Voter
     /**
      * @var SellerDetailsRepository
      */
-    protected $sellerDetailsRepository;
+    private $sellerDetailsRepository;
 
     /**
      * TransactionVoter constructor.
@@ -73,15 +76,21 @@ class TransactionVoter extends Voter
             return false;
         }
 
+        $viewAdmin = $user->hasRole('ROLE_ADMIN')
+                     && $user->hasPermission(self::PERMISSION_RESOURCE, [PermissionAccess::VIEW]);
+
+        $fullAdmin = $user->hasRole('ROLE_ADMIN')
+                     && $user->hasPermission(self::PERMISSION_RESOURCE, [PermissionAccess::VIEW, PermissionAccess::MODIFY]);
+
         switch ($attribute) {
             case self::LIST_TRANSACTIONS:
-                return $user->hasRole('ROLE_ADMIN');
+                return $viewAdmin;
             case self::CREATE_TRANSACTION:
-                return $user->hasRole('ROLE_ADMIN');
+                return $fullAdmin;
             case self::EDIT_TRANSACTION_LABELS:
-                return $user->hasRole('ROLE_ADMIN');
+                return $fullAdmin;
             case self::ASSIGN_CUSTOMER_TO_TRANSACTION:
-                return $this->canAssign($user, $subject);
+                return $fullAdmin || $this->canSellerOrCustomerAssign($user, $subject);
             case self::APPEND_LABELS_TO_TRANSACTION:
                 return $this->canAppendLabels($user, $subject);
             case self::LIST_CURRENT_POS_TRANSACTIONS:
@@ -89,9 +98,9 @@ class TransactionVoter extends Voter
             case self::LIST_CURRENT_CUSTOMER_TRANSACTIONS:
                 return $user->hasRole('ROLE_PARTICIPANT');
             case self::LIST_CUSTOMER_TRANSACTIONS:
-                return $user->hasRole('ROLE_ADMIN') || $user->hasRole('ROLE_PARTICIPANT');
+                return $viewAdmin || $user->hasRole('ROLE_PARTICIPANT');
             case self::VIEW:
-                return $this->canView($user, $subject);
+                return $viewAdmin || $this->canSellerOrCustomerView($user, $subject);
             case self::LIST_ITEM_LABELS:
                 return true;
             default:
@@ -105,12 +114,8 @@ class TransactionVoter extends Voter
      *
      * @return bool
      */
-    protected function canView(User $user, TransactionDetails $subject): bool
+    protected function canSellerOrCustomerView(User $user, TransactionDetails $subject): bool
     {
-        if ($user->hasRole('ROLE_ADMIN')) {
-            return true;
-        }
-
         if ($user->hasRole('ROLE_SELLER')) {
             return true;
         }
@@ -128,12 +133,8 @@ class TransactionVoter extends Voter
      *
      * @return bool
      */
-    protected function canAssign(User $user, Transaction $subject): bool
+    protected function canSellerOrCustomerAssign(User $user, Transaction $subject): bool
     {
-        if ($user->hasRole('ROLE_ADMIN')) {
-            return true;
-        }
-
         if ($user->hasRole('ROLE_SELLER')) {
             return true;
         }

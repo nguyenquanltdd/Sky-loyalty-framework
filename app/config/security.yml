@@ -1,6 +1,10 @@
 # To get started with security, check out the documentation:
 # http://symfony.com/doc/current/book/security.html
 security:
+    access_decision_manager:
+        strategy: unanimous
+        allow_if_all_abstain: true
+
     role_hierarchy:
         ROLE_SELLER:      ROLE_USER
         ROLE_PARTICIPANT: ROLE_USER

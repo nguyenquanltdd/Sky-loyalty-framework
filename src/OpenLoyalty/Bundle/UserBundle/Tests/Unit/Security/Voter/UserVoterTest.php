@@ -3,7 +3,7 @@
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
-namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Security\Voter;
+namespace OpenLoyalty\Bundle\UserBundle\Tests\Unit\Security\Voter;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseVoterTest;
 use OpenLoyalty\Bundle\UserBundle\Security\Voter\UserVoter;

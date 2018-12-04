@@ -8,6 +8,7 @@ namespace OpenLoyalty\Bundle\UserBundle\Security\Voter;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\BooleanSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
+use OpenLoyalty\Bundle\UserBundle\Security\PermissionAccess;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetailsRepository;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -18,6 +19,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  */
 class CustomerVoter extends Voter
 {
+    const PERMISSION_RESOURCE = 'CUSTOMER';
+
     const ACTIVATE = 'ACTIVATE';
     const ASSIGN_POS = 'ASSIGN_POS';
     const ASSIGN_CUSTOMER_LEVEL = 'ASSIGN_CUSTOMER_LEVEL';
@@ -70,27 +73,33 @@ class CustomerVoter extends Voter
             return false;
         }
 
+        $viewAdmin = $user->hasRole('ROLE_ADMIN')
+                     && $user->hasPermission(self::PERMISSION_RESOURCE, [PermissionAccess::VIEW]);
+
+        $fullAdmin = $user->hasRole('ROLE_ADMIN')
+                     && $user->hasPermission(self::PERMISSION_RESOURCE, [PermissionAccess::VIEW, PermissionAccess::MODIFY]);
+
         switch ($attribute) {
             case self::ACTIVATE:
-                return $this->isSellerOrAdmin($user);
+                return $fullAdmin || $user->hasRole('ROLE_SELLER');
             case self::ASSIGN_CUSTOMER_LEVEL:
-                return $this->canAddToLevel($user);
+                return $fullAdmin || $user->hasRole('ROLE_SELLER');
             case self::ASSIGN_POS:
-                return $this->canAssignPos($user);
+                return $fullAdmin || $user->hasRole('ROLE_SELLER');
             case self::CREATE_CUSTOMER:
-                return $this->canCreate($user);
+                return $fullAdmin || $user->hasRole('ROLE_SELLER');
             case self::DEACTIVATE:
-                return $this->isSellerOrAdmin($user);
+                return $fullAdmin || $user->hasRole('ROLE_SELLER');
             case self::EDIT:
-                return $this->canEdit($user, $subject);
+                return $fullAdmin || $this->canSellerOrCustomerEdit($user, $subject);
             case self::EDIT_PROFILE:
-                return $this->canEditProfile($user);
+                return $fullAdmin || $this->canSellerEditProfile($user);
             case self::LIST_CUSTOMERS:
-                return $this->isSellerOrAdmin($user);
+                return $viewAdmin || $user->hasRole('ROLE_SELLER');
             case self::VIEW:
-                return $this->canView($user, $subject);
+                return $viewAdmin || $this->canSellerOrCustomerView($user, $subject);
             case self::VIEW_STATUS:
-                return $this->canView($user, $subject);
+                return $viewAdmin || $this->canSellerOrCustomerView($user, $subject);
         }
 
         return false;
@@ -102,51 +111,9 @@ class CustomerVoter extends Voter
      *
      * @return bool
      */
-    private function canView(User $user, CustomerDetails $customerDetails): bool
+    private function canSellerOrCustomerView(User $user, CustomerDetails $customerDetails): bool
     {
-        if ($user->hasRole('ROLE_ADMIN')) {
-            return true;
-        }
-
         if ($user->hasRole('ROLE_PARTICIPANT') && $customerDetails->getCustomerId() && (string) $customerDetails->getCustomerId() === $user->getId()) {
-            return true;
-        }
-
-        if ($user->hasRole('ROLE_SELLER')) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param User            $user
-     * @param CustomerDetails $subject
-     *
-     * @return bool
-     */
-    private function canAssignPos(User $user): bool
-    {
-        if ($user->hasRole('ROLE_ADMIN')) {
-            return true;
-        }
-
-        if ($user->hasRole('ROLE_SELLER')) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param User            $user
-     * @param CustomerDetails $subject
-     *
-     * @return bool
-     */
-    private function canAddToLevel(User $user): bool
-    {
-        if ($user->hasRole('ROLE_ADMIN')) {
             return true;
         }
 
@@ -163,12 +130,8 @@ class CustomerVoter extends Voter
      *
      * @return bool
      */
-    private function canEdit(User $user, CustomerDetails $customerDetails): bool
+    private function canSellerOrCustomerEdit(User $user, CustomerDetails $customerDetails): bool
     {
-        if ($user->hasRole('ROLE_ADMIN')) {
-            return true;
-        }
-
         if ($user->hasRole('ROLE_PARTICIPANT') && $customerDetails->getCustomerId() && (string) $customerDetails->getCustomerId() === $user->getId()) {
             return true;
         }
@@ -185,27 +148,9 @@ class CustomerVoter extends Voter
      *
      * @return bool
      */
-    private function canCreate(User $user): bool
+    private function canSellerEditProfile(User $user): bool
     {
-        if ($user->hasRole('ROLE_ADMIN')) {
-            return true;
-        }
-
         if ($user->hasRole('ROLE_SELLER')) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param User $user
-     *
-     * @return bool
-     */
-    private function canEditProfile(User $user): bool
-    {
-        if ($user->hasRole('ROLE_ADMIN') || $user->hasRole('ROLE_SELLER')) {
             return true;
         }
 
@@ -217,16 +162,6 @@ class CustomerVoter extends Voter
         }
 
         return $settingEntry->getValue();
-    }
-
-    /**
-     * @param $user
-     *
-     * @return bool
-     */
-    private function isSellerOrAdmin(User $user): bool
-    {
-        return $user->hasRole('ROLE_ADMIN') || $user->hasRole('ROLE_SELLER');
     }
 
     /**

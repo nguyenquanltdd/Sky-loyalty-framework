@@ -30,6 +30,78 @@
                 <source>customer.registration.start_leveL_not_found</source>
                 <target>Neither level is not available as start level for this customer.</target>
             </trans-unit>
+            <trans-unit id="user.acl.access.view">
+                <source>user.acl.access.view</source>
+                <target>View</target>
+            </trans-unit>
+            <trans-unit id="user.acl.access.modify">
+                <source>user.acl.access.modify</source>
+                <target>Modify</target>
+            </trans-unit>
+            <trans-unit id="user.acl.resource.level">
+                <source>user.acl.resource.level</source>
+                <target>Levels</target>
+            </trans-unit>
+            <trans-unit id="user.acl.resource.utility">
+                <source>user.acl.resource.utility</source>
+                <target>Utilities</target>
+            </trans-unit>
+            <trans-unit id="user.acl.resource.earningRule">
+                <source>user.acl.resource.earningRule</source>
+                <target>Earning rules</target>
+            </trans-unit>
+            <trans-unit id="user.acl.resource.transaction">
+                <source>user.acl.resource.transaction</source>
+                <target>Transactions</target>
+            </trans-unit>
+            <trans-unit id="user.acl.resource.rewardCampaign">
+                <source>user.acl.resource.rewardCampaign</source>
+                <target>Reward Campaign</target>
+            </trans-unit>
+            <trans-unit id="user.acl.resource.seller">
+                <source>user.acl.resource.seller</source>
+                <target>Merchants</target>
+            </trans-unit>
+            <trans-unit id="user.acl.resource.admin">
+                <source>user.acl.resource.admin</source>
+                <target>Admins</target>
+            </trans-unit>
+            <trans-unit id="user.acl.resource.acl">
+                <source>user.acl.resource.acl</source>
+                <target>ACL</target>
+            </trans-unit>
+            <trans-unit id="user.acl.can_not_delete_master_role">
+                <source>user.acl.can_not_delete_master_role</source>
+                <target>Can not remove master role.</target>
+            </trans-unit>
+            <trans-unit id="user.acl.resource.customer">
+                <source>user.acl.resource.customer</source>
+                <target>Customers</target>
+            </trans-unit>
+            <trans-unit id="user.acl.resource.segment">
+                <source>user.acl.resource.segment</source>
+                <target>Segments</target>
+            </trans-unit>
+            <trans-unit id="user.acl.resource.settings">
+                <source>user.acl.resource.settings</source>
+                <target>Settings</target>
+            </trans-unit>
+            <trans-unit id="user.acl.resource.pos">
+                <source>user.acl.resource.pos</source>
+                <target>POS</target>
+            </trans-unit>
+            <trans-unit id="user.acl.resource.pointsTransfer">
+                <source>user.acl.resource.pointsTransfer</source>
+                <target>Points transfers</target>
+            </trans-unit>
+            <trans-unit id="user.acl.resource.analytics">
+                <source>user.acl.resource.analytics</source>
+                <target>Dashboard</target>
+            </trans-unit>
+            <trans-unit id="user.acl.resource.audit">
+                <source>user.acl.resource.audit</source>
+                <target>Audit</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

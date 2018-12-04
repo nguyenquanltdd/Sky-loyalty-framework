@@ -48,6 +48,11 @@ class UserManager
     protected $customerDetailsRepository;
 
     /**
+     * @var AclManagerInterface
+     */
+    private $aclManager;
+
+    /**
      * UserManager constructor.
      *
      * @param UserPasswordEncoderInterface           $passwordEncoder
@@ -55,19 +60,22 @@ class UserManager
      * @param PasswordGenerator                      $passwordGenerator
      * @param ActionTokenManager                     $activationMethodProvider
      * @param CustomerDetailsElasticsearchRepository $customerDetailsRepository
+     * @param AclManagerInterface                    $aclManager
      */
     public function __construct(
         UserPasswordEncoderInterface $passwordEncoder,
         EntityManager $em,
         PasswordGenerator $passwordGenerator,
         ActionTokenManager $activationMethodProvider,
-        CustomerDetailsElasticsearchRepository $customerDetailsRepository
+        CustomerDetailsElasticsearchRepository $customerDetailsRepository,
+        AclManagerInterface $aclManager
     ) {
         $this->passwordEncoder = $passwordEncoder;
         $this->em = $em;
         $this->passwordGenerator = $passwordGenerator;
         $this->activationMethodProvider = $activationMethodProvider;
         $this->customerDetailsRepository = $customerDetailsRepository;
+        $this->aclManager = $aclManager;
     }
 
     public function updateUser(User $user, $andFlush = true)
@@ -183,12 +191,20 @@ class UserManager
         return $user;
     }
 
-    public function createNewAdmin($id)
+    /**
+     * @param string $id
+     * @param bool   $master
+     *
+     * @return Admin
+     *
+     * @throws \Exception
+     */
+    public function createNewAdmin(string $id, bool $master = false): Admin
     {
         $user = new Admin($id);
-        $role = $this->em->getRepository('OpenLoyaltyUserBundle:Role')->findOneBy(['role' => 'ROLE_ADMIN']);
-        if ($role) {
-            $user->addRole($role);
+
+        if ($master) {
+            $user->addRole($this->aclManager->getAdminMasterRole());
         }
 
         return $user;
