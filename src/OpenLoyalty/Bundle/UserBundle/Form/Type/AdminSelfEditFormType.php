@@ -12,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type as Numeric;
 
@@ -65,6 +66,9 @@ class AdminSelfEditFormType extends AbstractType
             'allow_add' => true,
             'allow_delete' => true,
             'error_bubbling' => false,
+            'constraints' => [
+                new Count(['max' => 1]),
+            ],
             'entry_options' => [
                 'choices' => array_combine($rolesChoices, $rolesChoices),
                 'required' => true,

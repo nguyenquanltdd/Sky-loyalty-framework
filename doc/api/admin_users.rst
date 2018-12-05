@@ -36,7 +36,7 @@ Definition
 +----------------------+----------------+-------------------------------------------------------------------+
 | admin[isActive]      | request        |  Set account active. Set 1 if active, otherwise 0                 |
 +----------------------+----------------+-------------------------------------------------------------------+
-| admin[roles][]       | request        |  Role IDs assigned to this administrator                          |
+| admin[roles][]       | request        |  Role IDs assigned to this administrator (max 1 role)             |
 +----------------------+----------------+-------------------------------------------------------------------+
 
 Example
@@ -298,7 +298,7 @@ Definition
 +----------------------+----------------+-------------------------------------------------------------------+
 | admin[isActive]      | request        |  Set account active. Set 1 if active, otherwise 0                 |
 +----------------------+----------------+-------------------------------------------------------------------+
-| admin[roles][]       | request        |  Role IDs assigned to this administrator                          |
+| admin[roles][]       | request        |  Role IDs assigned to this administrator (max 1 role)             |
 +----------------------+----------------+-------------------------------------------------------------------+
 
 Example
