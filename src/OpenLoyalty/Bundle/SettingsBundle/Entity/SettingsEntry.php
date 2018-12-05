@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -12,7 +12,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * Class SettingsEntry.
  *
  * @ORM\Entity()
- * @ORM\Table(name="ol__settings")
+ * @ORM\Table(name="ol__settings" , uniqueConstraints={@ORM\UniqueConstraint(columns={"setting_key" })})
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @UniqueEntity(fields={"key"})
  */

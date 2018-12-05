@@ -9,9 +9,11 @@ declare(strict_types=1);
 namespace OpenLoyalty\Bundle\SettingsBundle\Service;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\SettingsEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
+use OpenLoyalty\Bundle\SettingsBundle\Exception\AlreadyExistException;
 
 /**
  * Class DoctrineSettingsManager.
@@ -43,7 +45,11 @@ class DoctrineSettingsManager implements SettingsManager
         }
 
         if ($flush) {
-            $this->em->flush();
+            try {
+                $this->em->flush();
+            } catch (UniqueConstraintViolationException $exception) {
+                throw new AlreadyExistException();
+            }
         }
     }
 
