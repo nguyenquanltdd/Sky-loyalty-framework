@@ -9,6 +9,8 @@ use Broadway\EventDispatcher\EventDispatcher;
 use Broadway\ReadModel\Repository;
 use Broadway\Repository\Repository as AggregareRootRepository;
 use OpenLoyalty\Component\Account\Domain\Account;
+use OpenLoyalty\Component\Campaign\Domain\DeliveryStatus;
+use OpenLoyalty\Component\Campaign\Domain\Event\CampaignBoughtDeliveryStatusWasChanged;
 use OpenLoyalty\Component\Core\Infrastructure\Projector\Projector;
 use OpenLoyalty\Bundle\CampaignBundle\Model\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
@@ -93,9 +95,21 @@ class CampaignBoughtProjector extends Projector
         $campaign = $this->campaignRepository->byId($campaignId);
         /** @var Customer $customer */
         $customer = $this->customerRepository->load((string) $event->getCustomerId());
-
         /** @var Account $account */
         $account = $this->accountRepository->load((string) $customer->getAccountId());
+
+        $campaignShippingAddress = null;
+        if (null !== $customer->getAddress()) {
+            $campaignShippingAddress = new CampaignShippingAddress(
+                $customer->getAddress()->getStreet(),
+                $customer->getAddress()->getAddress1(),
+                $customer->getAddress()->getAddress2(),
+                $customer->getAddress()->getProvince(),
+                $customer->getAddress()->getCity(),
+                $customer->getAddress()->getPostal(),
+                $customer->getAddress()->getCountry()
+            );
+        }
 
         $this->storeCampaignUsages(
             $campaignId,
@@ -109,6 +123,7 @@ class CampaignBoughtProjector extends Projector
             $campaign->getName() ?? '',
             $customer->getEmail(),
             $customer->getPhone(),
+            $campaignShippingAddress,
             $customer->getFirstName(),
             $customer->getLastName(),
             $campaign->getCostInPoints(),
@@ -122,23 +137,24 @@ class CampaignBoughtProjector extends Projector
     }
 
     /**
-     * @param CampaignId      $campaignId
-     * @param CustomerId      $customerId
-     * @param \DateTime       $boughtAt
-     * @param Coupon          $coupon
-     * @param string          $couponType
-     * @param string          $campaignName
-     * @param string|null     $customerEmail
-     * @param string|null     $customerPhone
-     * @param string          $customerName
-     * @param string          $customerLastName
-     * @param int             $costInPoints
-     * @param int             $currentPointsAmount
-     * @param float|null      $taxPriceValue
-     * @param string          $status
-     * @param \DateTime|null  $activeSince
-     * @param \DateTime|null  $activeTo
-     * @param null|Identifier $transactionId
+     * @param CampaignId                   $campaignId
+     * @param CustomerId                   $customerId
+     * @param \DateTime                    $boughtAt
+     * @param Coupon                       $coupon
+     * @param string                       $couponType
+     * @param string                       $campaignName
+     * @param string|null                  $customerEmail
+     * @param string|null                  $customerPhone
+     * @param null|CampaignShippingAddress $campaignShippingAddress
+     * @param string                       $customerName
+     * @param string                       $customerLastName
+     * @param int                          $costInPoints
+     * @param int                          $currentPointsAmount
+     * @param float|null                   $taxPriceValue
+     * @param string                       $status
+     * @param \DateTime|null               $activeSince
+     * @param \DateTime|null               $activeTo
+     * @param null|Identifier              $transactionId
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -151,6 +167,7 @@ class CampaignBoughtProjector extends Projector
         string $campaignName,
         ?string $customerEmail,
         ?string $customerPhone,
+        ?CampaignShippingAddress $campaignShippingAddress,
         string $customerName,
         string $customerLastName,
         int $costInPoints,
@@ -170,6 +187,7 @@ class CampaignBoughtProjector extends Projector
             $campaignName,
             $customerEmail,
             $customerPhone,
+            $campaignShippingAddress,
             $status,
             null,
             $customerName,
@@ -260,5 +278,18 @@ class CampaignBoughtProjector extends Projector
                 return;
             }
         }
+    }
+
+    /**
+     * @param CampaignBoughtDeliveryStatusWasChanged $changedEvent
+     */
+    protected function applyCampaignBoughtDeliveryStatusWasChanged(
+        CampaignBoughtDeliveryStatusWasChanged $changedEvent
+    ): void {
+        $readModel = $this->campaignBoughtRepository->findOneByCouponId($changedEvent->getCouponId());
+
+        $readModel->setDeliveryStatus(new DeliveryStatus($changedEvent->getStatus()));
+
+        $this->campaignBoughtRepository->save($readModel);
     }
 }

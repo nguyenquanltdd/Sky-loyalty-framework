@@ -13,6 +13,7 @@ use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBought;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository;
+use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignShippingAddress;
 use OpenLoyalty\Component\Customer\Domain\CampaignId;
 use OpenLoyalty\Component\Customer\Domain\Command\ReturnCustomerCampaign;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
@@ -89,6 +90,10 @@ final class CreateCouponsReturnListenerTest extends TestCase
         $campaign->method('getName')->willReturn('Test campaign');
         $commandBus = $this->getCommandBus();
 
+        /** @var MockObject|CampaignShippingAddress $campaignShippingAddress */
+        $campaignShippingAddress = $this->getMockBuilder(CampaignShippingAddress::class)
+                                        ->disableOriginalConstructor()->getMock();
+
         $activeTo = new \DateTime('+10 days');
         $bought = [
             new CampaignBought(
@@ -100,6 +105,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
                 'Test campaign',
                 'test@example.com',
                 '123',
+                $campaignShippingAddress,
                 CampaignPurchase::STATUS_ACTIVE,
                 null,
                 null,
@@ -166,6 +172,11 @@ final class CreateCouponsReturnListenerTest extends TestCase
 
         $activeTo1 = new \DateTime('+10 days');
         $activeTo2 = new \DateTime('+12 days');
+
+        /** @var MockObject|CampaignShippingAddress $campaignShippingAddress */
+        $campaignShippingAddress = $this->getMockBuilder(CampaignShippingAddress::class)
+                                        ->disableOriginalConstructor()->getMock();
+
         $bought = [
             new CampaignBought(
                 new CampaignDomainId(self::ID),
@@ -176,6 +187,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
                 'Test campaign',
                 'test@example.com',
                 '123',
+                $campaignShippingAddress,
                 CampaignPurchase::STATUS_ACTIVE,
                 null,
                 null,
@@ -196,6 +208,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
                 'Test campaign',
                 'test@example.com',
                 '123',
+                $campaignShippingAddress,
                 CampaignPurchase::STATUS_ACTIVE,
                 null,
                 null,
@@ -279,6 +292,10 @@ final class CreateCouponsReturnListenerTest extends TestCase
         $campaign->method('getName')->willReturn('Test campaign');
         $commandBus = $this->getCommandBus();
 
+        /** @var MockObject|CampaignShippingAddress $campaignShippingAddress */
+        $campaignShippingAddress = $this->getMockBuilder(CampaignShippingAddress::class)
+                                        ->disableOriginalConstructor()->getMock();
+
         $activeTo = new \DateTime('+10 days');
         $bought = [
             new CampaignBought(
@@ -290,6 +307,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
                 'Test campaign',
                 'test@example.com',
                 '123',
+                $campaignShippingAddress,
                 CampaignPurchase::STATUS_ACTIVE,
                 null,
                 null,
@@ -354,6 +372,10 @@ final class CreateCouponsReturnListenerTest extends TestCase
         $campaign->method('getName')->willReturn('Test campaign');
         $commandBus = $this->getCommandBus();
 
+        /** @var MockObject|CampaignShippingAddress $campaignShippingAddress */
+        $campaignShippingAddress = $this->getMockBuilder(CampaignShippingAddress::class)
+                                        ->disableOriginalConstructor()->getMock();
+
         $activeTo1 = new \DateTime('+10 days');
         $activeTo2 = new \DateTime('+12 days');
         $bought = [
@@ -366,6 +388,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
                 'Test campaign',
                 'test@example.com',
                 '123',
+                $campaignShippingAddress,
                 CampaignPurchase::STATUS_ACTIVE,
                 null,
                 null,
@@ -386,6 +409,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
                 'Test campaign',
                 'test@example.com',
                 '123',
+                $campaignShippingAddress,
                 CampaignPurchase::STATUS_ACTIVE,
                 null,
                 null,
@@ -469,6 +493,10 @@ final class CreateCouponsReturnListenerTest extends TestCase
         $campaign->method('getName')->willReturn('Test campaign');
         $commandBus = $this->getCommandBus();
 
+        /** @var MockObject|CampaignShippingAddress $campaignShippingAddress */
+        $campaignShippingAddress = $this->getMockBuilder(CampaignShippingAddress::class)
+                                        ->disableOriginalConstructor()->getMock();
+
         $activeTo = new \DateTime('+10 days');
         $campaignBought = new CampaignBought(
             new CampaignDomainId(self::ID),
@@ -479,6 +507,7 @@ final class CreateCouponsReturnListenerTest extends TestCase
             'Test campaign',
             'test@example.com',
             '123',
+            $campaignShippingAddress,
             CampaignPurchase::STATUS_ACTIVE,
             null,
             null,

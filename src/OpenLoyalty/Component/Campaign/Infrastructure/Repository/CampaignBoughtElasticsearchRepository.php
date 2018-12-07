@@ -1,10 +1,11 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Component\Campaign\Infrastructure\Repository;
 
+use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBought;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository;
 use OpenLoyalty\Component\Core\Infrastructure\Repository\OloyElasticsearchRepository;
 
@@ -116,5 +117,31 @@ class CampaignBoughtElasticsearchRepository extends OloyElasticsearchRepository 
         ];
 
         return $this->query($query);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneByCouponId(string $couponId): CampaignBought
+    {
+        $query = [
+            'bool' => [
+                'must' => [
+                    [
+                        'term' => [
+                            'couponId' => $couponId,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $result = $this->query($query);
+
+        if (!count($result)) {
+            throw new \InvalidArgumentException('Campaign bought not found!');
+        }
+
+        return reset($result);
     }
 }

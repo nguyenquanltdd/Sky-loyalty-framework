@@ -125,6 +125,14 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
             'usedForTransactionId' => null,
             'returnedAmount' => 0,
             'couponId' => '123',
+            'deliveryStatus' => 'ordered',
+            'campaignShippingAddressStreet' => null,
+            'campaignShippingAddressAddress1' => null,
+            'campaignShippingAddressAddress2' => null,
+            'campaignShippingAddressPostal' => null,
+            'campaignShippingAddressCity' => null,
+            'campaignShippingAddressProvince' => null,
+            'campaignShippingAddressCountry' => null,
         ];
         $this->scenario->given([])
             ->when(
@@ -175,6 +183,14 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
             'usedForTransactionId' => null,
             'returnedAmount' => 0,
             'couponId' => '123',
+            'deliveryStatus' => 'ordered',
+            'campaignShippingAddressStreet' => null,
+            'campaignShippingAddressAddress1' => null,
+            'campaignShippingAddressAddress2' => null,
+            'campaignShippingAddressPostal' => null,
+            'campaignShippingAddressCity' => null,
+            'campaignShippingAddressProvince' => null,
+            'campaignShippingAddressCountry' => null,
         ];
         $this->scenario->given(
                 [
@@ -210,7 +226,7 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
         $expectedData = [
             'customerId' => (string) $customerId,
             'campaignId' => (string) $campaignId,
-            'usedForTransactionId' => $transactionId,
+            'usedForTransactionId' => (string) $transactionId,
             'returnedAmount' => 0,
             'coupon' => $coupon->getCode(),
             'campaignType' => 'Reward',
@@ -228,6 +244,14 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
             'activeTo' => null,
             'transactionId' => null,
             'couponId' => '123',
+            'deliveryStatus' => 'ordered',
+            'campaignShippingAddressStreet' => null,
+            'campaignShippingAddressAddress1' => null,
+            'campaignShippingAddressAddress2' => null,
+            'campaignShippingAddressPostal' => null,
+            'campaignShippingAddressCity' => null,
+            'campaignShippingAddressProvince' => null,
+            'campaignShippingAddressCountry' => null,
         ];
         $this->scenario->given(
                 [

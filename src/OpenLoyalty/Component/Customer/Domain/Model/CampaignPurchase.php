@@ -22,6 +22,13 @@ class CampaignPurchase implements Serializable
     public const STATUS_EXPIRED = 'expired';
     public const STATUS_CANCELLED = 'cancelled';
 
+    public const DELIVERY_STATUS_ORDERED = 'ordered';
+    public const DELIVERY_STATUS_CANCELED = 'canceled';
+    public const DELIVERY_STATUS_SHIPPED = 'shipped';
+    public const DELIVERY_STATUS_DELIVERED = 'delivered';
+
+    public const DELIVERY_STATUS_DEFAULT = self::DELIVERY_STATUS_ORDERED;
+
     /**
      * @var \DateTime
      */
@@ -88,6 +95,11 @@ class CampaignPurchase implements Serializable
     private $returnedAmount = 0;
 
     /**
+     * @var null|string
+     */
+    private $deliveryStatus = null;
+
+    /**
      * CampaignPurchase constructor.
      *
      * @param \DateTime       $purchaseAt
@@ -99,6 +111,7 @@ class CampaignPurchase implements Serializable
      * @param \DateTime|null  $activeSince
      * @param \DateTime|null  $activeTo
      * @param Identifier|null $transactionId
+     * @param string|null     $deliveryStatus
      */
     public function __construct(
         \DateTime $purchaseAt,
@@ -109,7 +122,8 @@ class CampaignPurchase implements Serializable
         string $status = self::STATUS_ACTIVE,
         ?\DateTime $activeSince = null,
         ?\DateTime $activeTo = null,
-        ?Identifier $transactionId = null
+        ?Identifier $transactionId = null,
+        ?string $deliveryStatus = self::DELIVERY_STATUS_DEFAULT
     ) {
         $this->purchaseAt = $purchaseAt;
         $this->costInPoints = $costInPoints;
@@ -120,6 +134,7 @@ class CampaignPurchase implements Serializable
         $this->activeSince = $activeSince;
         $this->activeTo = $activeTo;
         $this->transactionId = $transactionId;
+        $this->deliveryStatus = $deliveryStatus;
     }
 
     /**
@@ -129,9 +144,9 @@ class CampaignPurchase implements Serializable
      */
     public function getId(CustomerId $customerId): string
     {
-        $transactionSuffix = $this->transactionId ? '_'.$this->transactionId->__toString() : '';
+        $transactionSuffix = $this->transactionId ? '_'.(string) $this->transactionId : '';
 
-        return $this->campaignId->__toString().'_'.$customerId->__toString().'_'.$this->coupon->getCode().$transactionSuffix;
+        return (string) $this->campaignId.'_'.(string) $customerId.'_'.$this->coupon->getCode().$transactionSuffix;
     }
 
     /**
@@ -159,9 +174,7 @@ class CampaignPurchase implements Serializable
     }
 
     /**
-     * @param array $data
-     *
-     * @return CampaignPurchase
+     * {@inheritdoc}
      */
     public static function deserialize(array $data)
     {
@@ -187,7 +200,8 @@ class CampaignPurchase implements Serializable
             $data['status'] ?? self::STATUS_ACTIVE,
             $activeSince ?? null,
             $activeTo ?? null,
-            isset($data['transactionId']) ? new TransactionId($data['transactionId']) : null
+            isset($data['transactionId']) ? new TransactionId($data['transactionId']) : null,
+            isset($data['deliveryStatus']) ? $data['deliveryStatus'] : self::DELIVERY_STATUS_DEFAULT
         );
         $usedFor = isset($data['usedForTransactionId']) ? new TransactionId($data['usedForTransactionId']) : null;
         $purchase->setUsedForTransactionId($usedFor);
@@ -198,14 +212,14 @@ class CampaignPurchase implements Serializable
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
     public function serialize(): array
     {
         return [
             'costInPoints' => $this->costInPoints,
             'purchaseAt' => $this->purchaseAt->getTimestamp(),
-            'campaignId' => $this->campaignId->__toString(),
+            'campaignId' => (string) $this->campaignId,
             'coupon' => $this->coupon->getCode(),
             'couponId' => $this->coupon->getId(),
             'used' => $this->used,
@@ -214,9 +228,10 @@ class CampaignPurchase implements Serializable
             'status' => $this->status,
             'activeSince' => $this->activeSince ? $this->activeSince->getTimestamp() : null,
             'activeTo' => $this->activeTo ? $this->activeTo->getTimestamp() : null,
-            'transactionId' => $this->transactionId ? $this->transactionId->__toString() : null,
+            'transactionId' => $this->transactionId ? (string) $this->transactionId : null,
             'usedForTransactionId' => $this->usedForTransactionId ? (string) $this->usedForTransactionId : null,
             'returnedAmount' => $this->returnedAmount ?: 0,
+            'deliveryStatus' => $this->deliveryStatus,
         ];
     }
 
@@ -362,5 +377,21 @@ class CampaignPurchase implements Serializable
     public function setReturnedAmount(float $returnedAmount = 0): void
     {
         $this->returnedAmount = $returnedAmount;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getDeliveryStatus(): ?string
+    {
+        return $this->deliveryStatus;
+    }
+
+    /**
+     * @param null|string $deliveryStatus
+     */
+    public function setDeliveryStatus(?string $deliveryStatus): void
+    {
+        $this->deliveryStatus = $deliveryStatus;
     }
 }

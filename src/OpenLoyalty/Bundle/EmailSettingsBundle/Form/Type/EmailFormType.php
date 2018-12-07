@@ -1,10 +1,12 @@
 <?php
-/**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
+
 namespace OpenLoyalty\Bundle\EmailSettingsBundle\Form\Type;
 
+use OpenLoyalty\Bundle\EmailSettingsBundle\Form\Event\RewardRedeemedEmailToFieldSubscriber;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -21,7 +23,7 @@ class EmailFormType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add(
             $builder->create(
@@ -78,5 +80,14 @@ class EmailFormType extends AbstractType
                 ]
             )
         );
+
+        $builder->add(
+            $builder->create(
+                'receiver_email',
+                TextType::class
+            )
+        );
+
+        $builder->addEventSubscriber(new RewardRedeemedEmailToFieldSubscriber());
     }
 }

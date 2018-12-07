@@ -1,17 +1,22 @@
 <?php
-/**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
+
 namespace OpenLoyalty\Component\Campaign\Tests\Unit\ReadModel;
 
 use Broadway\ReadModel\SerializableReadModel;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
+use OpenLoyalty\Component\Campaign\Domain\DeliveryStatus;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBought;
+use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignShippingAddress;
+use OpenLoyalty\Component\Campaign\Domain\TransactionId;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -22,7 +27,7 @@ class CampaignBoughtTest extends TestCase
     const CAMPAIGN_ID = '3a40b784-913f-45ee-8646-a78b2b4f5cef';
     const CUSTOMER_ID = '16d23cb7-e27a-47f7-a010-84f53b66cde1';
     const PURCHASED_AT = '2018-01-23 15:01';
-    const COUPON_CODE = '1234-4321';
+    const COUPON_CODE = 'ABCD-4321';
     const COUPON_ID = '00000000-e27a-47f7-a010-84f53b66cde1';
     const CAMPAIGN_NAME = 'some-campaign';
     const CUSTOMER_EMAIL = 'user@oloy.com';
@@ -32,6 +37,7 @@ class CampaignBoughtTest extends TestCase
     const COST_IN_POINTS = 100;
     const ACTIVE_POINTS = 940;
     const TAX_PRICE_VALUE = 23;
+    const TRANSACTION_ID = '00000000-e27a-47f7-a010-84f53b660000';
 
     /**
      * @var Campaign
@@ -46,12 +52,16 @@ class CampaignBoughtTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $campaignId = new CampaignId(self::CAMPAIGN_ID);
         $customerId = new CustomerId(self::CUSTOMER_ID);
         $this->campaignObject = new Campaign($campaignId);
+
+        /** @var MockObject|CampaignShippingAddress $campaignShippingAddress */
+        $campaignShippingAddress = $this->getMockBuilder(CampaignShippingAddress::class)
+                                        ->disableOriginalConstructor()->getMock();
 
         $this->campaignBoughtObject = new CampaignBought(
             $campaignId,
@@ -62,20 +72,25 @@ class CampaignBoughtTest extends TestCase
             self::CAMPAIGN_NAME,
             self::CUSTOMER_EMAIL,
             self::CUSTOMER_PHONE,
+            $campaignShippingAddress,
             CampaignPurchase::STATUS_ACTIVE,
             null,
             self::CUSTOMER_NAME,
             self::CUSTOMER_SURNAME,
             self::COST_IN_POINTS,
             self::ACTIVE_POINTS,
-            self::TAX_PRICE_VALUE
+            self::TAX_PRICE_VALUE,
+            null,
+            null,
+            null,
+            new DeliveryStatus()
         );
     }
 
     /**
      * @test
      */
-    public function it_returns_right_interface()
+    public function it_returns_right_interface(): void
     {
         $this->assertInstanceOf(SerializableReadModel::class, $this->campaignBoughtObject);
     }
@@ -83,7 +98,7 @@ class CampaignBoughtTest extends TestCase
     /**
      * @test
      */
-    public function it_returns_generated_id_from_campaign_customer_and_level()
+    public function it_returns_generated_id_from_campaign_customer_and_level(): void
     {
         $this->assertEquals(
             CampaignBought::createId(
@@ -96,9 +111,43 @@ class CampaignBoughtTest extends TestCase
     }
 
     /**
+     * @throws \Assert\AssertionFailedException
      * @test
      */
-    public function it_returns_same_data_from_serialization()
+    public function it_returns_generated_id_from_campaign_customer_coupon_code_coupon_id_transaction(): void
+    {
+        $campaignBoughtId = CampaignBought::createId(
+            new CampaignId(self::CAMPAIGN_ID),
+            new CustomerId(self::CUSTOMER_ID),
+            new Coupon(self::COUPON_CODE, self::COUPON_ID),
+            new TransactionId(self::TRANSACTION_ID)
+        );
+
+        $expectedId = self::CAMPAIGN_ID.'_'.self::CUSTOMER_ID.'_'.self::COUPON_CODE.'_'.self::TRANSACTION_ID.'_'.self::COUPON_ID;
+
+        $this->assertSame($expectedId, $campaignBoughtId);
+    }
+
+    /**
+     * @test
+     */
+    public function it_return_generated_id_from_campaign_customer_coupon_code(): void
+    {
+        $campaignBoughtId = CampaignBought::createId(
+            new CampaignId(self::CAMPAIGN_ID),
+            new CustomerId(self::CUSTOMER_ID),
+            new Coupon(self::COUPON_CODE)
+        );
+
+        $expectedId = self::CAMPAIGN_ID.'_'.self::CUSTOMER_ID.'_'.self::COUPON_CODE;
+
+        $this->assertSame($expectedId, $campaignBoughtId);
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_same_data_from_serialization(): void
     {
         $serializedData = $this->campaignBoughtObject->serialize();
 
@@ -143,12 +192,15 @@ class CampaignBoughtTest extends TestCase
 
         $this->assertArrayHasKey('taxPriceValue', $serializedData);
         $this->assertEquals(self::TAX_PRICE_VALUE, $serializedData['taxPriceValue']);
+
+        $this->assertArrayHasKey('deliveryStatus', $serializedData);
+        $this->assertEquals('ordered', $serializedData['deliveryStatus']);
     }
 
     /**
      * @test
      */
-    public function it_returns_same_data_after_deserialization()
+    public function it_returns_same_data_after_deserialization(): void
     {
         $deserializedObject = CampaignBought::deserialize(
             [
@@ -167,6 +219,14 @@ class CampaignBoughtTest extends TestCase
                 'costInPoints' => self::COST_IN_POINTS,
                 'currentPointsAmount' => self::ACTIVE_POINTS,
                 'taxPriceValue' => self::TAX_PRICE_VALUE,
+                'deliveryStatus' => 'ordered',
+                'campaignShippingAddressStreet' => null,
+                'campaignShippingAddressAddress1' => null,
+                'campaignShippingAddressAddress2' => null,
+                'campaignShippingAddressPostal' => null,
+                'campaignShippingAddressCity' => null,
+                'campaignShippingAddressProvince' => null,
+                'campaignShippingAddressCountry' => null,
             ]
         );
 
@@ -216,5 +276,8 @@ class CampaignBoughtTest extends TestCase
 
         $this->assertArrayHasKey('taxPriceValue', $serializedData);
         $this->assertEquals(self::TAX_PRICE_VALUE, $serializedData['taxPriceValue']);
+
+        $this->assertArrayHasKey('deliveryStatus', $serializedData);
+        $this->assertEquals('ordered', $serializedData['deliveryStatus']);
     }
 }

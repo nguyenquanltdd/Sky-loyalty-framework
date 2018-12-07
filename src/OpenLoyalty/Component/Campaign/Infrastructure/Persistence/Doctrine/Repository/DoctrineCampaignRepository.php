@@ -249,9 +249,25 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
      *
      * @throws ORMException
      */
-    public function getActiveCampaignsForLevelAndSegment(array $segmentIds = [], LevelId $levelId = null, array $categoryIds = [], $page = 1, $perPage = 10, $sortField = null, $direction = 'ASC'): array
-    {
-        $queryBuilder = $this->getCampaignsForLevelAndSegmentQueryBuilder($levelId, $segmentIds, $categoryIds, $page, $perPage, $sortField, $direction);
+    public function getActiveCampaignsForLevelAndSegment(
+        array $segmentIds = [],
+        LevelId $levelId = null,
+        array $categoryIds = [],
+        $page = 1,
+        $perPage = 10,
+        $sortField = null,
+        $direction = 'ASC'
+    ): array {
+        $queryBuilder = $this->getCampaignsForLevelAndSegmentQueryBuilder(
+            $levelId,
+            $segmentIds,
+            $categoryIds,
+            $page,
+            $perPage,
+            $sortField,
+            $direction
+        );
+
         $queryBuilder->andWhere(
             $queryBuilder->expr()->orX(
                 'c.campaignActivity.allTimeActive = :true',
@@ -302,7 +318,15 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
         $direction = 'ASC',
         array $filters = []
     ): array {
-        $queryBuilder = $this->getCampaignsForLevelAndSegmentQueryBuilder($levelId, $segmentIds, $categoryIds, $page, $perPage, $sortField, $direction);
+        $queryBuilder = $this->getCampaignsForLevelAndSegmentQueryBuilder(
+            $levelId,
+            $segmentIds,
+            $categoryIds,
+            $page,
+            $perPage,
+            $sortField,
+            $direction
+        );
 
         $queryBuilder
             ->andWhere(
@@ -374,7 +398,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
         if (null !== $levelId) {
             $levelOrSegment->add($queryBuilder->expr()->like('cast(c.levels as text)', ':levelId'));
 
-            $queryBuilder->setParameter('levelId', '%'.$levelId->__toString().'%');
+            $queryBuilder->setParameter('levelId', '%'.(string) $levelId.'%');
         }
 
         $i = 0;
@@ -383,7 +407,7 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
                 $queryBuilder->expr()->like('cast(c.segments as text)', sprintf(':segmentId%d', $i))
             );
 
-            $queryBuilder->setParameter(sprintf('segmentId%d', $i), '%'.$segmentId->__toString().'%');
+            $queryBuilder->setParameter(sprintf('segmentId%s', $i), '%'.(string) $segmentId.'%');
 
             ++$i;
         }
@@ -441,15 +465,23 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
         }
 
         if (array_key_exists('active', $params) && null !== $params['active']) {
-            $builder->andWhere('c.active = :bool')->setParameter('bool', (bool) $params['active']);
+            $builder->andWhere('c.active = :value')
+                    ->setParameter('value', filter_var($params['active'], FILTER_VALIDATE_BOOLEAN));
         }
 
         if (array_key_exists('isPublic', $params) && null !== $params['isPublic']) {
-            $builder->andWhere('c.public = :bool')->setParameter('bool', (bool) $params['isPublic']);
+            $builder->andWhere('c.public = :value')
+                    ->setParameter('value', filter_var($params['isPublic'], FILTER_VALIDATE_BOOLEAN));
         }
 
         if (array_key_exists('isFeatured', $params) && null !== $params['isFeatured']) {
-            $builder->andWhere('c.featured = :bool')->setParameter('bool', (bool) $params['isFeatured']);
+            $builder->andWhere('c.featured = :value')
+                    ->setParameter('value', filter_var($params['isFeatured'], FILTER_VALIDATE_BOOLEAN));
+        }
+
+        if (array_key_exists('isFulfillmentTracking', $params) && null !== $params['isFulfillmentTracking']) {
+            $builder->andWhere('c.fulfillmentTracking = :value')
+                    ->setParameter('value', filter_var($params['isFulfillmentTracking'], FILTER_VALIDATE_BOOLEAN));
         }
 
         if (array_key_exists('campaignType', $params) && null !== $params['campaignType']) {

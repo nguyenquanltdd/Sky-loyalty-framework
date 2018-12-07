@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -896,7 +896,7 @@ class SettingsController extends FOSRestController
      * @ApiDoc(
      *     name="Get choices",
      *     section="Settings",
-     *     requirements={{"name"="type", "description"="allowed types: timezone, language, country, availableFrontendTranslations, earningRuleLimitPeriod, availableCustomerStatuses, availableAccountActivationMethods, availablePointExpireAfter", "dataType"="string", "required"=true}}
+     *     requirements={{"name"="type", "description"="allowed types: timezone, language, country, availableFrontendTranslations, earningRuleLimitPeriod, availableCustomerStatuses, availableAccountActivationMethods, availablePointExpireAfter, deliveryStatus", "dataType"="string", "required"=true}}
      * )
      *
      * @param ChoicesProvider $choicesProvider

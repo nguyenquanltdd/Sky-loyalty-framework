@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -67,16 +67,25 @@ interface CustomerDetailsRepository extends Repository
     public function countTotal(array $params = [], $exact = true): int;
 
     /**
-     * @param CustomerId $customerId
-     * @param int        $page
-     * @param int        $perPage
-     * @param null       $sortField
-     * @param string     $direction
-     * @param bool       $showCashback
+     * @param CustomerId  $customerId
+     * @param int         $page
+     * @param int         $perPage
+     * @param null        $sortField
+     * @param string      $direction
+     * @param bool        $showCashback
+     * @param string|null $deliveryStatus
      *
      * @return CampaignPurchase[]
      */
-    public function findPurchasesByCustomerIdPaginated(CustomerId $customerId, $page = 1, $perPage = 10, $sortField = null, $direction = 'DESC', $showCashback = false): array;
+    public function findPurchasesByCustomerIdPaginated(
+        CustomerId $customerId,
+        $page = 1,
+        $perPage = 10,
+        $sortField = null,
+        $direction = 'DESC',
+        $showCashback = false,
+        ?string $deliveryStatus = null
+    ): array;
 
     /**
      * @return CustomerDetails[]

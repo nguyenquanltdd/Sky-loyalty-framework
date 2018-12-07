@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -10,6 +10,7 @@ use OpenLoyalty\Bundle\CampaignBundle\Form\DataTransformer\CategoriesDataTransfo
 use OpenLoyalty\Bundle\CampaignBundle\Form\DataTransformer\CouponsDataTransformer;
 use OpenLoyalty\Bundle\CampaignBundle\Form\DataTransformer\LevelsDataTransformer;
 use OpenLoyalty\Bundle\CampaignBundle\Form\DataTransformer\SegmentsDataTransformer;
+use OpenLoyalty\Bundle\CampaignBundle\Form\Event\FulfillmentTrackingFieldGiftCampaignTypeSubscriber;
 use OpenLoyalty\Bundle\CampaignBundle\Model\Campaign;
 use OpenLoyalty\Bundle\SettingsBundle\Service\LocaleProviderInterface;
 use Symfony\Component\Form\AbstractType;
@@ -192,6 +193,8 @@ class CampaignFormType extends AbstractType
             unset($data['photos']);
             $event->setData($data);
         });
+
+        $builder->addEventSubscriber(new FulfillmentTrackingFieldGiftCampaignTypeSubscriber());
     }
 
     /**

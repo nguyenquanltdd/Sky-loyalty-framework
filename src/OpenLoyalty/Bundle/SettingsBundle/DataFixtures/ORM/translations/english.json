@@ -33,6 +33,7 @@
       "prompt": "",
       "sender_email": "Sender email",
       "sender_name": "Sender name",
+      "receiver_email": "Receiver email",
       "subject": "Subject",
       "updated_at": "Updated at",
       "variables": "Variables"
@@ -176,6 +177,13 @@
     "date_from": "Date from",
     "date_to": "Date to",
     "delivered": "Delivered/used",
+    "delivery_statuses": {
+      "ordered": "Ordered",
+      "canceled": "Canceled",
+      "shipped": "Shipped",
+      "delivered": "Delivered"
+    },
+    "delivery_status": "Delivery status",
     "details_heading": "Campaign details",
     "discount_code": "Discount code",
     "earning_rule": "Earning rule",
@@ -241,6 +249,8 @@
     "transaction_document_number_prompt": "Find transaction by document number",
     "transaction_percentage_value": "Transaction percentage value",
     "transaction_percentage_value_prompt": "Percentage value of transaction in coupons",
+    "fulfillment_tracking": "Fulfillment tracking process",
+    "fulfillment_tracking_prompt": "",
     "type": "Campaign type",
     "type_info": "Campaign type",
     "type_prompt": "",
@@ -273,7 +283,17 @@
     "brand_icon": "Brand icon",
     "brand_info": "Brand info",
     "brand_name": "Brand name",
-    "brand_name_prompt": ""
+    "brand_name_prompt": "",
+    "campaign_shipping_address": {
+      "details":  "Shipping details",
+      "street": "Street name",
+      "house_number": "House number",
+      "building_number": "Building number",
+      "city": "City",
+      "postal_code": "Postal code",
+      "country": "Country",
+      "voivodeship": "Voivodeship"
+    }
   },
   "client_cockpit": {
     "register": {
@@ -2148,6 +2168,14 @@
     "surname": "Surname"
   },
   "xhr": {
+    "get_delivery_statuses": {
+      "error": "Error",
+      "success": "Success"
+    },
+    "put_change_delivery_status": {
+      "error": "Error",
+      "success": "Success"
+    },
     "customer_buy": {
       "error": "Error",
       "success": "Success"

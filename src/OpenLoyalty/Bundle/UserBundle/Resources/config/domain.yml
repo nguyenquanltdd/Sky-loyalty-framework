@@ -201,11 +201,18 @@ services:
         arguments:
             $accountDetailsRepository: '@oloy.points.account.repository.account_details'
 
-    OpenLoyalty\Component\Customer\Infrastructure\Provider\CustomerDetailsProviderInterface:
-        class: OpenLoyalty\Component\Customer\Infrastructure\Provider\CustomerDetailsProvider
-
     OpenLoyalty\Component\Customer\Domain\Specification\CustomerPhoneSpecificationInterface: '@OpenLoyalty\Component\Customer\Domain\Specification\CustomerPhoneIsUnique'
 
     OpenLoyalty\Component\Customer\Domain\Specification\CustomerPhoneIsUnique:
         arguments:
             - '@OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository'
+
+    OpenLoyalty\Component\Customer\Infrastructure\Provider\CustomerDetailsProvider:
+        arguments:
+            - '@oloy.user.read_model.repository.customer_details'
+
+    OpenLoyalty\Component\Customer\Infrastructure\Provider\CustomerDetailsProviderInterface: '@OpenLoyalty\Component\Customer\Infrastructure\Provider\CustomerDetailsProvider'
+
+    OpenLoyalty\Component\Customer\Domain\Command\ChangeDeliveryStatusCommandHandler:
+        tags:
+            - { name: broadway.command_handler }

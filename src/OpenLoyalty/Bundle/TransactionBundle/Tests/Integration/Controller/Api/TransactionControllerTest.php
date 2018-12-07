@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -490,7 +490,6 @@ class TransactionControllerTest extends BaseApiTest
 
         $this->assertNotNull($coupon);
 
-        $id = LoadTransactionData::TRANSACTION_COUPONS_USED_ID;
         $client = $this->createAuthenticatedClient();
         $client->request(
             'POST',
@@ -503,7 +502,7 @@ class TransactionControllerTest extends BaseApiTest
                         'couponId' => $coupon->getId(),
                         'code' => $coupon->getCode(),
                         'used' => true,
-                        'transactionId' => $id,
+                        'transactionId' => '00000000-0000-1111-0000-000000002121',
                     ],
                 ],
             ]
@@ -562,7 +561,7 @@ class TransactionControllerTest extends BaseApiTest
         $details = $repo->find(LoadUserData::USER_COUPON_RETURN_ID);
         $found = false;
         foreach ($details->getCampaignPurchases() as $purchase) {
-            if (83.33 === (float) $purchase->getCoupon()->getCode()) {
+            if ('100' == $purchase->getCoupon()->getCode()) {
                 $found = true;
             }
         }
@@ -611,7 +610,7 @@ class TransactionControllerTest extends BaseApiTest
         $details = $repo->find(LoadUserData::USER_COUPON_RETURN_ID);
         $found = false;
         foreach ($details->getCampaignPurchases() as $purchase) {
-            if (16.67 === (float) $purchase->getCoupon()->getCode()) {
+            if ('100' == $purchase->getCoupon()->getCode()) {
                 $found = true;
             }
         }

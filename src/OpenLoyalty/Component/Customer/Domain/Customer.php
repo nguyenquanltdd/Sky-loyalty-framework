@@ -6,6 +6,7 @@
 namespace OpenLoyalty\Component\Customer\Domain;
 
 use Broadway\EventSourcing\EventSourcedAggregateRoot;
+use OpenLoyalty\Component\Campaign\Domain\Event\CampaignBoughtDeliveryStatusWasChanged;
 use OpenLoyalty\Component\Core\Domain\Model\Identifier;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Customer\Domain\Event\AssignedAccountToCustomer;
@@ -78,7 +79,7 @@ class Customer extends EventSourcedAggregateRoot
     protected $birthDate;
 
     /**
-     * @var Address
+     * @var null|Address
      */
     protected $address;
 
@@ -1218,17 +1219,17 @@ class Customer extends EventSourcedAggregateRoot
     }
 
     /**
-     * @return Address
+     * @return null|Address
      */
-    public function getAddress(): Address
+    public function getAddress(): ?Address
     {
         return $this->address;
     }
 
     /**
-     * @param Address $address
+     * @param null|Address $address
      */
-    public function setAddress(Address $address): void
+    public function setAddress(?Address $address): void
     {
         $this->address = $address;
     }
@@ -1391,5 +1392,26 @@ class Customer extends EventSourcedAggregateRoot
     public function getAvatar(): ?Avatar
     {
         return $this->avatar;
+    }
+
+    /**
+     * @param string $couponId
+     * @param string $deliveryStatus
+     */
+    public function changeCampaignBoughtDeliveryStatus(string $couponId, string $deliveryStatus): void
+    {
+        $this->apply(new CampaignBoughtDeliveryStatusWasChanged($couponId, $this->getId(), $deliveryStatus));
+    }
+
+    /**
+     * @param CampaignBoughtDeliveryStatusWasChanged $changedEvent
+     */
+    protected function applyCampaignBoughtDeliveryStatusWasChanged(CampaignBoughtDeliveryStatusWasChanged $changedEvent): void
+    {
+        foreach ($this->getCampaignPurchases() as $campaignPurchase) {
+            if ($campaignPurchase->getCoupon()->getId() === $changedEvent->getCouponId()) {
+                $campaignPurchase->setDeliveryStatus($changedEvent->getStatus());
+            }
+        }
     }
 }

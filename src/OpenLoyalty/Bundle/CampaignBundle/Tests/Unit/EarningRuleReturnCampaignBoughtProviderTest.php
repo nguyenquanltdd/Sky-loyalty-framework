@@ -13,8 +13,10 @@ use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 use OpenLoyalty\Component\Campaign\Domain\Provider\EarningRuleReturnCampaignBoughtProviderInterface;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBought;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository;
+use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignShippingAddress;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use PHPUnit\Framework\MockObject\MockBuilder;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -35,8 +37,15 @@ class EarningRuleReturnCampaignBoughtProviderTest extends TestCase
      */
     private $service;
 
+    /**
+     * {@inheritdoc}
+     */
     protected function setUp()
     {
+        /** @var MockObject|CampaignShippingAddress $campaignShippingAddress */
+        $campaignShippingAddress = $this->getMockBuilder(CampaignShippingAddress::class)
+                                        ->disableOriginalConstructor()->getMock();
+
         $campaignBought = new CampaignBought(
             new CampaignId(self::CAMPAIGN_ID),
             new CustomerId(self::CUSTOMER_ID),
@@ -46,6 +55,7 @@ class EarningRuleReturnCampaignBoughtProviderTest extends TestCase
             self::CAMPAIGN_NAME,
             self::CUSTOMER_EMAIL,
             self::CUSTOMER_PHONE,
+            $campaignShippingAddress,
             CampaignPurchase::STATUS_ACTIVE
         );
         /** @var CampaignBoughtRepository|MockBuilder $campaignRepository */
@@ -60,7 +70,7 @@ class EarningRuleReturnCampaignBoughtProviderTest extends TestCase
     /**
      * @test
      */
-    public function it_will_return_transactions()
+    public function it_will_return_transactions(): void
     {
         $result = $this->service->findByTransactionAndCustomer(
             'test',

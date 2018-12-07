@@ -1,12 +1,13 @@
 parameters:
     oloy.emails:
-    - { template: 'OpenLoyaltyUserBundle:email:registration.html.twig', subject: 'Account created', variables: ['url', 'conditions_file'] }
-    - { template: 'OpenLoyaltyUserBundle:email:registration_with_temporary_password.html.twig', subject: 'Account created', variables: ['program_name', 'email', 'loyalty_card_number', 'phone', 'password', 'customer_panel_url', 'conditions_file'] }
-    - { template: 'OpenLoyaltyUserBundle:email:password_reset.html.twig', subject: 'Password reset requested', variables: ['program_name', 'url_reset_password'] }
-    - { template: 'OpenLoyaltyUserBundle:email:customer_reward_bought.html.twig', subject: '{{ program_name }} - new reward', variables: ['program_name', 'reward_name', 'reward_code', 'reward_instructions', 'ecommerce_address'] }
-    - { template: 'OpenLoyaltyUserBundle:email:new_points.html.twig', subject: '{{ program_name }} - new points', variables: ['program_name', 'added_points_amount', 'active_points_amount', 'ecommerce_address'] }
-    - { template: 'OpenLoyaltyUserBundle:email:new_level.html.twig', subject: '{{ program_name }} - new level', variables: ['program_name', 'level_name', 'level_discount', 'ecommerce_address'] }
-    - { template: 'OpenLoyaltyUserBundle:email:invitation.html.twig', subject: 'Invitation', variables: ['referrerName', 'url'] }
+        - { template: 'OpenLoyaltyUserBundle:email:registration.html.twig', subject: 'Account created', variables: ['url', 'conditions_file'] }
+        - { template: 'OpenLoyaltyUserBundle:email:registration_with_temporary_password.html.twig', subject: 'Account created', variables: ['program_name', 'email', 'loyalty_card_number', 'phone', 'password', 'customer_panel_url', 'conditions_file'] }
+        - { template: 'OpenLoyaltyUserBundle:email:password_reset.html.twig', subject: 'Password reset requested', variables: ['program_name', 'url_reset_password'] }
+        - { template: 'OpenLoyaltyUserBundle:email:customer_reward_bought.html.twig', subject: '{{ program_name }} - new reward', variables: ['program_name', 'reward_name', 'reward_code', 'reward_instructions', 'ecommerce_address'] }
+        - { template: 'OpenLoyaltyUserBundle:email:new_points.html.twig', subject: '{{ program_name }} - new points', variables: ['program_name', 'added_points_amount', 'active_points_amount', 'ecommerce_address'] }
+        - { template: 'OpenLoyaltyUserBundle:email:new_level.html.twig', subject: '{{ program_name }} - new level', variables: ['program_name', 'level_name', 'level_discount', 'ecommerce_address'] }
+        - { template: 'OpenLoyaltyUserBundle:email:invitation.html.twig', subject: 'Invitation', variables: ['referrerName', 'url'] }
+        - { template: 'OpenLoyaltyUserBundle:email:reward_redeemed.html.twig', subject: 'Reward Redeemed', variables: ['coupon_code', 'customer_name', 'customer_phone_number', 'customer_email', 'reward_name', 'reward_description', 'customer_address1', 'customer_address2', 'customer_city', 'customer_postal'] }
 
 imports:
     - { resource: services/*.yml }
@@ -151,9 +152,8 @@ services:
     oloy.user.email_provider:
         class: OpenLoyalty\Bundle\UserBundle\Service\EmailProvider
         arguments:
-            - '@oloy.email.message_factory'
-            - '@oloy.mailer'
-            - {from_name: '%mailer_from_name%', from_address: '%mailer_from_address%', reset_password_url: '%reset_password_url%', loyalty_program_name: '%loyalty_program_name%', ecommerce_address: '%ecommerce_address%', customer_url: '%customer_url%', admin_url: '%admin_url%', merchant_url: '%merchant_url%', frontend_invitation_url: '%frontend_invitation_url%'}
+            $mailer: '@oloy.mailer'
+            $parameters: {from_name: '%mailer_from_name%', from_address: '%mailer_from_address%', reset_password_url: '%reset_password_url%', loyalty_program_name: '%loyalty_program_name%', ecommerce_address: '%ecommerce_address%', customer_url: '%customer_url%', admin_url: '%admin_url%', merchant_url: '%merchant_url%', frontend_invitation_url: '%frontend_invitation_url%'}
 
     oloy.user.es_param_manager:
         class: OpenLoyalty\Bundle\UserBundle\Service\EsParamManager
@@ -337,6 +337,10 @@ services:
     OpenLoyalty\Bundle\UserBundle\Form\Type\ConfigurablePasswordType:
         arguments:
             - '%password_security_level%'
+        tags:
+            - { name: form.type }
+
+    OpenLoyalty\Bundle\UserBundle\Form\Type\CampaignBoughtDeliveryStatusFormType:
         tags:
             - { name: form.type }
 

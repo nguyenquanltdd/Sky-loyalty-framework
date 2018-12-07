@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -32,7 +32,11 @@ interface CampaignBoughtRepository extends Repository
      *
      * @return CampaignBought[]
      */
-    public function findByCustomerIdAndUsedForTransactionId(string $customerId, string $transactionId, string $reward): array;
+    public function findByCustomerIdAndUsedForTransactionId(
+        string $customerId,
+        string $transactionId,
+        string $reward
+    ): array;
 
     /**
      * @param string $customerId
@@ -40,4 +44,11 @@ interface CampaignBoughtRepository extends Repository
      * @return CampaignBought[]
      */
     public function findByCustomerId(string $customerId): array;
+
+    /**
+     * @param string $couponId
+     *
+     * @return CampaignBought
+     */
+    public function findOneByCouponId(string $couponId): CampaignBought;
 }

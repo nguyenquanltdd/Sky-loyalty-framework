@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -193,6 +193,11 @@ class Campaign
     protected $earningRuleId;
 
     /**
+     * @var bool
+     */
+    protected $fulfillmentTracking = false;
+
+    /**
      * Campaign constructor.
      *
      * @param CampaignId|null $campaignId
@@ -334,6 +339,10 @@ class Campaign
             $this->setPublic($data['public']);
         }
 
+        if (array_key_exists('fulfillmentTracking', $data)) {
+            $this->fulfillmentTracking = (bool) $data['fulfillmentTracking'];
+        }
+
         if (array_key_exists('labels', $data)) {
             $labels = [];
             foreach ($data['labels'] as $label) {
@@ -373,6 +382,22 @@ class Campaign
                 }
             }
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isFulfillmentTracking(): bool
+    {
+        return $this->fulfillmentTracking;
+    }
+
+    /**
+     * @param bool $fulfillmentTracking
+     */
+    public function setFulfillmentTracking(bool $fulfillmentTracking): void
+    {
+        $this->fulfillmentTracking = $fulfillmentTracking;
     }
 
     /**
@@ -1090,7 +1115,7 @@ class Campaign
     }
 
     /**
-     * @return EarningRuleId|null
+     * @return string|null
      */
     public function getEarningRuleId(): ?string
     {
@@ -1098,7 +1123,7 @@ class Campaign
     }
 
     /**
-     * @param string $earningRuleId|null
+     * @param string string|null
      */
     public function setEarningRuleId(?string $earningRuleId)
     {

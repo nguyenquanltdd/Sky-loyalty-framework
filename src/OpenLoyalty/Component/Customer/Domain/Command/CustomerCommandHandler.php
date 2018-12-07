@@ -15,6 +15,7 @@ use OpenLoyalty\Component\Customer\Domain\Exception\EmailAlreadyExistsException;
 use OpenLoyalty\Component\Customer\Domain\Exception\LoyaltyCardNumberAlreadyExistsException;
 use OpenLoyalty\Component\Customer\Domain\Exception\PhoneAlreadyExistsException;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
+use OpenLoyalty\Component\Customer\Domain\SystemEvent\CampaignUsageWasChangedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerActivatedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerAgreementsUpdatedSystemEvent;
 use OpenLoyalty\Component\Customer\Domain\SystemEvent\CustomerDeactivatedSystemEvent;
@@ -349,6 +350,19 @@ class CustomerCommandHandler extends SimpleCommandHandler
             $command->getTransactionId()
         );
         $this->repository->save($customer);
+
+        $this->eventDispatcher->dispatch(
+            CustomerSystemEvents::CUSTOMER_CAMPAIGN_USAGE_WAS_CHANGED,
+            [
+                new CampaignUsageWasChangedSystemEvent(
+                    $customerId,
+                    $command->getCampaignId(),
+                    $command->getCoupon(),
+                    $command->getTransactionId(),
+                    $command->isUsed()
+                ),
+            ]
+        );
     }
 
     /**

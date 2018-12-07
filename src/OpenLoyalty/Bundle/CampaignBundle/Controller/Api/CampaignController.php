@@ -509,6 +509,7 @@ class CampaignController extends FOSRestController
      * @QueryParam(name="labels", nullable=true, description="filter by labels"))
      * @QueryParam(name="active", nullable=true, description="filter by activity"))
      * @QueryParam(name="isPublic", nullable=true, description="filter by public flag"))
+     * @QueryParam(name="isFulfillmentTracking", nullable=true, description="Filter by fullfillment tracking process flag"))
      * @QueryParam(name="isFeatured", nullable=true, description="filter by featured tag"))
      * @QueryParam(name="campaignType", nullable=true, description="filter by campaign type"))
      * @QueryParam(name="name", nullable=true, description="filter by campaign name"))
@@ -582,10 +583,12 @@ class CampaignController extends FOSRestController
      *      {"name"="activeSinceTo", "dataType"="string", "required"=false, "description"="Active since date to filter"},
      *      {"name"="activeToFrom", "dataType"="string", "required"=false, "description"="Active to date from filter"},
      *      {"name"="activeToTo", "dataType"="string", "required"=false, "description"="Active to date to filter"},
+     *      {"name"="deliveryStatus", "dataType"="ordered|canceled|shipped|delivered", "required"=false, "description"="Delivery status filter"},
      *     }
      * )
      *
      * @QueryParam(name="used", nullable=true, description="Used"))
+     * @QueryParam(name="deliveryStatus", requirements="(ordered|canceled|shipped|delivered)", nullable=true, description="Delivery status"))
      * @QueryParam(name="purchasedAtFrom", nullable=true, description="Range date filter"))
      * @QueryParam(name="purchasedAtTo", nullable=true, description="Range date filter"))
      * @QueryParam(name="activeSinceFrom", nullable=true, description="Range date filter"))
@@ -600,7 +603,8 @@ class CampaignController extends FOSRestController
     public function getBoughtListAction(Request $request): FosView
     {
         $paginator = $this->paginator->handleFromRequest($request);
-        $params = $this->paramManager->stripNulls($this->paramFetcher->all());
+        $all = $this->paramFetcher->all();
+        $params = $this->paramManager->stripNulls($all);
         // extract ES-like params for date range filter
         $this->paramManager->appendDateRangeFilter(
             $params,
@@ -1216,6 +1220,8 @@ class CampaignController extends FOSRestController
      *
      * @View(serializerGroups={"admin", "Default"})
      *
+     * @QueryParam(name="deliveryStatus", requirements="(ordered|canceled|shipped|delivered)", nullable=true, description="Delivery status"))
+     *
      * @param Request         $request
      * @param CustomerDetails $customer
      *
@@ -1242,7 +1248,8 @@ class CampaignController extends FOSRestController
                 $paginator->getPerPage(),
                 $paginator->getSort(),
                 $paginator->getSortDirection(),
-                true
+                true,
+                $request->attributes->get('deliveryStatus', null)
             );
 
         if ($request->get('includeDetails', false)) {

@@ -1,14 +1,19 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Bundle\EmailSettingsBundle\Controller\Api;
 
+use Broadway\CommandHandling\CommandBus;
+use FOS\RestBundle\View\View;
 use OpenLoyalty\Bundle\EmailSettingsBundle\Form\Type\EmailFormType;
+use OpenLoyalty\Bundle\EmailSettingsBundle\Service\EmailSettingsInterface;
 use OpenLoyalty\Component\Email\Domain\Command\UpdateEmail;
 use OpenLoyalty\Component\Email\Domain\Email;
 use OpenLoyalty\Component\Email\Domain\EmailId;
+use OpenLoyalty\Component\Email\Domain\ReadModel\DoctrineEmailRepositoryInterface;
+use Symfony\Component\Form\FormFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -23,6 +28,46 @@ use Symfony\Component\HttpFoundation\Response;
 class SettingsController extends FOSRestController
 {
     /**
+     * @var FormFactory
+     */
+    private $formFactory;
+
+    /**
+     * @var DoctrineEmailRepositoryInterface
+     */
+    private $repository;
+
+    /**
+     * @var EmailSettingsInterface
+     */
+    private $settings;
+
+    /**
+     * @var CommandBus
+     */
+    private $commandBus;
+
+    /**
+     * SettingsController constructor.
+     *
+     * @param FormFactory                      $formFactory
+     * @param DoctrineEmailRepositoryInterface $repository
+     * @param EmailSettingsInterface           $settings
+     * @param CommandBus                       $commandBus
+     */
+    public function __construct(
+        FormFactory $formFactory,
+        DoctrineEmailRepositoryInterface $repository,
+        EmailSettingsInterface $settings,
+        CommandBus $commandBus
+    ) {
+        $this->formFactory = $formFactory;
+        $this->repository = $repository;
+        $this->settings = $settings;
+        $this->commandBus = $commandBus;
+    }
+
+    /**
      * Method will return complete list of available email settings.
      *
      * @Route(name="oloy.email_settings.list", path="/settings/emails")
@@ -34,12 +79,11 @@ class SettingsController extends FOSRestController
      *     section="Settings"
      * )
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
-    public function getListAction()
+    public function getListAction(): View
     {
-        $emailRepository = $this->get('oloy.email.read_model.repository');
-        $emails = $emailRepository->getAll();
+        $emails = $this->repository->getAll();
 
         return $this->view(
             [
@@ -68,14 +112,16 @@ class SettingsController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
+     *
+     * @throws \Throwable
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Syntax
      */
-    public function getAction(Request $request)
+    public function getAction(Request $request): View
     {
-        $emailRepository = $this->get('oloy.email.read_model.repository');
-
         try {
-            $emailEntity = $emailRepository->getById(new EmailId($request->get('emailId')));
+            $emailEntity = $this->repository->getById(new EmailId($request->get('emailId')));
         } catch (\Exception $e) {
             return $this->view(null, Response::HTTP_BAD_REQUEST);
         }
@@ -83,7 +129,7 @@ class SettingsController extends FOSRestController
         return $this->view(
             [
                 'entity' => $emailEntity,
-                'additional' => $this->get('oloy.email.settings')->getAdditionalParams($emailEntity),
+                'additional' => $this->settings->getAdditionalParams($emailEntity),
             ]
         );
     }
@@ -106,18 +152,18 @@ class SettingsController extends FOSRestController
      * @param Request $request
      * @param Email   $email
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
+     *
+     * @throws \Exception
      */
-    public function updateAction(Request $request, Email $email)
+    public function updateAction(Request $request, Email $email): View
     {
-        $form = $this->get('form.factory')->createNamed('email', EmailFormType::class, null, ['method' => 'PUT']);
+        $form = $this->formFactory->createNamed('email', EmailFormType::class, $email, ['method' => 'PUT']);
         $form->handleRequest($request);
 
         if ($form->isValid()) {
             $data = $form->getData();
-            $command = new UpdateEmail($email->getEmailId(), $data);
-            $commandBus = $this->get('broadway.command_handling.command_bus');
-            $commandBus->dispatch($command);
+            $this->commandBus->dispatch(UpdateEmail::withEmailEntity($email->getEmailId(), $data));
 
             return $this->view($email->getEmailId());
         }

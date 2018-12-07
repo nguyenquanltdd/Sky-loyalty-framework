@@ -137,3 +137,7 @@ services:
     oloy.transaction.voters.transaction:
         alias: OpenLoyalty\Bundle\TransactionBundle\Security\Voter\TransactionVoter
         deprecated: The "%service_id%" service is deprecated since 3.2.0
+
+    oloy.email.message_factory:
+        alias: OpenLoyalty\Bundle\EmailBundle\Service\MessageFactory
+        deprecated: The "%service_id%" service is deprecated since 3.2.0

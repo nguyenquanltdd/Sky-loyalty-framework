@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
+use OpenLoyalty\Component\Campaign\Domain\Event\CampaignBoughtDeliveryStatusWasChanged;
 use OpenLoyalty\Component\Core\Infrastructure\Projector\Projector;
 use Broadway\ReadModel\Repository;
 use Broadway\Repository\Repository as AggregateRootRepository;
@@ -467,6 +468,21 @@ class CustomerDetailsProjector extends Projector
 
         $readModel->setCampaignPurchases($customer->getCampaignPurchases());
         $this->repository->save($readModel);
+    }
+
+    /**
+     * @param CampaignBoughtDeliveryStatusWasChanged $changedEvent
+     */
+    protected function applyCampaignBoughtDeliveryStatusWasChanged(
+        CampaignBoughtDeliveryStatusWasChanged $changedEvent
+    ): void {
+        $customerId = new CustomerId($changedEvent->getCustomerId());
+        $customerDetails = $this->getReadModel($customerId);
+        /** @var Customer $customer */
+        $customer = $this->customerAggregateRootRepository->load($changedEvent->getCustomerId());
+        $customerDetails->setCampaignPurchases($customer->getCampaignPurchases());
+
+        $this->repository->save($customerDetails);
     }
 
     /**

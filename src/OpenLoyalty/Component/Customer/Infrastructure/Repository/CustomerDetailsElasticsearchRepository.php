@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -52,6 +52,15 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         [
             'nestedCampaignPurchasesReward' => [
                 'path_match' => 'campaignPurchases.reward',
+                'mapping' => [
+                    'type' => 'string',
+                    'index' => 'not_analyzed',
+                ],
+            ],
+        ],
+        [
+            'nestedCampaignPurchasesDeliveryStatus' => [
+                'path_match' => 'campaignPurchases.deliveryStatus',
                 'mapping' => [
                     'type' => 'string',
                     'index' => 'not_analyzed',
@@ -225,17 +234,28 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         $perPage = 10,
         $sortField = null,
         $direction = 'DESC',
-        $showCashback = false
+        $showCashback = false,
+        string $deliveryStatus = null
     ): array {
+        $sort = null;
+
         if ($sortField) {
             $sort = [
-                'campaignPurchases.'.$sortField => [
+                sprintf('campaignPurchases.%s', $sortField) => [
                     'order' => strtolower($direction),
                     'ignore_unmapped' => true,
                 ],
             ];
-        } else {
-            $sort = null;
+        }
+        $deliveryStatusQuery = [];
+        if (null !== $deliveryStatus) {
+            $deliveryStatusQuery = [
+                'must' => [
+                    'term' => [
+                        'campaignPurchases.deliveryStatus' => $deliveryStatus,
+                    ],
+                ],
+            ];
         }
 
         if ($showCashback) {
@@ -244,7 +264,7 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
                 'from' => ($page - 1) * $perPage,
                 'query' => [
                     'match_all' => [],
-                ],
+                ] + $deliveryStatusQuery,
             ];
         } else {
             $innerHits = [
@@ -260,7 +280,7 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
                                     ],
                                 ],
                             ],
-                        ],
+                        ] + $deliveryStatusQuery,
                     ],
                 ],
             ];
@@ -273,7 +293,7 @@ class CustomerDetailsElasticsearchRepository extends OloyElasticsearchRepository
         $query = [
             'ids' => [
                 'values' => [
-                    $customerId->__toString(),
+                    (string) $customerId,
                 ],
             ],
         ];

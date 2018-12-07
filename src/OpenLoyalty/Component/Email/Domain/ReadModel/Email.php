@@ -1,8 +1,9 @@
 <?php
-/**
- * Copyright © 2017 Divante, Inc. All rights reserved.
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
+
 namespace OpenLoyalty\Component\Email\Domain\ReadModel;
 
 use Broadway\ReadModel\SerializableReadModel;
@@ -44,6 +45,11 @@ class Email implements SerializableReadModel
     protected $senderEmail;
 
     /**
+     * @var string|null
+     */
+    protected $receiverEmail;
+
+    /**
      * @var \DateTime
      */
     protected $updatedAt;
@@ -58,6 +64,7 @@ class Email implements SerializableReadModel
      * @param string    $senderName
      * @param string    $senderEmail
      * @param \DateTime $updatedAt
+     * @param string    $receiverEmail
      */
     public function __construct(
         EmailId $emailId,
@@ -66,7 +73,8 @@ class Email implements SerializableReadModel
         string $content,
         string $senderName,
         string $senderEmail,
-        \DateTime $updatedAt
+        \DateTime $updatedAt,
+        ?string $receiverEmail = null
     ) {
         $this->emailId = $emailId;
         $this->key = $key;
@@ -74,6 +82,7 @@ class Email implements SerializableReadModel
         $this->content = $content;
         $this->senderName = $senderName;
         $this->senderEmail = $senderEmail;
+        $this->receiverEmail = $receiverEmail;
         $this->updatedAt = $updatedAt;
     }
 
@@ -142,9 +151,17 @@ class Email implements SerializableReadModel
     }
 
     /**
+     * @return null|string
+     */
+    public function getReceiverEmail(): ?string
+    {
+        return $this->receiverEmail;
+    }
+
+    /**
      * {@inheritdoc}
      */
-    public static function deserialize(array $data)
+    public static function deserialize(array $data): self
     {
         return new self(
             $data['id'],
@@ -153,7 +170,8 @@ class Email implements SerializableReadModel
             $data['content'],
             $data['sender_name'],
             $data['sender_email'],
-            $data['updated_at']
+            $data['updated_at'],
+            $data['receiver_email'] ?? null
         );
     }
 
@@ -170,6 +188,7 @@ class Email implements SerializableReadModel
             'sender_name' => $this->getSenderName(),
             'sender_email' => $this->getSenderEmail(),
             'updated_at' => $this->getUpdatedAt(),
+            'receiver_email' => $this->getReceiverEmail(),
         ];
     }
 }

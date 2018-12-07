@@ -10,6 +10,9 @@ OpenLoyalty\Component\Email\Domain\ReadModel\Email:
       expose: true
     content:
       expose: true
+    receiverEmail:
+      expose: true
+      serialized_name: receiver_email
     senderName:
       expose: true
       serialized_name: sender_name

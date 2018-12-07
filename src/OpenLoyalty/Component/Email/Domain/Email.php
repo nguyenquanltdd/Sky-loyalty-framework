@@ -1,8 +1,9 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
+
 namespace OpenLoyalty\Component\Email\Domain;
 
 use Assert\Assertion as Assert;
@@ -15,37 +16,42 @@ class Email
     /**
      * @var EmailId
      */
-    protected $emailId;
+    private $emailId;
 
     /**
      * @var string
      */
-    protected $key;
+    private $key;
 
     /**
      * @var string
      */
-    protected $subject;
+    private $subject;
 
     /**
      * @var string
      */
-    protected $content;
+    private $content;
 
     /**
      * @var string
      */
-    protected $senderName;
+    private $senderName;
 
     /**
      * @var string
      */
-    protected $senderEmail;
+    private $senderEmail;
+
+    /**
+     * @var null|string
+     */
+    private $receiverEmail = null;
 
     /**
      * @var \DateTime
      */
-    protected $updatedAt;
+    private $updatedAt;
 
     /**
      * Email constructor.
@@ -56,6 +62,9 @@ class Email
      * @param string  $content
      * @param string  $senderName
      * @param string  $senderEmail
+     * @param string  $receiverEmail
+     *
+     * @throws \Assert\AssertionFailedException
      */
     public function __construct(
         EmailId $emailId,
@@ -63,9 +72,10 @@ class Email
         string $subject,
         string $content,
         string $senderName,
-        string $senderEmail
+        string $senderEmail,
+        string $receiverEmail = null
     ) {
-        Assert::uuid($emailId->__toString());
+        Assert::uuid((string) $emailId);
         Assert::notEmpty($key);
         Assert::notEmpty($subject);
         Assert::notEmpty($content);
@@ -79,6 +89,7 @@ class Email
         $this->senderName = $senderName;
         $this->senderEmail = $senderEmail;
         $this->updatedAt = new \DateTime('now');
+        $this->receiverEmail = $receiverEmail;
     }
 
     /**
@@ -88,8 +99,10 @@ class Email
      * @param array   $data
      *
      * @return Email
+     *
+     * @throws \Assert\AssertionFailedException
      */
-    public static function create(EmailId $id, array $data)
+    public static function create(EmailId $id, array $data): self
     {
         return new self(
             $id,
@@ -97,7 +110,8 @@ class Email
             $data['subject'],
             $data['content'],
             $data['sender_name'],
-            $data['sender_email']
+            $data['sender_email'],
+            $data['receiver_email'] ?? null
         );
     }
 
@@ -112,7 +126,7 @@ class Email
     /**
      * @param string $subject
      */
-    public function setSubject($subject)
+    public function setSubject($subject): void
     {
         $this->subject = $subject;
     }
@@ -120,7 +134,7 @@ class Email
     /**
      * @param string $content
      */
-    public function setContent($content)
+    public function setContent(string $content): void
     {
         $this->content = $content;
     }
@@ -128,7 +142,7 @@ class Email
     /**
      * @param string $senderName
      */
-    public function setSenderName(string $senderName)
+    public function setSenderName(string $senderName): void
     {
         $this->senderName = $senderName;
     }
@@ -136,8 +150,72 @@ class Email
     /**
      * @param string $senderEmail
      */
-    public function setSenderEmail(string $senderEmail)
+    public function setSenderEmail(string $senderEmail): void
     {
         $this->senderEmail = $senderEmail;
+    }
+
+    /**
+     * @param string $key
+     */
+    public function setKey(string $key): void
+    {
+        $this->key = $key;
+    }
+
+    /**
+     * @param null|string $receiverEmail
+     */
+    public function setReceiverEmail(?string $receiverEmail): void
+    {
+        $this->receiverEmail = $receiverEmail;
+    }
+
+    /**
+     * @return string
+     */
+    public function getKey(): string
+    {
+        return $this->key;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSubject(): string
+    {
+        return $this->subject;
+    }
+
+    /**
+     * @return string
+     */
+    public function getContent(): string
+    {
+        return $this->content;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSenderName(): string
+    {
+        return $this->senderName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSenderEmail(): string
+    {
+        return $this->senderEmail;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getReceiverEmail(): ?string
+    {
+        return $this->receiverEmail;
     }
 }

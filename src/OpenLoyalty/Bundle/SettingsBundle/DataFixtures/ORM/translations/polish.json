@@ -33,6 +33,7 @@
       "prompt": "",
       "sender_email": "E-mail nadawcy",
       "sender_name": "Nadawca",
+      "receiver_email": "E-mail odbiorcy",
       "subject": "Temat",
       "updated_at": "Zaktualizowano na",
       "variables": "Atrybuty"
@@ -177,6 +178,13 @@
     "date_from": "Od",
     "date_to": "Do",
     "delivered": "Odebrane/Wykorzystane",
+    "delivery_statuses": {
+      "ordered": "Zamówiona",
+      "canceled": "Anulowana",
+      "shipped": "Wysana",
+      "delivered": "Odebrana"
+    },
+    "delivery_status": "Status odbioru",
     "details_heading": "Szczegóły nagrody",
     "earning_rule": "Reguły nagradzania",
     "earning_rule_prompt": "",
@@ -242,6 +250,8 @@
     "transaction_document_number_prompt": "Znajdź transakcję za pomocą numeru dokumentu",
     "transaction_percentage_value": "Procentowa wartość transakcji",
     "transaction_percentage_value_prompt": "Wartość kuponu, ktora bedzie bazowała na wartości transakcji",
+    "fulfillment_tracking": "Śledzenie procesu realizacji",
+    "fulfillment_tracking_prompt": "",
     "type": "Rodzaj",
     "type_info": "Rodzaj nagrody",
     "type_prompt": "",
@@ -269,14 +279,23 @@
     "visible_to_prompt": "",
     "brand_description": "Opis marki",
     "brand_description_prompt": "",
-    "visible_to_prompt": "",
     "coupon_active_since": "Kupon aktywny od",
     "coupon_active_to": "Kupon aktywny do",
     "coupon_forever_active": "zawsze",
     "brand_icon": "Logo marki",
     "brand_info": "Marka",
     "brand_name": "Nazwa marki",
-    "brand_name_prompt": ""
+    "brand_name_prompt": "",
+    "campaign_shipping_address": {
+      "details":  "Szczegóły dostawy",
+      "street": "Ulica",
+      "house_number": "Numer budynku",
+      "building_number": "Numer mieszkania",
+      "city": "Miasto",
+      "postal_code": "Kod pocztowy",
+      "country": "Kraj",
+      "voivodeship": "Województwo"
+    }
   },
   "campaign-value-code": "Rabat kwotowy",
   "client_cockpit": {
@@ -1412,7 +1431,7 @@
       "limit": "Limit zastosowań",
       "limit_prompt": "",
       "period": "Ramy czasowe",
-      "period_prompt": "" ,
+      "period_prompt": "",
       "3 months": "3 miesiące",
       "6 months": "6 miesięcy",
       "1 year": "1 rok",
@@ -2179,6 +2198,14 @@
     "surname": "Nazwisko"
   },
   "xhr": {
+    "get_delivery_statuses": {
+      "error": "Błąd",
+      "success": "Sukces"
+    },
+    "put_change_delivery_status": {
+      "error": "Błąd",
+      "success": "Sukces"
+    },
     "customer_buy": {
       "error": "Błąd",
       "success": "Sukces"

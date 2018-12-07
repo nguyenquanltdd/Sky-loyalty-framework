@@ -1,12 +1,15 @@
 change_password:
     resource: '@OpenLoyaltyUserBundle/Controller/Api/ChangePasswordController.php'
     type: annotation
+
 customer:
     resource: '@OpenLoyaltyUserBundle/Controller/Api/CustomerController.php'
     type: annotation
+
 seller:
     resource: '@OpenLoyaltyUserBundle/Controller/Api/SellerController.php'
     type: annotation
+
 security:
     resource: '@OpenLoyaltyUserBundle/Controller/Api/SecurityController.php'
     type: annotation
@@ -29,4 +32,8 @@ invitation:
 
 acl:
     resource: '@OpenLoyaltyUserBundle/Controller/Api/AclController.php'
+    type: annotation
+
+campaign_bought:
+    resource: '@OpenLoyaltyUserBundle/Controller/Api/CampaignBoughtController.php'
     type: annotation

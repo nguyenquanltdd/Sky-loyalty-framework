@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -76,7 +76,7 @@ class DoctrineEmailRepository implements DoctrineEmailRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getAll()
+    public function getAll(): array
     {
         $queryBuilder = $this->connection->createQueryBuilder();
         $queryBuilder->select('email.*')
@@ -88,7 +88,7 @@ class DoctrineEmailRepository implements DoctrineEmailRepositoryInterface
         );
 
         if (empty($emailsData)) {
-            return;
+            return [];
         }
 
         return array_map([$this, 'hydrate'], $emailsData);
@@ -100,8 +100,10 @@ class DoctrineEmailRepository implements DoctrineEmailRepositoryInterface
      * @param array $emailData
      *
      * @return Email
+     *
+     * @throws \Exception
      */
-    protected function hydrate(array $emailData)
+    protected function hydrate(array $emailData): Email
     {
         return new Email(
             new EmailId($emailData['email_id']),
@@ -110,7 +112,8 @@ class DoctrineEmailRepository implements DoctrineEmailRepositoryInterface
             $emailData['content'],
             $emailData['sender_name'],
             $emailData['sender_email'],
-            new \DateTime($emailData['updated_at'])
+            new \DateTime($emailData['updated_at']),
+            $emailData['receiver_email'] ?? null
         );
     }
 }

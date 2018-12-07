@@ -3,6 +3,9 @@
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
+
+declare(strict_types=1);
+
 namespace OpenLoyalty\Bundle\CoreBundle\Tests\Unit\Service;
 
 use Faker\Provider\Uuid;
@@ -13,7 +16,9 @@ use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBought;
+use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignShippingAddress;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\Serializer\Encoder\CsvEncoder;
@@ -22,23 +27,72 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * Class CSVGeneratorTest.
  */
-class CSVGeneratorTest extends TestCase
+final class CSVGeneratorTest extends TestCase
 {
-    /** @var GeneratorInterface */
+    /**
+     * @var GeneratorInterface
+     */
     private $generator;
-    private $headers = ['Name', 'Date', 'Cost', 'Tax value', 'email', 'phone', 'Firstname', 'Surname', 'Points balance', 'Is used'];
-    private $fields = ['campaignName', 'purchasedAt', 'costInPoints', 'taxValue', 'customerEmail', 'customerPhone', 'customerName', 'customerLastname', 'currentPointsAmount', 'used'];
+
+    /**
+     * @var array
+     */
+    private $headers = [
+        'Name',
+        'Date',
+        'Cost',
+        'Tax value',
+        'email',
+        'phone',
+        'Firstname',
+        'Surname',
+        'Points balance',
+        'Is used',
+    ];
+
+    /**
+     * @var array
+     */
+    private $fields = [
+        'campaignName',
+        'purchasedAt',
+        'costInPoints',
+        'taxValue',
+        'customerEmail',
+        'customerPhone',
+        'customerName',
+        'customerLastname',
+        'currentPointsAmount',
+        'used',
+    ];
+
+    /**
+     * @var
+     */
     private $rows;
+
+    /**
+     * @var Serializer
+     */
     private $serializer;
 
+    /**
+     * {@inheritdoc}
+     */
     public function setUp()
     {
         parent::setUp();
 
+        /** @var MockObject|PropertyAccessor $propertyAccessor */
         $propertyAccessor = $this->getMockBuilder(PropertyAccessor::class)->disableOriginalConstructor()->getMock();
+        /** @var MockObject|Mapper $mapper */
         $mapper = $this->getMockBuilder(Mapper::class)->setMethods(['create'])->setConstructorArgs([[]])->getMock();
         $this->generator = new CSVGenerator($propertyAccessor, $mapper);
         $this->serializer = new Serializer([], [new CsvEncoder()]);
+
+        /** @var MockObject|CampaignShippingAddress $campaignShippingAddress */
+        $campaignShippingAddress = $this->getMockBuilder(CampaignShippingAddress::class)
+            ->disableOriginalConstructor()->getMock();
 
         $campaign1 = new CampaignBought(
             new CampaignId(Uuid::uuid()),
@@ -49,6 +103,7 @@ class CSVGeneratorTest extends TestCase
             'Some Campaign',
             'some@email.com',
             '+4894949494',
+            $campaignShippingAddress,
             CampaignPurchase::STATUS_ACTIVE,
             false,
             'Joe',
@@ -66,6 +121,7 @@ class CSVGeneratorTest extends TestCase
             'Some Campaign 2',
             'fake@email.com',
             '+449393939',
+            $campaignShippingAddress,
             CampaignPurchase::STATUS_ACTIVE,
             false,
             'Alice',
@@ -81,7 +137,7 @@ class CSVGeneratorTest extends TestCase
     /**
      * @test
      */
-    public function it_has_right_interface_implemented()
+    public function it_has_right_interface_implemented(): void
     {
         $this->assertInstanceOf(GeneratorInterface::class, $this->generator);
     }
@@ -89,7 +145,7 @@ class CSVGeneratorTest extends TestCase
     /**
      * @test
      */
-    public function it_returns_right_data()
+    public function it_returns_right_data(): void
     {
         $result = $this->generator->generate($this->rows, $this->headers, $this->fields);
         $rows = $this->serializer->decode($result, 'csv');
@@ -106,7 +162,7 @@ class CSVGeneratorTest extends TestCase
     /**
      * @test
      */
-    public function it_returns_only_heading_with_no_data()
+    public function it_returns_only_heading_with_no_data(): void
     {
         $result = $this->generator->generate([[]], $this->headers, $this->fields);
         $rows = $this->serializer->decode($result, 'csv');

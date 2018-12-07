@@ -35,7 +35,6 @@ use OpenLoyalty\Component\Campaign\Domain\SegmentId;
 use OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Repository\DoctrineCampaignRepository;
 use OpenLoyalty\Component\Customer\Domain\Command\ChangeCampaignUsage;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
-use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomers;
@@ -46,6 +45,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Translation\TranslatorInterface;
+use FOS\RestBundle\Controller\Annotations\QueryParam;
 
 /**
  * Class CustomerCampaignsController.
@@ -270,6 +270,8 @@ class CustomerCampaignsController extends FOSRestController
      *     }
      * )
      *
+     * @QueryParam(name="deliveryStatus", requirements="(ordered|canceled|shipped|delivered)", nullable=true, description="Delivery status"))
+     *
      * @View(serializerGroups={"customer", "Default"})
      *
      * @param Request $request
@@ -295,7 +297,9 @@ class CustomerCampaignsController extends FOSRestController
                 $pagination->getPage(),
                 $pagination->getPerPage(),
                 $pagination->getSort(),
-                $pagination->getSortDirection()
+                $pagination->getSortDirection(),
+                false,
+                $request->attributes->get('deliveryStatus', null)
             );
 
         if ($request->get('includeDetails', false)) {

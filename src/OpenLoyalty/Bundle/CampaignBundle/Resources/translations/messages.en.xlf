@@ -2,6 +2,14 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
     <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
         <body>
+            <trans-unit id="campaign.bought.deliver_status.changed">
+                <source>campaign.bought.deliver_status.changed</source>
+                <target>Delivery status changed!</target>
+            </trans-unit>
+            <trans-unit id="campaign.bought.deliver_status.empty">
+                <source>campaign.bought.deliver_status.empty</source>
+                <target>Delivery status is required and can't be empty!</target>
+            </trans-unit>
             <trans-unit id="campaign.invalid_data">
                 <source>campaign.invalid_data</source>
                 <target>Invalid data provided</target>

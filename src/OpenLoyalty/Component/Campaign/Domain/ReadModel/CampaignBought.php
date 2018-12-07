@@ -13,6 +13,7 @@ use OpenLoyalty\Component\Campaign\Domain\TransactionId;
 use OpenLoyalty\Component\Core\Domain\Model\Identifier;
 use OpenLoyalty\Component\Core\Domain\ReadModel\Versionable;
 use OpenLoyalty\Component\Core\Domain\ReadModel\VersionableReadModel;
+use OpenLoyalty\Component\Campaign\Domain\DeliveryStatus;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 
 /**
@@ -21,6 +22,13 @@ use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 class CampaignBought implements SerializableReadModel, VersionableReadModel
 {
     use Versionable;
+
+    public const DELIVERY_STATUS_ORDERED = 'ordered';
+    public const DELIVERY_STATUS_CANCELED = 'canceled';
+    public const DELIVERY_STATUS_SHIPPED = 'shipped';
+    public const DELIVERY_STATUS_DELIVERED = 'delivered';
+
+    public const DELIVERY_STATUS_DEFAULT = self::DELIVERY_STATUS_ORDERED;
 
     /**
      * @var CampaignId
@@ -73,6 +81,11 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
     private $customerLastname;
 
     /**
+     * @var null|CampaignShippingAddress
+     */
+    private $campaignShippingAddress = null;
+
+    /**
      * @var int
      */
     private $costInPoints;
@@ -123,26 +136,33 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
     private $returnedAmount = 0;
 
     /**
+     * @var DeliveryStatus
+     */
+    private $deliveryStatus;
+
+    /**
      * CampaignBought constructor.
      *
-     * @param CampaignId      $campaignId
-     * @param CustomerId      $customerId
-     * @param \DateTime       $purchasedAt
-     * @param Coupon          $coupon
-     * @param string          $campaignType
-     * @param string          $campaignName
-     * @param string|null     $customerEmail
-     * @param string|null     $customerPhone
-     * @param string          $status
-     * @param bool            $used
-     * @param string          $customerName
-     * @param string          $customerLastname
-     * @param int             $costInPoints
-     * @param int             $currentPointsAmount
-     * @param float|null      $taxPriceValue
-     * @param \DateTime|null  $activeSince
-     * @param \DateTime|null  $activeTo
-     * @param Identifier|null $transactionId
+     * @param CampaignId                   $campaignId
+     * @param CustomerId                   $customerId
+     * @param \DateTime                    $purchasedAt
+     * @param Coupon                       $coupon
+     * @param string                       $campaignType
+     * @param string                       $campaignName
+     * @param string|null                  $customerEmail
+     * @param string|null                  $customerPhone
+     * @param null|CampaignShippingAddress $campaignShippingAddress
+     * @param string                       $status
+     * @param bool                         $used
+     * @param string                       $customerName
+     * @param string                       $customerLastname
+     * @param int                          $costInPoints
+     * @param int                          $currentPointsAmount
+     * @param float|null                   $taxPriceValue
+     * @param \DateTime|null               $activeSince
+     * @param \DateTime|null               $activeTo
+     * @param Identifier|null              $transactionId
+     * @param null|DeliveryStatus          $deliveryStatus
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -155,6 +175,7 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
         string $campaignName,
         ?string $customerEmail,
         ?string $customerPhone,
+        ?CampaignShippingAddress $campaignShippingAddress,
         ?string $status = CampaignPurchase::STATUS_ACTIVE,
         ?bool $used = false,
         ?string $customerName = null,
@@ -164,7 +185,8 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
         ?float $taxPriceValue = null,
         ?\DateTime $activeSince = null,
         ?\DateTime $activeTo = null,
-        ?Identifier $transactionId = null
+        ?Identifier $transactionId = null,
+        ?DeliveryStatus $deliveryStatus = null
     ) {
         $this->campaignId = $campaignId;
         $this->customerId = $customerId;
@@ -174,6 +196,7 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
         $this->campaignName = $campaignName;
         $this->customerEmail = $customerEmail;
         $this->customerPhone = $customerPhone;
+        $this->campaignShippingAddress = $campaignShippingAddress;
         $this->used = $used;
         $this->status = $status;
         $this->customerName = $customerName;
@@ -184,6 +207,11 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
         $this->activeSince = $activeSince;
         $this->activeTo = $activeTo;
         $this->transactionId = $transactionId;
+        $this->deliveryStatus = $deliveryStatus;
+
+        if (null === $deliveryStatus) {
+            $this->deliveryStatus = self::DELIVERY_STATUS_DEFAULT;
+        }
     }
 
     /**
@@ -197,7 +225,7 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
     /**
      * {@inheritdoc}
      */
-    public static function deserialize(array $data)
+    public static function deserialize(array $data): self
     {
         if (isset($data['activeSince'])) {
             $activeSince = new \DateTime();
@@ -221,6 +249,15 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
             $data['campaignName'],
             $data['customerEmail'],
             $data['customerPhone'],
+            new CampaignShippingAddress(
+                $data['campaignShippingAddressStreet'],
+                $data['campaignShippingAddressAddress1'],
+                $data['campaignShippingAddressAddress2'],
+                $data['campaignShippingAddressPostal'],
+                $data['campaignShippingAddressCity'],
+                $data['campaignShippingAddressProvince'],
+                $data['campaignShippingAddressCountry']
+            ),
             $data['status'] ?? CampaignPurchase::STATUS_ACTIVE,
             $data['used'],
             $data['customerName'] ?? null,
@@ -230,7 +267,8 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
             $data['taxPriceValue'] ?? null,
             $activeSince ?? null,
             $activeTo ?? null,
-            isset($data['transactionId']) ? new TransactionId($data['transactionId']) : null
+            isset($data['transactionId']) ? new TransactionId($data['transactionId']) : null,
+            isset($data['deliveryStatus']) ? new DeliveryStatus($data['deliveryStatus']) : new DeliveryStatus()
         );
 
         $usedFor = isset($data['usedForTransactionId']) ? new TransactionId($data['usedForTransactionId']) : null;
@@ -245,6 +283,8 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
      */
     public function serialize(): array
     {
+        $isCampaignShippingAddress = $this->campaignShippingAddress instanceof CampaignShippingAddress;
+
         return [
             'campaignId' => (string) $this->campaignId,
             'customerId' => (string) $this->customerId,
@@ -255,6 +295,13 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
             'campaignName' => $this->campaignName,
             'customerEmail' => $this->customerEmail,
             'customerPhone' => $this->customerPhone,
+            'campaignShippingAddressStreet' => ($isCampaignShippingAddress) ? $this->campaignShippingAddress->getStreet() : null,
+            'campaignShippingAddressAddress1' => ($isCampaignShippingAddress) ? $this->campaignShippingAddress->getAddress1() : null,
+            'campaignShippingAddressAddress2' => ($isCampaignShippingAddress) ? $this->campaignShippingAddress->getAddress2() : null,
+            'campaignShippingAddressPostal' => ($isCampaignShippingAddress) ? $this->campaignShippingAddress->getPostal() : null,
+            'campaignShippingAddressCity' => ($isCampaignShippingAddress) ? $this->campaignShippingAddress->getCity() : null,
+            'campaignShippingAddressProvince' => ($isCampaignShippingAddress) ? $this->campaignShippingAddress->getProvince() : null,
+            'campaignShippingAddressCountry' => ($isCampaignShippingAddress) ? $this->campaignShippingAddress->getCountry() : null,
             'used' => $this->used,
             'status' => $this->status,
             'customerName' => $this->customerName,
@@ -267,6 +314,7 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
             'transactionId' => $this->transactionId ? (string) $this->transactionId : null,
             'usedForTransactionId' => $this->usedForTransactionId ? (string) $this->usedForTransactionId : null,
             'returnedAmount' => $this->returnedAmount ?: 0,
+            'deliveryStatus' => (string) $this->deliveryStatus,
         ];
     }
 
@@ -278,12 +326,41 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
      *
      * @return string
      */
-    public static function createId(CampaignId $campaignId, CustomerId $customerId, Coupon $coupon, ?Identifier $transactionId = null): string
-    {
-        $couponId = $coupon->getId() ? '_'.$coupon->getId() : '';
-        $transactionSuffix = $transactionId ? '_'.((string) $transactionId) : '';
+    public static function createId(
+        CampaignId $campaignId,
+        CustomerId $customerId,
+        Coupon $coupon,
+        ?Identifier $transactionId = null
+    ): string {
+        return self::createIdFromString(
+            (string) $campaignId,
+            (string) $customerId,
+            $coupon->getCode(),
+            null !== $coupon->getId() ? (string) $coupon->getId() : null,
+            null !== $transactionId ? (string) $transactionId : null
+        );
+    }
 
-        return ((string) $campaignId).'_'.((string) $customerId).'_'.$coupon->getCode().$transactionSuffix.$couponId;
+    /**
+     * @param string      $campaignId
+     * @param string      $customerId
+     * @param string      $couponCode
+     * @param string      $couponId
+     * @param string|null $transactionId
+     *
+     * @return string
+     */
+    public static function createIdFromString(
+        string $campaignId,
+        string $customerId,
+        string $couponCode,
+        ?string $couponId = null,
+        ?string $transactionId = null
+    ): string {
+        $couponId = null !== $couponId ? '_'.$couponId : '';
+        $transactionSuffix = null !== $transactionId ? '_'.$transactionId : '';
+
+        return $campaignId.'_'.$customerId.'_'.$couponCode.$transactionSuffix.$couponId;
     }
 
     /**
@@ -420,5 +497,37 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
     public function getActiveSince(): ?\DateTime
     {
         return $this->activeSince;
+    }
+
+    /**
+     * @param DeliveryStatus $deliveryStatus
+     */
+    public function setDeliveryStatus(DeliveryStatus $deliveryStatus): void
+    {
+        $this->deliveryStatus = $deliveryStatus;
+    }
+
+    /**
+     * @return DeliveryStatus
+     */
+    public function getDeliveryStatus(): DeliveryStatus
+    {
+        return $this->deliveryStatus;
+    }
+
+    /**
+     * @return CampaignShippingAddress
+     */
+    public function getCampaignShippingAddress(): CampaignShippingAddress
+    {
+        return $this->campaignShippingAddress;
+    }
+
+    /**
+     * @param CampaignShippingAddress $campaignShippingAddress
+     */
+    public function setCampaignShippingAddress(CampaignShippingAddress $campaignShippingAddress): void
+    {
+        $this->campaignShippingAddress = $campaignShippingAddress;
     }
 }
