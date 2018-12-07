@@ -525,4 +525,30 @@ class CustomerCommandHandler extends SimpleCommandHandler
         );
         $this->repository->save($customer);
     }
+
+    /**
+     * @param SetAvatar $command'
+     */
+    public function handleSetAvatar(SetAvatar $command)
+    {
+        $customerId = $command->getCustomerId();
+        /** @var Customer $customer */
+        $customer = $this->repository->load((string) $customerId);
+
+        $customer->setAvatar($command->getPath(), $command->getOriginalName(), $command->getMime());
+        $this->repository->save($customer);
+    }
+
+    /**
+     * @param RemoveAvatar $command'
+     */
+    public function handleRemoveAvatar(RemoveAvatar $command)
+    {
+        $customerId = $command->getCustomerId();
+        /** @var Customer $customer */
+        $customer = $this->repository->load((string) $customerId);
+
+        $customer->removeAvatar();
+        $this->repository->save($customer);
+    }
 }

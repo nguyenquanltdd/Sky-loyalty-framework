@@ -10,6 +10,8 @@ use OpenLoyalty\Component\Core\Domain\Model\Identifier;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Customer\Domain\Event\AssignedAccountToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Event\AssignedTransactionToCustomer;
+use OpenLoyalty\Component\Customer\Domain\Event\CustomerAvatarWasRemoved;
+use OpenLoyalty\Component\Customer\Domain\Event\CustomerAvatarWasSet;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignCouponWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignStatusWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
@@ -23,6 +25,7 @@ use OpenLoyalty\Component\Customer\Domain\Event\PosWasAssignedToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasMovedToLevel;
 use OpenLoyalty\Component\Customer\Domain\Event\SellerWasAssignedToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Model\Address;
+use OpenLoyalty\Component\Customer\Domain\Model\Avatar;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\Model\Gender;
@@ -168,6 +171,11 @@ class Customer extends EventSourcedAggregateRoot
      * @var null|AccountId
      */
     protected $accountId;
+
+    /**
+     * @var null|Avatar
+     */
+    protected $avatar;
 
     /**
      * @return string
@@ -734,6 +742,44 @@ class Customer extends EventSourcedAggregateRoot
         $this->apply(
             new CampaignWasReturned($this->getId(), $purchaseId, $coupon)
         );
+    }
+
+    /**
+     * @param string $path
+     * @param string $originalName
+     * @param string $mime
+     */
+    public function setAvatar(string $path, string $originalName, string $mime): void
+    {
+        $this->apply(
+            new CustomerAvatarWasSet($this->getId(), $path, $originalName, $mime)
+        );
+    }
+
+    /**
+     * @param CustomerAvatarWasSet $event
+     */
+    protected function applyCustomerAvatarWasSet(CustomerAvatarWasSet $event): void
+    {
+        $this->avatar = new Avatar($event->getPath(), $event->getOriginalName(), $event->getMime());
+    }
+
+    /**
+     * Remove avatar.
+     */
+    public function removeAvatar(): void
+    {
+        $this->apply(
+            new CustomerAvatarWasRemoved($this->getId())
+        );
+    }
+
+    /**
+     * @param CustomerAvatarWasRemoved $event
+     */
+    protected function applyCustomerAvatarWasRemoved(CustomerAvatarWasRemoved $event): void
+    {
+        $this->avatar = null;
     }
 
     /**
@@ -1337,5 +1383,13 @@ class Customer extends EventSourcedAggregateRoot
         ];
 
         return array_merge($defaults, $data);
+    }
+
+    /**
+     * @return null|Avatar
+     */
+    public function getAvatar(): ?Avatar
+    {
+        return $this->avatar;
     }
 }

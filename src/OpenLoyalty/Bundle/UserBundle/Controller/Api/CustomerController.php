@@ -27,10 +27,12 @@ use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
 use OpenLoyalty\Bundle\UserBundle\Entity\Status;
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
 use OpenLoyalty\Bundle\UserBundle\Event\UserRegisteredWithInvitationToken;
+use OpenLoyalty\Bundle\UserBundle\Form\Type\AvatarFormType;
 use OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerEditFormType;
 use OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerRegistrationFormType;
 use OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerSelfRegistrationFormType;
 use OpenLoyalty\Bundle\UserBundle\Import\CustomerXmlImporter;
+use OpenLoyalty\Bundle\UserBundle\Service\AvatarUploader;
 use OpenLoyalty\Bundle\UserBundle\Service\ParamManager;
 use OpenLoyalty\Bundle\UserBundle\Service\RegisterCustomerManager;
 use OpenLoyalty\Bundle\UserBundle\Status\CustomerStatusProvider;
@@ -39,7 +41,9 @@ use OpenLoyalty\Component\Customer\Domain\Command\AssignPosToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\AssignSellerToCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\DeactivateCustomer;
 use OpenLoyalty\Component\Customer\Domain\Command\MoveCustomerToLevel;
+use OpenLoyalty\Component\Customer\Domain\Command\RemoveAvatar;
 use OpenLoyalty\Component\Customer\Domain\Command\RemoveManuallyAssignedLevel;
+use OpenLoyalty\Component\Customer\Domain\Command\SetAvatar;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\LevelId as CustomerLevelId;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
@@ -61,6 +65,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class CustomerController.
@@ -113,6 +118,16 @@ class CustomerController extends FOSRestController
     private $customerStatusProvider;
 
     /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
+     * @var AvatarUploader
+     */
+    private $avatarUploader;
+
+    /**
      * CustomerController constructor.
      *
      * @param CommandBus                    $commandBus
@@ -124,6 +139,8 @@ class CustomerController extends FOSRestController
      * @param EntityManagerInterface        $entityManager
      * @param AuthorizationCheckerInterface $authorizationChecker
      * @param CustomerStatusProvider        $customerStatusProvider
+     * @param TranslatorInterface           $translator
+     * @param AvatarUploader                $avatarUploader
      */
     public function __construct(
         CommandBus $commandBus,
@@ -134,7 +151,9 @@ class CustomerController extends FOSRestController
         ParamManager $paramManager,
         EntityManagerInterface $entityManager,
         AuthorizationCheckerInterface $authorizationChecker,
-        CustomerStatusProvider $customerStatusProvider
+        CustomerStatusProvider $customerStatusProvider,
+        TranslatorInterface $translator,
+        AvatarUploader $avatarUploader
     ) {
         $this->commandBus = $commandBus;
         $this->levelRepository = $levelRepository;
@@ -145,6 +164,8 @@ class CustomerController extends FOSRestController
         $this->entityManager = $entityManager;
         $this->authorizationChecker = $authorizationChecker;
         $this->customerStatusProvider = $customerStatusProvider;
+        $this->translator = $translator;
+        $this->avatarUploader = $avatarUploader;
     }
 
     /**
@@ -1134,6 +1155,126 @@ class CustomerController extends FOSRestController
             // assign pos and send email
             $this->commandBus->dispatch(
                 new AssignPosToCustomer($customerId, new PosId($sellerDetails->getPosId()->__toString()))
+            );
+        }
+    }
+
+    /**
+     * Set customer's avatar.
+     *
+     * @Route(name="oloy.customer.set_avatar", path="/customer/{customer}/avatar")
+     * @Method("POST")
+     * @Security("is_granted('EDIT', customer)")
+     * @ApiDoc(
+     *     name="Set customer's avatar",
+     *     section="Customer",
+     *     input={"class" = "OpenLoyalty\Bundle\UserBundle\Form\Type\AvatarFormType", "name" = "avatar"}
+     * )
+     *
+     * @param Request         $request
+     * @param CustomerDetails $customer
+     *
+     * @return View
+     */
+    public function setAvatarAction(Request $request, CustomerDetails $customer): View
+    {
+        $form = $this->formFactory->createNamed('avatar', AvatarFormType::class);
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            /** @var UploadedFile $file */
+            $file = $form->getData()->getFile();
+            try {
+                $this->avatarUploader->remove($customer->getAvatarPath());
+
+                $photo = $this->avatarUploader->upload($file);
+                $command = new SetAvatar(
+                    $customer->getCustomerId(),
+                    $photo->getPath(),
+                    $photo->getOriginalName(),
+                    $photo->getMime()
+                );
+                $this->commandBus->dispatch($command);
+
+                return $this->view(null, Response::HTTP_NO_CONTENT);
+            } catch (\Exception $ex) {
+                return $this->view(
+                    ['error' => $this->translator->trans($ex->getMessage())],
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+        }
+
+        return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * Get customer's avatar.
+     *
+     * @Route(name="oloy.customer.get_avatar", path="/customer/{customer}/avatar")
+     * @Security("is_granted('VIEW', customer)")
+     * @Method("GET")
+     * @ApiDoc(
+     *     name="Get customer's avatar",
+     *     section="Customer"
+     * )
+     *
+     * @param CustomerDetails $customer
+     *
+     * @return Response
+     */
+    public function getAvatarAction(CustomerDetails $customer): Response
+    {
+        $avatarPath = $customer->getAvatarPath();
+        if (!$avatarPath) {
+            throw $this->createNotFoundException();
+        }
+
+        $content = $this->avatarUploader->get($avatarPath);
+        if (!$content) {
+            throw $this->createNotFoundException();
+        }
+
+        $response = new Response($content);
+        $response->headers->set('Content-Disposition', 'inline');
+        $response->headers->set('Content-Type', $customer->getAvatarMime());
+
+        return $response;
+    }
+
+    /**
+     * Remove customer's avatar.
+     *
+     * @Route(name="oloy.customer.remove_photo", path="/customer/{customer}/avatar")
+     * @Method("DELETE")
+     * @Security("is_granted('EDIT', customer)")
+     * @ApiDoc(
+     *     name="Delete customer's avatar",
+     *     section="Customer"
+     * )
+     *
+     * @param CustomerDetails $customer
+     *
+     * @return View
+     */
+    public function removeAvatarAction(CustomerDetails $customer): View
+    {
+        $avatarPath = $customer->getAvatarPath();
+        if (!$avatarPath) {
+            throw $this->createNotFoundException();
+        }
+        $this->avatarUploader->remove($avatarPath);
+
+        $command = new RemoveAvatar($customer->getCustomerId());
+
+        try {
+            $this->commandBus->dispatch($command);
+
+            return $this->view(null, Response::HTTP_NO_CONTENT);
+        } catch (\Exception $ex) {
+            return $this->view(
+                ['error' => $this->translator->trans($ex->getMessage())],
+                Response::HTTP_BAD_REQUEST
             );
         }
     }

@@ -196,6 +196,21 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     protected $level;
 
     /**
+     * @var null|string
+     */
+    private $avatarPath;
+
+    /**
+     * @var null|string
+     */
+    private $avatarOriginalName;
+
+    /**
+     * @var null|string
+     */
+    private $avatarMime;
+
+    /**
      * CustomerDetails constructor.
      *
      * @param CustomerId $id
@@ -389,6 +404,16 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
         }
         $customer->setLabels($labels);
 
+        if (isset($data['avatarPath'])) {
+            $customer->avatarPath = $data['avatarPath'];
+        }
+        if (isset($data['avatarMime'])) {
+            $customer->avatarMime = $data['avatarMime'];
+        }
+        if (isset($data['avatarOriginalName'])) {
+            $customer->avatarOriginalName = $data['avatarOriginalName'];
+        }
+
         return $customer;
     }
 
@@ -442,6 +467,9 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
             'transactionIds' => array_map(function (TransactionId $transactionId) {
                 return (string) $transactionId;
             }, $this->transactionIds),
+            'avatarPath' => $this->getAvatarPath(),
+            'avatarMime' => $this->getAvatarMime(),
+            'avatarOriginalName' => $this->getAvatarOriginalName(),
         ];
     }
 
@@ -1008,6 +1036,54 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
     public function setLastLevelRecalculation(\DateTime $lastLevelRecalculation = null): void
     {
         $this->lastLevelRecalculation = $lastLevelRecalculation;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getAvatarPath(): ?string
+    {
+        return $this->avatarPath;
+    }
+
+    /**
+     * @param null|string $avatarPath
+     */
+    public function setAvatarPath(?string $avatarPath): void
+    {
+        $this->avatarPath = $avatarPath;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getAvatarOriginalName(): ?string
+    {
+        return $this->avatarOriginalName;
+    }
+
+    /**
+     * @param null|string $avatarOriginalName
+     */
+    public function setAvatarOriginalName(?string $avatarOriginalName): void
+    {
+        $this->avatarOriginalName = $avatarOriginalName;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getAvatarMime(): ?string
+    {
+        return $this->avatarMime;
+    }
+
+    /**
+     * @param null|string $avatarMime
+     */
+    public function setAvatarMime(?string $avatarMime): void
+    {
+        $this->avatarMime = $avatarMime;
     }
 
     /**

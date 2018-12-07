@@ -15,6 +15,7 @@ use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
 use OpenLoyalty\Component\Customer\Tests\Unit\Domain\Command\CustomerCommandHandlerTest;
 use OpenLoyalty\Component\Customer\Domain\PosId;
 use OpenLoyalty\Component\Import\Infrastructure\ImportResultItem;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -1605,6 +1606,78 @@ class CustomerControllerTest extends BaseApiTest
         $this->assertInternalType('bool', $first['hasPhoto']);
         $this->assertArrayHasKey('conditionValue', $first);
         $this->assertInternalType('int', $first['conditionValue']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_sets_avatar(): void
+    {
+        $client = $this->createAuthenticatedClient();
+
+        $filesystem = static::$kernel->getContainer()->get('filesystem');
+        $filesystem->copy(__DIR__.'/../../../Resources/fixtures/avatar.png', __DIR__.'/../../../Resources/fixtures/avatar_sample.png');
+        $uploadedFile = new UploadedFile(__DIR__.'/../../../Resources/fixtures/avatar_sample.png', 'avatar_sample.png');
+
+        $client->request(
+            'POST',
+            '/api/customer/'.LoadUserData::USER_USER_ID.'/avatar',
+            [],
+            [
+                'avatar' => ['file' => $uploadedFile],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals('204', $response->getStatusCode());
+
+        $getClient = $this->createAuthenticatedClient();
+        $getClient->request(
+            'GET',
+            '/api/customer/'.LoadUserData::USER_USER_ID
+        );
+        $getResponse = $getClient->getResponse();
+        $this->assertEquals(200, $getResponse->getStatusCode());
+        $data = json_decode($getResponse->getContent(), true);
+
+        $this->assertNotEmpty($data['avatarPath']);
+        $this->assertEquals('avatar_sample.png', $data['avatarOriginalName']);
+        $this->assertEquals('application/octet-stream', $data['avatarMime']);
+    }
+
+    /**
+     * @test
+     *
+     * @depends it_sets_avatar
+     */
+    public function it_gets_avatar(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/customer/'.LoadUserData::USER_USER_ID.'/avatar'
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals('200', $response->getStatusCode());
+        $this->assertNotEmpty($response);
+    }
+
+    /**
+     * @test
+     *
+     * @depends it_gets_avatar
+     */
+    public function it_removes_avatar(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'DELETE',
+            '/api/customer/'.LoadUserData::USER_USER_ID.'/avatar'
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals('204', $response->getStatusCode());
     }
 
     /**

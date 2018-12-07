@@ -16,6 +16,8 @@ use OpenLoyalty\Component\Customer\Domain\Event\CampaignStatusWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignUsageWasChanged;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasBoughtByCustomer;
 use OpenLoyalty\Component\Customer\Domain\Event\CampaignWasReturned;
+use OpenLoyalty\Component\Customer\Domain\Event\CustomerAvatarWasRemoved;
+use OpenLoyalty\Component\Customer\Domain\Event\CustomerAvatarWasSet;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerDetailsWereUpdated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerLevelWasRecalculated;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasActivated;
@@ -398,6 +400,32 @@ class CustomerDetailsProjector extends Projector
         /** @var CustomerDetails $readModel */
         $readModel = $this->getReadModel($event->getCustomerId());
         $readModel->setLastLevelRecalculation($event->getDate());
+        $this->repository->save($readModel);
+    }
+
+    /**
+     * @param CustomerAvatarWasSet $event
+     */
+    protected function applyCustomerAvatarWasSet(CustomerAvatarWasSet $event): void
+    {
+        /** @var CustomerDetails $readModel */
+        $readModel = $this->getReadModel($event->getCustomerId());
+        $readModel->setAvatarMime($event->getMime());
+        $readModel->setAvatarOriginalName($event->getOriginalName());
+        $readModel->setAvatarPath($event->getPath());
+        $this->repository->save($readModel);
+    }
+
+    /**
+     * @param CustomerAvatarWasRemoved $event
+     */
+    protected function applyCustomerAvatarWasRemoved(CustomerAvatarWasRemoved $event): void
+    {
+        /** @var CustomerDetails $readModel */
+        $readModel = $this->getReadModel($event->getCustomerId());
+        $readModel->setAvatarMime(null);
+        $readModel->setAvatarOriginalName(null);
+        $readModel->setAvatarPath(null);
         $this->repository->save($readModel);
     }
 

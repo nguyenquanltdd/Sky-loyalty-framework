@@ -343,3 +343,12 @@ services:
     OpenLoyalty\Bundle\UserBundle\Form\Type\AdminSelfEditFormType:
         tags:
             - { name: form.type }
+
+    oloy.user.avatar_filesystem:
+        class:     Gaufrette\Filesystem
+        factory:   ['@knp_gaufrette.filesystem_map', get]
+        arguments: ['customers_avatars']
+
+    OpenLoyalty\Bundle\UserBundle\Service\AvatarUploader:
+        arguments:
+            $filesystem: "@oloy.user.avatar_filesystem"
