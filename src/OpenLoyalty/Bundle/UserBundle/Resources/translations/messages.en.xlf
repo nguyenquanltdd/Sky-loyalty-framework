@@ -78,6 +78,10 @@
                 <source>user.acl.resource.customer</source>
                 <target>Customers</target>
             </trans-unit>
+            <trans-unit id="user.acl.resource.user_settings">
+                <source>user.acl.resource.user_settings</source>
+                <target>Optional User Settings</target>
+            </trans-unit>
             <trans-unit id="user.acl.resource.segment">
                 <source>user.acl.resource.segment</source>
                 <target>Segments</target>

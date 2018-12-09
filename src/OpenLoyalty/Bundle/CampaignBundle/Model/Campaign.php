@@ -60,6 +60,7 @@ class Campaign extends BaseCampaign
         return [
             'reward' => $this->reward,
             'moreInformationLink' => $this->moreInformationLink,
+            'pushNotificationText' => $this->pushNotificationText,
             'active' => $this->active,
             'costInPoints' => $this->costInPoints,
             'pointValue' => $this->pointValue,

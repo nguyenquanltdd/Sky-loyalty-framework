@@ -105,6 +105,10 @@ services:
         tags:
             - { name: 'console.command' }
 
+    OpenLoyalty\Bundle\CampaignBundle\Command\SendNewCampaignsAvailableNotifications:
+        tags:
+            - { name: 'console.command' }
+
     OpenLoyalty\Bundle\CampaignBundle\Service\MultipleCampaignCouponUsageProvider:
         arguments:
             - '@oloy.campaign.repository'

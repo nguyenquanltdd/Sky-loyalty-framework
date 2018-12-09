@@ -13,6 +13,10 @@ OpenLoyalty\Component\Campaign\Domain\Campaign:
             type: text
             nullable: true
             column: more_information_link
+        pushNotificationText:
+            type: text
+            nullable: true
+            column: push_notification_text
         active:
             type: boolean
             options:

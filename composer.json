@@ -40,6 +40,7 @@
     "fzaninotto/faker": "^1.6",
     "gesdinet/jwt-refresh-token-bundle": "^0.1.7",
     "gumlet/php-image-resize": "^1.9",
+    "guzzlehttp/guzzle": "~6.0",
     "incenteev/composer-parameter-handler": "^2.0",
     "jms-serializer/serializer-bundle": "^1.1",
     "knplabs/doctrine-behaviors": "~1.1",

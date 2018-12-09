@@ -988,6 +988,74 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
+    public function it_allows_to_assign_pushy_device_token_to_customer(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $deviceToken = '00cafe11de22fabe33';
+
+        $client->request(
+            'POST',
+            '/api/customer/'.LoadUserData::TEST_USER_ID.'/pushy-token',
+            [
+                'customer' => ['pushyToken' => (string) $deviceToken],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), 'Response should have status 204');
+
+        self::$kernel->boot();
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/customer/'.LoadUserData::TEST_USER_ID.'/pushy-token'
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('tokens', $data);
+        $tokens = $data['tokens'];
+        $this->assertCount(1, $tokens);
+        $this->assertEquals((string) $deviceToken, $tokens[0]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_allows_to_remove_pushy_device_token_from_customer(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $deviceToken = '00cafe11de22fabe33';
+
+        $client->request(
+            'DELETE',
+            '/api/customer/'.LoadUserData::TEST_USER_ID.'/pushy-token/'.$deviceToken
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), 'Response should have status 204');
+
+        self::$kernel->boot();
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/customer/'.LoadUserData::TEST_USER_ID.'/pushy-token'
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('tokens', $data);
+        $tokens = $data['tokens'];
+        $this->assertCount(0, $tokens);
+    }
+
+    /**
+     * @test
+     */
     public function it_allows_to_get_customers_list_with_locale(): void
     {
         $client = $this->createAuthenticatedClient();

@@ -20,7 +20,7 @@ class Settings
     /**
      * @param string $name
      *
-     * @return SettingsEntry|void
+     * @return SettingsEntry|null
      */
     public function __get($name)
     {
@@ -65,19 +65,19 @@ class Settings
     /**
      * @param string $key
      *
-     * @return SettingsEntry|void
+     * @return SettingsEntry|null
      */
     public function getEntry($key)
     {
         if (!isset($this->entries[$key])) {
-            return;
+            return null;
         }
 
         return $this->entries[$key];
     }
 
     /**
-     * @return \OpenLoyalty\Bundle\SettingsBundle\Entity\SettingsEntry[]
+     * @return SettingsEntry[]
      */
     public function getEntries()
     {

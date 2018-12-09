@@ -56,6 +56,11 @@ interface GeneralSettingsManagerInterface
     public function getHelpEmail(): ?string;
 
     /**
+     * @return null|string
+     */
+    public function getPushySecretKey(): ?string;
+
+    /**
      * @return bool|null
      */
     public function isAllTimeActive(): ?bool;

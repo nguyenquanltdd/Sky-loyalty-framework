@@ -54,6 +54,11 @@ class Campaign
     protected $moreInformationLink;
 
     /**
+     * @var string|null
+     */
+    protected $pushNotificationText;
+
+    /**
      * @var CampaignFile|null
      */
     protected $brandIcon;
@@ -221,6 +226,10 @@ class Campaign
 
         if (array_key_exists('moreInformationLink', $data)) {
             $this->moreInformationLink = $data['moreInformationLink'];
+        }
+
+        if (array_key_exists('pushNotificationText', $data)) {
+            $this->pushNotificationText = $data['pushNotificationText'];
         }
 
         if (isset($data['active'])) {
@@ -438,6 +447,22 @@ class Campaign
     public function setMoreInformationLink($moreInformationLink)
     {
         $this->moreInformationLink = $moreInformationLink;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPushNotificationText(): ?string
+    {
+        return $this->pushNotificationText;
+    }
+
+    /**
+     * @param string|null $pushNotificationText
+     */
+    public function setPushNotificationText(string $pushNotificationText = null)
+    {
+        $this->pushNotificationText = $pushNotificationText;
     }
 
     /**

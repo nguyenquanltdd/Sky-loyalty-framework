@@ -10,7 +10,7 @@ use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository;
 use OpenLoyalty\Component\Core\Infrastructure\Repository\OloyElasticsearchRepository;
 
 /**
- * Class SegmentedCustomersElasticsearchRepository.
+ * Class CampaignBoughtElasticsearchRepository.
  */
 class CampaignBoughtElasticsearchRepository extends OloyElasticsearchRepository implements CampaignBoughtRepository
 {

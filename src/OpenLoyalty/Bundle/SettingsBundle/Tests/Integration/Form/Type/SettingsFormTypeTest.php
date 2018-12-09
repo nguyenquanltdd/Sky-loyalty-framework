@@ -256,6 +256,10 @@ class SettingsFormTypeTest extends TypeTestCase
         $entry->setValue(10);
         $object->addEntry($entry);
 
+        $entry = new StringSettingEntry('pushySecretKey');
+        $entry->setValue('');
+        $object->addEntry($entry);
+
         $formData = array_merge($this->stringEntries, $this->booleanEntries, $this->integerEntries, [
             'customersIdentificationPriority' => [
                 ['field' => 'email', 'priority' => 1],

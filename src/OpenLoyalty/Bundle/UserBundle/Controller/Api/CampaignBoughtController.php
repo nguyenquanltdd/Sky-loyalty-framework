@@ -69,7 +69,7 @@ class CampaignBoughtController extends FOSRestController
      * @ApiDoc(
      *     name="Change campaign bought delivery status",
      *     section="Campaign",
-     *     input={"class"="\OpenLoyalty\Bundle\UserBundle\Form\Type\CampaignBoughtDeliveryStatusFormType", "name"="deliveryStatus"},
+     *     input={"class"="OpenLoyalty\Bundle\UserBundle\Form\Type\CampaignBoughtDeliveryStatusFormType", "name"="deliveryStatus"},
      *     statusCodes={
      *       200="Returned when successful",
      *       400="Returned when there are errors in form",

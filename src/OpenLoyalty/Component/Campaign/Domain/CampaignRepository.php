@@ -112,4 +112,9 @@ interface CampaignRepository
      * @return array
      */
     public function getActiveCampaigns(): array;
+
+    /**
+     * @return array
+     */
+    public function getActiveCampaignsWithPushNotificationText(): array;
 }

@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace OpenLoyalty\Bundle\UserBundle\Service;
+namespace OpenLoyalty\Bundle\UserBundle\Notification\Transport;
 
 use OpenLoyalty\Bundle\ActivationCodeBundle\Service\SmsSender;
 use OpenLoyalty\Bundle\SmsApiBundle\Message\Message;
@@ -76,5 +76,13 @@ class SmsNotificationTransport implements NotificationTransportInterface
                 $content
             ));
         }
+    }
+
+    /**
+     * @param array $notification
+     */
+    public function sendRewardAvailableNotification(array $notification): void
+    {
+        // SKIP
     }
 }

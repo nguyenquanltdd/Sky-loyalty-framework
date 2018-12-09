@@ -8,10 +8,11 @@ declare(strict_types=1);
 
 namespace OpenLoyalty\Bundle\UserBundle\Service;
 
+use OpenLoyalty\Bundle\UserBundle\Notification\Transport\NotificationTransportInterface;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetails;
 
 /**
- * Class NotificationService.
+ * Interface NotificationServiceInterface.
  */
 interface NotificationServiceInterface
 {

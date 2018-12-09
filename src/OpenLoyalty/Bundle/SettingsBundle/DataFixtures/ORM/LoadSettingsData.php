@@ -193,6 +193,10 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
         $marketingVendor->setValue(AvailableMarketingVendors::NONE);
         $settings->addEntry($marketingVendor);
 
+        $pushySecretKey = new StringSettingEntry('pushySecretKey');
+        $pushySecretKey->setValue(null);
+        $settings->addEntry($pushySecretKey);
+
         $this->getContainer()->get('ol.settings.manager')->save($settings);
     }
 

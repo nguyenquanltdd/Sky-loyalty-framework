@@ -54,3 +54,4 @@ services:
       - '@OpenLoyalty\Component\Core\Infrastructure\Serializer\SimpleInterfaceSerializer'
       - '%es_max_result_window_size%'
 
+  GuzzleHttp\Client: ~

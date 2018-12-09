@@ -48,6 +48,14 @@ services:
         tags:
             - { name: broadway.domain.event_listener }
 
+    OpenLoyalty\Component\Campaign\Infrastructure\Repository\AvailableCampaignsCacheElasticsearchRepository:
+        class: 'Broadway\ReadModel\ReadModel'
+        factory: ['@oloy.read_model.repository.factory', create]
+        arguments:
+        - 'oloy.available_campaigns_cache'
+        - 'OpenLoyalty\Component\Campaign\Domain\ReadModel\AvailableCampaignsCache'
+        - 'OpenLoyalty\Component\Campaign\Infrastructure\Repository\AvailableCampaignsCacheElasticsearchRepository'
+
     OpenLoyalty\Component\Campaign\Infrastructure\Repository\CampaignUsageElasticsearchRepository:
         class: 'Broadway\ReadModel\ReadModel'
         factory: ['@oloy.read_model.repository.factory', create]

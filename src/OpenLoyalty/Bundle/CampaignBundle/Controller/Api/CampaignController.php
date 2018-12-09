@@ -1071,6 +1071,7 @@ class CampaignController extends FOSRestController
             );
 
             for ($i = 0; $i < $quantity; ++$i) {
+                /** @var Coupon $coupon */
                 $coupon = $this->couponCodeProvider->getCoupon($campaign);
                 $this->commandBus->dispatch(
                     new BuyCampaign(

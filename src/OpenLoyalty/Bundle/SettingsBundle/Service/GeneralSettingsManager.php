@@ -144,6 +144,14 @@ class GeneralSettingsManager extends DoctrineSettingsManager implements GeneralS
     /**
      * {@inheritdoc}
      */
+    public function getPushySecretKey(): ?string
+    {
+        return $this->getSettingByKey('pushySecretKey')->getValue();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function isAllTimeActive(): ?bool
     {
         return $this->getSettingByKey('allTimeActive')->getValue();

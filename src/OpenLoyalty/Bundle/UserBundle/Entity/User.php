@@ -19,7 +19,7 @@ use JMS\Serializer\Annotation as JMS;
  * @JMS\ExclusionPolicy("all")
  * @UniqueEntity(
  *  fields={"username"},
- *  message="This username is already exist"
+ *  message="User with this username already exists"
  * )
  */
 abstract class User implements UserInterface, \Serializable, PermissionStorageInterface
@@ -56,7 +56,7 @@ abstract class User implements UserInterface, \Serializable, PermissionStorageIn
     protected $isActive;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", name="create_at")
      * @JMS\Expose()
      */
     protected $createAt;

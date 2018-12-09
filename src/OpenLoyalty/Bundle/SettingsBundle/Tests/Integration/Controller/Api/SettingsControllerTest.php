@@ -236,6 +236,7 @@ class SettingsControllerTest extends BaseApiTest
             'cssTemplate' => '',
             'marketingVendorsValue' => '',
             'pointsDaysExpiryAfter' => '',
+            'pushySecretKey' => '00112233aabbccdd',
         ];
 
         $client->request(

@@ -116,6 +116,10 @@ class CampaignFormType extends AbstractType
             'constraints' => [new Url()],
         ]);
 
+        $builder->add('pushNotificationText', TextareaType::class, [
+            'required' => false,
+        ]);
+
         $builder->add(
             $builder->create('categories', CollectionType::class, [
                 'entry_type' => TextType::class,

@@ -139,6 +139,7 @@ class SettingsFormType extends AbstractType
                 'transformTo' => 'json',
             ])
         );
+
         $builder->add(
             $builder->create('accountActivationMethod', SettingsChoicesType::class, [
                 'choices' => $this->accountActivationMethodsChoices->getChoices()['choices'],
@@ -146,6 +147,7 @@ class SettingsFormType extends AbstractType
                 'constraints' => [new NotBlank()],
             ])
         );
+
         $builder->add(
             $builder->create(
                 'marketingVendorsValue',
@@ -167,12 +169,14 @@ class SettingsFormType extends AbstractType
                 'transformTo' => 'json',
             ])
         );
+
         $builder->add(
             $builder->create('timezone', SettingsTimezoneType::class, [
                 'preferred_choices' => ['Europe/Warsaw'],
                 'constraints' => [new NotEmptyValue()],
             ])
         );
+
         $builder->add($builder->create('programName', SettingsTextType::class, [
             'constraints' => [new NotEmptyValue()],
         ]));
@@ -192,6 +196,7 @@ class SettingsFormType extends AbstractType
                 ],
             ])
         );
+
         $builder->add($builder->create('helpEmailAddress', SettingsTextType::class, ['required' => false]));
         $builder->add($builder->create('returns', SettingsCheckboxType::class, ['required' => false]));
         $builder->add($builder->create('allowCustomersProfileEdits', SettingsCheckboxType::class, [
@@ -222,6 +227,7 @@ class SettingsFormType extends AbstractType
                 ],
             ])
         );
+
         $builder->add($builder->create('allTimeNotLocked', SettingsCheckboxType::class, ['required' => false]));
         $builder->add(
             $builder->create('pointsDaysLocked', SettingsIntegerType::class, [
@@ -278,6 +284,7 @@ class SettingsFormType extends AbstractType
                 'required' => false,
             ])
         );
+
         $builder->add(
             $builder->create('accentColor', SettingsTextType::class, [
                 'constraints' => [
@@ -372,6 +379,12 @@ class SettingsFormType extends AbstractType
         $builder->add(
             $builder->create(
                 self::LEVEL_RESET_POINTS_ON_DOWNGRADE_SETTINGS_KEY, SettingsCheckboxType::class, [
+                'required' => false,
+            ])
+        );
+
+        $builder->add(
+            $builder->create('pushySecretKey', SettingsTextType::class, [
                 'required' => false,
             ])
         );

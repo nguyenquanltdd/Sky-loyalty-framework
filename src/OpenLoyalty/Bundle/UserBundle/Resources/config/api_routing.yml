@@ -6,6 +6,10 @@ customer:
     resource: '@OpenLoyaltyUserBundle/Controller/Api/CustomerController.php'
     type: annotation
 
+customer_pushy:
+    resource: '@OpenLoyaltyUserBundle/Controller/Api/CustomerPushyController.php'
+    type: annotation
+
 seller:
     resource: '@OpenLoyaltyUserBundle/Controller/Api/SellerController.php'
     type: annotation

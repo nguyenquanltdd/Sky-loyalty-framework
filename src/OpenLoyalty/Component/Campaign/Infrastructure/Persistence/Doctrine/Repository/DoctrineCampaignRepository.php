@@ -531,6 +531,26 @@ class DoctrineCampaignRepository extends EntityRepository implements CampaignRep
     /**
      * @return array
      */
+    public function getActiveCampaignsWithPushNotificationText(): array
+    {
+        $builder = $this->createQueryBuilder('c');
+
+        $builder
+            ->andWhere('c.active = :active')
+            ->setParameter('active', true)
+        ;
+
+        $builder
+            ->andWhere('c.pushNotificationText != :null')->setParameter('null', serialize(null))
+            ->andWhere('c.pushNotificationText != :empty')->setParameter('empty', serialize([]))
+        ;
+
+        return $builder->getQuery()->getResult();
+    }
+
+    /**
+     * @return array
+     */
     public function getActiveCampaigns(): array
     {
         $builder = $this->createQueryBuilder('c');

@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
 
 /**
- * Class LoyaltyProgramParticipant.
+ * Class Customer.
  *
  * @ORM\Entity()
  */

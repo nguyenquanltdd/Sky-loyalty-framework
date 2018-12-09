@@ -8,7 +8,7 @@ declare(strict_types=1);
 namespace OpenLoyalty\Bundle\UserBundle\Tests\Unit\Service;
 
 use OpenLoyalty\Bundle\UserBundle\Service\NotificationService;
-use OpenLoyalty\Bundle\UserBundle\Service\NotificationTransportInterface;
+use OpenLoyalty\Bundle\UserBundle\Notification\Transport\NotificationTransportInterface;
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\InvitationId;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetails;

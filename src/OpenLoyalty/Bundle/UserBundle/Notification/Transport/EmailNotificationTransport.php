@@ -6,8 +6,9 @@
 
 declare(strict_types=1);
 
-namespace OpenLoyalty\Bundle\UserBundle\Service;
+namespace OpenLoyalty\Bundle\UserBundle\Notification\Transport;
 
+use OpenLoyalty\Bundle\UserBundle\Service\EmailProvider;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetails;
 
 /**
@@ -46,5 +47,13 @@ class EmailNotificationTransport implements NotificationTransportInterface
         if ($invitation->getRecipientEmail()) {
             $this->emailProvider->invitationEmail($invitation);
         }
+    }
+
+    /**
+     * @param array $notification
+     */
+    public function sendRewardAvailableNotification(array $notification): void
+    {
+        // SKIP
     }
 }

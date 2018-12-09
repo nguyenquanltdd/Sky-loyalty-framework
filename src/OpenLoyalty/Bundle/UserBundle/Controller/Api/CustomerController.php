@@ -597,6 +597,7 @@ class CustomerController extends FOSRestController
      * @return View
      *
      * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Assert\AssertionFailedException
      */
     public function selfRegisterAction(Request $request): View
     {
@@ -632,7 +633,7 @@ class CustomerController extends FOSRestController
 
                 return $this->view(
                     [
-                        'customerId' => $customerId->__toString(),
+                        'customerId' => (string) $customerId,
                         'email' => $user->getEmail(),
                     ]
                 );
@@ -934,10 +935,10 @@ class CustomerController extends FOSRestController
      */
     public function sendSmsCodeCustomerAction(CustomerDetails $customer): View
     {
-        $user = $this->getDoctrine()->getManager()->find(Customer::class, $customer->getCustomerId()->__toString());
+        $user = $this->getDoctrine()->getManager()->find(Customer::class, (string) $customer->getCustomerId());
         if ($user instanceof Customer && $user->isNew()) {
             $activationCodeManager = $this->get('oloy.activation_code_manager');
-            $code = $activationCodeManager->newCode(Customer::class, $customer->getCustomerId()->__toString());
+            $code = $activationCodeManager->newCode(Customer::class, (string) $customer->getCustomerId());
             if (!$code) {
                 return $this->view('', Response::HTTP_BAD_REQUEST);
             }
@@ -1154,7 +1155,7 @@ class CustomerController extends FOSRestController
         if ($sellerDetails instanceof SellerDetails && $sellerDetails->getPosId()) {
             // assign pos and send email
             $this->commandBus->dispatch(
-                new AssignPosToCustomer($customerId, new PosId($sellerDetails->getPosId()->__toString()))
+                new AssignPosToCustomer($customerId, new PosId((string) $sellerDetails->getPosId()))
             );
         }
     }

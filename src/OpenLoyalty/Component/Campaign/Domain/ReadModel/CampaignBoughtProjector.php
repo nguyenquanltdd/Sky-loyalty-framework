@@ -7,7 +7,7 @@ namespace OpenLoyalty\Component\Campaign\Domain\ReadModel;
 
 use Broadway\EventDispatcher\EventDispatcher;
 use Broadway\ReadModel\Repository;
-use Broadway\Repository\Repository as AggregareRootRepository;
+use Broadway\Repository\Repository as AggregateRootRepository;
 use OpenLoyalty\Component\Account\Domain\Account;
 use OpenLoyalty\Component\Campaign\Domain\DeliveryStatus;
 use OpenLoyalty\Component\Campaign\Domain\Event\CampaignBoughtDeliveryStatusWasChanged;
@@ -52,12 +52,12 @@ class CampaignBoughtProjector extends Projector
     private $campaignRepository;
 
     /**
-     * @var AggregareRootRepository
+     * @var AggregateRootRepository
      */
     private $customerRepository;
 
     /**
-     * @var AggregareRootRepository
+     * @var AggregateRootRepository
      */
     private $accountRepository;
 
@@ -67,15 +67,15 @@ class CampaignBoughtProjector extends Projector
      * @param Repository               $repository
      * @param CampaignBoughtRepository $campaignBoughtRepository
      * @param CampaignRepository       $campaignRepository
-     * @param AggregareRootRepository  $customerRepository
-     * @param AggregareRootRepository  $accountRepository
+     * @param AggregateRootRepository  $customerRepository
+     * @param AggregateRootRepository  $accountRepository
      */
     public function __construct(
         Repository $repository,
         CampaignBoughtRepository $campaignBoughtRepository,
         CampaignRepository $campaignRepository,
-        AggregareRootRepository $customerRepository,
-        AggregareRootRepository $accountRepository
+        AggregateRootRepository $customerRepository,
+        AggregateRootRepository $accountRepository
     ) {
         $this->repository = $repository;
         $this->campaignBoughtRepository = $campaignBoughtRepository;
@@ -86,6 +86,8 @@ class CampaignBoughtProjector extends Projector
 
     /**
      * @param CampaignWasBoughtByCustomer $event
+     *
+     * @throws \Assert\AssertionFailedException
      */
     protected function applyCampaignWasBoughtByCustomer(CampaignWasBoughtByCustomer $event)
     {

@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace OpenLoyalty\Bundle\UserBundle\Service;
 
+use OpenLoyalty\Bundle\UserBundle\Notification\Transport\NotificationTransportInterface;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetails;
 
 /**
@@ -45,6 +46,16 @@ class NotificationService implements NotificationServiceInterface
     {
         foreach ($this->getAvailableTransports() as $transport) {
             $transport->sendInvitation($invitation);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function sendRewardAvailableNotification(array $notification): void
+    {
+        foreach ($this->getAvailableTransports() as $transport) {
+            $transport->sendRewardAvailableNotification($notification);
         }
     }
 }
