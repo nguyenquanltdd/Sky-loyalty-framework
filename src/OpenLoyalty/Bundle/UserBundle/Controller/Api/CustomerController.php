@@ -744,10 +744,12 @@ class CustomerController extends FOSRestController
                 $registerCustomerManager->dispatchNewsletterSubscriptionEvent($user, $customer->getCustomerId());
             }
 
-            /** @var CustomerDetails $updatedCustomerDetails */
-            $updatedCustomerDetails = $this->customerDetailsRepository->find($customer->getId());
-
-            return $this->view($updatedCustomerDetails, Response::HTTP_OK);
+            return $this->view(
+                [
+                    'customerId' => (string) $customer->getId(),
+                ],
+                Response::HTTP_OK
+            );
         }
 
         return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);

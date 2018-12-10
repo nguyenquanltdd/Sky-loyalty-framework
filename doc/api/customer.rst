@@ -824,51 +824,17 @@ Example Response
 
 
     {
-        "customerId": "e0eb0355-8aaa-4fb1-8159-f58e81b7a25c",
-        "active": true,
-        "firstName": "John",
-        "lastName": "Kowalski",
-        "gender": "male",
-        "email": "john4@example.com",
-        "birthDate": "1990-09-11T02:00:00+0200",
-        "address": {},
-        "createdAt": "2016-08-08T10:53:14+0200",
-        "levelId": "000096cf-32a3-43bd-9034-4df343e5fd93",
-        "agreement1": true,
-        "agreement2": true,
-        "agreement3": false,
-        "status": {
-            "availableTypes": [
-                "new",
-                "active",
-                "blocked",
-                "deleted"
-            ],
-            "availableStates": [
-                "no-card",
-                "card-sent",
-                "with-card"
-            ],
-            "type": "active",
-            "state": "no-card"
-        },
-        "updatedAt": "2020-02-12T12:11:12+0200",
-        "campaignPurchases": [],
-        "transactionsCount": 0,
-        "transactionsAmount": 0,
-        "transactionsAmountWithoutDeliveryCosts": 0,
-        "amountExcludedForLevel": 0,
-        "averageTransactionAmount": 0,
-        "labels": [],
-        "level": {
-            "levelId": {
-                "id": "000096cf-32a3-43bd-9034-4df343e5fd93"
-            },
-            "name": "level0"
-        },
-        "currency": "eur",
-        "levelPercent": "14.00%"
+        "customerId": "e0eb0355-8aaa-4fb1-8159-f58e81b7a25c"
     }
+
+.. note::
+
+    In earlier versions, this endpoint returned user data after performing an update.
+    This feature was removed because in certain circumstances old data from before the update could be returned.
+    Use GET /api/customer/{customer} after the update to always get the up-to-date values instead.
+
+Example
+^^^^^^^
 
 .. code-block:: bash
 
