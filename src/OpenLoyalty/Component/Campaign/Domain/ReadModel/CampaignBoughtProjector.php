@@ -9,6 +9,7 @@ use Broadway\EventDispatcher\EventDispatcher;
 use Broadway\ReadModel\Repository;
 use Broadway\Repository\Repository as AggregateRootRepository;
 use OpenLoyalty\Component\Account\Domain\Account;
+use OpenLoyalty\Component\Account\Infrastructure\Provider\AccountDetailsProvider;
 use OpenLoyalty\Component\Campaign\Domain\DeliveryStatus;
 use OpenLoyalty\Component\Campaign\Domain\Event\CampaignBoughtDeliveryStatusWasChanged;
 use OpenLoyalty\Component\Core\Infrastructure\Projector\Projector;
@@ -62,6 +63,11 @@ class CampaignBoughtProjector extends Projector
     private $accountRepository;
 
     /**
+     * @var AccountDetailsProvider
+     */
+    private $accountDetailsProvider;
+
+    /**
      * CampaignUsageProjector constructor.
      *
      * @param Repository               $repository
@@ -69,19 +75,22 @@ class CampaignBoughtProjector extends Projector
      * @param CampaignRepository       $campaignRepository
      * @param AggregateRootRepository  $customerRepository
      * @param AggregateRootRepository  $accountRepository
+     * @param AccountDetailsProvider   $accountDetailsProvider
      */
     public function __construct(
         Repository $repository,
         CampaignBoughtRepository $campaignBoughtRepository,
         CampaignRepository $campaignRepository,
         AggregateRootRepository $customerRepository,
-        AggregateRootRepository $accountRepository
+        AggregateRootRepository $accountRepository,
+        AccountDetailsProvider $accountDetailsProvider
     ) {
         $this->repository = $repository;
         $this->campaignBoughtRepository = $campaignBoughtRepository;
         $this->campaignRepository = $campaignRepository;
         $this->customerRepository = $customerRepository;
         $this->accountRepository = $accountRepository;
+        $this->accountDetailsProvider = $accountDetailsProvider;
     }
 
     /**
@@ -97,8 +106,16 @@ class CampaignBoughtProjector extends Projector
         $campaign = $this->campaignRepository->byId($campaignId);
         /** @var Customer $customer */
         $customer = $this->customerRepository->load((string) $event->getCustomerId());
+
+        if (null === $customer->getAccountId()) {
+            $accountDetails = $this->accountDetailsProvider->getAccountDetailsByCustomerId($event->getCustomerId());
+            $accountId = (string) $accountDetails->getAccountId();
+        } else {
+            $accountId = (string) $customer->getAccountId();
+        }
+
         /** @var Account $account */
-        $account = $this->accountRepository->load((string) $customer->getAccountId());
+        $account = $this->accountRepository->load($accountId);
 
         $campaignShippingAddress = null;
         if (null !== $customer->getAddress()) {

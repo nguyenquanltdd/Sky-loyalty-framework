@@ -9,7 +9,10 @@ use Broadway\ReadModel\InMemory\InMemoryRepository;
 use Broadway\ReadModel\Projector;
 use Broadway\ReadModel\Testing\ProjectorScenarioTestCase;
 use OpenLoyalty\Component\Account\Domain\Account;
+use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\AccountRepository;
+use OpenLoyalty\Component\Account\Domain\ReadModel\AccountDetails;
+use OpenLoyalty\Component\Account\Infrastructure\Provider\AccountDetailsProvider;
 use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
@@ -86,12 +89,21 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
         $accountRepository = $this->getMockBuilder(AccountRepository::class)->disableOriginalConstructor()->getMock();
         $accountRepository->method('load')->willReturn($account);
 
+        /** @var AccountDetails|MockObject $accountDetails */
+        $accountDetails = $this->getMockBuilder(AccountDetails::class)->disableOriginalConstructor()->getMock();
+        $accountDetails->method('getAccountId')->willReturn(new AccountId('00000000-0000-0000-0000-000000000001'));
+
+        /** @var AccountDetailsProvider|MockObject $accountProvider */
+        $accountProvider = $this->getMockBuilder(AccountDetailsProvider::class)->disableOriginalConstructor()->getMock();
+        $accountProvider->method('getAccountDetailsByCustomerId')->willReturn($accountDetails);
+
         return new CampaignBoughtProjector(
             $repository,
             $campaignBoughtRepository,
             $campaignRepository,
             $customerRepository,
-            $accountRepository
+            $accountRepository,
+            $accountProvider
         );
     }
 
