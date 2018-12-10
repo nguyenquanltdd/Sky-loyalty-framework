@@ -85,6 +85,7 @@ class DoctrineLevelRepository extends EntityRepository implements LevelRepositor
                 $this->validateSortBy($direction)
             );
         }
+
         if ($perPage) {
             $qb->setMaxResults($perPage);
             $qb->setFirstResult(($page - 1) * $perPage);
