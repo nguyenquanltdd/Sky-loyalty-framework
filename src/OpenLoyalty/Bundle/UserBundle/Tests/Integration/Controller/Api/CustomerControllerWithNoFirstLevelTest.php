@@ -166,10 +166,6 @@ final class CustomerControllerWithNoFirstLevelTest extends BaseApiTest
 
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals($customerData['levelId'], $data['level']['levelId']['id']);
-        $this->assertEquals($customerData['levelId'], $data['levelId']);
-        $this->assertEquals($customerData['levelId'], $data['manuallyAssignedLevelId']['levelId']);
 
         $client->request(
             'GET',
@@ -179,7 +175,9 @@ final class CustomerControllerWithNoFirstLevelTest extends BaseApiTest
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertEquals($customerData['levelId'], $data['level']['levelId']['id']);
         $this->assertEquals($customerData['levelId'], $data['levelId']);
+        $this->assertEquals($customerData['levelId'], $data['manuallyAssignedLevelId']['levelId']);
     }
 
     /**

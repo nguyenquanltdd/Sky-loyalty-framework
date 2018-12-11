@@ -610,6 +610,13 @@ class CustomerControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), 'Edit response should have status 200');
 
+        // get new client's data
+        $client = $this->createAuthenticatedClient();
+        $client->request('GET', sprintf('/api/customer/%s', LoadUserData::TEST_USER_ID));
+
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), 'Edit response should have status 200');
+
         $data = json_decode($response->getContent(), true);
 
         $newClientData = array_merge($currentClientData, $customerData);
@@ -626,12 +633,12 @@ class CustomerControllerTest extends BaseApiTest
 
         // updatedAt is not needed, segments may be added later
         unset(
-            $newClientData['updatedAt'],
             $newClientData['version'],
-            $data['updatedAt'],
-            $newClientData['segments'],
-            $data['version']
+            $data['version'],
+            $newClientData['updatedAt'],
+            $data['updatedAt']
         );
+
         $this->assertEquals($newClientData, $data);
         $this->allowCustomerToEditProfileSettings(false);
     }
@@ -691,10 +698,6 @@ class CustomerControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals($customerData['levelId'], $data['level']['levelId']['id']);
-        $this->assertEquals($customerData['levelId'], $data['levelId']);
-        $this->assertEquals($customerData['levelId'], $data['manuallyAssignedLevelId']['levelId']);
 
         $client->request(
             'GET',
@@ -705,6 +708,9 @@ class CustomerControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertEquals($customerData['levelId'], $data['levelId']);
+        $this->assertEquals($customerData['levelId'], $data['level']['levelId']['id']);
+        $this->assertEquals($customerData['levelId'], $data['manuallyAssignedLevelId']['levelId']);
+
         $this->allowCustomerToEditProfileSettings(false);
     }
 
@@ -885,8 +891,6 @@ class CustomerControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals(LoadUserData::TEST_SELLER_ID, $data['sellerId']);
 
         self::$kernel->boot();
 
