@@ -988,7 +988,10 @@ class CampaignController extends FOSRestController
             }
 
             $usageLeft = $this->campaignProvider->getUsageLeft($campaign);
-            $usageLeftForCustomer = $this->campaignProvider->getUsageLeftForCustomer($campaign, $customer->getId());
+            $usageLeftForCustomer = $this->campaignProvider->getUsageLeftForCustomer(
+                $campaign,
+                new CustomerId($customer->getId())
+            );
 
             return $usageLeft > 0 && $usageLeftForCustomer > 0;
         });

@@ -225,7 +225,7 @@ class CustomerCampaignsController extends FOSRestController
         $campaigns = array_filter($campaigns, function (Campaign $campaign) use ($customer) {
             $usageLeft = $this->campaignProvider->getUsageLeft($campaign);
             $usageLeftForCustomer = $this->campaignProvider
-                ->getUsageLeftForCustomer($campaign, (string) $customer->getCustomerId());
+                ->getUsageLeftForCustomer($campaign, new CustomerId($customer->getId()));
 
             return $usageLeft > 0 && $usageLeftForCustomer > 0;
         });

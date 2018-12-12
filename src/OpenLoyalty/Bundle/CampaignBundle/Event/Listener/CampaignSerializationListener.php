@@ -16,6 +16,7 @@ use OpenLoyalty\Component\Campaign\Domain\Campaign;
 use OpenLoyalty\Component\Campaign\Domain\CampaignCategory;
 use OpenLoyalty\Component\Campaign\Domain\CampaignCategoryId;
 use OpenLoyalty\Component\Campaign\Domain\CampaignCategoryRepository;
+use OpenLoyalty\Component\Campaign\Domain\CustomerId as CampaignCustomerId;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignUsageRepository;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CouponUsage;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CouponUsageRepository;
@@ -177,7 +178,10 @@ class CampaignSerializationListener implements EventSubscriberInterface
 
         if ($customerId && !$customerId instanceof None) {
             $customerId = $context->attributes->get('customerId')->get();
-            $usageLeftForCustomer = $this->campaignProvider->getUsageLeftForCustomer($campaign, $customerId);
+            $usageLeftForCustomer = $this->campaignProvider->getUsageLeftForCustomer(
+                $campaign,
+                new CampaignCustomerId($customerId)
+            );
             $event->getVisitor()->addData('usageLeftForCustomer', $usageLeftForCustomer);
 
             $customerStatus = $this->customerStatusProvider->getStatus(new CustomerId($customerId));

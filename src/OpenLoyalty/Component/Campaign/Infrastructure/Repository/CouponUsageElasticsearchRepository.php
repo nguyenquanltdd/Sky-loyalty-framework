@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -16,10 +16,13 @@ use OpenLoyalty\Component\Core\Infrastructure\Repository\OloyElasticsearchReposi
  */
 class CouponUsageElasticsearchRepository extends OloyElasticsearchRepository implements CouponUsageRepository
 {
-    public function countUsageForCampaign(CampaignId $campaignId)
+    /**
+     * {@inheritdoc}
+     */
+    public function countUsageForCampaign(CampaignId $campaignId): int
     {
         $total = 0;
-        $usages = $this->findBy(['campaignId' => $campaignId->__toString()]);
+        $usages = $this->findBy(['campaignId' => (string) $campaignId]);
         /** @var CouponUsage $usage */
         foreach ($usages as $usage) {
             $total += $usage->getUsage();
@@ -28,12 +31,15 @@ class CouponUsageElasticsearchRepository extends OloyElasticsearchRepository imp
         return $total;
     }
 
-    public function countUsageForCampaignAndCustomer(CampaignId $campaignId, CustomerId $customerId)
+    /**
+     * {@inheritdoc}
+     */
+    public function countUsageForCampaignAndCustomer(CampaignId $campaignId, CustomerId $customerId): int
     {
         $total = 0;
         $all = $this->findBy([
-            'campaignId' => $campaignId->__toString(),
-            'customerId' => $customerId->__toString(),
+            'campaignId' => (string) $campaignId,
+            'customerId' => (string) $customerId,
         ]);
 
         /** @var CouponUsage $usage */
@@ -44,8 +50,34 @@ class CouponUsageElasticsearchRepository extends OloyElasticsearchRepository imp
         return $total;
     }
 
-    public function findByCampaign(CampaignId $campaignId)
+    /**
+     * {@inheritdoc}
+     */
+    public function countUsageForCampaignAndCustomerAndCode(
+        CampaignId $campaignId,
+        CustomerId $customerId,
+        string $couponCode
+    ): int {
+        $total = 0;
+        $all = $this->findBy([
+            'campaignId' => (string) $campaignId,
+            'customerId' => (string) $customerId,
+            'coupon' => $couponCode,
+        ]);
+
+        /** @var CouponUsage $usage */
+        foreach ($all as $usage) {
+            $total += $usage->getUsage();
+        }
+
+        return $total;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findByCampaign(CampaignId $campaignId): array
     {
-        return $this->findBy(['campaignId' => $campaignId->__toString()]);
+        return $this->findBy(['campaignId' => (string) $campaignId]);
     }
 }
