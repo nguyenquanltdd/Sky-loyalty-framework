@@ -51,6 +51,8 @@ class SettingsFormType extends AbstractType
 
     const LEVEL_RESET_POINTS_ON_DOWNGRADE_SETTINGS_KEY = 'levelResetPointsOnDowngrade';
 
+    const ALLOW_CUSTOMERS_PROFILE_EDITS_SETTINGS_KEY = 'allowCustomersProfileEdits';
+
     /**
      * @var SettingsManager
      */
@@ -199,7 +201,9 @@ class SettingsFormType extends AbstractType
 
         $builder->add($builder->create('helpEmailAddress', SettingsTextType::class, ['required' => false]));
         $builder->add($builder->create('returns', SettingsCheckboxType::class, ['required' => false]));
-        $builder->add($builder->create('allowCustomersProfileEdits', SettingsCheckboxType::class, [
+
+        $builder->add($builder->create(
+            self::ALLOW_CUSTOMERS_PROFILE_EDITS_SETTINGS_KEY, SettingsCheckboxType::class, [
             'required' => false,
         ]));
 

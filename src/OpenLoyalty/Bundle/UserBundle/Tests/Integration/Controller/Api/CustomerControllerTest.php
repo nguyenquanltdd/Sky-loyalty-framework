@@ -10,10 +10,11 @@ namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Controller\Api;
 
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\LevelBundle\DataFixtures\ORM\LoadLevelData;
+use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Bundle\UtilityBundle\Tests\Integration\Traits\UploadedFileTrait;
-use OpenLoyalty\Component\Customer\Tests\Unit\Domain\Command\CustomerCommandHandlerTest;
 use OpenLoyalty\Component\Customer\Domain\PosId;
+use OpenLoyalty\Component\Customer\Tests\Unit\Domain\Command\CustomerCommandHandlerTest;
 use OpenLoyalty\Component\Import\Infrastructure\ImportResultItem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
@@ -590,6 +591,8 @@ class CustomerControllerTest extends BaseApiTest
         $client = $this->createAuthenticatedClient();
         $client->request('GET', sprintf('/api/customer/%s', LoadUserData::TEST_USER_ID));
 
+        $this->allowCustomerToEditProfileSettings(true);
+
         $response = $client->getResponse();
         $currentClientData = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Get response should have status 200');
@@ -630,6 +633,7 @@ class CustomerControllerTest extends BaseApiTest
             $data['version']
         );
         $this->assertEquals($newClientData, $data);
+        $this->allowCustomerToEditProfileSettings(false);
     }
 
     /**
@@ -666,6 +670,8 @@ class CustomerControllerTest extends BaseApiTest
             '/api/customer/'.LoadUserData::USER2_USER_ID
         );
 
+        $this->allowCustomerToEditProfileSettings(true);
+
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
 
@@ -699,6 +705,7 @@ class CustomerControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertEquals($customerData['levelId'], $data['levelId']);
+        $this->allowCustomerToEditProfileSettings(false);
     }
 
     /**
@@ -708,6 +715,8 @@ class CustomerControllerTest extends BaseApiTest
     {
         $userId = '22222222-0000-474c-b092-b0dd880c07e2';
         $client = $this->createAuthenticatedClient();
+        $this->allowCustomerToEditProfileSettings(true);
+
         $customerData = [
             'email' => 'user-3@oloy.com',
             'birthDate' => '1998-02-02',
@@ -740,6 +749,7 @@ class CustomerControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertEmpty($data['phone']);
+        $this->allowCustomerToEditProfileSettings(true);
     }
 
     /**
@@ -749,6 +759,8 @@ class CustomerControllerTest extends BaseApiTest
     {
         $userId = '22222222-0000-474c-b092-b0dd880c07e2';
         $client = $this->createAuthenticatedClient();
+        $this->allowCustomerToEditProfileSettings(true);
+
         $customerData = [
             'email' => 'user-3@oloy.com',
             'birthDate' => '1998-02-02',
@@ -781,6 +793,7 @@ class CustomerControllerTest extends BaseApiTest
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertSame('123123123', $data['phone']);
+        $this->allowCustomerToEditProfileSettings(false);
     }
 
     /**
@@ -819,6 +832,8 @@ class CustomerControllerTest extends BaseApiTest
     {
         $userId = '22222222-0000-474c-b092-b0dd880c07e2';
         $client = $this->createAuthenticatedClient();
+        $this->allowCustomerToEditProfileSettings(true);
+
         $customerData = [
             'email' => 'user-3@oloy.com',
             'birthDate' => '1998-02-02',
@@ -839,6 +854,7 @@ class CustomerControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->allowCustomerToEditProfileSettings(false);
     }
 
     /**
@@ -847,6 +863,8 @@ class CustomerControllerTest extends BaseApiTest
     public function it_allows_to_edit_customer_details_with_seller_assignment(): void
     {
         $client = $this->createAuthenticatedClient();
+        $this->allowCustomerToEditProfileSettings(true);
+
         $customerData = CustomerCommandHandlerTest::getCustomerData();
         $tmp = new \DateTime();
         $tmp->setTimestamp($customerData['birthDate']);
@@ -883,6 +901,7 @@ class CustomerControllerTest extends BaseApiTest
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertEquals('Jane', $data['firstName']);
         $this->assertEquals(LoadUserData::TEST_SELLER_ID, $data['sellerId']);
+        $this->allowCustomerToEditProfileSettings(false);
     }
 
     /**
@@ -890,6 +909,7 @@ class CustomerControllerTest extends BaseApiTest
      */
     public function it_allows_to_remove_customer_company(): void
     {
+        $this->allowCustomerToEditProfileSettings(true);
         $customerData = CustomerCommandHandlerTest::getCustomerData();
         $tmp = new \DateTime();
         $tmp->setTimestamp($customerData['birthDate']);
@@ -922,7 +942,8 @@ class CustomerControllerTest extends BaseApiTest
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
-        $this->assertTrue(empty($data['company']));
+        $this->assertArrayNotHasKey('company', $data);
+        $this->allowCustomerToEditProfileSettings(false);
     }
 
     /**
@@ -1359,6 +1380,8 @@ class CustomerControllerTest extends BaseApiTest
         int $counter
     ): void {
         $client = $this->createAuthenticatedClient();
+        $this->allowCustomerToEditProfileSettings(true);
+
         $client->request('GET', '/api/customer', [$field => $phrase, 'perPage' => 1000]);
 
         $response = $client->getResponse();
@@ -1391,6 +1414,7 @@ class CustomerControllerTest extends BaseApiTest
                sprintf('Searching phrase %s but found %s', $phrase, $customer[$field])
             );
         }
+        $this->allowCustomerToEditProfileSettings(false);
     }
 
     /**
@@ -1438,6 +1462,8 @@ class CustomerControllerTest extends BaseApiTest
         int $counter
     ): void {
         $client = $this->createAuthenticatedClient();
+        $this->allowCustomerToEditProfileSettings(true);
+
         $client->request(
             'GET',
             '/api/customer',
@@ -1470,6 +1496,7 @@ class CustomerControllerTest extends BaseApiTest
                 'Searching phrase '.$phrase.' but found '.$customer[$field]
             );
         }
+        $this->allowCustomerToEditProfileSettings(false);
     }
 
     /**
@@ -1522,6 +1549,8 @@ class CustomerControllerTest extends BaseApiTest
         bool $strict = false
     ): void {
         $client = $this->createAuthenticatedClient();
+        $this->allowCustomerToEditProfileSettings(true);
+
         $client->request(
             'GET',
             '/api/customer',
@@ -1550,6 +1579,7 @@ class CustomerControllerTest extends BaseApiTest
 
             $this->assertTrue($result, sprintf('Searching phrase %s not found', $phrase));
         }
+        $this->allowCustomerToEditProfileSettings(false);
     }
 
     /**
@@ -1759,5 +1789,22 @@ class CustomerControllerTest extends BaseApiTest
             ['emailOrPhone', '+48', 7, ['email', 'phone']],
             ['emailOrPhone', '645', 2, ['email', 'phone']],
         ];
+    }
+
+    /**
+     * @param bool $allow
+     */
+    private function allowCustomerToEditProfileSettings(bool $allow): void
+    {
+        $kernel = static::bootKernel();
+        $settingManager = $kernel->getContainer()->get('ol.settings.manager');
+
+        $setting = new Settings();
+
+        $settingEntry = $settingManager->getSettingByKey('allowCustomersProfileEdits');
+        $settingEntry->setValue($allow);
+        $setting->addEntry($settingEntry);
+
+        $settingManager->save($setting);
     }
 }

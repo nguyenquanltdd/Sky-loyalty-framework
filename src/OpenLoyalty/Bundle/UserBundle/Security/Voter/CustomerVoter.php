@@ -3,9 +3,9 @@
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
+
 namespace OpenLoyalty\Bundle\UserBundle\Security\Voter;
 
-use OpenLoyalty\Bundle\SettingsBundle\Entity\BooleanSettingEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
 use OpenLoyalty\Bundle\UserBundle\Security\PermissionAccess;
@@ -27,7 +27,6 @@ class CustomerVoter extends Voter
     const CREATE_CUSTOMER = 'CREATE_CUSTOMER';
     const DEACTIVATE = 'DEACTIVATE';
     const EDIT = 'EDIT';
-    const EDIT_PROFILE = 'EDIT_PROFILE';
     const LIST_CUSTOMERS = 'LIST_CUSTOMERS';
     const VIEW = 'VIEW';
     const VIEW_STATUS = 'VIEW_STATUS';
@@ -65,7 +64,7 @@ class CustomerVoter extends Voter
     /**
      * {@inheritdoc}
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
 
@@ -92,8 +91,6 @@ class CustomerVoter extends Voter
                 return $fullAdmin || $user->hasRole('ROLE_SELLER');
             case self::EDIT:
                 return $fullAdmin || $this->canSellerOrCustomerEdit($user, $subject);
-            case self::EDIT_PROFILE:
-                return $fullAdmin || $this->canSellerEditProfile($user);
             case self::LIST_CUSTOMERS:
                 return $viewAdmin || $user->hasRole('ROLE_SELLER');
             case self::VIEW:
@@ -144,27 +141,6 @@ class CustomerVoter extends Voter
     }
 
     /**
-     * @param User $user
-     *
-     * @return bool
-     */
-    private function canSellerEditProfile(User $user): bool
-    {
-        if ($user->hasRole('ROLE_SELLER')) {
-            return true;
-        }
-
-        /** @var null|BooleanSettingEntry $settingEntry */
-        $settingEntry = $this->settingsManager->getSettingByKey('allowCustomersProfileEdits');
-
-        if (null === $settingEntry) {
-            return true;
-        }
-
-        return $settingEntry->getValue();
-    }
-
-    /**
      * @param mixed  $subject
      * @param string $attribute
      *
@@ -174,15 +150,19 @@ class CustomerVoter extends Voter
     {
         return
             $subject instanceof CustomerDetails
-            && \in_array($attribute, [
-                self::ACTIVATE,
-                self::ASSIGN_CUSTOMER_LEVEL,
-                self::ASSIGN_POS,
-                self::DEACTIVATE,
-                self::EDIT,
-                self::VIEW,
-                self::VIEW_STATUS,
-            ], true)
+            && \in_array(
+                $attribute,
+                [
+                    self::ACTIVATE,
+                    self::ASSIGN_CUSTOMER_LEVEL,
+                    self::ASSIGN_POS,
+                    self::DEACTIVATE,
+                    self::EDIT,
+                    self::VIEW,
+                    self::VIEW_STATUS,
+                ],
+                true
+            )
         ;
     }
 

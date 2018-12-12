@@ -5,6 +5,7 @@
  */
 namespace OpenLoyalty\Bundle\UserBundle\Form\Type;
 
+use OpenLoyalty\Bundle\UserBundle\Form\Listener\AllowUserToEditProfileSubscriber;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -16,6 +17,21 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class CustomerEditFormType extends AbstractType
 {
+    /**
+     * @var AllowUserToEditProfileSubscriber
+     */
+    private $subscriber;
+
+    /**
+     * CustomerEditFormType constructor.
+     *
+     * @param AllowUserToEditProfileSubscriber $subscriber
+     */
+    public function __construct(AllowUserToEditProfileSubscriber $subscriber)
+    {
+        $this->subscriber = $subscriber;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -67,5 +83,7 @@ class CustomerEditFormType extends AbstractType
                 $event->setData($data);
             }
         });
+
+        $builder->addEventSubscriber($this->subscriber);
     }
 }

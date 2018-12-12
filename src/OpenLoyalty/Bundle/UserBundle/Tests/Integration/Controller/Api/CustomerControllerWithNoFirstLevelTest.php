@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -15,7 +15,7 @@ use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
 /**
  * Class CustomerControllerWithNoFirstLevelTest.
  */
-class CustomerControllerWithNoFirstLevelTest extends BaseApiTest
+final class CustomerControllerWithNoFirstLevelTest extends BaseApiTest
 {
     /**
      * @var string
@@ -56,9 +56,14 @@ class CustomerControllerWithNoFirstLevelTest extends BaseApiTest
         $levelDowngradeBase = $settingsManager->getSettingByKey('levelDowngradeBase');
         $levelDowngradeBase->setValue(LevelDowngradeModeProvider::BASE_EARNED_POINTS);
 
+        $allowProfileEditSettingsEntry = $settingsManager->getSettingByKey('allowCustomersProfileEdits');
+        $allowProfileEditSettingsEntry->setValue(true);
+
+        $settings->addEntry($allowProfileEditSettingsEntry);
         $settings->addEntry($tierAssignType);
         $settings->addEntry($levelDowngradeMode);
         $settings->addEntry($levelDowngradeBase);
+
         $settingsManager->save($settings);
     }
 

@@ -87,8 +87,16 @@ services:
         tags:
             - { name: form.type }
 
+    OpenLoyalty\Bundle\UserBundle\Form\Listener\AllowUserToEditProfileSubscriber:
+        arguments:
+            - '@OpenLoyalty\Bundle\SettingsBundle\Service\DoctrineSettingsManager'
+            - '@security.token_storage'
+            - '@translator.default'
+
     oloy.user.form_type.customer_edit:
         class: OpenLoyalty\Bundle\UserBundle\Form\Type\CustomerEditFormType
+        arguments:
+            - '@OpenLoyalty\Bundle\UserBundle\Form\Listener\AllowUserToEditProfileSubscriber'
         tags:
             - { name: form.type }
 

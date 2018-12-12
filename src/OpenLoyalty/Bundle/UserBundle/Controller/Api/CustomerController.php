@@ -679,11 +679,6 @@ class CustomerController extends FOSRestController
         RegisterCustomerManager $registerCustomerManager
     ): View {
         $loggedUser = $this->getUser();
-
-        if (!$this->authorizationChecker->isGranted('EDIT_PROFILE', $customer) && $loggedUser instanceof Customer) {
-            return $this->view($customer, Response::HTTP_OK);
-        }
-
         $accountActivationMethod = $this->actionTokenManager->getCurrentMethod();
 
         $options = [
@@ -703,8 +698,7 @@ class CustomerController extends FOSRestController
         if ($form->isValid()) {
             $formHandler = $this
                 ->get('oloy.user.form_handler.customer_edit')
-                ->onSuccess($customer->getCustomerId(), $form)
-            ;
+                ->onSuccess($customer->getCustomerId(), $form);
 
             if (!$formHandler) {
                 return $this->view($formHandler, Response::HTTP_BAD_REQUEST);

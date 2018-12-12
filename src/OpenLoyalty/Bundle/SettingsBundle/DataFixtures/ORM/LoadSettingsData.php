@@ -127,6 +127,10 @@ class LoadSettingsData extends ContainerAwareFixture implements OrderedFixtureIn
         $entry->setValue(false);
         $settings->addEntry($entry);
 
+        $entry = new BooleanSettingEntry(SettingsFormType::ALLOW_CUSTOMERS_PROFILE_EDITS_SETTINGS_KEY);
+        $entry->setValue(true);
+        $settings->addEntry($entry);
+
         // copy logo
         $rootDirectory = $this->getContainer()->getParameter('kernel.root_dir');
         $destinationDirectory = $rootDirectory.'/uploads/logo';

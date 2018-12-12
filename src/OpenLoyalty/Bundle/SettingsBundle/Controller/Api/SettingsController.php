@@ -938,4 +938,31 @@ class SettingsController extends FOSRestController
 
         return new Response($this->templateProvider->getCssContent(), Response::HTTP_OK, ['Content-Type' => 'text/css; charset=utf-8']);
     }
+
+    /**
+     * Method will return all public system settings.
+     *
+     * @Route(name="oloy.settings.public", path="/settings/public")
+     * @Method("GET")
+     * @ApiDoc(
+     *     name="Get public system settings",
+     *     section="Settings"
+     * )
+     *
+     * @return View
+     */
+    public function publicAction(): View
+    {
+        $key = SettingsFormType::ALLOW_CUSTOMERS_PROFILE_EDITS_SETTINGS_KEY;
+        $settingsEntry = $this->settingsManager->getSettingByKey($key);
+
+        return $this->view(
+            [
+                'settings' => [
+                    $key => $settingsEntry->getValue(),
+                ],
+            ],
+            Response::HTTP_OK
+        );
+    }
 }
