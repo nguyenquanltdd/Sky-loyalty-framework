@@ -19,7 +19,7 @@ class StartLevelNotFoundException extends CustomerValidationException implements
      */
     public function getMessageKey(): string
     {
-        return 'customer.registration.start_leveL_not_found';
+        return 'customer.registration.start_level_not_found';
     }
 
     /**
