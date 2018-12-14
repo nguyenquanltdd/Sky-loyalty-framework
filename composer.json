@@ -30,6 +30,7 @@
     "broadway/uuid-generator": "^0.4.0",
     "broadway/read-model-elasticsearch": "^0.3.0",
     "broadway/event-store-dbal": "^0.2.0",
+    "broadway/snapshotting": "^0.2.0",
     "doctrine/orm": "^2.5",
     "doctrine/doctrine-bundle": "^1.6",
     "doctrine/doctrine-cache-bundle": "^1.2",

@@ -14,9 +14,12 @@ use Broadway\EventDispatcher\EventDispatcher;
 use Broadway\EventHandling\EventBus;
 use Broadway\EventStore\EventStore;
 use Broadway\ReadModel\Repository;
+use Broadway\Snapshotting\Snapshot\SnapshotRepository;
+use Broadway\Snapshotting\Snapshot\Trigger;
 use OpenLoyalty\Bundle\AuditBundle\Service\AuditManagerInterface;
 use OpenLoyalty\Component\Customer\Domain\Command\CustomerCommandHandler;
 use OpenLoyalty\Component\Customer\Domain\CustomerRepository;
+use OpenLoyalty\Component\Customer\Domain\EventSourcedCustomerRepository;
 use OpenLoyalty\Component\Customer\Domain\Specification\CustomerPhoneSpecificationInterface;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
 use OpenLoyalty\Component\Customer\Infrastructure\LevelDowngradeModeProvider;
@@ -90,6 +93,15 @@ abstract class CustomerCommandHandlerTest extends CommandHandlerScenarioTestCase
         LevelDowngradeModeProvider $levelDowngradeModeProvider = null)
     {
         /** @var Repository|MockObject $customerDetailsRepository */
+        $eventSourcedRepository = new EventSourcedCustomerRepository($eventStore, $eventBus);
+
+        /** @var Trigger|\PHPUnit_Framework_MockObject_MockObject $trigger */
+        $trigger = $this->getMockBuilder(Trigger::class)->getMock();
+
+        /** @var SnapshotRepository|\PHPUnit_Framework_MockObject_MockObject $snapshotRepository */
+        $snapshotRepository = $this->getMockBuilder(SnapshotRepository::class)->getMock();
+
+        /** @var Repository|\PHPUnit_Framework_MockObject_MockObject $customerDetailsRepository */
         $customerDetailsRepository = $this->getMockBuilder(Repository::class)->getMock();
         $customerDetailsRepository->method('findBy')->willReturn([]);
 
@@ -110,7 +122,7 @@ abstract class CustomerCommandHandlerTest extends CommandHandlerScenarioTestCase
         }
 
         return new CustomerCommandHandler(
-            new CustomerRepository($eventStore, $eventBus),
+            new CustomerRepository($eventSourcedRepository, $eventStore, $snapshotRepository, $trigger),
             $validator,
             $eventDispatcher,
             $auditManager,

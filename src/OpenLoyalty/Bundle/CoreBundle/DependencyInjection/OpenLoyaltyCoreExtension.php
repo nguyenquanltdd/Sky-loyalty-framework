@@ -4,11 +4,13 @@
  * See LICENSE for license details.
  */
 
+declare(strict_types=1);
+
 namespace OpenLoyalty\Bundle\CoreBundle\DependencyInjection;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader;
 
 /**
@@ -23,5 +25,6 @@ class OpenLoyaltyCoreExtension extends Extension
     {
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('voters.yml');
+        $loader->load('services.yml');
     }
 }

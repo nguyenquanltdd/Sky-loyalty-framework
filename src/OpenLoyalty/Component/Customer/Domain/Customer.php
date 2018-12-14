@@ -5,8 +5,8 @@
  */
 namespace OpenLoyalty\Component\Customer\Domain;
 
-use Broadway\EventSourcing\EventSourcedAggregateRoot;
 use OpenLoyalty\Component\Campaign\Domain\Event\CampaignBoughtDeliveryStatusWasChanged;
+use OpenLoyalty\Component\Core\Domain\SnapableEventSourcedAggregateRoot;
 use OpenLoyalty\Component\Core\Domain\Model\Identifier;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Customer\Domain\Event\AssignedAccountToCustomer;
@@ -41,7 +41,7 @@ use OpenLoyalty\Component\Customer\Domain\Model\Transaction;
 /**
  * Class Customer.
  */
-class Customer extends EventSourcedAggregateRoot
+class Customer extends SnapableEventSourcedAggregateRoot
 {
     /**
      * @var CustomerId

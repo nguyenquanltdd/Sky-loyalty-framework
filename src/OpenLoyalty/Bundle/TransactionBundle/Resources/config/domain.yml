@@ -11,12 +11,20 @@ services:
         lazy: true
         tags:
             - { name: broadway.command_handler }
-    oloy.transaction.repository:
-        class: OpenLoyalty\Component\Transaction\Domain\TransactionRepository
+
+    OpenLoyalty\Component\Transaction\Domain\EventSourcedTransactionRepository:
         arguments:
             - '@broadway.event_store'
             - '@broadway.event_handling.event_bus'
             - ['@broadway.metadata_enriching_event_stream_decorator']
+
+    OpenLoyalty\Component\Transaction\Domain\TransactionRepository:
+        arguments:
+            - '@OpenLoyalty\Component\Transaction\Domain\EventSourcedTransactionRepository'
+            - '@broadway.event_store'
+            - '@OpenLoyalty\Bundle\CoreBundle\Repository\DBALSnapshotRepository'
+            - '@Broadway\Snapshotting\Snapshot\Trigger\EventCountTrigger'
+
     OpenLoyalty\Component\Transaction\Infrastructure\Repository\TransactionDetailsElasticsearchRepository:
         class: 'Broadway\ReadModel\ReadModel'
         factory: ['@oloy.read_model.repository.factory', create]

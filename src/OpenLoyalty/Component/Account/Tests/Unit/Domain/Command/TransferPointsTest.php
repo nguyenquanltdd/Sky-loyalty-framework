@@ -14,6 +14,8 @@ use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventBus;
 use Broadway\EventStore\EventStore;
+use Broadway\Snapshotting\Snapshot\SnapshotRepository;
+use Broadway\Snapshotting\Snapshot\Trigger;
 use OpenLoyalty\Component\Account\Domain\AccountId;
 use OpenLoyalty\Component\Account\Domain\AccountRepository;
 use OpenLoyalty\Component\Account\Domain\Command\AccountCommandHandler;
@@ -21,6 +23,7 @@ use OpenLoyalty\Component\Account\Domain\Command\TransferPoints;
 use OpenLoyalty\Component\Account\Domain\Event\AccountWasCreated;
 use OpenLoyalty\Component\Account\Domain\Event\PointsWereAdded;
 use OpenLoyalty\Component\Account\Domain\Event\PointsWereTransferred;
+use OpenLoyalty\Component\Account\Domain\EventSourcedAccountRepository;
 use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Model\P2PAddPointsTransfer;
 use OpenLoyalty\Component\Account\Domain\Model\P2PSpendPointsTransfer;
@@ -51,8 +54,16 @@ final class TransferPointsTest extends AccountCommandHandlerTest
 
         $eventStore->append($receiverId, new DomainEventStream($messages));
 
+        $eventSourcedAccountRepository = new EventSourcedAccountRepository($eventStore, $eventBus);
+
+        /** @var Trigger|\PHPUnit_Framework_MockObject_MockObject $trigger */
+        $trigger = $this->getMockBuilder(Trigger::class)->getMock();
+
+        /** @var SnapshotRepository|\PHPUnit_Framework_MockObject_MockObject $snapshotRepository */
+        $snapshotRepository = $this->getMockBuilder(SnapshotRepository::class)->getMock();
+
         return new AccountCommandHandler(
-            new AccountRepository($eventStore, $eventBus),
+            new AccountRepository($eventSourcedAccountRepository, $eventStore, $snapshotRepository, $trigger),
             $this->getUuidGenerator()
         );
     }

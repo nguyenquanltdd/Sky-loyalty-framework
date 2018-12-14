@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -15,6 +15,7 @@ use Broadway\EventStore\Exception\DuplicatePlayheadException;
 use Broadway\EventStore\Management\Criteria;
 use Broadway\EventStore\Management\EventStoreManagement;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 
 /**
  * Class ConcurrencyDBALEventStore.
@@ -93,7 +94,7 @@ class ConcurrencyDBALEventStore implements EventStore, EventStoreManagement
      */
     public function loadFromPlayhead($id, int $playhead): DomainEventStream
     {
-        return $this->loadFromPlayhead($id, $playhead);
+        return $this->eventStore->loadFromPlayhead($id, $playhead);
     }
 
     /**
@@ -105,17 +106,19 @@ class ConcurrencyDBALEventStore implements EventStore, EventStoreManagement
     }
 
     /**
-     * {@inheritdoc}
+     * @param Schema $schema
+     *
+     * @return Table|null
      */
-    public function configureSchema(Schema $schema)
+    public function configureSchema(Schema $schema): ?Table
     {
         return $this->eventStore->configureSchema($schema);
     }
 
     /**
-     * {@inheritdoc}
+     * @return Table
      */
-    public function configureTable()
+    public function configureTable(): Table
     {
         return $this->eventStore->configureTable();
     }

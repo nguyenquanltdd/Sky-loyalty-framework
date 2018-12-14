@@ -12,10 +12,13 @@ use Broadway\CommandHandling\CommandHandler;
 use Broadway\CommandHandling\Testing\CommandHandlerScenarioTestCase;
 use Broadway\EventHandling\EventBus;
 use Broadway\EventStore\EventStore;
+use Broadway\Snapshotting\Snapshot\SnapshotRepository;
+use Broadway\Snapshotting\Snapshot\Trigger;
 use Broadway\UuidGenerator\UuidGeneratorInterface;
 use OpenLoyalty\Component\Account\Domain\AccountRepository;
 use OpenLoyalty\Component\Account\Domain\Command\AccountCommandHandler;
 use PHPUnit\Framework\MockObject\MockObject;
+use OpenLoyalty\Component\Account\Domain\EventSourcedAccountRepository;
 
 /**
  * Class AccountCommandHandlerTest.
@@ -34,8 +37,16 @@ abstract class AccountCommandHandlerTest extends CommandHandlerScenarioTestCase
      */
     protected function createCommandHandler(EventStore $eventStore, EventBus $eventBus): CommandHandler
     {
+        $eventSourcedAccountRepository = new EventSourcedAccountRepository($eventStore, $eventBus);
+
+        /** @var Trigger|\PHPUnit_Framework_MockObject_MockObject $trigger */
+        $trigger = $this->getMockBuilder(Trigger::class)->getMock();
+
+        /** @var SnapshotRepository|\PHPUnit_Framework_MockObject_MockObject $snapshotRepository */
+        $snapshotRepository = $this->getMockBuilder(SnapshotRepository::class)->getMock();
+
         return new AccountCommandHandler(
-            new AccountRepository($eventStore, $eventBus),
+            new AccountRepository($eventSourcedAccountRepository, $eventStore, $snapshotRepository, $trigger),
             $this->getUuidGenerator()
         );
     }

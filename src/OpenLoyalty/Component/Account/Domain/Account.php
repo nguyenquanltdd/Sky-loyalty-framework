@@ -1,11 +1,11 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Component\Account\Domain;
 
-use Broadway\EventSourcing\EventSourcedAggregateRoot;
+use OpenLoyalty\Component\Core\Domain\SnapableEventSourcedAggregateRoot;
 use OpenLoyalty\Component\Account\Domain\Event\AccountWasCreated;
 use OpenLoyalty\Component\Account\Domain\Event\PointsHasBeenReset;
 use OpenLoyalty\Component\Account\Domain\Event\PointsTransferHasBeenCanceled;
@@ -29,7 +29,7 @@ use OpenLoyalty\Component\Account\Domain\Model\SpendPointsTransfer;
 /**
  * Class Account.
  */
-class Account extends EventSourcedAggregateRoot
+class Account extends SnapableEventSourcedAggregateRoot
 {
     /**
      * @var AccountId

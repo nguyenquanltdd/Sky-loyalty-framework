@@ -134,6 +134,18 @@ services:
         alias: OpenLoyalty\Component\Campaign\Infrastructure\Repository\CampaignUsageElasticsearchRepository
         deprecated: The "%service_id%" service is deprecated since 3.1.0
 
+    oloy.user.customer.repository:
+        alias: OpenLoyalty\Component\Customer\Domain\CustomerRepository
+        deprecated: The "%service_id%" service is deprecated since 3.1.0
+
+    oloy.transaction.repository:
+        alias: OpenLoyalty\Component\Transaction\Domain\TransactionRepository
+        deprecated: The "%service_id%" service is deprecated since 3.1.0
+
+    oloy.points.account.repository:
+        alias: OpenLoyalty\Component\Account\Domain\AccountRepository
+        deprecated: The "%service_id%" service is deprecated since 3.1.0
+
     oloy.transaction.voters.transaction:
         alias: OpenLoyalty\Bundle\TransactionBundle\Security\Voter\TransactionVoter
         deprecated: The "%service_id%" service is deprecated since 3.2.0

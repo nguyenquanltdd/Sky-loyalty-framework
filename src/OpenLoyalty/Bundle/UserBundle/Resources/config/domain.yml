@@ -49,12 +49,18 @@ services:
         arguments:
             - '@oloy.user.read_model.repository.seller_details'
 
-    oloy.user.customer.repository:
-        class: OpenLoyalty\Component\Customer\Domain\CustomerRepository
+    OpenLoyalty\Component\Customer\Domain\EventSourcedCustomerRepository:
         arguments:
             - '@broadway.event_store'
             - '@broadway.event_handling.event_bus'
             - ['@broadway.metadata_enriching_event_stream_decorator']
+
+    OpenLoyalty\Component\Customer\Domain\CustomerRepository:
+        arguments:
+            - '@OpenLoyalty\Component\Customer\Domain\EventSourcedCustomerRepository'
+            - '@broadway.event_store'
+            - '@OpenLoyalty\Bundle\CoreBundle\Repository\DBALSnapshotRepository'
+            - '@Broadway\Snapshotting\Snapshot\Trigger\EventCountTrigger'
 
     oloy.user.invitation.repository:
         class: OpenLoyalty\Component\Customer\Domain\InvitationRepository
