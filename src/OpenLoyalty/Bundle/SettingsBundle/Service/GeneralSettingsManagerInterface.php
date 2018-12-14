@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -84,4 +84,19 @@ interface GeneralSettingsManagerInterface
      * @return bool
      */
     public function isDeliveryCostExcluded(): bool;
+
+    /**
+     * @return string
+     */
+    public function getAccountActivationMethod(): string;
+
+    /**
+     * @return bool
+     */
+    public function isSmsAccountActivationMethod(): bool;
+
+    /**
+     * @return bool
+     */
+    public function isEmailAccountActivationMethod(): bool;
 }

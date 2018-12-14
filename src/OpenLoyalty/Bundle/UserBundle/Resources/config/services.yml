@@ -247,11 +247,12 @@ services:
         tags:
             - { name: broadway.event_listener, event: oloy.customer.level_changed_automatically, method: sendEmail }
 
-    oloy.user.listener.user_registered_with_invitation_token:
-        class: OpenLoyalty\Bundle\UserBundle\EventListener\UserRegisteredWithInvitationTokenListener
+    OpenLoyalty\Bundle\UserBundle\EventListener\UserRegisteredWithInvitationTokenListener:
         arguments:
-            - '@oloy.user.read_model.repository.invitation_details'
-            - '@broadway.command_handling.command_bus'
+            $invitationDetailsRepository: '@oloy.user.read_model.repository.invitation_details'
+            $commandBus: '@broadway.command_handling.command_bus'
+            $customerRepository: '@oloy.user.customer.repository'
+            $invitationRepository: '@oloy.user.invitation.repository'
         tags:
             - { name: kernel.event_listener, event: user.invitation.user_registered_with_invitation_token, method: handle }
 

@@ -22,6 +22,9 @@ interface SettingsManager
      */
     public function save(Settings $settings, $flush = true): void;
 
+    /**
+     * Remove all.
+     */
     public function removeAll(): void;
 
     /**

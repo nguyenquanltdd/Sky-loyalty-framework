@@ -53,6 +53,11 @@ class Invitation extends EventSourcedAggregateRoot
     private $status = self::STATUS_INVITED;
 
     /**
+     * @var string
+     */
+    private $token;
+
+    /**
      * @return string
      */
     public function getAggregateRootId(): string
@@ -128,6 +133,7 @@ class Invitation extends EventSourcedAggregateRoot
         $this->setRecipientEmail($event->getRecipientEmail());
         $this->setRecipientPhone($event->getRecipientPhone());
         $this->setReferrerId($event->getReferrerId());
+        $this->setToken($event->getToken());
     }
 
     /**
@@ -157,7 +163,7 @@ class Invitation extends EventSourcedAggregateRoot
     /**
      * @param CustomerId $referrerId
      */
-    public function setReferrerId(CustomerId $referrerId): void
+    private function setReferrerId(CustomerId $referrerId): void
     {
         $this->referrerId = $referrerId;
     }
@@ -173,7 +179,7 @@ class Invitation extends EventSourcedAggregateRoot
     /**
      * @param null|string $recipientEmail
      */
-    public function setRecipientEmail(?string $recipientEmail): void
+    private function setRecipientEmail(?string $recipientEmail): void
     {
         $this->recipientEmail = $recipientEmail;
     }
@@ -181,7 +187,7 @@ class Invitation extends EventSourcedAggregateRoot
     /**
      * @param string $status
      */
-    public function setStatus($status): void
+    private function setStatus($status): void
     {
         $this->status = $status;
     }
@@ -197,8 +203,24 @@ class Invitation extends EventSourcedAggregateRoot
     /**
      * @param null|string $recipientPhone
      */
-    public function setRecipientPhone(?string $recipientPhone): void
+    private function setRecipientPhone(?string $recipientPhone): void
     {
         $this->recipientPhone = $recipientPhone;
+    }
+
+    /**
+     * @return string
+     */
+    public function getToken(): string
+    {
+        return $this->token;
+    }
+
+    /**
+     * @param string $token
+     */
+    private function setToken(string $token): void
+    {
+        $this->token = $token;
     }
 }

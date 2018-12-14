@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -37,6 +37,9 @@ class CustomerProvider extends UserProvider implements UserProviderInterface
         $this->customerDetailsRepository = $customerDetailsRepository;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function loadUserByUsername($username)
     {
         try {
@@ -45,6 +48,7 @@ class CustomerProvider extends UserProvider implements UserProviderInterface
                 return $user;
             }
         } catch (UsernameNotFoundException $e) {
+            // do nothing
         }
 
         try {
@@ -53,6 +57,7 @@ class CustomerProvider extends UserProvider implements UserProviderInterface
                 return $user;
             }
         } catch (UsernameNotFoundException $e) {
+            // do nothing
         }
 
         $user = $this->loadUserByPhoneNumber($username);
@@ -61,7 +66,12 @@ class CustomerProvider extends UserProvider implements UserProviderInterface
         }
     }
 
-    public function loadUserByLoyaltyCardNumber($number)
+    /**
+     * @param string $number
+     *
+     * @return User
+     */
+    public function loadUserByLoyaltyCardNumber(string $number): User
     {
         $customers = $this->customerDetailsRepository->findBy(['loyaltyCardNumber' => $number]);
         if (count($customers) > 0) {
@@ -74,7 +84,12 @@ class CustomerProvider extends UserProvider implements UserProviderInterface
         throw new UsernameNotFoundException();
     }
 
-    public function loadUserByPhoneNumber($number)
+    /**
+     * @param string $number
+     *
+     * @return User
+     */
+    public function loadUserByPhoneNumber(string $number): User
     {
         $customers = $this->customerDetailsRepository->findBy(['phone' => $number]);
         if (count($customers) > 0) {
@@ -87,24 +102,37 @@ class CustomerProvider extends UserProvider implements UserProviderInterface
         throw new UsernameNotFoundException();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function supportsClass($class)
     {
         return $class === 'Heal\SecurityBundle\Entity\Customer';
     }
 
-    protected function findUserByCustomerId(CustomerId $customerId)
+    /**
+     * @param CustomerId $customerId
+     *
+     * @return User
+     *
+     * @throws UsernameNotFoundException
+     */
+    protected function findUserByCustomerId(CustomerId $customerId): User
     {
-        /** @var QueryBuilder $qb */
-        $qb = $this->em->createQueryBuilder();
-        $qb->select('u')->from('OpenLoyaltyUserBundle:User', 'u');
-        $qb->andWhere('u.id = :id')->setParameter(':id', $customerId->__toString());
-        $qb->andWhere('u.isActive = :true')->setParameter(':true', true);
-        $user = $qb->getQuery()->getOneOrNullResult();
+        try {
+            /** @var QueryBuilder $qb */
+            $qb = $this->em->createQueryBuilder();
+            $qb->select('u')->from('OpenLoyaltyUserBundle:User', 'u');
+            $qb->andWhere('u.id = :id')->setParameter(':id', (string) $customerId);
+            $qb->andWhere('u.isActive = :true')->setParameter(':true', true);
+            $user = $qb->getQuery()->getOneOrNullResult();
 
-        if (!$user instanceof User) {
-            throw new UsernameNotFoundException();
+            if ($user instanceof User) {
+                return $user;
+            }
+        } catch (\Exception $e) {
         }
 
-        return $user;
+        throw new UsernameNotFoundException();
     }
 }

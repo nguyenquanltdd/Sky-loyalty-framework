@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\SettingsBundle\Service;
 
 use OpenLoyalty\Bundle\SettingsBundle\Entity\SettingsEntry;
 use OpenLoyalty\Component\Account\Domain\Model\AddPointsTransfer;
+use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 
 /**
  * Class GeneralSettingsManager.
@@ -171,6 +172,30 @@ class GeneralSettingsManager extends DoctrineSettingsManager implements GeneralS
     public function isDeliveryCostExcluded(): bool
     {
         return (bool) $this->getSettingByKey('excludeDeliveryCostsFromTierAssignment')->getValue();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAccountActivationMethod(): string
+    {
+        return $this->getSettingByKey('accountActivationMethod')->getValue();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isSmsAccountActivationMethod(): bool
+    {
+        return $this->getAccountActivationMethod() === AccountActivationMethod::METHOD_SMS;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isEmailAccountActivationMethod(): bool
+    {
+        return $this->getAccountActivationMethod() === AccountActivationMethod::METHOD_EMAIL;
     }
 
     /**
