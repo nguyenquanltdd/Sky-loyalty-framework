@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace OpenLoyalty\Bundle\UserBundle\Notification\Transport;
 
 use OpenLoyalty\Bundle\ActivationCodeBundle\Service\SmsSender;
+use OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManagerInterface;
 use OpenLoyalty\Bundle\SmsApiBundle\Message\Message;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\InvitationDetails;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -18,6 +19,11 @@ use Symfony\Component\Translation\TranslatorInterface;
  */
 class SmsNotificationTransport implements NotificationTransportInterface
 {
+    /**
+     * @var GeneralSettingsManagerInterface
+     */
+    private $generalSettingsManager;
+
     /**
      * @var SmsSender
      */
@@ -36,12 +42,18 @@ class SmsNotificationTransport implements NotificationTransportInterface
     /**
      * SmsNotificationTransport constructor.
      *
-     * @param SmsSender           $smsSender
-     * @param TranslatorInterface $translator
-     * @param array               $parameters
+     * @param GeneralSettingsManagerInterface $generalSettingsManager
+     * @param SmsSender                       $smsSender
+     * @param TranslatorInterface             $translator
+     * @param array                           $parameters
      */
-    public function __construct(SmsSender $smsSender, TranslatorInterface $translator, array $parameters)
-    {
+    public function __construct(
+        GeneralSettingsManagerInterface $generalSettingsManager,
+        SmsSender $smsSender,
+        TranslatorInterface $translator,
+        array $parameters
+    ) {
+        $this->generalSettingsManager = $generalSettingsManager;
         $this->smsSender = $smsSender;
         $this->translator = $translator;
         $this->parameters = $parameters;
@@ -72,7 +84,7 @@ class SmsNotificationTransport implements NotificationTransportInterface
 
             $this->smsSender->send(Message::create(
                 $invitation->getRecipientPhone(),
-                $this->parameters['loyalty_program_name'] ?? '',
+                $this->generalSettingsManager->getProgramName(),
                 $content
             ));
         }

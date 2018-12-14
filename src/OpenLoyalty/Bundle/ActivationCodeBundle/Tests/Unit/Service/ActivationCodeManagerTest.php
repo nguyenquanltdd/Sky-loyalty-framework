@@ -1,5 +1,8 @@
 <?php
-
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Bundle\ActivationCodeBundle\Tests\Unit\Service;
 
 use Broadway\UuidGenerator\UuidGeneratorInterface;
@@ -7,6 +10,7 @@ use Doctrine\ORM\EntityManager;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Generator\CodeGenerator;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActivationCodeManager;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Service\SmsSender;
+use OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManagerInterface;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Component\ActivationCode\Domain\ActivationCode;
 use OpenLoyalty\Component\ActivationCode\Domain\ActivationCodeId;
@@ -51,6 +55,11 @@ class ActivationCodeManagerTest extends TestCase
     protected $codeGenerator;
 
     /**
+     * @var
+     */
+    protected $generalSettingsManager;
+
+    /**
      * {@inheritdoc}
      */
     public function setUp()
@@ -77,12 +86,16 @@ class ActivationCodeManagerTest extends TestCase
         $this->translator->method('trans')->willReturn('content');
 
         $this->codeGenerator = $this->getMockBuilder(CodeGenerator::class)->getMock();
+
+        $this->generalSettingsManager = $this->getMockBuilder(GeneralSettingsManagerInterface::class)
+                                             ->getMock();
+        $this->generalSettingsManager->method('getProgramName')->willReturn('OpenLoyalty');
     }
 
     /**
      * @return array
      */
-    public function objectTypeObjectIdProvider()
+    public function objectTypeObjectIdProvider(): array
     {
         return [
             ['c85bef3a-1549-11e8-b642-0ed5f89f718b', Customer::class, '542ecfc0-1543-11e8-b642-0ed5f89f718b'],
@@ -95,7 +108,7 @@ class ActivationCodeManagerTest extends TestCase
      *
      * @throws \Assert\AssertionFailedException
      */
-    public function activationCodePhoneProvider()
+    public function activationCodePhoneProvider(): array
     {
         return [
             [
@@ -126,7 +139,7 @@ class ActivationCodeManagerTest extends TestCase
      * @throws \Doctrine\DBAL\Exception\UniqueConstraintViolationException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function it_creates_code($id, string $objectType, string $objectId)
+    public function it_creates_code($id, string $objectType, string $objectId): void
     {
         $this->uuidGenerator->method('generate')->willReturn($id);
         $this->repository
@@ -169,7 +182,7 @@ class ActivationCodeManagerTest extends TestCase
         string $objectId,
         string $code,
         string $phone
-    ) {
+    ): void {
         $this->codeGenerator->method('generate')->willReturn($code);
 
         $activationCodeManager = $this->getActivationCodeManager(
@@ -198,7 +211,7 @@ class ActivationCodeManagerTest extends TestCase
     /**
      * @test
      */
-    public function it_throws_exception_if_no_sms_sender()
+    public function it_throws_exception_if_no_sms_sender(): void
     {
         $this->codeGenerator->method('generate')->willReturn('1234');
 
@@ -226,7 +239,7 @@ class ActivationCodeManagerTest extends TestCase
     /**
      * @test
      */
-    public function it_returns_false_if_no_sms_sender_set_when_checking_settings()
+    public function it_returns_false_if_no_sms_sender_set_when_checking_settings(): void
     {
         $activationCodeManager = $this->getActivationCodeManager(
             $this->uuidGenerator,
@@ -241,7 +254,7 @@ class ActivationCodeManagerTest extends TestCase
     /**
      * @test
      */
-    public function it_returns_true_if_sms_sender_is_set_while_checking_settings()
+    public function it_returns_true_if_sms_sender_is_set_while_checking_settings(): void
     {
         $this->smsSender->expects($this->once())->method('hasNeededSettings')->willReturn(true);
 
@@ -269,7 +282,7 @@ class ActivationCodeManagerTest extends TestCase
         string $objectType,
         string $objectId,
         string $code
-    ) {
+    ): MockObject {
         return $this->getMockBuilder(ActivationCode::class)
             ->setConstructorArgs([$activationCodeId, $objectType, $objectId, $code])
             ->getMock();
@@ -278,7 +291,7 @@ class ActivationCodeManagerTest extends TestCase
     /**
      * @return MockObject|SmsSender
      */
-    protected function getSmsSenderMock()
+    protected function getSmsSenderMock(): MockObject
     {
         return $this->getMockBuilder(SmsSender::class)
             ->disableOriginalConstructor()
@@ -288,7 +301,7 @@ class ActivationCodeManagerTest extends TestCase
     /**
      * @return MockObject|UuidGeneratorInterface
      */
-    protected function getUuidGeneratorMock()
+    protected function getUuidGeneratorMock(): MockObject
     {
         return $this->getMockBuilder(UuidGeneratorInterface::class)
             ->disableOriginalConstructor()
@@ -303,9 +316,20 @@ class ActivationCodeManagerTest extends TestCase
      *
      * @return ActivationCodeManager
      */
-    protected function getActivationCodeManager(UuidGeneratorInterface $uuidGenerator, EntityManager $em, CodeGenerator $codeGenerator, SmsSender $smsSender = null)
-    {
-        $manager = new ActivationCodeManager($uuidGenerator, $em, $this->translator, $codeGenerator, 'OpenLoyalty', 6);
+    protected function getActivationCodeManager(
+        UuidGeneratorInterface $uuidGenerator,
+        EntityManager $em,
+        CodeGenerator $codeGenerator,
+        SmsSender $smsSender = null
+    ): ActivationCodeManager {
+        $manager = new ActivationCodeManager(
+            $uuidGenerator,
+            $em,
+            $this->translator,
+            $codeGenerator,
+            $this->generalSettingsManager,
+            6
+        );
 
         if (null !== $smsSender) {
             $manager->setSmsSender($smsSender);
@@ -317,7 +341,7 @@ class ActivationCodeManagerTest extends TestCase
     /**
      * @return MockObject|DoctrineActivationCodeRepository
      */
-    protected function getActivationCodeRepositoryMock()
+    protected function getActivationCodeRepositoryMock(): MockObject
     {
         return $this->getMockBuilder(DoctrineActivationCodeRepository::class)
             ->disableOriginalConstructor()
@@ -327,7 +351,7 @@ class ActivationCodeManagerTest extends TestCase
     /**
      * @return MockObject|EntityManager
      */
-    protected function getEntityManagerMock()
+    protected function getEntityManagerMock(): MockObject
     {
         return $this->getMockBuilder(EntityManager::class)
             ->disableOriginalConstructor()

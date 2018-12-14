@@ -14,6 +14,7 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Exception\SmsSendException;
 use OpenLoyalty\Bundle\ActivationCodeBundle\Generator\CodeGenerator;
+use OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManagerInterface;
 use OpenLoyalty\Bundle\SmsApiBundle\Message\Message;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Component\ActivationCode\Domain\ActivationCode;
@@ -57,33 +58,33 @@ class ActivationCodeManager
     private $translator;
 
     /**
-     * @var string
+     * @var GeneralSettingsManagerInterface
      */
-    protected $loyaltyProgramName;
+    private $generalSettingsManager;
 
     /**
      * ActivationCodeManager constructor.
      *
-     * @param UuidGeneratorInterface $uuidGenerator
-     * @param EntityManager          $em
-     * @param TranslatorInterface    $translator
-     * @param CodeGenerator          $codeGenerator
-     * @param string                 $loyaltyProgramName
-     * @param int                    $codeLength
+     * @param UuidGeneratorInterface          $uuidGenerator
+     * @param EntityManager                   $em
+     * @param TranslatorInterface             $translator
+     * @param CodeGenerator                   $codeGenerator
+     * @param GeneralSettingsManagerInterface $generalSettingsManager
+     * @param int                             $codeLength
      */
     public function __construct(
         UuidGeneratorInterface $uuidGenerator,
         EntityManager $em,
         TranslatorInterface $translator,
         CodeGenerator $codeGenerator,
-        string $loyaltyProgramName,
+        GeneralSettingsManagerInterface $generalSettingsManager,
         int $codeLength
     ) {
         $this->em = $em;
         $this->uuidGenerator = $uuidGenerator;
         $this->codeGenerator = $codeGenerator;
         $this->translator = $translator;
-        $this->loyaltyProgramName = $loyaltyProgramName;
+        $this->generalSettingsManager = $generalSettingsManager;
         $this->codeLength = $codeLength;
     }
 
@@ -225,9 +226,14 @@ class ActivationCodeManager
             return false;
         }
 
-        $content = sprintf('%s activation code (no. %d): %s', $this->loyaltyProgramName, $codeNo, $code->getCode());
+        $content = sprintf(
+            '%s activation code (no. %d): %s',
+            $this->generalSettingsManager->getProgramName(),
+            $codeNo,
+            $code->getCode()
+        );
 
-        $msg = Message::create($phone, $this->loyaltyProgramName, $content);
+        $msg = Message::create($phone, $this->generalSettingsManager->getProgramName(), $content);
 
         return $this->getSmsSender()->send($msg);
     }
@@ -256,12 +262,12 @@ class ActivationCodeManager
         }
 
         $content = $this->translator->trans('activation.reset_code.content', [
-            '%program_name%' => $this->loyaltyProgramName,
+            '%program_name%' => $this->generalSettingsManager->getProgramName(),
             '%code%' => $code->getCode(),
             '%code_number%' => $codeNo,
         ]);
 
-        $msg = Message::create($phone, $this->loyaltyProgramName, $content);
+        $msg = Message::create($phone, $this->generalSettingsManager->getProgramName(), $content);
 
         return $this->getSmsSender()->send($msg);
     }
@@ -300,11 +306,11 @@ class ActivationCodeManager
     public function sendTemporaryPassword($temporaryPassword, $phone)
     {
         $content = $this->translator->trans('activation.temporary_password.content', [
-            '%program_name%' => $this->loyaltyProgramName,
+            '%program_name%' => $this->generalSettingsManager->getProgramName(),
             '%password%' => $temporaryPassword,
         ]);
 
-        $msg = Message::create($phone, $this->loyaltyProgramName, $content);
+        $msg = Message::create($phone, $this->generalSettingsManager->getProgramName(), $content);
 
         return $this->getSmsSender()->send($msg);
     }
