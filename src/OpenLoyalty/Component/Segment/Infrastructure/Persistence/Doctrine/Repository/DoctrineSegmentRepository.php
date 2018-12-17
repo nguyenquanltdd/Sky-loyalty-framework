@@ -89,6 +89,7 @@ class DoctrineSegmentRepository extends EntityRepository implements SegmentRepos
                 $this->validateSortBy($direction)
             );
         }
+
         $qb->setMaxResults($perPage);
         $qb->setFirstResult(($page - 1) * $perPage);
 
