@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -86,20 +86,22 @@ class CampaignProvider
      *
      * @return null|Campaign
      */
-    public function getCashbackForCustomer(CustomerDetails $customer)
+    public function getCashbackForCustomer(CustomerDetails $customer): ?Campaign
     {
-        $customerSegments = $this->segmentedCustomersRepository->findBy(['customerId' => $customer->getCustomerId()->__toString()]);
+        $customerSegments = $this->segmentedCustomersRepository->findBy(
+            ['customerId' => (string) $customer->getCustomerId()]
+        );
         $segments = array_map(function (SegmentedCustomers $segmentedCustomers) {
-            return new SegmentId($segmentedCustomers->getSegmentId()->__toString());
+            return new SegmentId((string) $segmentedCustomers->getSegmentId());
         }, $customerSegments);
 
         $availableCampaigns = $this->campaignRepository->getActiveCashbackCampaignsForLevelAndSegment(
             $segments,
-            new LevelId($customer->getLevelId()->__toString())
+            new LevelId((string) $customer->getLevelId())
         );
 
         if (!$availableCampaigns) {
-            return;
+            return null;
         }
 
         /** @var Campaign $best */
@@ -115,13 +117,16 @@ class CampaignProvider
         return $best;
     }
 
-    public function visibleForCustomers(Campaign $campaign)
+    /**
+     * @param Campaign $campaign
+     *
+     * @return array
+     */
+    public function visibleForCustomers(Campaign $campaign): array
     {
         if (!$this->campaignValidator->isCampaignVisible($campaign)) {
             return [];
         }
-
-        // todo: check campaign limits?
 
         return $this->validForCustomers($campaign);
     }
@@ -136,15 +141,15 @@ class CampaignProvider
         $customers = [];
 
         foreach ($campaign->getSegments() as $segmentId) {
-            $segmented = $this->segmentedCustomersRepository->findBy(['segmentId' => $segmentId->__toString()]);
+            $segmented = $this->segmentedCustomersRepository->findBy(['segmentId' => (string) $segmentId]);
             /** @var SegmentedCustomers $segm */
             foreach ($segmented as $segm) {
-                $customers[$segm->getCustomerId()->__toString()] = $segm->getCustomerId()->__toString();
+                $customers[(string) $segm->getCustomerId()] = (string) $segm->getCustomerId();
             }
         }
 
         foreach ($campaign->getLevels() as $levelId) {
-            $cst = $this->customerBelongingToOneLevelRepository->findBy(['levelId' => $levelId->__toString()]);
+            $cst = $this->customerBelongingToOneLevelRepository->findBy(['levelId' => (string) $levelId]);
             /** @var CustomersBelongingToOneLevel $c */
             foreach ($cst as $c) {
                 foreach ($c->getCustomers() as $cust) {
@@ -156,26 +161,46 @@ class CampaignProvider
         return $customers;
     }
 
-    public function getAllCoupons(Campaign $campaign)
+    /**
+     * @param Campaign $campaign
+     *
+     * @return array
+     */
+    public function getAllCoupons(Campaign $campaign): array
     {
         return array_map(function (Coupon $coupon) {
             return $coupon->getCode();
         }, $campaign->getCoupons());
     }
 
-    public function getUsedCoupons(Campaign $campaign)
+    /**
+     * @param Campaign $campaign
+     *
+     * @return array
+     */
+    public function getUsedCoupons(Campaign $campaign): array
     {
         return array_map(function (CouponUsage $couponUsage) {
             return $couponUsage->getCoupon()->getCode();
         }, $this->couponUsageRepository->findByCampaign($campaign->getCampaignId()));
     }
 
-    public function getFreeCoupons(Campaign $campaign)
+    /**
+     * @param Campaign $campaign
+     *
+     * @return array
+     */
+    public function getFreeCoupons(Campaign $campaign): array
     {
         return array_diff($this->getAllCoupons($campaign), $this->getUsedCoupons($campaign));
     }
 
-    public function getUsageLeft(Campaign $campaign)
+    /**
+     * @param Campaign $campaign
+     *
+     * @return int
+     */
+    public function getUsageLeft(Campaign $campaign): int
     {
         $used = $this->couponUsageRepository->countUsageForCampaign($campaign->getCampaignId());
 
@@ -187,34 +212,44 @@ class CampaignProvider
 
         if ($campaign->isUnlimited()) {
             return $freeCoupons;
-        } else {
-            return min($freeCoupons, $usageLeft);
         }
+
+        return min($freeCoupons, $usageLeft);
     }
 
-    public function getUsageLeftForCustomer(Campaign $campaign, $customerId)
+    /**
+     * @param Campaign   $campaign
+     * @param CustomerId $customerId
+     *
+     * @return int
+     */
+    public function getUsageLeftForCustomer(Campaign $campaign, CustomerId $customerId): int
     {
         $freeCoupons = $this->getCouponsUsageLeftCount($campaign);
         if (!$campaign->isSingleCoupon()) {
             $usageForCustomer = $this->couponUsageRepository->countUsageForCampaignAndCustomer(
                 $campaign->getCampaignId(),
-                new CustomerId($customerId)
+                $customerId
             );
         } else {
             $campaignCoupon = $this->getAllCoupons($campaign);
-            $coupon = $this->couponUsageRepository->find($campaign->getCampaignId().'_'.$customerId.'_'.reset($campaignCoupon));
-            $usageForCustomer = $coupon ? $coupon->getUsage() : 0;
+            $usageForCustomer = $this->couponUsageRepository->countUsageForCampaignAndCustomerAndCode(
+                $campaign->getCampaignId(),
+                $customerId,
+                reset($campaignCoupon)
+            );
         }
         $usageLeftForCustomer = $campaign->getLimitPerUser() - $usageForCustomer;
+
         if ($usageLeftForCustomer < 0) {
             $usageLeftForCustomer = 0;
         }
 
         if ($campaign->isUnlimited()) {
             return $freeCoupons;
-        } else {
-            return min($freeCoupons, $usageLeftForCustomer);
         }
+
+        return min($freeCoupons, $usageLeftForCustomer);
     }
 
     /**
