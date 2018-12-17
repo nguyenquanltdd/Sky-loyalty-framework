@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -8,6 +8,7 @@ namespace OpenLoyalty\Bundle\UserBundle\Service;
 use OpenLoyalty\Bundle\EmailBundle\Mailer\OloyMailer;
 use OpenLoyalty\Bundle\EmailBundle\Service\MessageFactoryInterface;
 use OpenLoyalty\Bundle\SettingsBundle\Service\ConditionsUploader;
+use OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManagerInterface;
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
@@ -24,14 +25,23 @@ use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 class EmailProvider
 {
     /**
+     * @var GeneralSettingsManagerInterface
+     */
+    private $generalSettingsManager;
+
+    /**
      * @var MessageFactoryInterface
      */
     protected $messageFactory;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $parameters = [];
 
-    /** @var OloyMailer */
+    /**
+     * @var OloyMailer
+     */
     protected $mailer;
 
     /**
@@ -43,11 +53,6 @@ class EmailProvider
      * @var string
      */
     protected $emailFromAddress;
-
-    /**
-     * @var string
-     */
-    protected $loyaltyProgramName;
 
     /**
      * @var string
@@ -82,18 +87,23 @@ class EmailProvider
     /**
      * EmailProvider constructor.
      *
-     * @param MessageFactoryInterface $messageFactory
-     * @param OloyMailer              $mailer
-     * @param array                   $parameters
+     * @param GeneralSettingsManagerInterface $generalSettingsManager
+     * @param MessageFactoryInterface         $messageFactory
+     * @param OloyMailer                      $mailer
+     * @param array                           $parameters
      */
-    public function __construct(MessageFactoryInterface $messageFactory, OloyMailer $mailer, array $parameters)
-    {
+    public function __construct(
+        GeneralSettingsManagerInterface $generalSettingsManager,
+        MessageFactoryInterface $messageFactory,
+        OloyMailer $mailer,
+        array $parameters
+    ) {
+        $this->generalSettingsManager = $generalSettingsManager;
         $this->messageFactory = $messageFactory;
         $this->mailer = $mailer;
         $this->parameters = $parameters;
         $this->emailFromName = $parameters['from_name'] ?? '';
         $this->emailFromAddress = $parameters['from_address'] ?? '';
-        $this->loyaltyProgramName = $parameters['loyalty_program_name'] ?? '';
         $this->ecommerceAddress = $parameters['ecommerce_address'] ?? '';
         $this->adminPanelUrl = $parameters['admin_url'] ?? '';
         $this->customerPanelUrl = $parameters['customer_url'] ?? '';
@@ -137,7 +147,7 @@ class EmailProvider
             $registeredUser->getEmail(),
             'OpenLoyaltyUserBundle:email:registration_with_temporary_password.html.twig',
             [
-                'program_name' => $this->loyaltyProgramName,
+                'program_name' => $this->generalSettingsManager->getProgramName(),
                 'email' => $registeredUser->getEmail(),
                 'loyalty_card_number' => $registeredUser->getLoyaltyCardNumber(),
                 'phone' => $registeredUser->getPhone(),
@@ -208,7 +218,7 @@ class EmailProvider
             $user->getEmail(),
             'OpenLoyaltyUserBundle:email:password_reset.html.twig',
             [
-                'program_name' => $this->loyaltyProgramName,
+                'program_name' => $this->generalSettingsManager->getProgramName(),
                 'url_reset_password' => $resetPasswordUrl.'/'.$user->getConfirmationToken(),
             ]
         );
@@ -226,14 +236,14 @@ class EmailProvider
         if (!$customer->getEmail()) {
             return false;
         }
-        $subject = sprintf('%s - new reward', $this->loyaltyProgramName);
+        $subject = sprintf('%s - new reward', $this->generalSettingsManager->getProgramName());
 
         return $this->sendMessage(
             $subject,
             $customer->getEmail(),
             'OpenLoyaltyUserBundle:email:customer_reward_bought.html.twig',
             [
-                'program_name' => $this->loyaltyProgramName,
+                'program_name' => $this->generalSettingsManager->getProgramName(),
                 'reward_name' => $campaign->getName(),
                 'reward_code' => $coupon->getCode(),
                 'reward_instructions' => $campaign->getUsageInstruction(),
@@ -254,14 +264,14 @@ class EmailProvider
         if (!$customer->getEmail()) {
             return false;
         }
-        $subject = sprintf('%s - new points', $this->loyaltyProgramName);
+        $subject = sprintf('%s - new points', $this->generalSettingsManager->getProgramName());
 
         return $this->sendMessage(
             $subject,
             $customer->getEmail(),
             'OpenLoyaltyUserBundle:email:new_points.html.twig',
             [
-                'program_name' => $this->loyaltyProgramName,
+                'program_name' => $this->generalSettingsManager->getProgramName(),
                 'added_points_amount' => $pointsAdded,
                 'active_points_amount' => $availableAmount,
                 'ecommerce_address' => $this->ecommerceAddress,
@@ -281,14 +291,14 @@ class EmailProvider
             return false;
         }
 
-        $subject = sprintf('%s - new level', $this->loyaltyProgramName);
+        $subject = sprintf('%s - new level', $this->generalSettingsManager->getProgramName());
 
         return $this->sendMessage(
             $subject,
             $customer->getEmail(),
             'OpenLoyaltyUserBundle:email:new_level.html.twig',
             [
-                'program_name' => $this->loyaltyProgramName,
+                'program_name' => $this->generalSettingsManager->getProgramName(),
                 'level_name' => $level->getName(),
                 'level_discount' => number_format($level->getReward()->getValue() * 100, 0),
                 'ecommerce_address' => $this->ecommerceAddress,

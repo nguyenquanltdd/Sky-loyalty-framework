@@ -161,7 +161,7 @@ services:
         class: OpenLoyalty\Bundle\UserBundle\Service\EmailProvider
         arguments:
             $mailer: '@oloy.mailer'
-            $parameters: {from_name: '%mailer_from_name%', from_address: '%mailer_from_address%', reset_password_url: '%reset_password_url%', loyalty_program_name: '%loyalty_program_name%', ecommerce_address: '%ecommerce_address%', customer_url: '%customer_url%', admin_url: '%admin_url%', merchant_url: '%merchant_url%', frontend_invitation_url: '%frontend_invitation_url%'}
+            $parameters: {from_name: '%mailer_from_name%', from_address: '%mailer_from_address%', reset_password_url: '%reset_password_url%', ecommerce_address: '%ecommerce_address%', customer_url: '%customer_url%', admin_url: '%admin_url%', merchant_url: '%merchant_url%', frontend_invitation_url: '%frontend_invitation_url%'}
 
     oloy.user.es_param_manager:
         class: OpenLoyalty\Bundle\UserBundle\Service\EsParamManager
@@ -334,7 +334,7 @@ services:
 
     OpenLoyalty\Bundle\UserBundle\Notification\Transport\SmsNotificationTransport:
         arguments:
-            $parameters: {loyalty_program_name: '%loyalty_program_name%', customer_url: '%customer_url%', frontend_invitation_url: '%frontend_invitation_url%'}
+            $parameters: {customer_url: '%customer_url%', frontend_invitation_url: '%frontend_invitation_url%'}
 
     OpenLoyalty\Bundle\UserBundle\Notification\Transport\EmailNotificationTransport: ~
 

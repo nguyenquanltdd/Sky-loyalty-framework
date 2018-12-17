@@ -18,6 +18,11 @@ class GeneralSettingsManager extends DoctrineSettingsManager implements GeneralS
     const DEFAULT_CURRENCY = 'PLN';
 
     /**
+     * @var null
+     */
+    private $programName = null;
+
+    /**
      * @return int
      */
     public function getPointsDaysActive(): ?int
@@ -91,7 +96,11 @@ class GeneralSettingsManager extends DoctrineSettingsManager implements GeneralS
      */
     public function getProgramName(): string
     {
-        return $this->getSettingByKey('programName')->getValue();
+        if (null === $this->programName) {
+            $this->programName = $this->getSettingByKey('programName')->getValue();
+        }
+
+        return $this->programName;
     }
 
     /**

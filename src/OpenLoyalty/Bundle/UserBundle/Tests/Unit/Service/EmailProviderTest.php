@@ -1,9 +1,13 @@
 <?php
-
-namespace OpenLoyalty\Bundle\UserBundle\Tests\Integration\Service;
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
+namespace OpenLoyalty\Bundle\UserBundle\Tests\Unit\Service;
 
 use OpenLoyalty\Bundle\EmailBundle\Model\MessageInterface;
 use OpenLoyalty\Bundle\EmailBundle\Service\MessageFactoryInterface;
+use OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManagerInterface;
 use OpenLoyalty\Bundle\UserBundle\Entity\Admin;
 use OpenLoyalty\Bundle\UserBundle\Entity\Customer;
 use OpenLoyalty\Bundle\UserBundle\Entity\Seller;
@@ -42,10 +46,18 @@ class EmailProviderTest extends TestCase
     private $message;
 
     /**
+     * @var GeneralSettingsManagerInterface|MockObject
+     */
+    private $generalSettingsManager;
+
+    /**
      * {@inheritdoc}
      */
     public function setUp()
     {
+        $this->generalSettingsManager = $this->getMockBuilder(GeneralSettingsManagerInterface::class)
+            ->getMock();
+        $this->generalSettingsManager->method('getProgramName')->willReturn('Test program');
         $this->mailer = $this->getMockBuilder(OloyMailer::class)->disableOriginalConstructor()->getMock();
         $this->message = $this->getMockBuilder(MessageInterface::class)->disableOriginalConstructor()->getMock();
         $this->messageFactory = $this->getMockBuilder(MessageFactoryInterface::class)
@@ -238,6 +250,7 @@ class EmailProviderTest extends TestCase
         /** @var MockBuilder $emailProvider */
         $emailProvider = $this->getMockBuilder(EmailProvider::class)->setConstructorArgs(
             [
+                $this->generalSettingsManager,
                 $this->messageFactory,
                 $this->mailer,
                 $this->parameters,

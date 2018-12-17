@@ -47,7 +47,6 @@ parameters:
     env(frontend_invitation_url): '#!/register/'
     env(frontend_customer_panel_url): '%env(customer_url)%'
 
-    loyalty_program_name: OpenLoyalty
     ecommerce_address: http://ecommerce.local
 
     es_max_result_window_size: 2000000

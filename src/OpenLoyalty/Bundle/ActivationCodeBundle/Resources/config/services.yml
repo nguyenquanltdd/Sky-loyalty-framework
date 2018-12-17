@@ -25,7 +25,6 @@ services:
 
     OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActivationCodeManager:
         arguments:
-            $loyaltyProgramName: '%loyalty_program_name%'
             $codeLength: '%activation_code_length%'
 
     OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActionTokenManager:
