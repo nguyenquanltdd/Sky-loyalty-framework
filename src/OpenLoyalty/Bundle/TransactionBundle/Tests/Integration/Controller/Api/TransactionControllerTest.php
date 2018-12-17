@@ -1645,6 +1645,7 @@ final class TransactionControllerTest extends BaseApiTest
         $this->assertNotNull($transaction->getCustomerId());
         $this->assertEquals(LoadUserData::TEST_USER_ID, (string) $transaction->getCustomerId());
 
+        $this->removePointsAllTimeActive();
         $this->setPointsAllTimeActive(false);
     }
 
@@ -1778,6 +1779,16 @@ final class TransactionControllerTest extends BaseApiTest
                 new BooleanSettingEntry('allTimeActive', $allTimeActive),
             ])
         );
+    }
+
+    /**
+     * removePointsAllTimeActive.
+     */
+    private function removePointsAllTimeActive(): void
+    {
+        /** @var GeneralSettingsManager $settingsManager */
+        $settingsManager = $this->getService('ol.settings.manager');
+        $settingsManager->removeSettingByKey('allTimeActive');
     }
 
     /**

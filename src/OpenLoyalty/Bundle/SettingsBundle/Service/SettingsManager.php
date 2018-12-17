@@ -10,6 +10,7 @@ namespace OpenLoyalty\Bundle\SettingsBundle\Service;
 
 use OpenLoyalty\Bundle\SettingsBundle\Entity\SettingsEntry;
 use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
+use OpenLoyalty\Bundle\SettingsBundle\Exception\AlreadyExistException;
 
 /**
  * Interface SettingsManager.
@@ -19,9 +20,14 @@ interface SettingsManager
     /**
      * @param Settings $settings
      * @param bool     $flush
+     *
+     * @throws AlreadyExistException
      */
     public function save(Settings $settings, $flush = true): void;
 
+    /**
+     * Remove all.
+     */
     public function removeAll(): void;
 
     /**

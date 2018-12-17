@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -8,6 +8,7 @@ namespace OpenLoyalty\Bundle\SettingsBundle\Tests\Integration\Controller\Api;
 use OpenLoyalty\Bundle\CoreBundle\Tests\Integration\BaseApiTest;
 use OpenLoyalty\Bundle\EarningRuleBundle\Model\EarningRuleLimit;
 use OpenLoyalty\Bundle\SettingsBundle\Service\LogoUploader;
+use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
 use OpenLoyalty\Bundle\UserBundle\DataFixtures\ORM\LoadUserData;
 use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
@@ -18,12 +19,56 @@ use OpenLoyalty\Component\EarningRule\Domain\ReferralEarningRule;
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
+use OpenLoyalty\Bundle\SettingsBundle\Model\Settings;
+use OpenLoyalty\Bundle\SettingsBundle\Entity\StringSettingEntry;
 
 /**
  * Class SettingsControllerTest.
  */
 class SettingsControllerTest extends BaseApiTest
 {
+    /**
+     * @var SettingsManager
+     */
+    private $settingManager;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function setUp()
+    {
+        parent::setUp();
+        static::bootKernel();
+
+        $this->settingManager = static::$kernel->getContainer()->get('ol.settings.manager');
+    }
+
+    /**
+     * @test
+     * @expectedException \OpenLoyalty\Bundle\SettingsBundle\Exception\AlreadyExistException
+     */
+    public function test_create_settings_object_with_the_same_key(): void
+    {
+        $setting = new Settings();
+        $stringEntity = new StringSettingEntry('test-key', 'test');
+        $setting->addEntry($stringEntity);
+        $this->settingManager->save($setting);
+
+        $setting1 = new Settings();
+        $stringEntity1 = new StringSettingEntry('test-key', 'test1');
+        $setting1->addEntry($stringEntity1);
+        $this->settingManager->save($setting1);
+    }
+
+    /**
+     * @test
+     */
+    public function remove_test_key_from_settings()
+    {
+        $this->settingManager->removeSettingByKey('test-key');
+        $this->assertTrue(true);
+    }
+
     /**
      * @test
      */

@@ -11,6 +11,7 @@ use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use OpenLoyalty\Bundle\SettingsBundle\Entity\FileSettingEntry;
+use OpenLoyalty\Bundle\SettingsBundle\Exception\AlreadyExistException;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\ConditionsFileType;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\LogoFormType;
 use OpenLoyalty\Bundle\SettingsBundle\Form\Type\SettingsFormType;
@@ -628,18 +629,31 @@ class SettingsController extends FOSRestController
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            $data = $form->getData();
-            $this->settingsManager->removeAll();
-            $this->settingsManager->save($data);
+            try {
+                $data = $form->getData();
+                $this->settingsManager->removeAll();
+                $this->settingsManager->save($data);
 
-            return $this->handleView(
-                View::create(
-                    [
-                        'settings' => $data->toArray(),
+                return $this->handleView(
+                    View::create(
+                        [
+                            'settings' => $data->toArray(),
+                        ],
+                        Response::HTTP_OK
+                    )
+                );
+            } catch (AlreadyExistException $exception) {
+                $error = [
+                    'error' => [
+                        'code' => Response::HTTP_BAD_REQUEST,
+                        'message' => $exception->getMessage(),
                     ],
-                    Response::HTTP_OK
-                )
-            );
+                ];
+
+                return JsonResponse::create($error, Response::HTTP_BAD_REQUEST, [
+                    'Content-type', 'application/json',
+                ]);
+            }
         }
 
         return $this->handleView(View::create($form->getErrors(), Response::HTTP_BAD_REQUEST));
