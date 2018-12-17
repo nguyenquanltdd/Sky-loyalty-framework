@@ -29,6 +29,7 @@ use OpenLoyalty\Component\EarningRule\Domain\OloyEarningRuleEvaluator;
 use OpenLoyalty\Component\Seller\Domain\ReadModel\SellerDetails;
 use OpenLoyalty\Component\Seller\Domain\SellerId;
 use OpenLoyalty\Component\Transaction\Domain\Command\RegisterTransaction;
+use OpenLoyalty\Component\Transaction\Domain\Exception\InvalidTransactionReturnDocumentNumberException;
 use OpenLoyalty\Component\Transaction\Domain\Model\Item;
 use OpenLoyalty\Component\Transaction\Domain\PosId;
 use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetails;
@@ -274,8 +275,6 @@ class TransactionController extends FOSRestController
      * @param Request $request
      *
      * @return View
-     *
-     * @throws \Exception
      */
     public function registerAction(Request $request): View
     {
@@ -296,22 +295,29 @@ class TransactionController extends FOSRestController
             $excludedSKUs = $settingsManager->getSettingByKey('excludedDeliverySKUs');
             $excludedLevelSKUs = $settingsManager->getSettingByKey('excludedLevelSKUs');
             $excludedCategories = $settingsManager->getSettingByKey('excludedLevelCategories');
-            $this->get('broadway.command_handling.command_bus')->dispatch(
-                new RegisterTransaction(
-                    $transactionId,
-                    $data['transactionData'],
-                    $data['customerData'],
-                    $data['items'],
-                    isset($data['pos']) ? new PosId($data['pos']) : null,
-                    $excludedSKUs ? $excludedSKUs->getValue() : null,
-                    $excludedLevelSKUs ? $excludedLevelSKUs->getValue() : null,
-                    $excludedCategories ? $excludedCategories->getValue() : null,
-                    $data['revisedDocument'],
-                    $data['labels']
-                )
-            );
 
-            return $this->view(['transactionId' => $transactionId->__toString()]);
+            try {
+                $this->get('broadway.command_handling.command_bus')->dispatch(
+                    new RegisterTransaction(
+                        $transactionId,
+                        $data['transactionData'],
+                        $data['customerData'],
+                        $data['items'],
+                        isset($data['pos']) ? new PosId($data['pos']) : null,
+                        $excludedSKUs ? $excludedSKUs->getValue() : null,
+                        $excludedLevelSKUs ? $excludedLevelSKUs->getValue() : null,
+                        $excludedCategories ? $excludedCategories->getValue() : null,
+                        $data['revisedDocument'],
+                        $data['labels']
+                    )
+                );
+            } catch (InvalidTransactionReturnDocumentNumberException $exception) {
+                $form->get('revisedDocument')->addError(new FormError($exception->getMessage()));
+
+                return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
+            }
+
+            return $this->view(['transactionId' => (string) $transactionId]);
         }
 
         return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);

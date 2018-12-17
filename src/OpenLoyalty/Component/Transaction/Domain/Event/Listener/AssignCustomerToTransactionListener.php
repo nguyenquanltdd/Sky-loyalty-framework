@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -23,6 +23,9 @@ use OpenLoyalty\Component\Transaction\Domain\SystemEvent\CustomerFirstTransactio
 use OpenLoyalty\Component\Transaction\Domain\SystemEvent\TransactionSystemEvents;
 use OpenLoyalty\Component\Customer\Domain\CustomerId as ClientId;
 use OpenLoyalty\Component\Transaction\Domain\Transaction;
+use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
+use OpenLoyalty\Component\Transaction\Domain\Exception\InvalidTransactionReturnDocumentNumberException;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class AssignCustomerToTransactionListener.
@@ -55,35 +58,55 @@ class AssignCustomerToTransactionListener implements EventListener
     protected $customerRepository;
 
     /**
+     * @var TransactionDetailsRepository
+     */
+    protected $transactionDetailsRepository;
+
+    /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
      * AssignCustomerToTransactionListener constructor.
      *
-     * @param CustomerIdProvider $customerIdProvider
-     * @param CommandBus         $commandBus
-     * @param EventDispatcher    $eventDispatcher
-     * @param Repository         $transactionRepository
-     * @param CustomerRepository $customerRepository
+     * @param CustomerIdProvider           $customerIdProvider
+     * @param CommandBus                   $commandBus
+     * @param EventDispatcher              $eventDispatcher
+     * @param Repository                   $transactionRepository
+     * @param CustomerRepository           $customerRepository
+     * @param TransactionDetailsRepository $transactionDetailsRepository
+     * @param TranslatorInterface          $translator
      */
     public function __construct(
         CustomerIdProvider $customerIdProvider,
         CommandBus $commandBus,
         EventDispatcher $eventDispatcher,
         Repository $transactionRepository,
-        CustomerRepository $customerRepository
+        CustomerRepository $customerRepository,
+        TransactionDetailsRepository $transactionDetailsRepository,
+        TranslatorInterface $translator
     ) {
         $this->customerIdProvider = $customerIdProvider;
         $this->commandBus = $commandBus;
         $this->eventDispatcher = $eventDispatcher;
         $this->transactionRepository = $transactionRepository;
         $this->customerRepository = $customerRepository;
+        $this->transactionDetailsRepository = $transactionDetailsRepository;
+        $this->translator = $translator;
     }
 
+    /**
+     * @param TransactionWasRegistered $event
+     *
+     * @throws InvalidTransactionReturnDocumentNumberException
+     */
     public function onTransactionRegistered(TransactionWasRegistered $event)
     {
         $customerId = $this->customerIdProvider->getId($event->getCustomerData());
         if ($customerId) {
             /** @var Customer $customer */
             $customer = $this->customerRepository->load($customerId);
-
             $this->commandBus->dispatch(
                 new AssignCustomerToTransaction(
                     $event->getTransactionId(),
@@ -92,6 +115,8 @@ class AssignCustomerToTransactionListener implements EventListener
                     $customer->getPhone()
                 )
             );
+
+            $this->checkTransactionOwner($event, $customerId);
 
             /** @var Transaction $transaction */
             $transaction = $this->transactionRepository->load((string) $event->getTransactionId());
@@ -131,7 +156,27 @@ class AssignCustomerToTransactionListener implements EventListener
     }
 
     /**
-     * @param DomainMessage $domainMessage
+     * @param TransactionWasRegistered $event
+     * @param string                   $customerId
+     *
+     * @throws InvalidTransactionReturnDocumentNumberException
+     */
+    private function checkTransactionOwner(TransactionWasRegistered $event, string $customerId): void
+    {
+        if (null != $event->getRevisedDocument()) {
+            $transaction = $this->transactionDetailsRepository
+                ->findTransactionByDocumentNumber($event->getRevisedDocument());
+
+            if (null != $transaction && $customerId != (string) $transaction->getCustomerId()) {
+                throw new InvalidTransactionReturnDocumentNumberException(
+                    $this->translator->trans('transaction.document_return_incorrect_owner')
+                );
+            }
+        }
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function handle(DomainMessage $domainMessage)
     {

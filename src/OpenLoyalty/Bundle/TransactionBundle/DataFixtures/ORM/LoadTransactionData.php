@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -31,6 +31,8 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
     const TRANSACTION5_ID = '00000000-0000-1111-0000-000000000005';
     const TRANSACTION6_ID = '00000000-0000-1111-0000-000000000006';
     const TRANSACTION7_ID = '00000000-0000-1111-0000-000000000007';
+    const TRANSACTION8_ID = '00000000-0000-1111-0000-000000000008';
+    const TRANSACTION9_ID = '00000000-0000-1111-0000-000000000009';
 
     public function load(ObjectManager $manager)
     {
@@ -336,6 +338,106 @@ class LoadTransactionData extends ContainerAwareFixture implements FixtureInterf
         );
 
         $this->loadTransactionForCouponUsage($bus);
+        $this->loadTransactionReturn($bus);
+    }
+
+    /**
+     * @param CommandBus $bus
+     */
+    private function loadTransactionReturn(CommandBus $bus): void
+    {
+        $transactionData = [
+            'documentNumber' => '20181101',
+            'purchasePlace' => 'New York',
+            'purchaseDate' => (new \DateTime('+1 day'))->getTimestamp(),
+            'documentType' => 'sell',
+        ];
+        $items = [
+            [
+                'sku' => ['code' => 'SKU1'],
+                'name' => 'item 1',
+                'quantity' => 1,
+                'grossValue' => 1,
+                'category' => 'aaa',
+                'maker' => 'sss',
+                'labels' => [
+                    [
+                        'key' => 'test',
+                        'value' => 'label',
+                    ],
+                    [
+                        'key' => 'test',
+                        'value' => 'label2',
+                    ],
+                ],
+            ],
+            [
+                'sku' => ['code' => 'SKU2'],
+                'name' => 'item 2',
+                'quantity' => 2,
+                'grossValue' => 2,
+                'category' => 'bbb',
+                'maker' => 'ccc',
+            ],
+        ];
+
+        /** @var CommandBus $bus */
+        $customerData = [
+            'name' => 'John Doe',
+            'email' => 'ol@oy.com',
+            'nip' => 'aaa',
+            'phone' => '',
+            'loyaltyCardNumber' => '222',
+            'address' => [
+                'street' => 'Oxford Street',
+                'address1' => '12',
+                'city' => 'New York',
+                'country' => 'US',
+                'province' => 'New York',
+                'postal' => '10001',
+            ],
+        ];
+
+        $bus->dispatch(
+            new RegisterTransaction(
+                new TransactionId(self::TRANSACTION8_ID),
+                $transactionData,
+                $customerData,
+                $items,
+                new PosId(LoadPosData::POS_ID),
+                null,
+                null,
+                null,
+                null,
+                [
+                    ['key' => 'scan_id', 'value' => 'abc123789def-abc123789def-abc123789def-abc123789def'],
+                ]
+            )
+        );
+
+        $transactionData2 = [
+            'documentNumber' => '201811011023',
+            'purchasePlace' => 'New York',
+            'purchaseDate' => (new \DateTime('+1 day'))->getTimestamp(),
+            'documentType' => 'return',
+        ];
+
+        $bus->dispatch(
+            new RegisterTransaction(
+                new TransactionId(self::TRANSACTION9_ID),
+                $transactionData2,
+                $customerData,
+                $items,
+                new PosId(LoadPosData::POS_ID),
+                null,
+                null,
+                null,
+                '20181101',
+                [
+                    ['key' => 'scan_id', 'value' => 'abc123789def-abc123789def-abc123789def-abc123789def'],
+                ]
+            )
+        );
     }
 
     /**

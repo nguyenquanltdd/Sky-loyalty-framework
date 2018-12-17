@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -18,6 +18,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Valid;
+use OpenLoyalty\Bundle\TransactionBundle\Validator\Constraints\TransactionReturnDocument;
 
 /**
  * Class TransactionFormType.
@@ -39,6 +40,9 @@ class TransactionFormType extends AbstractType
         $this->posRepository = $posRepository;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $choices = $this->posRepository->findAll();
@@ -48,6 +52,7 @@ class TransactionFormType extends AbstractType
         $builder->add($this->buildTransactionDataForm($builder));
         $builder->add('revisedDocument', TextType::class, [
             'required' => false,
+            'constraints' => [new TransactionReturnDocument(['isManually' => true])],
         ]);
         $builder->add('items', CollectionType::class, [
             'entry_type' => ItemFormType::class,
@@ -70,7 +75,12 @@ class TransactionFormType extends AbstractType
         ]);
     }
 
-    protected function buildTransactionDataForm(FormBuilderInterface $builder)
+    /**
+     * @param FormBuilderInterface $builder
+     *
+     * @return FormBuilderInterface
+     */
+    protected function buildTransactionDataForm(FormBuilderInterface $builder): FormBuilderInterface
     {
         $dataFrom = $builder->create('transactionData', FormType::class);
         $dataFrom->add('documentType', ChoiceType::class, [

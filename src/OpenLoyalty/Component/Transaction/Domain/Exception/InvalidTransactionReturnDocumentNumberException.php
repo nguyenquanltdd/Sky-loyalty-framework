@@ -5,7 +5,7 @@
  */
 namespace OpenLoyalty\Component\Transaction\Domain\Exception;
 
-class TransactionNotFoundException extends \Exception
+class InvalidTransactionReturnDocumentNumberException extends \Exception
 {
     protected $message = 'transaction.not_found';
 }
