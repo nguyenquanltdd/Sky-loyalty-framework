@@ -79,6 +79,7 @@ class ConfigurablePasswordType extends AbstractType
             case self::PASSWORD_VALIDATION_SIMPLE:
             default:
                 $requirements = [
+                    'requireLetters' => false,
                     'minLength' => 8,
                 ];
                 break;
