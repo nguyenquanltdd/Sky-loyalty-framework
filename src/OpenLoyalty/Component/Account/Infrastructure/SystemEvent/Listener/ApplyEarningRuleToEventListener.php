@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2018 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -224,7 +224,7 @@ class ApplyEarningRuleToEventListener extends BaseApplyEarningRuleListener
                         new PointsTransferId($this->uuidGenerator->generate()),
                         $result['points'],
                         null,
-                        null,
+                        false,
                         null,
                         $result['comment']
                     )

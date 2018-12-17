@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -71,7 +71,7 @@ class AddPointsTransfer extends PointsTransfer
         int $validityDuration = null,
         int $lockDaysDuration = null,
         \DateTime $createdAt = null,
-        $canceled = false,
+        bool $canceled = false,
         TransactionId $transactionId = null,
         $comment = null,
         $issuer = self::ISSUER_SYSTEM

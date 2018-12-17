@@ -46,6 +46,14 @@
                 <source>Customer is already assign to this transaction</source>
                 <target>Customer is already assign to this transaction</target>
             </trans-unit>
+            <trans-unit id="12">
+                <source>Level is not empty. Level and segment should be empty.</source>
+                <target>Level is not empty. Level and segment should be empty.</target>
+            </trans-unit>
+            <trans-unit id="13">
+                <source>Segment is not empty. Segment and level should be empty.</source>
+                <target>Segment is not empty. Segment and level should be empty.</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>
