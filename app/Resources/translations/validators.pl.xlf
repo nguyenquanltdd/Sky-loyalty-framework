@@ -46,6 +46,14 @@
                 <source>Customer is already assign to this transaction</source>
                 <target>Klient jest już przypisany do tej transakcji</target>
             </trans-unit>
+            <trans-unit id="12">
+                <source>Level is not empty. Level and segment should be empty.</source>
+                <target>Poziom jest uzupełniony. Poziom i segment powinien być nieokreślony.</target>
+            </trans-unit>
+            <trans-unit id="13">
+                <source>Segment is not empty. Segment and level should be empty.</source>
+                <target>Segment  jest uzupełniony. Segment i poziom powinien być nieokreślony.</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -29,7 +29,7 @@ interface PointsTransferManagerInterface
         PointsTransferId $id,
         $value,
         \DateTime $createdAt = null,
-        $canceled = false,
+        bool $canceled = false,
         TransactionId $transactionId = null,
         ?string $comment = null,
         $issuer = PointsTransfer::ISSUER_SYSTEM

@@ -255,6 +255,13 @@ class LoadEarningRuleData extends ContainerAwareFixture implements FixtureInterf
             }
 
             $ruleData = array_merge($this->getMainData(), $earningRule['data']);
+
+            if ($earningRule['type'] === EarningRule::TYPE_EVENT
+                && $ruleData['eventName'] === AccountSystemEvents::ACCOUNT_CREATED
+            ) {
+                unset($ruleData['levels']);
+            }
+
             $this->container->get('broadway.command_handling.command_bus')->dispatch(
                 new CreateEarningRule(new EarningRuleId($earningRuleId), $earningRule['type'], $ruleData)
             );

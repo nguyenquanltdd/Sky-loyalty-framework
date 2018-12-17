@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -27,6 +27,19 @@ class BaseEarningRuleFormType extends AbstractType
         /** @var EarningRule $rule */
         $rule = $context->getObject()->getParent()->getNormData();
         if (!$rule) {
+            return;
+        }
+
+        if ($rule->getType() === EarningRule::TYPE_EVENT && $rule->getEventName() === 'oloy.account.created') {
+            if (count($rule->getLevels()) > 0) {
+                $context->buildViolation('Level is not empty. Level and segment should be empty.')
+                        ->atPath('levels')->addViolation();
+            }
+            if (count($rule->getSegments()) > 0) {
+                $context->buildViolation('Segment is not empty. Segment and level should be empty.')
+                        ->atPath('segments')->addViolation();
+            }
+
             return;
         }
 

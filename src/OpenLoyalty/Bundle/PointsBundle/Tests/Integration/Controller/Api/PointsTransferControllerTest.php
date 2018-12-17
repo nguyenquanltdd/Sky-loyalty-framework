@@ -281,10 +281,10 @@ class PointsTransferControllerTest extends BaseApiTest
         $senderAccount = $this->getAccountIdByCustomerId(LoadUserData::USER_TRANSFER_2_USER_ID);
         $receiverAccount = $this->getAccountIdByCustomerId(LoadUserData::USER_TRANSFER_3_USER_ID);
 
-        $this->assertEquals(0, $senderAccount->getAvailableAmount());
-        $this->assertEquals(100, $receiverAccount->getAvailableAmount());
-        $this->assertEquals(100, $senderAccount->getEarnedAmount());
-        $this->assertEquals(100, $receiverAccount->getEarnedAmount());
+        $this->assertEquals(100, $senderAccount->getAvailableAmount());
+        $this->assertEquals(200, $receiverAccount->getAvailableAmount());
+        $this->assertEquals(200, $senderAccount->getEarnedAmount());
+        $this->assertEquals(200, $receiverAccount->getEarnedAmount());
     }
 
     /**
@@ -312,8 +312,8 @@ class PointsTransferControllerTest extends BaseApiTest
         $senderAccount = $this->getAccountIdByCustomerId(LoadUserData::USER_TRANSFER_3_USER_ID);
         $receiverAccount = $this->getAccountIdByCustomerId(LoadUserData::USER_TRANSFER_1_USER_ID);
 
-        $this->assertEquals(0, $senderAccount->getAvailableAmount());
-        $this->assertEquals(200, $receiverAccount->getAvailableAmount());
+        $this->assertEquals(100, $senderAccount->getAvailableAmount());
+        $this->assertEquals(300, $receiverAccount->getAvailableAmount());
 
         $client->request(
             'POST',
@@ -322,7 +322,7 @@ class PointsTransferControllerTest extends BaseApiTest
                 'transfer' => [
                     'sender' => LoadUserData::USER_TRANSFER_3_USER_ID,
                     'receiver' => LoadUserData::USER_TRANSFER_1_USER_ID,
-                    'points' => 10,
+                    'points' => 101,
                 ],
             ]
         );

@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -69,7 +69,7 @@ abstract class PointsTransfer implements Serializable
         PointsTransferId $id,
         float $value,
         \DateTime $createdAt = null,
-        $canceled = false,
+        bool $canceled = false,
         $comment = null,
         $issuer = self::ISSUER_SYSTEM
     ) {

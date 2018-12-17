@@ -7,6 +7,7 @@ namespace OpenLoyalty\Component\EarningRule\Domain;
 
 use Broadway\Repository\Repository;
 use OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager;
+use OpenLoyalty\Component\Account\Domain\SystemEvent\AccountSystemEvents;
 use OpenLoyalty\Component\Account\Domain\TransactionId;
 use OpenLoyalty\Component\Customer\Domain\LevelId;
 use OpenLoyalty\Component\Customer\Domain\PosId;
@@ -251,7 +252,11 @@ class OloyEarningRuleEvaluator implements EarningRuleApplier
         $points = 0;
 
         $customerData = $this->getCustomerDetails($customerId);
-        if (null !== $customerData['status'] && !in_array($customerData['status'], $this->getCustomerEarningStatuses())) {
+        // exclude new inactive accounts which always have "new" status until they become activated
+        if (AccountSystemEvents::ACCOUNT_CREATED !== $eventName
+            && null !== $customerData['status']
+            && !in_array($customerData['status'], $this->getCustomerEarningStatuses())
+        ) {
             return 0;
         }
 
