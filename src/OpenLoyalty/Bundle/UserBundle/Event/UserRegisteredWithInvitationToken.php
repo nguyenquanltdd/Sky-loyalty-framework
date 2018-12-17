@@ -1,5 +1,8 @@
 <?php
-
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 namespace OpenLoyalty\Bundle\UserBundle\Event;
 
 use OpenLoyalty\Component\Customer\Domain\CustomerId;
@@ -12,6 +15,9 @@ class UserRegisteredWithInvitationToken extends Event
 {
     const NAME = 'user.invitation.user_registered_with_invitation_token';
 
+    /**
+     * @var string
+     */
     private $invitationToken;
 
     /**
@@ -22,19 +28,19 @@ class UserRegisteredWithInvitationToken extends Event
     /**
      * UserRegisteredWithInvitationToken constructor.
      *
-     * @param $invitationToken
+     * @param string     $invitationToken
      * @param CustomerId $customerId
      */
-    public function __construct($invitationToken, CustomerId $customerId)
+    public function __construct(string $invitationToken, CustomerId $customerId)
     {
         $this->invitationToken = $invitationToken;
         $this->customerId = $customerId;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getInvitationToken()
+    public function getInvitationToken(): string
     {
         return $this->invitationToken;
     }
@@ -42,7 +48,7 @@ class UserRegisteredWithInvitationToken extends Event
     /**
      * @return CustomerId
      */
-    public function getCustomerId()
+    public function getCustomerId(): CustomerId
     {
         return $this->customerId;
     }
