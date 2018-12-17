@@ -1,4 +1,4 @@
-Reward Campaigns API
+ Reward Campaigns API
 ====================
 
 These endpoints will allow you to easily manage Reward Campaigns.
@@ -137,6 +137,11 @@ Example
 .. note::
 
     The *testCoupon* or *DiscountCoupon* are an exemplary values. You can name code coupons as you like.
+
+.. attention::
+
+    If you would like to add a photos (one or many ) to the campaign you will need to call the ``/api/campaign/<campaign>/photo`` endpoint with the ``POST`` method.
+    More details you can find in Add a photo to the campaign section.
 
 Exemplary Response
 ^^^^^^^^^^^^^^^^^^
@@ -585,11 +590,14 @@ Definition
 | campaign[daysInactive]                            | request        |  Number of days, while coupon will not be active after purchase              |
 |                                                   |                |  0 means "active immediately"                                                |
 |                                                   |                |  Required for all rewards besides cashback                                   |
-+------------------------------------------------+----------------+---------------------------------------------------------------------------------+
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
 | campaign[daysValid]                               | request        |  Number of days, while coupon will be valid, after activation                |
 |                                                   |                |  0 means "valid forever"                                                     |
 |                                                   |                |  Required for all rewards besides cashback                                   |
-+------------------------------------------------+----------------+---------------------------------------------------------------------------------+
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+| campaign[photos]                                  | request        |  *(optional)* Array of uploaded photos                                       |
++---------------------------------------------------+----------------+------------------------------------------------------------------------------+
+
 Example
 ^^^^^^^
 
@@ -629,6 +637,7 @@ Example
         -d "campaign[campaignActivity][allTimeActive]=0" \
         -d "campaign[campaignActivity][activeFrom]=2017-09-05+10:59" \
         -d "campaign[campaignActivity][activeTo]=2017-12-05+10:59"
+        -f "campaign[photos][0]=@/FILE_PATH/FILE_NAME"
 
 .. warning::
 
@@ -781,7 +790,15 @@ Exemplary Response
               "id": 66,
               "locale": "pl"
           }
-      ]
+      ],
+      "photos" :[
+            {
+                "photoId" : "e82c96cf-32a3-43bd-9034-4df343e5f23ed",
+                "path"  : "campaign_photos/e82c96cf-32a3-43bd-9034-4df343e5fd322294",
+                "orginalName" : "my_image.png",
+                "mimeType" : "image/png"
+            }
+       ]
     }
 
 Get available campaign for a customer
