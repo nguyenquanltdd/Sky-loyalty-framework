@@ -74,7 +74,7 @@ class CampaignBoughtTest extends TestCase
             self::CUSTOMER_PHONE,
             $campaignShippingAddress,
             CampaignPurchase::STATUS_ACTIVE,
-            null,
+            false,
             self::CUSTOMER_NAME,
             self::CUSTOMER_SURNAME,
             self::COST_IN_POINTS,
@@ -176,7 +176,7 @@ class CampaignBoughtTest extends TestCase
         $this->assertEquals(self::CUSTOMER_PHONE, $serializedData['customerPhone']);
 
         $this->assertArrayHasKey('used', $serializedData);
-        $this->assertNull($serializedData['used']);
+        $this->assertFalse($serializedData['used']);
 
         $this->assertArrayHasKey('customerName', $serializedData);
         $this->assertEquals(self::CUSTOMER_NAME, $serializedData['customerName']);
@@ -213,7 +213,7 @@ class CampaignBoughtTest extends TestCase
                 'campaignName' => self::CAMPAIGN_NAME,
                 'customerEmail' => self::CUSTOMER_EMAIL,
                 'customerPhone' => self::CUSTOMER_PHONE,
-                'used' => null,
+                'used' => false,
                 'customerName' => self::CUSTOMER_NAME,
                 'customerLastname' => self::CUSTOMER_SURNAME,
                 'costInPoints' => self::COST_IN_POINTS,
@@ -260,7 +260,7 @@ class CampaignBoughtTest extends TestCase
         $this->assertEquals(self::CUSTOMER_PHONE, $serializedData['customerPhone']);
 
         $this->assertArrayHasKey('used', $serializedData);
-        $this->assertNull($serializedData['used']);
+        $this->assertFalse($serializedData['used']);
 
         $this->assertArrayHasKey('customerName', $serializedData);
         $this->assertEquals(self::CUSTOMER_NAME, $serializedData['customerName']);

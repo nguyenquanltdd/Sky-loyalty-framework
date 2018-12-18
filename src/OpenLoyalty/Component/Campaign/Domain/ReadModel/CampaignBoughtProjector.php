@@ -208,7 +208,7 @@ class CampaignBoughtProjector extends Projector
             $customerPhone,
             $campaignShippingAddress,
             $status,
-            null,
+            false,
             $customerName,
             $customerLastName,
             $costInPoints,

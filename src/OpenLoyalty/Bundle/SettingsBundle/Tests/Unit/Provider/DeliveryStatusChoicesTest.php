@@ -22,7 +22,7 @@ final class DeliveryStatusChoicesTest extends TestCase
     public function it_returns_array_with_statuses(): void
     {
         $status = new DeliveryStatusChoices();
-        $this->assertSame(['choices' => ['canceled', 'delivered', 'ordered', 'shipped']], $status->getChoices());
+        $this->assertSame(['choices' => ['ordered', 'shipped', 'delivered', 'canceled']], $status->getChoices());
     }
 
     /**

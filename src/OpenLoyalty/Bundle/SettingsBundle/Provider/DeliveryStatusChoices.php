@@ -21,10 +21,10 @@ class DeliveryStatusChoices implements ChoiceProvider
     public function getChoices(): array
     {
         $choices = [
-            CampaignBought::DELIVERY_STATUS_CANCELED,
-            CampaignBought::DELIVERY_STATUS_DELIVERED,
             CampaignBought::DELIVERY_STATUS_ORDERED,
             CampaignBought::DELIVERY_STATUS_SHIPPED,
+            CampaignBought::DELIVERY_STATUS_DELIVERED,
+            CampaignBought::DELIVERY_STATUS_CANCELED,
         ];
 
         return ['choices' => $choices];

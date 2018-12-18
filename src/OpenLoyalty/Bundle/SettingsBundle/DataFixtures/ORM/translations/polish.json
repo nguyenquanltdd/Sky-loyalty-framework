@@ -177,8 +177,9 @@
     "days_valid_prompt": "Ilość dni po który kod straci ważność. Ustaw zero aby kod nigdy nie wygasł.",
     "date_from": "Od",
     "date_to": "Do",
-    "delivered": "Odebrane/Wykorzystane",
+    "delivered": "Niewykorzystane/Wykorzystane",
     "delivery_statuses": {
+      "all": "All",
       "ordered": "Zamówiona",
       "canceled": "Anulowana",
       "shipped": "Wysana",
@@ -263,7 +264,7 @@
     "usage_instruction_prompt": "",
     "usage_types": {
       "both": "Wszystkie",
-      "false": "Odebrane",
+      "false": "Niewykorzystane",
       "true": "Wykorzystane"
     },
     "used_by_user": "Wykorzystano",
