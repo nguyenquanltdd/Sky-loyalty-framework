@@ -697,11 +697,10 @@ class CustomerController extends FOSRestController
 
         if ($form->isValid()) {
             $formHandler = $this
-                ->get('oloy.user.form_handler.customer_edit')
-                ->onSuccess($customer->getCustomerId(), $form);
+                ->get('oloy.user.form_handler.customer_edit');
 
-            if (!$formHandler) {
-                return $this->view($formHandler, Response::HTTP_BAD_REQUEST);
+            if ($formHandler->onSuccess($customer->getCustomerId(), $form) !== true) {
+                return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
             }
 
             /** @var CustomerDetails $customer */

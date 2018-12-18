@@ -41,6 +41,10 @@ class LabelsDataTransformer implements DataTransformerInterface
      */
     public function reverseTransform($values): array
     {
+        if ($values !== null && !is_string($values)) {
+            throw new \InvalidArgumentException();
+        }
+
         $values = explode(self::ENTRIES_DELIMITER, $values);
 
         $transformed = array_map(function ($code) {

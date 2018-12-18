@@ -18,11 +18,15 @@ class DateTransformer implements DataTransformerInterface
      */
     public function reverseTransform($value)
     {
-        if ($value === null || $value === '') {
+        if ($value === null || !is_string($value) || $value === '') {
             return null;
         }
 
-        $dateTime = DateTime::createFromFormat('Y-m-d', $value);
+        try {
+            $dateTime = DateTime::createFromFormat('Y-m-d', $value);
+        } catch (\Throwable $e) {
+            return null;
+        }
 
         if (!$dateTime instanceof DateTime) {
             return null;

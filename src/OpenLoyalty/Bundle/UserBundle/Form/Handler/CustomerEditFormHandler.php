@@ -131,8 +131,13 @@ class CustomerEditFormHandler
             }
         }
 
-        if ($form->getErrors(true)->count() > 0) {
-            return false;
+        if (array_key_exists('birthDate', $customerData) && null === $customerData['birthDate']) {
+            $form->get('birthDate')->addError(
+                new FormError($this->translator->trans(
+                    'customer.profile_edit.invalid_value_type',
+                    ['%field%' => 'birthDate', '%type%' => 'date-like string']
+                ))
+            );
         }
 
         if (isset($customerData['company'])
@@ -147,11 +152,24 @@ class CustomerEditFormHandler
         }
 
         if (array_key_exists('labels', $customerData)) {
-            $labelsData = $form->get('labels')->getData();
+            try {
+                $labelsData = $form->get('labels')->getData();
 
-            $customerData['labels'] = array_map(function (Label $label): array {
-                return $label->serialize();
-            }, $labelsData ?? []);
+                $customerData['labels'] = array_map(function (Label $label): array {
+                    return $label->serialize();
+                }, $labelsData ?? []);
+            } catch (\Throwable $e) {
+                $form->get('labels')->addError(
+                    new FormError($this->translator->trans(
+                        'customer.profile_edit.invalid_value_type',
+                        ['%field%' => 'labels', '%type%' => 'labels as a string']
+                    ))
+                );
+            }
+        }
+
+        if ($form->getErrors(true)->count() > 0) {
+            return false;
         }
 
         $this->commandBus->dispatch(new UpdateCustomerDetails($customerId, $customerData));

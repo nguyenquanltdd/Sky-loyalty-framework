@@ -828,7 +828,7 @@ class CustomerControllerTest extends BaseApiTest
         );
 
         $response = $client->getResponse();
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200');
     }
 
     /**

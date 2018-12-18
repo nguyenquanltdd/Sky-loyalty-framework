@@ -30,6 +30,10 @@
                 <source>customer.registration.start_level_not_found</source>
                 <target>Żaden poziom nie jest dostępny jako poziom startowy.</target>
             </trans-unit>
+            <trans-unit id="customer.profile_edit.invalid_value_type">
+                <source>customer.profile_edit.invalid_value_type</source>
+                <target>Typ wartości pola %field% jest niepoprawny. Poprawnym typem jest '%type%'.</target>
+            </trans-unit>
             <trans-unit id="customer.profile_edit.field_edit_not_allowed">
                 <source>customer.profile_edit.field_edit_not_allowed</source>
                 <target>Nie masz uprawnień do edycji tych danych.</target>
