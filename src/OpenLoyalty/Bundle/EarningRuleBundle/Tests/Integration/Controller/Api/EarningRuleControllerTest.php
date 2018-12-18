@@ -1,4 +1,8 @@
 <?php
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 
 namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Integration\Controller\Api;
 
@@ -39,7 +43,7 @@ class EarningRuleControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_creates_event_rule()
+    public function it_creates_event_rule(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -69,7 +73,7 @@ class EarningRuleControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function test_try_creates_geo_rule_with_fault_results()
+    public function test_try_creates_geo_rule_with_fault_results(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -110,7 +114,7 @@ class EarningRuleControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_creates_event_rule_with_assign_to_pos()
+    public function it_creates_event_rule_with_assign_to_pos(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -216,7 +220,7 @@ class EarningRuleControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_does_not_run_geo_rule_while_outside_radius()
+    public function it_does_not_run_geo_rule_while_outside_radius(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -236,7 +240,7 @@ class EarningRuleControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_creates_purchase_product_rule()
+    public function it_creates_purchase_product_rule(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -323,7 +327,7 @@ class EarningRuleControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_creates_points_rule_with_included_labels()
+    public function it_creates_points_rule_with_included_labels(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -363,7 +367,7 @@ class EarningRuleControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_earning_rule_with_proper_type()
+    public function it_returns_earning_rule_with_proper_type(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -383,7 +387,7 @@ class EarningRuleControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_returns_earning_rules()
+    public function it_returns_earning_rules(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -401,7 +405,7 @@ class EarningRuleControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_allows_to_edit_rule()
+    public function it_allows_to_edit_rule(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -430,7 +434,7 @@ class EarningRuleControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_adds_new_photo_to_earning_rule()
+    public function it_adds_new_photo_to_earning_rule(): void
     {
         $rules = $this->repository->findAllActive();
         /** @var EarningRule $first */
@@ -464,7 +468,7 @@ class EarningRuleControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_removes_photo_from_earning_rule()
+    public function it_removes_photo_from_earning_rule(): void
     {
         $rules = $this->repository->findAllActive();
 
@@ -518,7 +522,7 @@ class EarningRuleControllerTest extends BaseApiTest
      *
      * @return array
      */
-    protected function getMainData($name = 'test')
+    protected function getMainData($name = 'test'): array
     {
         return [
             'name' => $name,

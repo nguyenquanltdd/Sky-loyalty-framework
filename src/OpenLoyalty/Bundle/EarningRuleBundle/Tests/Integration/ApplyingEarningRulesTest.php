@@ -1,4 +1,8 @@
 <?php
+/*
+ * Copyright © 2018 Divante, Inc. All rights reserved.
+ * See LICENSE for license details.
+ */
 
 namespace OpenLoyalty\Bundle\EarningRuleBundle\Tests\Integration;
 
@@ -11,7 +15,7 @@ use OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsReposito
 /**
  * Class ApplyingEarningRulesTest.
  */
-class ApplyingEarningRulesTest extends BaseApiTest
+final class ApplyingEarningRulesTest extends BaseApiTest
 {
     /**
      * @var PointsTransferDetailsRepository
@@ -32,7 +36,7 @@ class ApplyingEarningRulesTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_adds_points_after_transaction()
+    public function it_adds_points_after_transaction(): void
     {
         $formData = [
             'transactionData' => [
@@ -110,7 +114,7 @@ class ApplyingEarningRulesTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_adds_points_after_transaction_with_pos()
+    public function it_adds_points_after_transaction_with_pos(): void
     {
         $formData = [
             'transactionData' => [
@@ -189,7 +193,7 @@ class ApplyingEarningRulesTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_adds_points_after_calling_custom_event_limited_to_pos()
+    public function it_adds_points_after_calling_custom_event_limited_to_pos(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
@@ -201,6 +205,27 @@ class ApplyingEarningRulesTest extends BaseApiTest
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
         $this->assertArrayHasKey('points', $data);
         $this->assertEquals(88, $data['points']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_adds_points_after_calling_custom_event_by_a_customer(): void
+    {
+        $client = $this->createAuthenticatedClient(
+            LoadUserData::USER_USERNAME,
+            LoadUserData::USER_PASSWORD,
+            'customer'
+        );
+        $client->request(
+            'POST',
+            '/api/customer/earnRule/facebook_like'
+        );
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertArrayHasKey('points', $data);
+        $this->assertEquals(100, $data['points']);
     }
 
     /**

@@ -23,6 +23,7 @@ class EarningRuleVoter extends Voter
     const LIST_ALL_EARNING_RULES = 'LIST_ALL_EARNING_RULES';
     const VIEW = 'VIEW';
     const USE = 'USE';
+    const CUSTOMER_USE = 'CUSTOMER_USE';
     const LIST_ACTIVE_EARNING_RULES = 'LIST_ACTIVE_EARNING_RULES';
     const ACTIVATE = 'ACTIVATE';
 
@@ -31,7 +32,11 @@ class EarningRuleVoter extends Voter
         return $subject instanceof EarningRule && in_array($attribute, [
             self::EDIT, self::VIEW, self::ACTIVATE,
         ]) || $subject == null && in_array($attribute, [
-            self::CREATE_EARNING_RULE, self::LIST_ALL_EARNING_RULES, self::LIST_ACTIVE_EARNING_RULES, self::USE,
+            self::CREATE_EARNING_RULE,
+            self::LIST_ALL_EARNING_RULES,
+            self::LIST_ACTIVE_EARNING_RULES,
+            self::USE,
+            self::CUSTOMER_USE,
         ]);
     }
 
@@ -65,8 +70,24 @@ class EarningRuleVoter extends Voter
                 return $viewAdmin || $user->hasRole('ROLE_SELLER');
             case self::LIST_ACTIVE_EARNING_RULES:
                 return $viewAdmin || $user->hasRole('ROLE_PARTICIPANT');
+            case self::CUSTOMER_USE:
+                return $this->canCustomerUse($user);
             default:
                 return false;
         }
+    }
+
+    /**
+     * @param User $user
+     *
+     * @return bool
+     */
+    protected function canCustomerUse(User $user): bool
+    {
+        if ($user->hasRole('ROLE_PARTICIPANT')) {
+            return true;
+        }
+
+        return false;
     }
 }
