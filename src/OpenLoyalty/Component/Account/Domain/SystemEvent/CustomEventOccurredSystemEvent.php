@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
@@ -24,7 +24,7 @@ class CustomEventOccurredSystemEvent
     protected $eventName;
 
     /**
-     * @var EvaluationResult
+     * @var EvaluationResult|null
      */
     protected $evaluationResult;
 
@@ -73,9 +73,9 @@ class CustomEventOccurredSystemEvent
     }
 
     /**
-     * @return EvaluationResult
+     * @return EvaluationResult|null
      */
-    public function getEvaluationResult(): EvaluationResult
+    public function getEvaluationResult(): ?EvaluationResult
     {
         return $this->evaluationResult;
     }
