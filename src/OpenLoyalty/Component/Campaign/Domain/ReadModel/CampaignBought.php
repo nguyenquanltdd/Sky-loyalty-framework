@@ -103,7 +103,7 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
     /**
      * @var bool
      */
-    private $used;
+    private $used = false;
 
     /**
      * @var string
@@ -177,7 +177,7 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
         ?string $customerPhone,
         ?CampaignShippingAddress $campaignShippingAddress,
         ?string $status = CampaignPurchase::STATUS_ACTIVE,
-        ?bool $used = false,
+        bool $used = false,
         ?string $customerName = null,
         ?string $customerLastname = null,
         ?int $costInPoints = null,
