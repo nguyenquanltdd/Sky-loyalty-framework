@@ -20,12 +20,18 @@ services:
         tags:
             - { name: broadway.command_handler }
 
-    oloy.points.account.repository:
-        class: OpenLoyalty\Component\Account\Domain\AccountRepository
+    OpenLoyalty\Component\Account\Domain\EventSourcedAccountRepository:
         arguments:
             - '@broadway.event_store'
             - '@broadway.event_handling.event_bus'
             - ['@broadway.metadata_enriching_event_stream_decorator']
+
+    OpenLoyalty\Component\Account\Domain\AccountRepository:
+        arguments:
+            - '@OpenLoyalty\Component\Account\Domain\EventSourcedAccountRepository'
+            - '@broadway.event_store'
+            - '@OpenLoyalty\Bundle\CoreBundle\Repository\DBALSnapshotRepository'
+            - '@Broadway\Snapshotting\Snapshot\Trigger\EventCountTrigger'
 
     OpenLoyalty\Component\Account\Domain\ReadModel\PointsTransferDetailsRepository:
         class: 'Broadway\ReadModel\ReadModel'
@@ -96,7 +102,7 @@ services:
             - '@broadway.uuid.generator'
         lazy: true
         tags:
-          - { name: broadway.domain.event_listener }
+            - { name: broadway.domain.event_listener }
 
     oloy.account.revoke_points_on_return_transaction_listener:
         class: OpenLoyalty\Component\Account\Infrastructure\Event\Listener\RevokePointsOnReturnTransactionListener

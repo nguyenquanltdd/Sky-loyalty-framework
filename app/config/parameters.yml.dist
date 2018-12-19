@@ -60,3 +60,4 @@ parameters:
     master_api_key: ~
     activation_code_length: 6
     password_security_level: advanced
+    snapshot_event_count: 10

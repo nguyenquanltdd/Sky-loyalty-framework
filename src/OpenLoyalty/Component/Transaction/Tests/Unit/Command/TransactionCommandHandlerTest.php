@@ -13,7 +13,10 @@ use Broadway\CommandHandling\Testing\CommandHandlerScenarioTestCase;
 use Broadway\EventDispatcher\EventDispatcher;
 use Broadway\EventHandling\EventBus;
 use Broadway\EventStore\EventStore;
+use Broadway\Snapshotting\Snapshot\SnapshotRepository;
+use Broadway\Snapshotting\Snapshot\Trigger;
 use OpenLoyalty\Component\Transaction\Domain\Command\TransactionCommandHandler;
+use OpenLoyalty\Component\Transaction\Domain\EventSourcedTransactionRepository;
 use OpenLoyalty\Component\Transaction\Domain\TransactionRepository;
 
 /**
@@ -26,11 +29,20 @@ abstract class TransactionCommandHandlerTest extends CommandHandlerScenarioTestC
      */
     protected function createCommandHandler(EventStore $eventStore, EventBus $eventBus): CommandHandler
     {
+        /** @var EventDispatcher|\PHPUnit_Framework_MockObject_MockObject $eventDispatcher */
         $eventDispatcher = $this->getMockBuilder(EventDispatcher::class)->getMock();
         $eventDispatcher->method('dispatch')->with($this->isType('string'))->willReturn(true);
 
+        $eventSourcedRepository = new EventSourcedTransactionRepository($eventStore, $eventBus);
+
+        /** @var Trigger|\PHPUnit_Framework_MockObject_MockObject $trigger */
+        $trigger = $this->getMockBuilder(Trigger::class)->getMock();
+
+        /** @var SnapshotRepository|\PHPUnit_Framework_MockObject_MockObject $snapshotRepository */
+        $snapshotRepository = $this->getMockBuilder(SnapshotRepository::class)->getMock();
+
         return new TransactionCommandHandler(
-            new TransactionRepository($eventStore, $eventBus),
+            new TransactionRepository($eventSourcedRepository, $eventStore, $snapshotRepository, $trigger),
             $eventDispatcher
         );
     }

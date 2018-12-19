@@ -620,6 +620,50 @@
             "time": "2017-12-09 17:53:25"
         },
         {
+            "name": "broadway/snapshotting",
+            "version": "0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/broadway/snapshotting.git",
+                "reference": "4a03c62aac2aac17530b2b529721ab706455b090"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/broadway/snapshotting/zipball/4a03c62aac2aac17530b2b529721ab706455b090",
+                "reference": "4a03c62aac2aac17530b2b529721ab706455b090",
+                "shasum": ""
+            },
+            "require": {
+                "broadway/broadway": "^2.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.3.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Broadway\\Snapshotting\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "othillo",
+                    "email": "othillo@othillo.nl"
+                }
+            ],
+            "description": "POC for snapshotting aggregates in broadway/broadway",
+            "time": "2017-12-14 12:21:16"
+        },
+        {
             "name": "broadway/uuid-generator",
             "version": "0.4.0",
             "source": {

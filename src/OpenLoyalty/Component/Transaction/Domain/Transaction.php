@@ -1,13 +1,13 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Component\Transaction\Domain;
 
-use Broadway\EventSourcing\EventSourcedAggregateRoot;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
 use OpenLoyalty\Component\Core\Domain\Model\SKU;
+use OpenLoyalty\Component\Core\Domain\SnapableEventSourcedAggregateRoot;
 use OpenLoyalty\Component\Transaction\Domain\Event\CustomerWasAssignedToTransaction;
 use OpenLoyalty\Component\Transaction\Domain\Event\LabelsWereAppendedToTransaction;
 use OpenLoyalty\Component\Transaction\Domain\Event\LabelsWereUpdated;
@@ -18,7 +18,7 @@ use OpenLoyalty\Component\Transaction\Domain\Model\Item;
 /**
  * Class Transaction.
  */
-class Transaction extends EventSourcedAggregateRoot
+class Transaction extends SnapableEventSourcedAggregateRoot
 {
     const TYPE_RETURN = 'return';
     const TYPE_SELL = 'sell';

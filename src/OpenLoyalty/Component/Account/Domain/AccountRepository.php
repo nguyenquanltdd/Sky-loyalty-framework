@@ -1,34 +1,30 @@
 <?php
-/**
+/*
  * Copyright © 2017 Divante, Inc. All rights reserved.
  * See LICENSE for license details.
  */
 namespace OpenLoyalty\Component\Account\Domain;
 
-use Broadway\EventHandling\EventBus;
-use Broadway\EventSourcing\AggregateFactory\PublicConstructorAggregateFactory;
 use Broadway\EventSourcing\EventSourcingRepository;
 use Broadway\EventStore\EventStore;
+use Broadway\Snapshotting\Snapshot\SnapshotRepository;
+use Broadway\Snapshotting\Snapshot\Trigger;
+use OpenLoyalty\Component\Core\Infrastructure\Repository\SnapshottingEventSourcingRepository;
 
 /**
  * Class AccountRepository.
  */
-class AccountRepository extends EventSourcingRepository
+class AccountRepository extends SnapshottingEventSourcingRepository
 {
     /**
      * {@inheritdoc}
      */
     public function __construct(
+        EventSourcingRepository $eventSourcingRepository,
         EventStore $eventStore,
-        EventBus $eventBus,
-        array $eventStreamDecorators = array()
+        SnapshotRepository $snapshotRepository,
+        Trigger $trigger
     ) {
-        parent::__construct(
-            $eventStore,
-            $eventBus,
-            '\OpenLoyalty\Component\Account\Domain\Account',
-            new PublicConstructorAggregateFactory(),
-            $eventStreamDecorators
-        );
+        parent::__construct($eventSourcingRepository, $eventStore, $snapshotRepository, $trigger);
     }
 }
