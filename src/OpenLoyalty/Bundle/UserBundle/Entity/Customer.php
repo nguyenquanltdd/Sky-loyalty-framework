@@ -47,7 +47,7 @@ class Customer extends User
     private $status;
 
     /**
-     * @var string
+     * @var null|string
      *
      * @ORM\Column(type="string", nullable=true)
      * @Assert\NotBlank(groups={"registration"})
@@ -154,17 +154,17 @@ class Customer extends User
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getPhone(): string
+    public function getPhone(): ?string
     {
         return $this->phone;
     }
 
     /**
-     * @param string $phone
+     * @param null|string $phone
      */
-    public function setPhone(string $phone = null): void
+    public function setPhone(?string $phone = null): void
     {
         $this->phone = $phone;
     }
