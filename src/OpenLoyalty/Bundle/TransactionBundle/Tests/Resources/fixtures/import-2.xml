@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transactions>
     <transaction>
-        <documentNumber>R123/11</documentNumber>
+        <documentNumber>R129/11</documentNumber>
         <purchasePlace>Wrocław</purchasePlace>
         <purchaseDate>2005-08-15T15:52:01+00:00</purchaseDate>
         <documentType>sell</documentType>
@@ -65,7 +65,7 @@
         </items>
     </transaction>
     <transaction>
-        <documentNumber>R123/12</documentNumber>
+        <documentNumber>R129/12</documentNumber>
         <purchasePlace>Wrocław</purchasePlace>
         <purchaseDate>2005-08-15T15:52:01+00:00</purchaseDate>
         <documentType>sell</documentType>

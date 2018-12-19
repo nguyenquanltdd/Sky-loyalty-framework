@@ -13,28 +13,48 @@ use OpenLoyalty\Component\Pos\Domain\PosRepository;
 use OpenLoyalty\Component\Transaction\Domain\Command\RegisterTransaction;
 use OpenLoyalty\Component\Transaction\Domain\PosId;
 use OpenLoyalty\Component\Transaction\Domain\TransactionId;
+use OpenLoyalty\Component\Transaction\Domain\ReadModel\TransactionDetailsRepository;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class TransactionXmlImportConverter.
  */
 class TransactionXmlImportConverter extends AbstractXMLImportConverter
 {
-    /** @var UuidGeneratorInterface */
+    /**
+     * @var UuidGeneratorInterface
+     */
     protected $uuidGenerator;
 
-    /** @var PosRepository */
+    /**
+     * @var PosRepository
+     */
     protected $posRepository;
+
+    /**
+     * @var TransactionDetailsRepository
+     */
+    private $transactionDetailsRepository;
+
+    /**
+     * @var TranslatorInterface
+     */
+    private $translator;
 
     /**
      * TransactionXmlImportConverter constructor.
      *
-     * @param UuidGeneratorInterface $uuidGenerator
-     * @param PosRepository          $posRepository
+     * @param UuidGeneratorInterface       $uuidGenerator
+     * @param PosRepository                $posRepository
+     * @param TransactionDetailsRepository $transactionDetailsRepository
+     * @param TranslatorInterface          $translator
      */
-    public function __construct(UuidGeneratorInterface $uuidGenerator, PosRepository $posRepository)
+    public function __construct(UuidGeneratorInterface $uuidGenerator, PosRepository $posRepository, TransactionDetailsRepository $transactionDetailsRepository, TranslatorInterface $translator)
     {
         $this->uuidGenerator = $uuidGenerator;
         $this->posRepository = $posRepository;
+        $this->transactionDetailsRepository = $transactionDetailsRepository;
+        $this->translator = $translator;
     }
 
     /**
@@ -104,6 +124,10 @@ class TransactionXmlImportConverter extends AbstractXMLImportConverter
             /** @var Pos $pos */
             $pos = $this->posRepository->oneByIdentifier((string) $element->{'posIdentifier'});
             $posId = new PosId((string) $pos->getPosId());
+        }
+
+        if ($this->transactionDetailsRepository->findTransactionByDocumentNumber((string) $element->{'documentNumber'})) {
+            throw new \InvalidArgumentException($this->translator->trans('transaction.document_number_should_be_unique'));
         }
 
         return new RegisterTransaction(

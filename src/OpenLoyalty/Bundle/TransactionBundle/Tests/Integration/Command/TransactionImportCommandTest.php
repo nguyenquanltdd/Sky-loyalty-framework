@@ -34,7 +34,7 @@ class TransactionImportCommandTest extends KernelTestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command' => $command->getName(),
-            'file' => __DIR__.'/../../Resources/fixtures/import.xml',
+            'file' => __DIR__.'/../../Resources/fixtures/import-2.xml',
         ]);
 
         $output = $commandTester->getDisplay();
