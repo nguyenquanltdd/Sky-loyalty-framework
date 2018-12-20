@@ -23,6 +23,11 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
 {
     use Versionable;
 
+    public const STATUS_INACTIVE = 'inactive';
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_EXPIRED = 'expired';
+    public const STATUS_CANCELLED = 'cancelled';
+
     public const DELIVERY_STATUS_ORDERED = 'ordered';
     public const DELIVERY_STATUS_CANCELED = 'canceled';
     public const DELIVERY_STATUS_SHIPPED = 'shipped';
@@ -529,5 +534,13 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
     public function setCampaignShippingAddress(CampaignShippingAddress $campaignShippingAddress): void
     {
         $this->campaignShippingAddress = $campaignShippingAddress;
+    }
+
+    /**
+     * @return bool
+     */
+    public function canBeUsed(): bool
+    {
+        return self::STATUS_ACTIVE === $this->status && !$this->isUsed();
     }
 }
