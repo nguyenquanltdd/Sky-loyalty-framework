@@ -176,6 +176,7 @@ class CustomerStatusProvider
         }
 
         $this->applyNextMonthExpirePoints($customerStatus, $accountDetails);
+        $this->applyNextMonthExpirePointsDailyBreakdown($customerStatus, $accountDetails);
 
         return $customerStatus;
     }
@@ -238,6 +239,8 @@ class CustomerStatusProvider
     /**
      * @param CustomerStatus $customerStatus
      * @param AccountDetails $accountDetails
+     *
+     * @throws \Exception
      */
     private function applyNextMonthExpirePoints(CustomerStatus $customerStatus, AccountDetails $accountDetails): void
     {
@@ -249,7 +252,10 @@ class CustomerStatusProvider
                 continue;
             }
 
-            if ((new \DateTime())->format('m') >= $expiresAt->format('m')) {
+            $firstDayOfNextMonth = new \DateTime('first day of next month');
+            $lastDayOfNextMonth = new \DateTime('last day of next month');
+
+            if ($firstDayOfNextMonth > $expiresAt && $expiresAt < $lastDayOfNextMonth) {
                 continue;
             }
 
@@ -257,6 +263,37 @@ class CustomerStatusProvider
         }
 
         $customerStatus->setPointsExpiringNextMonth($expiringPointsSum);
+    }
+
+    /**
+     * @param CustomerStatus $customerStatus
+     * @param AccountDetails $accountDetails
+     *
+     * @throws \Exception
+     */
+    private function applyNextMonthExpirePointsDailyBreakdown(CustomerStatus $customerStatus, AccountDetails $accountDetails): void
+    {
+        $expiringPointsDaily = [];
+
+        $addPointsTransfers = $accountDetails->getAllActiveAddPointsTransfers();
+        foreach ($addPointsTransfers as $pointsTransfer) {
+            $expiresAt = $pointsTransfer->getExpiresAt();
+            if (null === $expiresAt) {
+                continue;
+            }
+
+            if ((new \DateTime('first day of this month')) >= $expiresAt) {
+                continue;
+            }
+
+            if (!isset($expiringPointsDaily[$expiresAt->format('Y-m-d')])) {
+                $expiringPointsDaily[$expiresAt->format('Y-m-d')] = 0;
+            }
+            $expiringPointsDaily[$expiresAt->format('Y-m-d')] += $pointsTransfer->getAvailableAmount();
+        }
+        ksort($expiringPointsDaily);
+
+        $customerStatus->setPointsExpiringBreakdown($expiringPointsDaily);
     }
 
     /**
@@ -323,6 +360,8 @@ class CustomerStatusProvider
      * @param $customerDetails
      *
      * @return int
+     *
+     * @throws \Exception
      */
     private function downgradeExpireDays(CustomerDetails $customerDetails): int
     {

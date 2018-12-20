@@ -152,6 +152,11 @@ class CustomerStatus
     private $pointsExpiringNextMonth;
 
     /**
+     * @var array
+     */
+    private $pointsExpiringBreakdown;
+
+    /**
      * CustomerStatus constructor.
      *
      * @param CustomerId $customerId
@@ -576,5 +581,21 @@ class CustomerStatus
     public function setPointsExpiringNextMonth(?float $pointsExpiringNextMonth): void
     {
         $this->pointsExpiringNextMonth = $pointsExpiringNextMonth;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPointsExpiringBreakdown(): ?array
+    {
+        return $this->pointsExpiringBreakdown;
+    }
+
+    /**
+     * @param array|null $pointsExpiringNextMonthBrakedown
+     */
+    public function setPointsExpiringBreakdown(?array $pointsExpiringBrakedown): void
+    {
+        $this->pointsExpiringBreakdown = $pointsExpiringBrakedown;
     }
 }
