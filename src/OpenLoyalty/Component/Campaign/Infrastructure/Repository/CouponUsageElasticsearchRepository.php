@@ -59,11 +59,29 @@ class CouponUsageElasticsearchRepository extends OloyElasticsearchRepository imp
         string $couponCode
     ): int {
         $total = 0;
-        $all = $this->findBy([
-            'campaignId' => (string) $campaignId,
-            'customerId' => (string) $customerId,
-            'coupon' => $couponCode,
-        ]);
+        $query = [
+            'bool' => [
+                'must' => [
+                    [
+                        'term' => [
+                            'campaignId' => (string) $campaignId,
+                        ],
+                    ],
+                    [
+                        'term' => [
+                            'customerId' => (string) $customerId,
+                        ],
+                    ],
+                    [
+                        'match' => [
+                            'coupon' => $couponCode,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $all = $this->query($query);
 
         /** @var CouponUsage $usage */
         foreach ($all as $usage) {
