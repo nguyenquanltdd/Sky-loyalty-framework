@@ -60,10 +60,13 @@ class CampaignRewardRedeemedTemplateParameterCreator implements CampaignRewardRe
         $templateParameter->addParameter('customer_email', $customer->getEmail());
 
         if (null !== $customer->getAddress()) {
+            $templateParameter->addParameter('customer_street', $customer->getAddress()->getStreet());
             $templateParameter->addParameter('customer_address1', $customer->getAddress()->getAddress1());
             $templateParameter->addParameter('customer_address2', $customer->getAddress()->getAddress2());
             $templateParameter->addParameter('customer_city', $customer->getAddress()->getCity());
             $templateParameter->addParameter('customer_postal', $customer->getAddress()->getPostal());
+            $templateParameter->addParameter('customer_state', $customer->getAddress()->getProvince());
+            $templateParameter->addParameter('customer_country', $customer->getAddress()->getCountry());
         }
 
         $templateParameter->addParameter('coupon_code', $campaignBought->getCoupon()->getCode());

@@ -7,7 +7,7 @@ parameters:
         - { template: 'OpenLoyaltyUserBundle:email:new_points.html.twig', subject: '{{ program_name }} - new points', variables: ['program_name', 'added_points_amount', 'active_points_amount', 'ecommerce_address'] }
         - { template: 'OpenLoyaltyUserBundle:email:new_level.html.twig', subject: '{{ program_name }} - new level', variables: ['program_name', 'level_name', 'level_discount', 'ecommerce_address'] }
         - { template: 'OpenLoyaltyUserBundle:email:invitation.html.twig', subject: 'Invitation', variables: ['referrerName', 'url'] }
-        - { template: 'OpenLoyaltyUserBundle:email:reward_redeemed.html.twig', subject: 'Reward Redeemed', variables: ['coupon_code', 'customer_name', 'customer_phone_number', 'customer_email', 'reward_name', 'reward_description', 'customer_address1', 'customer_address2', 'customer_city', 'customer_postal'] }
+        - { template: 'OpenLoyaltyUserBundle:email:reward_redeemed.html.twig', subject: 'Reward Redeemed', variables: ['coupon_code', 'customer_name', 'customer_last_name', 'customer_phone_number', 'customer_email', 'reward_name', 'reward_description', 'customer_street', 'customer_state', 'customer_country', 'customer_address1', 'customer_address2', 'customer_city', 'customer_postal'] }
 
 imports:
     - { resource: services/*.yml }
