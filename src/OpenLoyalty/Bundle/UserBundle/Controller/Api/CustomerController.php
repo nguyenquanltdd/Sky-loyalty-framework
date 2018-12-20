@@ -292,6 +292,53 @@ class CustomerController extends FOSRestController
     }
 
     /**
+     * Method will return true or false if a customer with give phone number or email exists.
+     *
+     * @Route(name="oloy.customer.check", path="/customer/check")
+     * @Method("GET")
+     * @Security("is_granted('CHECK_CUSTOMER')")
+     *
+     * @ApiDoc(
+     *     name="Customer email or phone number check",
+     *     section="Customer"
+     * )
+     *
+     * @param Request      $request
+     * @param ParamFetcher $paramFetcher
+     *
+     * @return View
+     *
+     * @QueryParam(name="emailOrPhone", nullable=true, description="email or phone"))
+     */
+    public function checkAction(Request $request, ParamFetcher $paramFetcher): View
+    {
+        $params = $this->get('oloy.user.param_manager')->stripNulls($paramFetcher->all(), true, true);
+
+        if (isset($params['emailOrPhone'])) {
+            $emailOrPhone = $params['emailOrPhone'];
+            $params['emailOrPhone'] = [
+                'type' => 'multiple',
+                'fields' => [
+                    'email' => $emailOrPhone,
+                    'phone' => $emailOrPhone,
+                ],
+            ];
+        }
+
+        $total = $this->customerDetailsRepository->countTotal($params, true);
+
+        $view = $this->view(['total' => $total], Response::HTTP_OK);
+
+        $context = new Context();
+        $context->addGroup('Default');
+        $context->setAttribute('locale', $request->getLocale());
+
+        $view->setContext($context);
+
+        return $view;
+    }
+
+    /**
      * Method will return customer details.
      *
      * @Route(name="oloy.customer.get", path="/customer/{customer}")

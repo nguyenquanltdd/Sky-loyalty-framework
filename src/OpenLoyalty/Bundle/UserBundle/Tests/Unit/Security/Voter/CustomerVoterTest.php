@@ -37,6 +37,7 @@ class CustomerVoterTest extends BaseVoterTest
             CustomerVoter::VIEW => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => true, 'id' => self::CUSTOMER_ID],
             CustomerVoter::VIEW_STATUS => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => true, 'id' => self::CUSTOMER_ID],
             CustomerVoter::EDIT => ['seller' => true, 'customer' => false, 'admin' => true, 'admin_reporter' => false, 'id' => self::CUSTOMER_ID],
+            CustomerVoter::CHECK_CUSTOMER => ['seller' => true, 'customer' => true, 'admin' => true, 'admin_reporter' => true],
         ];
 
         /** @var SellerDetailsRepository|MockObject $sellerDetailsRepositoryMock */

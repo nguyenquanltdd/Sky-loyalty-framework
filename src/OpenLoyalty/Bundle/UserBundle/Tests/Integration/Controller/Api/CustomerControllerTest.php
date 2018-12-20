@@ -1012,6 +1012,28 @@ class CustomerControllerTest extends BaseApiTest
 
     /**
      * @test
+     * @dataProvider getEmailOrPhoneCheckDataProvider
+     *
+     * @param string $emailOrPhone
+     * @param int    $expected
+     */
+    public function it_allows_to_check_is_email_or_phone_number_exists(string $emailOrPhone, int $expected): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'GET',
+            '/api/customer/check?emailOrPhone='.urlencode($emailOrPhone)
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $data = json_decode($response->getContent(), true);
+        $this->assertArrayHasKey('total', $data);
+        $this->assertEquals($expected, $data['total']);
+    }
+
+    /**
+     * @test
      */
     public function it_allows_to_assign_pushy_device_token_to_customer(): void
     {
@@ -1792,6 +1814,19 @@ class CustomerControllerTest extends BaseApiTest
             ['emailOrPhone', 'user-1@oloy.com', 1, ['email', 'phone']],
             ['emailOrPhone', '+48', 7, ['email', 'phone']],
             ['emailOrPhone', '645', 2, ['email', 'phone']],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getEmailOrPhoneCheckDataProvider(): array
+    {
+        return [
+            ['user-1', 0],
+            ['user-1@oloy.com', 1],
+            ['+48234234000', 1],
+            ['645', 0],
         ];
     }
 

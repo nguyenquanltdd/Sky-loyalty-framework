@@ -627,7 +627,7 @@ class OloyElasticsearchRepository extends ElasticSearchRepository
                         if (!$exact) {
                             $bool['should'][] = ['wildcard' => [$k => sprintf('*%s*', $v)]];
                         } else {
-                            $bool['should'][] = ['term' => [$k => sprintf('*%s*', $v)]];
+                            $bool['should'][] = ['term' => [$k => sprintf('%s', str_replace('\\', '', $v))]];
                         }
                     }
                     $filter[] = ['bool' => $bool];
