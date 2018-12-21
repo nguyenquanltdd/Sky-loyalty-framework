@@ -8,6 +8,7 @@ namespace OpenLoyalty\Bundle\UserBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use OpenLoyalty\Bundle\UserBundle\Security\PermissionAccess;
 use Symfony\Component\Security\Core\Role\RoleInterface;
 use JMS\Serializer\Annotation as JMS;
 
@@ -48,8 +49,8 @@ class Role implements RoleInterface
 
     /**
      * @var Permission[]
-     * @ORM\OneToMany(targetEntity="OpenLoyalty\Bundle\UserBundle\Entity\Permission", orphanRemoval=true, cascade={"persist", "remove"},
-     *     mappedBy="role")*
+     * @ORM\OneToMany(targetEntity="OpenLoyalty\Bundle\UserBundle\Entity\Permission", orphanRemoval=true,
+     *     cascade={"persist", "remove"}, mappedBy="role")*
      * @JMS\Expose()
      */
     private $permissions;
@@ -119,6 +120,25 @@ class Role implements RoleInterface
     }
 
     /**
+     * @return array
+     */
+    public function getRealPermissions(): array
+    {
+        $permissions = [];
+
+        /** @var Permission $permission */
+        foreach ($this->getPermissions() as $permission) {
+            $permissions[] = $permission;
+
+            if ($permission->getAccess() == PermissionAccess::MODIFY) {
+                $permissions[] = new Permission($permission->getResource(), PermissionAccess::VIEW);
+            }
+        }
+
+        return $permissions;
+    }
+
+    /**
      * @param string $resource
      * @param string $access
      *
@@ -127,7 +147,7 @@ class Role implements RoleInterface
     public function hasPermission(string $resource, string $access): bool
     {
         /** @var Permission $permission */
-        foreach ($this->getPermissions() as $permission) {
+        foreach ($this->getRealPermissions() as $permission) {
             if ($resource === $permission->getResource() && $access === $permission->getAccess()) {
                 return true;
             }
