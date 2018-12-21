@@ -6,9 +6,10 @@
 namespace OpenLoyalty\Bundle\TransactionBundle\Import;
 
 use Broadway\UuidGenerator\UuidGeneratorInterface;
-use OpenLoyalty\Bundle\PosBundle\Model\Pos;
 use OpenLoyalty\Component\Import\Infrastructure\AbstractXMLImportConverter;
 use OpenLoyalty\Component\Import\Infrastructure\Validator\XmlNodeValidator;
+use OpenLoyalty\Component\Pos\Domain\Pos;
+use OpenLoyalty\Component\Pos\Domain\PosId as DomainPosId;
 use OpenLoyalty\Component\Pos\Domain\PosRepository;
 use OpenLoyalty\Component\Transaction\Domain\Command\RegisterTransaction;
 use OpenLoyalty\Component\Transaction\Domain\PosId;
@@ -118,12 +119,16 @@ class TransactionXmlImportConverter extends AbstractXMLImportConverter
             ];
         }
 
-        if (isset($element->{'posId'})) {
-            $posId = new PosId((string) $element->{'posId'});
-        } elseif (isset($element->{'posIdentifier'})) {
-            /** @var Pos $pos */
-            $pos = $this->posRepository->oneByIdentifier((string) $element->{'posIdentifier'});
-            $posId = new PosId((string) $pos->getPosId());
+        /** @var DomainPosId $posId */
+        $posId = null;
+        if (isset($element->{'posId'}) || isset($element->{'posIdentifier'})) {
+            $posId = $this->getPos($element);
+            if (!$posId) {
+                throw new \InvalidArgumentException(sprintf(
+                    $this->translator->trans('transaction.import.pos_not_found'),
+                    (string) $element->{'posIdentifier'}
+                ));
+            }
         }
 
         if ($this->transactionDetailsRepository->findTransactionByDocumentNumber((string) $element->{'documentNumber'})) {
@@ -135,8 +140,39 @@ class TransactionXmlImportConverter extends AbstractXMLImportConverter
             $transactionData,
             $customerData,
             $items,
-            $posId ?? null
+            $posId ? new PosId((string) $posId) : null,
+            null,
+            null,
+            null,
+            (string) $element->{'revisedDocument'}
         );
+    }
+
+    /**
+     * @param \SimpleXMLElement $element
+     *
+     * @return null|DomainPosId
+     */
+    protected function getPos(\SimpleXMLElement $element): ?DomainPosId
+    {
+        /** @var null|Pos $pos */
+        $pos = null;
+        if (isset($element->{'posId'})) {
+            $posId = new DomainPosId((string) $element->{'posId'});
+            $pos = $this->posRepository->byId($posId);
+            if ($pos) {
+                return $pos->getPosId();
+            }
+        }
+
+        if (isset($element->{'posIdentifier'})) {
+            $pos = $this->posRepository->oneByIdentifier((string) $element->{'posIdentifier'});
+            if ($pos) {
+                return $pos->getPosId();
+            }
+        }
+
+        return null;
     }
 
     /**

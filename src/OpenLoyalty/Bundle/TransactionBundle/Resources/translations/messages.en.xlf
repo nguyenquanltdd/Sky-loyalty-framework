@@ -22,6 +22,10 @@
                 <source>transaction.document_return_wrong_type</source>
                 <target>Transaction wrong type</target>
             </trans-unit>
+            <trans-unit id="transaction.import.pos_not_found">
+                <source>transaction.import.pos_not_found</source>
+                <target>POS (%s) nof found</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

@@ -22,6 +22,10 @@
                 <source>transaction.document_return_wrong_type</source>
                 <target>Błędny typ transakcji</target>
             </trans-unit>
+            <trans-unit id="transaction.import.pos_not_found">
+                <source>transaction.import.pos_not_found</source>
+                <target>POS (%s) nie znaleziono.</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

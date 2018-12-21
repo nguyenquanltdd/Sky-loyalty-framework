@@ -617,7 +617,7 @@ class Customer extends SnapableEventSourcedAggregateRoot
         foreach ($this->getTransactions() as $transaction) {
             $returnAmount = 0;
 
-            if ($transaction->isReturn()) {
+            if ($transaction->isReturn() && $transaction->getRevisedDocument()) {
                 $revisedTransaction = $this->getTransactionByDocumentNumber($transaction->getRevisedDocument());
                 if ($revisedTransaction instanceof Transaction) {
                     $grossValue = $transaction->getGrossValue();
