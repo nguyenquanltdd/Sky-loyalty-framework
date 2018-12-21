@@ -296,7 +296,6 @@ class CustomerController extends FOSRestController
      *
      * @Route(name="oloy.customer.check", path="/customer/check")
      * @Method("GET")
-     * @Security("is_granted('CHECK_CUSTOMER')")
      *
      * @ApiDoc(
      *     name="Customer email or phone number check",

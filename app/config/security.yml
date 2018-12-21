@@ -80,6 +80,11 @@ security:
             pattern:  ^/api/customer/customer-phone/send-sms-code
             stateless: true
             anonymous: true
+        customer_check:
+            pattern:  ^/api/customer/check
+            methods: ["GET"]
+            stateless: true
+            anonymous: true
         campaign_brand_icon:
             pattern:  ^/api/campaign/([a-zA-Z\-0-9]+)/brand_icon
             methods: ["GET"]
@@ -203,6 +208,7 @@ security:
         - { path: ^/api/customer/customer-phone/send-sms-code, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/customer/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/customer/login_check, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/customer/check, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/seller/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/seller/login_check, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/token/refresh, roles: IS_AUTHENTICATED_ANONYMOUSLY }

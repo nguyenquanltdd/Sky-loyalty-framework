@@ -30,7 +30,6 @@ class CustomerVoter extends Voter
     const LIST_CUSTOMERS = 'LIST_CUSTOMERS';
     const VIEW = 'VIEW';
     const VIEW_STATUS = 'VIEW_STATUS';
-    const CHECK_CUSTOMER = 'CHECK_CUSTOMER';
 
     /**
      * @var SellerDetailsRepository
@@ -98,8 +97,6 @@ class CustomerVoter extends Voter
                 return $viewAdmin || $this->canSellerOrCustomerView($user, $subject);
             case self::VIEW_STATUS:
                 return $viewAdmin || $this->canSellerOrCustomerView($user, $subject);
-            case self::CHECK_CUSTOMER:
-                return $user->hasRole('ROLE_PARTICIPANT') || $viewAdmin || $user->hasRole('ROLE_SELLER');
             default:
                 return false;
         }
@@ -182,7 +179,6 @@ class CustomerVoter extends Voter
             && \in_array($attribute, [
                 self::LIST_CUSTOMERS,
                 self::CREATE_CUSTOMER,
-                self::CHECK_CUSTOMER,
             ], true)
         ;
     }
