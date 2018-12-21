@@ -43,9 +43,9 @@ final class UpdateBoughtCampaignCouponTest extends CustomerCommandHandlerTest
             ])
             ->when(
                 new UpdateBoughtCampaignCouponCommand(
-                    $customerId->__toString(),
-                    $campaignId->__toString(),
-                    $transactionId->__toString(),
+                    (string) $customerId,
+                    (string) $campaignId,
+                    (string) $transactionId,
                     $createdAt,
                     $newCoupon->getCode(),
                     $newCoupon->getId()

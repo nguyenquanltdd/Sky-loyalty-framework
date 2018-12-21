@@ -844,9 +844,30 @@ class CustomerDetails implements SerializableReadModel, VersionableReadModel
         /** @var CampaignPurchase $purchase */
         foreach ($this->getPurchasesByCampaignId($campaignId) as $purchase) {
             if ($purchase->getCoupon()->getCode() === $coupon->getCode() &&
+                $purchase->getCoupon()->getId() === $coupon->getId() &&
+                $purchase->canBeUsed() === true
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param CampaignId $campaignId
+     * @param Coupon     $coupon
+     *
+     * @return bool
+     */
+    public function hasPurchased(CampaignId $campaignId, Coupon $coupon): bool
+    {
+        /** @var CampaignPurchase $purchase */
+        foreach ($this->getPurchasesByCampaignId($campaignId) as $purchase) {
+            if ($purchase->getCoupon()->getCode() === $coupon->getCode() &&
                 $purchase->getCoupon()->getId() === $coupon->getId()
             ) {
-                return $purchase->canBeUsed();
+                return true;
             }
         }
 

@@ -1132,7 +1132,7 @@ class CampaignController extends FOSRestController
     public function buyCampaignAdmin(DomainCampaign $campaign, CustomerDetails $customer, Request $request): FosView
     {
         if (!$campaign->canBeBoughtManually()) {
-            throw new BadRequestHttpException();
+            throw new BadRequestHttpException($this->translator->trans('campaign.cannot_be_bought_manually'));
         }
 
         $withoutPoints = $request->get('withoutPoints', false);

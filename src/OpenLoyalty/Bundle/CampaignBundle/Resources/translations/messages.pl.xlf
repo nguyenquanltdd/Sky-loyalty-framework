@@ -22,6 +22,14 @@
                 <source>campaign.invalid_value_field_in_row</source>
                 <target>Nieprawidłowa wartość dla pola %name% w wierszu %row%</target>
             </trans-unit>
+            <trans-unit id="campaign.purchase_not_available">
+                <source>campaign.purchase_not_available</source>
+                <target>Brak aktywnego zakupu odpowiadającego wartości pola %name% w wierszu %row%. Może użytkownik nie wykupił jeszcze nagrody z tej kampanii, zakup jest nieaktywny albo dany couponId nie jest przypisany do tego użytkownika?</target>
+            </trans-unit>
+            <trans-unit id="campaign.purchase_not_found">
+                <source>campaign.purchase_not_found</source>
+                <target>Brak zakupu odpowiadającego wartości pola %name% w wierszu %row%. Może użytkownik nie wykupił jeszcze nagrody z tej kampanii albo dany couponId nie jest przypisany do tego użytkownika?</target>
+            </trans-unit>
             <trans-unit id="campaign.invalid_value_in_row">
                 <source>campaign.invalid_value_in_row</source>
                 <target>%content% w wierszu %row%</target>
@@ -61,6 +69,10 @@
             <trans-unit id="campaign.field_used_is_required">
                 <source>campaign.field_used_is_required</source>
                 <target>P0le "użyto" jest wymagane</target>
+            </trans-unit>
+            <trans-unit id="campaign.cannot_be_bought_manually">
+                <source>campaign.cannot_be_bought_manually</source>
+                <target>This campaign cannot be bought manually.</target>
             </trans-unit>
         </body>
     </file>

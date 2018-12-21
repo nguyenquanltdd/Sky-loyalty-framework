@@ -852,14 +852,14 @@ class CampaignControllerTest extends BaseApiTest
             '/api/admin/campaign/coupons/mark_as_used',
             [
                 'coupons' => [
-                        [
-                            'customerId' => LoadUserData::USER2_USER_ID,
-                            'campaignId' => LoadCampaignData::CAMPAIGN_ID,
-                            'couponId' => $couponId,
-                            'code' => $couponCode,
-                            'used' => true,
-                        ],
+                    [
+                        'customerId' => LoadUserData::USER2_USER_ID,
+                        'campaignId' => LoadCampaignData::CAMPAIGN_ID,
+                        'couponId' => $couponId,
+                        'code' => $couponCode,
+                        'used' => true,
                     ],
+                ],
             ]
         );
 
@@ -880,6 +880,106 @@ class CampaignControllerTest extends BaseApiTest
         $this->assertNotNull($campaignPurchase);
         $this->assertInstanceOf(CampaignPurchase::class, $campaignPurchase);
         $this->assertTrue($campaignPurchase->isUsed());
+    }
+
+    /**
+     * @test
+     * @depends it_changes_multiple_coupons_to_used
+     */
+    public function it_changes_coupons_to_unused(): void
+    {
+        $client = $this->createAuthenticatedClient(LoadUserData::USER2_USERNAME, LoadUserData::USER2_PASSWORD, 'customer');
+        $client->request(
+            'GET',
+            '/api/customer/campaign/bought'
+        );
+        $response = $client->getResponse();
+        $this->assertOkResponseStatus($response);
+        $data = json_decode($response->getContent(), true);
+        $data = reset($data);
+        $campaignBought = reset($data);
+        $this->assertArrayHasKey('coupon', $campaignBought);
+        $coupon = $campaignBought['coupon'];
+        $this->assertArrayHasKey('id', $coupon);
+        $this->assertArrayHasKey('code', $coupon);
+
+        $couponId = $coupon['id'];
+        $couponCode = $coupon['code'];
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/admin/campaign/coupons/mark_as_used',
+            [
+                'coupons' => [
+                    [
+                        'customerId' => LoadUserData::USER2_USER_ID,
+                        'campaignId' => LoadCampaignData::CAMPAIGN_ID,
+                        'couponId' => $couponId,
+                        'code' => $couponCode,
+                        'used' => false,
+                    ],
+                ],
+            ]
+        );
+
+        $response = $client->getResponse();
+
+        $customerDetails = $this->getCustomerDetails(LoadUserData::USER2_USERNAME);
+        $campaigns = $customerDetails->getCampaignPurchases();
+        $campaignPurchase = null;
+
+        /** @var CampaignPurchase $campaign */
+        foreach ($campaigns as $campaign) {
+            if ($campaign->getCoupon()->getCode() === $couponCode && $campaign->getCoupon()->getId() === $couponId) {
+                $campaignPurchase = $campaign;
+            }
+        }
+
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Response should have status 200');
+        $this->assertNotNull($campaignPurchase);
+        $this->assertInstanceOf(CampaignPurchase::class, $campaignPurchase);
+        $this->assertFalse($campaignPurchase->isUsed());
+    }
+
+    /**
+     * @test
+     */
+    public function it_doesnt_change_coupons_to_unused_if_they_dont_exist(): void
+    {
+        $client = $this->createAuthenticatedClient(LoadUserData::USER2_USERNAME, LoadUserData::USER2_PASSWORD, 'customer');
+        $client->request(
+            'GET',
+            '/api/customer/campaign/bought'
+        );
+        $response = $client->getResponse();
+        $this->assertOkResponseStatus($response);
+        $data = json_decode($response->getContent(), true);
+        $data = reset($data);
+        $campaignBought = reset($data);
+        $this->assertArrayHasKey('coupon', $campaignBought);
+        $coupon = $campaignBought['coupon'];
+        $this->assertArrayHasKey('code', $coupon);
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/admin/campaign/coupons/mark_as_used',
+            [
+                'coupons' => [
+                    [
+                        'customerId' => LoadUserData::USER2_USER_ID,
+                        'campaignId' => LoadCampaignData::CAMPAIGN_ID,
+                        'couponId' => 'nonexistent',
+                        'code' => $coupon['code'],
+                        'used' => false,
+                    ],
+                ],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), 'Response should have status 200');
     }
 
     /**

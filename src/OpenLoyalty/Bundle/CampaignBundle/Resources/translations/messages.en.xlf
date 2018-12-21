@@ -22,6 +22,14 @@
                 <source>campaign.invalid_value_field_in_row</source>
                 <target>Invalid value for %name% in row %row%</target>
             </trans-unit>
+            <trans-unit id="campaign.purchase_not_available">
+                <source>campaign.purchase_not_available</source>
+                <target>No purchase available with given %name% in row %row%. Maybe the user didn't buy the campaign yet, the purchase is inactive or the couponId is not the one found in customer details?</target>
+            </trans-unit>
+            <trans-unit id="campaign.purchase_not_found">
+                <source>campaign.purchase_not_found</source>
+                <target>No purchase found with given %name% in row %row%. Maybe the user didn't buy the campaign yet or the couponId is not the one found in customer details?</target>
+            </trans-unit>
             <trans-unit id="campaign.invalid_value_in_row">
                 <source>campaign.invalid_value_in_row</source>
                 <target>%content% in row %row%</target>
@@ -61,6 +69,10 @@
             <trans-unit id="campaign.field_used_is_required">
                 <source>campaign.field_used_is_required</source>
                 <target>Field "used" is required</target>
+            </trans-unit>
+            <trans-unit id="campaign.cannot_be_bought_manually">
+                <source>campaign.cannot_be_bought_manually</source>
+                <target>This campaign cannot be bought manually.</target>
             </trans-unit>
         </body>
     </file>

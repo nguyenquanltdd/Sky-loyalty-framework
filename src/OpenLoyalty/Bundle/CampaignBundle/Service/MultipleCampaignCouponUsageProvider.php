@@ -175,9 +175,21 @@ class MultipleCampaignCouponUsageProvider
             );
         }
 
-        if (!$customer->canUsePurchase(new CustomerCampaignId((string) $campaign->getCampaignId()), $coupon)) {
+        if (
+            $used === true &&
+            !$customer->canUsePurchase(new CustomerCampaignId((string) $campaign->getCampaignId()), $coupon)
+        ) {
             throw new InvalidDataProvidedException(
-                $this->translator->trans('campaign.invalid_value_field_in_row', ['%name%' => 'code', '%row%' => $key])
+                $this->translator->trans('campaign.purchase_not_available', ['%name%' => 'code', '%row%' => $key])
+            );
+        }
+
+        if (
+            $used === false &&
+            !$customer->hasPurchased(new CustomerCampaignId((string) $campaign->getCampaignId()), $coupon)
+        ) {
+            throw new InvalidDataProvidedException(
+                $this->translator->trans('campaign.purchase_not_found', ['%name%' => 'code', '%row%' => $key])
             );
         }
     }
