@@ -13,6 +13,8 @@ services:
     OpenLoyalty\Bundle\SettingsBundle\Service\SettingsManager: '@OpenLoyalty\Bundle\SettingsBundle\Service\GeneralSettingsManager'
     OpenLoyalty\Bundle\SettingsBundle\Service\TranslationsProvider: '@OpenLoyalty\Bundle\SettingsBundle\Service\DoctrineTranslationsManager'
 
+    OpenLoyalty\Bundle\SettingsBundle\EventSubscriber\TimezoneSubscriber: ~
+
     OpenLoyalty\Bundle\SettingsBundle\Provider\:
         resource: '../../Provider/*'
 
