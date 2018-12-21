@@ -137,3 +137,6 @@ knp_doctrine_behaviors:
 
 a2lix_translation_form:
     locale_provider: OpenLoyalty\Bundle\TranslationBundle\Provider\A2lixLocaleProvider
+
+doctrine_migrations:
+    namespace: OpenLoyalty\Migrations
