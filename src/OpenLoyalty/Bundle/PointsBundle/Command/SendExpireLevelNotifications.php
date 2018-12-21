@@ -51,7 +51,7 @@ class SendExpireLevelNotifications extends Command
     /**
      * SendExpireLevelNotifications constructor.
      *
-     * @param ExpireLevelNotifierInterface $expirePointsNotifier
+     * @param ExpireLevelNotifierInterface $expireLevelNotifier
      * @param SettingsManager              $settingsManager
      */
     public function __construct(ExpireLevelNotifierInterface $expireLevelNotifier, SettingsManager $settingsManager)
@@ -79,26 +79,6 @@ class SendExpireLevelNotifications extends Command
     protected function initialize(InputInterface $input, OutputInterface $output): void
     {
         $this->io = new SymfonyStyle($input, $output);
-
-        $tierAssignTypeSetting = $this->settingsManager->getSettingByKey('tierAssignType');
-        if (null !== $tierAssignTypeSetting && TierAssignTypeProvider::TYPE_POINTS !== $tierAssignTypeSetting->getValue()) {
-            throw new \RuntimeException(sprintf(
-                'Expire level notifications only works with %s tier type.',
-                TierAssignTypeProvider::TYPE_POINTS
-            ));
-        }
-
-        $levelDowngradeModeSetting = $this->settingsManager->getSettingByKey('levelDowngradeMode');
-        if (null !== $levelDowngradeModeSetting && LevelDowngradeModeProvider::MODE_X_DAYS !== $levelDowngradeModeSetting->getValue()) {
-            throw new \RuntimeException(sprintf(
-                'Expire level notifications only works with %s Level Downgrade Mode',
-                LevelDowngradeModeProvider::MODE_X_DAYS
-            ));
-        }
-
-        if (null === $this->settingsManager->getSettingByKey('uriWebhooks')) {
-            throw new \RuntimeException('Webhook URI is not configured.');
-        }
     }
 
     /**
@@ -128,8 +108,48 @@ class SendExpireLevelNotifications extends Command
     /**
      * {@inheritdoc}
      */
+    public function run(InputInterface $input, OutputInterface $output)
+    {
+        try {
+            return parent::run($input, $output);
+        } catch (\Exception $ex) {
+            $this->io->note(sprintf('%s', $ex->getMessage()));
+
+            return 0;
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
+        $tierAssignTypeSetting = $this->settingsManager->getSettingByKey('tierAssignType');
+        if (null !== $tierAssignTypeSetting && TierAssignTypeProvider::TYPE_POINTS !== $tierAssignTypeSetting->getValue()) {
+            $this->io->note(sprintf(
+                'Expire level notifications only works with %s tier type.',
+                TierAssignTypeProvider::TYPE_POINTS
+            ));
+
+            return;
+        }
+
+        $levelDowngradeModeSetting = $this->settingsManager->getSettingByKey('levelDowngradeMode');
+        if (null !== $levelDowngradeModeSetting && LevelDowngradeModeProvider::MODE_X_DAYS !== $levelDowngradeModeSetting->getValue()) {
+            $this->io->note(
+                'Expire level notifications only works with %s Level Downgrade Mode',
+                LevelDowngradeModeProvider::MODE_X_DAYS
+            );
+
+            return;
+        }
+
+        if (null === $this->settingsManager->getSettingByKey('uriWebhooks')) {
+            $this->io->note('Webhook URI is not configured.');
+
+            return;
+        }
+
         $stopwatch = new Stopwatch();
         $stopwatch->start(self::COMMAND_ID);
 
