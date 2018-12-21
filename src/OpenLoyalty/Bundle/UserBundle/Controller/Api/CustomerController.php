@@ -712,7 +712,7 @@ class CustomerController extends FOSRestController
             }
 
             if (null !== $levelId = $form->get('levelId')->getData()) {
-                if ($customer->getLevelId() !== $levelId) {
+                if ($customer->getLevelId() != $levelId) {
                     /** @var Level $level */
                     $level = $this->levelRepository->byId(new LevelId($levelId));
 

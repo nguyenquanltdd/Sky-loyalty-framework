@@ -662,6 +662,23 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
+    public function it_assign_level_to_customer(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+          'POST',
+          '/api/customer/'.LoadUserData::USER2_USER_ID.'/level',
+          [
+              'levelId' => LoadLevelData::LEVEL3_ID,
+          ]
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+    }
+
+    /**
+     * @test
+     */
     public function it_allows_to_edit_customer_level(): void
     {
         $client = $this->createAuthenticatedClient();
@@ -674,7 +691,6 @@ class CustomerControllerTest extends BaseApiTest
 
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
-
         $customerData['firstName'] = $data['firstName'];
         $customerData['lastName'] = $data['lastName'];
         $customerData['agreement1'] = true;
