@@ -63,7 +63,8 @@
     "symfony/symfony": "3.4.14",
     "symfony/monolog-bundle": "^2.8",
     "symfony/polyfill-apcu": "^1.0",
-    "symfony/swiftmailer-bundle": "^2.3"
+    "symfony/swiftmailer-bundle": "^2.3",
+    "doctrine/doctrine-migrations-bundle": "^1.3"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^2.10",
