@@ -345,10 +345,8 @@ abstract class User implements UserInterface, \Serializable, PermissionStorageIn
     {
         /** @var Role $role */
         foreach ($this->getRoles() as $role) {
-            foreach ($role->getPermissions() as $permission) {
-                if ($permission->getAccess() === $access && $permission->getResource() === $resource) {
-                    return true;
-                }
+            if ($role->hasPermission($resource, $access)) {
+                return true;
             }
         }
 
@@ -459,7 +457,7 @@ abstract class User implements UserInterface, \Serializable, PermissionStorageIn
         $permissions = [];
         /** @var Role $role */
         foreach ($this->getRoles() as $role) {
-            $permissions = array_merge($permissions, $role->getPermissions()->toArray());
+            $permissions = array_merge($permissions, $role->getRealPermissions());
         }
 
         return $permissions;

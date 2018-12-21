@@ -65,4 +65,22 @@ final class UserTest extends TestCase
         $this->assertFalse($user->hasPermission('AREA_2', ['VIEW', 'MODIFY']));
         $this->assertFalse($user->hasPermission('AREA_2', ['NOT_EXISTS']));
     }
+
+    /**
+     * @test
+     */
+    public function it_allows_when_user_has_modify_access_but_wants_to_view(): void
+    {
+        $role = new Role('ROLE');
+        $permission1 = new Permission('AREA_1', 'MODIFY');
+
+        $role->addPermission($permission1);
+
+        $user = new Admin('');
+        $user->addRole($role);
+
+        $this->assertTrue($user->hasPermission('AREA_1', ['VIEW']));
+        $this->assertTrue($user->hasPermission('AREA_1', ['MODIFY']));
+        $this->assertFalse($user->hasPermission('AREA_1', ['NOT_EXISTS']));
+    }
 }
