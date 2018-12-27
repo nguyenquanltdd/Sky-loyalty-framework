@@ -61,6 +61,12 @@ services:
             - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_success, method: onAuthenticationSuccessResponse }
             - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_failure, method: onAuthenticationFailureResponse }
 
+    OpenLoyalty\Bundle\UserBundle\EventListener\CustomerDetailsWereUpdatedListener:
+        arguments:
+            $repository: '@oloy.user.customer.repository'
+        tags:
+            - { name: broadway.event_listener, event: oloy.customer.updated, method: handle }
+
     oloy.user.form_type.change_password:
         class: OpenLoyalty\Bundle\UserBundle\Form\Type\ChangePasswordFormType
         tags:
