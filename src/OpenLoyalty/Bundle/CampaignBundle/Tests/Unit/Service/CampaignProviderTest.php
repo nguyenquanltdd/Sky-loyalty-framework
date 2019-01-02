@@ -20,11 +20,15 @@ use OpenLoyalty\Component\Customer\Infrastructure\Repository\CustomersBelongingT
 use OpenLoyalty\Component\Segment\Infrastructure\Repository\SegmentedCustomersElasticsearchRepository;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Broadway\ReadModel\Repository;
+use OpenLoyalty\Component\Campaign\Domain\CampaignRepository;
+use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
+use OpenLoyalty\Component\Campaign\Domain\ReadModel\CouponUsage;
 
 /**
  * Class CampaignProviderTest.
  */
-class CampaignProviderTest extends TestCase
+final class CampaignProviderTest extends TestCase
 {
     /**
      * @test
@@ -36,6 +40,8 @@ class CampaignProviderTest extends TestCase
      * @param bool $isUnlimited
      * @param int  $usageForCustomer
      * @param int  $expected
+     *
+     * @throws \Assert\AssertionFailedException
      */
     public function it_returns_usage_left_for_a_customer(
         int $availableCouponsCount,
@@ -134,6 +140,8 @@ class CampaignProviderTest extends TestCase
      * @param bool $isUnlimited
      *
      * @return MockObject|Campaign
+     *
+     * @throws \Assert\AssertionFailedException
      */
     private function getCampaign(
         bool $isSingleCoupon,
@@ -150,5 +158,162 @@ class CampaignProviderTest extends TestCase
         $campaign->method('getCoupons')->willReturn([]);
 
         return $campaign;
+    }
+
+    /**
+     * @param array $coupons
+     *
+     * @return CampaignProvider
+     *
+     * @throws \Assert\AssertionFailedException
+     * @throws \ReflectionException
+     */
+    protected function getCampaignProvider(array $coupons): CampaignProvider
+    {
+        $segmentedCustomerRepository = $this->createMock(Repository::class);
+        $customerBelongingToOneLevelRepository = $this->createMock(Repository::class);
+        $couponUsageRepository = $this->getMockBuilder(CouponUsageRepository::class)->getMock();
+        $campaignValidator = $this->createMock(CampaignValidator::class);
+        $campaignUsageRepository = $this->createMock(CampaignUsageRepository::class);
+        $campaignRepository = $this->createMock(CampaignRepository::class);
+
+        $usedCoupons = [];
+        foreach ($coupons as $coupon) {
+            $usedCoupons[] = new CouponUsage(
+                new CampaignId('00000000-0000-474c-b092-b0dd880c07e1'),
+                new CustomerId('00000000-0000-474c-b092-b0dd880c07e1'),
+                $coupon,
+                1
+            );
+        }
+
+        $couponUsageRepository->method('findByCampaign')->willReturn($usedCoupons);
+
+        return new CampaignProvider(
+            $segmentedCustomerRepository,
+            $customerBelongingToOneLevelRepository,
+            $couponUsageRepository,
+            $campaignValidator,
+            $campaignUsageRepository,
+            $campaignRepository
+        );
+    }
+
+    /**
+     * @test
+     * @dataProvider getDeletedAndUsedProvider
+     *
+     * @param array $campaignCoupons
+     * @param array $requestedCoupons
+     * @param array $usedCoupons
+     * @param array $result
+     *
+     * @throws \Assert\AssertionFailedException
+     * @throws \ReflectionException
+     */
+    public function it_returns_deleted_and_used_coupons(array $campaignCoupons, array $requestedCoupons, array $usedCoupons, array $result): void
+    {
+        $campaign = new Campaign(new CampaignId('00000000-0000-474c-b092-b0dd880c07e1'));
+        $campaign->setCoupons($campaignCoupons);
+        $campaignProvider = $this->getCampaignProvider($usedCoupons);
+        $this->assertEquals(
+            $result,
+            $campaignProvider->getDeletedAndUsedCoupons($campaign, $requestedCoupons)
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public function getDeletedAndUsedProvider(): array
+    {
+        return [
+            // delete one used coupon
+            [
+                [
+                    new Coupon('c10'),
+                    new Coupon('c11'),
+                    new Coupon('c12'),
+                ],
+                [
+                    new Coupon('c11'),
+                    new Coupon('c12'),
+                ],
+                [
+                    new Coupon('c10'),
+                ],
+                [
+                    new Coupon('c10'),
+                ],
+            ],
+            // do nothing
+            [
+                [
+                    new Coupon('c10'),
+                    new Coupon('c11'),
+                    new Coupon('c12'),
+                ],
+                [
+                    new Coupon('c10'),
+                    new Coupon('c11'),
+                    new Coupon('c12'),
+                ],
+                [
+                    new Coupon('c10'),
+                ],
+                [
+                ],
+            ],
+            // do nothing
+            [
+                [
+                ],
+                [
+                ],
+                [
+                    new Coupon('c10'),
+                    new Coupon('c13'),
+                ],
+                [
+                ],
+            ],
+            // Delete all
+            [
+                [
+                    new Coupon('c10'),
+                    new Coupon('c11'),
+                    new Coupon('c12'),
+                ],
+                [
+                    new Coupon('c10'),
+                    new Coupon('c11'),
+                    new Coupon('c12'),
+                ],
+                [
+                ],
+                [
+                ],
+            ],
+            // Not delete all
+            [
+                [
+                    new Coupon('c10'),
+                    new Coupon('c11'),
+                    new Coupon('c12'),
+                ],
+                [
+                ],
+                [
+                    new Coupon('c10'),
+                    new Coupon('c11'),
+                    new Coupon('c12'),
+                ],
+                [
+                    new Coupon('c10'),
+                    new Coupon('c11'),
+                    new Coupon('c12'),
+                ],
+            ],
+        ];
     }
 }

@@ -276,4 +276,37 @@ class CampaignProvider
 
         return $freeCoupons;
     }
+
+    /**
+     * @param Campaign $campaign
+     * @param array    $coupons
+     *
+     * @return array
+     */
+    public function getDeletedAndUsedCoupons(Campaign $campaign, array $coupons): array
+    {
+        $removedCoupons = array_filter($campaign->getCoupons(), function (Coupon $campaignCoupon) use ($coupons): bool {
+            foreach ($coupons as $formCoupon) {
+                if ($formCoupon->getCode() === $campaignCoupon->getCode()) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        $usedCoupons = $this->couponUsageRepository->findByCampaign($campaign->getCampaignId());
+
+        $deletedAndUsed = array_filter($removedCoupons, function (Coupon $removedCoupon) use ($usedCoupons): bool {
+            foreach ($usedCoupons as $usedCoupon) {
+                if ($removedCoupon->getCode() === $usedCoupon->getCoupon()->getCode()) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
+
+        return $deletedAndUsed;
+    }
 }

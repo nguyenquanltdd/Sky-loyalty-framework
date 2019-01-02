@@ -25,6 +25,7 @@ use OpenLoyalty\Bundle\CampaignBundle\Exception\NoCouponsLeftException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotAllowedException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\NotEnoughPointsException;
 use OpenLoyalty\Bundle\CampaignBundle\Exception\TransactionRequiredException;
+use OpenLoyalty\Bundle\CampaignBundle\Form\Handler\CampaignEditFormHandler;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\EditCampaignFormType;
 use OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignBrandIconFormType;
@@ -47,10 +48,10 @@ use OpenLoyalty\Component\Campaign\Domain\Command\ChangeCampaignState;
 use OpenLoyalty\Component\Campaign\Domain\Command\CreateCampaign;
 use OpenLoyalty\Component\Campaign\Domain\Command\RemoveCampaignBrandIcon;
 use OpenLoyalty\Component\Campaign\Domain\Command\SetCampaignBrandIcon;
-use OpenLoyalty\Component\Campaign\Domain\Command\UpdateCampaign;
 use OpenLoyalty\Component\Campaign\Domain\Coupon\CouponCodeProvider;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\LevelId;
+use OpenLoyalty\Component\Campaign\Domain\Model\Coupon;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\ActiveCampaigns;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBoughtRepository;
 use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignShortInfo;
@@ -61,7 +62,6 @@ use OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Repositor
 use OpenLoyalty\Component\Campaign\Infrastructure\Repository\CampaignBoughtElasticsearchRepository;
 use OpenLoyalty\Component\Customer\Domain\Command\ChangeCampaignUsage;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
-use OpenLoyalty\Component\Customer\Domain\Model\Coupon;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
 use OpenLoyalty\Component\Segment\Domain\ReadModel\SegmentedCustomers;
@@ -186,6 +186,11 @@ class CampaignController extends FOSRestController
     private $viewHandler;
 
     /**
+     * @var CampaignEditFormHandler
+     */
+    private $campaignEditFormHandler;
+
+    /**
      * CampaignController constructor.
      *
      * @param CommandBus                            $commandBus
@@ -208,6 +213,7 @@ class CampaignController extends FOSRestController
      * @param CustomerDetailsRepository             $customerDetailsRepository
      * @param MultipleCampaignCouponUsageProvider   $multipleCampaignCouponUsageProvider
      * @param SegmentedCustomersRepository          $segmentedCustomersRepository
+     * @param CampaignEditFormHandler               $campaignEditFormHandler
      */
     public function __construct(
         CommandBus $commandBus,
@@ -229,7 +235,8 @@ class CampaignController extends FOSRestController
         EmailProvider $customerEmailProvider,
         CustomerDetailsRepository $customerDetailsRepository,
         MultipleCampaignCouponUsageProvider $multipleCampaignCouponUsageProvider,
-        SegmentedCustomersRepository $segmentedCustomersRepository
+        SegmentedCustomersRepository $segmentedCustomersRepository,
+        CampaignEditFormHandler $campaignEditFormHandler
     ) {
         $this->commandBus = $commandBus;
         $this->translator = $translator;
@@ -251,6 +258,7 @@ class CampaignController extends FOSRestController
         $this->customerDetailsRepository = $customerDetailsRepository;
         $this->multipleCampaignCouponUsageProvider = $multipleCampaignCouponUsageProvider;
         $this->segmentedCustomersRepository = $segmentedCustomersRepository;
+        $this->campaignEditFormHandler = $campaignEditFormHandler;
     }
 
     /**
@@ -443,12 +451,9 @@ class CampaignController extends FOSRestController
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            /** @var Campaign $data */
-            $data = $form->getData();
-
-            $this->commandBus->dispatch(new UpdateCampaign($campaign->getCampaignId(), $data->toArray()));
-
-            return $this->viewHandler->handle(FosView::create(['campaignId' => (string) $campaign->getCampaignId()]));
+            if ($this->campaignEditFormHandler->onSuccess($campaign, $form)) {
+                return $this->viewHandler->handle(FosView::create(['campaignId' => (string) $campaign->getCampaignId()]));
+            }
         }
 
         return $this->viewHandler->handle(FosView::create($form->getErrors(), Response::HTTP_BAD_REQUEST));

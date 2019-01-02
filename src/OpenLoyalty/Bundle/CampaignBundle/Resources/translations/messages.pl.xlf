@@ -74,6 +74,10 @@
                 <source>campaign.cannot_be_bought_manually</source>
                 <target>This campaign cannot be bought manually.</target>
             </trans-unit>
+            <trans-unit id="campaign.removing_used_coupons_is_not_permitted">
+                <source>campaign.removing_used_coupons_is_not_permitted</source>
+                <target>Usunięcie użytych kuponów (%s) nie jest możliwe</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

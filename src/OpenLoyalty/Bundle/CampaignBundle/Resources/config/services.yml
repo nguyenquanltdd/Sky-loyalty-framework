@@ -143,3 +143,5 @@ services:
     OpenLoyalty\Bundle\CampaignBundle\Form\Type\CampaignBoughtDeliveryStatusFormType:
         tags:
             - { name: form.type }
+
+    OpenLoyalty\Bundle\CampaignBundle\Form\CampaignEditFormHandler: ~
