@@ -22,6 +22,8 @@ OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase:
             expose: true
         deliveryStatus:
             expose: true
+        usageDate:
+            expose: true
     virtual_properties:
         canBeUsed:
             serialized_name: canBeUsed

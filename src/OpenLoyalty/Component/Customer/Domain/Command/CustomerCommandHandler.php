@@ -347,6 +347,7 @@ class CustomerCommandHandler extends SimpleCommandHandler
             $command->getCampaignId(),
             $command->getCoupon(),
             $command->isUsed(),
+            $command->getUsageDate(),
             $command->getTransactionId()
         );
         $this->repository->save($customer);

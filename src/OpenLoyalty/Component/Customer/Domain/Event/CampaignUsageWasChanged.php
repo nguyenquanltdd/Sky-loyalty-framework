@@ -36,12 +36,18 @@ class CampaignUsageWasChanged extends CustomerEvent
     private $transactionId;
 
     /**
+     * @var null|\DateTime
+     */
+    private $usageDate;
+
+    /**
      * CampaignUsageWasChanged constructor.
      *
      * @param CustomerId         $customerId
      * @param CampaignId         $campaignId
      * @param Coupon             $coupon
      * @param bool               $used
+     * @param null|\DateTime     $usageDate
      * @param null|TransactionId $transactionId
      */
     public function __construct(
@@ -49,6 +55,7 @@ class CampaignUsageWasChanged extends CustomerEvent
         CampaignId $campaignId,
         Coupon $coupon,
         bool $used,
+        \DateTime $usageDate = null,
         ?TransactionId $transactionId = null
     ) {
         parent::__construct($customerId);
@@ -56,6 +63,7 @@ class CampaignUsageWasChanged extends CustomerEvent
         $this->used = $used;
         $this->coupon = $coupon;
         $this->transactionId = $transactionId;
+        $this->usageDate = $usageDate;
     }
 
     /**
@@ -71,6 +79,7 @@ class CampaignUsageWasChanged extends CustomerEvent
                 'coupon' => $this->coupon->getCode(),
                 'couponId' => $this->coupon->getId(),
                 'transactionId' => $this->transactionId ? (string) $this->transactionId : null,
+                'usageDate' => $this->usageDate ? $this->usageDate->getTimestamp() : null,
             ]
         );
     }
@@ -80,11 +89,18 @@ class CampaignUsageWasChanged extends CustomerEvent
      */
     public static function deserialize(array $data)
     {
+        $usageDate = null;
+        if (isset($data['usageDate'])) {
+            $usageDate = new \DateTime();
+            $usageDate->setTimestamp($data['usageDate']);
+        }
+
         return new self(
             new CustomerId($data['customerId']),
             new CampaignId($data['campaignId']),
             new Coupon($data['couponId'], $data['coupon']),
             $data['used'],
+            $usageDate,
             isset($data['transactionId']) ? new TransactionId($data['transactionId']) : null
         );
     }
@@ -119,5 +135,13 @@ class CampaignUsageWasChanged extends CustomerEvent
     public function getTransactionId(): ?TransactionId
     {
         return $this->transactionId;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getUsageDate(): ?\DateTime
+    {
+        return $this->usageDate;
     }
 }

@@ -145,6 +145,7 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
             'campaignShippingAddressCity' => null,
             'campaignShippingAddressProvince' => null,
             'campaignShippingAddressCountry' => null,
+            'usageDate' => null,
         ];
         $this->scenario->given([])
             ->when(
@@ -203,6 +204,7 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
             'campaignShippingAddressCity' => null,
             'campaignShippingAddressProvince' => null,
             'campaignShippingAddressCountry' => null,
+            'usageDate' => null,
         ];
         $this->scenario->given(
                 [
@@ -264,6 +266,7 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
             'campaignShippingAddressCity' => null,
             'campaignShippingAddressProvince' => null,
             'campaignShippingAddressCountry' => null,
+            'usageDate' => null,
         ];
         $this->scenario->given(
                 [
@@ -277,7 +280,7 @@ class CampaignBoughtProjectorTest extends ProjectorScenarioTestCase
                     ),
                 ]
             )
-            ->when(new CampaignUsageWasChanged($customerId, $campaignId, $coupon, true, $transactionId));
+            ->when(new CampaignUsageWasChanged($customerId, $campaignId, $coupon, true, null, $transactionId));
 
         $result = $this->repository->findAll();
         $result = array_pop($result)->serialize();

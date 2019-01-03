@@ -36,6 +36,11 @@ class ChangeCampaignUsage extends CustomerCommand
     private $transactionId;
 
     /**
+     * @var \DateTime|null
+     */
+    private $usageDate = null;
+
+    /**
      * ChangeCampaignUsage constructor.
      *
      * @param CustomerId         $customerId
@@ -56,6 +61,9 @@ class ChangeCampaignUsage extends CustomerCommand
         $this->used = $used;
         $this->coupon = $coupon;
         $this->transactionId = $transactionId;
+        if (true === $this->used) {
+            $this->usageDate = new \DateTime();
+        }
     }
 
     /**
@@ -88,5 +96,13 @@ class ChangeCampaignUsage extends CustomerCommand
     public function getTransactionId(): ?TransactionId
     {
         return $this->transactionId;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getUsageDate(): ?\DateTime
+    {
+        return $this->usageDate;
     }
 }

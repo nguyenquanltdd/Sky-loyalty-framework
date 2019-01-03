@@ -235,6 +235,7 @@ class CampaignBoughtProjector extends Projector
                 && $campaign->getCoupon()->getId() === $event->getCoupon()->getId()) {
                 $campaign->setUsed($event->isUsed());
                 $campaign->setUsedForTransactionId($event->getTransactionId() ? new TransactionId((string) $event->getTransactionId()) : null);
+                $campaign->setUsageDate($event->getUsageDate());
                 $this->repository->save($campaign);
 
                 return;

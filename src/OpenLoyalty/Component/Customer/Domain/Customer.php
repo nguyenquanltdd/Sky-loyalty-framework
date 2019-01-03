@@ -702,12 +702,25 @@ class Customer extends SnapableEventSourcedAggregateRoot
      * @param CampaignId         $campaignId
      * @param Coupon             $coupon
      * @param bool               $used
+     * @param null|\DateTime     $usageDate
      * @param null|TransactionId $transactionId
      */
-    public function changeCampaignUsage(CampaignId $campaignId, Coupon $coupon, bool $used, ?TransactionId $transactionId = null): void
-    {
+    public function changeCampaignUsage(
+        CampaignId $campaignId,
+        Coupon $coupon,
+        bool $used,
+        ?\DateTime $usageDate,
+        ?TransactionId $transactionId = null
+    ): void {
         $this->apply(
-            new CampaignUsageWasChanged($this->getId(), $campaignId, $coupon, $used, $transactionId)
+            new CampaignUsageWasChanged(
+                $this->getId(),
+                $campaignId,
+                $coupon,
+                $used,
+                $usageDate,
+                $transactionId
+            )
         );
     }
 
@@ -728,6 +741,7 @@ class Customer extends SnapableEventSourcedAggregateRoot
                 && $event->isUsed() !== $purchase->isUsed()) {
                 $purchase->setUsed($event->isUsed());
                 $purchase->setUsedForTransactionId($transactionId);
+                $purchase->setUsageDate($event->getUsageDate());
 
                 return;
             }

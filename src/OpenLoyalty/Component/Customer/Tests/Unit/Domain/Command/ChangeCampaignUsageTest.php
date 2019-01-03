@@ -33,6 +33,13 @@ class ChangeCampaignUsageTest extends CustomerCommandHandlerTest
         $campaignId = new CampaignId('00000000-0000-0000-0000-000000000001');
         $transactionId = new TransactionId('00000000-0000-0000-0000-000000000001');
         $coupon = new Coupon('123', '20');
+        $changeCampaignUsage = new ChangeCampaignUsage(
+            $customerId,
+            $campaignId,
+            $coupon,
+            true,
+            $transactionId
+        );
 
         $this->scenario
             ->withAggregateId((string) $customerId)
@@ -40,17 +47,9 @@ class ChangeCampaignUsageTest extends CustomerCommandHandlerTest
                 new CustomerWasRegistered($customerId, CustomerCommandHandlerTest::getCustomerData()),
                 new CampaignWasBoughtByCustomer($customerId, $campaignId, 'test', 99, $coupon, Campaign::REWARD_TYPE_PERCENTAGE_DISCOUNT_CODE),
             ])
-            ->when(
-                new ChangeCampaignUsage(
-                    $customerId,
-                    $campaignId,
-                    $coupon,
-                    true,
-                    $transactionId
-                )
-            )
+            ->when($changeCampaignUsage)
             ->then([
-                new CampaignUsageWasChanged($customerId, $campaignId, $coupon, true, $transactionId),
+                new CampaignUsageWasChanged($customerId, $campaignId, $coupon, true, $changeCampaignUsage->getUsageDate(), $transactionId),
             ]);
     }
 
