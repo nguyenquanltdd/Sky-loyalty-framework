@@ -146,6 +146,11 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
     private $deliveryStatus;
 
     /**
+     * @var null|\DateTime
+     */
+    private $usageDate = null;
+
+    /**
      * CampaignBought constructor.
      *
      * @param CampaignId                   $campaignId
@@ -280,6 +285,13 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
         $self->setUsedForTransactionId($usedFor);
         $self->setReturnedAmount(isset($data['returnedAmount']) ? $data['returnedAmount'] : 0);
 
+        $usageDate = null;
+        if (isset($data['usageDate'])) {
+            $usageDate = new \DateTime();
+            $usageDate->setTimestamp($data['usageDate']);
+        }
+        $self->setUsageDate($usageDate);
+
         return $self;
     }
 
@@ -320,6 +332,7 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
             'usedForTransactionId' => $this->usedForTransactionId ? (string) $this->usedForTransactionId : null,
             'returnedAmount' => $this->returnedAmount ?: 0,
             'deliveryStatus' => (string) $this->deliveryStatus,
+            'usageDate' => $this->usageDate ? $this->usageDate->getTimestamp() : null,
         ];
     }
 
@@ -542,5 +555,21 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
     public function canBeUsed(): bool
     {
         return self::STATUS_ACTIVE === $this->status && !$this->isUsed();
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getUsageDate(): ?\DateTime
+    {
+        return $this->usageDate;
+    }
+
+    /**
+     * @param \DateTime|null $usageDate
+     */
+    public function setUsageDate(?\DateTime $usageDate): void
+    {
+        $this->usageDate = $usageDate;
     }
 }

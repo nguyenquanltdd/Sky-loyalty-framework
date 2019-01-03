@@ -61,17 +61,28 @@ class EsParamManager implements ParamManager
             return;
         }
 
+        $dateFromTimestamp = strtotime(stripslashes($dateFrom));
+        $dateToTimestamp = strtotime(stripslashes($dateTo));
+
+        if (!is_null($dateFrom) && !$dateFromTimestamp) {
+            return;
+        }
+
+        if (!is_null($dateTo) && !$dateToTimestamp) {
+            return;
+        }
+
         $param = [
             'type' => 'range',
             'value' => [],
         ];
 
         if (!is_null($dateFrom)) {
-            $param['value']['gte'] = strtotime(stripslashes($dateFrom));
+            $param['value']['gte'] = $dateFromTimestamp;
         }
 
         if (!is_null($dateTo)) {
-            $param['value']['lte'] = strtotime(stripslashes($dateTo));
+            $param['value']['lte'] = $dateToTimestamp;
         }
 
         $params[$key] = $param;

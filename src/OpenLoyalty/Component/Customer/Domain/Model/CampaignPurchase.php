@@ -100,6 +100,11 @@ class CampaignPurchase implements Serializable
     private $deliveryStatus = null;
 
     /**
+     * @var null|\DateTime
+     */
+    private $usageDate = null;
+
+    /**
      * CampaignPurchase constructor.
      *
      * @param \DateTime       $purchaseAt
@@ -208,6 +213,13 @@ class CampaignPurchase implements Serializable
         $purchase->setReturnedAmount(isset($data['returnedAmount']) ? $data['returnedAmount'] : 0);
         $purchase->setUsed($data['used']);
 
+        $usageDate = null;
+        if (isset($data['usageDate'])) {
+            $usageDate = new \DateTime();
+            $usageDate->setTimestamp($data['usageDate']);
+        }
+        $purchase->setUsageDate($usageDate);
+
         return $purchase;
     }
 
@@ -232,6 +244,7 @@ class CampaignPurchase implements Serializable
             'usedForTransactionId' => $this->usedForTransactionId ? (string) $this->usedForTransactionId : null,
             'returnedAmount' => $this->returnedAmount ?: 0,
             'deliveryStatus' => $this->deliveryStatus,
+            'usageDate' => $this->usageDate ? $this->usageDate->getTimestamp() : null,
         ];
     }
 
@@ -393,5 +406,21 @@ class CampaignPurchase implements Serializable
     public function setDeliveryStatus(?string $deliveryStatus): void
     {
         $this->deliveryStatus = $deliveryStatus;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getUsageDate(): ?\DateTime
+    {
+        return $this->usageDate;
+    }
+
+    /**
+     * @param \DateTime|null $usageDate
+     */
+    public function setUsageDate(?\DateTime $usageDate): void
+    {
+        $this->usageDate = $usageDate;
     }
 }

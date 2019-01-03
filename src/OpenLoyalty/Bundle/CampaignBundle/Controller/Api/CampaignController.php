@@ -586,6 +586,8 @@ class CampaignController extends FOSRestController
      *      {"name"="direction", "dataType"="asc|desc", "required"=false, "description"="Sorting direction"},
      *      {"name"="purchasedAtFrom", "dataType"="string", "required"=false, "description"="Purchased date from filter"},
      *      {"name"="purchasedAtTo", "dataType"="string", "required"=false, "description"="Purchased date to filter"},
+     *      {"name"="usageDateFrom", "dataType"="string", "required"=false, "description"="Usage date from filter"},
+     *      {"name"="usageDateTo", "dataType"="string", "required"=false, "description"="Usage date to filter"},
      *      {"name"="activeSinceFrom", "dataType"="string", "required"=false, "description"="Active since date from filter"},
      *      {"name"="activeSinceTo", "dataType"="string", "required"=false, "description"="Active since date to filter"},
      *      {"name"="activeToFrom", "dataType"="string", "required"=false, "description"="Active to date from filter"},
@@ -598,6 +600,8 @@ class CampaignController extends FOSRestController
      * @QueryParam(name="deliveryStatus", requirements="(ordered|canceled|shipped|delivered)", nullable=true, description="Delivery status"))
      * @QueryParam(name="purchasedAtFrom", nullable=true, description="Range date filter"))
      * @QueryParam(name="purchasedAtTo", nullable=true, description="Range date filter"))
+     * @QueryParam(name="usageDateFrom", nullable=true, description="Range date filter"))
+     * @QueryParam(name="usageDateTo", nullable=true, description="Range date filter"))
      * @QueryParam(name="activeSinceFrom", nullable=true, description="Range date filter"))
      * @QueryParam(name="activeSinceTo", nullable=true, description="Range date filter"))
      * @QueryParam(name="activeToFrom", nullable=true, description="Range date filter"))
@@ -621,6 +625,12 @@ class CampaignController extends FOSRestController
         );
         $this->paramManager->appendDateRangeFilter(
             $params,
+            'usageDate',
+            $params['usageDateFrom'] ?? null,
+            $params['usageDateTo'] ?? null
+        );
+        $this->paramManager->appendDateRangeFilter(
+            $params,
             'activeSince',
             $params['activeSinceFrom'] ?? null,
             $params['activeSinceTo'] ?? null
@@ -634,6 +644,8 @@ class CampaignController extends FOSRestController
 
         unset($params['purchasedAtFrom']);
         unset($params['purchasedAtTo']);
+        unset($params['usageDateFrom']);
+        unset($params['usageDateTo']);
         unset($params['activeSinceFrom']);
         unset($params['activeSinceTo']);
         unset($params['activeToFrom']);

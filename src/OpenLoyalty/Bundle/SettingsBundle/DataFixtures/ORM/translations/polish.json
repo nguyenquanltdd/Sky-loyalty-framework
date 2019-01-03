@@ -182,7 +182,7 @@
       "all": "All",
       "ordered": "Zamówiona",
       "canceled": "Anulowana",
-      "shipped": "Wysana",
+      "shipped": "Wysłana",
       "delivered": "Odebrana"
     },
     "delivery_status": "Status odbioru",
@@ -231,7 +231,8 @@
     "redeemed_list": "Lista odebranych nagród",
     "reward": "Rodzaj nagrody",
     "reward_name": "Nagroda",
-    "reward_redeem_date": "Data",
+    "reward_redeem_date": "Data odebrania",
+    "usage_date": "Data użycia",
     "reward_type": "Rodzaj",
     "reward_value": "Wartość nagrody",
     "reward_value_description": "",
