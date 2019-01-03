@@ -215,7 +215,7 @@ class CampaignBought implements SerializableReadModel, VersionableReadModel
         $this->deliveryStatus = $deliveryStatus;
 
         if (null === $deliveryStatus) {
-            $this->deliveryStatus = self::DELIVERY_STATUS_DEFAULT;
+            $this->deliveryStatus = new DeliveryStatus();
         }
     }
 

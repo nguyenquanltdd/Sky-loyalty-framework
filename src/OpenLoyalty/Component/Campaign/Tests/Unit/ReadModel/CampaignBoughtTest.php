@@ -194,7 +194,7 @@ class CampaignBoughtTest extends TestCase
         $this->assertEquals(self::TAX_PRICE_VALUE, $serializedData['taxPriceValue']);
 
         $this->assertArrayHasKey('deliveryStatus', $serializedData);
-        $this->assertEquals('ordered', $serializedData['deliveryStatus']);
+        $this->assertEquals('', $serializedData['deliveryStatus']);
     }
 
     /**
