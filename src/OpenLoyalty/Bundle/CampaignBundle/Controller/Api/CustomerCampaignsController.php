@@ -31,9 +31,11 @@ use OpenLoyalty\Component\Campaign\Domain\Command\BuyCampaign;
 use OpenLoyalty\Component\Campaign\Domain\Coupon\CouponCodeProvider;
 use OpenLoyalty\Component\Campaign\Domain\CustomerId;
 use OpenLoyalty\Component\Campaign\Domain\LevelId;
+use OpenLoyalty\Component\Campaign\Domain\ReadModel\CampaignBought;
 use OpenLoyalty\Component\Campaign\Domain\SegmentId;
 use OpenLoyalty\Component\Campaign\Infrastructure\Persistence\Doctrine\Repository\DoctrineCampaignRepository;
 use OpenLoyalty\Component\Customer\Domain\Command\ChangeCampaignUsage;
+use OpenLoyalty\Component\Customer\Domain\Command\ChangeDeliveryStatusCommand;
 use OpenLoyalty\Component\Customer\Domain\Model\CampaignPurchase;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetails;
 use OpenLoyalty\Component\Customer\Domain\ReadModel\CustomerDetailsRepository;
@@ -450,6 +452,16 @@ class CustomerCampaignsController extends FOSRestController
         /** @var ChangeCampaignUsage $command */
         foreach ($commands as $command) {
             $this->commandBus->dispatch($command);
+
+            if ($command->isUsed()) {
+                // change coupon status to delivered
+                $changeDeliveryStatusCommand = new ChangeDeliveryStatusCommand(
+                    $command->getCoupon()->getId(),
+                    $command->getCustomerId(),
+                    CampaignBought::DELIVERY_STATUS_ORDERED
+                );
+                $this->commandBus->dispatch($changeDeliveryStatusCommand);
+            }
 
             $result[] = new CouponUsageResponse(
                 $command->getCoupon()->getCode(),

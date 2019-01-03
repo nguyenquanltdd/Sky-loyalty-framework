@@ -17,24 +17,25 @@ use OpenLoyalty\Component\Campaign\Domain\Exception\DeliveryStatusException;
 class DeliveryStatus
 {
     /**
-     * @var string
+     * @var string|null
      */
-    private $status;
+    private $status = null;
 
     /**
-     * CampaignRewardsStatus constructor.
+     * DeliveryStatus constructor.
      *
      * @param string $status
      */
-    public function __construct(string $status = CampaignBought::DELIVERY_STATUS_DEFAULT)
+    public function __construct(string $status = null)
     {
         $availableStatuses = [
+            null,
             CampaignBought::DELIVERY_STATUS_CANCELED,
             CampaignBought::DELIVERY_STATUS_DELIVERED,
             CampaignBought::DELIVERY_STATUS_ORDERED,
             CampaignBought::DELIVERY_STATUS_SHIPPED,
         ];
-        if (empty($status) || !in_array($status, $availableStatuses)) {
+        if (!in_array($status, $availableStatuses)) {
             throw DeliveryStatusException::create();
         }
 
@@ -46,6 +47,6 @@ class DeliveryStatus
      */
     public function __toString(): string
     {
-        return $this->status;
+        return (string) $this->status;
     }
 }

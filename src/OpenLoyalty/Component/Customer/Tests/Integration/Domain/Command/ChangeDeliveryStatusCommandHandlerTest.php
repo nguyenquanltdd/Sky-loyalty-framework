@@ -64,7 +64,7 @@ final class ChangeDeliveryStatusCommandHandlerTest extends KernelTestCase
      */
     public function it_changes_campaign_bought_delivery_status(): void
     {
-        $this->assertCampaignBoughtStatus('ordered');
+        $this->assertCampaignBoughtStatus('');
 
         $command = new ChangeDeliveryStatusCommand(self::COUPON_ID, self::CUSTOMER_ID, 'canceled');
         $this->commandBus->dispatch($command);

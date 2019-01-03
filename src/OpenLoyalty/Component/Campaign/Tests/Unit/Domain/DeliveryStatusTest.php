@@ -20,15 +20,6 @@ final class DeliveryStatusTest extends TestCase
     /**
      * @test
      */
-    public function it_throws_an_exception_when_status_is_empty(): void
-    {
-        $this->expectException(DeliveryStatusException::class);
-        new DeliveryStatus('');
-    }
-
-    /**
-     * @test
-     */
     public function it_throws_an_exception_when_status_does_not_exists(): void
     {
         $this->expectException(DeliveryStatusException::class);
@@ -50,6 +41,6 @@ final class DeliveryStatusTest extends TestCase
     public function it_returns_default_status_on_object_create(): void
     {
         $status = new DeliveryStatus();
-        $this->assertSame('ordered', (string) $status);
+        $this->assertSame('', (string) $status);
     }
 }
