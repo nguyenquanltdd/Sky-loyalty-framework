@@ -2175,6 +2175,10 @@
     "surname": "Surname"
   },
   "xhr": {
+    "pos_coupon_usage": {
+      "error": "An error occurred",
+      "success": "Success"
+    },
     "get_delivery_statuses": {
       "error": "Error",
       "success": "Success"
