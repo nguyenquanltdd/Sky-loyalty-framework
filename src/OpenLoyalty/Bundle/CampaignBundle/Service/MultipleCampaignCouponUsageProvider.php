@@ -127,6 +127,9 @@ class MultipleCampaignCouponUsageProvider
             }
             try {
                 $used = boolval($coupon['used']);
+                if (false === $used) {
+                    throw new InvalidDataProvidedException($this->translator->trans('campaign.not_allowed'));
+                }
                 $campaign = $this->campaignRepository->byId(new CampaignId($coupon['campaignId']));
                 $transactionId = isset($coupon['transactionId']) ? new TransactionId($coupon['transactionId']) : null;
                 $coupon = new Coupon($coupon['couponId'], $coupon['code']);
