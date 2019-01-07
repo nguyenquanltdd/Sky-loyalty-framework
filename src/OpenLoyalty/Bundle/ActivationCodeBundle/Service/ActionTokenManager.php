@@ -58,6 +58,7 @@ class ActionTokenManager
      * @param ActivationCodeManager         $activationCodeManager
      * @param AdapterInterface              $cache
      * @param ActivationMethod[]            $availableMethods
+     * @param TranslatorInterface           $translator
      */
     public function __construct(
         SettingsManager $settingsManager,

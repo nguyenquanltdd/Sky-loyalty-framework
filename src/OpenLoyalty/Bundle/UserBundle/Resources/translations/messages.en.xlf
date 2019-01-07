@@ -18,6 +18,10 @@
                 <source>customer.registration.email_exists</source>
                 <target>Customer with such email already exists.</target>
             </trans-unit>
+            <trans-unit id="customer.registration.invalid_email">
+                <source>customer.registration.invalid_email</source>
+                <target>Incorrect e-mail address.</target>
+            </trans-unit>
             <trans-unit id="customer.registration.loyalty_card_number_exists">
                 <source>customer.registration.loyalty_card_number_exists</source>
                 <target>Customer with such loyalty card number already exists.</target>

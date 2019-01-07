@@ -7,6 +7,7 @@ namespace OpenLoyalty\Bundle\UserBundle\Form\Handler;
 
 use Broadway\CommandHandling\CommandBus;
 use Doctrine\ORM\EntityManager;
+use OpenLoyalty\Bundle\ActivationCodeBundle\Service\ActionTokenManager;
 use OpenLoyalty\Bundle\UserBundle\Entity\User;
 use OpenLoyalty\Bundle\UserBundle\Service\UserManager;
 use OpenLoyalty\Component\Core\Domain\Model\Label;
@@ -18,6 +19,7 @@ use OpenLoyalty\Component\Customer\Domain\CustomerId;
 use OpenLoyalty\Component\Customer\Domain\Exception\EmailAlreadyExistsException;
 use OpenLoyalty\Component\Customer\Domain\Exception\LoyaltyCardNumberAlreadyExistsException;
 use OpenLoyalty\Component\Customer\Domain\Exception\PhoneAlreadyExistsException;
+use OpenLoyalty\Component\Customer\Domain\Model\AccountActivationMethod;
 use OpenLoyalty\Component\Customer\Domain\Validator\CustomerUniqueValidator;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -54,6 +56,11 @@ class CustomerEditFormHandler
     private $translator;
 
     /**
+     * @var ActionTokenManager
+     */
+    private $actionTokenManager;
+
+    /**
      * CustomerEditFormHandler constructor.
      *
      * @param CommandBus              $commandBus
@@ -61,19 +68,22 @@ class CustomerEditFormHandler
      * @param EntityManager           $entityManager
      * @param CustomerUniqueValidator $customerUniqueValidator
      * @param TranslatorInterface     $translator
+     * @param ActionTokenManager      $actionTokenManager
      */
     public function __construct(
         CommandBus $commandBus,
         UserManager $userManager,
         EntityManager $entityManager,
         CustomerUniqueValidator $customerUniqueValidator,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        ActionTokenManager $actionTokenManager
     ) {
         $this->commandBus = $commandBus;
         $this->userManager = $userManager;
         $this->entityManager = $entityManager;
         $this->customerUniqueValidator = $customerUniqueValidator;
         $this->translator = $translator;
+        $this->actionTokenManager = $actionTokenManager;
     }
 
     /**
@@ -87,6 +97,24 @@ class CustomerEditFormHandler
         $email = null;
 
         $customerData = $form->getData();
+
+        // because of activation method, email address cannot be removed
+        if ($this->actionTokenManager->getCurrentMethod() === AccountActivationMethod::METHOD_EMAIL
+            && array_key_exists('email', $customerData)
+            && empty($customerData['email'])) {
+            $form->get('email')->addError(
+                new FormError($this->translator->trans('customer.registration.invalid_email'))
+            );
+        }
+
+        // because of activation method, phone number cannot be removed
+        if ($this->actionTokenManager->getCurrentMethod() === AccountActivationMethod::METHOD_SMS
+            && array_key_exists('phone', $customerData)
+            && empty($customerData['phone'])) {
+            $form->get('phone')->addError(
+                new FormError($this->translator->trans('customer.registration.invalid_phone_number'))
+            );
+        }
 
         if (isset($customerData['email']) && !empty($customerData['email'])) {
             $email = strtolower($customerData['email']);
@@ -129,15 +157,6 @@ class CustomerEditFormHandler
                     new FormError($this->translator->trans($e->getMessageKey(), $e->getMessageParams()))
                 );
             }
-        }
-
-        if (array_key_exists('birthDate', $customerData) && null === $customerData['birthDate']) {
-            $form->get('birthDate')->addError(
-                new FormError($this->translator->trans(
-                    'customer.profile_edit.invalid_value_type',
-                    ['%field%' => 'birthDate', '%type%' => 'date-like string']
-                ))
-            );
         }
 
         if (isset($customerData['company'])
