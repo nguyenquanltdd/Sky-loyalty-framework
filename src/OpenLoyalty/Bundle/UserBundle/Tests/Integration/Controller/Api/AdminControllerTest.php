@@ -53,6 +53,9 @@ class AdminControllerTest extends BaseApiTest
     {
         $client = $this->createAuthenticatedClient();
 
+        $entityManager = static::$kernel->getContainer()->get('doctrine.orm.entity_manager');
+        $role = $entityManager->getRepository('OpenLoyaltyUserBundle:Role')->findOneBy(['name' => 'Reporter admin']);
+
         $client->request(
             'PUT',
             '/api/admin/data/'.LoadAdminData::ADMIN_ID,
@@ -62,6 +65,7 @@ class AdminControllerTest extends BaseApiTest
                     'firstName' => 'John',
                     'lastName' => 'Smith',
                     'phone' => '+48123123123',
+                    'roles' => [$role->getId()],
                 ],
             ]
         );
@@ -152,6 +156,10 @@ class AdminControllerTest extends BaseApiTest
     {
         $client = $this->createAuthenticatedClient();
 
+        $entityManager = static::$kernel->getContainer()->get('doctrine.orm.entity_manager');
+        /** @var Role $role */
+        $role = $entityManager->getRepository('OpenLoyaltyUserBundle:Role')->findOneBy(['name' => 'Reporter admin']);
+
         $client->request(
             'POST',
             '/api/admin/data',
@@ -164,6 +172,7 @@ class AdminControllerTest extends BaseApiTest
                     'external' => true,
                     'isActive' => true,
                     'apiKey' => '123456',
+                    'roles' => [$role->getId()],
                 ],
             ]
         );
