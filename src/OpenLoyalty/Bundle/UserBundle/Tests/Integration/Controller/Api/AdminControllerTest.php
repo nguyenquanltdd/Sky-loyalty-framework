@@ -218,6 +218,7 @@ class AdminControllerTest extends BaseApiTest
         });
 
         $admin = reset($admins);
+        $role = reset($admin['roles']);
 
         $client->request(
             'PUT',
@@ -226,6 +227,7 @@ class AdminControllerTest extends BaseApiTest
                 'admin' => [
                     'email' => $admin['email'],
                     'isActive' => false,
+                    'roles' => [$role['id']],
                 ],
             ]
         );
