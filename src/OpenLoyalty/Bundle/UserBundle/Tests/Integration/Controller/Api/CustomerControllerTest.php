@@ -669,18 +669,42 @@ class CustomerControllerTest extends BaseApiTest
     /**
      * @test
      */
-    public function it_assign_level_to_customer(): void
+    public function it_assigns_level_to_customer_and_changes_customers_in_level_list(): void
     {
         $client = $this->createAuthenticatedClient();
+
+        // Check if user is on customers-belonging-to-a-level list
+        $client->request(
+            'GET',
+            '/api/level/'.LoadLevelData::LEVEL1_ID.'/customers'
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $data = json_decode($response->getContent(), true);
+        $cids = array_map(function ($customer) { return $customer['customerId']; }, $data['customers']);
+        $this->assertTrue(in_array(LoadUserData::USER1_USER_ID, $cids));
+
+        // Assign level manually
         $client->request(
           'POST',
-          '/api/customer/'.LoadUserData::USER2_USER_ID.'/level',
+          '/api/customer/'.LoadUserData::USER1_USER_ID.'/level',
           [
               'levelId' => LoadLevelData::LEVEL3_ID,
           ]
         );
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+
+        // Check if user is not on the old level's list anymore
+        $client->request(
+            'GET',
+            '/api/level/'.LoadLevelData::LEVEL1_ID.'/customers'
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), 'Response should have status 200');
+        $data = json_decode($response->getContent(), true);
+        $cids = array_map(function ($customer) { return $customer['customerId']; }, $data['customers']);
+        $this->assertFalse(in_array(LoadUserData::USER1_USER_ID, $cids));
     }
 
     /**
@@ -691,7 +715,7 @@ class CustomerControllerTest extends BaseApiTest
         $client = $this->createAuthenticatedClient();
         $client->request(
             'GET',
-            '/api/customer/'.LoadUserData::USER2_USER_ID
+            '/api/customer/'.LoadUserData::USER1_USER_ID
         );
 
         $this->allowCustomerToEditProfileSettings(true);
@@ -706,7 +730,7 @@ class CustomerControllerTest extends BaseApiTest
         $customerData['levelId'] = LoadLevelData::LEVEL3_ID;
         $client->request(
             'PUT',
-            '/api/customer/'.LoadUserData::USER2_USER_ID,
+            '/api/customer/'.LoadUserData::USER1_USER_ID,
             [
                 'customer' => $customerData,
             ]
@@ -717,7 +741,7 @@ class CustomerControllerTest extends BaseApiTest
 
         $client->request(
             'GET',
-            '/api/customer/'.LoadUserData::USER2_USER_ID
+            '/api/customer/'.LoadUserData::USER1_USER_ID
         );
 
         $response = $client->getResponse();

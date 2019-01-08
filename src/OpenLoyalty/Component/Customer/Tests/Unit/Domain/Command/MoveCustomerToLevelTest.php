@@ -52,7 +52,7 @@ final class MoveCustomerToLevelTest extends CustomerCommandHandlerTest
             ])
             ->when(new MoveCustomerToLevel($customerId, $levelId, 'level0', true))
             ->then([
-                new CustomerWasMovedToLevel($customerId, $levelId, true),
+                new CustomerWasMovedToLevel($customerId, $levelId, null, true),
             ]);
     }
 
@@ -71,7 +71,7 @@ final class MoveCustomerToLevelTest extends CustomerCommandHandlerTest
             ])
             ->when(new MoveCustomerToLevel($customerId, $levelId, 'level0', true, true))
             ->then([
-                new CustomerWasMovedToLevel($customerId, $levelId, true, true),
+                new CustomerWasMovedToLevel($customerId, $levelId, null, true, true),
             ]);
     }
 }

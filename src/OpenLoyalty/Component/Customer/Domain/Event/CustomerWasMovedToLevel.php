@@ -19,6 +19,11 @@ class CustomerWasMovedToLevel extends CustomerEvent
     protected $levelId = null;
 
     /**
+     * @var LevelId|null
+     */
+    private $oldLevelId;
+
+    /**
      * @var \DateTime
      */
     protected $updateAt;
@@ -38,17 +43,20 @@ class CustomerWasMovedToLevel extends CustomerEvent
      *
      * @param CustomerId   $customerId
      * @param LevelId|null $levelId
+     * @param LevelId|null $oldLevelId
      * @param bool         $manually
      * @param bool         $removeLevelManually
      */
     public function __construct(
         CustomerId $customerId,
         LevelId $levelId = null,
+        LevelId $oldLevelId = null,
         $manually = false,
         bool $removeLevelManually = false
     ) {
         parent::__construct($customerId);
         $this->levelId = $levelId;
+        $this->oldLevelId = $oldLevelId;
         $this->updateAt = new \DateTime();
         $this->updateAt->setTimestamp(time());
         $this->manually = $manually;
@@ -61,7 +69,8 @@ class CustomerWasMovedToLevel extends CustomerEvent
     public function serialize(): array
     {
         return array_merge(parent::serialize(), [
-           'levelId' => $this->levelId ? (string) $this->levelId : null,
+            'levelId' => $this->levelId ? (string) $this->levelId : null,
+            'oldLevelId' => $this->oldLevelId ? (string) $this->oldLevelId : null,
             'updatedAt' => $this->updateAt ? $this->updateAt->getTimestamp() : null,
             'manually' => $this->manually,
             'removeLevelManually' => $this->removeLevelManually,
@@ -76,6 +85,7 @@ class CustomerWasMovedToLevel extends CustomerEvent
         $event = new self(
             new CustomerId($data['customerId']),
             $data['levelId'] ? new LevelId($data['levelId']) : null,
+            $data['oldLevelId'] ? new LevelId($data['oldLevelId']) : null,
             $data['manually'],
             $data['removeLevelManually'] ?? false
         );
@@ -94,6 +104,14 @@ class CustomerWasMovedToLevel extends CustomerEvent
     public function getLevelId(): ?LevelId
     {
         return $this->levelId;
+    }
+
+    /**
+     * @return LevelId|null
+     */
+    public function getOldLevelId(): ?LevelId
+    {
+        return $this->oldLevelId;
     }
 
     /**

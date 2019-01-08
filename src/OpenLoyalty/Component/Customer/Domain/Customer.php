@@ -238,7 +238,7 @@ class Customer extends SnapableEventSourcedAggregateRoot
     public function addToLevel(LevelId $levelId = null, $manually = false, $removeLevelManually = false): void
     {
         $this->apply(
-            new CustomerWasMovedToLevel($this->getId(), $levelId, $manually, $removeLevelManually)
+            new CustomerWasMovedToLevel($this->getId(), $levelId, $this->getLevelId(), $manually, $removeLevelManually)
         );
     }
 

@@ -130,7 +130,7 @@ final class CustomerDetailsProjectorTest extends ProjectorScenarioTestCase
             ->given([
                 new CustomerWasRegistered($customerId, CustomerCommandHandlerTest::getCustomerData()),
             ])
-            ->when(new CustomerWasMovedToLevel($customerId, $levelId, true))
+            ->when(new CustomerWasMovedToLevel($customerId, $levelId, null, true))
             ->then([$this->createBaseReadModel($customerId, $data)]);
     }
 
@@ -190,9 +190,9 @@ final class CustomerDetailsProjectorTest extends ProjectorScenarioTestCase
         $this->scenario
             ->given([
                 new CustomerWasRegistered($customerId, CustomerCommandHandlerTest::getCustomerData()),
-                new CustomerWasMovedToLevel($customerId, $levelId, true),
+                new CustomerWasMovedToLevel($customerId, $levelId, null, true),
             ])
-            ->when(new CustomerWasMovedToLevel($customerId, $levelId, false, true))
+            ->when(new CustomerWasMovedToLevel($customerId, $levelId, null, false, true))
             ->then([$this->createBaseReadModel($customerId, $data)]);
     }
 

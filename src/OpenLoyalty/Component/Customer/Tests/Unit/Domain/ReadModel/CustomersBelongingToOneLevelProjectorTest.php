@@ -8,7 +8,6 @@ declare(strict_types=1);
 
 namespace OpenLoyalty\Component\Customer\Tests\Unit\Domain\ReadModel;
 
-use Broadway\Repository\Repository;
 use Broadway\ReadModel\InMemory\InMemoryRepository;
 use Broadway\ReadModel\Testing\ProjectorScenarioTestCase;
 use Broadway\ReadModel\Projector;
@@ -76,7 +75,8 @@ final class CustomersBelongingToOneLevelProjectorTest extends ProjectorScenarioT
         $customer2->method('getEmail')->willReturn('john.doe1@example.com');
 
         /** @var CustomerRepository|MockObject $customerRepository */
-        $customerRepository = $this->getMockBuilder(Repository::class)->getMock();
+        $customerRepository = $this->getMockBuilder(CustomerRepository::class)
+            ->disableOriginalConstructor()->getMock();
         $customerRepository->method('load')
             ->with($this->logicalOr(
                 $this->equalTo((string) $this->customerId),
@@ -127,7 +127,7 @@ final class CustomersBelongingToOneLevelProjectorTest extends ProjectorScenarioT
             ->given([
                 new CustomerWasMovedToLevel($this->customerId, $this->levelId),
             ])
-            ->when(new CustomerWasMovedToLevel($this->customerId, $this->level2Id))
+            ->when(new CustomerWasMovedToLevel($this->customerId, $this->level2Id, $this->levelId))
             ->then([
                 $this->createBaseReadModel($this->customerId, $this->levelId, null),
                 $this->createBaseReadModel(

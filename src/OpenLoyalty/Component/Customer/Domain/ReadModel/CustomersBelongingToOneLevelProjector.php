@@ -6,9 +6,9 @@
 namespace OpenLoyalty\Component\Customer\Domain\ReadModel;
 
 use Broadway\ReadModel\Repository;
-use Broadway\Repository\Repository as AggregateRootRepository;
 use OpenLoyalty\Component\Core\Infrastructure\Projector\Projector;
 use OpenLoyalty\Component\Customer\Domain\Customer;
+use OpenLoyalty\Component\Customer\Domain\CustomerRepository;
 use OpenLoyalty\Component\Customer\Domain\Event\CustomerWasMovedToLevel;
 use OpenLoyalty\Component\Customer\Domain\LevelId as CustomerLevelId;
 use OpenLoyalty\Component\Level\Domain\Level;
@@ -21,7 +21,7 @@ use OpenLoyalty\Component\Level\Domain\LevelRepository;
 class CustomersBelongingToOneLevelProjector extends Projector
 {
     /**
-     * @var AggregateRootRepository
+     * @var CustomerRepository
      */
     private $customerRepository;
 
@@ -38,12 +38,12 @@ class CustomersBelongingToOneLevelProjector extends Projector
     /**
      * CustomersBelongingToOneLevelProjector constructor.
      *
-     * @param AggregateRootRepository $customerRepository
-     * @param Repository              $customersBelongingToOneLevelRepository
-     * @param LevelRepository         $levelRepository
+     * @param CustomerRepository $customerRepository
+     * @param Repository         $customersBelongingToOneLevelRepository
+     * @param LevelRepository    $levelRepository
      */
     public function __construct(
-        AggregateRootRepository $customerRepository,
+        CustomerRepository $customerRepository,
         Repository $customersBelongingToOneLevelRepository,
         LevelRepository $levelRepository
     ) {
@@ -54,20 +54,25 @@ class CustomersBelongingToOneLevelProjector extends Projector
 
     /**
      * @param CustomerWasMovedToLevel $event
+     *
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function applyCustomerWasMovedToLevel(CustomerWasMovedToLevel $event)
     {
         /** @var Customer $customer */
         $customer = $this->customerRepository->load((string) $event->getCustomerId());
-        $currentLevel = $customer->getLevelId();
 
-        if ($currentLevel) {
-            $oldReadModel = $this->getReadModel($currentLevel, false);
+        // Remove user from the old level
+        $oldLevelId = $event->getOldLevelId();
+        if ($oldLevelId) {
+            $oldReadModel = $this->getReadModel($oldLevelId, false);
             if ($oldReadModel) {
                 $oldReadModel->removeCustomer($event->getCustomerId());
                 $this->customersBelongingToOneLevelRepository->save($oldReadModel);
+
+                // Decrease level's customer count
                 /** @var Level $level */
-                $level = $this->levelRepository->byId(new LevelId((string) $currentLevel));
+                $level = $this->levelRepository->byId(new LevelId((string) $oldLevelId));
                 if ($level) {
                     $level->removeCustomer();
                     $this->levelRepository->save($level);
@@ -75,6 +80,7 @@ class CustomersBelongingToOneLevelProjector extends Projector
             }
         }
 
+        // Add user to the new level
         $levelId = $event->getLevelId();
         if ($levelId) {
             $readModel = $this->getReadModel($levelId);
@@ -91,11 +97,11 @@ class CustomersBelongingToOneLevelProjector extends Projector
 
             $this->customersBelongingToOneLevelRepository->save($readModel);
 
+            // Increase level's customer count
             /** @var Level $level */
             $level = $this->levelRepository->byId(new LevelId((string) $levelId));
             if ($level) {
                 $level->addCustomer();
-
                 $this->levelRepository->save($level);
             }
         }
