@@ -410,8 +410,8 @@
         "see_more_suffix": " ",
         "points": {
           "points": {
-            "prefix": "",
-            "suffix": ""
+            "prefix": "1 ",
+            "suffix": " pt"
           },
           "event": {
             "prefix": "",
@@ -437,6 +437,13 @@
       },
       "single": {
         "page": {
+          "referral": {
+            "send_invite_email": "Send an invitation e-mail",
+            "invitation_email_sent": "An invitation e-mail has been sent",
+            "invitation_form_contains_errors": "Form contains errors",
+            "send_invite": "Send invite",
+            "email_address": "E-mail address"
+          },
           "back_to_earning_points_rules_list": "Back to earning points rules list",
           "how_to_earn_points": "How to earn points?",
           "points": {
@@ -483,6 +490,7 @@
       },
       "single": {
         "type": {
+          "value_code": "Value code",
           "discount_code": "Discount code",
           "value code": "Value code",
           "free_delivery_code": "Free delivery code",
@@ -678,6 +686,7 @@
           }
         }
       },
+      "pts": "pts",
       "my_account": "My account",
       "client_name": "Client: ",
       "phone_number": "Phone number: ",
@@ -688,6 +697,7 @@
       "assigned_level": "Current level",
       "delete_confirmation_description": "This customer will be deactivated and there will be no possibility to activate him again",
       "transactions_amount_to_next_level": "Transactions value for the next level",
+      "transactions_amount_to_next_level_without_delivery_costs": "Transactions value (without delivery cost) for the next level",
       "next_level": "Next level",
       "rewards_page": "Rewards page",
       "transactions_page": "Transactions page",

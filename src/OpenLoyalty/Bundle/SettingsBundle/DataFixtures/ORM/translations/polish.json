@@ -432,8 +432,8 @@
         "see_more_suffix": " ",
         "points": {
           "points": {
-            "prefix": "",
-            "suffix": ""
+            "prefix": "1 ",
+            "suffix": " pkt"
           },
           "event": {
             "prefix": "",
@@ -459,6 +459,13 @@
       },
       "single": {
         "page": {
+          "referral": {
+            "send_invite_email": "Wyślij e-mail z zaproszeniem",
+            "invitation_email_sent": "E-mail z zaproszeniem został wysłany",
+            "invitation_form_contains_errors": "Formularz zawiera błędy",
+            "send_invite": "Wyślij zaproszenie",
+            "email_address": "Adres e-mail"
+          },
           "back_to_earning_points_rules_list": "Zobacz inne sposoby zarabiania punktów",
           "how_to_earn_points": "Jak zdobyć punkty?",
           "points": {
@@ -505,6 +512,7 @@
       },
       "single": {
         "type": {
+          "value_code": "rabat kwotowy",
           "discount_code": "kupon zniżkowy",
           "value code": "kupon o wartości",
           "free_delivery_code": "darmowa dostawa",
@@ -696,6 +704,7 @@
           }
         }
       },
+      "pts": "pkt",
       "my_account": "Moje konto",
       "client_name": "Imię i nazwisko: ",
       "phone_number": "Numer telefonu: ",
@@ -706,6 +715,7 @@
       "assigned_level": "Twój aktualny level to",
       "delete_confirmation_description": "Konto zostanie dezaktywowane i nie będzie możliwości aktywowania go ponownie",
       "transactions_amount_to_next_level": "Do osiągnięcia kolejnego levelu brakuje Ci ",
+      "transactions_amount_to_next_level_without_delivery_costs": "Wartość transakcji (bez kosztów dostawy) dla następnego poziomu",
       "next_level": "Kolejny level to",
       "rewards_page": "Moje nagrody",
       "transactions_page": "Moje transakcje",
