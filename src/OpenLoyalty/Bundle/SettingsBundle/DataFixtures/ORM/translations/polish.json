@@ -470,8 +470,8 @@
           "how_to_earn_points": "Jak zdobyć punkty?",
           "points": {
             "points": {
-              "prefix": "",
-              "suffix": ""
+              "prefix": "1 ",
+              "suffix": " pkt"
             },
             "event": {
               "prefix": "",
