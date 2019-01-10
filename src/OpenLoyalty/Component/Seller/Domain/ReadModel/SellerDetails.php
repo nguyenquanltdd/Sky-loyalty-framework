@@ -127,8 +127,8 @@ class SellerDetails implements SerializableReadModel, VersionableReadModel
             'lastName' => $this->getLastName(),
             'email' => $this->getEmail(),
             'phone' => $this->getPhone(),
-            'posId' => $this->getPosId()->__toString(),
-            'sellerId' => $this->sellerId->__toString(),
+            'posId' => (string) $this->getPosId(),
+            'sellerId' => (string) $this->sellerId,
             'active' => $this->active,
             'deleted' => $this->deleted,
             'posName' => $this->posName,
@@ -142,7 +142,7 @@ class SellerDetails implements SerializableReadModel, VersionableReadModel
      */
     public function getId(): string
     {
-        return $this->getSellerId()->__toString();
+        return (string) $this->getSellerId();
     }
 
     /**
