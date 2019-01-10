@@ -24,7 +24,7 @@
             </trans-unit>
             <trans-unit id="transaction.import.pos_not_found">
                 <source>transaction.import.pos_not_found</source>
-                <target>POS (%s) nof found</target>
+                <target>POS (%s) not found</target>
             </trans-unit>
         </body>
     </file>
