@@ -1,7 +1,7 @@
 .. index::
    single: dashboard
 
-DASHBOARD
+Dashboard
 =========
 
 The dashboard is the default startup page for the Admin – the first page that appears when you log in to the Admin. The dashboard gives an overview of the customer's activity in your loyalty programs.

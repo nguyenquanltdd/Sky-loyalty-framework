@@ -1,7 +1,7 @@
 .. index::
    single: customers_download
 
-DOWNLOAD THE CUSTOMERS LIST
+Download the customers list
 ===========================
 
 There is also possibility to download a list of customers to a CSV file. 

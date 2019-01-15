@@ -1,7 +1,7 @@
 .. index::
    single: introduction 
    
-INTRODUCTION
+Introduction
 ============
 
 Merchants are linked with a store and Point of Sale (POS) device. PoS device play an important role in implementation of the Loyalty Program. 

@@ -1,7 +1,7 @@
 .. index::
    single: xml_points
 
-XML FILE STRUCTURE
+XML file structure
 ==================
 
 .. tip:: 

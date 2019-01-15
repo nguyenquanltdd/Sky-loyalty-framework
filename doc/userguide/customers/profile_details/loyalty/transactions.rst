@@ -27,8 +27,9 @@ Field description
 +-------------------+---------------------------------------------------------------------------------------+
 | Amount            | All transaction amount                                                                |
 +-------------------+---------------------------------------------------------------------------------------+
-| Points earned     | | How many points Customer earned/lose for this transaction (order).                  |
-|                   | | Transaction with the type "Sell" adds points, and "Return" subtracts                |                                                            
+| Points earned     | How many points Customer earned/lose for this transaction (order).                    |
+|                   |                                                                                       |
+|                   | Transaction with the type "Sell" adds points, and "Return" subtracts                  |                          
 +-------------------+---------------------------------------------------------------------------------------+
 | Actions           | Open transaction record in view mode to see customers and purchased items details     |
 +-------------------+---------------------------------------------------------------------------------------+

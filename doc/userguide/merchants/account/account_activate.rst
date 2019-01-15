@@ -2,13 +2,13 @@
    single: account_activate
 
 
-ACTIVATE / DEACTIVATE MERCHANT ACCOUNT
+Activate / Deactivate Merchant account
 ======================================
 
 Any merchant account from the list  can be activated and deactivated by Admin user.
 
-To activate/deactivate level:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+To activate/deactivate merchant account:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 1. On the Admin sidebar, tap **Merchants**. Then, choose **All merchants**. 
    

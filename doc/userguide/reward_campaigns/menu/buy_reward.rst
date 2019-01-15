@@ -1,14 +1,14 @@
 .. index::
    single: buy_reward
 
-BUY REWARD CAMPAIGN FOR CUSTOMER
+Buy reward campaign for customer
 ================================
 
-| Any *active* **Reward campaign** (except Cashback) can be assign manually by Admin user to selected customer account. 
+Any *active* **Reward campaign** (except Cashback) can be assign manually by Admin user to selected customer account. 
 
-| Admin user can create new or use existing reward campaign from **All reward campaigns** list to "buy" a reward for a customer using his points or just add it for free.  
+Admin user can create new or use existing reward campaign from **All reward campaigns** list to "buy" a reward for a customer using his points or just add it for free.  
 
-| As an admin you can “buy” more than one coupon within one campaign at once. Note, that quantity is limited by Reward campaign limits (define during creation – Limit & Limit per customer)
+As an admin you can “buy” more than one coupon within one campaign at once. Note, that quantity is limited by Reward campaign limits (define during creation – Limit & Limit per customer)
 
 
 To assign a Reward campaign to Customer:

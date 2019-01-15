@@ -1,9 +1,9 @@
-POINTS TRANSFERS
+Points transfers
 ================
 
-| This section of the guide walks you through the basic points transfer information. 
+This section of the guide walks you through the basic points transfer information. 
 
-| You will learn how to add and manage transfer of loyalty points records and finally better understand all terms related to points transfer. 
+You will learn how to add and manage transfer of loyalty points records and finally better understand all terms related to points transfer. 
 
 Points transfers menu
 ---------------------

@@ -1,8 +1,9 @@
 .. index::
    single: customer_statuses 
 
-CUSTOMER EARNING AND SPENDING STATUSES
+Customer earning and spending statuses
 ======================================
+
 The Customer statuses section allows to specify to which customers with particular status, points transfer can be handled. Specify the customer statuses which determines adding and subtracting loyalty points.  
 
 .. image:: /userguide/_images/statuses.png

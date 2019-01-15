@@ -1,14 +1,15 @@
-REWARD CAMPAIGNS TYPES
+Reward campaigns types
 ======================
 
-| Open Loyalty Reward campaigns gives you the ability to create unique rewards that customer can be awarded for a wide range of transaction and activities within your loyalty program. 
-  During creation you determine time boundaries, when reward is available for customer, customers groups for whom the reward is available and defines the basic operating parameters. 
+Open Loyalty Reward campaigns gives you the ability to create unique rewards that customer can be awarded for a wide range of transaction and activities within your loyalty program. 
 
-| Depending on the Translations settings, **Basic information’s** can be provided in different language versions (listed in :doc:`Translations </userguide/getting_started/settings/translations>`). Information from that section can be display on a Client cockpit depending on a chosen from the admin cockpit default language version.
+During creation you determine time boundaries, when reward is available for customer, customers groups for whom the reward is available and defines the basic operating parameters. 
 
-.. code-block:: text
+Depending on the Translations settings, **Basic information’s** can be provided in different language versions (listed in :doc:`Translations </userguide/getting_started/settings/translations>`). Information from that section can be display on a Client cockpit depending on a chosen from the admin cockpit default language version.
 
-    For example
+.. tip:: 
+
+    **For example**
     
     when default language is English, information are display in English, but when we change it on polish as a default language, all basic information will be displayed in polish (if provided).  
 

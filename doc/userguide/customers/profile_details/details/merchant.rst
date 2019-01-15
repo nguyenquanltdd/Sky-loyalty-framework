@@ -4,9 +4,9 @@
 Assigned Merchant
 =================
 
-| **Assigned Merchant** section provide information to which merchant customer is assigned. 
+**Assigned Merchant** section provide information to which merchant customer is assigned. 
 
-| Not only merchant from POS assigned to customer account can be selected.
+Not only merchant from POS assigned to customer account can be selected.
 
 .. image:: /userguide/_images/customer_merchant.png
    :alt:   Assigned Merchant 

@@ -1,7 +1,7 @@
 .. index::
    single: pos_account
    
-POS COCKPIT ACCOUNT
+POS Cockpit account
 ===================
 
 Merchants have easy access to their account from their POS. Merchants can be redirected to POS cockpit as loyalty module within your POS. 

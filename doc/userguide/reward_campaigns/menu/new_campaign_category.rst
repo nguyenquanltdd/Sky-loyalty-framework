@@ -1,4 +1,4 @@
-CREATING NEW CAMPAIGN CATEGORY
+Creating new campaign category
 ==============================
 
 You can create unlimited amount of category that can be assign to the reward campaign. 

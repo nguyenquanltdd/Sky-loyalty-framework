@@ -1,12 +1,13 @@
 .. index::
    single: identification_factors 
 
-IDENTIFICATION FACTORS
+Identification factors
 ======================
 
-| The identification factors determines the priority of factors used to match particular transaction with particular customer. 
+The identification factors determines the priority of factors used to match particular transaction with particular customer. 
 
-| Otherwise, these information are used to assign your loyalty program participant with transaction they making and transmitting relevant transaction data to Open Loyalty for completing or validating redemption-related transactions or re-wards, calculating associated rewards or identifying transaction matches.  
+Otherwise, these information are used to assign your loyalty program participant with transaction they making and transmitting relevant transaction data to Open Loyalty for completing or validating redemption-related transactions or re-wards, calculating associated rewards or identifying transaction matches.  
+
 
 .. image:: /userguide/_images/identification_factors.png
    :alt:   Identification factors
@@ -26,12 +27,15 @@ To set up identification factors:
 
 3. The **Priority** field determines the order in which the calculation will be handled. Enter a number to determine the Priority of this factor in relation to other factors that might be active at the same time (number 1 has the highest priority).
 
-.. code-block:: text
+.. note:: 
 
-    For example
-    If there are three factors, with a priority of one, two, and three, the one with the highest priority (number one) is calculated before the others. 
+    **For example**
+    
+    If there are three factors, with a priority of one, two, and three, the one with the highest priority (number one) is calculated 	before the others. 
+    
     If there will be no clear result, factor with the second highest priority is verified etc. 	  
-	  
+	 
+	 
 4. Set the **Field** to one of the following: 
 
   - **email**  
@@ -41,9 +45,11 @@ To set up identification factors:
   - **phone**  
       when matching transaction with the Customer phone number will be used (e.g. phone number must be provided during  account in Loyalty Program creation)
 
+
 5. You can simply remove factor rule by clicking bin |bin| icon in a particular row 
 
 .. |bin| image:: /userguide/_images/bin.png
+
 
 6. When complete, tap ``SAVE``
 

@@ -1,11 +1,12 @@
 .. index::
    single: webhooks 
 
-WEBHOOKS
+Webhooks
 ========
-| Webhooks is a mechanism allowing to send HTTP requests to the URL configured by Admin, triggered by some event, such as customer registration, transaction created, customer data edit etc. There is no need to be a request initiated on your end, data is sent whenever there’s new data available.
 
-| To setup a webhook all you have to do is register a URL with the company proving the service you’re requesting data from. That URL will accept data and can activate a workflow to turn the data into something useful. 
+Webhooks is a mechanism allowing to send HTTP requests to the URL configured by Admin, triggered by some event, such as customer registration, transaction created, customer data edit etc. There is no need to be a request initiated on your end, data is sent whenever there’s new data available.
+
+To setup a webhook all you have to do is register a URL with the company proving the service you’re requesting data from. That URL will accept data and can activate a workflow to turn the data into something useful. 
 
 .. image:: /userguide/_images/webhooks.png
    :alt:   Webhooks Enable Option

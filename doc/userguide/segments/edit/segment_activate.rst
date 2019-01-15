@@ -1,7 +1,7 @@
 .. index::
    single: segment_activate
 
-ACTIVATE / DEACTIVATE SEGMENT
+Activate / Deactivate segment
 =============================
 
 Any Segments from the list can be activated and deactivated by Admin user.

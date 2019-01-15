@@ -1,12 +1,12 @@
 .. index::
    single: custom_customer
 
-CUSTOM CUSTOMER LIST
+Custom customer list
 ====================
 
-| Segment of customers chose by admin user on demand. 
+Segment of customers chose by admin user on demand. 
 
-| **For example**, admin can create segment of his "favoruite" customers 
+**For example**, admin can create segment of his "favoruite" customers 
 
 To create only Custom customer list type segment:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

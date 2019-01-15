@@ -33,26 +33,28 @@ Field description
 | Issuer            | | Define who create Transfer operation.                                                                                     |
 |                   | | **Options include: system/admin**                                                                                         |
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| State             | Transferred points state:                                                                                                   |
-|                   |   - **Active** : points are available to spend                                                                              |
-|                   |   - **Expired** : points expired and cannot be used to redeem reward                                                        |
-|                   |   - **Pending** : points are locked and cannot be used to redeem reward until locked time will be passing.                  |
-|                   |     Locked time is set in :doc:`Open Loyalty Configuration </userguide/getting_started/settings/Configuration/settings>`              |
-|                   |   - **Canceled** : points are subtracted from the pool of Active Points as a result of canceling the points transfer        |
+| State             | | Transferred points state:                                                                                                 |
+|                   |                                                                                                                             |
+|                   |    - **Active** : points are available to spend                                                                             |
+|                   |    - **Expired** : points expired and cannot be used to redeem reward                                                       |
+|                   |    - **Pending** : points are locked and cannot be used to redeem reward until locked time will be passing.                 |
+|                   |                                                                                                                             |
+|                   |      Locked time is set in :doc:`Open Loyalty Configuration </userguide/getting_started/settings/Configuration/settings>`   |
+|                   |    - **Canceled** : points are subtracted from the pool of Active Points as a result of canceling the points transfer       |
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------+
 | Type              | | Transfer operation type.                                                                                                  |
 |                   | | **Options include: Adding/Spending**                                                                                      |
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| Value             | Amount of points earned/spent within the transfer                                                                           |
+| Value             | | Amount of points earned/spent within the transfer                                                                         |
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| Comment           | Show details about transfer, e.g. for what customer gets points, for what customer spend points                             |
+| Comment           | | Show details about transfer, e.g. for what customer gets points, for what customer spend points                           |
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| Created at        | Date when points transfer was made                                                                                          |
+| Created at        | | Date when points transfer was made                                                                                        |
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------+
 | Points will be    | | Date until points with pending state will be locked.                                                                      |
-| locked until      | | Locked time is set in :doc:`Open Loyalty Configuration </userguide/getting_started/settings/Configuration/settings>`                |
+| locked until      | | Locked time is set in :doc:`Open Loyalty Configuration </userguide/getting_started/settings/Configuration/settings>`      |
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| Expires at        | Date when points will expire and cannot be used to redeem reward                                                            |
+| Expires at        | | Date when points will expire and cannot be used to redeem reward                                                          |
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| Actions           | The remove operations that can be applied to selected, adding type, transfer record                                         |
+| Actions           | | The remove operations that can be applied to selected, adding type, transfer record                                       |
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------+

@@ -1,12 +1,12 @@
 .. index::
    single: transaction_pos
 
-TRANSACTION PERCENT IN POS
+Transaction percent in POS
 ==========================
 
-| Segment of customers whose number of purchases in a specified POS is within defined percent amount.  
+Segment of customers whose number of purchases in a specified POS is within defined percent amount.  
 
-| **For example**, you can create a segment of customers  whose 20% of all transactions are transactions in a given POS etc.
+**For example**, you can create a segment of customers  whose 20% of all transactions are transactions in a given POS etc.
 
 To create only Transaction percent in POS type segment:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

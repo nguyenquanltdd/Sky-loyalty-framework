@@ -1,7 +1,7 @@
 .. index::
    single: matching_transaction
 
-MATCH TRANSACTION WITH CUSTOMER
+Match transaction with customer
 ===============================
 
 Usually, transaction come from your store system with information about customer related with. However, you can link transaction with Customer Account directly from the Admin in Open Loyalty, which is useful when you send to Open Loyalty only transactions. 

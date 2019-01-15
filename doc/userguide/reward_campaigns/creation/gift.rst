@@ -1,7 +1,7 @@
 .. index::
    single: gift
 
-GIFT
+Gift
 ====
 
 Customer can get material reward i.e. gift. Instead of traditional gift, within loyalty program customer need to "buy" reward, using his Active points pool. Cost of this reward is specified during creation in **Cost in points** field.
@@ -37,7 +37,7 @@ To create Gift reward:
     Different fields are required for *Cashback, Custom reward and Percentage discount code* , than for other types i.e. discount code, free delivery etc.  
 
 
-.. image:: /userguide/_images/gift_basic.png
+.. image:: /userguide/_images/gift_basic.PNG
    :alt:   Gift Basic Information
 
 3. When you choose *Gift*, in the **Basic information** section related to the default language version do the following    
@@ -50,7 +50,7 @@ To create Gift reward:
  - If needed, provide a **Brand description** of the reward campaign using rich media format
  - If applicable, fulfill the same fields in other language version e.g. polish as on a screen above 
 
-.. image:: /userguide/_images/gift_details.png
+.. image:: /userguide/_images/gift_details.PNG
    :alt:   Gift Campaign Details 
 
 4. In the **Campaign details** section do the following

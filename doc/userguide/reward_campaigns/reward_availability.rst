@@ -1,8 +1,8 @@
 .. index::
    single: reward_availability
 
-CONDITIONS OF REWARD AVAILABILITY TO CUSTOMER:
-==============================================
+Conditions of reward availability for customers:
+================================================
 
 1. Campaign must be **Active**
 

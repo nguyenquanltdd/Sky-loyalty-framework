@@ -1,7 +1,7 @@
 .. index::
    single: introduction 
    
-INTRODUCTION
+Introduction
 ============
 
 Customers can make transactions not only in the online store but also in offline stores. Both transactions should be count within your Loyalty Program. 
@@ -22,14 +22,16 @@ Menu options:
 
 All POS
 *******
-Lists all POS within your loyalty program with additional information regarding it’s localization and transactions.
+
+*Lists all POS within your loyalty program with additional information regarding it’s localization and transactions*
 
 .. image:: /userguide/_images/pos2.png
    :alt:   POS
 
 Add POS
 *******
-Lists all data that need to be filled out to add new POS
+
+*Lists all data that need to be filled out to add new POS*
 
 .. image:: /userguide/_images/add_pos.png
    :alt:   add POS

@@ -1,7 +1,7 @@
 .. index::
    single: reward_updating
 
-UPDATING REWARD DATA
+Updating reward data
 ====================
 
 You can edit all data provided during  Reward campaign creation process. You can update reward data by selecting it’s record from **All reward campaigns** list.

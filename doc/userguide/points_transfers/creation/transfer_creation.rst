@@ -1,12 +1,12 @@
 .. index::
    single: transfer_creation
    
-CREATING POINTS TRANSFER FROM ADMIN
+Creating Points transfer from admin
 ===================================
 
-| Customers usually earn and spend points within Open Loyalty system – points are added for transaction and activity based on Earning Rules and spent for Reward Campaigns selected by customer within customer cockpit.
+Customers usually earn and spend points within Open Loyalty system – points are added for transaction and activity based on Earning Rules and spent for Reward Campaigns selected by customer within customer cockpit.
 
-| However, you can also create customer points transfer directly from the Admin, which is useful in case of ad-hoc special situation e.g. long delivery delay, the biggest purchase among customers in year etc.
+However, you can also create customer points transfer directly from the Admin, which is useful in case of ad-hoc special situation e.g. long delivery delay, the biggest purchase among customers in year etc.
 
 .. image:: /userguide/_images/add_transfer.png
    :alt:   Add Points Transfer

@@ -1,12 +1,12 @@
 .. index::
    single: system_logs 
 
-SYSTEM LOGS
+System Logs
 ===========
 
-| Logs grid allows monitoring every change on the customer data. The log file is accessible only to Admin users throughout the Admin Cockpit. Logs view allows you to check the date and time that change was made, type and unique ID of change and user name and his unique ID associated with this change. 
+Logs grid allows monitoring every change on the customer data. The log file is accessible only to Admin users throughout the Admin Cockpit. Logs view allows you to check the date and time that change was made, type and unique ID of change and user name and his unique ID associated with this change. 
 
-| In addition, you can control logs results by filter and search option.
+In addition, you can control logs results by filter and search option.
 
 .. image:: /userguide/_images/logs.png
    :alt:   System Logs
@@ -33,9 +33,10 @@ System monitors and logged following events/operations:
    
 Search Logs by date range
 -------------------------
-| You can search for system logs by a certain time period using Search from time period search box. Date ranges can be specified with static start and end dates.
 
-| The date format is as follows: “YYYY-MM-DD HH:mm” and allows to display logs that have been placed from and up to the specified date.
+You can search for system logs by a certain time period using Search from time period search box. Date ranges can be specified with static start and end dates.
+
+The date format is as follows: “YYYY-MM-DD HH:mm” and allows to display logs that have been placed from and up to the specified date.
 
 .. image:: /userguide/_images/logs_search.png
    :alt:   Search box 

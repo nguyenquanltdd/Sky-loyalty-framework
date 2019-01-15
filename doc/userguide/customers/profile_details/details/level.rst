@@ -29,20 +29,22 @@ You can also simply **Unlink manually assignment** also from All customers list 
 
 To learn more about levels and special rewards, see :doc:`Levels </userguide/levels/index>`
 
-+-------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| Field             | Description                                                                                                                 |
-+===================+=============================================================================================================================+
-| Name              | Name of the customer level                                                                                                  |
-+-------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| Condition value   | The points/transactions limit value after which customer was assigned to the level                                          |
-+-------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| Reward code       | Discount code to be used on                                                                                                 |
-+-------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| Reward value      | Percentage discount value                                                                                                   |
-+-------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| Special rewards   | Special discounts available when additional conditions are met                                                              |
-+-------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| Assigned manually | | Field will be displayed only when customer level will be assigned manually by Admin – during adding or editing account.   |
-|                   | | To remove manual assignment click ``Unlink``                                                                              |
-+-------------------+-----------------------------------------------------------------------------------------------------------------------------+
++-------------------+-------------------------------------------------------------------------------------+
+| Field             | Description                                                                         |
++===================+=====================================================================================+
+| Name              | | Name of the customer level                                                        |
++-------------------+-------------------------------------------------------------------------------------+
+| Condition value   | | The points/transactions limit value after which customer was assigned to the level|
++-------------------+-------------------------------------------------------------------------------------+
+| Reward code       | | Discount code to be used on                                                       |
++-------------------+-------------------------------------------------------------------------------------+
+| Reward value      | | Percentage discount value                                                         |
++-------------------+-------------------------------------------------------------------------------------+
+| Special rewards   | | Special discounts available when additional conditions are met                    |
++-------------------+-------------------------------------------------------------------------------------+
+| Assigned manually | | Field will be displayed only when customer level will be assigned manually        |
+|                   | | by Admin – during adding or editing account.                                      |
+|                   |                                                                                     |
+|                   | | To remove manual assignment click ``Unlink``                                      |
++-------------------+-------------------------------------------------------------------------------------+
 

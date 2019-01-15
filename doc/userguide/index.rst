@@ -97,7 +97,7 @@ Merchants
 
 Segments
 --------
-In :doc:`the Segments </segments/index>` section of the guide, you’ll become familiar with the customer segmentation feature, and learn to configure customer segments according to your preference. You will also learn how to create and assigned customers to segments, that can be referenced in rewards, earning rules, levels etc.
+In :doc:`the Segments </userguide/segments/index>` section of the guide, you’ll become familiar with the customer segmentation feature, and learn to configure customer segments according to your preference. You will also learn how to create and assigned customers to segments, that can be referenced in rewards, earning rules, levels etc.
 
 .. toctree::
    :hidden:

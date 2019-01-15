@@ -1,7 +1,7 @@
 .. index::
    single: admin_sign_in 
 
-ADMIN SIGN IN
+Admin sign in
 =============
 The first thing you will learn is how to sign in and out of the Admin, and to reset your password. All of the instructions in the rest of this guide are written for a user with full administrative privileges, and begin with the assumption that you are logged in to the Admin.
 

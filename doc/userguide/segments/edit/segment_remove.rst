@@ -1,7 +1,7 @@
 .. index::
    single: segment_remove
 
-REMOVE SEGMENT
+Remove segment
 ==============
 
 You can also delete Segment from the Admin. 

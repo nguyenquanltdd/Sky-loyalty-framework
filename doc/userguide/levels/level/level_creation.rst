@@ -1,14 +1,16 @@
 .. index::
    single: level_creation
 
-CREATING CUSTOMER LEVEL
+Creating customer level
 =======================
 
-| You can create unlimited amount customizable customers levels for your loyalty program based on various conditions. 
+You can create unlimited amount customizable customers levels for your loyalty program based on various conditions. 
 
-| Depending on the Translations settings, **Basic information’s** can be provided in different language versions (listed in :doc:`Translations </userguide/getting_started/settings/translations>`). Information from that section can be display on a Client cockpit depending on a chosen from the admin cockpit default language version.
+Depending on the Translations settings, **Basic information’s** can be provided in different language versions (listed in :doc:`Translations </userguide/getting_started/settings/translations>`). Information from that section can be display on a Client cockpit depending on a chosen from the admin cockpit default language version.
 
-| **For example**, when default language is English, information are display in English, but when we change it on polish as a default language, all basic information will be displayed in polish (if provided).   
+**For example**, 
+
+when default language is English, information are display in English, but when we change it on polish as a default language, all basic information will be displayed in polish (if provided).   
 
 
 .. image:: /userguide/_images/add_level.png
@@ -44,7 +46,9 @@ To create a New Customer Level:
 
    To learn how to assigned special reward to particular level, see :doc:`Special rewards </userguide/levels/special_rewards>`
 
+
 5. If applicable, upload a **Level photo** that will be displayed on a storefront 
+
 
 6. When complete, tap ``SAVE``
 

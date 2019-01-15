@@ -1,12 +1,12 @@
 .. index::
    single: pos
 
-BOUGHT IN SPECIFIC POS
+Bought in specific POS
 ======================
 
-| Segment of customers who have made purchase (at least one) in selected POS. 
+Segment of customers who have made purchase (at least one) in selected POS. 
 
-|  **For example**, you can create segment of customers who made purchase in your online store or one of the offline stores 
+**For example**, you can create segment of customers who made purchase in your online store or one of the offline stores 
 
 To create only Bought in specific POS type segment:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

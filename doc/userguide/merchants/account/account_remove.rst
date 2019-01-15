@@ -1,7 +1,7 @@
 .. index::
    single: account_remove
 
-REMOVE MERCHANT ACCOUNT
+Remove merchant account
 =======================
 
 You can also delete merchant account from the Admin. 

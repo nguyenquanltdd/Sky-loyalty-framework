@@ -9,9 +9,9 @@ If you have a customer list that you want to add to your Loyalty Program, you ca
 .. image:: /userguide/_images/customers_import.png
    :alt:   Customers import
 
-| Importing a XML file will create a customer in your Loyalty platform for each email address, phone number and loyalty card number in the file. 
+Importing a XML file will create a customer in your Loyalty platform for each email address, phone number and loyalty card number in the file. 
 
-| **Any customers with duplicate email addresses, phone numbers or loyalty card number will be skipped** during an import
+**Any customers with duplicate email addresses, phone numbers or loyalty card number will be skipped** during an import
 
 To import a Customer list from a file:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

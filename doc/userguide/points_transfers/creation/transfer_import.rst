@@ -1,7 +1,7 @@
 .. index::
    single: transfer_import
 
-IMPORT POINTS TRANSFERS
+Import points transfers
 =======================
 
 If you have a customer list that you want to add points within your Loyalty Program, you can enter it into a Points transfer XML file and then import it in your Open Loyalty Admin. 
@@ -20,13 +20,16 @@ Importing a  XML file will create a points transfers for each customer:
 
     At least one, of the listed above value, must be provided to identify the customer and create points transfer for him. 
 
-.. code-block:: text
+.. tip:: 
 
-    For example, in XML file you can provide only customer loyalty card number – if this number is unique and allow to identify him. 
+    **For example**, 
+    
+    in XML file you can provide only customer loyalty card number – if this number is unique and allow to identify him. 
     
     If not, provide e-mail or phone number for better authentication. 
+    
 
-If all information is provided, platform uses them to assign your loyalty program participant with points transfer based on hard-coded priorities assigned to this value. **Priorities can’t be changed**.
+If all informations are provided, platform uses them to assign your loyalty program participant with points transfer based on hard-coded priorities assigned to this value. **Priorities can’t be changed**.
 
 Priorities are as follows: 
 
@@ -35,15 +38,18 @@ Priorities are as follows:
 3. Customer Loyalty card number 
 4. Customer phone number 
 
-| If any of this four listed value will not give a result an error message occurred. 
+If any of this four listed value will not give a result an error message occurred. 
  
-| Mechanism of matching the customer with points transfer basing on priorities is the same like in :doc:`Identification factors </userguide/getting_started/settings/Configuration/identification_factors>` description (number 1 has the highest priority).
+Mechanism of matching the customer with points transfer basing on priorities is the same like in :doc:`Identification factors </userguide/getting_started/settings/Configuration/identification_factors>` description (number 1 has the highest priority).
 
-.. code-block:: text
+.. note:: 
 
-    For example,if XML file includes customer ID and email address, customer ID is used for matching before the email address. 
+    **For example**,
+    
+    if XML file includes customer ID and email address, customer ID is used for matching before the email address. 
     
     If there will be no clear result, email is verified. 
+
 
 To import a points from a file:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

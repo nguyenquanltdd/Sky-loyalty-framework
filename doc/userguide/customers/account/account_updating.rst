@@ -4,9 +4,9 @@
 Updating Customer account
 =========================
 
-| You can edit information about your customers, including all their data provided during account creation process. 
+You can edit information about your customers, including all their data provided during account creation process. 
 
-| You can update customer data directly from their **Profile Detail Page** or by selecting it’s record from **All Customers list**.
+You can update customer data directly from their **Profile Detail Page** or by selecting it’s record from **All Customers list**.
 
 .. image:: /userguide/_images/customer_edit.png
    :alt:   Customer account editing

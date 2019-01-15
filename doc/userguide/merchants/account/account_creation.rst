@@ -1,7 +1,7 @@
 .. index::
    single: account_creation
 
-CREATING MERCHANT ACCOUNT
+Creating merchant account
 =========================
 
 You can create from Admin unlimited amount of merchants account and assigned them with particular store (POS). 

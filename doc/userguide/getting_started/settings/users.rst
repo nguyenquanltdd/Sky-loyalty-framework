@@ -1,12 +1,12 @@
 .. index::
    single: users 
 
-USERS
+Users
 =====
 
-| When your store is first set up, you receive a set of login credentials for the Administrator role that has full permissions. If there are others on your team or service providers who need access, you can create a separate user account for each from this section.
+When your store is first set up, you receive a set of login credentials for the Administrator role that has full permissions. If there are others on your team or service providers who need access, you can create a separate user account for each from this section.
 
-| Users list include both active and inactive Admin user’s – inactive are grayed-out. You can also see their status in Active column. Additionally, Users list grid provides basic information about users – name, surname, email address and authenticate method.
+Users list include both active and inactive Admin user’s – inactive are grayed-out. You can also see their status in Active column. Additionally, Users list grid provides basic information about users – name, surname, email address and authenticate method.
 
 .. image:: /userguide/_images/users.png
    :alt:   All Users

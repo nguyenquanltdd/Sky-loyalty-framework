@@ -1,7 +1,7 @@
 .. index::
    single: reward_activate
 
-ACTIVATE / DEACTIVATE REWARD CAMPAIGN
+Activate / Deactivate reward campaign
 =====================================
 
 Any reward from the list can be activated and deactivated by Admin user.

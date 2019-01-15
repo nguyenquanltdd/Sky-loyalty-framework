@@ -26,12 +26,12 @@ Field description
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------+
 | Field             | Description                                                                                                                 |
 +===================+=============================================================================================================================+
-| Name              | Reward name, that is  display to customer                                                                                   |
+| Name              | | Reward name, that is  display to customer                                                                                 |
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------+
 | Active            | | Determines whether the reward is available to customers.                                                                  |
 |                   | | **Option include: true/false**                                                                                            |
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| Cost in points    | Define how much points customer must spend to redeem reward                                                                 |
+| Cost in points    | | Define how much points customer must spend to redeem reward                                                               |
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------+
 | Limit             | | Information about the redeem rewards limit globally. Is associated with Limit per customer value.                         |
 |                   | | **For example**, value 10 means that reward can be redeem only 10 times (by the same or different customers, what depends |
@@ -40,9 +40,9 @@ Field description
 | Limit per         | | Information about the redeem rewards limit by single customer                                                             |
 | customer          | | For example, value 1 means that reward can be redeem only once by one customer, value 2 twice etc.                        |
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| Active from       | Start date from which customer can redeem reward                                                                            |
+| Active from       | | Start date from which customer can redeem reward                                                                          |
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| Active to         | End date until which customer can redeem reward                                                                             |
+| Active to         | | End date until which customer can redeem reward                                                                           |
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| Actions           | Open reward record in view mode to see reward campaign details                                                              |
+| Actions           | | Open reward record in view mode to see reward campaign details                                                            |
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------+

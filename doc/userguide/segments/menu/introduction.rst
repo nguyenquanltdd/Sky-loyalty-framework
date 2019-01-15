@@ -1,7 +1,7 @@
 .. index::
    single: introduction 
    
-INTRODUCTION
+Introduction
 ============
 
 Customer segments allow you to e.g. dynamically count points, levels and display rewards to specific customers, based on properties such as system events, transactions history, purchasing activity, and so on. 
@@ -25,9 +25,10 @@ Menu options:
 
 All segments
 ************
-Lists all customer segments within your loyalty program with brief description of each and additional information regarding assigned customers. 
 
-There is also possibility to preview and export the list of targeted customers
+*Lists all customer segments within your loyalty program with brief description of each and additional information regarding assigned customers* 
+
+*There is also possibility to preview and export the list of targeted customers*
 
 .. image:: /userguide/_images/segment2.png
    :alt:   Segments
@@ -35,7 +36,8 @@ There is also possibility to preview and export the list of targeted customers
 
 Add segment
 ***********
-Lists all data that need to be filled out to create new segment
+
+*Lists all data that need to be filled out to create new segment*
 
 .. image:: /userguide/_images/add_segment.png
    :alt:   Add segment

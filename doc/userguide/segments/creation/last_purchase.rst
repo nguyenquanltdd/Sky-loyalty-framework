@@ -1,12 +1,12 @@
 .. index::
    single: last_purchase
 
-LAST PURCHASE WAS N DAYS AGO
+Last purchase was n days ago
 ============================
 
-| Segment of customers who have made their last purchase n-days ago.     
+Segment of customers who have made their last purchase n-days ago.     
 
-|  **For example**, you can create segment of customers who made purchase within last week or last month 
+**For example**, you can create segment of customers who made purchase within last week or last month 
 
 To create only Last purchase was n days ago type segment:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -35,9 +35,9 @@ To create only Last purchase was n days ago type segment:
    :alt:   Last Purchase Type   
    
    
-.. code-block:: text
+.. tip:: 
 
-    For example
+    **For example**
     
     if Days is equal to 7 then all customers, who made their last purchase within 7 days back from today will be assigned to segment
 

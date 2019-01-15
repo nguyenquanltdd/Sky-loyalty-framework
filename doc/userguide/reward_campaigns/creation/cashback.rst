@@ -1,7 +1,7 @@
 .. index::
    single: cashback
 
-CASHBACK
+Cashback
 ========
 
 During purchase customer can exchange earned points and get value discount to reduce order amount. Discount is calculated base on **Point value**. Each point will be exchanged for provided value in **Point value** field (regarding current currency) 

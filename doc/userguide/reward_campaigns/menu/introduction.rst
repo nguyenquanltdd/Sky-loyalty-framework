@@ -1,14 +1,14 @@
 .. index::
    single: introduction 
    
-INTRODUCTION
+Introduction
 ============
 
-| Customers can redeem points toward various rewards, based on the cost in points of each that you establish during reward creation. 
+Customers can redeem points toward various rewards, based on the cost in points of each that you establish during reward creation. 
 
-| When customer reaches the defined amount of points, points can be spent for a reward. Redeemed reward appears automatically in Redeemed rewards menu. 
+When customer reaches the defined amount of points, points can be spent for a reward. Redeemed reward appears automatically in Redeemed rewards menu. 
 
-| During creation you can specify for each reward e.g.: 
+During creation you can specify for each reward e.g.: 
 
  - How many points customer need to spent to get reward 
  - How many times rewards can be used by one customer 
@@ -43,7 +43,8 @@ Menu options:
 
 All reward campaigns
 ********************
-Lists all rewards within your loyalty program, with additional information about its type, activity, limits, points costs and customers who can redeem each reward.
+
+*Lists all rewards within your loyalty program, with additional information about its type, activity, limits, points costs and customers who can redeem each reward*
 
 .. image:: /userguide/_images/reward2.png
    :alt:   Reward Campaign Menu
@@ -51,7 +52,8 @@ Lists all rewards within your loyalty program, with additional information about
 
 Add reward campaigns
 ********************
-Lists all data that need to be filled out to add new reward to your Loyalty Program
+
+*Lists all data that need to be filled out to add new reward to your Loyalty Program*
 
 .. image:: /userguide/_images/add_reward.png
    :alt:   Add reward campaign
@@ -59,7 +61,8 @@ Lists all data that need to be filled out to add new reward to your Loyalty Prog
 
 Redeemed rewards
 ****************
-Lists all redeemed rewards with additional information who and when redeemed reward and it’s status – delivered or used. 
+
+*Lists all redeemed rewards with additional information who and when redeemed reward and it’s status – delivered or used* 
 
 .. image:: /userguide/_images/redeemed_rewards2.png
    :alt:   Redeemed rewards
@@ -67,7 +70,8 @@ Lists all redeemed rewards with additional information who and when redeemed rew
 
 All campaign categories
 ***********************
-Lists all reward campaign categories within your loyalty program, with additional information about its status and sort order
+
+*Lists all reward campaign categories within your loyalty program, with additional information about its status and sort order*
 
 .. image:: /userguide/_images/campaign_categories.png
    :alt:   All campaign categories

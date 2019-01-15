@@ -13,6 +13,16 @@ based on the `Symfony Framework`_.
     Framework. If you're not familiar with Symfony, please start with
     reading the `Quick Tour`_ from the Symfony documentation.
 
+The User Guide
+------------
+
+:doc:`The Open Loyalty's User Guide </userguide/index>` is a complete documentation for users.
+
+.. toctree::
+   :hidden:
+
+   userguide/index
+
 Developer Documentation
 -----------------------
 

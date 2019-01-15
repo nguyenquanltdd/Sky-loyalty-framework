@@ -1,7 +1,7 @@
 .. index::
    single: discount_code
 
-DISCOUNT CODE
+Discount code
 =============
 
 Customer can get percentage discount that can be applied to reduce future order amount, e.g. 25% off for next purchase. Customer need to "buy" reward, using his Active points pool. Cost of this reward is specified during creation in **Cost in points** field.
@@ -37,7 +37,7 @@ To create Discount code reward:
     Different fields are required for *Cashback, Custom reward and Percentage discount code* , than for other types i.e. discount code, free delivery etc.  
 
 
-.. image:: /userguide/_images/discount_basic.png
+.. image:: /userguide/_images/discount_basic.PNG
    :alt:   Discount code Basic Information
 
 3. When you choose *Discount code*, in the **Basic information** section related to the default language version do the following    
@@ -50,7 +50,7 @@ To create Discount code reward:
  - If needed, provide a **Brand description** of the reward campaign using rich media format
  - If applicable, fulfill the same fields in other language version e.g. polish as on a screen above 
 
-.. image:: /userguide/_images/discount_details.png
+.. image:: /userguide/_images/discount_details.PNG
    :alt:   Discount code Campaign Details 
 
 4. In the **Campaign details** section do the following

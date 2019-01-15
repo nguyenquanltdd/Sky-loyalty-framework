@@ -1,4 +1,4 @@
-MERCHANTS
+Merchants
 =========
 
 This section of the guide provides an overview of the all merchants working in yours stores and involve with Loyalty Program. 

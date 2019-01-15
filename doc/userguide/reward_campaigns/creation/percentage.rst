@@ -1,7 +1,7 @@
 .. index::
    single: percentage
 
-PERCENTAGE DISCOUNT CODE
+Percentage discount code
 ========================
 
 After purchase customer can receive value discount for next purchase base on registered order amount. Discount is calculated base on **Transaction percentage value**. Discount will be equal percentage value of transaction provided in **Transaction percentage value** field. 

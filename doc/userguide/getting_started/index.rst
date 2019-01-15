@@ -1,4 +1,4 @@
-GETTING STARTED
+Getting started
 ===============
 
 This section of the guide introduces your Loyalty Platform Admin and walks you through the basic configuration settings. You’ll get an overview of the resources that are available to you as an Admin of the Open Loyalty and how to log into your Admin account. Finally, you’ll learn the concepts of loyalty platform and configuration scope, and establish best practices for project standards and requirements.
@@ -6,7 +6,7 @@ This section of the guide introduces your Loyalty Platform Admin and walks you t
 Welcome
 -------
 
-- :doc:`WELCOME </userguide/getting_started/Welcome>`
+- :doc:`Welcome </userguide/getting_started/Welcome>`
 
 
 Open Loyalty Admin

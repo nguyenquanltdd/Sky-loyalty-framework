@@ -1,12 +1,12 @@
 .. index::
    single: sku
 
-BOUGHT SPECIFIC SKU
+Bought specific SKU
 ===================
 
-| Segment of customers who bought specific products (on the basis of selected SKU).    
+Segment of customers who bought specific products (on the basis of selected SKU).    
 
-|  **For example**, you can create segment of customers who bought products of specific SKU "123ABC" or "X1Y8Z0"
+**For example**, you can create segment of customers who bought products of specific SKU "123ABC" or "X1Y8Z0"
 
 To create only Bought specific SKU type segment:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

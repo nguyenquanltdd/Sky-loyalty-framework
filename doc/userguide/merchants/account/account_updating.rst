@@ -1,7 +1,7 @@
 .. index::
    single: account_updating 
    
-UPDATING MERCHANT ACCOUNT
+Updating merchant account
 =========================
 
 You can edit information about your merchants, including all their data provided during account creation process and password. 

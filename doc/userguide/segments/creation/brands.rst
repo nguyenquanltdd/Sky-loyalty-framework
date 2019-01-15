@@ -1,12 +1,12 @@
 .. index::
    single: brands
 
-BOUGHT SPECIFIC BRANDS
+Bought specific brands
 ======================
 
-| Segment of customers who bought product or products of a given brand.   
+Segment of customers who bought product or products of a given brand.   
 
-|  **For example**, you can create segment of customers who bought products of specific brand "XYZ" or "ABC"
+**For example**, you can create segment of customers who bought products of specific brand "XYZ" or "ABC"
 
 To create only Bought specific brands type segment:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

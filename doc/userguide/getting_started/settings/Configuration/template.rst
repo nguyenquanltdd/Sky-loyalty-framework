@@ -1,8 +1,9 @@
 .. index::
    single: template 
 
-TEMPLATE
+Template
 ========
+
 Template management determines the logo, as well as the other content elements e.g. fonts, headers, colors, that are used for all pages within Open Loyalty. 
 
 .. image:: /userguide/_images/template.png
@@ -34,6 +35,15 @@ To customize your template:
 .. image:: /userguide/_images/logo.png
    :alt:   Logo in Header Menu
 
+.. note::
+
+    **Images sizing and formats**:
+    
+     - The minimum and maximum image width is between 200-2560 pixels (except small logo)
+     - The minimum and maximum image height is between 200 – 1440 pixels (except small logo)
+     - The size of any one image must not exceed 2 MB 
+     - Supported image formats: JPEG, JPG, PNG
+
    
 To upload your logo:
 ''''''''''''''''''''
@@ -51,33 +61,24 @@ To upload your logo:
    
 2. When complete, tap ``SAVE``
 
-.. note::
-
-    **Images sizing and formats**:
-    
-     - The minimum and maximum image width is between 200-2560 pixels (except small logo)
-     - The minimum and maximum image height is between 200 – 1440 pixels (except small logo)
-     - The size of any one image must not exceed 2 MB 
-     - Supported image formats: JPEG, JPG, PNG
-
-	
-+--------------------------+---------------------------------------------------------------------------------------------------------------------------+
-|   Field                  |  Description                                                                                                              |
-+==========================+===========================================================================================================================+
-|   Logo                   | | Main logo image in the Admin cockpit placed in the header above the menu. 											             |
-|                          | | Image is display on desktop version of application.                                                                     |
-|                          | | Applicable image size: 512 x 512 pixels                                                                                 |
-+--------------------------+---------------------------------------------------------------------------------------------------------------------------+
-|   Big logo               | | Big logo image in the Client cockpit placed above login credentials section on a login page.                            |
-|                          | | Image is display on desktop version of application in Client Cockpit.                                                   | 
-|                          | | Applicable image size: 512 x 512 pixels                                                        						       |
-+--------------------------+---------------------------------------------------------------------------------------------------------------------------+
-|   Small logo             | | Small logo image in the Client cockpit placed above login credentials section on a login page.                          |
-|                          | | Small image is display on mobile version of application in Client Cockpit.                                              |
-|                          | | It can be also used as an icon of the application on the mobile device.									                      |
-|                          | | Applicable image size: 192 x 192 pixels                                                       						          |
-+--------------------------+---------------------------------------------------------------------------------------------------------------------------+
-|   Hero image             | | Large web banner image placed on a Client Cockpit login page in the front.                                              |
-|                          | | Hero image is the first visual element a customer’s encounters on the site and display on mobile and desktop versions.  |
-+--------------------------+---------------------------------------------------------------------------------------------------------------------------+	
++--------------------------+-------------------------------------------------------------------------------------------------+
+|   Field                  |  Description                                                                                    |
++==========================+=================================================================================================+
+|   Logo                   | | Main logo image in the Admin cockpit placed in the header above the menu.                     |
+|                          | | Image is display on desktop version of application.                                           |
+|                          | | Applicable image size: 512 x 512 pixels                                                       |
++--------------------------+-------------------------------------------------------------------------------------------------+
+|   Big logo               | | Big logo image in the Client cockpit placed above login credentials section on a login page.  |
+|                          | | Image is display on desktop version of application in Client Cockpit.                         | 
+|                          | | Applicable image size: 512 x 512 pixels                                                       |
++--------------------------+-------------------------------------------------------------------------------------------------+
+|   Small logo             | | Small logo image in the Client cockpit placed above login credentials section on a login page.|
+|                          | | Small image is display on mobile version of application in Client Cockpit.                    |
+|                          | | It can be also used as an icon of the application on the mobile device.                       |
+|                          | | Applicable image size: 192 x 192 pixels                                                       |
++--------------------------+-------------------------------------------------------------------------------------------------+
+|   Hero image             | | Large web banner image placed on a Client Cockpit login page in the front.                    |
+|                          | | Hero image is the first visual element a customer’s encounters on the site                    |
+|                          | | and display on mobile and desktop versions.                                                   |
++--------------------------+-------------------------------------------------------------------------------------------------+ 
 	

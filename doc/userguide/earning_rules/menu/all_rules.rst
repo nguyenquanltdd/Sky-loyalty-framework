@@ -9,9 +9,9 @@ The **All earning rules** grid provide information about type and activity of al
 .. image:: /userguide/_images/earning_rules.png
    :alt:   Earning Rules 
    
-| Use the standard controls to sort the list and apply action (preview and modify) to selected rule records. 
+Use the standard controls to sort the list and apply action (preview and modify) to selected rule records. 
 
-| Pagination controls appear if there are more rule records than fit on the page, and are used to move from one page to the next.
+Pagination controls appear if there are more rule records than fit on the page, and are used to move from one page to the next.
 
 Field description
 *****************
@@ -19,14 +19,14 @@ Field description
 +----------------------------+-------------------------------------------------------------------------------------+
 |   Field                    |  Description                                                                        |
 +============================+=====================================================================================+
-|   Name                     | Name of the rule displayed in views                                                 |
+|   Name                     | | Name of the rule displayed in views                                               |
 +----------------------------+-------------------------------------------------------------------------------------+
-|   Description              | Brief description of rule                                                           |
+|   Description              | | Brief rule description                                                            |
 +----------------------------+-------------------------------------------------------------------------------------+
 |   Active                   | | Rule current status. **Option include: Active/Inactive**                          |
 |                            | | Only Active rules are using for calculating earned points                         |
 +----------------------------+-------------------------------------------------------------------------------------+
-|   Start at                 | Start date from which rule is active and can be used to calculate points            |
+|   Start at                 | | Start date from which rule is active and can be used to calculate points          |
 +----------------------------+-------------------------------------------------------------------------------------+
 |   End at                   | | End date until rule is active.                                                    |
 |                            | | After that date rule become inactive and can’t be used to calculate points        |

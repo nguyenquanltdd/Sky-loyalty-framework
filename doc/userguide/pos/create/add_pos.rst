@@ -1,7 +1,7 @@
 .. index::
    single: add_pos
 
-ADDING NEW POS
+Adding new POS
 ==============
 
 You can add unlimited amount of stores where processed transaction within Loyalty Program will be recorded and count. 

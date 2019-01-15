@@ -1,4 +1,4 @@
-OPEN LOYALTY ADMIN  
+Open Loyalty admin  
 ==================
 
 Your store Admin is the password-protected back office where you can set up points rule, reward campaigns, manage customers, and perform other administrative tasks. All basic configuration tasks and loyalty campaign management operations are performed from the Admin.

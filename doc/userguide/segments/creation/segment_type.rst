@@ -1,7 +1,7 @@
 .. index::
    single: segment_type
 
-SEGMENT PARTS TYPES
+Segment parts types
 ===================
 
 The assignment process is carried out by the application based on defined rules. Customers who meet all criteria will be assigned to the segment. 

@@ -1,7 +1,7 @@
 .. index::
    single: segment_updating
 
-UPDATING SEGMENTS DATA
+Updating segments data
 ======================
 
 You can edit all data provided during segment creation process. You can update segment data by selecting it’s record from **All segments** list.

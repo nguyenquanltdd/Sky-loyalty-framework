@@ -4,8 +4,9 @@
 Deactivate a Customer's account
 ===============================
 
-| Any customer account that is currently inactive appears in the Customers list as grayed-out. 
-| An account can be locked and unlocked (set to active) by Admin user.
+Any customer account that is currently inactive appears in the Customers list as grayed-out. 
+
+An account can be locked and unlocked (set to active) by Admin user.
 
 To lock/unlock an admin account:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

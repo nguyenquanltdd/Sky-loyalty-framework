@@ -1,4 +1,4 @@
-DOWNLOAD REDEEMED REWARDS REPORT
+Download redeemed rewards report
 ================================
 
 There is also possibility to download a report of redeemed rewards into a CSV file. 

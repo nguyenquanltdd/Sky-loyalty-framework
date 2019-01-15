@@ -1,18 +1,18 @@
 .. index::
    single: translations 
 
-TRANSLATIONS
+Translations
 ============
 
-| The Translations section allows defining many language versions used throughout the Open Loyalty platform in both, Client cockpit and Admin cockpit. All content elements will appear in the selected **default language**. 
+The Translations section allows defining many language versions used throughout the Open Loyalty platform in both, Client cockpit and Admin cockpit. All content elements will appear in the selected **default language**. 
 
-| Most of the text that appears to be hard-coded on pages throughout your loyalty platform can be instantly changed to a different language by changing the default language parameter. The Default language is selected at the translation creation process but can be changed at any time in edition mode.
+Most of the text that appears to be hard-coded on pages throughout your loyalty platform can be instantly changed to a different language by changing the default language parameter. The Default language is selected at the translation creation process but can be changed at any time in edition mode.
 
-| Moreover, during Reward campaigns and Levels creation/edition processes admin can fulfill Basic Information section in every language version listed here. For example, if we have Polish and English translations, there is a possibility to provide Basic information of Levels and Reward Campaign in this both languages. 
+Moreover, during Reward campaigns and Levels creation/edition processes admin can fulfill Basic Information section in every language version listed here. For example, if we have Polish and English translations, there is a possibility to provide Basic information of Levels and Reward Campaign in this both languages. 
 
-| Thanks to this,  changing the default language translate the text word-for-word and references a different translation table that provides the interface text that is used in the Admin and Client cockpit. The text that can be changed includes navigational titles, labels, buttons, and links such as "List of customers" and "Account", Reward campaigns and Levels name, description etc. 
+Thanks to this,  changing the default language translate the text word-for-word and references a different translation table that provides the interface text that is used in the Admin and Client cockpit. The text that can be changed includes navigational titles, labels, buttons, and links such as "List of customers" and "Account", Reward campaigns and Levels name, description etc. 
 
-| **Currently, Open Loyalty is available in two languages: English and Polish**.  
+**Currently, Open Loyalty is available in two languages: English and Polish**.  
 
 
 .. image:: /userguide/_images/translation.png
@@ -22,6 +22,7 @@ TRANSLATIONS
    
 Create new translations
 -----------------------
+
 You can create and versions your loyalty platform in multiple languages. You can have only one default language at a time. 
 
 .. tip::

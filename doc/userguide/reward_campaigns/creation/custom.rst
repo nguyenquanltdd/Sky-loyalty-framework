@@ -1,7 +1,7 @@
 .. index::
    single: custom
 
-CUSTOM CAMPAIGN
+Custom campaign
 ===============
 
 Receiving reward by customer may be linked with :doc:`geolocation </userguide/earning_rules/creation/geolocation>` or :doc:`QR code </userguide/earning_rules/creation/qrcode>` earning rule. Rule to which reward will be assigned is specified in **Connect type** field.

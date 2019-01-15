@@ -1,7 +1,7 @@
 .. index::
    single: delivery
 
-FREE DELIVERY
+Free delivery
 =============
 
 Customer can get free shipping coupon that can be applied to reduce delivery cost for next purchase. Customer need to "buy" reward, using his Active points pool. Cost of this reward is specified during creation in **Cost in points** field.
@@ -37,7 +37,7 @@ To create Free delivery reward:
     Different fields are required for *Cashback, Custom reward and Percentage discount code* , than for other types i.e. discount code, free delivery etc.  
 
 
-.. image:: /userguide/_images/delivery_basic.png
+.. image:: /userguide/_images/delivery_basic.PNG
    :alt:   Free delivery Basic Information
 
 3. When you choose *Free deliverye*, in the **Basic information** section related to the default language version do the following    
@@ -50,7 +50,7 @@ To create Free delivery reward:
  - If needed, provide a **Brand description** of the reward campaign using rich media format
  - If applicable, fulfill the same fields in other language version e.g. polish as on a screen above 
 
-.. image:: /userguide/_images/delivery_details.png
+.. image:: /userguide/_images/delivery_details.PNG
    :alt:   Free delivery Campaign Details 
 
 4. In the **Campaign details** section do the following

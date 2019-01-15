@@ -4,13 +4,13 @@
 Creating Customer account from admin
 =====================================
 
-| Customer usually create their own accounts from your webshop or using Customer Cockpit. 
+Customer usually create their own accounts from your webshop or using Customer Cockpit. 
 
-| However, you can also create customer account directly from the Admin or POS Cockpit, which is useful when customers order by phone or at merchant location. 
+However, you can also create customer account directly from the Admin or POS Cockpit, which is useful when customers order by phone or at merchant location. 
 
 .. note:: 
 
-    **The Customer account created from the Admin or POS Cockpit has an active status at once, so there is no need to activate its account by him** 
+    **The Customer account created from the Admin or POS Cockpit has an active status instantly, so there is no need to activate its account by him** 
 
 .. image:: /userguide/_images/add_customer.png
    :alt:   New Customer Account Information 
@@ -100,9 +100,9 @@ To create a New Customer Account:
 
 10. When complete, tap ``SAVE``
 
-| When the customer account is saved, it’s record appears at **All customers** list. 
+When the customer account is saved, it’s record appears at **All customers** list. 
 
-| The Customer Profile Details tab displays a summary of account activity and data provided during account creation. To learn more about Customer Profile, see :doc:`Profile details </profile_details/index>` 
+The Customer Profile Details tab displays a summary of account activity and data provided during account creation. To learn more about Customer Profile, see :doc:`Profile details </profile_details/index>` 
 
 
 Field description
@@ -113,74 +113,75 @@ Field description
 +====================+=======================================================================+
 | **BASIC INFORMATION**                                                                      |                 
 +--------------------+-----------------------------------------------------------------------+
-| First name*        | The customer’s first name                                             |                               
+| First name*        | | The customer’s first name                                           |                               
 +--------------------+-----------------------------------------------------------------------+
-| Last name*         | The customer’s last name                                              |
+| Last name*         | | The customer’s last name                                            |
 +--------------------+-----------------------------------------------------------------------+
-| Gender             | Identifies the customer’s gender as Male, Female or Not disclosed     |
+| Gender             | | Identifies the customer’s gender as Male, Female or Not disclosed   |
 +--------------------+-----------------------------------------------------------------------+
-| Birth date         | The customer’s date of birth. Information can be used to              |
-|                    | calculate points for the birth anniversary                            |                                         
+| Birth date         | | The customer’s date of birth.                                       |
+|                    | | Information can be used to offer points for the birth anniversary   |                                         
 +--------------------+-----------------------------------------------------------------------+
-| Email*             | The customer’s email address. Is used as a login name while           |
-|                    | logging to Customer Cockpit.                                          |                             
+| Email*             | | The customer email address.                                         |
+|                    | | Is used as a login name while logging to Customer Cockpit.          |                             
 +--------------------+-----------------------------------------------------------------------+
-| Phone              | The customer’s phone number. Formatting is as on follow example:      |
-|                    |  - Country Code: +48/48                                               |
-|                    |  - Subscriber number: 123456789                                       |
-|                    |  - In total: +48123456789 / 123456789 / 48123456789                   |
+| Phone              | | The customer’s phone number. Formatting is as on follow example:    |
+|                    |                                                                       |
+|                    |    - Country Code: +48/48                                             |
+|                    |    - Subscriber number: 123456789                                     |
+|                    |    - In total: +48123456789 / 123456789 / 48123456789                 |
 +--------------------+-----------------------------------------------------------------------+
-| Loyalty card       | The customer loyalty card number                                      |
+| Loyalty card       | | The customer loyalty card number                                    |
 | number             |                                                                       |                                         
 +--------------------+-----------------------------------------------------------------------+
-| Labels             | Internal tags you can use to refer your customer. If applicable, can  |
-|                    | be used to segmentation to identify the customers that this segment   |
-|                    | applies to                                                            |
+| Labels             | | Internal tags you can use to refer your customer.                   |
+|                    | | If applicable, can be used to segmentation to identify the customers|
+|                    | | that this segment applies to                                        |
 +--------------------+-----------------------------------------------------------------------+
-| Select level       | Starting level assigning to customer                                  |
+| Select level       | | Starting level assigning to customer                                |
 +--------------------+-----------------------------------------------------------------------+
-| Select POS         | POS which will be linked to the customer                              |
+| Select POS         | | POS which will be linked to the customer                            |
 +--------------------+-----------------------------------------------------------------------+
-| Select Merchant    | Merchant account, which will be linked to the customer                |
+| Select Merchant    | | Merchant account, which will be linked to the customer              |
 +--------------------+-----------------------------------------------------------------------+
-| Company            | customer associated with company. If marked then additional section   |
-|                    | will be shown.                                                        |                           
+| Company            | | customer associated with company.                                   |
+|                    | | If marked then additional sectionwill be shown.                     |                           
 +--------------------+-----------------------------------------------------------------------+
-| Address            | customer address needed. If marked then additional section            |
-|                    | will be shown                                                         |                             
+| Address            | | customer address needed.                                            |
+|                    | | If marked then additional section will be shown                     |                             
 +--------------------+-----------------------------------------------------------------------+
 | | **COMPANY DATA**                                                                         |
 | | Visible only when **Company** checkbox is marked                                         |                 
 +--------------------+-----------------------------------------------------------------------+
-| Company name*      | The company name, if applicable for this customer                     |
+| Company name*      | | The company name, if applicable for this customer                   |
 +--------------------+-----------------------------------------------------------------------+
-| Tax Identification | Customer associated with company. If marked then additional section   |
-| Number*            | will be shown.                                                        |                             
+| Tax Identification | | The company TAX / VAT number                                        |
+| Number*            |                                                                       |                             
 +--------------------+-----------------------------------------------------------------------+
 | | **ADDRESS**                                                                              |
 | | Visible only when **Address** checkbox is marked                                         |                 
 +--------------------+-----------------------------------------------------------------------+
-| Street name*       | The street address of the customer                                    |
+| Street name*       | | The street address of the customer                                  |
 +--------------------+-----------------------------------------------------------------------+
-| Building name*     | The name/number of a building or property where the customer          |
-|                    | resides at this address                                               |                             
+| Building name*     | | The name/number of a building or property where the customer        |
+|                    | | resides at this address                                             |                             
 +--------------------+-----------------------------------------------------------------------+
-| Flat/Unit name     | The flat/unit name or number of the customer at this address          |
+| Flat/Unit name     | | The flat/unit name or number of the customer at this address        |
 +--------------------+-----------------------------------------------------------------------+
-| Postal code*       | The postal code of the customer at this address                       |
+| Postal code*       | | The postal code of the customer at this address                     |
 +--------------------+-----------------------------------------------------------------------+
-| City*              | The city where the customer resides at this address                   |
+| City*              | | The city where the customer resides at this address                 |
 +--------------------+-----------------------------------------------------------------------+
-| State/Province     | The state or province of the customer at this address                 |
+| State/Province     | | The state or province of the customer at this address               |
 +--------------------+-----------------------------------------------------------------------+
-| Country*           | The country where customer resides at this address                    |
+| Country*           | | The country where customer resides at this address                  |
 +--------------------+-----------------------------------------------------------------------+
 | | **AGREEMENTS**                                                                           |                                         
 +--------------------+-----------------------------------------------------------------------+
 | | List of consents to which the customer can/has agreed.                                   |
 | | Options include:                                                                         |
 |                                                                                            |                         
-|   - Legal agreement (required)                                                             |                                                         
+|   - Legal agreement (required)                                                             |                  
 |   - Marketing agreement                                                                    |
 |   - Data processing agreement                                                              |
 +--------------------+-----------------------------------------------------------------------+

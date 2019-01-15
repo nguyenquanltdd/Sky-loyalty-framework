@@ -5,11 +5,11 @@ When customer complete registration form directly from the Client cockpit, depen
 
 - **Activation code** 
   
-  when account activation method is selected to SMS. Activation code will be sent to his phone number provided in the form
+  *when account activation method is selected to SMS. Activation code will be sent to his phone number provided in the form*
 
 - **Activation link**
 
-  when account activation method is selected to E-mail. Link will be sent to his e-mail address provided in the form.   
+  *when account activation method is selected to E-mail. Link will be sent to his e-mail address provided in the form*   
 
 .. note:: 
 

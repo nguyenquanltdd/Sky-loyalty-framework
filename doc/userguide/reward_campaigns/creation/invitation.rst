@@ -1,7 +1,7 @@
 .. index::
    single: invitation
 
-INVITATION FOR THE EVENT
+Invitation for the event
 ========================
 
 You can offer for your customer as a reward invitation for business & corporate events or other depending on your business, e.g. conference. Customer need to "buy" reward, using his Active points pool. Cost of this reward is specified during creation in **Cost in points** field.
@@ -37,7 +37,7 @@ To create Invitation for the event reward:
     Different fields are required for *Cashback, Custom reward and Percentage discount code* , than for other types i.e. discount code, free delivery etc.  
 
 
-.. image:: /userguide/_images/invitation_basic.png
+.. image:: /userguide/_images/invitation_basic.PNG
    :alt:   Invitation Basic Information
 
 3. When you choose *Invitation for the event*, in the **Basic information** section related to the default language version do the following    
@@ -50,7 +50,7 @@ To create Invitation for the event reward:
  - If needed, provide a **Brand description** of the reward campaign using rich media format
  - If applicable, fulfill the same fields in other language version e.g. polish as on a screen above 
 
-.. image:: /userguide/_images/invitation_details.png
+.. image:: /userguide/_images/invitation_details.PNG
    :alt:   Invitation Campaign Details 
 
 4. In the **Campaign details** section do the following

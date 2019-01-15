@@ -1,10 +1,10 @@
 .. index::
    single: all_segments
 
-ALL SEGMENTS
+All segments
 ============
 
-The All segments grid provide information about all segments within your Loyalty Program with information about assigned customers. 
+The **All segments** grid provide information about all segments within your Loyalty Program with information about assigned customers. 
 
 Moreover, you can also export the list of targeted customers. 
 
@@ -22,11 +22,11 @@ Field description
 +----------------------------+-------------------------------------------------------------------------------------+
 |   Field                    |  Description                                                                        |
 +============================+=====================================================================================+
-|   Name                     | Name of the segment                                                                 |
+|   Name                     | | Name of the segment                                                               |
 +----------------------------+-------------------------------------------------------------------------------------+
-|   Created at               | The date when segment was created                                                   |
+|   Created at               | | The date when segment was created                                                 |
 +----------------------------+-------------------------------------------------------------------------------------+
-|   Description              | Brief description of the segment                                                    |
+|   Description              | | Brief description of the segment                                                  |
 +----------------------------+-------------------------------------------------------------------------------------+
 |   Customers                | | Show customers account number assigned to this segment.                           |
 |                            | | After ``Show`` click, list of these customer details will be shown                |

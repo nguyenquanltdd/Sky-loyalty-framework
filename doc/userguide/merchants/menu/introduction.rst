@@ -1,7 +1,7 @@
 .. index::
    single: introduction 
    
-INTRODUCTION
+Introduction
 ============
 
 The Merchant is linked to a store. In Open Loyalty store is called point-of-sale (POS). 
@@ -21,14 +21,16 @@ Menu options:
 
 All Merchants
 *************
-Lists all Merchant within your loyalty program with additional information regarding his data and assigned POS localization.
+
+*Lists all Merchant within your loyalty program with additional information regarding his data and assigned POS localization*
 
 .. image:: /userguide/_images/merchant.png
    :alt:   Merchants
 
 Add Merchant
 ************
-Lists all data that need to be filled out to add new Merchant
+
+*Lists all data that need to be filled out to add new Merchant*
 
 .. image:: /userguide/_images/add_merchant.png
    :alt:   Add Merchant

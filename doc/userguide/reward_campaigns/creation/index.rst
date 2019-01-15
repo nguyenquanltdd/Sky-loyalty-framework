@@ -1,25 +1,20 @@
-Segments creation
-=================
+Rewards creation
+================
 
 .. toctree::
    :hidden:
 
-   anniversary
-   average_transaction
-   pos
-   product_labels
-   brands
-   sku
-   custom_customer
-   customer_labels
-   customer_labels_value
-   last_purchase
-   purchase_period
-   transaction_count
-   transaction_pos
-   transaction_value
+   cashback
+   custom
+   discount_code
+   delivery
+   gift
+   invitation
+   percentage
+   value_code
+
   
    
-.. include:: /userguide/segments/creation/map.rst.inc
+.. include:: /reward_campaigns/creation/map.rst.inc
 
 

@@ -1,7 +1,7 @@
 .. index::
    single: grid_controls
    
-GRID CONTROLS
+Grid controls
 =============
 Admin pages that manage data display a collection of records in a grid. The controls at the top of each column can be used to sort the data. The current sort order is indicated by an ascending or descending arrow in the column header. The Action column lists operations that can be applied to an individual record.
 

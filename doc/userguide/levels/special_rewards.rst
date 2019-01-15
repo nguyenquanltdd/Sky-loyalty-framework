@@ -1,7 +1,7 @@
 .. index::
    single: special_rewards
 
-SPECIAL REWARDS
+Special Rewards
 ===============
 
 Special reward should be set if you want to give special discount for customer but only limited in time. 

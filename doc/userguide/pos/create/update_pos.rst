@@ -1,7 +1,7 @@
 .. index::
    single: update_pos
 
-UPDATING POS INFORMATION
+Updating POS information
 ========================
 
 You can edit information regarding POS  used within your Loyalty Program, including all their data provided during POS creation process.

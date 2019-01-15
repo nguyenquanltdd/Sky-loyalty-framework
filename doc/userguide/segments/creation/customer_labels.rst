@@ -1,12 +1,12 @@
 .. index::
    single: customer_labels
 
-CUSTOMERS WHO HAS SUCH LABELS
+Customers who has such labels
 =============================
 
-| Segment of customers whose label value on is one of the list. Labels are key-value pairs that you can attach to a customer during :doc:`customer account creation </userguide/customers/account/account_creation>`
+Segment of customers whose label value on is one of the list. Labels are key-value pairs that you can attach to a customer during :doc:`customer account creation </userguide/customers/account/account_creation>`
 
-|  **For example**, you can create segment of customers belongs to Customer type group
+**For example**, you can create segment of customers belongs to Customer type group
 
 To create only Customers who has such labels type segment:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

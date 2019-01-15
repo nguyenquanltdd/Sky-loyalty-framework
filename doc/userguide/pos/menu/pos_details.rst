@@ -1,7 +1,7 @@
 .. index::
    single: pos_details
    
-POS LOCALIZATION DETAILS
+POS localization details
 ========================
 
 You can simply view not only the transaction summary and city were store is located but also the address details. 

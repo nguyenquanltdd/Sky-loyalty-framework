@@ -1,4 +1,4 @@
-REWARD CAMPAIGN DETAILS PREVIEW
+Reward campaign details preview
 ===============================
 
 You can see details of each reward campaign directly from All reward campaigns menu. Campaign details include all data provided during :doc:`creation process </userguide/reward_campaigns/creation/index>`

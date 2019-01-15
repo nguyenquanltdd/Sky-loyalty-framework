@@ -47,11 +47,12 @@ Open Loyalty offer following standard types:
 
 
 
-**The sequence of points calculation is as following**:   
+The sequence of points calculation is as following   
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
- - Firstly, if applicable, customer receives points from **General spending rule**
- - Secondly, if applicable, points are multiply based on **Multiply earned points** rule, or based on labels multipliers from **Multiply earned points by product labels**. Or  reward is assigned from **Instant reward** rule 
- - Finally, if applicable, customer receives points from **Product purchase rule**
+ 1. Firstly, if applicable, customer receives points from **General spending rule**
+ 2. Secondly, if applicable, points are multiply based on **Multiply earned points** rule, or based on labels multipliers from **Multiply earned points by product labels**. Or  reward is assigned from **Instant reward** rule 
+ 3. Finally, if applicable, customer receives points from **Product purchase rule**
  
  
 .. note::

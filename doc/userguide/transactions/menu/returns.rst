@@ -1,7 +1,7 @@
 .. index::
    single: returns
 
-RETURNS
+Returns
 =======
 
 If for any reason the customer returns the purchased products and claims a refund a Return transaction is created. Customer can request a return from both, online and offline stores and both, partial or full refund. 
@@ -38,28 +38,30 @@ After the return, points are subtracted from the pool of Active points, accordin
 
 For better understanding please see **Example** below
 
-.. code-block:: text
 
-    Your customer transaction value is 40 € and include following products: 
+Example of customer points and profitability factors behavior after return 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Your customer **transaction value is 40 €** and include following products: 
     
-      - Product A – 10 €  
-      - Product B – 10 € 
-      - Product C – 20 € 
+ - Product A – 10 €  
+ - Product B – 10 € 
+ - Product C – 20 € 
       
-    For following transaction and purchased of these products your customer has earned the value of points as below: 
+For following transaction and purchased of these products your customer has **earned the value of points as below**: 
     
-      - Product A – 10 points (for bought specific product)  
-      - Product B – 20 points (for bought specific product)
-      - Product C – 0 points 
-      - 40 points for total transaction value (1€ spend = 1 point earned)  
+ - Product A – 10 points (for bought specific product)  
+ - Product B – 20 points (for bought specific product)
+ - Product C – 0 points 
+ - 40 points for total transaction value (1€ spend = 1 point earned)  
     
-    So in total customer spent 40 € and earned 70 points. 
+**So in total customer spent 40 € and earned 70 points**. 
     
-    Points were added to his Active points pool, and transaction value to total amount of his registered transaction value (CLV attribute).
+Points were added to his Active points pool, and transaction value to total amount of his registered transaction value (CLV attribute).
     
-    For some reason, he decided to return Product C, which cost 20 €, which is a half of the total transaction value. 
+For some reason, **he decided to return Product C, which cost 20 €**, which is a half of the total transaction value. 
     
-    And exactly in the same proportion will be calculated the value of points that will be subtracted. For this transaction he earned 70 points, so half of them – 35 points will be subtracted from the Active points pool. 
+And exactly in the same proportion will be calculated the value of points that will be subtracted. For this transaction he earned 70 points, so half of them – 35 points will be subtracted from the Active points pool. 
 
     
 .. note:: 

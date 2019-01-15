@@ -1,7 +1,7 @@
 .. index::
    single: transaction_labels
 
-TRANSACTION LABELS
+Transaction labels
 ==================
 
 As an administrator you can add a label refer to transaction during creation or after creating a transaction in the system. Transaction labels are intended to be used only for the informational purpose. Transaction doesn’t have to be matched with customer to add a label.
