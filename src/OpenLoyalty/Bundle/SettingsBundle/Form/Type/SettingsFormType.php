@@ -365,7 +365,11 @@ class SettingsFormType extends AbstractType
             ])
         );
         $builder->add(
-            $builder->create(self::LEVEL_DOWNGRADE_DAYS_SETTINGS_KEY, SettingsIntegerType::class)
+            $builder->create(self::LEVEL_DOWNGRADE_DAYS_SETTINGS_KEY, SettingsIntegerType::class, [
+                'constraints' => [
+                    new NotBlank(),
+                ],
+            ])
         );
 
         $builder->add(
@@ -405,18 +409,18 @@ class SettingsFormType extends AbstractType
     }
 
     /**
-     * @param StringSettingEntry        $value
+     * @param StringSettingEntry        $field
      * @param ExecutionContextInterface $context
      */
-    public function checkUrl($value, ExecutionContextInterface $context): void
+    public function checkUrl($field, ExecutionContextInterface $context): void
     {
-        if (!$value) {
+        if (!$field) {
             return;
         }
 
         $validator = new UrlValidator();
         $validator->initialize($context);
-        $validator->validate($value->getValue(), new Url());
+        $validator->validate($field->getValue(), new Url());
     }
 
     /**

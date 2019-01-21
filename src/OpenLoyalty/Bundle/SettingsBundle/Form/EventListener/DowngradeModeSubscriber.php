@@ -65,7 +65,7 @@ class DowngradeModeSubscriber implements EventSubscriberInterface
                 ;
             }
 
-            if ($downgradeDays && $downgradeDays->getValue() && $downgradeDays->getValue() < 1) {
+            if ($downgradeDays && is_numeric($downgradeDays->getValue()) && $downgradeDays->getValue() < 1) {
                 $minMessage = (new Range(['min' => 1]))->minMessage;
                 $event
                     ->getForm()
