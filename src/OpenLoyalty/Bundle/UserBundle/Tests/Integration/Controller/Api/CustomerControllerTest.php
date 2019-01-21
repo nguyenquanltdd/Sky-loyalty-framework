@@ -1590,7 +1590,7 @@ class CustomerControllerTest extends BaseApiTest
             ['averageTransactionAmount', '3', 0],
             ['averageTransactionAmount', '15', 0],
             ['averageTransactionAmount', '7.5', 0],
-            ['transactionsCount', '4', 0],
+            ['transactionsCount', '3', 0],
             ['transactionsCount', '1', 4],
             ['transactionsCount', '0', 18],
         ];

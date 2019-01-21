@@ -110,6 +110,348 @@ final class TransactionControllerTest extends BaseApiTest
     }
 
     /**
+     * @test
+     */
+    public function it_does_not_create_return_transaction_when_base_transaction_does_not_exist(): void
+    {
+        $data = [
+            'revisedDocument' => '20181101---',
+            'transactionData' => [
+                'documentNumber' => '3002323',
+                'documentType' => 'return',
+                'purchaseDate' => '2015-01-01',
+                'purchasePlace' => 'New York',
+            ],
+            'customerData' => [
+                'name' => 'John Doe',
+            ],
+            'items' => [
+                0 => [
+                    'sku' => ['code' => '123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 1,
+                    'category' => 'test',
+                    'maker' => 'company',
+                    'labels' => [
+                        [
+                            'key' => 'test',
+                            'value' => 'label',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/transaction',
+            [
+                'transaction' => $data,
+            ]
+        );
+
+        $response = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertArrayHasKey('errors', $response['form']['children']['revisedDocument']);
+        $error = $response['form']['children']['revisedDocument']['errors'];
+        $this->assertCount(1, $error);
+        $this->assertEquals('Transaction not exist', $error[0]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_create_return_transaction_because_base_transaction_has_another_owner(): void
+    {
+        $data = [
+            'transactionData' => [
+                'documentNumber' => '300-return-test',
+                'documentType' => 'sell',
+                'purchaseDate' => '2015-01-01',
+                'purchasePlace' => 'New York',
+            ],
+            'customerData' => [
+                'name' => 'John Doe',
+                'email' => 'user-return@oloy.com',
+            ],
+            'items' => [
+                0 => [
+                    'sku' => ['code' => '123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 1,
+                    'category' => 'test',
+                    'maker' => 'company',
+                    'labels' => [
+                        [
+                            'key' => 'test',
+                            'value' => 'label',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/transaction',
+            [
+                'transaction' => $data,
+            ]
+        );
+
+        $data = [
+            'revisedDocument' => '300-return-test',
+            'transactionData' => [
+                'documentNumber' => '300-return-test-01',
+                'documentType' => 'return',
+                'purchaseDate' => '2015-01-01',
+                'purchasePlace' => 'New York',
+            ],
+            'customerData' => [
+                'name' => 'Jon Returner',
+                'email' => 'return@oloy.com',
+            ],
+            'items' => [
+                0 => [
+                    'sku' => ['code' => '123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 1,
+                    'category' => 'test',
+                    'maker' => 'company',
+                    'labels' => [
+                        [
+                            'key' => 'test',
+                            'value' => 'label',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $client->request(
+            'POST',
+            '/api/transaction',
+            [
+                'transaction' => $data,
+            ]
+        );
+
+        $response = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->assertArrayHasKey('errors', $response['form']['children']['revisedDocument']);
+        $error = $response['form']['children']['revisedDocument']['errors'];
+        $this->assertCount(1, $error);
+        $this->assertEquals('Incorrect owner of the transaction', $error[0]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_create_return_transaction_because_return_transaction_has_set_wrong_type(): void
+    {
+        $data = [
+            'revisedDocument' => '300-return-test',
+            'transactionData' => [
+                'documentNumber' => '300-return-test-01',
+                'documentType' => 'return',
+                'purchaseDate' => '2015-01-01',
+                'purchasePlace' => 'New York',
+            ],
+            'customerData' => [
+                'name' => 'John Doe',
+                'email' => 'user-return@oloy.com',
+            ],
+            'items' => [
+                0 => [
+                    'sku' => ['code' => '123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 1,
+                    'category' => 'test',
+                    'maker' => 'company',
+                    'labels' => [
+                        [
+                            'key' => 'test',
+                            'value' => 'label',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/transaction',
+            [
+                'transaction' => $data,
+            ]
+        );
+
+        $data = [
+            'revisedDocument' => '300-return-test-01',
+            'transactionData' => [
+                'documentNumber' => '300-return-test-02',
+                'documentType' => 'return',
+                'purchaseDate' => '2015-01-01',
+                'purchasePlace' => 'New York',
+            ],
+            'customerData' => [
+                'name' => 'John Doe',
+                'email' => 'user-return@oloy.com',
+            ],
+            'items' => [
+                0 => [
+                    'sku' => ['code' => '123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 1,
+                    'category' => 'test',
+                    'maker' => 'company',
+                    'labels' => [
+                        [
+                            'key' => 'test',
+                            'value' => 'label',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $client->request(
+            'POST',
+            '/api/transaction',
+            [
+                'transaction' => $data,
+            ]
+        );
+
+        $response = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->assertArrayHasKey('errors', $response['form']['children']['revisedDocument']);
+        $error = $response['form']['children']['revisedDocument']['errors'];
+        $this->assertCount(1, $error);
+        $this->assertEquals('Transaction wrong type', $error[0]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_assign_user_to_return_transaction_because_base_transaction_has_another_owner(): void
+    {
+        $data = [
+            'revisedDocument' => '300-return-test',
+            'transactionData' => [
+                'documentNumber' => '300-return-test-03',
+                'documentType' => 'return',
+                'purchaseDate' => '2015-01-01',
+                'purchasePlace' => 'New York',
+            ],
+            'customerData' => [
+                'name' => 'John Doe',
+            ],
+            'items' => [
+                0 => [
+                    'sku' => ['code' => '123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 1,
+                    'category' => 'test',
+                    'maker' => 'company',
+                    'labels' => [
+                        [
+                            'key' => 'test',
+                            'value' => 'label',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/transaction',
+            [
+                'transaction' => $data,
+            ]
+        );
+
+        $client->request(
+            'POST',
+            '/api/admin/transaction/customer/assign',
+            [
+                'assign' => [
+                    'transactionDocumentNumber' => '300-return-test-03',
+                    'customerId' => '11000000-0000-474c-b092-b0dd880c07e2',
+                ],
+            ]
+        );
+
+        $response = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->assertArrayHasKey('errors', $response['form']['children']['transactionDocumentNumber']);
+        $error = $response['form']['children']['transactionDocumentNumber']['errors'];
+        $this->assertCount(1, $error);
+        $this->assertEquals('Incorrect owner of the transaction', $error[0]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_create_return_transaction_for_existing_base_transaction(): void
+    {
+        $data = [
+            'revisedDocument' => '300-return-test',
+            'transactionData' => [
+                'documentNumber' => '300-return-test-created-ok',
+                'documentType' => 'return',
+                'purchaseDate' => '2015-01-01',
+                'purchasePlace' => 'New York',
+            ],
+            'customerData' => [
+                'name' => 'John Doe',
+                'email' => 'user-return@oloy.com',
+            ],
+            'items' => [
+                0 => [
+                    'sku' => ['code' => '123'],
+                    'name' => 'sku',
+                    'quantity' => 1,
+                    'grossValue' => 1,
+                    'category' => 'test',
+                    'maker' => 'company',
+                    'labels' => [
+                        [
+                            'key' => 'test',
+                            'value' => 'label',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'POST',
+            '/api/transaction',
+            [
+                'transaction' => $data,
+            ]
+        );
+
+        $response = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertArrayHasKey('transactionId', $response);
+    }
+
+    /**
      * @return array
      */
     public function getExpectedPosIdsWhenUsingIdentifier(): array
