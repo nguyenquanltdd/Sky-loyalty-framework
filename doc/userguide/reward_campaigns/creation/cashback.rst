@@ -121,6 +121,8 @@ To create Cashback reward:
 
 10. When complete, tap ``SAVE``  
 
+.. warning:: 
 
+    Cashback is visible for a customer in Available rewards section in Client Cockpit but without possibility to redeem it 
 
 

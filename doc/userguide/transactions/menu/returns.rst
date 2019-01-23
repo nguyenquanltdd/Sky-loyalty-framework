@@ -8,6 +8,14 @@ If for any reason the customer returns the purchased products and claims a refun
 
 Typically, customer contacts the merchant to request a refund. If merchant authorize the return and agree for refund, a unique document number of related sell transaction is required to identify the returned products and sell transaction, that caused the points earned. 
 
+.. note:: 
+
+    Open Loyalty prevent from: 
+    
+    - registering a return transaction for non-existing sell transaction 
+    - making a return transaction which is not assigned to the same customer as sell transaction (which is returning).  
+
+
 The **All transactions** menu lists all – return and sell transactions. **To see only returns, you have to filter the list**.
 
 
