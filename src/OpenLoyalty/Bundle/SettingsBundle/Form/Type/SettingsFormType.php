@@ -122,6 +122,8 @@ class SettingsFormType extends AbstractType
         $builder->add(
             $builder->create('currency', SettingsChoicesType::class, [
                 'choices' => [
+                    'THB' => 'thb',
+                    'VND' => 'vnd',
                     'PLN' => 'pln',
                     'USD' => 'usd',
                     'EUR' => 'eur',
